@@ -15,7 +15,10 @@ class SecurityConfiguration {
         http
             .authorizeHttpRequests {
                 it
-                    .requestMatchers(HttpMethod.GET, "/internal/**", "/error").permitAll()
+                    .requestMatchers(HttpMethod.GET,
+                        "/internal/**",
+                        "/api/v1/status",
+                        "/error").permitAll()
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }

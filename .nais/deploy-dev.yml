@@ -30,6 +30,17 @@ spec:
       enabled: true
   tokenx:
     enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - name: "simulering"
+          enabled: true
+          product: "pensjonssimulator"
+          consumers:
+            - orgno: "889640782" # NAV
+            - orgno: "938708606" # KLP
+            - orgno: "982583462" # SPK
   accessPolicy:
     inbound:
       rules:

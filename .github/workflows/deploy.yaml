@@ -63,7 +63,7 @@ jobs:
         env:
           CLUSTER: dev-gcp
           IMAGE: ${{ needs.build.outputs.image }}
-          RESOURCE: .nais/deploy-dev.yml
+          RESOURCE: .nais/deploy-dev.yml,.nais/apiendpoints.yaml
   trivy-imagescan:
     name: Scan Docker image
     needs: [ build ]

@@ -2,6 +2,7 @@ apiVersion: krakend.nais.io/v1
 kind: ApiEndpoints
 metadata:
   name: pensjonssimulator
+  namespace: pensjonskalkulator
 spec:
   appName: pensjonssimulator
   auth:

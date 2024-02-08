@@ -7,7 +7,7 @@ package no.nav.pensjon.simulator.uttak.api
  * Version 1 of specification for finding 'tidligst mulig uttak'.
  */
 data class TidligstMuligUttakSpecV1(
-    val fodselsnummer: String,
+    val foedselsnummer: String,
     val sivilstandVedPensjonering: String? = null,
     val epsHarPensjon: Boolean? = null,
     val epsHarInntektOver2G: Boolean? = null,

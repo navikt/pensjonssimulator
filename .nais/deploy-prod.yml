@@ -1,0 +1,50 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: pensjonssimulator
+  namespace: pensjonskalkulator
+  labels:
+    team: pensjonskalkulator
+spec:
+  image: {{ image }}
+  port: 8080
+  replicas:
+    min: 2
+    max: 4
+    cpuThresholdPercentage: 70
+  ingresses:
+    - https://pensjonssimulator.intern.nav.no
+  liveness:
+    path: /internal/health/liveness
+    initialDelay: 30
+    timeout: 1
+    periodSeconds: 30
+    failureThreshold: 5
+  readiness:
+    path: /internal/health/readiness
+    periodSeconds: 30
+  resources:
+    limits:
+      cpu: 2
+      memory: 2048Mi
+    requests:
+      cpu: 1
+      memory: 1024Mi
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  azure:
+    application:
+      enabled: true
+  tokenx:
+    enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - name: "simulering"
+          enabled: true
+          product: "pensjonssimulator"
+          consumers:
+            - orgno: "938708606" # KLP
+            - orgno: "982583462" # SPK

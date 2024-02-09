@@ -16,6 +16,7 @@ spec:
       method: POST
       forwardHeaders:
         - Authorization
+        - Content-Type
       backendHost: http://pensjonssimulator
       backendPath: /api/v1/tidligst-mulig-uttak
   openEndpoints:

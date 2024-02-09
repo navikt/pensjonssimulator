@@ -1,0 +1,39 @@
+name: CodeQL
+
+on:
+  schedule:
+    - cron: '31 6 * * 5'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java' ]
+        # 'java' covers Java and Kotlin
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+      - name: Configure JDK
+        uses: actions/setup-java@v4
+        with:
+          cache: maven
+          java-version: 21
+          distribution: temurin
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"

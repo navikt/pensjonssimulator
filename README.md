@@ -10,6 +10,7 @@ Simulering innebærer å beregne en prognose for pensjonsutbetaling.
 * [Kotlin](https://kotlinlang.org/)
 * [Spring Boot 3](https://spring.io/projects/spring-boot)
 * [Maven](https://maven.apache.org/)
+* [NAIS](https://nais.io/) (med oppsett for [KrakenD](https://www.krakend.io/) og [Maskinporten](https://www.digdir.no/felleslosninger/maskinporten/869))
 
 ## Henvendelser
 

@@ -6,12 +6,17 @@ import java.time.LocalDate
 data class TidligstMuligUttakSpec(
     val pid: Pid,
     val foedselDato: LocalDate,
-    val uttakGrad: UttakGrad,
+    val gradertUttak: GradertUttakSpec?,
     val rettTilOffentligAfpFom: LocalDate?,
     val antallAarUtenlandsEtter16Aar: Int,
     val fremtidigInntektListe: List<InntektSpec>,
     val epsHarPensjon: Boolean,
     val epsHarInntektOver2G: Boolean
+)
+
+data class GradertUttakSpec(
+    val grad: UttakGrad,
+    val heltUttakFom: LocalDate
 )
 
 data class InntektSpec(

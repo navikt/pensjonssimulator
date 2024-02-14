@@ -12,6 +12,7 @@ data class TidligstMuligUttakSpecV1(
     val personId: String? = null,
     val fodselsdato: LocalDate? = null,
     val uttaksgrad: Int? = null,
+    val heltUttakFraOgMedDato: LocalDate? = null,
     val rettTilAfpOffentligDato: LocalDate? = null,
     //val antallAarUtenlandsEtter16Aar: Int? = null,
     val fremtidigInntektListe: List<InntektSpecV1>? = null,

@@ -9,16 +9,30 @@ object UttakSpecMapperV1 {
         TidligstMuligUttakSpec(
             pid = Pid(dto.personId!!),
             foedselDato = dto.fodselsdato!!,
-            uttakGrad = dto.uttaksgrad?.let(UttakGrad::from) ?: UttakGrad.HUNDRE_PROSENT,
+            gradertUttak = gradertUttakSpec(dto),
             rettTilOffentligAfpFom = dto.rettTilAfpOffentligDato,
-            antallAarUtenlandsEtter16Aar = 0, //dto.antallAarUtenlandsEtter16Aar ?: 0,
-            fremtidigInntektListe = dto.fremtidigInntektListe?.map(::fromInntektSpecV1).orEmpty(),
-            epsHarPensjon = false, //dto.epsHarPensjon ?: false,
-            epsHarInntektOver2G = false //dto.epsHarInntektOver2G ?: false
+            antallAarUtenlandsEtter16Aar = 0,
+            fremtidigInntektListe = dto.fremtidigInntektListe?.map(::inntektSpec).orEmpty(),
+            epsHarPensjon = false,
+            epsHarInntektOver2G = false
         )
 
+    private fun gradertUttakSpec(dto: TidligstMuligUttakSpecV1): GradertUttakSpec? =
+        uttakGrad(dto.uttaksgrad).let {
+            if (it == UttakGrad.HUNDRE_PROSENT)
+                null // not gradert uttak
+            else
+                GradertUttakSpec(grad = it, heltUttakFom = dto.heltUttakFraOgMedDato ?: missingValue())
+        }
 
-    private fun fromInntektSpecV1(dto: InntektSpecV1) =
+    private fun uttakGrad(prosentsats: Int?): UttakGrad =
+        prosentsats?.let(UttakGrad::from) ?: UttakGrad.HUNDRE_PROSENT
+
+    private fun missingValue(): LocalDate {
+        throw RuntimeException("heltUttakFraOgMedDato missing")
+    }
+
+    private fun inntektSpec(dto: InntektSpecV1) =
         InntektSpec(
             fom = LocalDate.parse(dto.fraOgMedDato),
             aarligBeloep = dto.arligInntekt

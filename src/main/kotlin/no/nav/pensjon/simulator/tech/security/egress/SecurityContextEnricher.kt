@@ -10,7 +10,10 @@ class SecurityContextEnricher(val tokenSuppliers: EgressTokenSuppliersByService)
 
     fun enrichAuthentication(request: HttpServletRequest) {
         with(SecurityContextHolder.getContext()) {
-            authentication = authentication?.let { EnrichedAuthentication(it, tokenSuppliers) }
+            authentication = EnrichedAuthentication(
+                initialAuth = authentication,
+                egressTokenSuppliersByService = tokenSuppliers
+            )
         }
     }
 }

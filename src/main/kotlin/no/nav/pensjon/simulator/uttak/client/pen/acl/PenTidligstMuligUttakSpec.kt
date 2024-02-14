@@ -7,13 +7,18 @@ import java.time.LocalDate
  */
 data class PenTidligstMuligUttakSpec(
     val pid: String,
-    val foedselDato: LocalDate,
-    val uttakGrad: String,
+    val foedselsdato: LocalDate,
+    val gradertUttak: PenTmuGradertUttakSpec?,
     val rettTilOffentligAfpFom: LocalDate?,
     val antallAarUtenlandsEtter16Aar: Int,
     val fremtidigInntektListe: List<PenTmuInntektSpec>,
     val epsHarPensjon: Boolean,
     val epsHarInntektOver2G: Boolean
+)
+
+data class PenTmuGradertUttakSpec(
+    val grad: String,
+    val heltUttakFom: LocalDate
 )
 
 data class PenTmuInntektSpec(

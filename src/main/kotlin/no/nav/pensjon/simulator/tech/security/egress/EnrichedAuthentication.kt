@@ -12,7 +12,7 @@ import org.springframework.security.core.GrantedAuthority
  * (used by backend for accessing other services).
  */
 class EnrichedAuthentication(
-    private val initialAuth: Authentication,
+    private val initialAuth: Authentication?,
     private val egressTokenSuppliersByService: EgressTokenSuppliersByService
 ) : Authentication {
 
@@ -20,20 +20,20 @@ class EnrichedAuthentication(
         return egressTokenSuppliersByService.value[service]?.get() ?: RawJwt("")
     }
 
-    override fun getName(): String = initialAuth.name
+    override fun getName(): String = initialAuth?.name ?: "no name"
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = initialAuth.authorities
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = initialAuth!!.authorities
 
-    override fun getCredentials(): Any = initialAuth.credentials
+    override fun getCredentials(): Any = initialAuth!!.credentials
 
-    override fun getDetails(): Any = initialAuth.details
+    override fun getDetails(): Any = initialAuth!!.details
 
-    override fun getPrincipal(): Any = initialAuth.principal
+    override fun getPrincipal(): Any = initialAuth?.principal ?: "no principal"
 
-    override fun isAuthenticated(): Boolean = initialAuth.isAuthenticated
+    override fun isAuthenticated(): Boolean = initialAuth!!.isAuthenticated
 
     override fun setAuthenticated(isAuthenticated: Boolean) {
-        initialAuth.isAuthenticated = isAuthenticated
+        initialAuth!!.isAuthenticated = isAuthenticated
     }
 }
 

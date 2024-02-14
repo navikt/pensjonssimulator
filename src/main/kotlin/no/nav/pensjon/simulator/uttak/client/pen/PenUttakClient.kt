@@ -51,8 +51,8 @@ class PenUttakClient(
                 .bodyToMono(PenTidligstMuligUttakResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let { TidligstMuligUttak(it.uttakDato, spec.uttakGrad) }
-                ?: handleNull(spec.uttakGrad)
+                ?.let { enrichedResult(it, spec.gradertUttak) }
+                ?: nullResult(spec.gradertUttak)
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -73,10 +73,18 @@ class PenUttakClient(
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 
-        private fun handleNull(uttakGrad: UttakGrad) =
+        private fun enrichedResult(result: PenTidligstMuligUttakResult, uttakSpec: GradertUttakSpec?) =
             TidligstMuligUttak(
-                uttakGrad = uttakGrad,
+                uttakDato = result.uttaksdato,
+                uttakGrad = uttakGrad(uttakSpec)
+            )
+
+        private fun nullResult(uttakSpec: GradertUttakSpec?) =
+            TidligstMuligUttak(
+                uttakGrad = uttakGrad(uttakSpec),
                 feil = TidligstMuligUttakFeil(type = TidligstMuligUttakFeilType.NONE, beskrivelse = "null")
             )
+
+        private fun uttakGrad(spec: GradertUttakSpec?) = spec?.grad ?: UttakGrad.HUNDRE_PROSENT
     }
 }

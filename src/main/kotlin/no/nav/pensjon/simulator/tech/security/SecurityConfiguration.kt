@@ -33,6 +33,7 @@ class SecurityConfiguration {
                     ).permitAll()
                     .anyRequest().authenticated()
             }
+            .csrf { it.disable() }
             .oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
             .build()
 }

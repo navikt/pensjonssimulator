@@ -53,3 +53,5 @@ spec:
       value: prod-fss:pensjondeployer:pensjon-pen
     - name: PEN_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io
+    - name: STDOUT_LOG_OUTPUT
+      value: JSON

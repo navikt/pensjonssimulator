@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.uttak.client.pen.acl
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 /**
@@ -7,7 +8,7 @@ import java.time.LocalDate
  */
 data class PenTidligstMuligUttakSpec(
     val pid: String,
-    val foedselsdato: LocalDate,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val foedselsdato: LocalDate,
     val gradertUttak: PenTmuGradertUttakSpec?,
     val rettTilOffentligAfpFom: LocalDate?,
     val antallAarUtenlandsEtter16Aar: Int,
@@ -18,10 +19,10 @@ data class PenTidligstMuligUttakSpec(
 
 data class PenTmuGradertUttakSpec(
     val grad: String,
-    val heltUttakFom: LocalDate
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val heltUttakFom: LocalDate
 )
 
 data class PenTmuInntektSpec(
-    val fom: LocalDate,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fom: LocalDate,
     val aarligBeloep: Int
 )

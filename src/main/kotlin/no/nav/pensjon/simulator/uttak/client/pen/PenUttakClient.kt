@@ -69,7 +69,7 @@ class PenUttakClient(
 
     companion object {
         private const val BASE_PATH = "pen/springapi"
-        private const val PATH = "uttaksalder"
+        private const val PATH = "tidligst-mulig-uttak"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 

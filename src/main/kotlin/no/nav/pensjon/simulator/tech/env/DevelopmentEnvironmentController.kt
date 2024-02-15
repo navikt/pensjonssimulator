@@ -11,9 +11,6 @@ class DevelopmentEnvironmentController {
     @GetMapping("entra")
     fun entraEnvironment(): String = environmentVariable("AZURE_APP_CLIENT_SECRET")
 
-    @GetMapping("entra2")
-    fun entraEnvironment2(): String = environmentVariable("AZURE_APP_CLIENT_ID")
-
     private companion object {
         private fun environmentVariable(name: String) =
             if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp")

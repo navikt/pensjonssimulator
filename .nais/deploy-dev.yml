@@ -49,6 +49,11 @@ spec:
           namespace: aura
         - application: tokenx-token-generator
           namespace: aura
+    outbound:
+      rules:
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
   env:
     - name: PEN_SERVICE_ID
       value: dev-fss:pensjon-q2:pensjon-pen-q2

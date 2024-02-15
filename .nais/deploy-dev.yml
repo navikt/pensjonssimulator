@@ -12,7 +12,7 @@ spec:
     min: 2
     max: 2
   ingresses:
-    - https://pensjonssimulator.intern.dev.nav.no
+    - https://www.ekstern.dev.nav.no/pensjon/simulator
   liveness:
     path: /internal/health/liveness
     initialDelay: 30

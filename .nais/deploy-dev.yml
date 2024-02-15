@@ -54,6 +54,8 @@ spec:
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss
+      external:
+        - host: pensjon-pen-q2.dev-fss-pub.nais.io
   env:
     - name: PEN_SERVICE_ID
       value: dev-fss:pensjon-q2:pensjon-pen-q2

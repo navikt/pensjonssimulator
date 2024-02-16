@@ -20,20 +20,20 @@ class EnrichedAuthentication(
         return egressTokenSuppliersByService.value[service]?.get() ?: RawJwt("")
     }
 
-    override fun getName(): String = initialAuth?.name ?: "no name"
+    override fun getName(): String? = initialAuth?.name
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = initialAuth!!.authorities
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority>? = initialAuth?.authorities
 
-    override fun getCredentials(): Any = initialAuth!!.credentials
+    override fun getCredentials(): Any? = initialAuth?.credentials
 
-    override fun getDetails(): Any = initialAuth!!.details
+    override fun getDetails(): Any? = initialAuth?.details
 
-    override fun getPrincipal(): Any = initialAuth?.principal ?: "no principal"
+    override fun getPrincipal(): Any? = initialAuth?.principal
 
-    override fun isAuthenticated(): Boolean = initialAuth!!.isAuthenticated
+    override fun isAuthenticated(): Boolean = initialAuth?.isAuthenticated ?: false
 
     override fun setAuthenticated(isAuthenticated: Boolean) {
-        initialAuth!!.isAuthenticated = isAuthenticated
+        initialAuth?.let { it.isAuthenticated = isAuthenticated }
     }
 }
 

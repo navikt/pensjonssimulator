@@ -13,7 +13,7 @@ spec:
     max: 4
     cpuThresholdPercentage: 70
   ingresses:
-    - https://pensjonssimulator.intern.nav.no
+    - https://www.nav.no/pensjon/simulator
   liveness:
     path: /internal/health/liveness
     initialDelay: 30

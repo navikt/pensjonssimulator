@@ -29,6 +29,8 @@ class SecurityConfiguration {
                         HttpMethod.GET,
                         "/internal/**",
                         "/api/v1/status",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
                         "/error"
                     ).permitAll()
                     .anyRequest().authenticated()

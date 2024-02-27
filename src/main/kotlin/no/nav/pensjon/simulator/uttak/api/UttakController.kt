@@ -1,5 +1,8 @@
 package no.nav.pensjon.simulator.uttak.api
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -23,6 +26,18 @@ class UttakController(
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/tidligst-mulig-uttak")
+    @Operation(
+        summary = "Tidligst mulig uttak",
+        description = "Finner den tidligst mulige dato for uttak av alderspensjon",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Utledning av uttaksdato utført"
+            )
+        ]
+    )
     fun tidligstMuligUttak(@RequestBody spec: TidligstMuligUttakSpecV1): TidligstMuligUttakResultV1 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $spec" }

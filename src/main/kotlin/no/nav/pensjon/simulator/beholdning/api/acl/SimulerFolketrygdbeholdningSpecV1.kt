@@ -4,7 +4,7 @@ data class SimulerFolketrygdbeholdningSpecV1(
     val personId: String? = null,
     val uttaksdato: String? = null,
     val fremtidigInntektListe: List<FolketrygdbeholdningInntektSpecV1>? = null,
-    val arIUtenlandetEtter16: Int? = null,
+    val arIUtlandetEtter16: Int? = null,
     val epsPensjon: Boolean? = null,
     val eps2G: Boolean? = null
 )

@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("internal/env")
+@RequestMapping("api")
 class DevelopmentEnvironmentController {
 
-    @GetMapping("entra")
+    @GetMapping("devenv")
     @Hidden
     fun entraEnvironment(): String = environmentVariable("AZURE_APP_CLIENT_SECRET")
 

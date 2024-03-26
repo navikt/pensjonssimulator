@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.common.api
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
@@ -31,6 +32,14 @@ abstract class ControllerBase(private val traceAid: TraceAid) {
             handleInternalError<T>(e)
         else
             handleExternalError<T>(e)
+
+    protected fun <T> badRequest(e: BadRequestException): T? {
+        throw ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",
+            e
+        )
+    }
 
     abstract fun errorMessage(): String
 

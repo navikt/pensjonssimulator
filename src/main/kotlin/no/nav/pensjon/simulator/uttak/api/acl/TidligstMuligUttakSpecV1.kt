@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 // This file is part of the anti-corruption layer (ACL) between requests
@@ -9,18 +10,18 @@ import java.time.LocalDate
  * Version 1 of specification for finding 'tidligst mulig uttak'.
  */
 data class TidligstMuligUttakSpecV1(
-    val personId: String? = null,
-    val fodselsdato: LocalDate? = null,
+    val personId: String = "",
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fodselsdato: LocalDate,
     val uttaksgrad: Int? = null,
-    val heltUttakFraOgMedDato: LocalDate? = null,
-    val rettTilAfpOffentligDato: LocalDate? = null,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val heltUttakFraOgMedDato: LocalDate,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val rettTilAfpOffentligDato: LocalDate? = null,
     //val antallAarUtenlandsEtter16Aar: Int? = null,
-    val fremtidigInntektListe: List<InntektSpecV1>? = null,
+    val fremtidigInntektListe: List<UttakInntektSpecV1>? = null
     //val epsHarPensjon: Boolean? = null,
     //val epsHarInntektOver2G: Boolean? = null
 )
 
-data class InntektSpecV1(
-    val arligInntekt: Int,
-    val fraOgMedDato: String
+data class UttakInntektSpecV1(
+    val arligInntekt: Int? = null,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate
 )

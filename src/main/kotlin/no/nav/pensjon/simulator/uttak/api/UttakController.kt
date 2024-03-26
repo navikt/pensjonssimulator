@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1.fromSpecV1
@@ -47,6 +48,8 @@ class UttakController(
                 .also { log.debug { "$FUNCTION_ID response: $it" } }
         } catch (e: EgressException) {
             handle(e)!!
+        } catch (e: BadRequestException) {
+            badRequest(e)!!
         } finally {
             traceAid.end()
         }

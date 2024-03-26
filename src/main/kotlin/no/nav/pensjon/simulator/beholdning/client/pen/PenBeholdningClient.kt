@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.uttak.client.pen
+package no.nav.pensjon.simulator.beholdning.client.pen
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
@@ -7,10 +7,11 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.uttak.*
-import no.nav.pensjon.simulator.uttak.client.UttakClient
-import no.nav.pensjon.simulator.uttak.client.pen.acl.PenTidligstMuligUttakResult
-import no.nav.pensjon.simulator.uttak.client.pen.acl.PenUttakSpecMapper
+import no.nav.pensjon.simulator.beholdning.*
+import no.nav.pensjon.simulator.beholdning.client.BeholdningClient
+import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningResult
+import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningResultMapper
+import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningSpecMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -20,18 +21,18 @@ import org.springframework.web.reactive.function.client.WebClientRequestExceptio
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @Component
-class PenUttakClient(
+class PenBeholdningClient(
     @Value("\${ps.pen.url}") baseUrl: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,
-) : ExternalServiceClient("0"), UttakClient {
+) : ExternalServiceClient("0"), BeholdningClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
     override fun service() = service
 
-    override fun finnTidligstMuligUttak(spec: TidligstMuligUttakSpec): TidligstMuligUttak {
+    override fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
         val uri = "$BASE_PATH/$PATH"
         log.debug { "POST to URI: '$uri'" }
 
@@ -42,13 +43,13 @@ class PenUttakClient(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(::setHeaders)
-                .bodyValue(PenUttakSpecMapper.toDto(spec))
+                .bodyValue(PenFolketrygdBeholdningSpecMapper.toDto(spec))
                 .retrieve()
-                .bodyToMono(PenTidligstMuligUttakResult::class.java)
+                .bodyToMono(PenFolketrygdBeholdningResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let { enrichedResult(it, spec.gradertUttak) }
-                ?: nullResult(spec.gradertUttak)
+                ?.let(PenFolketrygdBeholdningResultMapper::fromDto)
+                ?: nullResult()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -65,22 +66,10 @@ class PenUttakClient(
 
     companion object {
         private const val BASE_PATH = "pen/springapi"
-        private const val PATH = "tidligst-mulig-uttak"
+        private const val PATH = "v1/simuler-folketrygdbeholdning"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 
-        private fun enrichedResult(result: PenTidligstMuligUttakResult, uttakSpec: GradertUttakSpec?) =
-            TidligstMuligUttak(
-                uttakDato = result.uttaksdato,
-                uttakGrad = uttakGrad(uttakSpec)
-            )
-
-        private fun nullResult(uttakSpec: GradertUttakSpec?) =
-            TidligstMuligUttak(
-                uttakGrad = uttakGrad(uttakSpec),
-                feil = TidligstMuligUttakFeil(type = TidligstMuligUttakFeilType.NONE, beskrivelse = "null")
-            )
-
-        private fun uttakGrad(spec: GradertUttakSpec?) = spec?.grad ?: UttakGrad.HUNDRE_PROSENT
+        private fun nullResult() = FolketrygdBeholdning(emptyList())
     }
 }

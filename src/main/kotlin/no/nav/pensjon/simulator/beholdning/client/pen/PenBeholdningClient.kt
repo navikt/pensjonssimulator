@@ -66,7 +66,7 @@ class PenBeholdningClient(
 
     companion object {
         private const val BASE_PATH = "pen/springapi"
-        private const val PATH = "v1/simuler-folketrygdbeholdning"
+        private const val PATH = "simulering/v1/simuler-folketrygdbeholdning"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 

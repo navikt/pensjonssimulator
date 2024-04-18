@@ -6,17 +6,17 @@ import no.nav.pensjon.simulator.beholdning.InntektSpec
 object PenFolketrygdBeholdningSpecMapper {
     fun toDto(source: FolketrygdBeholdningSpec) =
         PenFolketrygdBeholdningSpec(
-            source.pid.value,
-            source.uttakFom,
-            source.fremtidigInntektListe.map(::inntekt),
-            source.antallAarUtenlandsEtter16Aar,
-            source.epsHarPensjon,
-            source.epsHarInntektOver2G
+            pid = source.pid.value,
+            uttakFom = source.uttakFom,
+            aarUtenlandsEtter16Aar = source.antallAarUtenlandsEtter16Aar,
+            epsHarPensjon = source.epsHarPensjon,
+            epsHarInntektOver2G = source.epsHarInntektOver2G,
+            fremtidigInntektListe = source.fremtidigInntektListe.map(::inntekt)
         )
 
     private fun inntekt(source: InntektSpec) =
         PenInntektSpec(
-            source.inntektAarligBeloep,
-            source.inntektFom
+            aarligInntekt = source.inntektAarligBeloep,
+            fom = source.inntektFom
         )
 }

@@ -5,17 +5,23 @@ import java.time.LocalDate
 
 /**
  * Egress-spesifikasjon for å simulere 'folketrygdbeholdning'.
+ * Must match FolketrygdbeholdningSpecV1 in pensjon-pen.
  */
 data class PenFolketrygdBeholdningSpec(
-    val personId: String,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val uttaksdato: LocalDate,
-    val fremtidigInntektListe: List<PenInntektSpec>,
-    val arIUtlandetEtter16: Int,
-    val epsPensjon: Boolean,
-    val eps2G: Boolean
+    val pid: String,
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
+    val uttakFom: LocalDate,
+
+    val aarUtenlandsEtter16Aar: Int,
+    val epsHarPensjon: Boolean,
+    val epsHarInntektOver2G: Boolean,
+    val fremtidigInntektListe: List<PenInntektSpec>
 )
 
 data class PenInntektSpec(
-    val arligInntekt: Int,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate
+    val aarligInntekt: Int,
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
+    val fom: LocalDate
 )

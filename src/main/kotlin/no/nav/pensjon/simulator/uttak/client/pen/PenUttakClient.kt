@@ -33,7 +33,8 @@ class PenUttakClient(
 
     override fun finnTidligstMuligUttak(spec: TidligstMuligUttakSpec): TidligstMuligUttak {
         val uri = "$BASE_PATH/$PATH"
-        log.debug { "POST to URI: '$uri'" }
+        val dto = PenUttakSpecMapper.toDto(spec)
+        log.info { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient
@@ -42,7 +43,7 @@ class PenUttakClient(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(::setHeaders)
-                .bodyValue(PenUttakSpecMapper.toDto(spec))
+                .bodyValue(dto)
                 .retrieve()
                 .bodyToMono(PenTidligstMuligUttakResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))

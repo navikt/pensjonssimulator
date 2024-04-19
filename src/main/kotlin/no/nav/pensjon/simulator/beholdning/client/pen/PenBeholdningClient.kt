@@ -34,7 +34,8 @@ class PenBeholdningClient(
 
     override fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
         val uri = "$BASE_PATH/$PATH"
-        log.debug { "POST to URI: '$uri'" }
+        val dto = PenFolketrygdBeholdningSpecMapper.toDto(spec)
+        log.info { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient
@@ -43,7 +44,7 @@ class PenBeholdningClient(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(::setHeaders)
-                .bodyValue(PenFolketrygdBeholdningSpecMapper.toDto(spec))
+                .bodyValue(dto)
                 .retrieve()
                 .bodyToMono(PenFolketrygdBeholdningResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))

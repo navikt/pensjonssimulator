@@ -26,7 +26,7 @@ class AlderspensjonController(
     @PostMapping("v4/simuler-alderspensjon")
     @Operation(
         summary = "Simuler alderspensjon",
-        description = "Lager en prognose for utbetaling av alderspensjon",
+        description = "Lager en prognose for utbetaling av alderspensjon. NB: Foreløpig er responsen hardkodet.",
     )
     @ApiResponses(
         value = [

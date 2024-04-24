@@ -8,15 +8,18 @@ import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.uttak.TidligstMuligUttakSpec
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1.fromSpecV1
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakResultV1
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakSpecV1
 import no.nav.pensjon.simulator.uttak.api.acl.UttakResultMapperV1.resultV1
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api")
@@ -39,12 +42,18 @@ class UttakController(
             )
         ]
     )
-    fun tidligstMuligUttak(@RequestBody spec: TidligstMuligUttakSpecV1): TidligstMuligUttakResultV1 {
+    fun tidligstMuligUttak(@RequestBody specV1: TidligstMuligUttakSpecV1): TidligstMuligUttakResultV1 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $spec" }
+        log.debug { "$FUNCTION_ID request: $specV1" }
 
         return try {
-            resultV1(timed(service::finnTidligstMuligUttak, fromSpecV1(spec), FUNCTION_ID))
+            val spec: TidligstMuligUttakSpec = fromSpecV1(specV1)
+
+            if (!spec.pid.isValid) {
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig personId: '${specV1.personId}'")
+            }
+
+            resultV1(timed(service::finnTidligstMuligUttak, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }
         } catch (e: EgressException) {
             handle(e)!!

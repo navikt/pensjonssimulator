@@ -5,7 +5,7 @@ package no.nav.pensjon.simulator.person
  */
 class Pid(argument: String) {
 
-    private val isValid = argument.length == FNR_LENGTH
+    val isValid = argument.length == FNR_LENGTH
     val value = if (isValid) argument else "invalid"
     val displayValue = if (isValid) value.substring(0, PERSONNUMMER_START_INDEX) + "*****" else value
 

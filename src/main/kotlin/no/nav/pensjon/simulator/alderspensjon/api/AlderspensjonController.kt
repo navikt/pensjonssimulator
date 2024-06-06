@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonMapperV1.resultV1
-import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonResultV1
-import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonSpecV1
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
+import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonResultMapperV4.resultV4
+import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonResultV4
+import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonSpecMapperV4.fromSpecV4
+import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonSpecV4
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("api")
 class AlderspensjonController(
+    private val service: AlderspensjonService,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -26,7 +29,7 @@ class AlderspensjonController(
     @PostMapping("v4/simuler-alderspensjon")
     @Operation(
         summary = "Simuler alderspensjon",
-        description = "Lager en prognose for utbetaling av alderspensjon. NB: Foreløpig er responsen hardkodet.",
+        description = "Lager en prognose for utbetaling av alderspensjon.",
     )
     @ApiResponses(
         value = [
@@ -36,12 +39,12 @@ class AlderspensjonController(
             )
         ]
     )
-    fun simulerFolketrygdbeholdning(@RequestBody spec: AlderspensjonSpecV1): AlderspensjonResultV1 {
+    fun simulerAlderspensjon(@RequestBody spec: AlderspensjonSpecV4): AlderspensjonResultV4 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $spec" }
 
         return try {
-            resultV1(success = true)
+            resultV4(timed(service::simulerAlderspensjon, fromSpecV4(spec), FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }
         } catch (e: EgressException) {
             handle(e)!!

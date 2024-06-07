@@ -60,7 +60,11 @@ class PenAlderspensjonClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        headers.setBearerAuth(EgressAccess.token(service).value)
+        with(EgressAccess.token(service).value) {
+            headers.setBearerAuth(this)
+            log.debug { "Token: $this" }
+        }
+
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

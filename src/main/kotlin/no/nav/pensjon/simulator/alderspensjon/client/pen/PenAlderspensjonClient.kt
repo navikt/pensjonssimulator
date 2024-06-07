@@ -70,7 +70,7 @@ class PenAlderspensjonClient(
 
     companion object {
         private const val BASE_PATH = "pen/api"
-        private const val PATH = "simulering/v4/simuler-alderspensjon"
+        private const val PATH = "ekstern/simulering/v4/simuler-alderspensjon"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 

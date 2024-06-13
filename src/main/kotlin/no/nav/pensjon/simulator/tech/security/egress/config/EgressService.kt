@@ -16,5 +16,10 @@ enum class EgressService(
         description = "Pensjonsfaglig kjerne",
         shortName = "PEN",
         purpose = "Finne tidligst mulig uttak"
+    ),
+    SPORINGSLOGG(
+        description = "Sporingslogg",
+        shortName = "SL",
+        purpose = "Logge utleverte data"
     )
 }

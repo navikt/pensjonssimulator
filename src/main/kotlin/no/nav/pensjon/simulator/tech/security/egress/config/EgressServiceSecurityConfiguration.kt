@@ -12,8 +12,14 @@ import java.util.function.Supplier
 class EgressServiceSecurityConfiguration {
 
     @Bean
-    fun egressServiceListsByAudience(@Value("\${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String) =
-        EgressServicesByAudience(mapOf(pensjonsfagligKjerneServiceId to EgressService.PENSJONSFAGLIG_KJERNE))
+    fun egressServiceListsByAudience(
+        @Value("\${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
+        @Value("\${ps.sporingslogg.service-id}") sporingsloggServiceId: String
+    ) =
+        EgressServicesByAudience(mapOf(
+            pensjonsfagligKjerneServiceId to EgressService.PENSJONSFAGLIG_KJERNE,
+            sporingsloggServiceId to EgressService.SPORINGSLOGG
+        ))
 
     @Bean
     fun egressTokenSuppliersByService(

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon.api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
 import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonResultMapperV4.resultV4
@@ -39,12 +40,18 @@ class AlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(@RequestBody spec: AlderspensjonSpecV4): AlderspensjonResultV4 {
+    fun simulerAlderspensjon(
+        @RequestBody specV4: AlderspensjonSpecV4,
+        request: HttpServletRequest
+    ): AlderspensjonResultV4 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $spec" }
+        log.debug { "$FUNCTION_ID request: $specV4" }
 
         return try {
-            resultV4(timed(service::simulerAlderspensjon, fromSpecV4(spec), FUNCTION_ID))
+            val spec = fromSpecV4(specV4)
+            request.setAttribute("pid", spec.pid)
+
+            resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }
         } catch (e: EgressException) {
             handle(e)!!

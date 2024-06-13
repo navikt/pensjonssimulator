@@ -49,6 +49,10 @@ spec:
             - orgno: "938708606" # KLP
             - orgno: "982583462" # SPK
   env:
+    - name: FSS_GATEWAY_SERVICE_ID
+      value: dev-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
+    - name: FSS_GATEWAY_URL
+      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
     - name: PEN_SERVICE_ID
       value: prod-fss:pensjondeployer:pensjon-pen
     - name: PEN_URL

@@ -65,14 +65,14 @@ class PenUttakClient(
     }
 
     companion object {
-        private const val BASE_PATH = "pen/springapi"
-        private const val PATH = "tidligst-mulig-uttak"
+        private const val BASE_PATH = "pen/api"
+        private const val PATH = "ekstern/simulering/v1/tidligst-mulig-uttak"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 
         private fun enrichedResult(result: PenTidligstMuligUttakResult, uttakSpec: GradertUttakSpec?) =
             TidligstMuligUttak(
-                uttakDato = result.uttaksdato,
+                uttakDato = result.dato,
                 uttakGrad = uttakGrad(uttakSpec)
             )
 

@@ -3,8 +3,10 @@ package no.nav.pensjon.simulator.beholdning.api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningService
+import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningSpec
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultMapperV1.resultV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecV1
@@ -39,13 +41,18 @@ class BeholdningController(
             )
         ]
     )
-    fun simulerFolketrygdbeholdning(@RequestBody spec: FolketrygdBeholdningSpecV1):
-            FolketrygdBeholdningResultV1 {
+    fun simulerFolketrygdbeholdning(
+        @RequestBody specV1: FolketrygdBeholdningSpecV1,
+        request: HttpServletRequest
+    ): FolketrygdBeholdningResultV1 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $spec" }
+        log.debug { "$FUNCTION_ID request: $specV1" }
 
         return try {
-            resultV1(timed(service::simulerFolketrygdBeholdning, fromSpecV1(spec), FUNCTION_ID))
+            val spec: FolketrygdBeholdningSpec = fromSpecV1(specV1)
+            request.setAttribute("pid", spec.pid)
+
+            resultV1(timed(service::simulerFolketrygdBeholdning, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }
         } catch (e: EgressException) {
             handle(e)!!

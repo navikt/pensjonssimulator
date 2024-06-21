@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.uttak.api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -42,15 +43,22 @@ class UttakController(
             )
         ]
     )
-    fun tidligstMuligUttak(@RequestBody specV1: TidligstMuligUttakSpecV1): TidligstMuligUttakResultV1 {
+    fun tidligstMuligUttak(
+        @RequestBody specV1: TidligstMuligUttakSpecV1,
+        request: HttpServletRequest
+    ): TidligstMuligUttakResultV1 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV1" }
 
         return try {
             val spec: TidligstMuligUttakSpec = fromSpecV1(specV1)
 
-            if (!spec.pid.isValid) {
-                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig personId: '${specV1.personId}'")
+            with(spec.pid) {
+                if (this.isValid) {
+                    request.setAttribute("pid", this)
+                } else {
+                    throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig personId: '${specV1.personId}'")
+                }
             }
 
             resultV1(timed(service::finnTidligstMuligUttak, spec, FUNCTION_ID))

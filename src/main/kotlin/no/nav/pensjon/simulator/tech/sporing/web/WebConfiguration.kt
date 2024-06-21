@@ -10,6 +10,10 @@ class WebConfiguration(val sporingsloggService: SporingsloggService) : WebMvcCon
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(SporingInterceptor(sporingsloggService))
-            .addPathPatterns("/api/v4/simuler-alderspensjon")
+            .addPathPatterns(
+                "/api/v4/simuler-alderspensjon",
+                "/api/v1/simuler-folketrygdbeholdning",
+                "/api/v1/tidligst-mulig-uttak"
+            )
     }
 }

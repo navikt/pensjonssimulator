@@ -1,0 +1,23 @@
+name: Deploy alerts
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '.nais/alerts.yml'
+
+jobs:
+  deploy-alerts-dev:
+    name: Deploy dev alerts
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy alerts
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/alerts.yml

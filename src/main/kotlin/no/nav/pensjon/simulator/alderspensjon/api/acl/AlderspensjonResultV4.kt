@@ -5,11 +5,15 @@ import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatusKode
 import no.nav.pensjon.simulator.alderspensjon.PensjonType
 import java.time.LocalDate
 
+/**
+ * Version 4 of result for 'simuler alderspensjon'.
+ * NB: Versions 1 to 3 are services offered by PEN.
+ */
 data class AlderspensjonResultV4(
     val simuleringSuksess: Boolean,
     val aarsakListeIkkeSuksess: List<PensjonSimuleringStatusV4>,
     val alderspensjon: List<AlderspensjonFraFolketrygdenV4>,
-    val alternativerVedForLavOpptjening: PensjonAlternativerVedForLavOpptjeningV4?,
+    val alternativerVedForLavOpptjening: ForslagVedForLavOpptjeningV4?,
     val harUttak: Boolean
 )
 
@@ -19,9 +23,14 @@ data class AlderspensjonFraFolketrygdenV4(
     val uttaksgrad: Int
 )
 
-data class PensjonAlternativerVedForLavOpptjeningV4(
-    val alderspensjonVedTidligstMuligUttak: List<AlderspensjonFraFolketrygdenV4>,
-    val alderspensjonVedHoyestMuligGrad: List<AlderspensjonFraFolketrygdenV4>
+data class ForslagVedForLavOpptjeningV4(
+    val gradertUttak: GradertUttakV4?,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val heltUttakFraOgMedDato: LocalDate
+)
+
+data class GradertUttakV4(
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
+    val uttaksgrad: Int
 )
 
 data class PensjonSimuleringStatusV4(

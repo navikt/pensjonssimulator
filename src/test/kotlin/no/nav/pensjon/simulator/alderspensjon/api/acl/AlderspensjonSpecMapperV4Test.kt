@@ -17,10 +17,10 @@ class AlderspensjonSpecMapperV4Test : FunSpec({
                 heltUttakFraOgMedDato = "2031-02-03",
                 epsPensjon = true,
                 eps2G = false,
-                arIUtlandetEtter16 = 5,
+                aarIUtlandetEtter16 = 5,
                 fremtidigInntektListe = listOf(
                     PensjonInntektSpecV4(
-                        arligInntekt = 123000,
+                        aarligInntekt = 123000,
                         fraOgMedDato = "2029-05-06"
                     )
                 ),

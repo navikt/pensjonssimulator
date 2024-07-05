@@ -16,7 +16,7 @@ object AlderspensjonSpecMapperV4 {
             pid = source.personId?.let(::pid) ?: missing("personId"),
             gradertUttak = source.gradertUttak?.let(::gradertUttak),
             heltUttakFom = source.heltUttakFraOgMedDato?.let(LocalDate::parse) ?: missing("heltUttakFraOgMedDato"),
-            antallAarUtenlandsEtter16Aar = source.arIUtlandetEtter16 ?: 0,
+            antallAarUtenlandsEtter16Aar = source.aarIUtlandetEtter16 ?: 0,
             epsHarPensjon = source.epsPensjon ?: false,
             epsHarInntektOver2G = source.eps2G ?: false,
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty().map(::inntekt),
@@ -25,7 +25,7 @@ object AlderspensjonSpecMapperV4 {
 
     private fun pid(value: String) = if (hasLength(value)) Pid(value) else missing("personId")
 
-    private fun gradertUttak(source: GradertUttakV4) =
+    private fun gradertUttak(source: GradertUttakSpecV4) =
         GradertUttakSpec(
             uttaksgrad = Uttaksgrad.from(source.uttaksgrad),
             fom = source.fraOgMedDato?.let(LocalDate::parse) ?: missing("gradertUttak.fraOgMedDato")
@@ -33,7 +33,7 @@ object AlderspensjonSpecMapperV4 {
 
     private fun inntekt(source: PensjonInntektSpecV4) =
         InntektSpec(
-            aarligBeloep = source.arligInntekt ?: 0,
+            aarligBeloep = source.aarligInntekt ?: 0,
             fom = source.fraOgMedDato?.let(LocalDate::parse) ?: missing("fremtidigInntekt.fraOgMedDato")
         )
 

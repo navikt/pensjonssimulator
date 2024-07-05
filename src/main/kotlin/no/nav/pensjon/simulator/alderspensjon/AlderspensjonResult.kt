@@ -6,7 +6,7 @@ data class AlderspensjonResult(
     val simuleringSuksess: Boolean,
     val aarsakListeIkkeSuksess: List<PensjonSimuleringStatus>,
     val alderspensjon: List<AlderspensjonFraFolketrygden>,
-    val alternativerVedForLavOpptjening: PensjonAlternativerVedForLavOpptjening?,
+    val alternativerVedForLavOpptjening: ForslagVedForLavOpptjening?,
     val harUttak: Boolean
 )
 
@@ -16,9 +16,14 @@ data class AlderspensjonFraFolketrygden(
     val uttaksgrad: Uttaksgrad
 )
 
-data class PensjonAlternativerVedForLavOpptjening(
-    val alderspensjonVedTidligstMuligUttak: List<AlderspensjonFraFolketrygden>,
-    val alderspensjonVedHoeyestMuligGrad: List<AlderspensjonFraFolketrygden>
+data class ForslagVedForLavOpptjening(
+    val gradertUttak: GradertUttak?,
+    val heltUttakFom: LocalDate
+)
+
+data class GradertUttak(
+    val fom: LocalDate,
+    val uttaksgrad: Uttaksgrad
 )
 
 data class PensjonSimuleringStatus(

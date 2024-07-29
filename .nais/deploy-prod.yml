@@ -48,6 +48,7 @@ spec:
           consumers:
             - orgno: "938708606" # KLP
             - orgno: "982583462" # SPK
+            - orgno: "931936492" # Storebrand Pensjonstjenester
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: dev-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway

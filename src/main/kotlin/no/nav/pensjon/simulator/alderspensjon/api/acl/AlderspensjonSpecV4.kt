@@ -6,21 +6,21 @@ package no.nav.pensjon.simulator.alderspensjon.api.acl
  */
 data class AlderspensjonSpecV4(
     val personId: String? = null,
-    val gradertUttak: GradertUttakV4? = null,
+    val gradertUttak: GradertUttakSpecV4? = null,
     val heltUttakFraOgMedDato: String? = null,
+    val aarIUtlandetEtter16: Int? = null,
     val epsPensjon: Boolean? = null,
     val eps2G: Boolean? = null,
-    val arIUtlandetEtter16: Int? = null,
     val fremtidigInntektListe: List<PensjonInntektSpecV4>? = null,
     val rettTilAfpOffentligDato: String? = null
 )
 
-data class GradertUttakV4(
+data class GradertUttakSpecV4(
     val fraOgMedDato: String? = null,
     val uttaksgrad: Int? = null
 )
 
 data class PensjonInntektSpecV4(
-    val arligInntekt: Int? = null,
+    val aarligInntekt: Int? = null,
     val fraOgMedDato: String? = null
 )

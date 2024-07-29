@@ -10,7 +10,7 @@ object PenAlderspensjonResultMapper {
             simuleringSuksess = source.simuleringSuksess ?: false,
             aarsakListeIkkeSuksess = source.aarsakListeIkkeSuksess.orEmpty().map(::status),
             alderspensjon = source.alderspensjon.orEmpty().map(::alderspensjonFraFolketrygden),
-            alternativerVedForLavOpptjening = source.alternativerVedForLavOpptjening?.let(::alternativer),
+            alternativerVedForLavOpptjening = source.alternativerVedForLavOpptjening?.let(::forslagVedForLavOpptjening),
             harUttak = source.harUttak ?: false
         )
 
@@ -28,10 +28,16 @@ object PenAlderspensjonResultMapper {
             beloep = source.belop ?: 0
         )
 
-    private fun alternativer(source: PenPensjonAlternativerVedForLavOpptjening) =
-        PensjonAlternativerVedForLavOpptjening(
-            source.alderspensjonVedTidligstMuligUttak.orEmpty().map(::alderspensjonFraFolketrygden),
-            source.alderspensjonVedHoyestMuligGrad.orEmpty().map(::alderspensjonFraFolketrygden)
+    private fun forslagVedForLavOpptjening(source: PenForslagVedForLavOpptjening) =
+        ForslagVedForLavOpptjening(
+            gradertUttak = source.gradertUttak?.let(::gradertUttak),
+            heltUttakFom = source.heltUttakFraOgMedDato
+        )
+
+    private fun gradertUttak(source: PenGradertUttak) =
+        GradertUttak(
+            fom = source.fraOgMedDato,
+            uttaksgrad = Uttaksgrad.from(source.uttaksgrad)
         )
 
     private fun status(source: PenPensjonSimuleringStatus) =

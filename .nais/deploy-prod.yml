@@ -7,13 +7,19 @@ metadata:
     team: pensjonskalkulator
 spec:
   image: {{ image }}
-  port: 8080
   replicas:
     min: 2
     max: 4
     cpuThresholdPercentage: 70
+  resources:
+    limits:
+      memory: 2048Mi
+    requests:
+      cpu: 50m
+      memory: 1024Mi
   ingresses:
     - https://www.nav.no/pensjon/simulator
+  port: 8080
   liveness:
     path: /internal/health/liveness
     initialDelay: 30
@@ -23,16 +29,13 @@ spec:
   readiness:
     path: /internal/health/readiness
     periodSeconds: 30
-  resources:
-    limits:
-      cpu: 2
-      memory: 2048Mi
-    requests:
-      cpu: 1
-      memory: 1024Mi
   prometheus:
     enabled: true
     path: /internal/prometheus
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
   azure:
     application:
       enabled: true

@@ -4,7 +4,7 @@ Backend-applikasjon for simulering av alderspensjon.
 
 Simulering innebærer å beregne en prognose for pensjonsutbetaling.
 
-Appen er pr. mai 2024 kun et mellomledd mellom tjenestepensjonsleverandører og NAVs pensjonsfaglige kjerne.
+Appen er pr. august 2024 kun et mellomledd mellom tjenestepensjonsleverandører og NAVs pensjonsfaglige kjerne.
 
 ## Teknologi
 

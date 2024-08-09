@@ -31,6 +31,9 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
     private fun sendResponseToSporingslogg(pid: Pid, response: ResettableStreamHttpServletResponse) {
         val data = ByteArray(response.rawData.size)
         data.indices.forEach { data[it] = response.rawData[it] }
-        service.log(pid, String(data))
+
+        if (data.isNotEmpty()) {
+            service.log(pid, String(data))
+        }
     }
 }

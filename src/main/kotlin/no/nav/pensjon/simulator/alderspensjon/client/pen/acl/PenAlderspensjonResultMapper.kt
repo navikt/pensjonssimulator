@@ -64,7 +64,7 @@ enum class PenPensjonType(val externalValue: String, val internalValue: PensjonT
 
 enum class PenPensjonSimuleringStatusKode(val externalValue: String, val internalValue: PensjonSimuleringStatusKode) {
     AVSLAG_FOR_LAV_OPPTJENING(
-        externalValue = "AVSLAG_FOR_LAV_OPPTJENING",
+        externalValue = "UTILSTREKKELIG_OPPTJENING",
         internalValue = PensjonSimuleringStatusKode.AVSLAG_FOR_LAV_OPPTJENING
     ),
     AVSLAG_FOR_KORT_TRYGDETID(

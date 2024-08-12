@@ -66,6 +66,7 @@ enum class PensjonSimuleringStatusKodeV4 (val externalValue: String, val interna
     companion object {
         private val values = PensjonSimuleringStatusKodeV4.entries.toTypedArray()
 
-        fun fromInternalValue(value: PensjonSimuleringStatusKode): PensjonSimuleringStatusKodeV4 = values.single { it.internalValue == value }
+        fun fromInternalValue(value: PensjonSimuleringStatusKode): PensjonSimuleringStatusKodeV4 =
+            values.singleOrNull { it.internalValue == value } ?: ANNET
     }
 }

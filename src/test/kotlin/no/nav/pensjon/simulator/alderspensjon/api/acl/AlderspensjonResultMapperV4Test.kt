@@ -47,4 +47,64 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                     harUttak = false
                 )
     }
+
+    test("resultV4 maps simuleringstatus 'none' to 'annet'") {
+        AlderspensjonResultMapperV4.resultV4(
+            AlderspensjonResult(
+                simuleringSuksess = false,
+                aarsakListeIkkeSuksess = listOf(
+                    PensjonSimuleringStatus(
+                        statusKode = PensjonSimuleringStatusKode.NONE,
+                        statusBeskrivelse = "..."
+                    )
+                ),
+                alderspensjon = listOf(
+                    AlderspensjonFraFolketrygden(
+                        fom = LocalDate.of(2026, 4, 1),
+                        delytelseListe = listOf(
+                            PensjonDelytelse(pensjonType = PensjonType.INNTEKTSPENSJON, beloep = 147026)
+                        ),
+                        uttaksgrad = Uttaksgrad.AATTI_PROSENT
+                    )
+                ),
+                alternativerVedForLavOpptjening = ForslagVedForLavOpptjening(
+                    gradertUttak = GradertUttak(
+                        fom = LocalDate.of(2026, 4, 1),
+                        uttaksgrad = Uttaksgrad.AATTI_PROSENT
+                    ),
+                    heltUttakFom = LocalDate.of(2027, 2, 1)
+                ),
+                harUttak = false
+            )
+        ) shouldBe
+                AlderspensjonResultV4(
+                    simuleringSuksess = false,
+                    aarsakListeIkkeSuksess = listOf(
+                        PensjonSimuleringStatusV4(
+                            statusKode = "ANNET",
+                            statusBeskrivelse = "..."
+                        )
+                    ),
+                    alderspensjon = listOf(
+                        AlderspensjonFraFolketrygdenV4(
+                            fraOgMedDato = LocalDate.of(2026, 4, 1),
+                            delytelseListe = listOf(
+                                PensjonDelytelseV4(
+                                    pensjonsType = "inntektsPensjon",
+                                    belop = 147026
+                                )
+                            ),
+                            uttaksgrad = 80
+                        )
+                    ),
+                    alternativerVedForLavOpptjening = ForslagVedForLavOpptjeningV4(
+                        gradertUttak = GradertUttakV4(
+                            fraOgMedDato = LocalDate.of(2026, 4, 1),
+                            uttaksgrad = 80
+                        ),
+                        heltUttakFraOgMedDato = LocalDate.of(2027, 2, 1)
+                    ),
+                    harUttak = false
+                )
+    }
 })

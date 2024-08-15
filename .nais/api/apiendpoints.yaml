@@ -12,8 +12,8 @@ spec:
     name: maskinporten
     debug: true
     cache: true
-    scope:
-      - "nav:pensjonssimulator:simulering"
+    scopes:
+      - nav:pensjonssimulator:simulering
   endpoints:
     - path: /pensjonssimulator/v4/simuler-alderspensjon
       method: POST

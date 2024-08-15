@@ -3,6 +3,8 @@ kind: ApiEndpoints
 metadata:
   name: pensjonssimulator
   namespace: pensjonskalkulator
+  labels:
+    team: pensjonskalkulator
 spec:
   appName: pensjonssimulator
   krakend: pensjonssimulator

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.uttak.api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api")
+@SecurityRequirement(name = "BearerAuthentication")
 class UttakController(
     private val service: UttakService,
     private val traceAid: TraceAid

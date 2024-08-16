@@ -1,0 +1,44 @@
+apiVersion: krakend.nais.io/v1
+kind: ApiEndpoints
+metadata:
+  name: pensjonssimulator
+  namespace: pensjonskalkulator
+  labels:
+    team: pensjonskalkulator
+spec:
+  appName: pensjonssimulator
+  krakend: pensjonssimulator
+  auth:
+    name: maskinporten
+    debug: true
+    cache: true
+    scopes:
+      - nav:pensjonssimulator:simulering
+  endpoints:
+    - path: /pensjonssimulator/v4/simuler-alderspensjon
+      method: POST
+      forwardHeaders:
+        - Authorization
+        - Content-Type
+        - X-Request-Id
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v4/simuler-alderspensjon
+      timeout: 10s
+    - path: /pensjonssimulator/v1/tidligst-mulig-uttak
+      method: POST
+      forwardHeaders:
+        - Authorization
+        - Content-Type
+        - X-Request-Id
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v1/tidligst-mulig-uttak
+      timeout: 10s
+  openEndpoints:
+    - path: /pensjonssimulator/v1/status
+      method: GET
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v1/status
+    - path: /pensjonssimulator/api-dokumentasjon
+      method: GET
+      backendHost: http://pensjonssimulator
+      backendPath: /v3/api-docs

@@ -18,6 +18,7 @@ spec:
       memory: 512Mi
   ingresses:
     - https://pensjonssimulator.ekstern.dev.nav.no
+    - https://pensjonssimulator.intern.dev.nav.no
   port: 8080
   liveness:
     path: /internal/health/liveness

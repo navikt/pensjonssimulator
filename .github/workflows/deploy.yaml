@@ -57,6 +57,24 @@ jobs:
           CLUSTER: dev-gcp
           IMAGE: ${{ needs.build.outputs.image }}
           RESOURCE: .nais/deploy-dev.yml
+  deploy-krakend-config:
+    name: Deploy KrakenD config to dev
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy KrakenD config
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/api/krakend-dev.yaml
+      - name: Deploy API endpoints config
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/api/apiendpoints.yaml
   trivy-imagescan:
     name: Scan Docker image
     needs: [ build ]

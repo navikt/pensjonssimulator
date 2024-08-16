@@ -30,7 +30,7 @@ class OpenApiConfiguration {
                             .type(SecurityScheme.Type.HTTP)
                             .scheme("bearer")
                             .bearerFormat("JWT")
-                            .description("For å anskaffe et token kan du bruke https://pensjon-maskinporten-test.intern.dev.nav.no/?scopes=nav:pensjonssimulator:simulering")
+                            .description("NAV-intern informasjon: For å anskaffe et token i dev kan du bruke https://pensjon-maskinporten-test.intern.dev.nav.no/")
                     )
             )
 }

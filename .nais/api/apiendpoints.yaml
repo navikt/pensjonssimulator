@@ -38,7 +38,7 @@ spec:
       method: GET
       backendHost: http://pensjonssimulator
       backendPath: /api/v1/status
-    - path: /pensjonssimulator/swagger-ui/index.html
+    - path: /pensjonssimulator/api-dokumentasjon
       method: GET
       backendHost: http://pensjonssimulator
-      backendPath: /swagger-ui/index.html
+      backendPath: /v3/api-docs

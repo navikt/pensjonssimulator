@@ -11,14 +11,13 @@ object Metrics {
             .increment()
     }
 
-    fun countEvent(eventName: String, result: String) {
-        Metrics.counter("$PREFIX-$eventName", "result", result).increment()
+    fun countIngressCall(organisasjonsnummer: String) {
+        Metrics.counter("$PREFIX-ingress-call", "orgno", organisasjonsnummer).increment()
     }
 }
 
 object MetricResult {
     const val BAD_CLIENT = "bad-client"
     const val BAD_SERVER = "bad-server"
-    const val BAD_XML = "bad-xml"
     const val OK = "ok"
 }

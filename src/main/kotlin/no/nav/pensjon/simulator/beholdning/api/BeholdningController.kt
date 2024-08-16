@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api")
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "BearerAuthentication")
 class BeholdningController(
     private val service: FolketrygdBeholdningService,
     private val traceAid: TraceAid

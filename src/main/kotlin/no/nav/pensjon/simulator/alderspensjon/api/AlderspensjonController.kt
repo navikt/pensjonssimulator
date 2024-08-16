@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api")
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "BearerAuthentication")
 class AlderspensjonController(
     private val service: AlderspensjonService,
     private val traceAid: TraceAid

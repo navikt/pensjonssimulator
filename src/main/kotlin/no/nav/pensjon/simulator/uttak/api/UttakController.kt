@@ -25,7 +25,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("api")
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "BearerAuthentication")
 class UttakController(
     private val service: UttakService,
     private val traceAid: TraceAid

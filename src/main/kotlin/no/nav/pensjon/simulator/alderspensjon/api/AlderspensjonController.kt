@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon.api
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api")
+@SecurityRequirement(name = "Bearer Authentication")
 class AlderspensjonController(
     private val service: AlderspensjonService,
     private val traceAid: TraceAid

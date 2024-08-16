@@ -11,7 +11,7 @@
     </parent>
     <groupId>no.nav.pensjon</groupId>
     <artifactId>pensjonssimulator</artifactId>
-    <version>0.0.3</version>
+    <version>0.3.0</version>
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

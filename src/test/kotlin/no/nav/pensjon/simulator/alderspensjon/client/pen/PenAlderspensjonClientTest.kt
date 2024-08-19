@@ -84,7 +84,7 @@ class PenAlderspensjonClientTest : FunSpec({
                         uttaksgrad = Uttaksgrad.HUNDRE_PROSENT
                     )
                 ),
-                alternativerVedForLavOpptjening = null,
+                forslagVedForLavOpptjening = null,
                 harUttak = false
             )
         }
@@ -134,7 +134,7 @@ class PenAlderspensjonClientTest : FunSpec({
                                 uttaksgrad = Uttaksgrad.HUNDRE_PROSENT
                             )
                         ),
-                        alternativerVedForLavOpptjening = ForslagVedForLavOpptjening(
+                        forslagVedForLavOpptjening = ForslagVedForLavOpptjening(
                             gradertUttak = GradertUttak(
                                 fom = LocalDate.of(2026, 4, 1),
                                 uttaksgrad = Uttaksgrad.AATTI_PROSENT

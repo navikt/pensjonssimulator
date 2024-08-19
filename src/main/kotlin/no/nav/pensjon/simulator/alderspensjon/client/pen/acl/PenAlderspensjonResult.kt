@@ -3,10 +3,6 @@ package no.nav.pensjon.simulator.alderspensjon.client.pen.acl
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
-/**
- * Ref. API specification:
- * https://confluence.adeo.no/pages/viewpage.action?pageId=583317319
- */
 data class PenAlderspensjonResult(
     val simuleringSuksess: Boolean?,
     val aarsakListeIkkeSuksess: List<PenPensjonSimuleringStatus>?,
@@ -40,4 +36,3 @@ data class PenPensjonDelytelse(
     val pensjonsType: String?,
     val belop: Int?
 )
-

@@ -24,7 +24,7 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                         uttaksgrad = Uttaksgrad.FEMTI_PROSENT
                     )
                 ),
-                alternativerVedForLavOpptjening = null,
+                forslagVedForLavOpptjening = null,
                 harUttak = false
             )
         ) shouldBe
@@ -43,7 +43,7 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                             uttaksgrad = 50
                         )
                     ),
-                    alternativerVedForLavOpptjening = null,
+                    forslagVedForLavOpptjening = null,
                     harUttak = false
                 )
     }
@@ -67,7 +67,7 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                         uttaksgrad = Uttaksgrad.AATTI_PROSENT
                     )
                 ),
-                alternativerVedForLavOpptjening = ForslagVedForLavOpptjening(
+                forslagVedForLavOpptjening = ForslagVedForLavOpptjening(
                     gradertUttak = GradertUttak(
                         fom = LocalDate.of(2026, 4, 1),
                         uttaksgrad = Uttaksgrad.AATTI_PROSENT
@@ -97,7 +97,7 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                             uttaksgrad = 80
                         )
                     ),
-                    alternativerVedForLavOpptjening = ForslagVedForLavOpptjeningV4(
+                    forslagVedForLavOpptjening = ForslagVedForLavOpptjeningV4(
                         gradertUttak = GradertUttakV4(
                             fraOgMedDato = LocalDate.of(2026, 4, 1),
                             uttaksgrad = 80

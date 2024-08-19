@@ -10,7 +10,7 @@ object PenAlderspensjonResultMapper {
             simuleringSuksess = source.simuleringSuksess ?: false,
             aarsakListeIkkeSuksess = source.aarsakListeIkkeSuksess.orEmpty().map(::status),
             alderspensjon = source.alderspensjon.orEmpty().map(::alderspensjonFraFolketrygden),
-            alternativerVedForLavOpptjening = source.alternativerVedForLavOpptjening?.let(::forslagVedForLavOpptjening),
+            forslagVedForLavOpptjening = source.alternativerVedForLavOpptjening?.let(::forslagVedForLavOpptjening),
             harUttak = source.harUttak ?: false
         )
 

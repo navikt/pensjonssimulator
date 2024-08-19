@@ -78,7 +78,7 @@ class PenAlderspensjonClient(
             simuleringSuksess = false,
             aarsakListeIkkeSuksess = emptyList(),
             alderspensjon = emptyList(),
-            alternativerVedForLavOpptjening = null,
+            forslagVedForLavOpptjening = null,
             harUttak = false
         )
     }

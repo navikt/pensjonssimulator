@@ -7,13 +7,14 @@ import java.time.LocalDate
 
 /**
  * Version 4 of result for 'simuler alderspensjon'.
+ * Ref. API specification: https://confluence.adeo.no/pages/viewpage.action?pageId=583317319
  * NB: Versions 1 to 3 are services offered by PEN.
  */
 data class AlderspensjonResultV4(
     val simuleringSuksess: Boolean,
     val aarsakListeIkkeSuksess: List<PensjonSimuleringStatusV4>,
     val alderspensjon: List<AlderspensjonFraFolketrygdenV4>,
-    val alternativerVedForLavOpptjening: ForslagVedForLavOpptjeningV4?,
+    val forslagVedForLavOpptjening: ForslagVedForLavOpptjeningV4?,
     val harUttak: Boolean
 )
 

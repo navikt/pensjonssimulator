@@ -6,7 +6,7 @@ data class AlderspensjonResult(
     val simuleringSuksess: Boolean,
     val aarsakListeIkkeSuksess: List<PensjonSimuleringStatus>,
     val alderspensjon: List<AlderspensjonFraFolketrygden>,
-    val alternativerVedForLavOpptjening: ForslagVedForLavOpptjening?,
+    val forslagVedForLavOpptjening: ForslagVedForLavOpptjening?,
     val harUttak: Boolean
 )
 

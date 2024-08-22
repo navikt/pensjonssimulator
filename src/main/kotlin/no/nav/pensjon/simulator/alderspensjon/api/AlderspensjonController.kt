@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonSpecMapperV4.
 import no.nav.pensjon.simulator.alderspensjon.api.acl.AlderspensjonSpecV4
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.springframework.web.bind.annotation.PostMapping
@@ -58,6 +59,8 @@ class AlderspensjonController(
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
+            badRequest(e)!!
+        } catch (e: InvalidEnumValueException) {
             badRequest(e)!!
         } finally {
             traceAid.end()

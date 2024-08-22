@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.uttak.TidligstMuligUttakSpec
@@ -68,6 +69,8 @@ class UttakController(
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
+            badRequest(e)!!
+        } catch (e: InvalidEnumValueException) {
             badRequest(e)!!
         } finally {
             traceAid.end()

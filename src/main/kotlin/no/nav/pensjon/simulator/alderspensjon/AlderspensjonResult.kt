@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon
 
+import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import java.time.LocalDate
 
 data class AlderspensjonResult(
@@ -67,6 +68,6 @@ enum class Uttaksgrad(val prosentsats: Int) {
 
         fun from(prosentsats: Int?) =
             values.singleOrNull { it.prosentsats == prosentsats }
-                ?: throw RuntimeException("Ugyldig prosentsats for uttaksgrad: $prosentsats")
+                ?: throw InvalidEnumValueException("Ugyldig prosentsats for uttaksgrad: $prosentsats")
     }
 }

@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.client.pen
 
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.*
@@ -7,6 +8,7 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.EgressException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
@@ -145,6 +147,39 @@ class PenAlderspensjonClientTest : FunSpec({
                     )
         }
     }
+
+    test("simulerAlderspensjon handles bad request") {
+        val contextRunner = ApplicationContextRunner().withConfiguration(
+            AutoConfigurations.of(WebClientAutoConfiguration::class.java)
+        )
+
+        server!!.enqueue(
+            MockResponse()
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setResponseCode(HttpStatus.BAD_REQUEST.value()).setBody(PenResponse.ERROR_MESSAGE)
+        )
+
+        contextRunner.run {
+            val webClientBuilder = it.getBean(WebClient.Builder::class.java)
+            val client = PenAlderspensjonClient(baseUrl!!, webClientBuilder, mock(TraceAid::class.java))
+
+            val exception = shouldThrow<EgressException> {
+                client.simulerAlderspensjon(PenRequest.alderspensjonSpec)
+            }
+
+            exception.message shouldBe """{
+    "feilmelding": "OPPTJENING_KontrollerBeregnPensjonsBeholdningRequestRS.BeholdningTomErUgyldig_forSentIAret  (PEN166)",
+    "merknader": [
+        {
+            "ar": null,
+            "argumentListeString": "",
+            "kode": "OPPTJENING_KontrollerBeregnPensjonsBeholdningRequestRS.BeholdningTomErUgyldig_forSentIAret",
+            "argumentListe": []
+        }
+    ]
+}"""
+        }
+    }
 })
 
 object PenRequest {
@@ -254,5 +289,18 @@ object PenResponse {
         "heltUttakFraOgMedDato": "2027-02-01"
     },
     "harUttak": false
+}"""
+
+    @Language("json")
+    const val ERROR_MESSAGE = """{
+    "feilmelding": "OPPTJENING_KontrollerBeregnPensjonsBeholdningRequestRS.BeholdningTomErUgyldig_forSentIAret  (PEN166)",
+    "merknader": [
+        {
+            "ar": null,
+            "argumentListeString": "",
+            "kode": "OPPTJENING_KontrollerBeregnPensjonsBeholdningRequestRS.BeholdningTomErUgyldig_forSentIAret",
+            "argumentListe": []
+        }
+    ]
 }"""
 }

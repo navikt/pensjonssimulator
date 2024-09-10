@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.trygd
 
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.newTrygdetidPeriode
+import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import java.time.LocalDate
 
@@ -62,7 +62,7 @@ object InnlandTrygdetidGrunnlagInserter {
 
     private fun trygdetidMedArbeid(fom: LocalDate?, tom: LocalDate?) =
         TrygdetidOpphold(
-            periode = newTrygdetidPeriode(fom, tom),
+            periode = trygdetidPeriode(fom, tom),
             arbeidet = true
         )
 }

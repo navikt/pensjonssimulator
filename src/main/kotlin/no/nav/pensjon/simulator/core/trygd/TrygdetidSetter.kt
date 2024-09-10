@@ -174,7 +174,7 @@ object TrygdetidSetter {
 
     // SettTrygdetidHelper.createTrygdetidsgrunnlagNorge
     private fun newNorskTrygdetidPeriode(fom: LocalDate, tom: LocalDate?, ikkeProRata: Boolean) =
-        TrygdetidGrunnlagFactory.newTrygdetidPeriode(
+        TrygdetidGrunnlagFactory.trygdetidPeriode(
             fom = fromLocalDate(fom)!!, //TODO noon?
             tom = fromLocalDate(tom),
             land = Land.NOR,

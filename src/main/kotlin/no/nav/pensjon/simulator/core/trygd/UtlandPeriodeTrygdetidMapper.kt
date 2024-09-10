@@ -10,16 +10,16 @@ import java.time.LocalDate
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdetidsgrunnlagForUtenlandsperioderMapper
 object UtlandPeriodeTrygdetidMapper {
 
-    fun newTrygdetidsgrunnlagForUtenlandsperioder(utlandPeriodeListe: MutableList<UtlandPeriode>) =
-        utlandPeriodeListe.map(::newTrygdetidsgrunnlag)
+    fun utlandTrygdetidGrunnlag(utlandPeriodeListe: MutableList<UtlandPeriode>) =
+        utlandPeriodeListe.map(::trygdetidGrunnlag)
 
-    fun newTrygdetidsgrunnlagForUtenlandsperioder(
+    fun utlandTrygdetidGrunnlag(
         inputUtlandPeriodeListe: MutableList<UtlandPeriode>,
         trygdetidGrunnlagMedPensjonspoengListe: List<TrygdetidOpphold>
     ): List<TrygdetidOpphold> {
         val resultList: MutableList<TrygdetidOpphold> = mutableListOf()
         val utlandPeriodeListe =
-            newTrygdetidsgrunnlagForUtenlandsperioder(inputUtlandPeriodeListe).sortedBy { it.periode.fom }
+            utlandTrygdetidGrunnlag(inputUtlandPeriodeListe).sortedBy { it.periode.fom }
         val pensjonspoengListe = trygdetidGrunnlagMedPensjonspoengListe.sortedBy { it.periode.fom }
         var poengPeriode: TrygdetidOpphold?
         var utlandPeriode: TrygdetidOpphold?
@@ -62,17 +62,17 @@ object UtlandPeriodeTrygdetidMapper {
     private fun copy(utlandPeriode: TrygdetidOpphold): TrygdetidOpphold {
         val opprinnelig = utlandPeriode.periode
 
-        val trygdetidPeriode = TrygdetidGrunnlagFactory.newTrygdetidPeriode(
-            opprinnelig.fom,
-            opprinnelig.tom,
-            Land.valueOf(opprinnelig.land!!.kode)
+        val trygdetidPeriode = TrygdetidGrunnlagFactory.trygdetidPeriode(
+            fom = opprinnelig.fom,
+            tom = opprinnelig.tom,
+            land = opprinnelig.land?.let { Land.valueOf(it.kode) }
         )
 
         return TrygdetidOpphold(trygdetidPeriode, utlandPeriode.arbeidet)
     }
 
-    private fun newTrygdetidsgrunnlag(utlandPeriode: UtlandPeriode): TrygdetidOpphold {
-        val trygdetidPeriode = TrygdetidGrunnlagFactory.newTrygdetidPeriode(
+    private fun trygdetidGrunnlag(utlandPeriode: UtlandPeriode): TrygdetidOpphold {
+        val trygdetidPeriode = TrygdetidGrunnlagFactory.trygdetidPeriode(
             fom = utlandPeriode.fom,
             tom = utlandPeriode.tom,
             land = utlandPeriode.land,

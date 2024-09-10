@@ -350,7 +350,7 @@ class SimulatorCore(val context: SimulatorContext) : UttakAlderDiscriminator {
 
     private fun oppdaterKravhodeForFoersteKnekkpunkt(spec: KravhodeUpdateSpec): Kravhode {
         val start = currentTimeMillis()
-        val response = KravhodeUpdater(context).oppdaterKravHodeForForsteKnekkpunkt(spec)
+        val response = KravhodeUpdater(context).updateKravhodeForFoersteKnekkpunkt(spec)
         logger.info("oppdaterKravhodeForForsteKnekkpunkt tok {} ms", currentTimeMillis() - start)
         return response
     }

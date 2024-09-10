@@ -216,7 +216,6 @@ class KravhodeUpdater(private val context: SimulatorContext) {
             if (addedAarListe.contains(aar) || opptjening.pp <= 0) continue
 
             val trygdetidGrunnlag = TrygdetidGrunnlagFactory.trygdetidPeriode(
-                //TODO check use of Calendar.XXX together with LocalDate.of
                 fom = LocalDate.of(aar, 1, 1),
                 tom = LocalDate.of(aar, 12, 31),
                 land = Land.NOR

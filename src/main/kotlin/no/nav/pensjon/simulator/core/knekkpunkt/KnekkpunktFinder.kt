@@ -185,7 +185,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         var forrigeTrygdetidKap20 = forrigeTrygdetid.kapittel20
 
         for (kalenderAar in foersteBeregningDato.year + 1..sisteRelevanteAar) {
-            val virkDato = LocalDate.of(kalenderAar, Calendar.JANUARY, 1)
+            val virkDato = LocalDate.of(kalenderAar, 1, 1)
             val trygdetidInput = trygdetidFastsetterInput(
                 kravhode,
                 persongrunnlag,
@@ -251,7 +251,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
                     //addKnekkpunkt(knekkpunkter, createDate(grunnlag.ar + OPPTJENING_ETTERSLEP_ANTALL_AAR, Calendar.JANUARY, 1), arsak)
                     addKnekkpunkt(
                         knekkpunktMap,
-                        LocalDate.of(grunnlag.ar + OPPTJENING_ETTERSLEP_ANTALL_AAR, Calendar.JANUARY, 1),
+                        LocalDate.of(grunnlag.ar + OPPTJENING_ETTERSLEP_ANTALL_AAR, 1, 1),
                         aarsak
                     )
                 }

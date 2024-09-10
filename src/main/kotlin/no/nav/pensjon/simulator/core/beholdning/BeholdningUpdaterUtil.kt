@@ -48,7 +48,7 @@ object BeholdningUpdaterUtil {
     }
 
     // OppdaterPensjonsbeholdningerHelper.updateBeholdningAfterPREG
-    fun updateBeholdningAfterPreg(
+    fun postprocessBeholdning(
         pensjonBeholdning: Pensjonsbeholdning?,
         code: RestpensjonBeholdningOppdateringAarsak?,
         fom: Date?,

@@ -32,7 +32,7 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.removeAllB
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.setOmsorgsgrunnlagOnPersongrunnlagIfExists
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.setOpptjeningsgrunnlagOnPersongrunnlagIfExists
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.switchExistingBeholdningOnPersongrunnlag
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.updateBeholdningAfterPreg
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.postprocessBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.updateBeholdninger
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.verifyBeholdningFom2010
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.verifyEmptyBeholdningAndGrunnlag
@@ -110,35 +110,36 @@ class BeholdningUpdater(val context: SimulatorContext) {
         mutableListOf()
 
     // OppdaterPensjonsbeholdningerCommand.updatePensjonsbeholdning
-    private fun updatePensjonsbeholdning(
-        beregningsgrunnlag: BeholdningBeregningsgrunnlag,
+    private fun updatePensjonBeholdning(
+        beregningGrunnlag: BeholdningBeregningsgrunnlag,
         persongrunnlag: Persongrunnlag?,
-        sisteGyldigOpptjArPopp: Int
+        sisteGyldigeOpptjeningAar: Int
     ): PersonBeholdning {
-        val forrigeBeholdning = beregningsgrunnlag.beholdning
-        val tomBeholdning = LocalDate.of(sisteGyldigOpptjArPopp + OPPTJENING_ETTERSLEP_ANTALL_AAR, Calendar.JANUARY, 1)
+        val forrigeBeholdning = beregningGrunnlag.beholdning
+        val beholdningTom = LocalDate.of(sisteGyldigeOpptjeningAar + OPPTJENING_ETTERSLEP_ANTALL_AAR, 1, 1)
         val beholdninger: MutableList<Pensjonsbeholdning> =
-            beregnOpptjening(persongrunnlag, tomBeholdning, forrigeBeholdning)
+            beregnOpptjening(persongrunnlag, beholdningTom, forrigeBeholdning)
         val oppdatertBeholdning: Pensjonsbeholdning = getSisteBeholdning(beholdninger)
-        val oppdatertBeholdningFomDate = firstDayOf(oppdatertBeholdning)
+        val oppdatertBeholdningFom = firstDayOf(oppdatertBeholdning)
 
-        updateBeholdningAfterPreg(
-            oppdatertBeholdning,
-            RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING,
-            oppdatertBeholdningFomDate,
-            null
+        postprocessBeholdning(
+            pensjonBeholdning = oppdatertBeholdning,
+            code = RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING,
+            fom = oppdatertBeholdningFom,
+            tom = null
         )
-        return createPersonBeholdning(beregningsgrunnlag.pid, mutableListOf(oppdatertBeholdning))
+
+        return createPersonBeholdning(beregningGrunnlag.pid, mutableListOf(oppdatertBeholdning))
     }
 
     // OppdaterPensjonsbeholdningerHelper.beregnOpptjening
     private fun beregnOpptjening(
         persongrunnlag: Persongrunnlag?,
-        tomBeholdning: LocalDate?,
+        beholdningTom: LocalDate?,
         forrigeBeholdning: Pensjonsbeholdning?
     ): MutableList<Pensjonsbeholdning> =
         try {
-            persongrunnlag?.let { context.beregnOpptjening(tomBeholdning, it, forrigeBeholdning) } ?: mutableListOf()
+            persongrunnlag?.let { context.beregnOpptjening(beholdningTom, it, forrigeBeholdning) } ?: mutableListOf()
         } catch (e: KanIkkeBeregnesException) {
             //throw ImplementationUnrecoverableException("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId, e)
             throw RuntimeException(
@@ -154,31 +155,31 @@ class BeholdningUpdater(val context: SimulatorContext) {
         }
 
     // OppdaterPensjonsbeholdningerHelper.hentGyldigSats
-    private fun hentGyldigSats(year: Int): List<SatsResultat> =
-        context.fetchGyldigSats(generateHentGyldigSatsConsumerRequest(year)).satsResultater
+    private fun hentGyldigSats(aar: Int): List<SatsResultat> =
+        context.fetchGyldigSats(generateHentGyldigSatsConsumerRequest(aar)).satsResultater
 
     // OppdaterPensjonsbeholdningerCommand.populatePersongrunnlag
     private fun populatePersongrunnlag(
         person: PenPerson,
-        beregningsgrunnlag: BeholdningBeregningsgrunnlag,
-        opptjeningsModus: String,
-        sisteGyldigeOpptjArPopp: String
+        beregningGrunnlag: BeholdningBeregningsgrunnlag,
+        opptjeningModus: String,
+        sisteGyldigeOpptjeningAar: String
     ): Persongrunnlag {
-        if (opptjeningsModus != INITIERING && beregningsgrunnlag.ufoerFoer2009) {
+        if (opptjeningModus != INITIERING && beregningGrunnlag.ufoerFoer2009) {
             //throw ImplementationUnrecoverableException(
             throw RuntimeException(
-                "Invalid combination with opptjeningsModus: $opptjeningsModus with UforFoer2009 is TRUE."
+                "Invalid combination with opptjeningModus: $opptjeningModus with UforFoer2009 is TRUE."
             )
         }
 
         val persongrunnlag: Persongrunnlag = createPersongrunnlagFromPerson(person)
-        setOpptjeningsgrunnlagOnPersongrunnlagIfExists(beregningsgrunnlag.opptjeningGrunnlagListe, persongrunnlag)
-        setOmsorgsgrunnlagOnPersongrunnlagIfExists(beregningsgrunnlag.omsorgGrunnlagListe, persongrunnlag)
-        addForstegangstjenesteIfExists(beregningsgrunnlag, persongrunnlag)
-        addDagpengeGrunnlagIfExists(beregningsgrunnlag, persongrunnlag)
+        setOpptjeningsgrunnlagOnPersongrunnlagIfExists(beregningGrunnlag.opptjeningGrunnlagListe, persongrunnlag)
+        setOmsorgsgrunnlagOnPersongrunnlagIfExists(beregningGrunnlag.omsorgGrunnlagListe, persongrunnlag)
+        addForstegangstjenesteIfExists(beregningGrunnlag, persongrunnlag)
+        addDagpengeGrunnlagIfExists(beregningGrunnlag, persongrunnlag)
 
-        if (hasLength(sisteGyldigeOpptjArPopp)) {
-            persongrunnlag.sisteGyldigeOpptjeningsAr = sisteGyldigeOpptjArPopp.toInt()
+        if (hasLength(sisteGyldigeOpptjeningAar)) {
+            persongrunnlag.sisteGyldigeOpptjeningsAr = sisteGyldigeOpptjeningAar.toInt()
         }
 
         persongrunnlag.utbetalingsgradUTListe = getUforeOpptjeningGrunnlagCopy(person.penPersonId)
@@ -187,26 +188,26 @@ class BeholdningUpdater(val context: SimulatorContext) {
 
     // OppdaterPensjonsbeholdningerCommand.createPensjonsbeholdning2010
     private fun createPensjonsbeholdning2010(
-        beregningsgrunnlag: BeholdningBeregningsgrunnlag,
+        beregningGrunnlag: BeholdningBeregningsgrunnlag,
         persongrunnlag: Persongrunnlag
     ): PersonBeholdning {
-        val tomBeholdning = LocalDate.of(YEAR_2010, Calendar.JANUARY, 1)
-        val beholdninger: MutableList<Pensjonsbeholdning> = beregnOpptjening(persongrunnlag, tomBeholdning, null)
+        val beholdningTom = LocalDate.of(YEAR_2010, 1, 1)
+        val beholdninger: MutableList<Pensjonsbeholdning> = beregnOpptjening(persongrunnlag, beholdningTom, null)
 
         for (beholdning in beholdninger) {
             val fom = firstDayOf(beholdning)
             val tom = if (beholdning.ar == YEAR_2010) null else lastDayOf(beholdning)
-            updateBeholdningAfterPreg(beholdning, RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING, fom, tom)
+            postprocessBeholdning(beholdning, RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING, fom, tom)
         }
 
-        return createPersonBeholdning(beregningsgrunnlag.pid, beholdninger)
+        return createPersonBeholdning(beregningGrunnlag.pid, beholdninger)
     }
 
     // BeholdningSwitcherHelper.updateBeholdningOnVirkWithTilvekstBeholdning
     private fun updateBeholdningOnVirkWithTilvekstBeholdning(
         persongrunnlag: Persongrunnlag,
         kravhode: Kravhode,
-        pensjonsbeholdning: Pensjonsbeholdning?
+        pensjonBeholdning: Pensjonsbeholdning?
     ) {
         val grunnlag = BeholdningBeregningsgrunnlag().apply {
             pid = persongrunnlag.penPerson?.pid
@@ -214,15 +215,15 @@ class BeholdningUpdater(val context: SimulatorContext) {
             foerstegangstjenesteGrunnlag = persongrunnlag.forstegangstjenestegrunnlag
             opptjeningGrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe
             omsorgGrunnlagListe = persongrunnlag.omsorgsgrunnlagListe
-            beholdning = pensjonsbeholdning
+            beholdning = pensjonBeholdning
         }
 
-        val sisteGyldigeOpptjArPopp =
+        val sisteGyldigeOpptjeningAar =
             kravhode.onsketVirkningsdato.toLocalDate()?.minusYears(
                 OPPTJENING_ETTERSLEP_ANTALL_AAR.toLong()
             )?.year.toString()
 
-        val request = createWithTilvekst(grunnlag, sisteGyldigeOpptjArPopp)
+        val request = createWithTilvekst(grunnlag, sisteGyldigeOpptjeningAar)
         val personBeholdningListe = oppdaterPensjonsbeholdninger(request).personBeholdningListe
 
         if (personBeholdningListe.isNotEmpty()) {
@@ -237,25 +238,25 @@ class BeholdningUpdater(val context: SimulatorContext) {
     }
 
     // OppdaterPensjonsbeholdningerCommand.execute
-    private fun oppdaterPensjonsbeholdninger(request: BeholdningUpdateSpec): BeholdningUpdateResult {
+    private fun oppdaterPensjonsbeholdninger(spec: BeholdningUpdateSpec): BeholdningUpdateResult {
         //helper.validateInput(request) TODO
         val personBeholdningListe: MutableList<PersonBeholdning> = mutableListOf()
         val fnrIkkeFunnetListe: MutableList<Pid> = mutableListOf()
-        oppdaterBeholdning(request, personBeholdningListe, fnrIkkeFunnetListe)
+        oppdaterBeholdning(spec, personBeholdningListe, fnrIkkeFunnetListe)
         return BeholdningUpdateResult(personBeholdningListe, fnrIkkeFunnetListe)
     }
 
     // OppdaterPensjonsbeholdningerCommand.oppdaterBeholdning
     private fun oppdaterBeholdning(
-        request: BeholdningUpdateSpec,
+        spec: BeholdningUpdateSpec,
         personBeholdningListe: MutableList<PersonBeholdning>,
         fnrIkkeFunnetListe: MutableList<Pid>
     ) {
         val fnrListe: List<Pid> =
-            request.pensjonBeholdningBeregningGrunnlag.mapNotNull { it.pid } // OppdaterPensjonsbeholdningerHelper.getFnrListe
+            spec.pensjonBeholdningBeregningGrunnlag.mapNotNull { it.pid } // OppdaterPensjonsbeholdningerHelper.getFnrListe
         val penPersonMap: Map<String, PenPerson> = findPenPerson(fnrListe)
 
-        for (beregningsgrunnlag in request.pensjonBeholdningBeregningGrunnlag) {
+        for (beregningsgrunnlag in spec.pensjonBeholdningBeregningGrunnlag) {
             var personBeholdning: PersonBeholdning? = null
             val penPerson = beregningsgrunnlag.pid?.value?.let { penPersonMap[it] }
 
@@ -267,38 +268,40 @@ class BeholdningUpdater(val context: SimulatorContext) {
                 val persongrunnlag: Persongrunnlag = populatePersongrunnlag(
                     penPerson,
                     beregningsgrunnlag,
-                    request.opptjeningModus,
-                    request.sisteGyldigeOpptjeningAar
+                    spec.opptjeningModus,
+                    spec.sisteGyldigeOpptjeningAar
                 )
-                val sisteGyldigOpptjArPopp = request.sisteGyldigeOpptjeningAar.toInt()
+
+                val sisteGyldigeOpptjeningAar = spec.sisteGyldigeOpptjeningAar.toInt()
 
                 // Scenario 0: If beholdningsyear is before 2010, thrown exception
                 val beholdning = beregningsgrunnlag.beholdning
+
                 if (beholdning?.ar?.let { it < YEAR_2010 } == true) {
                     //throw ImplementationUnrecoverableException("berGrForPensjonsbeholdning.beholdning.ar er FØR 2010")
                     throw RuntimeException("berGrForPensjonsbeholdning.beholdning.ar er FØR 2010")
                 } else if (verifyEmptyBeholdningAndGrunnlag(beholdning, persongrunnlag)) {
-                    personBeholdning = createEmptyBeholdning(beregningsgrunnlag.pid, sisteGyldigOpptjArPopp)
+                    personBeholdning = createEmptyBeholdning(beregningsgrunnlag.pid, sisteGyldigeOpptjeningAar)
 
                     // Scenario 1: Initering - initial pensjonsbeholdning from 01.01.2010
-                } else if (request.opptjeningModus == INITIERING && beholdning == null) {
+                } else if (spec.opptjeningModus == INITIERING && beholdning == null) {
                     // Call 5.2
                     personBeholdning = createPensjonsbeholdning2010(beregningsgrunnlag, persongrunnlag)
 
                     // Scenario 2: Tilvekst - update pensjonsbeholdning by new opptjening
-                } else if (request.opptjeningModus == TILVEKST) {
+                } else if (spec.opptjeningModus == TILVEKST) {
                     // Call 5.3
                     personBeholdning =
-                        updatePensjonsbeholdning(beregningsgrunnlag, persongrunnlag, sisteGyldigOpptjArPopp)
+                        updatePensjonBeholdning(beregningsgrunnlag, persongrunnlag, sisteGyldigeOpptjeningAar)
 
                     // Scenario 3: Korrigering - uupdate pensjonsbeholdning by corrected opptjening
-                } else if (request.opptjeningModus == KORRIGERING) {
+                } else if (spec.opptjeningModus == KORRIGERING) {
                     // Call 5.4 - if beholdning informasjon is sent as input to the service applies before last year
                     personBeholdning = adjustedPensjonsbeholdning(
                         beregningsgrunnlag,
                         persongrunnlag,
-                        sisteGyldigOpptjArPopp,
-                        request.beregnBeholdningUtenUttak
+                        sisteGyldigeOpptjeningAar,
+                        spec.beregnBeholdningUtenUttak
                     )
                 }
 
@@ -315,44 +318,44 @@ class BeholdningUpdater(val context: SimulatorContext) {
 
     // OppdaterPensjonsbeholdningerCommand.adjustedPensjonsbeholdning
     private fun adjustedPensjonsbeholdning(
-        beregningsgrunnlag: BeholdningBeregningsgrunnlag,
+        beregningGrunnlag: BeholdningBeregningsgrunnlag,
         persongrunnlag: Persongrunnlag,
-        sisteGyldigOpptjArPopp: Int,
+        sisteGyldigeOpptjeningAar: Int,
         beregnBeholdningUtenUttak: Boolean
     ): PersonBeholdning {
-        var forrigeBeholdning: Pensjonsbeholdning? = beregningsgrunnlag.beholdning
+        var forrigeBeholdning: Pensjonsbeholdning? = beregningGrunnlag.beholdning
         val beholdninger: MutableList<Pensjonsbeholdning> = mutableListOf()
 
-        if (beregningsgrunnlag.beholdning == null && hasOpptjeningBefore2009(beregningsgrunnlag)) {
+        if (beregningGrunnlag.beholdning == null && hasOpptjeningBefore2009(beregningGrunnlag)) {
             beholdninger.addAll(calculateTheInventoryTo2010(persongrunnlag))
             // Update forrigebeholdning with the newest beholdning
             forrigeBeholdning = getSisteBeholdning(beholdninger)
         } else {
-            beregningsgrunnlag.beholdning?.let { forrigeBeholdning = it }
+            beregningGrunnlag.beholdning?.let { forrigeBeholdning = it }
         }
 
         // Call 5.4.2 calculate beregning after 2010
         beholdninger.addAll(
             calculateTheInventoryAfter2010(
-                beregningsgrunnlag,
+                beregningGrunnlag,
                 persongrunnlag,
                 forrigeBeholdning,
-                sisteGyldigOpptjArPopp,
+                sisteGyldigeOpptjeningAar,
                 beregnBeholdningUtenUttak
             )
         )
-        return createPersonBeholdning(beregningsgrunnlag.pid, beholdninger)
+        return createPersonBeholdning(beregningGrunnlag.pid, beholdninger)
     }
 
     // OppdaterPensjonsbeholdningerCommand.calculateTheInventoryTo2010
     private fun calculateTheInventoryTo2010(persongrunnlag: Persongrunnlag): List<Pensjonsbeholdning> {
-        val beholdningTom = LocalDate.of(YEAR_2010, Calendar.JANUARY, 1)
+        val beholdningTom = LocalDate.of(YEAR_2010, 1, 1)
         val beholdningerFor2010: List<Pensjonsbeholdning> = beregnOpptjening(persongrunnlag, beholdningTom, null)
 
         for (beholdning in beholdningerFor2010) {
             val fom = firstDayOf(beholdning)
             val tom = lastDayOf(beholdning)
-            updateBeholdningAfterPreg(beholdning, RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING, fom, tom)
+            postprocessBeholdning(beholdning, RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING, fom, tom)
         }
 
         return beholdningerFor2010
@@ -360,16 +363,16 @@ class BeholdningUpdater(val context: SimulatorContext) {
 
     // OppdaterPensjonsbeholdningerCommand.calculateTheInventoryAfter2010
     private fun calculateTheInventoryAfter2010(
-        beregningsgrunnlag: BeholdningBeregningsgrunnlag,
+        beregningGrunnlag: BeholdningBeregningsgrunnlag,
         persongrunnlag: Persongrunnlag,
         beholdning: Pensjonsbeholdning?,
-        sisteGyldigOpptjArPopp: Int,
+        sisteGyldigeOpptjeningAar: Int,
         beregnBeholdningUtenUttak: Boolean
     ): List<Pensjonsbeholdning> {
         val beholdningerEtter2010: MutableList<Pensjonsbeholdning> = mutableListOf()
         val firstVirkFom: Date? =
-            if (beregnBeholdningUtenUttak) null else beregningsgrunnlag.pid?.let(::determineFirstVirkOfAP2016andAP2025)
-        val beregnTomYear: Int = determineBeregnTomYear(firstVirkFom, sisteGyldigOpptjArPopp)
+            if (beregnBeholdningUtenUttak) null else beregningGrunnlag.pid?.let(::determineFirstVirkOfAP2016andAP2025)
+        val beregnTomYear: Int = determineBeregnTomYear(firstVirkFom, sisteGyldigeOpptjeningAar)
         var forrigeBeholdning: Pensjonsbeholdning? = beholdning
 
         val startYear: Int =
@@ -383,7 +386,7 @@ class BeholdningUpdater(val context: SimulatorContext) {
 
                 forrigeBeholdning.ar + 1
             } else {
-                tidligsteOpptjeningAar(beregningsgrunnlag, persongrunnlag) + 2
+                tidligsteOpptjeningAar(beregningGrunnlag, persongrunnlag) + 2
             }
 
         // Calculate from year 2011 to currentYear and regular beholdning
@@ -391,7 +394,7 @@ class BeholdningUpdater(val context: SimulatorContext) {
             var pensjonsbeholdning: Pensjonsbeholdning
 
             // Call BEF3270 - Beregn opptjening
-            val beholdningTom = LocalDate.of(year, Calendar.JANUARY, 1)
+            val beholdningTom = LocalDate.of(year, 1, 1)
             val beholdninger: List<Pensjonsbeholdning> =
                 beregnOpptjening(persongrunnlag, beholdningTom, forrigeBeholdning)
             pensjonsbeholdning = getSisteBeholdning(beholdninger)
@@ -400,7 +403,7 @@ class BeholdningUpdater(val context: SimulatorContext) {
             val reguleringDatoer: List<SatsResultat> = hentGyldigSats(year)
             val forsteReguleringDato: Date? = findReguleringDato(reguleringDatoer)
             val pensjonsbeholdningFom = firstDayOf(pensjonsbeholdning)
-            updateBeholdningAfterPreg(
+            postprocessBeholdning(
                 pensjonsbeholdning,
                 RestpensjonBeholdningOppdateringAarsak.NY_OPPTJENING,
                 pensjonsbeholdningFom,
@@ -438,7 +441,7 @@ class BeholdningUpdater(val context: SimulatorContext) {
                     )
 
                     forrigeBeholdning = findLatest(regulerteBeholdninger)
-                    beregningsgrunnlag.beholdning = forrigeBeholdning
+                    beregningGrunnlag.beholdning = forrigeBeholdning
                     beholdningerEtter2010.addAll(regulerteBeholdninger)
                 }
             }
@@ -451,17 +454,17 @@ class BeholdningUpdater(val context: SimulatorContext) {
     private fun calculateBeholdningAfterRegulering(
         reguleringDatoListe: List<SatsResultat>,
         personPensjonsbeholdning: PersonPensjonsbeholdning?,
-        beregnTomYear: Int,
-        year: Int,
-        firstVirkFom: Date?
+        beregnTomAar: Int,
+        aar: Int,
+        foersteVirkningFom: Date?
     ): List<Pensjonsbeholdning> {
-        val regulerteBeholdninger: MutableList<Pensjonsbeholdning> = mutableListOf()
+        val regulertBeholdningListe: MutableList<Pensjonsbeholdning> = mutableListOf()
 
         for (index in reguleringDatoListe.indices) {
             val satsResultat = reguleringDatoListe[index]
             val reguleringDato = satsResultat.fom
 
-            if (firstVirkFom == null || isBeforeByDay(reguleringDato, firstVirkFom, false)) {
+            if (foersteVirkningFom == null || isBeforeByDay(reguleringDato, foersteVirkningFom, false)) {
                 val regulertPersonPensjonsbeholdningListe: List<PersonPensjonsbeholdning> =
                     regulerPensjonsbeholdning(personPensjonsbeholdning, reguleringDato)
 
@@ -472,36 +475,36 @@ class BeholdningUpdater(val context: SimulatorContext) {
                     if (reguleringDatoListe.size > index + 1) {
                         val nextReguleringDato: Date? =
                             reguleringDatoListe[index + 1].fom // OppdaterPensjonsbeholdningerHelper.getNextReguleringsdato
-                        beholdningTomDato = getRelativeDateByDays(firstDateOf(nextReguleringDato, firstVirkFom)!!, -1)
-                    } else if (beregnTomYear != year) {
-                        beholdningTomDato = createDate(year, Calendar.DECEMBER, 31)
-                    } else if (firstVirkFom != null) {
-                        beholdningTomDato = getRelativeDateByDays(firstVirkFom, -1)
+                        beholdningTomDato = getRelativeDateByDays(firstDateOf(nextReguleringDato, foersteVirkningFom)!!, -1)
+                    } else if (beregnTomAar != aar) {
+                        beholdningTomDato = createDate(aar, Calendar.DECEMBER, 31)
+                    } else if (foersteVirkningFom != null) {
+                        beholdningTomDato = getRelativeDateByDays(foersteVirkningFom, -1)
                     }
 
-                    updateBeholdningAfterPreg(
+                    postprocessBeholdning(
                         regulertBeholdning,
                         RestpensjonBeholdningOppdateringAarsak.REGULERING,
                         reguleringDato,
                         beholdningTomDato
                     )
-                    regulertBeholdning?.let(regulerteBeholdninger::add)
+                    regulertBeholdning?.let(regulertBeholdningListe::add)
                 }
             }
         }
 
-        return regulerteBeholdninger
+        return regulertBeholdningListe
     }
 
     // OppdaterPensjonsbeholdningerHelper.regulerPensjonsbeholdning
     private fun regulerPensjonsbeholdning(
         personPensjonsbeholdning: PersonPensjonsbeholdning?,
-        virkFom: Date?
+        virkningFom: Date?
     ): List<PersonPensjonsbeholdning> {
         val personPensjonsbeholdninger: MutableList<PersonPensjonsbeholdning> = mutableListOf()
         personPensjonsbeholdning?.let(personPensjonsbeholdninger::add)
         val request: RegulerPensjonsbeholdningRequest =
-            newRegulerPensjonsbeholdningRequest(personPensjonsbeholdninger, virkFom)
+            newRegulerPensjonsbeholdningRequest(personPensjonsbeholdninger, virkningFom)
 
         try {
             // DefaultBeregningConsumerService.regulerPensjonsbeholdning -> RegulerPensjonsbeholdningConsumerCommand.execute
@@ -538,7 +541,7 @@ class BeholdningUpdater(val context: SimulatorContext) {
         }
 
         val regulertBeholdning = regulertPersonPensjonsbeholdningListe[0].pensjonsbeholdning
-        updateBeholdningAfterPreg(
+        postprocessBeholdning(
             regulertBeholdning,
             RestpensjonBeholdningOppdateringAarsak.REGULERING,
             reguleringDato,

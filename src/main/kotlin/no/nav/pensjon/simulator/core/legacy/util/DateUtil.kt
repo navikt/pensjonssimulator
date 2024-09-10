@@ -258,9 +258,6 @@ object DateUtil {
         return thisCal == thatCal
     }
 
-    fun isSameDay(a: LocalDate?, b: Date?): Boolean =
-        isSameDay(fromLocalDate(a), b)
-
     fun isSameDay(a: LocalDate?, b: LocalDate?): Boolean =
         isSameDay(fromLocalDate(a), fromLocalDate(b))
 
@@ -574,15 +571,17 @@ object DateUtil {
      */
     // no.stelvio.common.util.DateUtil.createDayCalendar
     private fun createDayCalendar(date: Date?): Calendar {
-        val cal = Calendar.getInstance()
+        val calendar = Calendar.getInstance()
+
         if (date == null) {
-            cal.clear()
-            cal[0, Calendar.JANUARY, 0, 0, 0] = 0
+            calendar.clear()
+            calendar[0, Calendar.JANUARY, 0, 0, 0] = 0
         } else {
-            cal.time = date
-            clearTimeFields(cal)
+            calendar.time = date
+            clearTimeFields(calendar)
         }
-        return cal
+
+        return calendar
     }
 
     // no.stelvio.common.util.DateUtil.clearTimeFields

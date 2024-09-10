@@ -1,7 +1,5 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import java.time.LocalDate
@@ -23,10 +21,16 @@ object InnlandTrygdetidGrunnlagInserter {
     }
 
     private fun addGrunnlagFraFoedselDato(grunnlagListe: MutableList<TrygdetidOpphold>, foedselDato: LocalDate?) {
-        val fom = grunnlagListe[0].periode.fom
-        if (isSameDay(foedselDato, fom)) return
+        val fom: LocalDate? = grunnlagListe.firstOrNull()?.periode?.fom.toLocalDate()
+        if (fom == foedselDato) return
 
-        grunnlagListe.add(0, trygdetidMedArbeid(foedselDato, fom.toLocalDate()!!.minusDays(1)))
+        grunnlagListe.add(
+            index = 0,
+            element = trygdetidMedArbeid(
+                fom = foedselDato,
+                tom = fom?.minusDays(1)
+            )
+        )
     }
 
     private fun addGrunnlagAfterLastUtlandTrygdetidGrunnlag(grunnlagListe: MutableList<TrygdetidOpphold>) {
@@ -38,21 +42,23 @@ object InnlandTrygdetidGrunnlagInserter {
         var index = 0
 
         while (index < grunnlagListe.size - 1) {
-            val grunnlagBefore = grunnlagListe[index]
-            val grunnlagAfter = grunnlagListe[index + 1]
-            val firstGrunnlagTom = grunnlagBefore.periode.tom
-            val secondGrunnlagFom = grunnlagAfter.periode.fom
-            val dayAfterFirstGrunnlagTom: LocalDate? = firstGrunnlagTom.toLocalDate()?.plusDays(1)
+            val grunnlagBefore: TrygdetidOpphold = grunnlagListe[index]
+            val grunnlagAfter: TrygdetidOpphold = grunnlagListe[index + 1]
+            val secondGrunnlagFom: LocalDate? = grunnlagAfter.periode.fom.toLocalDate()
+            val firstGrunnlagTom: LocalDate? =
+                grunnlagBefore.periode.tom?.toLocalDate() ?: secondGrunnlagFom?.minusDays(1)
+            val dayAfterFirstGrunnlagTom: LocalDate? = firstGrunnlagTom?.plusDays(1)
 
-            if (!isSameDay(secondGrunnlagFom, fromLocalDate(dayAfterFirstGrunnlagTom))) {
+            if (secondGrunnlagFom != dayAfterFirstGrunnlagTom) {
                 // Add new TrygdetidsgrunnlagWithArbeid in the gap between trygdetidsgrunnlagWithArbeidBefore and trygdetidsgrunnlagWithArbeidAfter
                 grunnlagListe.add(
-                    index + 1,
-                    trygdetidMedArbeid(
-                        dayAfterFirstGrunnlagTom,
-                        secondGrunnlagFom.toLocalDate()?.minusDays(1)
+                    index = index + 1,
+                    element = trygdetidMedArbeid(
+                        fom = dayAfterFirstGrunnlagTom,
+                        tom = secondGrunnlagFom?.minusDays(1)
                     )
                 )
+
                 index++
             }
 

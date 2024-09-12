@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tech.sporing.web
 
 import jakarta.servlet.*
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Component
 
@@ -11,7 +12,8 @@ import org.springframework.stereotype.Component
 class ResettableStreamRequestFilter : Filter {
 
     override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+        val wrappedRequest = ResettableStreamHttpServletRequest(request as HttpServletRequest)
         val wrappedResponse = ResettableStreamHttpServletResponse(response as HttpServletResponse)
-        chain.doFilter(request, wrappedResponse)
+        chain.doFilter(wrappedRequest, wrappedResponse)
     }
 }

@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration
 import java.util.UUID
 
 @Configuration
-class TraceConfiguration {
+open class TraceConfiguration {
 
     @Bean
-    fun callIdGenerator() = CallIdGenerator { UUID.randomUUID().toString() }
+    open fun callIdGenerator() = CallIdGenerator { UUID.randomUUID().toString() }
 }

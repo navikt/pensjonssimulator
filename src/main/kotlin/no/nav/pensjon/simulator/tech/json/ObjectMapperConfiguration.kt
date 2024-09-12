@@ -21,11 +21,11 @@ import java.time.format.DateTimeParseException
  * Configuration of object mapper used for serialization and deserialization of data in JSON and XML format.
  */
 @Configuration
-class ObjectMapperConfiguration {
+open class ObjectMapperConfiguration {
 
     @Bean
     @Primary
-    fun objectMapper() =
+    open fun objectMapper() =
         jacksonObjectMapper().apply {
             enable(SerializationFeature.INDENT_OUTPUT)
             registerModule(JavaTimeModule())

@@ -24,7 +24,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 @Configuration
-class WebClientConfig : WebClientCustomizer {
+open class WebClientConfig : WebClientCustomizer {
 
     override fun customize(webClientBuilder: WebClient.Builder) {
         webClientBuilder
@@ -47,7 +47,7 @@ class WebClientConfig : WebClientCustomizer {
 
     @Bean
     @Primary
-    fun regularWebClient(): WebClient =
+    open fun regularWebClient(): WebClient =
         WebClient.builder()
             .clientConnector(
                 ReactorClientHttpConnector(HttpClient.create()

@@ -19,10 +19,10 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 @Configuration
-class SecurityConfiguration {
+open class SecurityConfiguration {
 
     @Bean
-    fun filterChain(
+    open fun filterChain(
         http: HttpSecurity,
         authResolver: AuthenticationManagerResolver<HttpServletRequest>,
         securityContextEnricher: SecurityContextEnricher,
@@ -51,7 +51,7 @@ class SecurityConfiguration {
             .build()
 
     @Bean
-    fun tokenAuthenticationManagerResolver(
+    open fun tokenAuthenticationManagerResolver(
         @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}") issuerUri: String,
         @Value("\${ps.maskinporten.scope}") scope: String
     ): AuthenticationManagerResolver<HttpServletRequest> =

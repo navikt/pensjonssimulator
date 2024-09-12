@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServic
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(exclude = [UserDetailsServiceAutoConfiguration::class])
-class PensjonssimulatorApplication
+open class PensjonssimulatorApplication
 
 fun main(args: Array<String>) {
     DefaultExports.initialize()

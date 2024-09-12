@@ -11,10 +11,10 @@ import org.springframework.context.annotation.Configuration
  * Configuration of OpenAPI (formerly known as Swagger).
  */
 @Configuration
-class OpenApiConfiguration {
+open class OpenApiConfiguration {
 
     @Bean
-    fun openApi() =
+    open fun openApi() =
         OpenAPI()
             .info(
                 Info()

@@ -9,10 +9,10 @@ import java.util.*
 import java.util.function.Supplier
 
 @Configuration
-class EgressServiceSecurityConfiguration {
+open class EgressServiceSecurityConfiguration {
 
     @Bean
-    fun egressServiceListsByAudience(
+    open fun egressServiceListsByAudience(
         @Value("\${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
         @Value("\${ps.sporingslogg.service-id}") sporingsloggServiceId: String
     ) =
@@ -22,7 +22,7 @@ class EgressServiceSecurityConfiguration {
         ))
 
     @Bean
-    fun egressTokenSuppliersByService(
+    open fun egressTokenSuppliersByService(
         servicesByAudience: EgressServicesByAudience,
         egressTokenGetter: EgressAccessTokenFacade
     ): EgressTokenSuppliersByService {

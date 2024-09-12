@@ -15,7 +15,7 @@ spec:
     limits:
       memory: 2048Mi
     requests:
-      cpu: 50m
+      cpu: 100m
       memory: 1024Mi
   ingresses:
     - https://pensjonssimulator.intern.nav.no

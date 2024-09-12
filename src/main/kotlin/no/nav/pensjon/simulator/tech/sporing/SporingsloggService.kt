@@ -1,7 +1,11 @@
 package no.nav.pensjon.simulator.tech.sporing
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Metrics
+import no.nav.pensjon.simulator.tech.security.SecurityCoroutineContext
 import no.nav.pensjon.simulator.tech.sporing.client.SporingsloggClient
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -11,21 +15,26 @@ class SporingsloggService(
     private val client: SporingsloggClient,
     private val organisasjonsnummerProvider: OrganisasjonsnummerProvider
 ) {
+    /**
+     * Log using fire-and-forget async call
+     */
     fun log(pid: Pid, leverteData: String) {
-        val organisasjonsnummer = organisasjonsnummerProvider.provideOrganisasjonsnummer()
+        CoroutineScope(Dispatchers.Default).launch(SecurityCoroutineContext()) {
+            val organisasjonsnummer = organisasjonsnummerProvider.provideOrganisasjonsnummer()
 
-        client.log(
-            Sporing(
-                pid,
-                mottaker = organisasjonsnummer,
-                tema = "PEK",
-                behandlingGrunnlag = "B353",
-                uthentingTidspunkt = LocalDateTime.now(),
-                leverteData
+            client.log(
+                Sporing(
+                    pid,
+                    mottaker = organisasjonsnummer,
+                    tema = "PEK",
+                    behandlingGrunnlag = "B353",
+                    uthentingTidspunkt = LocalDateTime.now(),
+                    leverteData
+                )
             )
-        )
 
-        countCall(organisasjonsnummer)
+            countCall(organisasjonsnummer)
+        }
     }
 
     private fun countCall(organisasjonsnummer: Organisasjonsnummer) {

@@ -50,6 +50,9 @@ jobs:
   deploy-dev:
     name: Deploy to dev-gcp
     needs: [ build ]
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.prod != 'true')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -64,10 +67,13 @@ jobs:
           RESOURCE: .nais/deploy-dev.yml
   deploy-krakend-config-dev:
     name: Deploy KrakenD config to dev
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.prod != 'true')
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Deploy KrakenD config
@@ -105,10 +111,10 @@ jobs:
       github.ref == 'refs/heads/main' &&
       github.event_name == 'workflow_dispatch' &&
       github.event.inputs.prod == 'true'
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Deploy KrakenD config

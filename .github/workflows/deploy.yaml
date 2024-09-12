@@ -10,6 +10,11 @@ on:
       - 'LICENSE'
       - 'README.md'
   workflow_dispatch:
+    inputs:
+      prod:
+        description: Deploy to production
+        type: boolean
+        required: false
 
 jobs:
   build:
@@ -57,7 +62,7 @@ jobs:
           CLUSTER: dev-gcp
           IMAGE: ${{ needs.build.outputs.image }}
           RESOURCE: .nais/deploy-dev.yml
-  deploy-krakend-config:
+  deploy-krakend-config-dev:
     name: Deploy KrakenD config to dev
     permissions:
       contents: read
@@ -74,6 +79,47 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
+          RESOURCE: .nais/api/apiendpoints.yaml
+  deploy-prod:
+    name: Deploy to prod-gcp
+    needs: [ build ]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.prod == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy to prod-gcp
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          IMAGE: ${{ needs.build.outputs.image }}
+          RESOURCE: .nais/deploy-prod.yml
+  deploy-krakend-config-prod:
+    name: Deploy KrakenD config to prod
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.prod == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy KrakenD config
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/api/krakend-prod.yaml
+      - name: Deploy API endpoints config
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
           RESOURCE: .nais/api/apiendpoints.yaml
   trivy-imagescan:
     name: Scan Docker image

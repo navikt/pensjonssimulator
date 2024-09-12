@@ -18,7 +18,7 @@ spec:
       cpu: 50m
       memory: 1024Mi
   ingresses:
-    - https://www.nav.no/pensjon/simulator
+    - https://pensjonssimulator.intern.nav.no
   port: 8080
   liveness:
     path: /internal/health/liveness
@@ -54,9 +54,9 @@ spec:
             - orgno: "931936492" # Storebrand Pensjonstjenester
   env:
     - name: FSS_GATEWAY_SERVICE_ID
-      value: dev-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
+      value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
     - name: FSS_GATEWAY_URL
-      value: https://pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+      value: https://pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
     - name: PEN_SERVICE_ID
       value: prod-fss:pensjondeployer:pensjon-pen
     - name: PEN_URL

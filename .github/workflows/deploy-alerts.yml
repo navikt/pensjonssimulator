@@ -21,3 +21,16 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/alerts.yml
+  deploy-alerts-prod:
+    name: Deploy prod alerts
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy alerts
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: .nais/alerts.yml

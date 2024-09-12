@@ -47,7 +47,7 @@ class SamhandlingSporingsloggClient(
                 .toBodilessEntity()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-            log.info { "Done" }
+            log.debug { "Sporingslogg call completed" }
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {

@@ -34,7 +34,7 @@ class SamhandlingSporingsloggClient(
     override fun log(sporing: Sporing) {
         val uri = PATH
         val dto = SamhandlingSporingMapper.toDto(sporing)
-        log.info { "POST to URI: '$uri' with body '$dto'" }
+        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
         try {
             webClient

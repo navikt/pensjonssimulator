@@ -34,7 +34,7 @@ class PenAlderspensjonClient(
     override fun simulerAlderspensjon(spec: AlderspensjonSpec): AlderspensjonResult {
         val uri = "$BASE_PATH/$PATH"
         val dto = PenAlderspensjonSpecMapper.toDto(spec)
-        log.info { "POST to URI: '$uri' with body '$dto'" }
+        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient

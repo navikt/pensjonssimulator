@@ -34,7 +34,7 @@ class PenUttakClient(
     override fun finnTidligstMuligUttak(spec: TidligstMuligUttakSpec): TidligstMuligUttak {
         val uri = "$BASE_PATH/$PATH"
         val dto = PenUttakSpecMapper.toDto(spec)
-        log.info { "POST to URI: '$uri' with body '$dto'" }
+        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient

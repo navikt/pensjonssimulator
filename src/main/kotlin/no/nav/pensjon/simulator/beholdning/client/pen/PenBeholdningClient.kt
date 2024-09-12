@@ -35,7 +35,7 @@ class PenBeholdningClient(
     override fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
         val uri = "$BASE_PATH/$PATH"
         val dto = PenFolketrygdBeholdningSpecMapper.toDto(spec)
-        log.info { "POST to URI: '$uri' with body '$dto'" }
+        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient

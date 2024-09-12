@@ -52,6 +52,18 @@ spec:
             - orgno: "938708606" # KLP
             - orgno: "982583462" # SPK
             - orgno: "931936492" # Storebrand Pensjonstjenester
+  accessPolicy:
+    outbound:
+      rules:
+        - application: pensjon-pen
+          namespace: pensjondeployer
+          cluster: prod-fss
+        - application: pensjon-selvbetjening-fss-gateway
+          namespace: pensjonselvbetjening
+          cluster: prod-fss
+      external:
+        - host: pensjon-pen.prod-fss-pub.nais.io
+        - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway

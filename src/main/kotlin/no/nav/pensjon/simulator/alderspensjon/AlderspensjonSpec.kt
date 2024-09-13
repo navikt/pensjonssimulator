@@ -12,12 +12,30 @@ data class AlderspensjonSpec(
     val epsHarInntektOver2G: Boolean,
     val fremtidigInntektListe: List<InntektSpec>,
     val rettTilAfpOffentligDato: LocalDate?
-)
+) {
+    fun withUttakFom(gradertFom: LocalDate?, heltFom: LocalDate) =
+        AlderspensjonSpec(
+            pid,
+            gradertUttak = gradertFom?.let { gradertUttak?.withFom(it) },
+            heltUttakFom = heltFom,
+            antallAarUtenlandsEtter16Aar,
+            epsHarPensjon,
+            epsHarInntektOver2G,
+            fremtidigInntektListe,
+            rettTilAfpOffentligDato
+        )
+}
 
 data class GradertUttakSpec(
     val uttaksgrad: Uttaksgrad,
     val fom: LocalDate
-)
+) {
+    fun withFom(dato: LocalDate) =
+        GradertUttakSpec(
+            uttaksgrad,
+            fom = dato
+        )
+}
 
 data class InntektSpec(
     val aarligBeloep: Int,

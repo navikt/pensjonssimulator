@@ -9,4 +9,9 @@ object DateUtil {
 
     fun toLocalDate(dateTime: ZonedDateTime): LocalDate =
         dateTime.withZoneSameInstant(ZoneId.of(TIME_ZONE_ID)).toLocalDate()
+
+    fun foersteDagNesteMaaned(dato: LocalDate): LocalDate =
+        dato
+            .plusMonths(1)
+            .withDayOfMonth(1)
 }

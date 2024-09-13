@@ -10,7 +10,17 @@ data class FolketrygdBeholdningSpec(
     val antallAarUtenlandsEtter16Aar: Int = 0,
     val epsHarPensjon: Boolean = false,
     val epsHarInntektOver2G: Boolean = false
-)
+) {
+    fun withUttakFom(dato: LocalDate) =
+        FolketrygdBeholdningSpec(
+            pid,
+            uttakFom = dato,
+            fremtidigInntektListe,
+            antallAarUtenlandsEtter16Aar,
+            epsHarPensjon,
+            epsHarInntektOver2G
+        )
+}
 
 data class InntektSpec(
     val inntektAarligBeloep: Int,

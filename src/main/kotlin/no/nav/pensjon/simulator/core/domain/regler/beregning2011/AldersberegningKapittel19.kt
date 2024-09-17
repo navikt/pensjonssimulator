@@ -7,13 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.BeregningGjelderTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.BeregningMetodeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.BeregningTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.ResultatTypeCti
-import java.util.*
-
-/**
- * @author Ørnulf Moen, Decisive, Pensjonsprosjektet
- * @author Lars Hartvigsen (Decisive) - PK-12169 HL3 2015
- * @author Magnus Bakken (Accenture), PK-20716
- */
 
 class AldersberegningKapittel19 : Beregning2011 {
 
@@ -52,7 +45,7 @@ class AldersberegningKapittel19 : Beregning2011 {
             basispensjonUtenGJR = Basispensjon(b.basispensjonUtenGJR!!)
         }
         forholdstall = b.forholdstall
-            ftBenyttetArsakListe = ArrayList()
+            ftBenyttetArsakListe = mutableListOf()
             for (ftdt in b.ftBenyttetArsakListe) {
                 ftBenyttetArsakListe.add(FtDtArsak(ftdt))
             }

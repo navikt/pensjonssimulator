@@ -13,11 +13,11 @@ class BeregningsgrunnlagOrdiner : AbstraktBeregningsgrunnlag {
     var sluttpoengtall: Double = 0.0
 
     constructor() : super() {
-        opptjeningUTListe = ArrayList()
+        opptjeningUTListe = mutableListOf()
     }
 
     constructor(beregningsgrunnlagOrdinaer: BeregningsgrunnlagOrdiner) : super(beregningsgrunnlagOrdinaer) {
-        opptjeningUTListe = ArrayList()
+        opptjeningUTListe = mutableListOf()
         nasjonaltSnitt = beregningsgrunnlagOrdinaer.nasjonaltSnitt
         this.sluttpoengtall = beregningsgrunnlagOrdinaer.sluttpoengtall
         for (opptjeningUT in beregningsgrunnlagOrdinaer.opptjeningUTListe) {

@@ -101,7 +101,7 @@ class PrivatAfpBeregner(private val context: SimulatorContext) {
     ): MutableList<BeregningsResultatAfpPrivat> {
         var afpBeregningResultat: BeregningsResultatAfpPrivat? = null
         var forrigeAfpBeregningResultat = initialForrigePrivatAfpBeregningResultat
-        val afpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = ArrayList()
+        val afpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf()
 
         // Call BEF3704 beregnAfpPrivat for each knekkpunkt
         for (knekkpunktDato in knekkpunktDatoer) {
@@ -189,7 +189,6 @@ class PrivatAfpBeregner(private val context: SimulatorContext) {
 
             // Første uttaksdato, but only if equal to første virk for AFP Privat
             if (isSameDay(foersteUttakDato, privatAfpFoersteVirkning)) {
-                //knekkpunktDatoer.add(setTimeToZero(forsteUttakDato!!))
                 knekkpunktDatoer.add(foersteUttakDato!!)
             }
 

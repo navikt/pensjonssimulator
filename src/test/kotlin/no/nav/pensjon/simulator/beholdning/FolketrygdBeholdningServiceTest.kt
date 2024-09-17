@@ -35,7 +35,7 @@ class FolketrygdBeholdningServiceTest : FunSpec({
         verify(client).simulerFolketrygdBeholdning(
             FolketrygdBeholdningSpec(
                 pid = Pid("12906498357"),
-                uttakFom = LocalDate.of(2030, 2, 1), // skal bli 2030-02-01
+                uttakFom = LocalDate.of(2030, 2, 1),
                 antallAarUtenlandsEtter16Aar = 1,
                 fremtidigInntektListe = listOf(
                     InntektSpec(

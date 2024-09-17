@@ -5,8 +5,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
 
 /**
  * Ekstra informasjon til beregnet uføretrygd. Brukes for at PREG skal beregne en uførehistorikk for uføretrygd.
- *
- * @author Swiddy de Louw (Capgemini) - PK-10228
  */
 class UforeEkstraUT {
     /**
@@ -19,19 +17,16 @@ class UforeEkstraUT {
         get() = beregnetUforeperiodeListe
 
     constructor() : super() {
-        beregnetUforeperiodeListe = ArrayList()
+        beregnetUforeperiodeListe = mutableListOf()
     }
 
     constructor(ue: UforeEkstraUT) {
-        beregnetUforeperiodeListe = ArrayList()
+        beregnetUforeperiodeListe = mutableListOf()
         for (bu in ue.beregnetUforeperiodeListe) {
             beregnetUforeperiodeListe.add(BeregningUforeperiode(bu))
         }
     }
 
-    /**
-     * Metoden gjør det enkelt i regelmotor å adde en hel array til beregnetUforeperiodeListe.
-     */
     fun addToBeregnetUforeperiodeListe(upListe: MutableList<Uforeperiode>) {
         for (up in upListe) {
             beregnetUforeperiodeListe.add(BeregningUforeperiode(up))

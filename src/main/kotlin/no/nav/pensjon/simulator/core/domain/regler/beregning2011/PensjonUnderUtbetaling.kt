@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
 import java.io.Serializable
-import java.util.*
 import java.util.function.Predicate
 import kotlin.reflect.KClass
 
@@ -44,7 +43,7 @@ class PensjonUnderUtbetaling : Serializable {
     var pubReguleringFratrekk: Double = 0.0
 
     @JsonProperty("ytelseskomponenter")
-    private val internalYtelseskomponenter: MutableList<Ytelseskomponent> = ArrayList()
+    private val internalYtelseskomponenter: MutableList<Ytelseskomponent> = mutableListOf()
 
     var ytelseskomponenter: List<Ytelseskomponent>
         get() = internalYtelseskomponenter.toList()

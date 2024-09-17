@@ -229,11 +229,10 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             knekkpunktDato: LocalDate,
             aarsak: KnekkpunktAarsak
         ) {
-            //val renKnekkpunktDato = setTimeToZero(knekkpunktDato)
             var aarsaker = knekkpunktMap[knekkpunktDato]
 
             if (aarsaker == null) {
-                aarsaker = ArrayList()
+                aarsaker = mutableListOf()
                 knekkpunktMap[knekkpunktDato] = aarsaker
             }
 
@@ -248,7 +247,6 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         ) {
             for (grunnlag in opptjeningGrunnlagListe) {
                 if (grunnlag.pi > 0) {
-                    //addKnekkpunkt(knekkpunkter, createDate(grunnlag.ar + OPPTJENING_ETTERSLEP_ANTALL_AAR, Calendar.JANUARY, 1), arsak)
                     addKnekkpunkt(
                         knekkpunktMap,
                         LocalDate.of(grunnlag.ar + OPPTJENING_ETTERSLEP_ANTALL_AAR, 1, 1),

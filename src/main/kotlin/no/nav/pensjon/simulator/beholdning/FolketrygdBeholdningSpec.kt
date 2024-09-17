@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.beholdning
 
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDagNesteMaaned
+import no.nav.pensjon.simulator.tech.web.BadRequestException
 import java.time.LocalDate
 
 data class FolketrygdBeholdningSpec(
@@ -12,19 +13,15 @@ data class FolketrygdBeholdningSpec(
     val epsHarPensjon: Boolean = false,
     val epsHarInntektOver2G: Boolean = false
 ) {
-    fun sanitise(): FolketrygdBeholdningSpec {
+    fun sanitised(): FolketrygdBeholdningSpec {
         val modifyUttakFom = uttakFom.dayOfMonth != 1
-        val modifyInntekt = fremtidigInntektListe.any { it.inntektFom.dayOfMonth != 1 }
-
         val newUttakFom: LocalDate = if (modifyUttakFom) foersteDagNesteMaaned(uttakFom) else uttakFom
-        val newInntektListe: List<InntektSpec> =
-            if (modifyInntekt) fremtidigInntektListe.map(InntektSpec::sanitise) else fremtidigInntektListe
 
-        return if (modifyUttakFom || modifyInntekt)
+        return if (modifyUttakFom)
             FolketrygdBeholdningSpec(
                 pid,
                 uttakFom = newUttakFom,
-                fremtidigInntektListe = newInntektListe,
+                fremtidigInntektListe,
                 antallAarUtenlandsEtter16Aar,
                 epsHarPensjon,
                 epsHarInntektOver2G
@@ -32,12 +29,25 @@ data class FolketrygdBeholdningSpec(
         else
             this
     }
+
+    fun validated(): FolketrygdBeholdningSpec {
+        if (fremtidigInntektListe.any { it.inntektFom.dayOfMonth != 1 }) {
+            throw BadRequestException("En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden")
+        }
+
+        if (fremtidigInntektListe.groupBy { it.inntektFom }.size < fremtidigInntektListe.size) {
+            throw BadRequestException("To fremtidige inntekter har samme f.o.m.-dato")
+        }
+
+        if (fremtidigInntektListe.any { it.inntektAarligBeloep < 0 }) {
+            throw BadRequestException("En fremtidig inntekt har negativt beløp")
+        }
+
+        return this
+    }
 }
 
 data class InntektSpec(
     val inntektAarligBeloep: Int,
     val inntektFom: LocalDate
-) {
-    fun sanitise() =
-        if (inntektFom.dayOfMonth == 1) this else InntektSpec(inntektAarligBeloep, foersteDagNesteMaaned(inntektFom))
-}
+)

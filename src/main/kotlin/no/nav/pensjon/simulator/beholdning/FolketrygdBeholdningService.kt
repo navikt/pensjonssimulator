@@ -8,5 +8,5 @@ import org.springframework.stereotype.Component
 class FolketrygdBeholdningService(private val client: BeholdningClient) {
 
     fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning =
-        client.simulerFolketrygdBeholdning(spec.sanitise())
+        client.simulerFolketrygdBeholdning(spec.sanitised().validated())
 }

@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.uttak
 
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDagNesteMaaned
+import no.nav.pensjon.simulator.tech.web.BadRequestException
 import java.time.LocalDate
 
 data class TidligstMuligUttakSpec(
@@ -14,27 +15,39 @@ data class TidligstMuligUttakSpec(
     val epsHarPensjon: Boolean,
     val epsHarInntektOver2G: Boolean
 ) {
-    fun sanitise(): TidligstMuligUttakSpec {
+    fun sanitised(): TidligstMuligUttakSpec {
         val modifyGradertUttak = gradertUttak?.heltUttakFom?.let { it.dayOfMonth != 1 } ?: false
-        val modifyInntekt = fremtidigInntektListe.any { it.fom.dayOfMonth != 1 }
-
         val newGradertUttak: GradertUttakSpec? = if (modifyGradertUttak) gradertUttak?.sanitise() else gradertUttak
-        val newInntektListe: List<InntektSpec> =
-            if (modifyInntekt) fremtidigInntektListe.map(InntektSpec::sanitise) else fremtidigInntektListe
 
-        return if (modifyGradertUttak || modifyInntekt)
+        return if (modifyGradertUttak)
             TidligstMuligUttakSpec(
                 pid,
                 foedselDato,
                 gradertUttak = newGradertUttak,
                 rettTilOffentligAfpFom,
                 antallAarUtenlandsEtter16Aar,
-                fremtidigInntektListe = newInntektListe,
+                fremtidigInntektListe,
                 epsHarPensjon,
                 epsHarInntektOver2G
             )
         else
             this
+    }
+
+    fun validated(): TidligstMuligUttakSpec {
+        if (fremtidigInntektListe.any { it.fom.dayOfMonth != 1 }) {
+            throw BadRequestException("En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden")
+        }
+
+        if (fremtidigInntektListe.groupBy { it.fom }.size < fremtidigInntektListe.size) {
+            throw BadRequestException("To fremtidige inntekter har samme f.o.m.-dato")
+        }
+
+        if (fremtidigInntektListe.any { it.aarligBeloep < 0 }) {
+            throw BadRequestException("En fremtidig inntekt har negativt beløp")
+        }
+
+        return this
     }
 }
 
@@ -49,7 +62,4 @@ data class GradertUttakSpec(
 data class InntektSpec(
     val fom: LocalDate,
     val aarligBeloep: Int
-) {
-    fun sanitise() =
-        if (fom.dayOfMonth == 1) this else InntektSpec(foersteDagNesteMaaned(fom), aarligBeloep)
-}
+)

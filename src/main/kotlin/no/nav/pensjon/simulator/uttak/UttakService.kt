@@ -7,5 +7,5 @@ import org.springframework.stereotype.Component
 class UttakService(private val client: UttakClient) {
 
     fun finnTidligstMuligUttak(spec: TidligstMuligUttakSpec): TidligstMuligUttak =
-        client.finnTidligstMuligUttak(spec.sanitise())
+        client.finnTidligstMuligUttak(spec.sanitised().validated())
 }

@@ -8,5 +8,5 @@ import org.springframework.stereotype.Component
 class AlderspensjonService(private val client: AlderspensjonClient) {
 
     fun simulerAlderspensjon(spec: AlderspensjonSpec): AlderspensjonResult =
-        client.simulerAlderspensjon(spec.sanitise())
+        client.simulerAlderspensjon(spec.sanitised().validated())
 }

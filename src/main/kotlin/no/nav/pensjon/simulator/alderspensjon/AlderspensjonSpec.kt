@@ -55,4 +55,3 @@ data class InntektSpec(
     fun sanitise() =
         if (fom.dayOfMonth == 1) this else InntektSpec(aarligBeloep, foersteDagNesteMaaned(fom))
 }
-

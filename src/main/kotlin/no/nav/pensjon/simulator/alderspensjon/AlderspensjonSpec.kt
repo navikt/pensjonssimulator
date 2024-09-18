@@ -37,7 +37,9 @@ data class AlderspensjonSpec(
             this
     }
 
-    fun validated(): AlderspensjonSpec {
+    fun validated(): AlderspensjonSpec = inntektValidated().uttakValidated()
+
+    private fun inntektValidated(): AlderspensjonSpec {
         if (fremtidigInntektListe.any { it.fom.dayOfMonth != 1 }) {
             throw BadRequestException("En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden")
         }
@@ -48,6 +50,14 @@ data class AlderspensjonSpec(
 
         if (fremtidigInntektListe.any { it.aarligBeloep < 0 }) {
             throw BadRequestException("En fremtidig inntekt har negativt beløp")
+        }
+
+        return this
+    }
+
+    private fun uttakValidated(): AlderspensjonSpec {
+        if (gradertUttak?.let { !heltUttakFom.isAfter(it.fom) } == true) {
+            throw BadRequestException("Helt uttak starter ikke etter gradert uttak")
         }
 
         return this

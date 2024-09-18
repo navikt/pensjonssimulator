@@ -48,7 +48,7 @@ object PenAlderspensjonResultMapper {
 }
 
 enum class PenPensjonType(val externalValue: String, val internalValue: PensjonType) {
-    GARANTIPENSJON(externalValue = "GP", internalValue = PensjonType.GARANTIPENSJON),
+    GARANTIPENSJON(externalValue = "GAP", internalValue = PensjonType.GARANTIPENSJON),
     INNTEKTSPENSJON(externalValue = "IP", internalValue = PensjonType.INNTEKTSPENSJON),
     MINSTENIVAATILLEGG_INDVIDUELT(externalValue = "MIN_NIVA_TILL_INDV", internalValue = PensjonType.NONE);
 

@@ -209,7 +209,7 @@ object PenResponse {
                     "belop": 22722
                 },
                 {
-                    "pensjonsType": "GP",
+                    "pensjonsType": "GAP",
                     "belop": 17309
                 }
             ],
@@ -227,7 +227,7 @@ object PenResponse {
                     "belop": 154215
                 },
                 {
-                    "pensjonsType": "GP",
+                    "pensjonsType": "GAP",
                     "belop": 74413
                 }
             ],
@@ -256,7 +256,7 @@ object PenResponse {
                     "belop": 147026
                 },
                 {
-                    "pensjonsType": "GP",
+                    "pensjonsType": "GAP",
                     "belop": 26946
                 }
             ],
@@ -274,7 +274,7 @@ object PenResponse {
                     "belop": 185121
                 },
                 {
-                    "pensjonsType": "GP",
+                    "pensjonsType": "GAP",
                     "belop": 33927
                 }
             ],

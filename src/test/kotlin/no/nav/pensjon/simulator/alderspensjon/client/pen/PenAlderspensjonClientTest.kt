@@ -61,7 +61,9 @@ class PenAlderspensjonClientTest : FunSpec({
 
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenAlderspensjonClient(baseUrl!!, webClientBuilder, mock(TraceAid::class.java))
+            val client = PenAlderspensjonClient(
+                baseUrl!!, retryAttempts = "0", webClientBuilder, mock(TraceAid::class.java)
+            )
 
             val result = client.simulerAlderspensjon(PenRequest.alderspensjonSpec)
 
@@ -105,7 +107,9 @@ class PenAlderspensjonClientTest : FunSpec({
 
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenAlderspensjonClient(baseUrl!!, webClientBuilder, mock(TraceAid::class.java))
+            val client = PenAlderspensjonClient(
+                baseUrl!!, retryAttempts = "0", webClientBuilder, mock(TraceAid::class.java)
+            )
 
             val result = client.simulerAlderspensjon(PenRequest.alderspensjonSpec)
 
@@ -161,7 +165,9 @@ class PenAlderspensjonClientTest : FunSpec({
 
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenAlderspensjonClient(baseUrl!!, webClientBuilder, mock(TraceAid::class.java))
+            val client = PenAlderspensjonClient(
+                baseUrl!!, retryAttempts = "0", webClientBuilder, mock(TraceAid::class.java)
+            )
 
             val exception = shouldThrow<EgressException> {
                 client.simulerAlderspensjon(PenRequest.alderspensjonSpec)

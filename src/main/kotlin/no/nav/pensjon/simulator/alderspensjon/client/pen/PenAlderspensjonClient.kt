@@ -22,9 +22,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @Component
 class PenAlderspensjonClient(
     @Value("\${ps.pen.url}") baseUrl: String,
+    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
-    private val traceAid: TraceAid,
-) : ExternalServiceClient("0"), AlderspensjonClient {
+    private val traceAid: TraceAid
+) : ExternalServiceClient(retryAttempts), AlderspensjonClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()

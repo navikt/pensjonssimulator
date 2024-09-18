@@ -33,9 +33,12 @@ abstract class ControllerBase(private val traceAid: TraceAid) {
             handleExternalError<T>(e)
 
     protected fun <T> badRequest(e: RuntimeException): T? {
+        val message = extractMessageRecursively(e)
+        log.info { "Bad request - $message" } // no error, so stacktrace is not logged
+
         throw ResponseStatusException(
             HttpStatus.BAD_REQUEST,
-            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",
+            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: $message",
             e
         )
     }

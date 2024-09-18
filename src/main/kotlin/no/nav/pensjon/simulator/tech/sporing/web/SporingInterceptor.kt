@@ -42,10 +42,9 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
     ) {
         val inData = copy(request.rawData)
         val outData = copy(response.rawData)
-
-        if (inData.isNotEmpty() || outData.isNotEmpty()) {
-            service.log(pid, "In:${String(inData)}Out:${String(outData)}")
-        }
+        val inLog: String = if (inData.isEmpty()) request.request.requestURI else String(inData)
+        val outLog: String = if (outData.isEmpty()) response.response.status.toString() else String(outData)
+        service.log(pid, leverteData = "In:${inLog}Out:$outLog")
     }
 
     private fun copy(bytes: ByteArray) =

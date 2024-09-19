@@ -21,7 +21,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.exception.BrukerFoedtFoer1943Exception
 import no.nav.pensjon.simulator.core.krav.KravUtil.kravlinjeType
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AR
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
@@ -37,9 +36,12 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.result.OpptjeningType
 import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
+import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import org.slf4j.LoggerFactory
 import java.math.BigInteger
 import java.time.LocalDate
@@ -557,11 +559,11 @@ class KravhodeCreator(val context: SimulatorContext) {
 
         for (aar in gjeldendeAar..aarSoekerBlirMaxAlder) {
             val beregnetForventetInntekt =
-                (forventetInntekt * antallMndMedForventetInntekt(aar, spec) / MAANEDER_PER_AR).toLong()
+                (forventetInntekt * forventetInntektAntallMaaneder(aar, spec) / MAANEDER_PER_AAR).toLong()
             val beregnetInntektUnderGradertUttak = (inntektUnderGradertUttak *
-                    antallManederMedInntektUnderGradertUttak(aar, spec) / MAANEDER_PER_AR).toLong()
+                    antallManederMedInntektUnderGradertUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val beregnetInntektEtterHeltUttak = (inntektEtterHeltUttak *
-                    antallMndMedInntektEtterHeltUttak(aar, spec) / MAANEDER_PER_AR).toLong()
+                    antallMndMedInntektEtterHeltUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val forhold = calculateGrunnbelopForhold(aar, spec, veietGrunnbeloepListe, grunnbeloep)
 
             inntekter.add(
@@ -586,11 +588,11 @@ class KravhodeCreator(val context: SimulatorContext) {
 
         if (aar == heltUttakAar) {
             val mndMedInntektUnderGradertUttak = heltUttakMaaned - 1
-            return MAANEDER_PER_AR - mndMedInntektUnderGradertUttak
+            return MAANEDER_PER_AAR - mndMedInntektUnderGradertUttak
         }
 
         if (aar > heltUttakAar && aar - heltUttakAar < antallAarInntektEtterHeltUttak) {
-            return MAANEDER_PER_AR
+            return MAANEDER_PER_AAR
         }
 
         if (aar - heltUttakAar == antallAarInntektEtterHeltUttak) {
@@ -611,14 +613,14 @@ class KravhodeCreator(val context: SimulatorContext) {
         if (aar == foersteUttakAar) {
             return if (foersteUttakAar != heltUttakAar) {
                 val mndMedForventetInntekt = foersteUttakMaaned - 1
-                MAANEDER_PER_AR - mndMedForventetInntekt
+                MAANEDER_PER_AAR - mndMedForventetInntekt
             } else {
                 heltUttakMaaned - foersteUttakMaaned
             }
         }
 
         if (aar in (foersteUttakAar + 1) until heltUttakAar) {
-            return MAANEDER_PER_AR
+            return MAANEDER_PER_AAR
         }
 
         if (aar == heltUttakAar) {
@@ -628,15 +630,14 @@ class KravhodeCreator(val context: SimulatorContext) {
         return 0
     }
 
-    private fun antallMndMedForventetInntekt(aar: Int, spec: SimuleringSpec): Int {
+    private fun forventetInntektAntallMaaneder(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
 
-        return if (aar < foersteUttakAar)
-            MAANEDER_PER_AR
-        else if (aar == foersteUttakAar)
-            monthOfYearRange1To12(spec.foersteUttakDato) - 1
-        else
-            0
+        return when {
+            aar < foersteUttakAar -> MAANEDER_PER_AAR - utlandMaanederInnenforAaret(spec, aar)
+            aar == foersteUttakAar -> monthOfYearRange1To12(spec.foersteUttakDato) - 1 - utlandMaanederInnenforRestenAvAaret(spec)
+            else -> 0
+        }
     }
 
     private fun afpOffentligPre2025Uttaksgrader(
@@ -699,7 +700,7 @@ class KravhodeCreator(val context: SimulatorContext) {
                 inntekt = nextInntekt
             }
 
-            val sistePeriodeAntallManeder = MAANEDER_PER_AR - inntekt.fom.monthValue
+            val sistePeriodeAntallManeder = MAANEDER_PER_AAR - inntekt.fom.monthValue
             return aarligInntekt.add(periodevisInntekt(inntekt, sistePeriodeAntallManeder))
         }
 
@@ -921,7 +922,7 @@ class KravhodeCreator(val context: SimulatorContext) {
         private fun periodevisInntekt(inntekt: FremtidigInntekt, periodOfMonths: Int) =
             BigInteger.valueOf(inntekt.aarligInntektBeloep.toLong())
                 .multiply(BigInteger.valueOf(periodOfMonths.toLong()))
-                .divide(BigInteger.valueOf(MAANEDER_PER_AR.toLong()))
+                .divide(BigInteger.valueOf(MAANEDER_PER_AAR.toLong()))
 
         private fun doesNotHaveFremtidigInntektBeforeFom(simulatorInput: SimuleringSpec, fom: LocalDate) =
             simulatorInput.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }

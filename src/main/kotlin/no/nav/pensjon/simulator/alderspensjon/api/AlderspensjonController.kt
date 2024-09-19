@@ -41,7 +41,15 @@ class AlderspensjonController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Simulering av alderspensjon utført"
+                description = "Simulering av alderspensjon utført."
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
+                        " (1) helt uttak ikke etter gradert uttak," +
+                        " (2) inntekt ikke 1. i måneden," +
+                        " (3) inntekter har lik startdato, " +
+                        " (4) negativ inntekt."
             )
         ]
     )

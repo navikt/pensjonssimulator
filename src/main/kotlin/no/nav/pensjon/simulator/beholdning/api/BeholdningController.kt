@@ -10,9 +10,10 @@ import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningService
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningSpec
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultMapperV1.resultV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultV1
-import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecMapperV1.fromSpecV1
+import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
@@ -26,8 +27,9 @@ import org.springframework.web.bind.annotation.RestController
 @SecurityRequirement(name = "BearerAuthentication")
 class BeholdningController(
     private val service: FolketrygdBeholdningService,
-    private val traceAid: TraceAid
-) : ControllerBase(traceAid) {
+    private val traceAid: TraceAid,
+    organisasjonsnummerProvider: OrganisasjonsnummerProvider
+) : ControllerBase(traceAid, organisasjonsnummerProvider) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-folketrygdbeholdning")
@@ -49,6 +51,7 @@ class BeholdningController(
     ): FolketrygdBeholdningResultV1 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV1" }
+        countCall(FUNCTION_ID)
 
         return try {
             val spec: FolketrygdBeholdningSpec = fromSpecV1(specV1)
@@ -69,6 +72,6 @@ class BeholdningController(
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering folketrygdbeholdning"
-        private const val FUNCTION_ID = "v1/simuler-folketrygdbeholdning"
+        private const val FUNCTION_ID = "ftb"
     }
 }

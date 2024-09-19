@@ -7,16 +7,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.uttak.TidligstMuligUttakSpec
 import no.nav.pensjon.simulator.uttak.UttakService
-import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1.fromSpecV1
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakResultV1
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakSpecV1
 import no.nav.pensjon.simulator.uttak.api.acl.UttakResultMapperV1.resultV1
+import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1.fromSpecV1
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -29,8 +30,9 @@ import org.springframework.web.server.ResponseStatusException
 @SecurityRequirement(name = "BearerAuthentication")
 class UttakController(
     private val service: UttakService,
-    private val traceAid: TraceAid
-) : ControllerBase(traceAid) {
+    private val traceAid: TraceAid,
+    organisasjonsnummerProvider: OrganisasjonsnummerProvider
+) : ControllerBase(traceAid, organisasjonsnummerProvider) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/tidligst-mulig-uttak")
@@ -52,6 +54,7 @@ class UttakController(
     ): TidligstMuligUttakResultV1 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV1" }
+        countCall(FUNCTION_ID)
 
         return try {
             val spec: TidligstMuligUttakSpec = fromSpecV1(specV1)
@@ -81,6 +84,6 @@ class UttakController(
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved utledning av tidligst mulig uttak"
-        private const val FUNCTION_ID = "v1/tidligst-mulig-uttak"
+        private const val FUNCTION_ID = "tmu"
     }
 }

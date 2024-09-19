@@ -11,8 +11,10 @@ object Metrics {
             .increment()
     }
 
-    fun countIngressCall(organisasjonsnummer: String) {
-        Metrics.counter("$PREFIX-ingress-call", "orgno", organisasjonsnummer).increment()
+    fun countIngressCall(organisasjonId: String, callId: String) {
+        Metrics
+            .counter("$PREFIX-ingress-call", "org", organisasjonId, "call", callId)
+            .increment()
     }
 }
 

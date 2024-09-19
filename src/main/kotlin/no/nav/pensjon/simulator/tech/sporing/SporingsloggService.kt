@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.security.SecurityCoroutineContext
 import no.nav.pensjon.simulator.tech.sporing.client.SporingsloggClient
 import org.springframework.stereotype.Service
@@ -32,12 +31,6 @@ class SporingsloggService(
                     leverteData
                 )
             )
-
-            countCall(organisasjonsnummer)
         }
-    }
-
-    private fun countCall(organisasjonsnummer: Organisasjonsnummer) {
-        Metrics.countIngressCall(organisasjonsnummer.value)
     }
 }

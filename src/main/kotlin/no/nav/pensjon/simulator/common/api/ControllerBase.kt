@@ -1,6 +1,9 @@
 package no.nav.pensjon.simulator.common.api
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tech.metric.Metrics
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
+import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.intellij.lang.annotations.Language
@@ -8,7 +11,10 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.lang.System.currentTimeMillis
 
-abstract class ControllerBase(private val traceAid: TraceAid) {
+abstract class ControllerBase(
+    private val traceAid: TraceAid,
+    private val organisasjonsnummerProvider: OrganisasjonsnummerProvider
+) {
 
     private val log = KotlinLogging.logger {}
 
@@ -40,6 +46,13 @@ abstract class ControllerBase(private val traceAid: TraceAid) {
             HttpStatus.BAD_REQUEST,
             "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: $message",
             e
+        )
+    }
+
+    protected fun countCall(functionName: String) {
+        Metrics.countIngressCall(
+            organisasjonId = Organisasjoner.navn(organisasjonsnummerProvider.provideOrganisasjonsnummer()),
+            callId = functionName
         )
     }
 

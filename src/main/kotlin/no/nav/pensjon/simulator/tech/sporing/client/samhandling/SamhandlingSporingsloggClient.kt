@@ -22,9 +22,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 @Component
 class SamhandlingSporingsloggClient(
     @Value("\${ps.sporingslogg.url}") baseUrl: String,
+    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,
-) : ExternalServiceClient("0"), SporingsloggClient {
+) : ExternalServiceClient(retryAttempts), SporingsloggClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()

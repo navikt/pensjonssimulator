@@ -5,7 +5,9 @@ import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
+import org.springframework.stereotype.Component
 
+@Component
 class TrygdetidFastsetter(private val context: SimulatorContext) {
 
     private var trygdetidCache: TrygdetidCache? = null

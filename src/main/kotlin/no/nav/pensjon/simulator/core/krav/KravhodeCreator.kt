@@ -40,9 +40,11 @@ import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import java.math.BigInteger
 import java.time.LocalDate
 import java.util.*
@@ -50,7 +52,11 @@ import java.util.stream.IntStream
 import kotlin.streams.toList
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettKravhodeHelper
-class KravhodeCreator(val context: SimulatorContext) {
+@Component
+class KravhodeCreator(
+    private val context: SimulatorContext,
+    private val generelleDataHolder: GenerelleDataHolder
+) {
 
     private val logger = LoggerFactory.getLogger(KravhodeCreator::class.java)
 
@@ -544,7 +550,8 @@ class KravhodeCreator(val context: SimulatorContext) {
             gjeldendeAar = (spec.foersteUttakDato?.year ?: 0) - spec.inntektOver1GAntallAar
             aarSoekerBlirMaxAlder = MAX_OPPTJENING_ALDER + spec.foedselAar
             if (gjeldendeAar < innevaerendeAar) {
-                veietGrunnbeloepListe = context.fetchVeietGrunnbeloepListe(gjeldendeAar, aarSoekerBlirMaxAlder)
+                veietGrunnbeloepListe =
+                    generelleDataHolder.getVeietGrunnbeloepListe(gjeldendeAar, aarSoekerBlirMaxAlder)
             }
         } else {
             gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1

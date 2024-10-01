@@ -42,6 +42,9 @@ import no.nav.pensjon.simulator.core.util.isBeforeOrOn
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.core.ytelse.YtelseKomponentType
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
@@ -49,9 +52,11 @@ import java.util.*
  * Vilkårsprøving og beregning av alderspensjon.
  */
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.VilkarsprovOgBeregnAlderHelper
+@Component
 class AlderspensjonVilkaarsproeverOgBeregner(
     private val context: SimulatorContext,
-    private val trygdetidFastsetter: TrygdetidFastsetter
+    private val trygdetidFastsetter: TrygdetidFastsetter,
+    private val generelleDataHolder: GenerelleDataHolder
 ) {
     fun vilkaarsproevOgBeregnAlder(spec: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
         val beregningResultatListe: MutableList<AbstraktBeregningsResultat> = mutableListOf()
@@ -103,8 +108,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             // Corresponds to part 3
             val foedselDato: LocalDate = soekerGrunnlag.fodselsdato.toLocalDate()!!
-            val forholdstallUtvalg = context.fetchForholdstallUtvalg(knekkpunktDato, foedselDato)
-            val delingstallUtvalg = context.fetchDelingstallUtvalg(knekkpunktDato, foedselDato)
+            val forholdstallUtvalg = generelleDataHolder.getForholdstallUtvalg(knekkpunktDato, foedselDato)
+            val delingstallUtvalg = generelleDataHolder.getDelingstallUtvalg(knekkpunktDato, foedselDato)
 
             // Corresponds to part 4
             val gjeldendePrivatAfp = getAfpPrivatLivsvarig(privatAfpBeregningResultatListe, knekkpunktDato)
@@ -183,7 +188,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             beregningResultatListe.add(gjeldendeBeregningsresultat)
 
             // Corresponds to part 8
-            sisteBeregning = getSisteAldersberegning(kravhode, forrigeVedtakListe, forrigeAlderspensjonBeregningResultat)
+            sisteBeregning =
+                getSisteAldersberegning(kravhode, forrigeVedtakListe, forrigeAlderspensjonBeregningResultat)
 
             // Corresponds to part 9
             // 21.03.2011: When simulation is called from eksterne ordninger for a 2025-bruker, then we
@@ -273,8 +279,10 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         val foedselDato = LocalDate.of(GARANTITILLEGGSBEHOLDNINGSGRUNNLAG_FODSELSAR, 1, 1)
 
         return GarantitilleggsbeholdningGrunnlag().apply {
-            dt67_1962 = context.fetchDelingstallUtvalg(virkningDato, foedselDato).dt
-            ft67_1962 = context.fetchForholdstallUtvalg(virkningDato, foedselDato).ft
+            //dt67_1962 = context.fetchDelingstallUtvalg(virkningDato, foedselDato).dt
+            dt67_1962 = generelleDataHolder.getDelingstallUtvalg(virkningDato, foedselDato).dt
+            ft67_1962 = generelleDataHolder.getForholdstallUtvalg(virkningDato, foedselDato).ft
+            //ft67_1962 = context.fetchForholdstallUtvalg(virkningDato, foedselDato).ft
         }
     }
 

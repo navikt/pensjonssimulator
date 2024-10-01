@@ -12,7 +12,7 @@ interface UttakAlderDiscriminator {
         ForLavtTidligUttakException::class
     )
     fun simuler(
-        simulatorInput: SimuleringSpec,
+        spec: SimuleringSpec,
         flags: SimulatorFlags
     ): OutputPensjonCombo
 

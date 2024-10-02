@@ -12,6 +12,11 @@ enum class EgressService(
     val authType: AuthType = AuthType.MACHINE_INSIDE_NAV
 ) {
     OAUTH2_TOKEN(description = "OAuth2 token", shortName = "OA2", purpose = "OAuth2 access token"),
+    PENSJON_REGLER(
+        description = "Pensjon-regler",
+        shortName = "PR",
+        purpose = "Vilkårsprøving og beregning"
+    ),
     PENSJONSFAGLIG_KJERNE(
         description = "Pensjonsfaglig kjerne",
         shortName = "PEN",

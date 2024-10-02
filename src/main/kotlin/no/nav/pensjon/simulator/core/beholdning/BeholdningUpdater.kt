@@ -56,6 +56,7 @@ import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_AN
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.person.Pid
+import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils.hasLength
 import java.time.LocalDate
 import java.util.*
@@ -64,7 +65,8 @@ import java.util.*
 // OppdaterPensjonsbeholdningerCommand, OppdaterPensjonsbeholdningerHelper, SimpleGrunnlagService.
 // Ref. TPEN547 - oppdaterPensjonsbeholdninger
 // https://pensjon-dokumentasjon.intern.dev.nav.no/pen/Tjenester/TPEN547_oppdaterPensjonsbeholdninger.html
-class BeholdningUpdater(val context: SimulatorContext) {
+@Component
+class BeholdningUpdater(private val context: SimulatorContext) {
 
     // SimpleGrunnlagService.updateBeholdningFromEksisterendePersongrunnlag -> BeholdningSwitcherCommand.updateBeholdningFromEksisterendePersongrunnlag
     fun updateBeholdningFromEksisterendePersongrunnlag(nyttKravhode: Kravhode) {

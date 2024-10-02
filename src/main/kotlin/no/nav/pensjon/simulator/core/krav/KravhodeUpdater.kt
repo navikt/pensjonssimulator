@@ -25,12 +25,16 @@ import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimule
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagSpec
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OppdaterKravhodeForForsteKnekkpunktHelper
-class KravhodeUpdater(private val context: SimulatorContext) {
-
+@Component
+class KravhodeUpdater(
+    private val context: SimulatorContext,
+    private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning
+) {
     private val logger = LoggerFactory.getLogger(KravhodeUpdater::class.java)
 
     // OppdaterKravhodeForForsteKnekkpunktHelper.oppdaterKravHodeForForsteKnekkpunkt
@@ -39,7 +43,8 @@ class KravhodeUpdater(private val context: SimulatorContext) {
         val simuleringSpec = spec.simulering
         val forrigeAlderspensjonBeregningResult = spec.forrigeAlderspensjonBeregningResult
         var soekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
-        var avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagRolle.AVDOD, checkBruk = false)
+        var avdoedGrunnlag =
+            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagRolle.AVDOD, checkBruk = false)
 
         logger.info("STEP 4.1 - Sett trygdetidsgrunnlag")
         soekerGrunnlag = setTrygdetid(
@@ -54,7 +59,7 @@ class KravhodeUpdater(private val context: SimulatorContext) {
 
         logger.info("STEP 4.2 - Sett pensjonsbeholdning for bruker")
         when {
-            simuleringSpec.gjelderPre2025OffentligAfp() -> Pre2025OffentligAfpBeholdning(context).setPensjonsbeholdning(
+            simuleringSpec.gjelderPre2025OffentligAfp() -> pre2025OffentligAfpBeholdning.setPensjonsbeholdning(
                 soekerGrunnlag,
                 forrigeAlderspensjonBeregningResult
             )

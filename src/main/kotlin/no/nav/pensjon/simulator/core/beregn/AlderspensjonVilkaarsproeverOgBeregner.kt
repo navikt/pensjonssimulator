@@ -56,6 +56,7 @@ import java.util.*
 class AlderspensjonVilkaarsproeverOgBeregner(
     private val context: SimulatorContext,
     private val trygdetidFastsetter: TrygdetidFastsetter,
+    private val sisteBeregningCreator: SisteBeregningCreator,
     private val generelleDataHolder: GenerelleDataHolder
 ) {
     fun vilkaarsproevOgBeregnAlder(spec: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
@@ -495,7 +496,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         val originalRegelverkType = kravhode.regelverkTypeCti
 
         val sisteBeregning: SisteBeregning? =
-            SisteBeregningCreator(context).opprettSisteBeregning(
+            sisteBeregningCreator.opprettSisteBeregning(
                 kravhode = kravhode,
                 vedtakListe = forrigeVedtakListe,
                 beregningResult = forrigeBeregningResultat

@@ -11,9 +11,11 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.kode.*
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.PersongrunnlagMapper
+@Component
 class PersongrunnlagMapper(val context: SimulatorContext) {
 
     fun mapToPersongrunnlag(person: PenPerson, spec: SimuleringSpec) =

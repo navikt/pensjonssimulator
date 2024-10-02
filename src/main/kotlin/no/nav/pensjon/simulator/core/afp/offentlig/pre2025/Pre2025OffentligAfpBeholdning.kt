@@ -11,9 +11,11 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LEGACY_UBETINGET_PENSJONERINGSALDER_AAR
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import org.springframework.stereotype.Component
 import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.SimulerAFPogAPCommand (beholdning part)
+@Component
 class Pre2025OffentligAfpBeholdning(val context: SimulatorContext) {
 
     // SimulerAFPogAPCommand.settPensjonsbeholdning

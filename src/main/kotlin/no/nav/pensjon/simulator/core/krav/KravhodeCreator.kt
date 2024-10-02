@@ -55,6 +55,8 @@ import kotlin.streams.toList
 @Component
 class KravhodeCreator(
     private val context: SimulatorContext,
+    private val beholdningUpdater: BeholdningUpdater,
+    private val persongrunnlagMapper: PersongrunnlagMapper,
     private val generelleDataHolder: GenerelleDataHolder
 ) {
 
@@ -63,13 +65,13 @@ class KravhodeCreator(
     // OpprettKravhodeHelper.opprettKravhode
     // Personer will be undefined in forenklet simulering (anonymous)
     fun opprettKravhode(
-        request: KravhodeSpec,
+        spec: KravhodeSpec,
         person: PenPerson?,
         virkningsdatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
     ): Kravhode {
-        val simulatorInput = request.simulatorInput
-        val forrigeAlderBeregningsresultat = request.forrigeAlderspensjonBeregningResult
-        val grunnbelop = request.grunnbeloep
+        val simulatorInput = spec.simulatorInput
+        val forrigeAlderBeregningsresultat = spec.forrigeAlderspensjonBeregningResult
+        val grunnbelop = spec.grunnbeloep
         val gjelderEndring = simulatorInput.gjelderEndring()
         val gjelderAfpOffentligPre2025 = simulatorInput.gjelderPre2025OffentligAfp()
 
@@ -233,7 +235,7 @@ class KravhodeCreator(
 
     // OpprettKravHodeHelper.createPersongrunnlagBasedOnSivilstatus
     private fun persongrunnlagBasedOnSivilstatus(spec: SimuleringSpec, grunnbeloep: Int): Persongrunnlag {
-        val grunnlag = PersongrunnlagMapper(context).mapToEpsPersongrunnlag(
+        val grunnlag = persongrunnlagMapper.mapToEpsPersongrunnlag(
             spec.sivilstatus,
             foedselDato(spec)
         )
@@ -341,7 +343,7 @@ class KravhodeCreator(
         }
 
         val response: Kravhode = addSokerPersongrunnlagToKravForNormalSimulering(spec, kravhode, person!!)
-        BeholdningUpdater(context).updateBeholdningFromEksisterendePersongrunnlag(kravhode)
+        beholdningUpdater.updateBeholdningFromEksisterendePersongrunnlag(kravhode)
         return response
     }
 
@@ -351,33 +353,33 @@ class KravhodeCreator(
         kravhode: Kravhode,
         person: PenPerson
     ): Kravhode {
-        val grunnlag = PersongrunnlagMapper(context).mapToPersongrunnlag(person, spec)
+        val grunnlag = persongrunnlagMapper.mapToPersongrunnlag(person, spec)
         kravhode.persongrunnlagListe.add(grunnlag)
         addBeholdningerToPersongrunnlag(grunnlag, kravhode, person.pid!!, person.fodselsdato!!, false)
         return kravhode
     }
 
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBrukerForenkletSimulering
-    private fun forenkletSokergrunnlag(simulering: SimuleringSpec) =
+    private fun forenkletSokergrunnlag(spec: SimuleringSpec) =
         Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = FORENKLET_SIMULERING_PERSON_ID }
-            fodselsdato = legacyFoersteDag(simulering.foedselAar)
-            antallArUtland = simulering.utlandAntallAar
+            fodselsdato = legacyFoersteDag(spec.foedselAar)
+            antallArUtland = spec.utlandAntallAar
             statsborgerskap = norge
             flyktning = false
             bosattLand = norge
-            personDetaljListe = mutableListOf(forenkletPersonDetalj(simulering))
+            personDetaljListe = mutableListOf(forenkletPersonDetalj(spec))
             inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
             sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
         }.also { it.finishInit() }
 
     // SimulerFleksibelAPCommand.createPersonDetaljerForenkletSimulering
-    private fun forenkletPersonDetalj(simulering: SimuleringSpec) =
+    private fun forenkletPersonDetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
             grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
             grunnlagsrolle = GrunnlagsrolleCti(GrunnlagRolle.SOKER.name)
-            rolleFomDato = legacyFoersteDag(simulering.foedselAar)
-            sivilstandType = SivilstandTypeCti(forenkletSivilstand(simulering.sivilstatus).name)
+            rolleFomDato = legacyFoersteDag(spec.foedselAar)
+            sivilstandType = SivilstandTypeCti(forenkletSivilstand(spec.sivilstatus).name)
             bruk = true
         }.also { it.finishInit() }
 

@@ -23,10 +23,12 @@ import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
 // Corresponds to FinnKnekkpunkterHelper + FastsettTrygdetidCache
+@Component
 class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
 
     // FinnKnekkpunkterHelper.finnKnekkpunkter

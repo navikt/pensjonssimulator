@@ -14,10 +14,17 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
-class SisteBeregningCreator(private val context: SimulatorContext) {
+@Component
+class SisteBeregningCreator(
+    private val context: SimulatorContext,
+    private val alderspensjon2011SisteBeregningCreator: Alderspensjon2011SisteBeregningCreator,
+    private val alderspensjon2016SisteBeregningCreator: Alderspensjon2016SisteBeregningCreator,
+    private val alderspensjon2025SisteBeregningCreator: Alderspensjon2025SisteBeregningCreator
+) {
 
     // SimuleringEtter2011Context.opprettSisteBeregning
     // -> SimpleFpenService.opprettSisteBeregning
@@ -75,17 +82,17 @@ class SisteBeregningCreator(private val context: SimulatorContext) {
     }
 
     // OpprettSisteBeregningCommand.createOpprettSisteBeregningInstance
-    private fun sisteBeregningCreator(input: SisteBeregningSpec): SisteBeregningCreatorBase {
-        val regelverkType = input.regelverkKodePaNyttKrav
+    private fun sisteBeregningCreator(spec: SisteBeregningSpec): SisteBeregningCreatorBase {
+        val regelverkType = spec.regelverkKodePaNyttKrav
 
-        if (input.isRegelverk1967) {
+        if (spec.isRegelverk1967) {
             throw RuntimeException("Regelverk1967 not supported")
         }
 
         return when (regelverkType) {
-            RegelverkType.N_REG_G_N_OPPTJ -> Alderspensjon2016SisteBeregningCreator(context)
-            RegelverkType.N_REG_N_OPPTJ -> Alderspensjon2025SisteBeregningCreator(context)
-            RegelverkType.N_REG_G_OPPTJ -> Alderspensjon2011SisteBeregningCreator(context)
+            RegelverkType.N_REG_G_N_OPPTJ -> alderspensjon2016SisteBeregningCreator
+            RegelverkType.N_REG_N_OPPTJ -> alderspensjon2025SisteBeregningCreator
+            RegelverkType.N_REG_G_OPPTJ -> alderspensjon2011SisteBeregningCreator
             else -> throw RuntimeException("Unexpected regelverkType $regelverkType in SisteBeregningCreator")
         }
     }

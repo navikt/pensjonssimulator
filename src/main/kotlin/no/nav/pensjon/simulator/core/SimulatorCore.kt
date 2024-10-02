@@ -56,6 +56,8 @@ import java.util.*
 class SimulatorCore(
     private val context: SimulatorContext,
     private val kravhodeCreator: KravhodeCreator,
+    private val kravhodeUpdater: KravhodeUpdater,
+    private val knekkpunktFinder: KnekkpunktFinder,
     private val alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner,
     private val privatAfpBeregner: PrivatAfpBeregner,
     private val generelleDataHolder: GenerelleDataHolder
@@ -359,14 +361,14 @@ class SimulatorCore(
 
     private fun oppdaterKravhodeForFoersteKnekkpunkt(spec: KravhodeUpdateSpec): Kravhode {
         val start = currentTimeMillis()
-        val response = KravhodeUpdater(context).updateKravhodeForFoersteKnekkpunkt(spec)
+        val response = kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(spec)
         logger.info("oppdaterKravhodeForForsteKnekkpunkt tok {} ms", currentTimeMillis() - start)
         return response
     }
 
     private fun finnKnekkpunkter(spec: KnekkpunktSpec): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
         val start = currentTimeMillis()
-        val response = KnekkpunktFinder(TrygdetidFastsetter(context)).finnKnekkpunkter(spec)
+        val response = knekkpunktFinder.finnKnekkpunkter(spec)
         logger.info("finnKnekkpunkter tok {} ms", currentTimeMillis() - start)
         return response
     }

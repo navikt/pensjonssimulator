@@ -16,7 +16,7 @@ import java.lang.System.currentTimeMillis
 abstract class ControllerBase(
     private val traceAid: TraceAid,
     private val organisasjonsnummerProvider: OrganisasjonsnummerProvider?,
-    private val tpregisteretService: TpregisteretService,
+    private val tpregisteretService: TpregisteretService?,
 ) {
 
     private val log = KotlinLogging.logger {}
@@ -61,14 +61,16 @@ abstract class ControllerBase(
     }
 
     protected fun verifiserAtBrukerTilknyttetTpLeverandoer(pid: Pid) {
-        val orgNummer = organisasjonsnummerProvider.provideOrganisasjonsnummer().value
-        if (!tpregisteretService.erBrukerTilknyttetAngittTpLeverandoer(pid.value, orgNummer)) {
-            log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $orgNummer" }
-            //TODO uncomment to enforce policy
-//            throw ResponseStatusException(
-//                HttpStatus.FORBIDDEN,
-//                "Call ID: ${traceAid.callId()} | Error: Brukeren er ikke tilknyttet angitt TP-leverandør"
-//            )
+        organisasjonsnummerProvider?.let {
+            val orgNummer = it.provideOrganisasjonsnummer().value
+            if (tpregisteretService?.erBrukerTilknyttetAngittTpLeverandoer(pid.value, orgNummer) == false) {
+                log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $orgNummer" }
+                //TODO uncomment to enforce policy
+    //            throw ResponseStatusException(
+    //                HttpStatus.FORBIDDEN,
+    //                "Call ID: ${traceAid.callId()} | Error: Brukeren er ikke tilknyttet angitt TP-leverandør"
+    //            )
+            }
         }
     }
 

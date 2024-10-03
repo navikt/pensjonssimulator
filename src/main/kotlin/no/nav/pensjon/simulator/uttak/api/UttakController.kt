@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tpregisteret.TpregisteretService
 import no.nav.pensjon.simulator.uttak.TidligstMuligUttakSpec
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakResultV1
@@ -31,8 +32,9 @@ import org.springframework.web.server.ResponseStatusException
 class UttakController(
     private val service: UttakService,
     private val traceAid: TraceAid,
-    organisasjonsnummerProvider: OrganisasjonsnummerProvider
-) : ControllerBase(traceAid, organisasjonsnummerProvider) {
+    organisasjonsnummerProvider: OrganisasjonsnummerProvider,
+    tpregisteretService: TpregisteretService,
+) : ControllerBase(traceAid, organisasjonsnummerProvider, tpregisteretService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/tidligst-mulig-uttak")
@@ -66,6 +68,7 @@ class UttakController(
                     throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig personId: '${specV1.personId}'")
                 }
             }
+            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
 
             resultV1(timed(service::finnTidligstMuligUttak, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }

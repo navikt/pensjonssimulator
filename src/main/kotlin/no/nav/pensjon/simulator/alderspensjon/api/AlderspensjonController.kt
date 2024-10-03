@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tpregisteret.TpregisteretService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -28,8 +29,9 @@ import org.springframework.web.bind.annotation.RestController
 class AlderspensjonController(
     private val service: AlderspensjonService,
     private val traceAid: TraceAid,
-    organisasjonsnummerProvider: OrganisasjonsnummerProvider
-) : ControllerBase(traceAid, organisasjonsnummerProvider) {
+    organisasjonsnummerProvider: OrganisasjonsnummerProvider,
+    tpregisteretService: TpregisteretService,
+) : ControllerBase(traceAid, organisasjonsnummerProvider, tpregisteretService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v4/simuler-alderspensjon")
@@ -64,6 +66,7 @@ class AlderspensjonController(
         return try {
             val spec = fromSpecV4(specV4)
             request.setAttribute("pid", spec.pid)
+            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
 
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }

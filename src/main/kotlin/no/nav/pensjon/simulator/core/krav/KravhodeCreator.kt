@@ -685,7 +685,7 @@ class KravhodeCreator(
         private fun angittUttaksgrad(spec: SimuleringSpec) =
             Uttaksgrad().apply {
                 fomDato = fromLocalDate(spec.foersteUttakDato)
-                uttaksgrad = spec.uttakGrad.toString().toInt()
+                uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (erGradertUttak(spec)) {
                     val dayBeforeHeltUttak = getRelativeDateByDays(spec.heltUttakDato, -1)

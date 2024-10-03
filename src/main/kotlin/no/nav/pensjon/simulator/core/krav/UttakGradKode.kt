@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.krav
 
-enum class UttakGradKode(value: String) {
+enum class UttakGradKode(val value: String) {
     /**
      * 0 %
      */

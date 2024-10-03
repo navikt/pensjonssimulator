@@ -71,7 +71,7 @@ class SimulatorCore(
         ForKortTrygdetidException::class,
         ForLavtTidligUttakException::class
     )
-    override fun simuler(spec: SimuleringSpec, flags: SimulatorFlags): OutputPensjonCombo {
+    override fun simuler(spec: SimuleringSpec, flags: SimulatorFlags): SimulatorOutput {
         /*ANON
         val gjelderEndring = simulatorInput.gjelderEndring()
 
@@ -233,17 +233,18 @@ class SimulatorCore(
             )
         )
 
-        return if (spec.erAnonym)
-            OutputPensjonCombo(
-                anonymSimuleringResult = AnonymOutputMapper.mapSimuleringResult(output)
-            )
-        else
-            OutputPensjonCombo(
-                /*ANON
-                pensjon = SimulatorAllPurposeResultTrimmer.trim(output, foedselsdato),
-                */
-                pensjon = null
-            )
+        //return if (spec.erAnonym)
+        //    OutputPensjonCombo(
+        //        anonymSimuleringResult = AnonymOutputMapper.mapSimuleringResult(output)
+        //    )
+        //else
+        //    OutputPensjonCombo(
+        //        /*ANON
+        //        pensjon = SimulatorAllPurposeResultTrimmer.trim(output, foedselsdato),
+        //        */
+        //        pensjon = null
+        //    )
+        return output
     }
 
     private fun fetchLoependeYtelser(

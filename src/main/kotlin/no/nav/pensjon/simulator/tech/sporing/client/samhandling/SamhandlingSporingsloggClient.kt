@@ -70,6 +70,6 @@ class SamhandlingSporingsloggClient(
     companion object {
         private const val PATH = "sporingslogg"
 
-        private val service = EgressService.SPORINGSLOGG
+        private val service = EgressService.FSS_GATEWAY
     }
 }

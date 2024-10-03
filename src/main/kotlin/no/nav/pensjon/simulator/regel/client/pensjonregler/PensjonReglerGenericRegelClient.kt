@@ -19,7 +19,7 @@ import java.util.Objects.requireNonNull
 // PensjonReglerRestConsumerService
 @Component
 class PensjonReglerGenericRegelClient(
-    @Value("\${ps.regler.url}") baseUrl: String,
+    @Value("\${ps.fss-gw.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     @Qualifier("regler") private val objectMapper: ObjectMapper,
@@ -83,6 +83,6 @@ class PensjonReglerGenericRegelClient(
     companion object {
         private const val BASE_PATH = "api"
 
-        private val service = EgressService.PENSJON_REGLER
+        private val service = EgressService.FSS_GATEWAY
     }
 }

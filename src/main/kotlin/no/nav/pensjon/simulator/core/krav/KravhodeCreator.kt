@@ -40,9 +40,11 @@ import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import java.math.BigInteger
 import java.time.LocalDate
 import java.util.*
@@ -50,20 +52,26 @@ import java.util.stream.IntStream
 import kotlin.streams.toList
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettKravhodeHelper
-class KravhodeCreator(val context: SimulatorContext) {
+@Component
+class KravhodeCreator(
+    private val context: SimulatorContext,
+    private val beholdningUpdater: BeholdningUpdater,
+    private val persongrunnlagMapper: PersongrunnlagMapper,
+    private val generelleDataHolder: GenerelleDataHolder
+) {
 
     private val logger = LoggerFactory.getLogger(KravhodeCreator::class.java)
 
     // OpprettKravhodeHelper.opprettKravhode
     // Personer will be undefined in forenklet simulering (anonymous)
     fun opprettKravhode(
-        request: KravhodeSpec,
+        spec: KravhodeSpec,
         person: PenPerson?,
         virkningsdatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
     ): Kravhode {
-        val simulatorInput = request.simulatorInput
-        val forrigeAlderBeregningsresultat = request.forrigeAlderspensjonBeregningResult
-        val grunnbelop = request.grunnbeloep
+        val simulatorInput = spec.simulatorInput
+        val forrigeAlderBeregningsresultat = spec.forrigeAlderspensjonBeregningResult
+        val grunnbelop = spec.grunnbeloep
         val gjelderEndring = simulatorInput.gjelderEndring()
         val gjelderAfpOffentligPre2025 = simulatorInput.gjelderPre2025OffentligAfp()
 
@@ -227,7 +235,7 @@ class KravhodeCreator(val context: SimulatorContext) {
 
     // OpprettKravHodeHelper.createPersongrunnlagBasedOnSivilstatus
     private fun persongrunnlagBasedOnSivilstatus(spec: SimuleringSpec, grunnbeloep: Int): Persongrunnlag {
-        val grunnlag = PersongrunnlagMapper(context).mapToEpsPersongrunnlag(
+        val grunnlag = persongrunnlagMapper.mapToEpsPersongrunnlag(
             spec.sivilstatus,
             foedselDato(spec)
         )
@@ -335,7 +343,7 @@ class KravhodeCreator(val context: SimulatorContext) {
         }
 
         val response: Kravhode = addSokerPersongrunnlagToKravForNormalSimulering(spec, kravhode, person!!)
-        BeholdningUpdater(context).updateBeholdningFromEksisterendePersongrunnlag(kravhode)
+        beholdningUpdater.updateBeholdningFromEksisterendePersongrunnlag(kravhode)
         return response
     }
 
@@ -345,33 +353,33 @@ class KravhodeCreator(val context: SimulatorContext) {
         kravhode: Kravhode,
         person: PenPerson
     ): Kravhode {
-        val grunnlag = PersongrunnlagMapper(context).mapToPersongrunnlag(person, spec)
+        val grunnlag = persongrunnlagMapper.mapToPersongrunnlag(person, spec)
         kravhode.persongrunnlagListe.add(grunnlag)
         addBeholdningerToPersongrunnlag(grunnlag, kravhode, person.pid!!, person.fodselsdato!!, false)
         return kravhode
     }
 
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBrukerForenkletSimulering
-    private fun forenkletSokergrunnlag(simulering: SimuleringSpec) =
+    private fun forenkletSokergrunnlag(spec: SimuleringSpec) =
         Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = FORENKLET_SIMULERING_PERSON_ID }
-            fodselsdato = legacyFoersteDag(simulering.foedselAar)
-            antallArUtland = simulering.utlandAntallAar
+            fodselsdato = legacyFoersteDag(spec.foedselAar)
+            antallArUtland = spec.utlandAntallAar
             statsborgerskap = norge
             flyktning = false
             bosattLand = norge
-            personDetaljListe = mutableListOf(forenkletPersonDetalj(simulering))
+            personDetaljListe = mutableListOf(forenkletPersonDetalj(spec))
             inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
             sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
         }.also { it.finishInit() }
 
     // SimulerFleksibelAPCommand.createPersonDetaljerForenkletSimulering
-    private fun forenkletPersonDetalj(simulering: SimuleringSpec) =
+    private fun forenkletPersonDetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
             grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
             grunnlagsrolle = GrunnlagsrolleCti(GrunnlagRolle.SOKER.name)
-            rolleFomDato = legacyFoersteDag(simulering.foedselAar)
-            sivilstandType = SivilstandTypeCti(forenkletSivilstand(simulering.sivilstatus).name)
+            rolleFomDato = legacyFoersteDag(spec.foedselAar)
+            sivilstandType = SivilstandTypeCti(forenkletSivilstand(spec.sivilstatus).name)
             bruk = true
         }.also { it.finishInit() }
 
@@ -544,7 +552,8 @@ class KravhodeCreator(val context: SimulatorContext) {
             gjeldendeAar = (spec.foersteUttakDato?.year ?: 0) - spec.inntektOver1GAntallAar
             aarSoekerBlirMaxAlder = MAX_OPPTJENING_ALDER + spec.foedselAar
             if (gjeldendeAar < innevaerendeAar) {
-                veietGrunnbeloepListe = context.fetchVeietGrunnbeloepListe(gjeldendeAar, aarSoekerBlirMaxAlder)
+                veietGrunnbeloepListe =
+                    generelleDataHolder.getVeietGrunnbeloepListe(gjeldendeAar, aarSoekerBlirMaxAlder)
             }
         } else {
             gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
@@ -676,7 +685,7 @@ class KravhodeCreator(val context: SimulatorContext) {
         private fun angittUttaksgrad(spec: SimuleringSpec) =
             Uttaksgrad().apply {
                 fomDato = fromLocalDate(spec.foersteUttakDato)
-                uttaksgrad = spec.uttakGrad.toString().toInt()
+                uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (erGradertUttak(spec)) {
                     val dayBeforeHeltUttak = getRelativeDateByDays(spec.heltUttakDato, -1)

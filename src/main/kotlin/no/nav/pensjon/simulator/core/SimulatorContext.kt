@@ -15,51 +15,58 @@ import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
+import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.regler.PensjonReglerConsumerService
-import org.apache.commons.lang3.NotImplementedException
+import no.nav.pensjon.simulator.regel.client.GenericRegelClient
+import no.nav.pensjon.simulator.regel.client.RegelClient
+import org.springframework.stereotype.Component
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
 
+@Component
 class SimulatorContext(
-    private val pensjonReglerService: PensjonReglerConsumerService
-) {
-    // Requires PDL service
-    fun fetchFoedselDato(pid: Pid): LocalDate = throw NotImplementedException()
+    private val regelService: GenericRegelClient,
+    private val penClient: GenerelleDataClient
+) : RegelClient {
+    fun fetchFoedselDato(pid: Pid): LocalDate =
+        penClient.fetchGenerelleData(
+            spec = GenerelleDataSpec.forFoedselDato(pid)
+        ).foedselDato
 
-    // Requires PEN service
     // hentSatserAfpPrivat
-    fun fetchPrivatAfpSatser(virkningFom: LocalDate?, foedselDato: LocalDate?): PrivatAfpSatser {
-        return PrivatAfpSatser(ft = null) //TODO
-    }
+    fun fetchPrivatAfpSatser(virkningFom: LocalDate, foedselDato: LocalDate): PrivatAfpSatser =
+        penClient.fetchGenerelleData(
+            spec = GenerelleDataSpec.forPrivatAfp(virkningFom, foedselDato)
+        ).privatAfpSatser
 
-    // Requires PEN service
     // hentDelingstallUtvalg
-    fun fetchDelingstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): DelingstallUtvalg {
-        return DelingstallUtvalg() //TODO
-    }
+    fun fetchDelingstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): DelingstallUtvalg =
+        penClient.fetchGenerelleData(
+            spec = GenerelleDataSpec.forDelingstall(virkningFom, foedselDato)
+        ).delingstallUtvalg
 
-    // Requires PEN service
     // hentForholdstallUtvalg
-    fun fetchForholdstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): ForholdstallUtvalg {
-        return ForholdstallUtvalg() //TODO
-    }
+    fun fetchForholdstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): ForholdstallUtvalg =
+        penClient.fetchGenerelleData(
+            spec = GenerelleDataSpec.forForholdstall(virkningFom, foedselDato)
+        ).forholdstallUtvalg
 
-    // Requires PEN service
     // hentVeietGrunnbelopListe
-    fun fetchVeietGrunnbeloepListe(fomYear: Int?, tomYear: Int?): List<VeietSatsResultat> {
-        return emptyList() //TODO
-    }
+    fun fetchVeietGrunnbeloepListe(fomAar: Int?, tomAar: Int?): List<VeietSatsResultat> =
+        penClient.fetchGenerelleData(
+            spec = GenerelleDataSpec.forVeietGrunnbeloep(fomAar, tomAar)
+        ).satsResultatListe
 
     // BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
-    fun beregnAlderspensjon2011FoersteUttak(
+    override fun beregnAlderspensjon2011FoersteUttak(
         spec: BeregnAlderspensjon2011ForsteUttakRequest,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2011 {
         val response: BeregnAlderspensjon2011ForsteUttakResponse =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = BeregnAlderspensjon2011ForsteUttakResponse::class.java,
                 serviceName = "beregnAlderspensjon2011ForsteUttak",
                 map = null,
@@ -75,13 +82,13 @@ class SimulatorContext(
     }
 
     // BeregnAlderspensjon2016ForsteUttakConsumerCommand.execute
-    fun beregnAlderspensjon2016FoersteUttak(
+    override fun beregnAlderspensjon2016FoersteUttak(
         spec: BeregnAlderspensjon2016ForsteUttakRequest,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2016 {
         val response: BeregnAlderspensjon2016ForsteUttakResponse =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = BeregnAlderspensjon2016ForsteUttakResponse::class.java,
                 serviceName = "beregnAlderspensjon2016ForsteUttak",
                 map = null,
@@ -97,13 +104,13 @@ class SimulatorContext(
     }
 
     // BeregnAlderspensjon2025ForsteUttakConsumerCommand.execute
-    fun beregnAlderspensjon2025FoersteUttak(
+    override fun beregnAlderspensjon2025FoersteUttak(
         spec: BeregnAlderspensjon2025ForsteUttakRequest,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2025 {
         val response: BeregnAlderspensjon2025ForsteUttakResponse =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = BeregnAlderspensjon2025ForsteUttakResponse::class.java,
                 serviceName = "beregnAlderspensjon2025ForsteUttak",
                 map = null,
@@ -118,7 +125,7 @@ class SimulatorContext(
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2025ForsteUttak")
     }
 
-    fun beregnPoengtallBatch(
+    override fun beregnPoengtallBatch(
         opptjeningGrunnlagListe: MutableList<Opptjeningsgrunnlag>,
         foedselDato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag> {
@@ -130,7 +137,7 @@ class SimulatorContext(
     }
 
     private fun beregnPoengtallBatch(inputList: List<PersonOpptjeningsgrunnlag>): List<PersonOpptjeningsgrunnlag> {
-        val response: BeregnPoengtallBatchResponse = pensjonReglerService.regelServiceApi(
+        val response: BeregnPoengtallBatchResponse = regelService.makeRegelCall(
             BeregnPoengtallBatchRequest(inputList.toMutableList()),
             BeregnPoengtallBatchResponse::class.java,
             "beregnPoengtallBatch",
@@ -143,13 +150,13 @@ class SimulatorContext(
         return outputList
     }
 
-    fun revurderAlderspensjon2011(
+    override fun revurderAlderspensjon2011(
         spec: RevurderingAlderspensjon2011Request,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2011 {
         val response: RevurderingAlderspensjon2011Response =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = RevurderingAlderspensjon2011Response::class.java,
                 serviceName = "revurderingAlderspensjon2011",
                 map = null,
@@ -160,13 +167,13 @@ class SimulatorContext(
         return response.revurdertBeregningsResultat!!
     }
 
-    fun revurderAlderspensjon2016(
+    override fun revurderAlderspensjon2016(
         spec: RevurderingAlderspensjon2016Request,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2016 {
         val response: RevurderingAlderspensjon2016Response =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = RevurderingAlderspensjon2016Response::class.java,
                 serviceName = "revurderingAlderspensjon2016",
                 map = null,
@@ -177,13 +184,13 @@ class SimulatorContext(
         return response.revurdertBeregningsResultat!!
     }
 
-    fun revurderAlderspensjon2025(
+    override fun revurderAlderspensjon2025(
         spec: RevurderingAlderspensjon2025Request,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2025 {
         val response: RevurderingAlderspensjon2025Response =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = RevurderingAlderspensjon2025Response::class.java,
                 serviceName = "revurderingAlderspensjon2025",
                 map = null,
@@ -195,10 +202,13 @@ class SimulatorContext(
     }
 
     // VilkarsprovAlderspensjonOver67ConsumerCommand.execute
-    fun vilkaarsproevUbetingetAlderspensjon(spec: VilkarsprovRequest, sakId: Long?): MutableList<VilkarsVedtak> {
+    override fun vilkaarsproevUbetingetAlderspensjon(
+        spec: VilkarsprovRequest,
+        sakId: Long?
+    ): MutableList<VilkarsVedtak> {
         val response: VilkarsprovResponse =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = spec,
+            regelService.makeRegelCall(
+                request = spec,
                 responseClass = VilkarsprovResponse::class.java,
                 serviceName = "vilkarsprovAlderspensjonOver67",
                 map = null,
@@ -209,17 +219,15 @@ class SimulatorContext(
         return response.vedtaksliste
     }
 
-    /**
-     * Replaces VilkarsprovAlderspensjon2011ConsumerCommand.execute
-     */
-    fun vilkaarsproevAlderspensjon2011(
+    // VilkarsprovAlderspensjon2011ConsumerCommand.execute
+    override fun vilkaarsproevAlderspensjon2011(
         spec: VilkarsprovAlderpensjon2011Request,
         sakId: Long?
     ): MutableList<VilkarsVedtak> {
         preprocess(spec)
 
-        val response: VilkarsprovResponse = pensjonReglerService.regelServiceApi(
-            regelRequest = spec,
+        val response: VilkarsprovResponse = regelService.makeRegelCall(
+            request = spec,
             responseClass = VilkarsprovResponse::class.java,
             serviceName = "vilkarsprovAlderspensjon2011",
             map = null,
@@ -231,14 +239,14 @@ class SimulatorContext(
     }
 
     // VilkarsprovAlderspensjon2016ConsumerCommand.execute
-    fun vilkaarsproevAlderspensjon2016(
+    override fun vilkaarsproevAlderspensjon2016(
         spec: VilkarsprovAlderpensjon2016Request,
         sakId: Long?
     ): MutableList<VilkarsVedtak> {
         preprocess(spec)
 
-        val response: VilkarsprovResponse = pensjonReglerService.regelServiceApi(
-            regelRequest = spec,
+        val response: VilkarsprovResponse = regelService.makeRegelCall(
+            request = spec,
             responseClass = VilkarsprovResponse::class.java,
             serviceName = "vilkarsprovAlderspensjon2016",
             map = null,
@@ -250,14 +258,14 @@ class SimulatorContext(
     }
 
     // VilkarsprovAlderspensjon2025ConsumerCommand.execute
-    fun vilkaarsproevAlderspensjon2025(
+    override fun vilkaarsproevAlderspensjon2025(
         spec: VilkarsprovAlderpensjon2025Request,
         sakId: Long?
     ): MutableList<VilkarsVedtak> {
         preprocess(spec)
 
-        val response: VilkarsprovResponse = pensjonReglerService.regelServiceApi(
-            regelRequest = spec,
+        val response: VilkarsprovResponse = regelService.makeRegelCall(
+            request = spec,
             responseClass = VilkarsprovResponse::class.java,
             serviceName = "vilkarsprovAlderspensjon2025",
             map = null,
@@ -270,9 +278,9 @@ class SimulatorContext(
 
     // BeregnAFPpaslagPrivatConsumerCommand.execute
     //@Throws(PEN165KanIkkeBeregnesException::class, PEN166BeregningsmotorValidereException::class)
-    fun beregnPrivatAfp(spec: BeregnAfpPrivatRequest, sakId: Long?): BeregningsResultatAfpPrivat {
-        val response: BeregnAfpPrivatResponse = pensjonReglerService.regelServiceApi(
-            regelRequest = spec,
+    override fun beregnPrivatAfp(spec: BeregnAfpPrivatRequest, sakId: Long?): BeregningsResultatAfpPrivat {
+        val response: BeregnAfpPrivatResponse = regelService.makeRegelCall(
+            request = spec,
             responseClass = BeregnAfpPrivatResponse::class.java,
             serviceName = "beregnAfpPrivat",
             map = null,
@@ -285,13 +293,13 @@ class SimulatorContext(
     }
 
     // FastsettTrygdetidConsumerCommand.execute
-    fun refreshFastsettTrygdetid(
+    override fun refreshFastsettTrygdetid(
         spec: TrygdetidRequest,
         kravIsUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidResponse {
-        val response: TrygdetidResponse = pensjonReglerService.regelServiceApi(
-            regelRequest = spec,
+        val response: TrygdetidResponse = regelService.makeRegelCall(
+            request = spec,
             responseClass = TrygdetidResponse::class.java,
             serviceName = "fastsettTrygdetid",
             map = null,
@@ -304,34 +312,35 @@ class SimulatorContext(
 
     // DefaultBeregningConsumerService.beregnOpptjening -> BeregnOpptjeningConsumerCommand.execute
     // NB: No sakId in legacy code
-    fun beregnOpptjening(
+    override fun beregnOpptjening(
         beholdningTom: LocalDate?,
         persongrunnlag: Persongrunnlag,
-        beholdning: Pensjonsbeholdning? = null
+        beholdning: Pensjonsbeholdning?
     ): MutableList<Pensjonsbeholdning> {
         persongrunnlag.personDetaljListe.forEach(::setRollePeriode)
         val request = BeregnPensjonsBeholdningRequest(fromLocalDate(beholdningTom)?.noon(), persongrunnlag, beholdning)
 
-        val response = pensjonReglerService.regelServiceApi<BeregnPensjonsBeholdningResponse, BeregnPensjonsBeholdningRequest>(
-            regelRequest = request,
-            responseClass = BeregnPensjonsBeholdningResponse::class.java,
-            serviceName = "beregnPensjonsBeholdning",
-            map = null,
-            sakId = null
-        ).also {
-            validerResponse(it.pakkseddel)
-            finishOpptjeningInit(it.beholdninger)
-        }
+        val response =
+            regelService.makeRegelCall<BeregnPensjonsBeholdningResponse, BeregnPensjonsBeholdningRequest>(
+                request = request,
+                responseClass = BeregnPensjonsBeholdningResponse::class.java,
+                serviceName = "beregnPensjonsBeholdning",
+                map = null,
+                sakId = null
+            ).also {
+                validerResponse(it.pakkseddel)
+                finishOpptjeningInit(it.beholdninger)
+            }
 
         return tidsbegrensedeBeholdninger(response.beholdninger)
     }
 
     // no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
-    fun fetchGrunnbeloepListe(localDate: LocalDate): SatsResponse {
+    override fun fetchGrunnbeloepListe(localDate: LocalDate): SatsResponse {
         val date: Date = fromLocalDate(localDate)!!.noon()
 
-        return pensjonReglerService.regelServiceApi(
-            regelRequest = HentGrunnbelopListeRequest(date, date),
+        return regelService.makeRegelCall(
+            request = HentGrunnbelopListeRequest(date, date),
             responseClass = SatsResponse::class.java,
             serviceName = "hentGrunnbelopListe",
             map = null,
@@ -340,9 +349,9 @@ class SimulatorContext(
     }
 
     // HentGyldigSatsConsumerCommand.execute
-    fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse =
-        pensjonReglerService.regelServiceApi(
-            regelRequest = request,
+    override fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse =
+        regelService.makeRegelCall(
+            request = request,
             responseClass = SatsResponse::class.java,
             serviceName = "hentGyldigSats",
             map = null,
@@ -350,10 +359,10 @@ class SimulatorContext(
         )
 
     // RegulerPensjonsbeholdningConsumerCommand.execute
-    fun regulerPensjonsbeholdning(request: RegulerPensjonsbeholdningRequest): RegulerPensjonsbeholdningResponse {
+    override fun regulerPensjonsbeholdning(request: RegulerPensjonsbeholdningRequest): RegulerPensjonsbeholdningResponse {
         val response: RegulerPensjonsbeholdningResponse =
-            pensjonReglerService.regelServiceApi(
-                regelRequest = request,
+            regelService.makeRegelCall(
+                request = request,
                 responseClass = RegulerPensjonsbeholdningResponse::class.java,
                 serviceName = "regulerPensjonsbeholdning",
                 map = null,

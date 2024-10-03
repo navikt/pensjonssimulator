@@ -28,24 +28,35 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurn
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import org.springframework.stereotype.Component
 import java.io.IOException
 import java.time.LocalDate
 import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.BeregnAfpPrivatHelper
-class PrivatAfpBeregner(private val context: SimulatorContext) {
+@Component
+class PrivatAfpBeregner(
+    private val context: SimulatorContext,
+    private val generelleDataHolder: GenerelleDataHolder
+) {
 
     //@Throws(PEN222BeregningstjenesteFeiletException::class)
     fun beregnPrivatAfp(afpSpec: PrivatAfpSpec): PrivatAfpResult {
         val simuleringSpec: SimuleringSpec = afpSpec.simulering
         val forrigeBeregningResultat: BeregningsResultatAfpPrivat? = afpSpec.forrigePrivatAfpBeregningResult
         val kravhode: Kravhode = afpSpec.kravhode
-        val foersteVirkning: LocalDate? = afpSpec.virkningFom
+        val foersteVirkning: LocalDate = afpSpec.virkningFom
         val afpKravhode: Kravhode = periodiserGrunnlag(newAfpPrivatKravhode(kravhode))
         val soekerGrunnlag: Persongrunnlag = afpKravhode.hentPersongrunnlagForSoker()
 
         val knekkpunktDatoer: SortedSet<LocalDate> =
-            findKnekkpunktDatoer(simuleringSpec.foersteUttakDato, soekerGrunnlag, foersteVirkning, afpSpec.gjelderOmsorg)
+            findKnekkpunktDatoer(
+                simuleringSpec.foersteUttakDato,
+                soekerGrunnlag,
+                foersteVirkning,
+                afpSpec.gjelderOmsorg
+            )
 
         if (knekkpunktDatoer.isEmpty()) {
             // Ingen knekkpunkter; beregningsresultat fra gjeldende ytelse benyttes videre
@@ -62,7 +73,8 @@ class PrivatAfpBeregner(private val context: SimulatorContext) {
         val afpKravlinje = newKravlinje(soekerGrunnlag.penPerson!!)
         afpKravhode.kravlinjeListe = mutableListOf(afpKravlinje)
         afpKravhode.afpOrdning = AfpOrdningTypeCti(AfpOrdningType.LONHO.name) // any value will do
-        val satser: PrivatAfpSatser = context.fetchPrivatAfpSatser(foersteVirkning, soekerGrunnlag.fodselsdato.toLocalDate())
+        val satser: PrivatAfpSatser =
+            generelleDataHolder.getPrivatAfpSatser(foersteVirkning, soekerGrunnlag.fodselsdato?.toLocalDate()!!)
         val afpBeholdningDato = calculateAfpBeholdningDato(simuleringSpec, soekerGrunnlag.fodselsdato.toLocalDate()!!)
         soekerGrunnlag.replaceBeholdninger(context.beregnOpptjening(afpBeholdningDato, soekerGrunnlag))
         val earliestKnekkpunktDato = knekkpunktDatoer.first()

@@ -12,15 +12,15 @@ enum class EgressService(
     val authType: AuthType = AuthType.MACHINE_INSIDE_NAV
 ) {
     OAUTH2_TOKEN(description = "OAuth2 token", shortName = "OA2", purpose = "OAuth2 access token"),
+    FSS_GATEWAY(
+        description = "FSS-gateway",
+        shortName = "FGW",
+        purpose = "Proxy for pensjon-regler og sporingslogg"
+    ),
     PENSJONSFAGLIG_KJERNE(
         description = "Pensjonsfaglig kjerne",
         shortName = "PEN",
         purpose = "Finne tidligst mulig uttak"
-    ),
-    SPORINGSLOGG(
-        description = "Sporingslogg",
-        shortName = "SL",
-        purpose = "Logge utleverte data"
     ),
     TP_REGISTERET(
         description = "Tjenestepensjonsregisteret",

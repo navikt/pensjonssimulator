@@ -14,12 +14,12 @@ open class EgressServiceSecurityConfiguration {
     @Bean
     open fun egressServiceListsByAudience(
         @Value("\${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
-        @Value("\${ps.sporingslogg.service-id}") sporingsloggServiceId: String,
+        @Value("\${ps.fss-gw.service-id}") fssGatewayServiceId: String,
         @Value("\${tjenestepensjon.service-id}") tpregisteretServiceId: String,
     ) =
         EgressServicesByAudience(mapOf(
             pensjonsfagligKjerneServiceId to EgressService.PENSJONSFAGLIG_KJERNE,
-            sporingsloggServiceId to EgressService.SPORINGSLOGG,
+            fssGatewayServiceId to EgressService.FSS_GATEWAY,
             tpregisteretServiceId to EgressService.TP_REGISTERET,
         ))
 

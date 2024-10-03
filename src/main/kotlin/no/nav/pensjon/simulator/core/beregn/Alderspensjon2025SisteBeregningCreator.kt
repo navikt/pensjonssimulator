@@ -5,8 +5,10 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregni
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteAldersberegning2011
 import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
+import org.springframework.stereotype.Component
 
 // Corresponds to AbstraktOpprettSisteAldersberegning + OpprettSisteAldersberegning2011Regelverk2025
+@Component
 class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteBeregningCreatorBase(context) {
 
     // AbstraktOpprettSisteAldersberegning.execute

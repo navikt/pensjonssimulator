@@ -1,60 +1,60 @@
 package no.nav.pensjon.simulator.core.domain.regler.afpoppgjor
 
 import no.nav.pensjon.simulator.core.domain.regler.BatchStatus
-import no.nav.pensjon.simulator.core.domain.regler.kode.AFPetteroppgjorBehandlingskodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.AFPetteroppgjorGruppeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPoppgjKategoriEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.AfpEtteroppgjorBehandlingskodeEnum
 
-class AfpEtteroppgjorKategori(
+class AfpEtteroppgjorKategori {
     /**
      * Nøkkelfelt brukt av PEN tjenestene.
-     * PREG skal ta denne inn og levere den tilbake i alle tjenestene sine.
+     * pensjon-regler skal ta denne inn og levere den tilbake i alle tjenestene sine.
      */
-    var vedtakId: Long = 0,
+    var vedtakId: Long = 0
 
     /**
      * Id til personsobjektet fra PEN
      */
-    var penPersonId: Long = 0,
+    var penPersonId: Long = 0
 
     /**
      * Beregnet inntekt etter opphør
      */
-    var beregnetIEO: Int = 0,
+    var beregnetIEO = 0
 
     /**
      * Beregnet inntekt før uttak
      */
-    var beregnetIFU: Int = 0,
+    var beregnetIFU = 0
 
     /**
      * Beregnet FPI i AFP-perioden
      */
-    var beregnetFPI: Int = 0,
+    var beregnetFPI = 0
 
     /**
      * Beregnet inntekt i AFP-perioden
      */
-    var beregnetIIAP: Int = 0,
+    var beregnetIIAP = 0
 
     /**
      * Beregnet avvik mellom arbeidsinntekt (PGI) og inntekten pensjonen er beregnet etter.
      */
-    var inntektsAvvik: Int = 0,
+    var inntektsAvvik = 0
 
     /**
-     * Settes til SPK hvis personen skal overføres til SPK (med i SPK filen).
+     * Settes til SPK hvis personen skal overfåres til SPK (med i SPK filen).
      * Personen har AFP_STAT og fylte 65 år forrige år.
      * Settes til ANDRE ellers.
      */
-    var behandlingskode: AFPetteroppgjorBehandlingskodeCti? = null,
+    var behandlingskodeEnum: AfpEtteroppgjorBehandlingskodeEnum? = null
 
     /**
      * Gruppen dette oppgjøret er kategorisert som; Gruppe 1 - 4
      */
-    var gruppe: AFPetteroppgjorGruppeCti? = null,
+    var gruppeEnum: AFPoppgjKategoriEnum? = null
 
     /**
-     * Status fra PREG per element
+     * Status fra pensjon-regler per element
      */
     var status: BatchStatus? = null
-)
+}

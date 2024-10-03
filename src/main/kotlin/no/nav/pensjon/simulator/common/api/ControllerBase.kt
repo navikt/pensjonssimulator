@@ -15,7 +15,7 @@ import java.lang.System.currentTimeMillis
 
 abstract class ControllerBase(
     private val traceAid: TraceAid,
-    private val organisasjonsnummerProvider: OrganisasjonsnummerProvider,
+    private val organisasjonsnummerProvider: OrganisasjonsnummerProvider?,
     private val tpregisteretService: TpregisteretService,
 ) {
 
@@ -54,7 +54,8 @@ abstract class ControllerBase(
 
     protected fun countCall(functionName: String) {
         Metrics.countIngressCall(
-            organisasjonId = Organisasjoner.navn(organisasjonsnummerProvider.provideOrganisasjonsnummer()),
+            organisasjonId = organisasjonsnummerProvider?.let { Organisasjoner.navn(it.provideOrganisasjonsnummer()) }
+                ?: "intern",
             callId = functionName
         )
     }

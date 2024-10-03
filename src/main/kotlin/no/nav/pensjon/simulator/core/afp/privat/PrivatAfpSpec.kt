@@ -9,7 +9,7 @@ import java.time.LocalDate
 data class PrivatAfpSpec(
     val simulering: SimuleringSpec,
     val kravhode: Kravhode,
-    val virkningFom: LocalDate?,
+    val virkningFom: LocalDate,
     val forrigePrivatAfpBeregningResult: BeregningsResultatAfpPrivat?,
     val gjelderOmsorg: Boolean,
     val sakId: Long?

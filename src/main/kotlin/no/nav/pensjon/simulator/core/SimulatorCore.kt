@@ -41,8 +41,10 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseGetter
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseResult
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
 import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
 import java.lang.System.currentTimeMillis
 import java.time.LocalDate
 import java.util.*
@@ -50,7 +52,16 @@ import java.util.*
 /**
  * Corresponds to AbstraktSimulerAPFra2011Command, SimulerFleksibelAPCommand, SimulerAFPogAPCommand, SimulerEndringAvAPCommand
  */
-class SimulatorCore(val context: SimulatorContext) : UttakAlderDiscriminator {
+@Component
+class SimulatorCore(
+    private val context: SimulatorContext,
+    private val kravhodeCreator: KravhodeCreator,
+    private val kravhodeUpdater: KravhodeUpdater,
+    private val knekkpunktFinder: KnekkpunktFinder,
+    private val alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner,
+    private val privatAfpBeregner: PrivatAfpBeregner,
+    private val generelleDataHolder: GenerelleDataHolder
+) : UttakAlderDiscriminator {
 
     private val logger = LoggerFactory.getLogger(SimulatorCore::class.java)
 
@@ -60,7 +71,7 @@ class SimulatorCore(val context: SimulatorContext) : UttakAlderDiscriminator {
         ForKortTrygdetidException::class,
         ForLavtTidligUttakException::class
     )
-    override fun simuler(spec: SimuleringSpec, flags: SimulatorFlags): OutputPensjonCombo {
+    override fun simuler(spec: SimuleringSpec, flags: SimulatorFlags): SimulatorOutput {
         /*ANON
         val gjelderEndring = simulatorInput.gjelderEndring()
 
@@ -222,17 +233,18 @@ class SimulatorCore(val context: SimulatorContext) : UttakAlderDiscriminator {
             )
         )
 
-        return if (spec.erAnonym)
-            OutputPensjonCombo(
-                anonymSimuleringResult = AnonymOutputMapper.mapSimuleringResult(output)
-            )
-        else
-            OutputPensjonCombo(
-                /*ANON
-                pensjon = SimulatorAllPurposeResultTrimmer.trim(output, foedselsdato),
-                */
-                pensjon = null
-            )
+        //return if (spec.erAnonym)
+        //    OutputPensjonCombo(
+        //        anonymSimuleringResult = AnonymOutputMapper.mapSimuleringResult(output)
+        //    )
+        //else
+        //    OutputPensjonCombo(
+        //        /*ANON
+        //        pensjon = SimulatorAllPurposeResultTrimmer.trim(output, foedselsdato),
+        //        */
+        //        pensjon = null
+        //    )
+        return output
     }
 
     private fun fetchLoependeYtelser(
@@ -330,7 +342,7 @@ class SimulatorCore(val context: SimulatorContext) : UttakAlderDiscriminator {
         return null
     }
 
-    override fun fetchFoedselDato(pid: Pid): LocalDate = context.fetchFoedselDato(pid)
+    override fun fetchFoedselDato(pid: Pid): LocalDate = generelleDataHolder.getFoedselDato(pid)
 
     private fun fetchGrunnbeloep(): Int {
         val grunnbeloepListe: List<SatsResultat> = context.fetchGrunnbeloepListe(LocalDate.now()).satsResultater
@@ -343,39 +355,35 @@ class SimulatorCore(val context: SimulatorContext) : UttakAlderDiscriminator {
         virkningDatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
     ): Kravhode {
         val start = currentTimeMillis()
-        val kravhode = KravhodeCreator(context).opprettKravhode(spec, person, virkningDatoGrunnlagListe)
+        val kravhode = kravhodeCreator.opprettKravhode(spec, person, virkningDatoGrunnlagListe)
         logger.info("opprettKravhode tok {} ms", currentTimeMillis() - start)
         return kravhode
     }
 
     private fun oppdaterKravhodeForFoersteKnekkpunkt(spec: KravhodeUpdateSpec): Kravhode {
         val start = currentTimeMillis()
-        val response = KravhodeUpdater(context).updateKravhodeForFoersteKnekkpunkt(spec)
+        val response = kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(spec)
         logger.info("oppdaterKravhodeForForsteKnekkpunkt tok {} ms", currentTimeMillis() - start)
         return response
     }
 
     private fun finnKnekkpunkter(spec: KnekkpunktSpec): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
         val start = currentTimeMillis()
-        val response = KnekkpunktFinder(TrygdetidFastsetter(context)).finnKnekkpunkter(spec)
+        val response = knekkpunktFinder.finnKnekkpunkter(spec)
         logger.info("finnKnekkpunkter tok {} ms", currentTimeMillis() - start)
         return response
     }
 
     private fun beregnPrivatAfp(spec: PrivatAfpSpec): PrivatAfpResult {
         val start = currentTimeMillis()
-        val response = PrivatAfpBeregner(context).beregnPrivatAfp(spec)
+        val response = privatAfpBeregner.beregnPrivatAfp(spec)
         logger.info("beregnAfpPrivat tok {} ms", currentTimeMillis() - start)
         return response
     }
 
     private fun vilkaarsproevOgBeregnAlderspensjon(request: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
         val start = currentTimeMillis()
-        val response = AlderspensjonVilkaarsproeverOgBeregner(
-            context,
-            TrygdetidFastsetter(context)
-        ).vilkaarsproevOgBeregnAlder(request)
-
+        val response = alderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder(request)
         logger.info("vilkarsprovOgBeregnAlder tok {} ms", currentTimeMillis() - start)
         return response
     }

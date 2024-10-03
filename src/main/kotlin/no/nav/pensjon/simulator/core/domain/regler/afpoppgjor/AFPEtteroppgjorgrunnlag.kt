@@ -1,62 +1,65 @@
 package no.nav.pensjon.simulator.core.domain.regler.afpoppgjor
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import java.util.*
 
-class AFPEtteroppgjorgrunnlag(
+class AFPEtteroppgjorgrunnlag {
     /**
      * Nøkkelfelt brukt av PEN tjenestene.
-     * PREG skal ta denne inn og levere den tilbake i alle tjenestene sine.
+     * pensjon-regler skal ta denne inn og levere den tilbake i alle tjenestene sine.
      */
-    var vedtakId: Long = 0,
+    var vedtakId: Long = 0
 
     /**
      * Id til personsobjektet fra PEN
      */
-    var penPersonId: Long = 0,
-    var fodselsdato: Date? = null,
+    var penPersonId: Long = 0
+
+    /**
+     * Personens Fødselsdato
+     */
+    var fodselsdato: Date? = null
 
     /**
      * AFPordningen personen er eller var medlem av
      */
-    var afpOrdning: AfpOrdningTypeCti? = null,
+    var afpOrdningEnum: AFPtypeEnum? = null
 
     /**
      * Skal settes til true når personen har gått over til en annen type pensjon midt i
      * oppgjørsåret
      */
-    var overgangTilAnnenPensjon: Boolean = false,
+    var overgangTilAnnenPensjon = false
 
     /**
      * Liste av Utbetalingsperioder.
      */
-    var afpUtbetalingsperiodeList: MutableList<AfpUtbetalingsperiode> = mutableListOf(),
+    var afpUtbetalingsperiodeList: List<AfpUtbetalingsperiode> = mutableListOf()
 
     /**
      * Brukerregistrert inntekt etter opphør
      */
-    var ieo: Int = 0,
+    var ieo = 0
 
     /**
-     * Brukerregistrert inntekt før uttak
+     * Brukerregistrert inntekt fær uttak
      */
-    var ifu: Int = 0,
+    var ifu = 0
 
     /**
      * Pensjonsgivende inntekt i preioden (fra SKD)
      */
-    var pgi: Int = 0,
-
-    var uttaksdato: Date? = null,
+    var pgi = 0
+    var uttaksdato: Date? = null
 
     /**
      * Hvis pensjonen opphørte midt i oppgjørsåret skal denne settes til opphørsdato
      */
-    var opphorsdato: Date? = null,
+    var opphorsdato: Date? = null
 
     /**
      * Beskriver hvilken kategori etteroppgjøret er, samt inntektene som ble beregnet.
      * Skal være null ved kall til KategoriserAFPOppgjor.
      */
     var afpEtteroppgjorKategori: AfpEtteroppgjorKategori? = null
-)
+}

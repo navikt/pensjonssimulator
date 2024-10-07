@@ -1,19 +1,20 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.*
+import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.SimuleringSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
-import no.nav.pensjon.simulator.core.domain.*
+import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.SimuleringType
+import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.kode.BegrunnelseTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarsvedtakResultatCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
@@ -23,27 +24,22 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensj
 import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
 import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForLavtTidligUttakException
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
+import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
-import no.nav.pensjon.simulator.core.krav.KravUtil.kravlinjeType
+import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.domain.Land
-import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
-import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.krav.KravlinjeTypePlus
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.isBeforeOrOn
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
-import no.nav.pensjon.simulator.core.ytelse.YtelseKomponentType
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -69,8 +65,10 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         var forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat? = spec.forrigeAlderBeregningsresultat
         var sisteBeregning = spec.sisteBeregning
         var kravhode = periodiserGrunnlag(spec.kravhode)
-        val soekerGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagRolle.SOKER, false)!!
-        val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagRolle.AVDOD, false)
+        val soekerGrunnlag =
+            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
+        val avdoedGrunnlag =
+            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
         var vedtakListe: List<VilkarsVedtak>
         val garantitilleggBeholdningGrunnlag = hentGarantiTilleggsbeholdningGrunnlag()
         var sisteBeregning2011Tp: SisteBeregning? = null
@@ -114,7 +112,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             // Corresponds to part 4
             val gjeldendePrivatAfp = getAfpPrivatLivsvarig(privatAfpBeregningResultatListe, knekkpunktDato)
-            val gjeldendeLivsvarigOffentligAfp =
+            //val gjeldendeLivsvarigOffentligAfp: AfpOffentligLivsvarigGrunnlag? =
+            val gjeldendeLivsvarigOffentligAfp: AfpOffentligLivsvarigDto? =
                 getLivsvarigOffentligAfp(spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe, knekkpunktDato)
             val gjeldendeLivsvarigAfp = gjeldendePrivatAfp ?: gjeldendeLivsvarigOffentligAfp?.toAfpLivsvarig()
 
@@ -126,12 +125,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 // "hack" should be removed as soon as they're able to receive Kap 20 results.
                 val sisteBeregningForVilkarsproving = sisteBeregning2011Tp ?: sisteBeregning
 
-                val vilkarsprovKravRequest = vilkaarsproevingSpec(
+                val vilkaarsproevingSpec = vilkaarsproevingSpec(
                     gjeldendeLivsvarigOffentligAfp?.toVilkarsprovDto(),
                     gjeldendePrivatAfp,
                     knekkpunktDato,
                     kravhode,
-                    //spec.privatAfpVirkningFom,
                     spec.forsteVirkAfpPrivat,
                     forholdstallUtvalg,
                     delingstallUtvalg,
@@ -144,7 +142,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     spec.ignoreAvslag
                 )
 
-                val vilkaarsproevingResult = vilkaarsproevKrav(vilkarsprovKravRequest)
+                val vilkaarsproevingResult = vilkaarsproevKrav(vilkaarsproevingSpec)
                 vedtakListe = vilkaarsproevingResult.first
                 kravhode = vilkaarsproevingResult.second
                 forrigeVedtakListe = vedtakListe
@@ -221,7 +219,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             // Corresponds to part 10
-            if (shouldAddPensjonBeholdningPerioder(spec.isHentPensjonsbeholdninger, kravhode.regelverkTypeCti)) {
+            if (shouldAddPensjonBeholdningPerioder(spec.isHentPensjonsbeholdninger, kravhode.regelverkTypeEnum)) {
                 val beholdningListe: MutableList<Pensjonsbeholdning> =
                     context.beregnOpptjening(
                         knekkpunktDato,
@@ -304,11 +302,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 persongrunnlag = soekerGrunnlag,
                 knekkpunktDato = knekkpunktDato,
                 soekerForsteVirkningFom = soekerFoersteVirkning,
-                ytelseType = KravlinjeTypePlus.AP,
+                ytelseType = KravlinjeTypeEnum.AP,
                 boddEllerArbeidetUtenlands = kravhode.boddEllerArbeidetIUtlandet
             )
 
-            fastsettTrygdetidForPeriode(request, GrunnlagRolle.SOKER, soekerGrunnlag.gjelderUforetrygd, sakId)
+            fastsettTrygdetidForPeriode(request, GrunnlagsrolleEnum.SOKER, soekerGrunnlag.gjelderUforetrygd, sakId)
         }
 
         if (aarsakListe.contains(KnekkpunktAarsak.TTAVDOD)) {
@@ -317,18 +315,18 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 persongrunnlag = avdoedGrunnlag!!,
                 knekkpunktDato = knekkpunktDato,
                 soekerForsteVirkningFom = avdoedFoersteVirkning!!, // TODO: check possible mismatch (soker vs avdod)
-                ytelseType = KravlinjeTypePlus.GJR,
+                ytelseType = KravlinjeTypeEnum.GJR,
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             )
 
-            fastsettTrygdetidForPeriode(request, GrunnlagRolle.AVDOD, avdoedGrunnlag.gjelderUforetrygd, sakId)
+            fastsettTrygdetidForPeriode(request, GrunnlagsrolleEnum.AVDOD, avdoedGrunnlag.gjelderUforetrygd, sakId)
         }
     }
 
     // VilkarsprovOgBeregnAlderHelper.fastsettTrygdetidForPeriode + FastsettTrygdetidCache.updateSisteGyldigeOpptjeningsaar
     private fun fastsettTrygdetidForPeriode(
         request: TrygdetidRequest,
-        grunnlagRolle: GrunnlagRolle,
+        grunnlagRolle: GrunnlagsrolleEnum,
         kravGjelderUfoeretrygd: Boolean,
         sakId: Long?
     ) {
@@ -365,9 +363,9 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
     // VilkarsprovOgBeregnAlderHelper.vilkarsprovAlderInRegelmotor
     private fun vilkaarsproevAlderspensjon(spec: VilkaarsproevingSpec): MutableList<VilkarsVedtak> {
-        val sokerGrunnlag = spec.kravhode.hentPersongrunnlagForSoker()
+        val soekerGrunnlag = spec.kravhode.hentPersongrunnlagForSoker()
         val vedtakListe: MutableList<VilkarsVedtak> =
-            vilkaarsproevAlderspensjon(spec, sokerGrunnlag)
+            vilkaarsproevAlderspensjon(spec, soekerGrunnlag)
 
         if (!spec.ignoreAvslag) {
             handleAvslag(vedtakListe)
@@ -388,14 +386,14 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
     // Part of VilkarsprovOgBeregnAlderHelper.vilkarsprovAlderInRegelmotor
     private fun vilkaarsproevBetingetAlderspensjon(spec: VilkaarsproevingSpec): MutableList<VilkarsVedtak> =
-        when (spec.kravhode.regelverkTypeCti?.kode) {
-            RegelverkType.N_REG_G_OPPTJ.name ->
+        when (spec.kravhode.regelverkTypeEnum) {
+            RegelverkTypeEnum.N_REG_G_OPPTJ ->
                 context.vilkaarsproevAlderspensjon2011(vilkaarsproeving2011Request(spec), spec.sakId)
 
-            RegelverkType.N_REG_G_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ ->
                 context.vilkaarsproevAlderspensjon2016(vilkaarsproeving2016Request(spec), spec.sakId)
 
-            RegelverkType.N_REG_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_N_OPPTJ ->
                 context.vilkaarsproevAlderspensjon2025(vilkaarsproeving2025Request(spec), spec.sakId)
 
             else -> mutableListOf()
@@ -439,22 +437,22 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         sakId: Long?,
         ignoreAvslag: Boolean
     ): AbstraktBeregningsResultat {
-        val regelverkType = spec.kravhode?.regelverkTypeCti?.kode ?: "UNDEFINED"
+        val regelverkType = spec.kravhode?.regelverkTypeEnum ?: "UNDEFINED"
 
         // SIMDOM-ADD for 'simuler folketrygdbeholdning' (da avslag ignoreres):
-        if (ignoreAvslag && spec.vilkarsvedtakListe.any { it.anbefaltResultat != innvilgetResultat }) {
+        if (ignoreAvslag && spec.vilkarsvedtakListe.any { it.anbefaltResultatEnum != innvilgetResultat }) {
             spec.vilkarsvedtakListe.replaceAll(::innvilgetVedtak)
         }
         // end SIMDOM-ADD
 
         return when (regelverkType) {
-            RegelverkType.N_REG_G_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_OPPTJ.name ->
                 context.beregnAlderspensjon2011FoersteUttak(beregning2011Request(spec), sakId)
 
-            RegelverkType.N_REG_G_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ.name ->
                 context.beregnAlderspensjon2016FoersteUttak(beregning2016Request(spec), sakId)
 
-            RegelverkType.N_REG_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_N_OPPTJ.name ->
                 // NB: No special handling for eksterne ordninger (tjenestepensjonsleverandører)
                 context.beregnAlderspensjon2025FoersteUttak(beregning2025Request(spec), sakId)
 
@@ -467,16 +465,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         spec: AlderspensjonRevurderingCommonSpec,
         sakId: Long?
     ): AbstraktBeregningsResultat {
-        val regelverkType = spec.kravhode?.regelverkTypeCti?.kode ?: "UNDEFINED"
+        val regelverkType = spec.kravhode?.regelverkTypeEnum ?: "UNDEFINED"
 
         return when (regelverkType) {
-            RegelverkType.N_REG_G_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_OPPTJ.name ->
                 context.revurderAlderspensjon2011(revurdering2011Request(spec), sakId)
 
-            RegelverkType.N_REG_G_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ.name ->
                 context.revurderAlderspensjon2016(revurdering2016Request(spec), sakId)
 
-            RegelverkType.N_REG_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_N_OPPTJ.name ->
                 // NB: No special handling for eksterne ordninger (tjenestepensjonsleverandører)
                 context.revurderAlderspensjon2025(revurdering2025Request(spec), sakId)
 
@@ -493,16 +491,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         forrigeVedtakListe: List<VilkarsVedtak>,
         forrigeBeregningResultat: AbstraktBeregningsResultat?
     ): SisteBeregning? {
-        val originalRegelverkType = kravhode.regelverkTypeCti
+        val originalRegelverkType = kravhode.regelverkTypeEnum
 
         val sisteBeregning: SisteBeregning? =
             sisteBeregningCreator.opprettSisteBeregning(
                 kravhode = kravhode,
                 vedtakListe = forrigeVedtakListe,
-                beregningResult = forrigeBeregningResultat
+                beregningResultat = forrigeBeregningResultat
             )
 
-        kravhode.regelverkTypeCti = originalRegelverkType
+        kravhode.regelverkTypeEnum = originalRegelverkType
         return sisteBeregning
     }
 
@@ -510,7 +508,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private const val GARANTITILLEGG_MAX_ALDER = 67
         private const val GARANTITILLEGGSBEHOLDNINGSGRUNNLAG_FODSELSAR = 1962
         private const val EPS_PEN_PERSON_ID = -2L
-        private val innvilgetResultat = VilkarsvedtakResultatCti("INNV")
+        private val innvilgetResultat = VedtakResultatEnum.INNV
+        private val log = KotlinLogging.logger {}
 
         // VilkarsprovOgBeregnAlderHelper.getAfpLivsvarig
         private fun getAfpPrivatLivsvarig(
@@ -522,11 +521,17 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun getLivsvarigOffentligAfp(
             resultatListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>?,
             knekkpunktDato: LocalDate
+            //): AfpOffentligLivsvarigGrunnlag? =
         ): AfpOffentligLivsvarigDto? =
             resultatListe
                 ?.filter { it.gjelderFom.isBeforeOrOn(knekkpunktDato) }
                 ?.maxByOrNull { it.gjelderFom }
-                ?.let { AfpOffentligLivsvarigDto(it.afpYtelsePerAar) }
+                //?.let { AfpOffentligLivsvarigGrunnlag(sistRegulertG = 0, bruttoPerAr = it.afpYtelsePerAar) }
+                ?.let {
+                    AfpOffentligLivsvarigDto(bruttoPerAr = it.afpYtelsePerAar).apply {
+                        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.AFP_OFFENTLIG_LIVSVARIG
+                    }
+                }
 
         // VilkarsprovOgBeregnAlderHelper.postProcessVilkarsvedtakAndKravHode
         private fun postprocessVedtakAndKravhode(
@@ -538,10 +543,10 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             vedtakListe.forEach {
                 it.kravlinje!!.kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 it.kravlinje!!.land = Land.NOR
-                it.vilkarsvedtakResultat = it.anbefaltResultat
+                it.vilkarsvedtakResultatEnum = it.anbefaltResultatEnum
 
                 val localFoersteVirk: LocalDate =
-                    if (avdoedForsteVirkning != null && isGjenlevenderettighet(it.kravlinjeType))
+                    if (avdoedForsteVirkning != null && isGjenlevenderettighet(it.kravlinjeTypeEnum))
                         avdoedForsteVirkning
                     else
                         soekerForsteVirkning
@@ -559,11 +564,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
         }
 
-        private fun isGjenlevenderettighet(kravlinjeType: KravlinjeTypeCti?): Boolean =
-            KravlinjeTypePlus.GJR.name == kravlinjeType?.kode
+        private fun isGjenlevenderettighet(kravlinjeType: KravlinjeTypeEnum?): Boolean =
+            KravlinjeTypeEnum.GJR == kravlinjeType
 
         private fun vilkaarsproevingSpec(
-            livsvarigOffentligAfp: AfpOffentligLivsvarig?,
+            livsvarigOffentligAfp: AfpOffentligLivsvarigGrunnlag?,
             privatAfp: AfpLivsvarig?,
             virkningDato: LocalDate,
             kravhode: Kravhode,
@@ -598,15 +603,15 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun paavirkendeYtelseInfo(virkningDato: LocalDate, kravhode: Kravhode): InfoPavirkendeYtelse {
             var epsGrunnlag = kravhode.findPersongrunnlag(PenPerson(EPS_PEN_PERSON_ID))
             val grunnlagRoller =
-                EnumSet.of(GrunnlagRolle.EKTEF, GrunnlagRolle.SAMBO, GrunnlagRolle.PARTNER)
+                EnumSet.of(GrunnlagsrolleEnum.EKTEF, GrunnlagsrolleEnum.SAMBO, GrunnlagsrolleEnum.PARTNER)
 
             // Hvis bruker har en "riktig" EPS på sitt persongrunnlag hentes denne
             if (epsGrunnlag == null) {
-                var grunnlagsrolle: GrunnlagRolle? = null
+                var grunnlagsrolle: GrunnlagsrolleEnum? = null
 
                 for (persongrunnlag in kravhode.persongrunnlagListe) {
                     for (persondetalj in persongrunnlag.personDetaljListe) {
-                        val rolle = persondetalj.grunnlagsrolle?.let { GrunnlagRolle.valueOf(it.kode) }
+                        val rolle = persondetalj.grunnlagsrolleEnum
 
                         if (grunnlagRoller.contains(rolle)) {
                             grunnlagsrolle = rolle
@@ -629,7 +634,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         // VilkarsprovOgBeregnAlderHelper.createFerdigApKravlinje
         private fun alderspensjonKravlinje(gjelderPerson: PenPerson) =
             Kravlinje().apply {
-                kravlinjeType = kravlinjeType(KravlinjeTypePlus.AP)
+                kravlinjeTypeEnum = KravlinjeTypeEnum.AP
                 relatertPerson = gjelderPerson
                 // NB apparently not used (no kravlinjeStatus field): setKravlinjeStatus(KravlinjeStatus.FERDIG)
             }
@@ -699,16 +704,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         private fun shouldAddPensjonBeholdningPerioder(
             hentPensjonBeholdninger: Boolean,
-            regelverkType: RegelverkTypeCti?
+            regelverkType: RegelverkTypeEnum?
         ) =
             hentPensjonBeholdninger &&
-                    EnumSet.of(RegelverkType.N_REG_N_OPPTJ, RegelverkType.N_REG_G_N_OPPTJ)
-                        .contains(regelverkType?.let { RegelverkType.valueOf(it.kode) })
+                    EnumSet.of(RegelverkTypeEnum.N_REG_N_OPPTJ, RegelverkTypeEnum.N_REG_G_N_OPPTJ)
+                        .contains(regelverkType)
 
         private fun opprettInnvilgetVedtak(kravlinje: Kravlinje?, virkFom: LocalDate): VilkarsVedtak =
             opprettManueltVilkarsvedtak(kravlinje, virkFom).also {
                 it.forsteVirk = fromLocalDate(virkFom)
-                it.vilkarsvedtakResultat = VilkarsvedtakResultatCti(VedtakResultat.INNV.name)
+                it.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
             }
 
         // VilkarsprovOgBeregnAlderHelper.createGJRVilkarsvedtakIfGJRKravlinjePresent
@@ -728,7 +733,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             kravlinje: Kravlinje
         ) {
             val vedtak = opprettManueltVilkarsvedtak(kravlinje, virkDato).also {
-                it.anbefaltResultat = VilkarsvedtakResultatCti(VedtakResultat.INNV.name)
+                it.anbefaltResultatEnum = VedtakResultatEnum.INNV
             }
 
             vedtakListe.add(vedtak)
@@ -795,16 +800,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             persongrunnlag: Persongrunnlag,
             knekkpunktDato: LocalDate,
             soekerForsteVirkningFom: LocalDate,
-            ytelseType: KravlinjeTypePlus,
+            ytelseType: KravlinjeTypeEnum,
             boddEllerArbeidetUtenlands: Boolean
         ) =
             TrygdetidRequest().apply {
                 this.virkFom = fromLocalDate(knekkpunktDato)?.noon()
                 this.brukerForsteVirk = fromLocalDate(soekerForsteVirkningFom)?.noon()
-                this.ytelsesType = kravlinjeType(ytelseType)
+                this.ytelsesTypeEnum = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
-                this.regelverkType = RegelverkTypeCti(kravhode.regelverkTypeCti!!.kode)
+                this.regelverkTypeEnum = kravhode.regelverkTypeEnum
                 this.uttaksgradListe = kravhode.uttaksgradListe
                 // Not set: virkTom, beregningsvilkarPeriodeListe
                 // NB: grunnlagsrolle is only used for caching
@@ -812,30 +817,30 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         // SimpleFpenService.opprettManueltVilkarsvedtak
         private fun opprettManueltVilkarsvedtak(kravlinje: Kravlinje?, virkningFom: LocalDate): VilkarsVedtak {
-            val vedtakResultat = VilkarsvedtakResultatCti(VedtakResultat.VELG.name)
+            val vedtakResultat = VedtakResultatEnum.VELG
 
             return VilkarsVedtak().apply {
-                this.anbefaltResultat = vedtakResultat
-                this.vilkarsvedtakResultat = vedtakResultat
+                this.anbefaltResultatEnum = vedtakResultat
+                this.vilkarsvedtakResultatEnum = vedtakResultat
                 this.virkFom = fromLocalDate(virkningFom)
                 this.virkTom = null
                 this.kravlinje = kravlinje
-                this.kravlinjeType = kravlinje?.kravlinjeType
+                this.kravlinjeTypeEnum = kravlinje?.kravlinjeTypeEnum
                 this.penPerson = kravlinje?.relatertPerson
             }.also { it.finishInit() }
         }
 
         // VilkarsprovOgBeregnAlderHelper.createInnvilgetVilkarsvedtak
         private fun innvilgetVedtak(kravlinje: Kravlinje, virkningFom: LocalDate): VilkarsVedtak {
-            val vedtakResultat = VilkarsvedtakResultatCti(VedtakResultat.INNV.name)
+            val vedtakResultat = VedtakResultatEnum.INNV
 
             return VilkarsVedtak().apply {
-                this.anbefaltResultat = vedtakResultat
-                this.vilkarsvedtakResultat = vedtakResultat
+                this.anbefaltResultatEnum = vedtakResultat
+                this.vilkarsvedtakResultatEnum = vedtakResultat
                 this.virkFom = fromLocalDate(virkningFom)
                 this.virkTom = null
                 this.kravlinje = kravlinje
-                this.kravlinjeType = kravlinje.kravlinjeType
+                this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
                 this.penPerson = kravlinje.relatertPerson
                 this.forsteVirk = fromLocalDate(virkningFom)
             }.also { it.finishInit() }
@@ -843,16 +848,23 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         // SIMDOM-ADD
         private fun innvilgetVedtak(source: VilkarsVedtak) =
+            /* TODO check if copy needed:
             VilkarsVedtak(source).also {
-                it.anbefaltResultat = innvilgetResultat
-                it.vilkarsvedtakResultat = innvilgetResultat
-                it.begrunnelse = null
+                it.anbefaltResultatEnum = innvilgetResultat
+                it.vilkarsvedtakResultatEnum = innvilgetResultat
+                it.begrunnelseEnum = null
                 it.merknadListe = mutableListOf()
-            }
+            }*/
+            source.apply {
+                anbefaltResultatEnum = innvilgetResultat
+                vilkarsvedtakResultatEnum = innvilgetResultat
+                begrunnelseEnum = null
+                merknadListe = mutableListOf()
+            }.also { log.warn { "MUTATED VilkarsVedtak - innvilget" } }
 
         // Extracted from VilkarsprovOgBeregnAlderHelper.createGJRVilkarsvedtakIfGJRKravlinjePresent
         private fun kravlinjeForGjenlevenderett(list: List<Kravlinje>): Kravlinje? =
-            list.firstOrNull { it.kravlinjeType?.kode == KravlinjeTypePlus.GJR.name }
+            list.firstOrNull { it.kravlinjeTypeEnum == KravlinjeTypeEnum.GJR }
 
         private fun findValidForDate(list: MutableList<BeregningsResultatAfpPrivat>, date: LocalDate) =
             list.firstOrNull { isDateInPeriod(date, it.virkFom, it.virkTom) }
@@ -873,25 +885,27 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         // VilkarsprovOgBeregnAlderHelper.createFunctionalExceptionsFromVilkarsprovingIfNecesseary
         //@Throws(PEN224AvslagVilkarsprovingForKortTrygdetidException::class, PEN225AvslagVilkarsprovingForLavtTidligUttakException::class)
         private fun handleAvslag(vedtakListe: List<VilkarsVedtak>) {
-            vedtakListe.firstOrNull(::avslag)?.let { handleAvslag(it.begrunnelse ?: defaultBegrunnelse()) }
+            vedtakListe.firstOrNull(::avslag)?.let { handleAvslag(it.begrunnelseEnum ?: defaultBegrunnelse()) }
         }
 
         //SIMDOM-ADD for NullPointer protection
-        private fun defaultBegrunnelse() = BegrunnelseTypeCti(BegrunnelseType.ANNET.name)
+        private fun defaultBegrunnelse() = BegrunnelseTypeEnum.ANNET
 
         private fun avslag(vedtak: VilkarsVedtak): Boolean =
-            vedtak.anbefaltResultat?.let { it.kode == VedtakResultat.AVSL.name } ?: false
+            vedtak.anbefaltResultatEnum?.let { it == VedtakResultatEnum.AVSL } ?: false
 
-        private fun handleAvslag(begrunnelse: BegrunnelseTypeCti) {
-            when (begrunnelse.kode) {
-                BegrunnelseType.UNDER_3_AR_TT.name ->
+        private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
+            when (begrunnelse) {
+                BegrunnelseTypeEnum.UNDER_3_AR_TT ->
                     throw AvslagVilkaarsproevingForKortTrygdetidException()
 
-                BegrunnelseType.LAVT_TIDLIG_UTTAK.name ->
+                BegrunnelseTypeEnum.LAVT_TIDLIG_UTTAK ->
                     throw AvslagVilkaarsproevingForLavtTidligUttakException()
 
-                BegrunnelseType.UTG_MINDRE_ETT_AR.name ->
+                BegrunnelseTypeEnum.UTG_MINDRE_ETT_AR ->
                     throw InvalidArgumentException("Mindre enn ett år fra gradsendring")
+
+                else -> throw InvalidArgumentException("Unexpected begrunnelsetype - $begrunnelse")
             }
         }
 
@@ -904,43 +918,43 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             )
 
         private fun vilkaarsproeving2011Request(spec: VilkaarsproevingSpec) =
-            VilkarsprovAlderpensjon2011Request(
-                kravhode = spec.kravhode,
-                fom = fromLocalDate(spec.virkFom)?.noon(),
-                tom = null,
-                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon(),
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                afpLivsvarig = spec.afpLivsvarig,
-                sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011,
+            VilkarsprovAlderpensjon2011Request().apply {
+                kravhode = spec.kravhode
+                fom = fromLocalDate(spec.virkFom)?.noon()
+                tom = null
+                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon()
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                afpLivsvarig = spec.afpLivsvarig
+                sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011
                 utforVilkarsberegning = true
-            )
+            }
 
         private fun vilkaarsproeving2016Request(spec: VilkaarsproevingSpec) =
-            VilkarsprovAlderpensjon2016Request(
-                kravhode = spec.kravhode,
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                delingstallUtvalg = spec.delingstallUtvalg,
-                afpLivsvarig = spec.afpLivsvarig,
-                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon(),
-                sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016,
-                utforVilkarsberegning = true,
+            VilkarsprovAlderpensjon2016Request().apply {
+                kravhode = spec.kravhode
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                delingstallUtvalg = spec.delingstallUtvalg
+                afpLivsvarig = spec.afpLivsvarig
+                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon()
+                sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016
+                utforVilkarsberegning = true
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
-            )
+            }
 
         private fun vilkaarsproeving2025Request(spec: VilkaarsproevingSpec) =
-            VilkarsprovAlderpensjon2025Request(
-                kravhode = spec.kravhode,
-                fom = fromLocalDate(spec.virkFom)?.noon(),
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                delingstallUtvalg = spec.delingstallUtvalg,
-                afpLivsvarig = spec.afpLivsvarig,
-                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon(),
-                sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011, // NB: 2011
-                utforVilkarsberegning = true,
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag,
-                afpOffentligLivsvarigGrunnlag = spec.afpOffentligLivsvarig,
-            )
+            VilkarsprovAlderpensjon2025Request().apply {
+                kravhode = spec.kravhode
+                fom = fromLocalDate(spec.virkFom)?.noon()
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                delingstallUtvalg = spec.delingstallUtvalg
+                afpLivsvarig = spec.afpLivsvarig
+                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon()
+                sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011 // NB: 2011
+                utforVilkarsberegning = true
+                garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
+                afpOffentligLivsvarigGrunnlag = spec.afpOffentligLivsvarig
+            }
 
         private fun beregningCommonSpec(
             kravhode: Kravhode,
@@ -969,42 +983,42 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
 
         private fun beregning2011Request(spec: AlderspensjonBeregningCommonSpec) =
-            BeregnAlderspensjon2011ForsteUttakRequest(
-                kravhode = spec.kravhode,
-                vilkarsvedtakListe = spec.vilkarsvedtakListe,
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse,
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                virkTom = null, // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                ektefellenMottarPensjon = spec.epsMottarPensjon,
+            BeregnAlderspensjon2011ForsteUttakRequest().apply {
+                kravhode = spec.kravhode
+                vilkarsvedtakListe = spec.vilkarsvedtakListe
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkTom = null // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                ektefellenMottarPensjon = spec.epsMottarPensjon
                 afpLivsvarig = spec.afpLivsvarig
-            )
+            }
 
         private fun beregning2016Request(spec: AlderspensjonBeregningCommonSpec) =
-            BeregnAlderspensjon2016ForsteUttakRequest(
-                kravhode = spec.kravhode,
-                vilkarsvedtakListe = spec.vilkarsvedtakListe,
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse,
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                delingstallUtvalg = spec.delingstallUtvalg,
-                epsMottarPensjon = spec.epsMottarPensjon,
-                afpLivsvarig = spec.afpLivsvarig,
+            BeregnAlderspensjon2016ForsteUttakRequest().apply {
+                kravhode = spec.kravhode
+                vilkarsvedtakListe = spec.vilkarsvedtakListe
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                delingstallUtvalg = spec.delingstallUtvalg
+                epsMottarPensjon = spec.epsMottarPensjon
+                afpLivsvarig = spec.afpLivsvarig
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
-            )
+            }
 
         private fun beregning2025Request(spec: AlderspensjonBeregningCommonSpec) =
-            BeregnAlderspensjon2025ForsteUttakRequest(
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                kravhode = spec.kravhode,
-                vilkarsvedtakListe = spec.vilkarsvedtakListe,
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse,
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                delingstallUtvalg = spec.delingstallUtvalg,
-                epsMottarPensjon = spec.epsMottarPensjon,
-                afpLivsvarig = spec.afpLivsvarig,
+            BeregnAlderspensjon2025ForsteUttakRequest().apply {
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                kravhode = spec.kravhode
+                vilkarsvedtakListe = spec.vilkarsvedtakListe
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                delingstallUtvalg = spec.delingstallUtvalg
+                epsMottarPensjon = spec.epsMottarPensjon
+                afpLivsvarig = spec.afpLivsvarig
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
-            )
+            }
 
         private fun revurderingCommonSpec(
             kravhode: Kravhode,
@@ -1035,48 +1049,48 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
 
         private fun revurdering2011Request(spec: AlderspensjonRevurderingCommonSpec) =
-            RevurderingAlderspensjon2011Request(
-                kravhode = spec.kravhode,
-                vilkarsvedtakListe = Vector(spec.vilkarsvedtakListe),
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse,
-                epsMottarPensjon = spec.epsMottarPensjon,
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                virkTom = null,
-                forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2011,
-                afpLivsvarig = spec.afpLivsvarig,
-            )
+            RevurderingAlderspensjon2011Request().apply {
+                kravhode = spec.kravhode
+                vilkarsvedtakListe = Vector(spec.vilkarsvedtakListe)
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                epsMottarPensjon = spec.epsMottarPensjon
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkTom = null
+                forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2011
+                afpLivsvarig = spec.afpLivsvarig
+            }
 
         private fun revurdering2016Request(spec: AlderspensjonRevurderingCommonSpec) =
-            RevurderingAlderspensjon2016Request(
-                kravhode = spec.kravhode,
-                vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe),
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse,
-                epsMottarPensjon = spec.epsMottarPensjon,
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                delingstallUtvalg = spec.delingstallUtvalg,
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016,
-                afpLivsvarig = spec.afpLivsvarig,
+            RevurderingAlderspensjon2016Request().apply {
+                kravhode = spec.kravhode
+                vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe)
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                epsMottarPensjon = spec.epsMottarPensjon
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                delingstallUtvalg = spec.delingstallUtvalg
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016
+                afpLivsvarig = spec.afpLivsvarig
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
-            ).also {
+            }.also {
                 it.vilkarsvedtakListe.forEach(::prepareVedtak2016ForReglerCall)
                 it.forrigeAldersBeregning?.let(::clearFormelMaps)
             }
 
         private fun revurdering2025Request(spec: AlderspensjonRevurderingCommonSpec) =
-            RevurderingAlderspensjon2025Request(
-                kravhode = spec.kravhode,
-                vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe),
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse,
-                epsMottarPensjon = spec.epsMottarPensjon,
-                forholdstallUtvalg = spec.forholdstallUtvalg,
-                delingstallUtvalg = spec.delingstallUtvalg,
-                virkFom = fromLocalDate(spec.virkFom)?.noon(),
-                sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011, // NB: 2011
-                afpLivsvarig = spec.afpLivsvarig,
+            RevurderingAlderspensjon2025Request().apply {
+                kravhode = spec.kravhode
+                vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe)
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                epsMottarPensjon = spec.epsMottarPensjon
+                forholdstallUtvalg = spec.forholdstallUtvalg
+                delingstallUtvalg = spec.delingstallUtvalg
+                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011 // NB: 2011
+                afpLivsvarig = spec.afpLivsvarig
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
-            ).also {
+            }.also {
                 it.vilkarsvedtakListe.forEach(::prepareVedtak2025ForReglerCall)
                 it.sisteAldersBeregning2011?.let(::prepareBeregningForReglerCall)
             }
@@ -1137,19 +1151,20 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun clearFormelMaps(beregning: SisteAldersberegning2016) {
             beregning.basispensjon?.let(::clearFormelMap)
             beregning.restpensjon?.let(::clearFormelMap)
+            /* TODO check if relevant:
             beregning.pensjonUnderUtbetaling?.let(::clearFormelMaps)
             beregning.pensjonUnderUtbetaling2011?.let(::clearFormelMaps)
             beregning.pensjonUnderUtbetaling2011UtenGJR?.let(::clearFormelMaps)
             beregning.pensjonUnderUtbetaling2025?.let(::clearFormelMaps)
-            beregning.pensjonUnderUtbetaling2025AltKonv?.let(::clearFormelMaps)
+            beregning.pensjonUnderUtbetaling2025AltKonv?.let(::clearFormelMaps)*/
         }
-
+        /* TODO: it as? FormelProvider = null always?
         private fun clearFormelMaps(pensjon: PensjonUnderUtbetaling) {
             pensjon.ytelseskomponenter.mapNotNull { it as? FormelProvider }.forEach(::clearFormelMap)
-        }
+        }*/
 
         private fun clearFormelMap(pensjon: Basispensjon) {
-            pensjon.tp?.let(::clearFormelMap)
+            pensjon.tp?.formelMap?.clear()
         }
 
         private fun clearFormelMap(provider: FormelProvider) {
@@ -1160,7 +1175,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
 private fun BeregningsResultatAfpPrivat.hentLivsvarigDelIBruk() =
     pensjonUnderUtbetaling?.ytelseskomponenter?.firstOrNull {
-        it.ytelsekomponentType.kode == YtelseKomponentType.AFP_LIVSVARIG.name && it is AfpLivsvarig
+        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG && it is AfpLivsvarig
     } as AfpLivsvarig?
 
 private fun Beholdninger.findBeholdningAvType(type: BeholdningType) =

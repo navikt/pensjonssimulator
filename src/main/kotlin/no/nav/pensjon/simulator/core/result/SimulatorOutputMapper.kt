@@ -2,13 +2,13 @@ package no.nav.pensjon.simulator.core.result
 
 import no.nav.pensjon.simulator.core.SimuleringSpec
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
-import no.nav.pensjon.simulator.core.ytelse.YtelseKomponentType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.domain.RegelverkType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
@@ -20,7 +20,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import java.time.LocalDate
-import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011ResultatMapper
 object SimulatorOutputMapper {
@@ -36,7 +35,7 @@ object SimulatorOutputMapper {
             this.epsHarPensjon = simuleringSpec.epsHarPensjon
             this.grunnbeloep = grunnbeloep
             this.sivilstand =
-                soekerGrunnlag.personDetaljListe[0].sivilstandType ?: throw RuntimeException("Undefined sivilstand")
+                soekerGrunnlag.personDetaljListe[0].sivilstandTypeEnum ?: throw RuntimeException("Undefined sivilstand")
         }
 
     fun mapToSimulertAfpPrivatPeriode(
@@ -46,9 +45,9 @@ object SimulatorOutputMapper {
     ): SimulertPrivatAfpPeriode {
         val privatAfpUnderUtbetaling = resultat.pensjonUnderUtbetaling
         val ytelseKomponentListe = privatAfpUnderUtbetaling?.ytelseskomponenter.orEmpty()
-        val privatAfp = firstYtelseOfType(ytelseKomponentListe, YtelseKomponentType.AFP_LIVSVARIG) as AfpLivsvarig // privat AFP er livsvarig
-        val afpKronetillegg = firstYtelseOfType(ytelseKomponentListe, YtelseKomponentType.AFP_KRONETILLEGG)
-        val afpKompensasjonstillegg = firstYtelseOfType(ytelseKomponentListe, YtelseKomponentType.AFP_KOMP_TILLEGG)
+        val privatAfp = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG) as AfpLivsvarig // privat AFP er livsvarig
+        val afpKronetillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KRONETILLEGG)
+        val afpKompensasjonstillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KOMP_TILLEGG)
 
         return SimulertPrivatAfpPeriode(
             alderAar = alder,
@@ -66,9 +65,9 @@ object SimulatorOutputMapper {
     // SimuleringEtter2011ResultatMapper.mapToSimulertBeregningsinformasjon
     fun mapToSimulertBeregningsinformasjon(
         kravhode: Kravhode,
-        beregningResult: AbstraktBeregningsResultat,
+        beregningResultat: AbstraktBeregningsResultat,
         simulertAlderspensjon: SimulertAlderspensjon,
-        foedselsdato: LocalDate,
+        foedselDato: LocalDate,
         knekkpunkt: LocalDate
     ) =
         SimulertBeregningInformasjon().apply {
@@ -77,23 +76,23 @@ object SimulatorOutputMapper {
             val beregningsinfo: BeregningsInformasjon?
 
             if (erAp2011Beregning(kravhode)) {
-                beregningsresultatKapittel19 = beregningResult as? BeregningsResultatAlderspensjon2011
+                beregningsresultatKapittel19 = beregningResultat as? BeregningsResultatAlderspensjon2011
                 beregningsresultatKapittel20 = null
                 beregningsinfo = beregningsresultatKapittel19?.beregningsInformasjonKapittel19
             } else if (erAp2016Beregning(kravhode)) {
-                val resultat2016 = beregningResult as? BeregningsResultatAlderspensjon2016
+                val resultat2016 = beregningResultat as? BeregningsResultatAlderspensjon2016
                 beregningsresultatKapittel19 = resultat2016?.beregningsResultat2011
                 beregningsresultatKapittel20 = resultat2016?.beregningsResultat2025
                 beregningsinfo = beregningsresultatKapittel19?.beregningsInformasjonKapittel19
             } else {
                 beregningsresultatKapittel19 = null
-                beregningsresultatKapittel20 = beregningResult as? BeregningsResultatAlderspensjon2025
+                beregningsresultatKapittel20 = beregningResultat as? BeregningsResultatAlderspensjon2025
                 beregningsinfo = beregningsresultatKapittel20?.beregningsInformasjonKapittel20
             }
 
             val beregningsinfoKapittel19: BeregningsInformasjon? =
                 beregningsresultatKapittel19?.beregningsInformasjonKapittel19
-            val pensjon: PensjonUnderUtbetaling? = beregningResult.pensjonUnderUtbetaling
+            val pensjon: PensjonUnderUtbetaling? = beregningResultat.pensjonUnderUtbetaling
             val beregningKapittel20: AldersberegningKapittel20? = beregningsresultatKapittel20?.beregningKapittel20
             val beregningKapittel19: AldersberegningKapittel19? = beregningsresultatKapittel19?.beregningKapittel19
 
@@ -116,7 +115,7 @@ object SimulatorOutputMapper {
                 this.vinnendeBeregning = if (it.gjenlevenderettAnvendt) GrunnlagRolle.AVDOD else GrunnlagRolle.SOKER
             }
 
-            firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), YtelseKomponentType.SKJERMT)?.let {
+            firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), YtelseskomponentTypeEnum.SKJERMT)?.let {
                 this.skjermingstillegg = it.bruttoPerAr.toInt()
 
                 if (it is Skjermingstillegg) {
@@ -158,25 +157,25 @@ object SimulatorOutputMapper {
             }
 
             this.datoFom = knekkpunkt
-            this.startMaaned = getMonthsBetweenInRange1To12(foedselsdato, knekkpunkt)
+            this.startMaaned = getMonthsBetweenInRange1To12(foedselDato, knekkpunkt)
             this.aarligBeloep = pensjon?.totalbelopNettoAr?.toInt() ?: 0
             this.maanedligBeloep = pensjon?.totalbelopNetto
-            this.inntektspensjon = bruttoPerAr(pensjon, YtelseKomponentType.IP)
-            this.garantipensjon = bruttoPerAr(pensjon, YtelseKomponentType.GAP)
-            this.garantitillegg = bruttoPerAr(pensjon, YtelseKomponentType.GAT)
-            this.grunnpensjon = bruttoPerAr(pensjon, YtelseKomponentType.GP)
-            this.tilleggspensjon = bruttoPerAr(pensjon, YtelseKomponentType.TP)
-            this.pensjonstillegg = bruttoPerAr(pensjon, YtelseKomponentType.PT)
-            this.individueltMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseKomponentType.MIN_NIVA_TILL_INDV)
-            this.pensjonistParMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseKomponentType.MIN_NIVA_TILL_PPAR)
+            this.inntektspensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.IP)
+            this.garantipensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GAP)
+            this.garantitillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GAT)
+            this.grunnpensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GP)
+            this.tilleggspensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.TP)
+            this.pensjonstillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.PT)
+            this.individueltMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
+            this.pensjonistParMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_PPAR)
             this.forholdstall = beregningsinfo?.forholdstallUttak
-            this.uttakGrad = beregningResult.uttaksgrad.toDouble()
+            this.uttakGrad = beregningResultat.uttaksgrad.toDouble()
         }
 
     // SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
     fun mapToSimulertOpptjening(
         kalenderAar: Int,
-        resultListe: List<AbstraktBeregningsResultat>,
+        resultatListe: List<AbstraktBeregningsResultat>,
         soekerGrunnlag: Persongrunnlag,
         poengtallListe: List<Poengtall>
     ): SimulertOpptjening {
@@ -187,7 +186,7 @@ object SimulatorOutputMapper {
             kalenderAar = kalenderAar,
             pensjonsgivendeInntektPensjonspoeng = findValidForAr(poengtallListe, kalenderAar)?.pp ?: 0.0,
             omsorgPensjonspoeng = omsorgspoengForAar(opptjeningGrunnlagListe, kalenderAar),
-            pensjonBeholdning = pensjonBeholdning(soekerGrunnlag, kalenderAar, resultListe)?.totalbelop?.toInt(),
+            pensjonBeholdning = pensjonBeholdning(soekerGrunnlag, kalenderAar, resultatListe)?.totalbelop?.toInt(),
             omsorg = containsValidOmsorgsgrunnlagForAr(soekerGrunnlag.omsorgsgrunnlagListe, kalenderAar),
             dagpenger = dagpengegrunnlagAvTypeEksistererForAar(
                 dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe,
@@ -222,13 +221,13 @@ object SimulatorOutputMapper {
     private fun pensjonBeholdning(
         soekerGrunnlag: Persongrunnlag,
         kalenderAar: Int,
-        resultListe: List<AbstraktBeregningsResultat>
+        resultatListe: List<AbstraktBeregningsResultat>
     ): Pensjonsbeholdning? {
         val beholdning = beholdningForAar(soekerGrunnlag.beholdninger, kalenderAar)
         if (beholdning != null) return beholdning
 
         val validBeregningsresultat =
-            findValidForDate(resultListe, firstDayOf(kalenderAar)) as? BeregningsResultatAlderspensjon2025
+            findValidForDate(resultatListe, firstDayOf(kalenderAar)) as? BeregningsResultatAlderspensjon2025
 
         return validBeregningsresultat?.let {
             findLatestPensjonsbeholdning(it.beregningKapittel20?.beholdninger?.beholdninger.orEmpty())
@@ -236,10 +235,10 @@ object SimulatorOutputMapper {
     }
 
     private fun erAp2011Beregning(kravhode: Kravhode): Boolean =
-        kravhode.regelverkTypeCti?.kode == RegelverkType.N_REG_G_OPPTJ.name
+        kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ
 
     private fun erAp2016Beregning(kravhode: Kravhode): Boolean =
-        kravhode.regelverkTypeCti?.kode == RegelverkType.N_REG_G_N_OPPTJ.name
+        kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_N_OPPTJ
 
     private fun getMonthsBetweenInRange1To12(firstDate: LocalDate, secondDate: LocalDate): Int {
         val monthsBetween = getMonthBetween(firstDate, secondDate) % MAANEDER_PER_AR
@@ -411,10 +410,10 @@ object SimulatorOutputMapper {
         list.firstOrNull { it.beholdningsType?.kode == BeholdningType.PEN_B.name } as? Pensjonsbeholdning
 
     // Specific variant of ArligInformasjonListeUtils.findElementOfType
-    private fun firstYtelseOfType(list: List<Ytelseskomponent>, type: YtelseKomponentType): Ytelseskomponent? =
-        list.firstOrNull { it.ytelsekomponentType.kode == type.name }
+    private fun firstYtelseOfType(list: List<Ytelseskomponent>, type: YtelseskomponentTypeEnum): Ytelseskomponent? =
+        list.firstOrNull { it.ytelsekomponentTypeEnum == type }
 
-    private fun bruttoPerAr(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseKomponentType) =
+    private fun bruttoPerAr(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseskomponentTypeEnum) =
         firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), ytelseType)?.bruttoPerAr?.toInt()
 
     private fun firstDayOf(year: Int) = LocalDate.of(year, 1, 1)

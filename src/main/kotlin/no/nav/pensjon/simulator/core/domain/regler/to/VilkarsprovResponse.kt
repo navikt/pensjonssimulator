@@ -1,14 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import java.util.*
+import java.util.Vector
 
-class VilkarsprovResponse(
-    var vedtaksliste: MutableList<VilkarsVedtak> = mutableListOf(),
-    override val pakkseddel: Pakkseddel = Pakkseddel()
-) : ServiceResponse(pakkseddel) {
-    override fun virkFom(): Date? = vedtaksliste.firstOrNull()?.virkFom
+class VilkarsprovResponse : ServiceResponse() {
 
-    override fun persons(): String = ""
+    var vedtaksliste: MutableList<VilkarsVedtak> = Vector() //TODO mutableListOf()?
 }

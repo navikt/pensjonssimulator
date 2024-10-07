@@ -1,20 +1,19 @@
 package no.nav.pensjon.simulator.core.result
 
 import no.nav.pensjon.simulator.core.SimuleringSpec
-import no.nav.pensjon.simulator.core.ytelse.YtelseKomponentType
+import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.findElementOfType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.sortedSubset
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
-import no.nav.pensjon.simulator.core.domain.RegelverkType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AR
@@ -102,9 +101,9 @@ object SimuleringResultPreparer {
 
     // TODO: Reconsider necessity for this
     private fun forceKap19OutputIfSimulerForTp(kravhode: Kravhode, spec: SimuleringSpec) {
-        if (kravhode.regelverkTypeCti?.kode == RegelverkType.N_REG_N_OPPTJ.name && spec.simulerForTp) {
+        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_N_OPPTJ && spec.simulerForTp) {
             // Set the regelverktype to 2011 so that the results are parsed and mapped as such
-            kravhode.regelverkTypeCti = RegelverkTypeCti(RegelverkType.N_REG_G_OPPTJ.name)
+            kravhode.regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
         }
     }
 
@@ -127,11 +126,11 @@ object SimuleringResultPreparer {
         var poengtallListe: List<Poengtall> = emptyList()
         var sisteBeregningsresultat2011: BeregningsResultatAlderspensjon2011? = null
 
-        if (kravhode.regelverkTypeCti?.kode == RegelverkType.N_REG_G_OPPTJ.name) {
+        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ) {
             sisteBeregningsresultat2011 = findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2011
         }
 
-        if (kravhode.regelverkTypeCti?.kode == RegelverkType.N_REG_G_N_OPPTJ.name) {
+        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_N_OPPTJ) {
             val sisteBeregningsresultat2016 = findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2016
             sisteBeregningsresultat2011 = sisteBeregningsresultat2016.beregningsResultat2011
         }
@@ -157,7 +156,7 @@ object SimuleringResultPreparer {
 
     private fun createAndMapSimulertAlderspensjon(
         simulatorOutput: SimulatorOutput,
-        simulatorInput: SimuleringSpec,
+        simuleringSpec: SimuleringSpec,
         kravhode: Kravhode,
         soekerGrunnlag: Persongrunnlag,
         resultatListe: MutableList<AbstraktBeregningsResultat>,
@@ -172,7 +171,7 @@ object SimuleringResultPreparer {
         // Del 3.2
         addPensjonsperioderToSimulertAlder(
             simulertAlderspensjon,
-            simulatorInput,
+            simuleringSpec,
             soekerGrunnlag,
             forrigeResultat,
             resultatListe
@@ -180,7 +179,7 @@ object SimuleringResultPreparer {
 
         // Del 3.3
         addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder(
-            simulertAlderspensjon, simulatorInput, kravhode, soekerGrunnlag, resultatListe, forrigeResultat,
+            simulertAlderspensjon, simuleringSpec, kravhode, soekerGrunnlag, resultatListe, forrigeResultat,
             pensjonBeholdningPeriodeListe, outputSimulertBeregningInformasjonForAllKnekkpunkter
         )
 
@@ -243,14 +242,14 @@ object SimuleringResultPreparer {
         resultatListe: List<AbstraktBeregningsResultat>
     ) =
         SimulertAlderspensjon().apply {
-            when (kravhode.regelverkTypeCti?.kode) {
-                RegelverkType.N_REG_G_OPPTJ.name -> {
+            when (kravhode.regelverkTypeEnum) {
+                RegelverkTypeEnum.N_REG_G_OPPTJ -> {
                     // 2011
                     this.kapittel19Andel = 1.0
                     this.kapittel20Andel = 0.0
                 }
 
-                RegelverkType.N_REG_N_OPPTJ.name -> {
+                RegelverkTypeEnum.N_REG_N_OPPTJ -> {
                     // 2025
                     this.kapittel19Andel = 0.0
                     this.kapittel20Andel = 1.0
@@ -417,7 +416,9 @@ object SimuleringResultPreparer {
     ): AbstraktBeregningsResultat {
         val alderToday: Int = calculateAgeInYears(foedselDato, LocalDate.now())
 
-        return copy(beregningResultat).apply {
+        //TODO check if copy is needed
+        //return copy(beregningResultat).apply {
+        return beregningResultat.apply {
             virkFom = firstDayOfMonthAfterUserTurnsGivenAge(foedselDato, alderToday)
             virkTom = dayBefore(earliestVirkningFom(resultatListe))
             removeEktefelleAndBarnetilleggFromTotalbeloep(this)
@@ -432,15 +433,18 @@ object SimuleringResultPreparer {
     ): BeregningsResultatAfpPrivat {
         val alderToday: Int = calculateAgeInYears(foedselDato, LocalDate.now())
 
-        return copy(beregningResultat).apply {
+        //TODO check if copy is needed
+        //return copy(beregningResultat).apply {
+        return beregningResultat.apply {
             virkFom = firstDayOfMonthAfterUserTurnsGivenAge(foedselDato, alderToday)
             virkTom = if (resultatListe.isEmpty()) null else dayBefore(earliestVirkningFom(resultatListe))
-        } as BeregningsResultatAfpPrivat
+        } //as BeregningsResultatAfpPrivat
     }
 
     private fun earliestVirkningFom(resultater: List<AbstraktBeregningsResultat>): Date? =
         PeriodeUtil.findEarliest(resultater)?.virkFom
 
+    /*
     // Extracted from OpprettOutputHelper.createModifiedCopyOfForrigeAlderBeregningsresultat
     private fun copy(original: AbstraktBeregningsResultat): AbstraktBeregningsResultat =
         when (original) {
@@ -451,6 +455,7 @@ object SimuleringResultPreparer {
             is BeregningsresultatUforetrygd -> BeregningsresultatUforetrygd(original)
             else -> throw IllegalArgumentException("Unexpected AbstraktBeregningsResultat subclass: $original")
         }
+    */
 
     // OpprettOutputHelper.getBelop
     private fun getBeloep(
@@ -643,9 +648,9 @@ object SimuleringResultPreparer {
         // Identify the ytelseskomponenter to subtract from totalbeløp
         val tilleggsytelser = subsetOfTypes(
             alderspensjonBeregningResultat.pensjonUnderUtbetaling?.ytelseskomponenter.orEmpty(),
-            YtelseKomponentType.ET,
-            YtelseKomponentType.TFB,
-            YtelseKomponentType.TSB
+            YtelseskomponentTypeEnum.ET,
+            YtelseskomponentTypeEnum.TFB,
+            YtelseskomponentTypeEnum.TSB
         )
 
         val pensjon = alderspensjonBeregningResultat.pensjonUnderUtbetaling
@@ -705,29 +710,29 @@ object SimuleringResultPreparer {
         dagenFoerBeregningsresultatVirkFom: Date,
         beregningsresultat: AbstraktBeregningsResultat?
     ): Pensjonsbeholdning? =
-        kravhode.regelverkTypeCti?.kode?.let {
+        kravhode.regelverkTypeEnum?.let {
             if (beregningsresultat == null)
                 findBeholdningFraPersongrunnlag(
                     soekerGrunnlag,
-                    RegelverkType.valueOf(it),
+                    it,
                     dagenFoerBeregningsresultatVirkFom
                 )
             else
-                findBeholdningFraBeregningsresultat(beregningsresultat, RegelverkType.valueOf(it))
+                findBeholdningFraBeregningsresultat(beregningsresultat, it)
         }
 
     // OpprettOutputHelper.findBeholdningFraBeregningsresultat
     private fun findBeholdningFraBeregningsresultat(
         beregningsresultat: AbstraktBeregningsResultat,
-        regelverkType: RegelverkType
+        regelverkType: RegelverkTypeEnum
     ): Pensjonsbeholdning? =
         when (regelverkType) {
-            RegelverkType.N_REG_G_N_OPPTJ -> findElementOfType(
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ -> findElementOfType(
                 (beregningsresultat as? BeregningsResultatAlderspensjon2016)?.beregningsResultat2025?.beregningKapittel20?.beholdninger?.beholdninger.orEmpty(),
                 BeholdningType.PEN_B
             )
 
-            RegelverkType.N_REG_N_OPPTJ -> findElementOfType(
+            RegelverkTypeEnum.N_REG_N_OPPTJ -> findElementOfType(
                 (beregningsresultat as? BeregningsResultatAlderspensjon2025)?.beregningKapittel20?.beholdninger?.beholdninger.orEmpty(),
                 BeholdningType.PEN_B
             )
@@ -737,12 +742,12 @@ object SimuleringResultPreparer {
 
     private fun findBeholdningFraPersongrunnlag(
         soekerGrunnlag: Persongrunnlag,
-        regelverkType: RegelverkType,
+        regelverkType: RegelverkTypeEnum,
         dagenFoerBeregningsresultatVirkFom: Date
     ): Pensjonsbeholdning? {
         var beholdning: Pensjonsbeholdning? = null
 
-        if (EnumSet.of(RegelverkType.N_REG_G_N_OPPTJ, RegelverkType.N_REG_N_OPPTJ).contains(regelverkType)) {
+        if (EnumSet.of(RegelverkTypeEnum.N_REG_G_N_OPPTJ, RegelverkTypeEnum.N_REG_N_OPPTJ).contains(regelverkType)) {
             val aar = getYear(dagenFoerBeregningsresultatVirkFom)
             val beholdninger = sortedSubset(soekerGrunnlag.beholdninger, aar)
             beholdning = findLatest(beholdninger)
@@ -809,9 +814,9 @@ object SimuleringResultPreparer {
     }
 
     // TypedInformationListeUtils.subsetOfTypes
-    private fun subsetOfTypes(list: List<Ytelseskomponent>, vararg types: YtelseKomponentType): List<Ytelseskomponent> =
+    private fun subsetOfTypes(list: List<Ytelseskomponent>, vararg types: YtelseskomponentTypeEnum): List<Ytelseskomponent> =
         list.filter {
-            listOf(*types).any { t -> t.name == it.ytelsekomponentType.kode }
+            listOf(*types).any { t -> t == it.ytelsekomponentTypeEnum }
         }
 
     private data class BeloepPeriode(val beloep: Int, val start: Date?, val slutt: Date?)

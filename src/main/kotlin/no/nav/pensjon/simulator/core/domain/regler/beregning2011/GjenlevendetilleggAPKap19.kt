@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
-import no.nav.pensjon.simulator.core.domain.regler.enum.GjenlevendetilleggAPkap20Enum
+import no.nav.pensjon.simulator.core.domain.regler.enum.GjenlevendetilleggAPkap19Enum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.Formel
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.IFormelProvider
 
-class GjenlevendetilleggAP : Ytelseskomponent(), IFormelProvider {
+class GjenlevendetilleggAPKap19 : Ytelseskomponent(), IFormelProvider {
 
     /**
      * Sum av GP, TP og PenT for AP2011 medregnet GJR.
@@ -21,27 +21,17 @@ class GjenlevendetilleggAP : Ytelseskomponent(), IFormelProvider {
     /**
      * Differanse mellom AP med og uten GJR, justert til 100% uttaksgrad.
      */
-    var referansebelop: Int = 0
-
-    /**
-     * Summen av reguleringsbeløp som har gått i fradrag på gjenlevendetillegget
-     */
-    var sumReguleringsfradrag: Int = 0
-
-    /**
-     * Det maksimale uttaksgrad som kan benyttes ved beregning av gjenlevendetillegget.
-     */
-    var anvendtUttaksgrad: Int = 100
+    var referansebelop = 0
 
     /**
      * Den beregningstekniske metoden som er benyttet for å fastsette gjenlevendetillegget.
      */
-    var metode: GjenlevendetilleggAPkap20Enum = GjenlevendetilleggAPkap20Enum.INGEN
+    var metode: GjenlevendetilleggAPkap19Enum = GjenlevendetilleggAPkap19Enum.INGEN
 
     /**
-     * Map av formler brukt i beregning av ytelseskomponenten.
+     * Map av formler brukt i beregning av Tilleggspensjon.
      */
     override var formelMap: HashMap<String, Formel> = HashMap()
 
-    override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.AP_GJT
+    override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.AP_GJT_KAP19
 }

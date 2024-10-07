@@ -1,13 +1,12 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.krav.KravlinjeTypePlus
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningsmetodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.BeregningMetodeTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.SivilstandTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 
@@ -36,7 +35,7 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
     // OpprettSisteAldersberegningCommon.setAnvendtGjenlevenderettVedtakOnSisteBeregning
     protected fun setAnvendtGjenlevenderettVedtak(sink: SisteBeregning?, vedtakList: List<VilkarsVedtak>) {
         vedtakList
-            .firstOrNull { KravlinjeTypePlus.GJR.name == it.kravlinjeType?.kode }
+            .firstOrNull { KravlinjeTypeEnum.GJR == it.kravlinjeTypeEnum }
             ?.let { setAnvendtGjenlevenderettVedtak(sink, it) }
     }
 
@@ -45,7 +44,7 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
     protected fun setAlternativKonvensjonData(
         sink: SisteAldersberegning2011,
         beregningKapittel20: Beregning2011,
-        vinnendeMetode: BeregningMetodeTypeCti?
+        vinnendeMetode: BeregningsmetodeEnum?
     ) {
         val tapendeDelberegning = findTapendeDelberegning(beregningKapittel20, vinnendeMetode) ?: return
 
@@ -63,7 +62,7 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
     protected fun utenIrrelevanteYtelseskomponenter(pensjon: PensjonUnderUtbetaling?) =
         pensjon?.let {
             PensjonUnderUtbetaling(
-                pub = it,
+                source = it,
                 excludeBrutto = true
             ).also(::removeIrrelevanteYtelseskomponenter)
         }
@@ -74,19 +73,19 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
 
     // Extracted
     private fun avdodGrunnlag(kravhode: Kravhode?): Persongrunnlag? =
-        kravhode?.hentPersongrunnlagForRolle(GrunnlagRolle.AVDOD, false)
+        kravhode?.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
 
     // Extracted
-    private fun sokerDetalj(kravhode: Kravhode?): PersonDetalj? = kravhode?.findPersonDetaljIBruk(GrunnlagRolle.SOKER)
+    private fun sokerDetalj(kravhode: Kravhode?): PersonDetalj? = kravhode?.findPersonDetaljIBruk(GrunnlagsrolleEnum.SOKER)
 
     // OpprettSisteAldersberegningCommon.findDelberegning (predicate from addAltKonv)
     private fun findTapendeDelberegning(
         beregning: Beregning2011,
-        vinnendeMetode: BeregningMetodeTypeCti?
+        vinnendeMetode: BeregningsmetodeEnum?
     ): AldersberegningKapittel20? =
         beregning.delberegning2011Liste
             .mapNotNull { it.beregning2011 as? AldersberegningKapittel20 }
-            .firstOrNull { it.beregningsMetode != vinnendeMetode }
+            .firstOrNull { it.beregningsMetodeEnum != vinnendeMetode }
 
     // OpprettSisteAldersberegningCommon.fetchEpsPersongrunnlag
     /**
@@ -169,14 +168,14 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
     }
 
     // OpprettSisteAldersberegningCommon.setSivilstandTypeForSisteBeregning
-    private fun setSivilstand(sink: SisteBeregning, sokerDetalj: PersonDetalj?) {
-        sokerDetalj?.sivilstandType?.let { sink.sivilstandType = SivilstandTypeCti(it.kode) }
+    private fun setSivilstand(sink: SisteBeregning, soekerDetalj: PersonDetalj?) {
+        soekerDetalj?.sivilstandTypeEnum?.let { sink.sivilstandTypeEnum = it }
     }
 
     // OpprettSisteAldersberegningCommon.setVilkarsvedtakEktefelletilleggForSisteBeregning
-    private fun setEktefelletilleggVedtak(sink: SisteBeregning, vedtakList: List<VilkarsVedtak>) {
-        vedtakList
-            .firstOrNull { KravlinjeTypePlus.ET.name == it.kravlinjeType?.kode }
+    private fun setEktefelletilleggVedtak(sink: SisteBeregning, vedtakListe: List<VilkarsVedtak>) {
+        vedtakListe
+            .firstOrNull { KravlinjeTypeEnum.ET == it.kravlinjeTypeEnum }
             ?.let { setEktefelletilleggVedtak(sink, it) }
     }
 

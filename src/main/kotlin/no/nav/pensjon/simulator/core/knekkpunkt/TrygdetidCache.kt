@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.knekkpunkt
 
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
+import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
@@ -11,10 +11,10 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 // Corresponds to FastsettTrygdetidCache
 class TrygdetidCache(val context: SimulatorContext) {
 
-    private val uberCache: MutableMap<GrunnlagRolle, TrygdetidInternalCache> = mutableMapOf()
+    private val uberCache: MutableMap<GrunnlagsrolleEnum, TrygdetidInternalCache> = mutableMapOf()
 
     // FastsettTrygdetidCache.createCacheForGrunnlagsRolleCodes
-    fun createCacheForGrunnlagsroller(vararg grunnlagsroller: GrunnlagRolle) {
+    fun createCacheForGrunnlagsroller(vararg grunnlagsroller: GrunnlagsrolleEnum) {
         for (grunnlagsrolle in grunnlagsroller) {
             uberCache[grunnlagsrolle] = TrygdetidInternalCache()
         }
@@ -23,7 +23,7 @@ class TrygdetidCache(val context: SimulatorContext) {
     //@Throws(BeregningstjenesteFeiletException::class)
     fun fastsettTrygdetid(
         parameters: TrygdetidRequest,
-        grunnlagsrolle: GrunnlagRolle,
+        grunnlagsrolle: GrunnlagsrolleEnum,
         kravIsUforetrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo {
@@ -40,7 +40,7 @@ class TrygdetidCache(val context: SimulatorContext) {
     }
 
     // FastsettTrygdetidCache.getTrygdetidCacheFromGrunnlagsrolle
-    private fun trygdetidCache(grunnlagsrolle: GrunnlagRolle): TrygdetidInternalCache? =
+    private fun trygdetidCache(grunnlagsrolle: GrunnlagsrolleEnum): TrygdetidInternalCache? =
         if (uberCache.containsKey(grunnlagsrolle))
             uberCache[grunnlagsrolle]
         else

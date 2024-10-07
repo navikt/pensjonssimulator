@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.krav.KravlinjeTypePlus
 import no.nav.pensjon.simulator.core.domain.SakType
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -52,9 +52,9 @@ object PeriodiseringUtil {
     }
 
     // VilkarsprovOgBeregnAlderHelper.setUttaksgradListeOnKravhodeWithFullUttakAndVirkDatoFom
-    private fun setLivsvarigFulltUttak(kravhode: Kravhode, virkFom: LocalDate) {
+    private fun setLivsvarigFulltUttak(kravhode: Kravhode, virkningFom: LocalDate) {
         val uttaksgrad = Uttaksgrad().apply {
-            fomDato = fromLocalDate(virkFom)
+            fomDato = fromLocalDate(virkningFom)
             tomDato = null
             uttaksgrad = 100
             // uttaksgradKopiert = false <----- seemingly unused in simulering context
@@ -65,6 +65,6 @@ object PeriodiseringUtil {
 
     // VilkarsprovOgBeregnAlderHelper.removeAllNonAPKravlinjerFromKravhode
     private fun removeNonAlderspensjonKravlinjer(kravhode: Kravhode) {
-        kravhode.kravlinjeListe.removeIf { it.kravlinjeType?.kode != KravlinjeTypePlus.AP.name }
+        kravhode.kravlinjeListe.removeIf { it.kravlinjeTypeEnum != KravlinjeTypeEnum.AP }
     }
 }

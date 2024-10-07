@@ -1,18 +1,17 @@
 package no.nav.pensjon.simulator.core.krav
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.SimuleringSpec
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.domain.RegelverkType
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
+import no.nav.pensjon.simulator.core.beholdning.BeholdningType
+import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
@@ -22,7 +21,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurns67
 import no.nav.pensjon.simulator.core.trygd.*
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagSpec
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -44,7 +42,7 @@ class KravhodeUpdater(
         val forrigeAlderspensjonBeregningResult = spec.forrigeAlderspensjonBeregningResult
         var soekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
         var avdoedGrunnlag =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagRolle.AVDOD, checkBruk = false)
+            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
         logger.info("STEP 4.1 - Sett trygdetidsgrunnlag")
         soekerGrunnlag = setTrygdetid(
@@ -149,7 +147,7 @@ class KravhodeUpdater(
 
         if (simuleringSpec.boddUtenlands) {
             kravhode.boddEllerArbeidetIUtlandet = true
-            val regelverkType = kravhode.regelverkTypeCti!!
+            val regelverkType = kravhode.regelverkTypeEnum!!
 
             if (regelverkType.isAlderspensjon2011) {
                 setKapittel19Trygdetid(persongrunnlag, simuleringSpec)
@@ -282,29 +280,30 @@ class KravhodeUpdater(
     }
 }
 
-val RegelverkTypeCti.isAlderspensjon2011: Boolean
+//TODO move this into Enum?
+val RegelverkTypeEnum.isAlderspensjon2011: Boolean
     get() {
         return this.kap19 && !this.kap20
     }
 
-val RegelverkTypeCti.isAlderspensjon2016: Boolean
+val RegelverkTypeEnum.isAlderspensjon2016: Boolean
     get() {
         return this.kap19 && this.kap20
     }
 
-val RegelverkTypeCti.isAlderspensjon2025: Boolean
+val RegelverkTypeEnum.isAlderspensjon2025: Boolean
     get() {
         return !this.kap19 && this.kap20
     }
 
-private val RegelverkTypeCti.kap19: Boolean
+private val RegelverkTypeEnum.kap19: Boolean
     get() {
-        return this.kode == RegelverkType.N_REG_G_N_OPPTJ.name
-                || this.kode == RegelverkType.N_REG_G_OPPTJ.name
+        return this == RegelverkTypeEnum.N_REG_G_N_OPPTJ
+                || this == RegelverkTypeEnum.N_REG_G_OPPTJ
     }
 
-private val RegelverkTypeCti.kap20: Boolean
+private val RegelverkTypeEnum.kap20: Boolean
     get() {
-        return this.kode == RegelverkType.N_REG_G_N_OPPTJ.name
-                || this.kode == RegelverkType.N_REG_N_OPPTJ.name
+        return this == RegelverkTypeEnum.N_REG_G_N_OPPTJ
+                || this == RegelverkTypeEnum.N_REG_N_OPPTJ
     }

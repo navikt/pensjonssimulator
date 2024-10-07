@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.domain.RegelverkType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
@@ -9,7 +9,7 @@ import java.time.LocalDate
 // no.nav.service.pensjon.fpen.support.command.opprettsisteberegning.OpprettSisteBeregningParameter
 data class SisteBeregningSpec(
     var beregningsresultat: AbstraktBeregningsResultat?,
-    var regelverkKodePaNyttKrav: RegelverkType?,
+    var regelverkKodePaNyttKrav: RegelverkTypeEnum?,
     var forrigeKravhode: Kravhode?,
     var filtrertVilkarsvedtakList: List<VilkarsVedtak>,
     val isRegelverk1967: Boolean = false,

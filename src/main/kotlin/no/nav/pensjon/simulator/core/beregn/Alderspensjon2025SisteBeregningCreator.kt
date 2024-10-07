@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteAldersberegning2011
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
 import org.springframework.stereotype.Component
 
 // Corresponds to AbstraktOpprettSisteAldersberegning + OpprettSisteAldersberegning2011Regelverk2025
@@ -12,20 +11,20 @@ import org.springframework.stereotype.Component
 class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteBeregningCreatorBase(context) {
 
     // AbstraktOpprettSisteAldersberegning.execute
-    override fun createBeregning(input: SisteBeregningSpec, beregningsresultat: AbstraktBeregningsResultat?) =
-        newSisteAldersberegning2011(input).also {
-            populate(it, input, beregningsresultat)
+    override fun createBeregning(spec: SisteBeregningSpec, beregningsresultat: AbstraktBeregningsResultat?) =
+        newSisteAldersberegning2011(spec).also {
+            populate(it, spec, beregningsresultat)
         }
 
     // OpprettSisteAldersberegning2011Regelverk2025.createAndInitSisteBeregning
-    private fun newSisteAldersberegning2011(input: SisteBeregningSpec): SisteAldersberegning2011 {
+    private fun newSisteAldersberegning2011(spec: SisteBeregningSpec): SisteAldersberegning2011 {
         val sisteBeregning = SisteAldersberegning2011().apply {
-            regelverkType = input.regelverkKodePaNyttKrav?.let { RegelverkTypeCti(it.name) }
+            regelverkTypeEnum = spec.regelverkKodePaNyttKrav
         }
 
         populateSisteBeregningFromBeregningsresultat2025(
             sisteBeregning,
-            input.beregningsresultat as? BeregningsResultatAlderspensjon2025
+            spec.beregningsresultat as? BeregningsResultatAlderspensjon2025
         )
 
         return sisteBeregning
@@ -39,17 +38,17 @@ class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteB
         val aldersberegningKapittel20 = beregningsresultat?.beregningKapittel20
 
         aldersberegningKapittel20?.let {
-            setAlternativKonvensjonData(beregning, aldersberegningKapittel20, it.beregningsMetode!!)
-            beregning.beregningsMetode = it.beregningsMetode
+            setAlternativKonvensjonData(beregning, aldersberegningKapittel20, it.beregningsMetodeEnum!!)
+            beregning.beregningsMetodeEnum = it.beregningsMetodeEnum
             beregning.prorataBrok_kap_20 = it.prorataBrok
             beregning.tt_anv_kap_20 = it.tt_anv
-            beregning.resultatType = it.resultatType
+            beregning.resultatTypeEnum = it.resultatTypeEnum
             beregning.beholdninger = it.beholdninger
         }
 
         beregning.virkDato = beregningsresultat?.virkFom
         beregning.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(beregningsresultat?.pensjonUnderUtbetaling)
-        beregningsresultat?.benyttetSivilstand?.let { beregning.benyttetSivilstand = it }
+        beregningsresultat?.benyttetSivilstandEnum?.let { beregning.benyttetSivilstandEnum = it }
         val beregningsinformasjon = beregningsresultat?.beregningsInformasjonKapittel20
 
         beregningsinformasjon?.let {

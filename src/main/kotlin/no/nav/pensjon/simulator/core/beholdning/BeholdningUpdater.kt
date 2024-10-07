@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.beholdning
 
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.YEAR_2010
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.addDagpengeGrunnlagIfExists
@@ -10,7 +9,6 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.createPers
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.createPersongrunnlagFromPerson
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.createWithTilvekst
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.determineBeregnTomYear
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.tidligsteOpptjeningAar
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.findReguleringDato
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.firstDateOf
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.firstDayOf
@@ -28,25 +26,27 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.kravIsAp20
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.lastDayOf
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newRegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.openLatestBeholdning
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.postprocessBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.removeAllBeholdningAfter
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.setOmsorgsgrunnlagOnPersongrunnlagIfExists
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.setOpptjeningsgrunnlagOnPersongrunnlagIfExists
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.switchExistingBeholdningOnPersongrunnlag
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.postprocessBeholdning
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.tidligsteOpptjeningAar
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.updateBeholdninger
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.verifyBeholdningFom2010
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.verifyEmptyBeholdningAndGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
+import no.nav.pensjon.simulator.core.domain.regler.enum.SatsTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonPensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.SatsTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.SatsResponse
+import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
@@ -646,18 +646,16 @@ class BeholdningUpdater(private val context: SimulatorContext) {
     private companion object {
 
         private const val INITIERING = "initiering" // OppdaterPensjonsbeholdningerHelper
-        private const val TILVEKST =
-            "tilvekst" // OppdaterPensjonsbeholdningerHelper, OppdaterPensjonsbeholdningerRequestFactory
+        private const val TILVEKST = "tilvekst" // OppdaterPensjonsbeholdningerHelper, OppdaterPensjonsbeholdningerRequestFactory
         private const val KORRIGERING = "korrigering" // OppdaterPensjonsbeholdningerHelper
         private const val CALL_TO_PREG_FAILED = "Call to PREG failed"
-        private const val MAX_DIFFERENCE_IN_YEARS_SISTEGYLDIGEGRUNNBELOP =
-            0 // BeholdningSwitchDecider, specified in PK-25114
+        private const val MAX_DIFFERENCE_IN_YEARS_SISTEGYLDIGEGRUNNBELOP = 0 // BeholdningSwitchDecider, specified in PK-25114
 
         private fun satsRequest(virkningDato: Date?) =
-            HentGyldigSatsRequest(
-                fomDato = virkningDato,
-                tomDato = virkningDato,
-                satsType = SatsTypeCti(SatsType.GRUNNBELOP.name)
-            )
+            HentGyldigSatsRequest().apply {
+                fomDato = virkningDato
+                tomDato = virkningDato
+                satsTypeEnum = SatsTypeEnum.GRUNNBELOP
+            }
     }
 }

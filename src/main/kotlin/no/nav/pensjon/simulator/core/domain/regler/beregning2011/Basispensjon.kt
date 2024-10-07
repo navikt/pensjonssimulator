@@ -1,20 +1,13 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 
-/**
- * Kopi av PEN 28/8/2009 - ruller tilbake til PREG domenemodell
- *
- * @author Ørnulf Moen
- */
-
-class Basispensjon : Serializable {
+class Basispensjon {
 
     /**
      * Utgjør summen av basisgrunnpensjon, basistilleggspensjon og i basispensjonstillegg.
      */
-    var totalbelop: Double = 0.0
+    var totalbelop = 0.0
 
     /**
      * Basisgrunnpensjon slik det er definert i nytt regelverk på gammel opptjening (kapittel 19).
@@ -34,41 +27,24 @@ class Basispensjon : Serializable {
     /**
      * Formelkode kun for bruk for restpensjon
      */
-    var formelKode: FormelKodeCti? = null
+    var formelKodeEnum: FormelKodeEnum = FormelKodeEnum.ResPx
 
-    init {
-        formelKode = FormelKodeCti("ResPx")
-    }
+    // SIMDOM-ADD
+    constructor(source: Basispensjon) {
+        totalbelop = source.totalbelop
 
-    constructor()
+        if (source.gp != null) {
+            gp = BasisGrunnpensjon(source.gp!!)
+        }
 
-    constructor(bp: Basispensjon) : this() {
-        totalbelop = bp.totalbelop
-        if (bp.gp != null) {
-            gp = BasisGrunnpensjon(bp.gp!!)
+        if (source.tp != null) {
+            tp = BasisTilleggspensjon(source.tp!!)
         }
-        if (bp.tp != null) {
-            tp = BasisTilleggspensjon(bp.tp!!)
-        }
-        if (bp.pt != null) {
-            pt = BasisPensjonstillegg(bp.pt!!)
-        }
-        if (bp.formelKode != null) {
-            formelKode = FormelKodeCti(bp.formelKode!!.kode)
-        }
-    }
 
-    constructor(
-            totalbelop: Double = 0.0,
-            gp: BasisGrunnpensjon? = null,
-            tp: BasisTilleggspensjon? = null,
-            pt: BasisPensjonstillegg? = null,
-            formelKode: FormelKodeCti? = FormelKodeCti("ResPx")
-    ) {
-        this.totalbelop = totalbelop
-        this.gp = gp
-        this.tp = tp
-        this.pt = pt
-        this.formelKode = formelKode
+        if (source.pt != null) {
+            pt = BasisPensjonstillegg(source.pt!!)
+        }
+
+        formelKodeEnum = source.formelKodeEnum
     }
 }

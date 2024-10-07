@@ -1,17 +1,14 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.krav.KravlinjeTypePlus
 import no.nav.pensjon.simulator.core.domain.SakType
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravVelgTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
@@ -22,6 +19,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossibly
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import java.time.LocalDate
 import java.util.*
 import java.util.function.Predicate
@@ -59,13 +57,13 @@ object BehandlingPeriodeUtil {
                 val detaljVirkningFom = detalj.virkFom
                 var detaljVirkningTom = detalj.virkTom
 
-                if (GrunnlagRolle.AVDOD.name == detalj.grunnlagsrolle?.kode && detaljVirkningTom != null) {
+                if (GrunnlagsrolleEnum.AVDOD == detalj.grunnlagsrolleEnum && detaljVirkningTom != null) {
                     detaljVirkningTom = null
                 }
 
                 if (detalj.bruk
-                    && (detalj.grunnlagsrolle!!.kode == GrunnlagRolle.MOR.name
-                            || detalj.grunnlagsrolle!!.kode == GrunnlagRolle.FAR.name
+                    && (detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.MOR
+                            || detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.FAR
                             || dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
                 ) {
                     usePersongrunnlag = true
@@ -250,10 +248,10 @@ object BehandlingPeriodeUtil {
 
             it.persongrunnlagListe = mutableListOf() // NB persongrunnlag list contents not copied
             copyRelevantKravlinjer(kravhode, it, persongrunnlagListe)
-            kravhode.afpOrdning?.let { value -> it.afpOrdning = AfpOrdningTypeCti(value) }
+            it.afpOrdningEnum = kravhode.afpOrdningEnum
             it.afptillegg = kravhode.afptillegg
             it.brukOpptjeningFra65I66Aret = kravhode.brukOpptjeningFra65I66Aret
-            kravhode.kravVelgType?.let { value -> it.kravVelgType = KravVelgTypeCti(value) }
+            it.kravVelgTypeEnum = kravhode.kravVelgTypeEnum
             it.boddEllerArbeidetIUtlandet = kravhode.boddEllerArbeidetIUtlandet
             it.boddArbeidUtlandFar = kravhode.boddArbeidUtlandFar
             it.boddArbeidUtlandMor = kravhode.boddArbeidUtlandMor
@@ -270,9 +268,8 @@ object BehandlingPeriodeUtil {
                 Collections.sort(it.uttaksgradListe, Collections.reverseOrder())
             }
 
-            it.regelverkTypeCti = kravhode.regelverkTypeCti
-            it.sisteSakstypeForAP = kravhode.sisteSakstypeForAP
-            //it.isPREG_epsMottarPensjon = kravhode.isPREG_epsMottarPensjon
+            it.regelverkTypeEnum = kravhode.regelverkTypeEnum
+            it.sisteSakstypeForAPEnum = kravhode.sisteSakstypeForAPEnum
             it.overstyrendeP_satsGP = kravhode.overstyrendeP_satsGP
             it.btVurderingsperiodeBenyttet = kravhode.btVurderingsperiodeBenyttet
         }
@@ -289,8 +286,8 @@ object BehandlingPeriodeUtil {
         persongrunnlagList: List<Persongrunnlag>
     ): Boolean {
         val relevantTypes =
-            EnumSet.of(KravlinjeTypePlus.GJR, KravlinjeTypePlus.UT_GJT, KravlinjeTypePlus.ET, KravlinjeTypePlus.BT)
-        val currentType = KravlinjeTypePlus.valueOf(kravlinje.kravlinjeType!!.kode)
+            EnumSet.of(KravlinjeTypeEnum.GJR, KravlinjeTypeEnum.UT_GJT, KravlinjeTypeEnum.ET, KravlinjeTypeEnum.BT)
+        val currentType = kravlinje.kravlinjeTypeEnum
 
         return if (relevantTypes.contains(currentType)) {
             persongrunnlagList
@@ -300,11 +297,11 @@ object BehandlingPeriodeUtil {
     }
 
     private fun hasRelevantRolleForYtelse(kravlinje: Kravlinje, persongrunnlag: Persongrunnlag) =
-        when (KravlinjeTypePlus.valueOf(kravlinje.kravlinjeType!!.kode)) {
-            KravlinjeTypePlus.GJR, KravlinjeTypePlus.UT_GJT -> persongrunnlag.isAvdod()
-            KravlinjeTypePlus.ET -> persongrunnlag.isEps()
-            KravlinjeTypePlus.BT -> persongrunnlag.isBarnOrFosterbarn()
-            else -> throw RuntimeException("Unsupported kravlinjetype code " + kravlinje.kravlinjeType!!.kode)
+        when (kravlinje.kravlinjeTypeEnum) {
+            KravlinjeTypeEnum.GJR, KravlinjeTypeEnum.UT_GJT -> persongrunnlag.isAvdod()
+            KravlinjeTypeEnum.ET -> persongrunnlag.isEps()
+            KravlinjeTypeEnum.BT -> persongrunnlag.isBarnOrFosterbarn()
+            else -> throw RuntimeException("Unsupported kravlinjetype code " + kravlinje.kravlinjeTypeEnum)
         }
 
     private fun dateIsValid(fom: Date?, tom: Date?, virkFom: Date?, virkTom: Date?) =

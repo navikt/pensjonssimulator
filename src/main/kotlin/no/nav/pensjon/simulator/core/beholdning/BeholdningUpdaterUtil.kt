@@ -1,11 +1,11 @@
 package no.nav.pensjon.simulator.core.beholdning
 
-import no.nav.pensjon.simulator.core.domain.*
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SatsTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagsrolleCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.SatsTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
@@ -124,7 +124,7 @@ object BeholdningUpdaterUtil {
     // OppdaterPensjonsbeholdningerHelper.vedtakWithRegelverkForAP2016AndAP2025
     fun vedtakWithRegelverkForAP2016AndAP2025(vedtak: Vedtak): Boolean {
         val regelverkType = vedtak.kravhode.regelverkType
-        return RegelverkType.N_REG_G_N_OPPTJ == regelverkType || RegelverkType.N_REG_N_OPPTJ == regelverkType
+        return RegelverkTypeEnum.N_REG_G_N_OPPTJ == regelverkType || RegelverkTypeEnum.N_REG_N_OPPTJ == regelverkType
     }
     */
 
@@ -178,7 +178,7 @@ object BeholdningUpdaterUtil {
     // OppdaterPensjonsbeholdningerHelper.generateHentGyldigSatsConsumerRequest
     fun generateHentGyldigSatsConsumerRequest(aar: Int) =
         HentGyldigSatsRequest().apply {
-            satsType = SatsTypeCti(SatsType.LONNSVEKST.name)
+            satsTypeEnum = SatsTypeEnum.LONNSVEKST
             fomDato = createDate(aar, Calendar.JANUARY, 1).noon()
             tomDato = createDate(aar, Calendar.DECEMBER, 31).noon()
         }
@@ -378,8 +378,8 @@ object BeholdningUpdaterUtil {
 
     // BeholdningSwitchDecider.kravIsAp2016OrAp2025
     fun kravIsAp2016OrAp2025(kravhode: Kravhode): Boolean {
-        val regelverkType = kravhode.regelverkTypeCti
-        return RegelverkType.N_REG_G_N_OPPTJ.name == regelverkType?.kode || RegelverkType.N_REG_N_OPPTJ.name == regelverkType?.kode
+        val regelverkType = kravhode.regelverkTypeEnum
+        return RegelverkTypeEnum.N_REG_G_N_OPPTJ == regelverkType || RegelverkTypeEnum.N_REG_N_OPPTJ == regelverkType
     }
 
     // RevurderingHelper.isRevurderingBackToFirstUttaksdatoOrForstegangsbehandling
@@ -441,8 +441,8 @@ object BeholdningUpdaterUtil {
         PersonDetalj().apply {
             bruk = true
             rolleFomDato = person.fodselsdato
-            grunnlagsrolle = GrunnlagsrolleCti(GrunnlagRolle.SOKER.name)
-            grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.PEN.name)
+            grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
+            grunnlagKildeEnum = GrunnlagkildeEnum.PEN
         }.also { it.finishInit() } //NB: Assuming finishInit is appropriate here
 
     // BeholdningHelper.deleteBeholdningerFromPenPersongrunnlagObject

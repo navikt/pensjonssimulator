@@ -2,24 +2,23 @@ package no.nav.pensjon.simulator.core.beregn
 
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import org.springframework.stereotype.Component
 
 @Component
 class Alderspensjon2016SisteBeregningCreator(context: SimulatorContext) : SisteBeregningCreatorBase(context) {
 
     // AbstraktOpprettSisteAldersberegning.execute
-    override fun createBeregning(input: SisteBeregningSpec, beregningsresultat: AbstraktBeregningsResultat?) =
-        newSisteAldersberegning2016(input).also {
-            populate(it, input, beregningsresultat)
+    override fun createBeregning(spec: SisteBeregningSpec, beregningResultat: AbstraktBeregningsResultat?) =
+        newSisteAldersberegning2016(spec).also {
+            populate(it, spec, beregningResultat)
         }
 
     // OpprettSisteAldersberegning2016Regelverk2016.createAndInitSisteBeregning
-    private fun newSisteAldersberegning2016(input: SisteBeregningSpec): SisteBeregning =
+    private fun newSisteAldersberegning2016(spec: SisteBeregningSpec): SisteBeregning =
         SisteAldersberegning2016().apply {
-            regelverkType = input.regelverkKodePaNyttKrav?.let { RegelverkTypeCti(it.name) }
-            val resultat2016 = input.beregningsresultat as? BeregningsResultatAlderspensjon2016
+            regelverkTypeEnum = spec.regelverkKodePaNyttKrav
+            val resultat2016 = spec.beregningsresultat as? BeregningsResultatAlderspensjon2016
             setBeregningsresultat2016Data(this, resultat2016)
             pensjonUnderUtbetaling2011 =
                 utenIrrelevanteYtelseskomponenter(resultat2016?.beregningsResultat2011?.pensjonUnderUtbetaling)
@@ -27,7 +26,7 @@ class Alderspensjon2016SisteBeregningCreator(context: SimulatorContext) : SisteB
                 utenIrrelevanteYtelseskomponenter(resultat2016?.beregningsResultat2025?.pensjonUnderUtbetaling)
 
             if (resultat2016?.beregningsResultat2011 != null) {
-                setAnvendtGjenlevenderettVedtak(this, input.filtrertVilkarsvedtakList)
+                setAnvendtGjenlevenderettVedtak(this, spec.filtrertVilkarsvedtakList)
             }
         }
 
@@ -42,12 +41,12 @@ class Alderspensjon2016SisteBeregningCreator(context: SimulatorContext) : SisteB
         val beregningKapittel20: AldersberegningKapittel20? = resultat2025?.beregningKapittel20
 
         if (beregningKapittel20 != null) {
-            setAlternativKonvensjonData(sink, beregningKapittel20, beregningKapittel20.beregningsMetode)
-            sink.beregningsMetode = beregningKapittel20.beregningsMetode
+            setAlternativKonvensjonData(sink, beregningKapittel20, beregningKapittel20.beregningsMetodeEnum)
+            sink.beregningsMetodeEnum = beregningKapittel20.beregningsMetodeEnum
             sink.prorataBrok_kap_20 = beregningKapittel20.prorataBrok
             sink.tt_anv_kap_20 = beregningKapittel20.tt_anv
             sink.beholdninger = beregningKapittel20.beholdninger
-            sink.resultatType = beregningKapittel19?.resultatType ?: beregningKapittel20.resultatType
+            sink.resultatTypeEnum = beregningKapittel19?.resultatTypeEnum ?: beregningKapittel20.resultatTypeEnum
         }
 
         sink.virkDato = source?.virkFom
@@ -55,13 +54,13 @@ class Alderspensjon2016SisteBeregningCreator(context: SimulatorContext) : SisteB
             utenIrrelevanteYtelseskomponenter(resultat2011?.pensjonUnderUtbetalingUtenGJR)
         sink.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(source?.pensjonUnderUtbetaling)
         setKapittel19Data(sink, beregningKapittel19)
-        setBenyttetSivilstand(sink, resultat2011?.benyttetSivilstand ?: resultat2025?.benyttetSivilstand)
+        setBenyttetSivilstand(sink, resultat2011?.benyttetSivilstandEnum ?: resultat2025?.benyttetSivilstandEnum)
         setBeregningsinfo(sink, resultat2011, resultat2025)
     }
 
     // OpprettSisteAldersberegning2016Regelverk2016.populateSisteberegningFromBenyttetSivilstand
-    private fun setBenyttetSivilstand(sink: SisteBeregning, source: BorMedTypeCti?) {
-        source?.let { sink.benyttetSivilstand = it }
+    private fun setBenyttetSivilstand(sink: SisteBeregning, source: BorMedTypeEnum?) {
+        source?.let { sink.benyttetSivilstandEnum = it }
     }
 
     // OpprettSisteAldersberegning2016Regelverk2016.populateSisteberegningFromBeregningsInformasjon

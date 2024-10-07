@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.knekkpunkt
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
@@ -15,7 +15,7 @@ class TrygdetidFastsetter(private val context: SimulatorContext) {
     // VilkarsprovOgBeregnAlderHelper.fastsettTrygdetidForPeriode + FastsettTrygdetidCache.updateSisteGyldigeOpptjeningsaar
     fun fastsettTrygdetidForPeriode(
         spec: TrygdetidRequest,
-        rolle: GrunnlagRolle,
+        rolle: GrunnlagsrolleEnum,
         kravIsUforetrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo {
@@ -30,13 +30,13 @@ class TrygdetidFastsetter(private val context: SimulatorContext) {
     //@Throws(PEN222BeregningstjenesteFeiletException::class)
     private fun fastsettTrygdetid(
         spec: TrygdetidRequest,
-        rolle: GrunnlagRolle,
+        rolle: GrunnlagsrolleEnum,
         kravIsUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo {
         if (trygdetidCache == null) {
             trygdetidCache = TrygdetidCache(context = context)
-                .also { it.createCacheForGrunnlagsroller(GrunnlagRolle.SOKER, GrunnlagRolle.AVDOD) }
+                .also { it.createCacheForGrunnlagsroller(GrunnlagsrolleEnum.SOKER, GrunnlagsrolleEnum.AVDOD) }
         }
 
         return trygdetidCache!!.fastsettTrygdetid(spec, rolle, kravIsUfoeretrygd, sakId)

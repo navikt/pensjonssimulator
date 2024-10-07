@@ -71,5 +71,7 @@ enum class BegrunnelseTypeEnum  {
     UNDER_20_AR_BOTID,
     EKSPORT_FORBUD,
     BRUKERINITIERT,
-    BT_KREVER_100_INNV
+    BT_KREVER_100_INNV,
+
+    ANNET // SIMDOM-ADD
 }

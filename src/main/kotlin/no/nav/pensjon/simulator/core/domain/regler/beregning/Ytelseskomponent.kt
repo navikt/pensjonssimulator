@@ -6,10 +6,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.SakTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.YtelsekomponentTypeCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import java.math.RoundingMode
 
 /**
@@ -54,60 +53,107 @@ import java.math.RoundingMode
     JsonSubTypes.Type(value = AbstraktBarnetillegg::class)
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-abstract class Ytelseskomponent(
-    var brutto: Int = 0,
-    var netto: Int = 0,
-    var fradrag: Int = 0,
-    var bruttoPerAr: Double = 0.0,
-    var nettoPerAr: Double = 0.0,
-    var fradragPerAr: Double = 0.0,
-    var ytelsekomponentType: YtelsekomponentTypeCti,
-    var merknadListe: MutableList<Merknad> = mutableListOf(),
+abstract class Ytelseskomponent {
     /**
-     * Angir om ytelseskomponenten går til utbetaling eller tilbakekreving.
-     * Settes ikke i PREG, men mappes slik at vi ikke mister den ved kall til regeltjenester som returnerer kopier av innsendt ytelseskomponent (f.eks. faktoromregning).
+     * Brutto beløp.
      */
-    var fradragsTransaksjon: Boolean = false,
+    open var brutto = 0
+
     /**
-     * Angir om ytelseskomponenten er opphørt.
-     * Settes ikke i PREG, men mappes slik at vi ikke mister den ved kall til regeltjenester som returnerer kopier av innsendt ytelseskomponent (f.eks. faktoromregning).
+     * Netto beløp.
      */
-    var opphort: Boolean = false,
+    open var netto = 0
+
     /**
-     * Angir sakentypen ytelseskomponenten er knyttet til.
-     * Settes ikke i PREG, men mappes slik at vi ikke mister den ved kall til regeltjenester som returnerer kopier av innsendt ytelseskomponent (f.eks. faktoromregning).
+     * Fradraget: brutto - netto
      */
-    var sakType: SakTypeCti? = null,
+    var fradrag = 0
+
+    /**
+     * Ikke avrundet beløp, gjelder for hele året.
+     */
+    var bruttoPerAr = 0.0
+
+    /**
+     * årlig netto utbetalt sum.
+     */
+    var nettoPerAr = 0.0
+
+    /**
+     * Ytelsens fradrag per år.
+     */
+    var fradragPerAr = 0.0
+
+    /**
+     * Type ytelse, verdi fra kodeverk.
+     */
+    abstract var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum
+
+    /**
+     * Liste av merknader.
+     */
+    var merknadListe: MutableList<Merknad> = mutableListOf()
+
     /**
      * Indikerer hvilken beregningsformel som ble brukt.
      */
-    var formelKode: FormelKodeCti? = null,
-    var reguleringsInformasjon: ReguleringsInformasjon? = null
-) : Serializable {
+    var formelKodeEnum: FormelKodeEnum? = null
 
-    constructor(ytelseskomponent: Ytelseskomponent) : this(
-        ytelsekomponentType = YtelsekomponentTypeCti(ytelseskomponent.ytelsekomponentType),
-        formelKode = if (ytelseskomponent.formelKode != null) FormelKodeCti(ytelseskomponent.formelKode!!) else null
-    ) {
-        this.brutto = ytelseskomponent.brutto
-        this.netto = ytelseskomponent.netto
-        this.fradrag = ytelseskomponent.fradrag
-        this.bruttoPerAr = ytelseskomponent.bruttoPerAr
-        this.nettoPerAr = ytelseskomponent.nettoPerAr
-        this.fradragPerAr = ytelseskomponent.fradragPerAr
-        for (merknad in ytelseskomponent.merknadListe) {
-            this.merknadListe.add(Merknad(merknad))
+    /**
+     * Informasjon om regulering av ytelsen.
+     */
+    var reguleringsInformasjon: ReguleringsInformasjon? = null
+
+    /**
+     * Angir om ytelseskomponenten går til utbetaling eller tilbakekreving.
+     * Settes ikke i pensjon-regler, men mappes slik at vi ikke mister den ved kall til regeltjenester som returnerer kopier av innsendt ytelseskomponent (f.eks. faktoromregning).
+     */
+    var fradragsTransaksjon = false
+
+    /**
+     * Angir om ytelseskomponenten er opphørt.
+     * Settes ikke i pensjon-regler, men mappes slik at vi ikke mister den ved kall til regeltjenester som returnerer kopier av innsendt ytelseskomponent (f.eks. faktoromregning).
+     */
+    var opphort = false
+
+    /**
+     * Angir sakentypen ytelseskomponenten er knyttet til.
+     * Settes ikke i pensjon-regler, men mappes slik at vi ikke mister den ved kall til regeltjenester som returnerer kopier av innsendt ytelseskomponent (f.eks. faktoromregning).
+     */
+    var sakTypeEnum: SakTypeEnum? = null
+
+    constructor()
+
+    constructor(source: Ytelseskomponent) {
+        brutto = source.brutto
+        netto = source.netto
+        fradrag = source.fradrag
+        bruttoPerAr = source.bruttoPerAr
+        nettoPerAr = source.nettoPerAr
+        fradragPerAr = source.fradragPerAr
+        ytelsekomponentTypeEnum = source.ytelsekomponentTypeEnum
+
+        if (source.formelKodeEnum != null) {
+            formelKodeEnum = source.formelKodeEnum
         }
-        if (ytelseskomponent.reguleringsInformasjon != null) {
-            this.reguleringsInformasjon = ReguleringsInformasjon(ytelseskomponent.reguleringsInformasjon!!)
+
+        for (merknad in source.merknadListe) {
+            merknadListe.add(Merknad(merknad))
         }
-        this.fradragsTransaksjon = ytelseskomponent.fradragsTransaksjon
-        this.opphort = ytelseskomponent.opphort
-        if (ytelseskomponent.sakType != null) {
-            this.sakType = SakTypeCti(ytelseskomponent.sakType!!)
+
+        if (source.reguleringsInformasjon != null) {
+            reguleringsInformasjon = ReguleringsInformasjon(source.reguleringsInformasjon!!)
         }
-        this.brukt = ytelseskomponent.brukt // SIMDOM-ADD
-        this.unroundedNettoPerAr = ytelseskomponent.unroundedNettoPerAr // SIMDOM-ADD
+
+        fradragsTransaksjon = source.fradragsTransaksjon
+        opphort = source.opphort
+
+        if (source.sakTypeEnum != null) {
+            sakTypeEnum = source.sakTypeEnum
+        }
+
+        brukt = source.brukt // SIMDOM-ADD
+        unroundedNettoPerAr = source.unroundedNettoPerAr // SIMDOM-ADD
     }
 
     // SIMDOM-ADD

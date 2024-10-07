@@ -1,20 +1,13 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.MinstepensjonTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.ResultatKildeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.MinstepensjonstypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.ResultatKildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
-import java.io.Serializable
 
-/**
- * Informasjon mht overgang fra UP til UT
- *
- * @author Swiddy de Louw - Capgemini- PK-8712
- * @author Swiddy de Louw - Capgemini- PK-7113
- */
+class OvergangsinfoUPtilUT {
 
-class OvergangsinfoUPtilUT : Serializable {
     /**
-     * Konvertert beregningsgrunnlag for Ordinær beregning
+     * Konvertert beregningsgrunnlag for Ordinår beregning
      */
     var konvertertBeregningsgrunnlagOrdiner: BeregningsgrunnlagKonvertert? = null
 
@@ -24,14 +17,14 @@ class OvergangsinfoUPtilUT : Serializable {
     var konvertertBeregningsgrunnlagYrkesskade: BeregningsgrunnlagKonvertert? = null
 
     /**
-     * Uføretrygd ektefelletilleg
+     * uføretrygd ektefelletilleg
      */
     var ektefelletilleggUT: EktefelletilleggUT? = null
 
     /**
      * Inntektsgrense for Friintektsdato
      */
-    var inntektsgrenseorFriinntektsdato: Int = 0
+    var inntektsgrenseorFriinntektsdato = 0
 
     /**
      * Konvertert beregningsgrunnlag for gjenlevendetillegg hvis fastsatt
@@ -56,95 +49,57 @@ class OvergangsinfoUPtilUT : Serializable {
     /**
      * Hvorvidt utbetalt uførepensjonen per 31.12.2014 ble definert som minstepensjon.
      */
-    var minstepensjonType: MinstepensjonTypeCti? = null
+    var minstepensjontypeEnum: MinstepensjonstypeEnum? = null
 
     /**
      * Hvorvidt utbetalt uførepensjonen per 31.12.2014 ble manuelt overstyrt eller ikke.
      */
-    var resultatKilde: ResultatKildeCti? = null
+    var resultatKildeEnum: ResultatKildeEnum? = null
 
     /**
      * Netto særtillegg i utbetalt uførepensjonen per 31.12.2014.
      */
-    var sertilleggNetto: Int = 0
-
-    constructor(konvertertBeregningsgrunnlagOrdiner: BeregningsgrunnlagKonvertert, konvertertBeregningsgrunnlagYrkesskade: BeregningsgrunnlagKonvertert,
-                ektefelletilleggUT: EktefelletilleggUT, inntektsgrenseorFriinntektsdato: Int, konvertertBeregningsgrunnlagGJT: BeregningsgrunnlagKonvertert,
-                anvendtTrygdetidUP: AnvendtTrygdetid, anvendtTrygdetidUPHjemme: AnvendtTrygdetid, minstepensjonType: MinstepensjonTypeCti, resultatKilde: ResultatKildeCti,
-                sertilleggNetto: Int) : this() {
-        this.konvertertBeregningsgrunnlagOrdiner = konvertertBeregningsgrunnlagOrdiner
-        this.konvertertBeregningsgrunnlagYrkesskade = konvertertBeregningsgrunnlagYrkesskade
-        this.ektefelletilleggUT = ektefelletilleggUT
-        this.inntektsgrenseorFriinntektsdato = inntektsgrenseorFriinntektsdato
-        this.konvertertBeregningsgrunnlagGJT = konvertertBeregningsgrunnlagGJT
-        this.anvendtTrygdetidUP = anvendtTrygdetidUP
-        this.anvendtTrygdetidUPHjemme = anvendtTrygdetidUPHjemme
-        this.minstepensjonType = minstepensjonType
-        this.resultatKilde = resultatKilde
-        this.sertilleggNetto = sertilleggNetto
-    }
+    var sertilleggNetto = 0
 
     constructor()
 
-    constructor(o: OvergangsinfoUPtilUT) : this() {
-        if (o.ektefelletilleggUT != null) {
-            ektefelletilleggUT = EktefelletilleggUT(o.ektefelletilleggUT!!)
-        }
-        inntektsgrenseorFriinntektsdato = o.inntektsgrenseorFriinntektsdato
-
-        if (o.konvertertBeregningsgrunnlagOrdiner != null) {
-            konvertertBeregningsgrunnlagOrdiner = BeregningsgrunnlagKonvertert(o.konvertertBeregningsgrunnlagOrdiner!!)
-        }
-        if (o.konvertertBeregningsgrunnlagYrkesskade != null) {
-            konvertertBeregningsgrunnlagYrkesskade = BeregningsgrunnlagKonvertert(o.konvertertBeregningsgrunnlagYrkesskade!!)
-        }
-        if (o.konvertertBeregningsgrunnlagGJT != null) {
-            konvertertBeregningsgrunnlagGJT = BeregningsgrunnlagKonvertert(o.konvertertBeregningsgrunnlagGJT!!)
-        }
-        if (o.anvendtTrygdetidUP != null) {
-            anvendtTrygdetidUP = AnvendtTrygdetid(o.anvendtTrygdetidUP!!)
-        }
-        if (o.anvendtTrygdetidUPHjemme != null) {
-            anvendtTrygdetidUPHjemme = AnvendtTrygdetid(o.anvendtTrygdetidUPHjemme!!)
+    constructor(source: OvergangsinfoUPtilUT) : this() {
+        if (source.ektefelletilleggUT != null) {
+            ektefelletilleggUT = EktefelletilleggUT(source.ektefelletilleggUT!!)
         }
 
-        if (o.anvendtTrygdetidUP_egen != null) {
-            anvendtTrygdetidUP_egen = AnvendtTrygdetid(o.anvendtTrygdetidUP_egen!!)
+        inntektsgrenseorFriinntektsdato = source.inntektsgrenseorFriinntektsdato
+
+        if (source.konvertertBeregningsgrunnlagOrdiner != null) {
+            konvertertBeregningsgrunnlagOrdiner = BeregningsgrunnlagKonvertert(source.konvertertBeregningsgrunnlagOrdiner!!)
         }
 
-        if (o.minstepensjonType != null) {
-            minstepensjonType = MinstepensjonTypeCti(o.minstepensjonType)
+        if (source.konvertertBeregningsgrunnlagYrkesskade != null) {
+            konvertertBeregningsgrunnlagYrkesskade = BeregningsgrunnlagKonvertert(source.konvertertBeregningsgrunnlagYrkesskade!!)
         }
 
-        if (o.resultatKilde != null) {
-            resultatKilde = ResultatKildeCti(o.resultatKilde)
+        if (source.konvertertBeregningsgrunnlagGJT != null) {
+            konvertertBeregningsgrunnlagGJT = BeregningsgrunnlagKonvertert(source.konvertertBeregningsgrunnlagGJT!!)
+        }
+
+        if (source.anvendtTrygdetidUP != null) {
+            anvendtTrygdetidUP = AnvendtTrygdetid(source.anvendtTrygdetidUP!!)
+        }
+
+        if (source.anvendtTrygdetidUPHjemme != null) {
+            anvendtTrygdetidUPHjemme = AnvendtTrygdetid(source.anvendtTrygdetidUPHjemme!!)
+        }
+
+        if (source.anvendtTrygdetidUP_egen != null) {
+            anvendtTrygdetidUP_egen = AnvendtTrygdetid(source.anvendtTrygdetidUP_egen!!)
+        }
+
+        if (source.minstepensjontypeEnum != null) {
+            minstepensjontypeEnum = source.minstepensjontypeEnum
+        }
+
+        if (source.resultatKildeEnum != null) {
+            resultatKildeEnum = source.resultatKildeEnum
         }
     }
-
-    constructor(
-            konvertertBeregningsgrunnlagOrdiner: BeregningsgrunnlagKonvertert? = null,
-            konvertertBeregningsgrunnlagYrkesskade: BeregningsgrunnlagKonvertert? = null,
-            ektefelletilleggUT: EktefelletilleggUT? = null,
-            inntektsgrenseorFriinntektsdato: Int = 0,
-            konvertertBeregningsgrunnlagGJT: BeregningsgrunnlagKonvertert? = null,
-            anvendtTrygdetidUP: AnvendtTrygdetid? = null,
-            anvendtTrygdetidUPHjemme: AnvendtTrygdetid? = null,
-            anvendtTrygdetidUP_egen: AnvendtTrygdetid? = null,
-            minstepensjonType: MinstepensjonTypeCti? = null,
-            resultatKilde: ResultatKildeCti? = null,
-            sertilleggNetto: Int = 0
-    ) {
-        this.konvertertBeregningsgrunnlagOrdiner = konvertertBeregningsgrunnlagOrdiner
-        this.konvertertBeregningsgrunnlagYrkesskade = konvertertBeregningsgrunnlagYrkesskade
-        this.ektefelletilleggUT = ektefelletilleggUT
-        this.inntektsgrenseorFriinntektsdato = inntektsgrenseorFriinntektsdato
-        this.konvertertBeregningsgrunnlagGJT = konvertertBeregningsgrunnlagGJT
-        this.anvendtTrygdetidUP = anvendtTrygdetidUP
-        this.anvendtTrygdetidUPHjemme = anvendtTrygdetidUPHjemme
-        this.anvendtTrygdetidUP_egen = anvendtTrygdetidUP_egen
-        this.minstepensjonType = minstepensjonType
-        this.resultatKilde = resultatKilde
-        this.sertilleggNetto = sertilleggNetto
-    }
-
 }

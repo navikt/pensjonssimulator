@@ -35,17 +35,17 @@ class TpregisteretClient(
                 .retrieve()
                 .bodyToMono(BrukerTilknyttetTpLeverandoerResponse::class.java)
                 .block()
-            response?.forhold ?: logEnReturnFalse("Tom responsebody fra tpregisteret", orgNummer)
+            response?.forhold ?: logAndReturnFalse("Tom responsebody fra tpregisteret", orgNummer)
         } catch (e: WebClientRequestException) {
-            logEnReturnFalse("Failed calling $uri", orgNummer, e)
+            logAndReturnFalse("Failed calling $uri", orgNummer, e)
         } catch (e: WebClientResponseException) {
-            logEnReturnFalse(e.responseBodyAsString, orgNummer, e)
+            logAndReturnFalse(e.responseBodyAsString, orgNummer, e)
         } catch (e: Exception) {
-            logEnReturnFalse("Unexpected exception ${e.message}, while calling tpregisteret", orgNummer, e)
+            logAndReturnFalse("Unexpected exception ${e.message}, while calling tpregisteret", orgNummer, e)
         }
     }
 
-    private fun logEnReturnFalse(feilmelding: String, orgNummer: String, e: Exception? = null): Boolean {
+    private fun logAndReturnFalse(feilmelding: String, orgNummer: String, e: Exception? = null): Boolean {
         val errorMsg = "Teknisk feil ved verifisering av at brukeren er tilknyttet angitt tp-leverandør med orgnummer $orgNummer: $feilmelding"
         e?.let { log.error(e) { errorMsg } } ?: log.error { errorMsg }
         return false

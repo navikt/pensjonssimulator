@@ -45,7 +45,7 @@ object DateUtil {
     /**
      * Finner antall hele måneder i perioden fra og med (fom) en gitt dato til (men ikke med) en annen gitt dato.
      */
-    private fun maaneder(fom: LocalDate, til: LocalDate): Int {
+    fun maaneder(fom: LocalDate, til: LocalDate): Int {
         val maanedDiff: Int = MAANEDER_PER_AAR * (til.year - fom.year) + til.monthValue - fom.monthValue
         return if (fom.dayOfMonth > til.dayOfMonth) maanedDiff - 1 else maanedDiff // delvis måned teller ikke med
     }

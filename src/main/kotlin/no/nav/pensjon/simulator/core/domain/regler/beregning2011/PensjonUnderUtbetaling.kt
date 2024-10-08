@@ -3,14 +3,13 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
-import java.io.Serializable
 import java.util.function.Predicate
 
 /**
  * Objektet inneholder den faktiske pensjonen under utbetaling, samt en liste
  * over delytelsene som denne består av.
  */
-class PensjonUnderUtbetaling : Serializable {
+class PensjonUnderUtbetaling {
     /**
      * månedsbeløp netto, summen av alle delytelsene i ytelseskomponenter. Disse er
      * avrundet hver for seg til nårmeste krone. Dette medfører at
@@ -204,6 +203,12 @@ class PensjonUnderUtbetaling : Serializable {
     var gjenlevendetilleggAP: GjenlevendetilleggAP?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<GjenlevendetilleggAP>(yk)
+
+    /**
+     * Avoids the com.fasterxml.jackson.databind.exc.InvalidDefinitionException:
+     * Cannot construct instance of `no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling` (no Creators, like default constructor, exist): cannot deserialize from Object value (no delegate- or property-based Creator)
+     */
+    constructor()
 
     // SIMDOM-ADD excludeBrutto
     // since no.nav.domain.pensjon.kjerne.beregning2011.PensjonUnderUtbetaling excludes brutto

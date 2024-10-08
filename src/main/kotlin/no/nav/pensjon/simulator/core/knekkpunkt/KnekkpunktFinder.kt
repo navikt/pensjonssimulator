@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
+import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
@@ -343,6 +344,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
                 this.virkFom = fromLocalDate(knekkpunktDato)!!.noon()
                 this.brukerForsteVirk = fromLocalDate(soekerFoersteVirkning)!!.noon()
                 this.ytelsesTypeEnum = ytelseType
+                this.ytelsesType = KravlinjeTypeCti(ytelseType.name).apply { hovedKravlinje = ytelseType.erHovedkravlinje } //TODO remove
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
                 this.regelverkTypeEnum = kravhode.regelverkTypeEnum

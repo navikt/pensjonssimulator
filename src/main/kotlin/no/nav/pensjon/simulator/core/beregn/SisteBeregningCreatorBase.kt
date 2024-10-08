@@ -68,7 +68,7 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
         }
 
     private fun removeIrrelevanteYtelseskomponenter(pensjon: PensjonUnderUtbetaling) {
-        pensjon.removeYtelseskomponent { /*!it.erBrukt ||*/ it.opphort } // TODO assuming it.erBrukt = true
+        pensjon.removeYtelseskomponent { it.brukt.not() || it.opphort }
     }
 
     // Extracted

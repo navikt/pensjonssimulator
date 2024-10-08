@@ -124,6 +124,10 @@ abstract class Ytelseskomponent {
 
     constructor()
 
+    constructor(typeEnum: YtelseskomponentTypeEnum) {
+        ytelsekomponentTypeEnum = typeEnum
+    }
+
     constructor(source: Ytelseskomponent) {
         brutto = source.brutto
         netto = source.netto

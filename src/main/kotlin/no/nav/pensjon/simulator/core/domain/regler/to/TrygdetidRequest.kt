@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
+import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import java.util.*
 
 /**
@@ -29,7 +30,15 @@ class TrygdetidRequest : ServiceRequest() {
     /**
      * Type ytelse (AP,UP osv)
      */
+    var ytelsesType: KravlinjeTypeCti? = null
     var ytelsesTypeEnum: KravlinjeTypeEnum? = null
+        get() {
+            return field ?: ytelsesType?.let { KravlinjeTypeEnum.valueOf(it.kode) }
+        }
+        set(value) {
+            field = value
+            ytelsesType = value?.let { KravlinjeTypeCti(it.name) }
+        }
 
     /**
      * Persongrunnlag for personen.

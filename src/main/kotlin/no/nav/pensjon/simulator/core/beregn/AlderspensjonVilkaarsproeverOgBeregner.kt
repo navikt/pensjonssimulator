@@ -437,7 +437,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         sakId: Long?,
         ignoreAvslag: Boolean
     ): AbstraktBeregningsResultat {
-        val regelverkType = spec.kravhode?.regelverkTypeEnum ?: "UNDEFINED"
+        val regelverkType: RegelverkTypeEnum = spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
 
         // SIMDOM-ADD for 'simuler folketrygdbeholdning' (da avslag ignoreres):
         if (ignoreAvslag && spec.vilkarsvedtakListe.any { it.anbefaltResultatEnum != innvilgetResultat }) {
@@ -446,13 +446,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         // end SIMDOM-ADD
 
         return when (regelverkType) {
-            RegelverkTypeEnum.N_REG_G_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_OPPTJ ->
                 context.beregnAlderspensjon2011FoersteUttak(beregning2011Request(spec), sakId)
 
-            RegelverkTypeEnum.N_REG_G_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ ->
                 context.beregnAlderspensjon2016FoersteUttak(beregning2016Request(spec), sakId)
 
-            RegelverkTypeEnum.N_REG_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_N_OPPTJ ->
                 // NB: No special handling for eksterne ordninger (tjenestepensjonsleverandører)
                 context.beregnAlderspensjon2025FoersteUttak(beregning2025Request(spec), sakId)
 
@@ -465,16 +465,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         spec: AlderspensjonRevurderingCommonSpec,
         sakId: Long?
     ): AbstraktBeregningsResultat {
-        val regelverkType = spec.kravhode?.regelverkTypeEnum ?: "UNDEFINED"
+        val regelverkType: RegelverkTypeEnum = spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
 
         return when (regelverkType) {
-            RegelverkTypeEnum.N_REG_G_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_OPPTJ ->
                 context.revurderAlderspensjon2011(revurdering2011Request(spec), sakId)
 
-            RegelverkTypeEnum.N_REG_G_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ ->
                 context.revurderAlderspensjon2016(revurdering2016Request(spec), sakId)
 
-            RegelverkTypeEnum.N_REG_N_OPPTJ.name ->
+            RegelverkTypeEnum.N_REG_N_OPPTJ ->
                 // NB: No special handling for eksterne ordninger (tjenestepensjonsleverandører)
                 context.revurderAlderspensjon2025(revurdering2025Request(spec), sakId)
 

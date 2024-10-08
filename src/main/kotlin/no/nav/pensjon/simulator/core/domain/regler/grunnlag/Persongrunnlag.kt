@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
@@ -38,7 +39,15 @@ class Persongrunnlag() {
     /**
      * Personens statsborgerskap.
      */
+    var statsborgerskap: LandCti? = null
     var statsborgerskapEnum: LandkodeEnum? = null
+        get() {
+            return field ?: statsborgerskap?.let { LandkodeEnum.valueOf(it.kode) }
+        }
+        set(value) {
+            field = value
+            statsborgerskap = value?.let { LandCti(it.name) }
+        }
 
     /**
      * Angir om personen er flyktning.
@@ -363,21 +372,11 @@ class Persongrunnlag() {
 
     // SIMDOM-ADD excludeForsteVirkningsdatoGrunnlag
     constructor(source: Persongrunnlag, excludeForsteVirkningsdatoGrunnlag: Boolean = false) : this() {
-        if (source.penPerson != null) {
-            this.penPerson = PenPerson(source.penPerson!!)
-        }
-
-        if (source.fodselsdato != null) {
-            this.fodselsdato = source.fodselsdato!!.clone() as Date
-        }
-
-        if (source.dodsdato != null) {
-            this.dodsdato = source.dodsdato!!.clone() as Date
-        }
-
-        if (source.statsborgerskapEnum != null) {
-            this.statsborgerskapEnum = source.statsborgerskapEnum
-        }
+        source.penPerson?.let { this.penPerson = PenPerson(it) }
+        source.fodselsdato?.let { this.fodselsdato = it.clone() as Date }
+        source.dodsdato?.let { this.dodsdato = it.clone() as Date }
+        source.statsborgerskap?.let { this.statsborgerskap = it }
+        source.statsborgerskapEnum?.let { this.statsborgerskapEnum = it }
 
         if (source.flyktning != null) {
             this.flyktning = source.flyktning

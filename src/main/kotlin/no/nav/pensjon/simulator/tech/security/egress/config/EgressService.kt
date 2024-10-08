@@ -21,5 +21,10 @@ enum class EgressService(
         description = "Pensjonsfaglig kjerne",
         shortName = "PEN",
         purpose = "Finne tidligst mulig uttak"
-    )
+    ),
+    TP_REGISTERET(
+        description = "Tjenestepensjonsregisteret",
+        shortName = "TP",
+        purpose = "Hente tjenestepensjonsforhold"
+    ),
 }

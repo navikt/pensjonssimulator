@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpLivsvarig
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpOffentligLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GarantitilleggsbeholdningGrunnlag
@@ -12,7 +12,7 @@ import java.time.LocalDate
 
 // no.nav.service.pensjon.simulering.abstractsimulerapfra2011.FPEN028VilkarsprovKravRequest
 data class VilkaarsproevingSpec(
-    val afpOffentligLivsvarig: AfpOffentligLivsvarig?,
+    val afpOffentligLivsvarig: AfpOffentligLivsvarigGrunnlag?,
     val afpLivsvarig: AfpLivsvarig?,
     val virkFom: LocalDate,
     val kravhode: Kravhode,

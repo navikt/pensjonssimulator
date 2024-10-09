@@ -8,22 +8,15 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantitilleggsbehol
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import java.util.*
 
-class VilkarsprovAlderpensjon2016Request(
-    var kravhode: Kravhode? = null,
-    var virkFom: Date? = null,
-    var forholdstallUtvalg: ForholdstallUtvalg? = null,
-    var delingstallUtvalg: DelingstallUtvalg? = null,
-    var afpLivsvarig: AfpLivsvarig? = null,
-    var afpVirkFom: Date? = null,
-    var sisteBeregning: SisteAldersberegning2016? = null,
-    var utforVilkarsberegning: Boolean = false,
-    var garantitilleggsbeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag? = null
-) : ServiceRequest() {
-    override fun virkFom(): Date? {
-        return this.virkFom
-    }
+class VilkarsprovAlderpensjon2016Request : ServiceRequest() {
 
-    override fun persons(): String {
-        return "" //fetchPersongrunnlagInUseFromKravhode(kravhode)
-    }
+    var kravhode: Kravhode? = null
+    var virkFom: Date? = null
+    var forholdstallUtvalg: ForholdstallUtvalg? = null
+    var delingstallUtvalg: DelingstallUtvalg? = null
+    var afpLivsvarig: AfpLivsvarig? = null
+    var afpVirkFom: Date? = null
+    var sisteBeregning: SisteAldersberegning2016? = null
+    var utforVilkarsberegning = false
+    var garantitilleggsbeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag? = null
 }

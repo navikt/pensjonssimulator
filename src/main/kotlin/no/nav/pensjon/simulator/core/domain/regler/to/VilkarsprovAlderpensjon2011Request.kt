@@ -6,21 +6,14 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import java.util.*
 
-class VilkarsprovAlderpensjon2011Request(
-    var kravhode: Kravhode? = null,
-    var fom: Date? = null,
-    var tom: Date? = null,
-    var afpVirkFom: Date? = null,
-    var forholdstallUtvalg: ForholdstallUtvalg? = null,
-    var afpLivsvarig: AfpLivsvarig? = null,
-    var sisteBeregning: SisteAldersberegning2011? = null,
-    var utforVilkarsberegning: Boolean = false
-) : ServiceRequest() {
-    override fun virkFom(): Date? {
-        return this.fom
-    }
+class VilkarsprovAlderpensjon2011Request : ServiceRequest() {
 
-    override fun persons(): String {
-        return "" //fetchPersongrunnlagInUseFromKravhode(kravhode)
-    }
+    var kravhode: Kravhode? = null
+    var fom: Date? = null
+    var tom: Date? = null
+    var afpVirkFom: Date? = null
+    var forholdstallUtvalg: ForholdstallUtvalg? = null
+    var afpLivsvarig: AfpLivsvarig? = null
+    var sisteBeregning: SisteAldersberegning2011? = null
+    var utforVilkarsberegning = false
 }

@@ -19,21 +19,21 @@ object InngangOgEksportGrunnlagFactory {
         InngangOgEksportGrunnlag().apply {
             eksportforbud = null
             fortsattMedlemFT = true
-            val regelverkType = kravhode.regelverkTypeCti!!
+            val regelverkType = kravhode.regelverkTypeEnum
 
-            if (regelverkType.isAlderspensjon2011) {
+            if (regelverkType?.isAlderspensjon2011 == true) {
                 val antallArTrygdetidKapittel19 = trygdetidAntallAar(persongrunnlag.trygdetidPerioder)
                 treArTrygdetidNorge = antallArTrygdetidKapittel19 >= MINIMUM_TRYGDETID_ANTALL_AR
             }
 
-            if (regelverkType.isAlderspensjon2016) {
+            if (regelverkType?.isAlderspensjon2016 == true) {
                 val antallArTrygdetidKapittel19 = trygdetidAntallAar(persongrunnlag.trygdetidPerioder)
                 val antallArTrygdetidKapittel20 = trygdetidAntallAar(persongrunnlag.trygdetidPerioderKapittel20)
                 treArTrygdetidNorge = antallArTrygdetidKapittel19 >= MINIMUM_TRYGDETID_ANTALL_AR
                 treArTrygdetidNorgeKap20 = antallArTrygdetidKapittel20 >= MINIMUM_TRYGDETID_ANTALL_AR
             }
 
-            if (regelverkType.isAlderspensjon2025) {
+            if (regelverkType?.isAlderspensjon2025 == true) {
                 val antallArTrygdetidKapittel20 = trygdetidAntallAar(persongrunnlag.trygdetidPerioderKapittel20)
                 treArTrygdetidNorgeKap20 = antallArTrygdetidKapittel20 >= MINIMUM_TRYGDETID_ANTALL_AR
             }

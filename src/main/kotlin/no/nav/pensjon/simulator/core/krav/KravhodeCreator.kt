@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.krav
 
-import no.nav.pensjon.simulator.core.*
+import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.SimuleringSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.InntektType
@@ -9,18 +10,16 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.*
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagsrolleCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.SivilstandTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.exception.BrukerFoedtFoer1943Exception
-import no.nav.pensjon.simulator.core.krav.KravUtil.kravlinjeType
+import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
+import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
@@ -35,9 +34,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.monthOfYearRange1To12
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.result.OpptjeningType
-import no.nav.pensjon.simulator.core.domain.Land
-import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
-import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
@@ -81,7 +77,7 @@ class KravhodeCreator(
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
-            regelverkTypeCti = finnRegelverkType(simulatorInput)
+            regelverkTypeEnum = finnRegelverkType(simulatorInput)
         }
 
         addSokerGrunnlagToKrav(simulatorInput, kravhode, person, forrigeAlderBeregningsresultat, grunnbelop)
@@ -94,7 +90,7 @@ class KravhodeCreator(
         }
 
         // NB: Next line requires avdød persongrunnlag to be fetched above
-        val avdodGrunnlag = kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagRolle.AVDOD, checkBruk = false)
+        val avdodGrunnlag = kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
         kravhode.boddArbeidUtlandAvdod =
             avdodGrunnlag?.let { harUtenlandsopphold(simulatorInput.avdoed?.antallAarUtenlands, it.trygdetidPerioder) }
@@ -154,11 +150,11 @@ class KravhodeCreator(
 
     private fun addKravlinjerToKrav(kravhode: Kravhode) {
         kravhode.kravlinjeListe =
-            mutableListOf(norskKravlinje(KravlinjeTypePlus.AP, kravhode.hentPersongrunnlagForSoker().penPerson!!))
-        val avdodGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagRolle.AVDOD, false)
+            mutableListOf(norskKravlinje(KravlinjeTypeEnum.AP, kravhode.hentPersongrunnlagForSoker().penPerson!!))
+        val avdodGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
 
         if (avdodGrunnlag != null) {
-            kravhode.kravlinjeListe.add(norskKravlinje(KravlinjeTypePlus.GJR, avdodGrunnlag.penPerson!!))
+            kravhode.kravlinjeListe.add(norskKravlinje(KravlinjeTypeEnum.GJR, avdodGrunnlag.penPerson!!))
         }
     }
 
@@ -306,7 +302,7 @@ class KravhodeCreator(
     }
     */
 
-    private fun finnRegelverkType(spec: SimuleringSpec): RegelverkTypeCti {
+    private fun finnRegelverkType(spec: SimuleringSpec): RegelverkTypeEnum {
         /*ANON? val pid = spec.fnr
 
      val foedselAar: Int = if (pid != null) {
@@ -321,14 +317,14 @@ class KravhodeCreator(
         }
 
         if (foedselAar <= 1953) {
-            return RegelverkTypeCti(RegelverkType.N_REG_G_OPPTJ.name)
+            return RegelverkTypeEnum.N_REG_G_OPPTJ
         }
 
         if (foedselAar <= 1962) {
-            return RegelverkTypeCti(RegelverkType.N_REG_G_N_OPPTJ.name)
+            return RegelverkTypeEnum.N_REG_G_N_OPPTJ
         }
 
-        return RegelverkTypeCti(RegelverkType.N_REG_N_OPPTJ.name)
+        return RegelverkTypeEnum.N_REG_N_OPPTJ
     }
 
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBruker
@@ -365,9 +361,9 @@ class KravhodeCreator(
             penPerson = PenPerson().apply { penPersonId = FORENKLET_SIMULERING_PERSON_ID }
             fodselsdato = legacyFoersteDag(spec.foedselAar)
             antallArUtland = spec.utlandAntallAar
-            statsborgerskap = norge
+            statsborgerskapEnum = norge
             flyktning = false
-            bosattLand = norge
+            bosattLandEnum = norge
             personDetaljListe = mutableListOf(forenkletPersonDetalj(spec))
             inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
             sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
@@ -376,19 +372,19 @@ class KravhodeCreator(
     // SimulerFleksibelAPCommand.createPersonDetaljerForenkletSimulering
     private fun forenkletPersonDetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
-            grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
-            grunnlagsrolle = GrunnlagsrolleCti(GrunnlagRolle.SOKER.name)
+            grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+            grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
             rolleFomDato = legacyFoersteDag(spec.foedselAar)
-            sivilstandType = SivilstandTypeCti(forenkletSivilstand(spec.sivilstatus).name)
+            sivilstandTypeEnum = forenkletSivilstand(spec.sivilstatus)
             bruk = true
         }.also { it.finishInit() }
 
     // SimulerFleksibelAPCommand.getSivilstandForenkletSimulering
-    private fun forenkletSivilstand(sivilstatus: SivilstatusType) =
+    private fun forenkletSivilstand(sivilstatus: SivilstatusType): SivilstandEnum =
         when (sivilstatus) {
-            SivilstatusType.GIFT -> SivilstandType.GIFT
-            SivilstatusType.REPA -> SivilstandType.REPA
-            else -> SivilstandType.UGIF
+            SivilstatusType.GIFT -> SivilstandEnum.GIFT
+            SivilstatusType.REPA -> SivilstandEnum.REPA
+            else -> SivilstandEnum.UGIF
         }
 
     // OpprettKravHodeHelper.oppdaterGrunnlagMedBeholdninger
@@ -667,7 +663,7 @@ class KravhodeCreator(
         private const val MAX_UTTAKSGRAD = 100
         private const val GRUNNBELOP_MULTIPLIER = 3
         private const val FORENKLET_SIMULERING_PERSON_ID = -1L
-        private val norge = LandCti(Land.NOR.name)
+        private val norge = LandkodeEnum.NOR
 
         // OpprettKravHodeHelper.finnUttaksgradListe
         // -> SimulerFleksibelAPCommand.finnUttaksgradListe
@@ -907,8 +903,8 @@ class KravhodeCreator(
                 this.tom = fromLocalDate(tom)
             }
 
-        private fun norskKravlinje(kravlinjeType: KravlinjeTypePlus, person: PenPerson) =
-            Kravlinje(kravlinjeType = kravlinjeType(kravlinjeType), relatertPerson = person).apply {
+        private fun norskKravlinje(kravlinjeType: KravlinjeTypeEnum, person: PenPerson) =
+            Kravlinje(kravlinjeTypeEnum = kravlinjeType, relatertPerson = person).apply {
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 land = Land.NOR
             }

@@ -138,11 +138,13 @@ class SimulatorContext(
 
     private fun beregnPoengtallBatch(inputList: List<PersonOpptjeningsgrunnlag>): List<PersonOpptjeningsgrunnlag> {
         val response: BeregnPoengtallBatchResponse = regelService.makeRegelCall(
-            BeregnPoengtallBatchRequest(inputList.toMutableList()),
-            BeregnPoengtallBatchResponse::class.java,
-            "beregnPoengtallBatch",
-            null,
-            null
+            request = BeregnPoengtallBatchRequest().apply {
+                personOpptjeningsgrunnlagListe = inputList.toMutableList()
+            },
+            responseClass = BeregnPoengtallBatchResponse::class.java,
+            serviceName = "beregnPoengtallBatch",
+            map = null,
+            sakId = null
         )
 
         val outputList = response.personOpptjeningsgrunnlagListe
@@ -318,7 +320,12 @@ class SimulatorContext(
         beholdning: Pensjonsbeholdning?
     ): MutableList<Pensjonsbeholdning> {
         persongrunnlag.personDetaljListe.forEach(::setRollePeriode)
-        val request = BeregnPensjonsBeholdningRequest(fromLocalDate(beholdningTom)?.noon(), persongrunnlag, beholdning)
+
+        val request = BeregnPensjonsBeholdningRequest().apply {
+            this.beholdningTom = fromLocalDate(beholdningTom)?.noon()
+            this.persongrunnlag = persongrunnlag
+            this.beholdning = beholdning
+        }
 
         val response =
             regelService.makeRegelCall<BeregnPensjonsBeholdningResponse, BeregnPensjonsBeholdningRequest>(
@@ -340,7 +347,10 @@ class SimulatorContext(
         val date: Date = fromLocalDate(localDate)!!.noon()
 
         return regelService.makeRegelCall(
-            request = HentGrunnbelopListeRequest(date, date),
+            request = HentGrunnbelopListeRequest().apply {
+                fom = date
+                tom = date
+            },
             responseClass = SatsResponse::class.java,
             serviceName = "hentGrunnbelopListe",
             map = null,

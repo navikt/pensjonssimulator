@@ -1,84 +1,64 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import java.util.function.Predicate
-import kotlin.reflect.KClass
 
 /**
  * Objektet inneholder den faktiske pensjonen under utbetaling, samt en liste
  * over delytelsene som denne består av.
  */
-class PensjonUnderUtbetaling : Serializable {
+class PensjonUnderUtbetaling {
     /**
-     * Månedsbeløp netto, summen av alle delytelsene i ytelseskomponenter. Disse er
-     * avrundet hver for seg til nærmeste krone. Dette medfører at
+     * månedsbeløp netto, summen av alle delytelsene i ytelseskomponenter. Disse er
+     * avrundet hver for seg til nårmeste krone. Dette medfører at
      * avrund(totalbelopNettoAr/12) vil kunne være forskjellig fra totalbelopNetto.
      */
-    var totalbelopNetto: Int = 0
+    var totalbelopNetto = 0
 
     /**
-     * Årlig netto beløp under utbetaling
+     * årlig netto beløp under utbetaling
      */
-    var totalbelopNettoAr: Double = 0.0
+    var totalbelopNettoAr = 0.0
 
     /**
      * Angir sum brutto per måned.
      */
-    var totalbelopBrutto: Int = 0
+    var totalbelopBrutto = 0
 
     /**
      * Angir sum brutto per år.
      */
-    var totalbelopBruttoAr: Double = 0.0
+    var totalbelopBruttoAr = 0.0
 
     /**
      * Indikerer hvilken beregningsformel som ble brukt.
      */
-    var formelKode: FormelKodeCti? = null
+    var formelKodeEnum: FormelKodeEnum = FormelKodeEnum.BPUx
 
-    var pubReguleringFratrekk: Double = 0.0
-
-    @JsonProperty("ytelseskomponenter")
-    private val internalYtelseskomponenter: MutableList<Ytelseskomponent> = mutableListOf()
-
-    var ytelseskomponenter: List<Ytelseskomponent>
-        get() = internalYtelseskomponenter.toList()
-        set(value) {
-            internalYtelseskomponenter.clear()
-            internalYtelseskomponenter.addAll(value)
-        }
-
-    fun addYtelseskomponent(yk: Ytelseskomponent) {
-        removeYtelseskomponent(yk::class)
-        internalYtelseskomponenter.add(yk)
-    }
-
-    fun addYtelseskomponentList(ykList: List<Ytelseskomponent>) {
-        ykList.forEach { addYtelseskomponent(it) }
-    }
-
-    fun removeYtelseskomponent(yk: KClass<out Ytelseskomponent>) {
-    }
+    var pubReguleringFratrekk = 0.0
+    var ytelseskomponenter: MutableList<Ytelseskomponent> = mutableListOf()
 
     // SIMDOM-ADD
     fun removeYtelseskomponent(filter: Predicate<in Ytelseskomponent>) {
-        internalYtelseskomponenter.removeIf(filter) // { filter }
+        ytelseskomponenter.removeIf(filter)
+    }
+
+    fun addYtelseskomponent(yk: Ytelseskomponent) {
+        //removeYtelseskomponent(yk::class)
+        ytelseskomponenter.add(yk)
     }
 
     fun clearYtelseskomponentList() {
-        internalYtelseskomponenter.clear()
+        ytelseskomponenter.clear()
     }
 
     private inline fun <reified T> internalAddOrRemoveIfNull(yk: Ytelseskomponent?) {
-        internalYtelseskomponenter.removeIf { it is T }
+        ytelseskomponenter.removeIf { it is T }
         yk?.let { addYtelseskomponent(it) }
     }
 
-    // SIMDOM-MOD
     // Copied from https://github.com/JetBrains/kotlin/blob/master/core/util.runtime/src/org/jetbrains/kotlin/utils/addToStdlib.kt#L19
     inline fun <reified T : Any> Iterable<*>.firstIsInstanceOrNull(): T? {
         for (element in this) if (element is T) return element
@@ -224,33 +204,31 @@ class PensjonUnderUtbetaling : Serializable {
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<GjenlevendetilleggAP>(yk)
 
-    constructor() : super() {
-        formelKode = FormelKodeCti("BPUx")
-    }
+    /**
+     * Avoids the com.fasterxml.jackson.databind.exc.InvalidDefinitionException:
+     * Cannot construct instance of `no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling` (no Creators, like default constructor, exist): cannot deserialize from Object value (no delegate- or property-based Creator)
+     */
+    constructor()
 
     // SIMDOM-ADD excludeBrutto
     // since no.nav.domain.pensjon.kjerne.beregning2011.PensjonUnderUtbetaling excludes brutto
-    constructor(pub: PensjonUnderUtbetaling, excludeBrutto: Boolean = false) : super() {
-        totalbelopNetto = pub.totalbelopNetto
-        totalbelopNettoAr = pub.totalbelopNettoAr
+    constructor(source: PensjonUnderUtbetaling, excludeBrutto: Boolean = false) : super() {
+        totalbelopNetto = source.totalbelopNetto
+        totalbelopNettoAr = source.totalbelopNettoAr
 
         if (!excludeBrutto) {
-            totalbelopBrutto = pub.totalbelopBrutto
-            totalbelopBruttoAr = pub.totalbelopBruttoAr
+            totalbelopBrutto = source.totalbelopBrutto
+            totalbelopBruttoAr = source.totalbelopBruttoAr
         }
 
-        if (pub.formelKode != null) {
-            formelKode = FormelKodeCti(pub.formelKode!!)
-        }
-        pubReguleringFratrekk = pub.pubReguleringFratrekk
+        formelKodeEnum = source.formelKodeEnum
+        pubReguleringFratrekk = source.pubReguleringFratrekk
 
-        for (yk in pub.internalYtelseskomponenter) {
-            val clazz = yk.javaClass
+        for (komponent in source.ytelseskomponenter) {
+            val clazz = komponent.javaClass
             val constructor = clazz.getConstructor(clazz)
-            addYtelseskomponent(constructor.newInstance(yk))
+            addYtelseskomponent(constructor.newInstance(komponent))
         }
     }
-
-    override fun toString() =
-        "PensjonUnderUtbetaling(formelKode=$formelKode, totalbelopNetto=$totalbelopNetto, totalbelopNettoAr=$totalbelopNettoAr)"
+    // end SIMDOM-MOD
 }

@@ -1,21 +1,13 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.SatsTypeCti
-import java.util.Date
+import no.nav.pensjon.simulator.core.domain.regler.enum.SatsTypeEnum
+import java.util.*
 
-class HentGyldigSatsRequest(
-    var fomDato: Date? = null,
-    var tomDato: Date? = null,
-    var satsType: SatsTypeCti? = null,
-    var beregnetSomGift: Boolean = false,
-    var forsorgerEPSOver60: Boolean = false,
-    var ungUfor: Boolean? = null
-) : ServiceRequest() {
-    override fun virkFom(): Date? {
-        return fomDato
-    }
-
-    override fun persons(): String {
-        return ""
-    }
+class HentGyldigSatsRequest : ServiceRequest() {
+    var fomDato: Date? = null
+    var tomDato: Date? = null
+    var satsTypeEnum: SatsTypeEnum? = null
+    var beregnetSomGift = false
+    var forsorgerEPSOver60 = false
+    var ungUfor = false
 }

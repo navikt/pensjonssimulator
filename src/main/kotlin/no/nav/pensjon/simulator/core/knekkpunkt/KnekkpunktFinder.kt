@@ -1,16 +1,15 @@
 package no.nav.pensjon.simulator.core.knekkpunkt
 
 import no.nav.pensjon.simulator.core.SimuleringSpec
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.krav.KravlinjeTypePlus
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.krav.KravUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
@@ -39,7 +38,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         val avdoedFoersteVirkning = knekkpunktSpec.avdoedVirkningFom
         val foersteUttakDato = simuleringSpec.foersteUttakDato
         val soekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
-        val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagRolle.AVDOD, false)
+        val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
         var knekkpunktMap: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> = TreeMap()
 
         // STEP 1 - Calculate forsteBerDato
@@ -124,7 +123,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
     ): TrygdetidCombo {
         if (aarsak == KnekkpunktAarsak.TTBRUKER) { // from FinnKnekkpunkterHelper.addKnekkpunkterBasedOnTrygdetid
             val persongrunnlag =
-                kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagRolle.SOKER, checkBruk = false)!!
+                kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
 
             return trygdetidFastsetter.fastsettTrygdetidForPeriode(
                 spec = trygdetidFastsetterInput(
@@ -132,17 +131,17 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
                     persongrunnlag = persongrunnlag,
                     knekkpunktDato = foersteBeregningDato,
                     soekerFoersteVirkning = foersteVirkning,
-                    ytelseType = KravlinjeTypePlus.AP,
+                    ytelseType = KravlinjeTypeEnum.AP,
                     boddEllerArbeidetUtenlands = kravhode.boddEllerArbeidetIUtlandet
                 ),
-                rolle = GrunnlagRolle.SOKER,
+                rolle = GrunnlagsrolleEnum.SOKER,
                 kravIsUforetrygd = persongrunnlag.gjelderUforetrygd,
                 sakId = sakId
             )
         }
 
         val persongrunnlag =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagRolle.AVDOD, checkBruk = false)!!
+            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)!!
 
         return trygdetidFastsetter.fastsettTrygdetidForPeriode(
             spec = trygdetidFastsetterInput(
@@ -150,10 +149,10 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
                 persongrunnlag = persongrunnlag,
                 knekkpunktDato = foersteBeregningDato,
                 soekerFoersteVirkning = foersteVirkning,
-                ytelseType = KravlinjeTypePlus.GJR,
+                ytelseType = KravlinjeTypeEnum.GJR,
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             ),
-            rolle = GrunnlagRolle.AVDOD,
+            rolle = GrunnlagsrolleEnum.AVDOD,
             kravIsUforetrygd = persongrunnlag.gjelderUforetrygd,
             sakId = sakId
         )
@@ -169,11 +168,11 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         sakId: Long?
     ) {
         val gjelderSoeker = aarsak == KnekkpunktAarsak.TTBRUKER
-        val grunnlagRolle = if (gjelderSoeker) GrunnlagRolle.SOKER else GrunnlagRolle.AVDOD
+        val grunnlagRolle = if (gjelderSoeker) GrunnlagsrolleEnum.SOKER else GrunnlagsrolleEnum.AVDOD
         val persongrunnlag = kravhode.hentPersongrunnlagForRolle(grunnlagRolle, false)!!
         val boddEllerArbeidetUtenlands =
             if (gjelderSoeker) kravhode.boddEllerArbeidetIUtlandet else kravhode.boddArbeidUtlandAvdod
-        val kravlinjeType = if (gjelderSoeker) KravlinjeTypePlus.AP else KravlinjeTypePlus.GJR
+        val kravlinjeType = if (gjelderSoeker) KravlinjeTypeEnum.AP else KravlinjeTypeEnum.GJR
 
         val sisteRelevanteAar =
             if (gjelderSoeker)
@@ -338,16 +337,17 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             persongrunnlag: Persongrunnlag,
             knekkpunktDato: LocalDate,
             soekerFoersteVirkning: LocalDate,
-            ytelseType: KravlinjeTypePlus,
+            ytelseType: KravlinjeTypeEnum,
             boddEllerArbeidetUtenlands: Boolean
         ) =
             TrygdetidRequest().apply {
                 this.virkFom = fromLocalDate(knekkpunktDato)!!.noon()
                 this.brukerForsteVirk = fromLocalDate(soekerFoersteVirkning)!!.noon()
-                this.ytelsesType = KravUtil.kravlinjeType(ytelseType)
+                this.ytelsesTypeEnum = ytelseType
+                this.ytelsesType = KravlinjeTypeCti(ytelseType.name).apply { hovedKravlinje = ytelseType.erHovedkravlinje } //TODO remove
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
-                this.regelverkType = RegelverkTypeCti(kravhode.regelverkTypeCti!!.kode)
+                this.regelverkTypeEnum = kravhode.regelverkTypeEnum
                 this.uttaksgradListe = kravhode.uttaksgradListe
                 // Not set: virkTom, beregningsvilkarPeriodeListe
                 // NB: grunnlagsrolle is only used for caching

@@ -5,19 +5,21 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.util.*
 
-class VilkarsprovRequest(
-    var kravhode: Kravhode? = null,
-    var sisteBeregning: SisteBeregning? = null,
-    var fom: Date? = null,
-    var tom: Date? = null,
+class VilkarsprovRequest : ServiceRequest {
 
-    /**
-     * @uml.annotations for `vilkarsvedtakliste`
-     * collection_type="no.nav.domain.pensjon.kjerne.vedtak.Vilkarsvedtak"
-     */
-    var vilkarsvedtakliste: MutableList<VilkarsVedtak> = mutableListOf()
-) : ServiceRequest() {
-    override fun virkFom(): Date? = this.fom
+    var kravhode: Kravhode? = null
+    var sisteBeregning: SisteBeregning? = null
+    var fom: Date? = null
+    var tom: Date? = null
+    var vilkarsvedtakliste: List<VilkarsVedtak> = mutableListOf()
 
-    override fun persons(): String = ""
+    constructor()
+
+    constructor(kravhode: Kravhode?, sisteBeregning: SisteBeregning?, fom: Date?, tom: Date?) {
+        this.kravhode = kravhode
+        this.sisteBeregning = sisteBeregning
+        this.fom = fom
+        this.tom = tom
+        this.vilkarsvedtakliste = mutableListOf()
+    }
 }

@@ -1,5 +1,5 @@
 package no.nav.pensjon.simulator.core.krav
-
+/*
 // Corresponds to kjerne.kodetabeller.KravlinjeTypeCti with 'hovedKravLinje' value defined.
 enum class KravlinjeTypePlus(
     val description: String,
@@ -36,3 +36,4 @@ enum class KravlinjeTypePlus(
     UT("Uføretrygd", true),
     UT_GJT("Gjenlevendetillegg til uføretrygd", false);
 }
+*/

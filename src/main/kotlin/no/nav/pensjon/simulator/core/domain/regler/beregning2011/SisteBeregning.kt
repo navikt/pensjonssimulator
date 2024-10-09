@@ -2,10 +2,9 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.ResultatTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.SivilstandTypeCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import java.util.*
 
 /**
@@ -17,41 +16,11 @@ import java.util.*
     JsonSubTypes.Type(value = SisteUforepensjonBeregning::class)
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-abstract class SisteBeregning : Serializable {
+abstract class SisteBeregning protected constructor() {
+
     var virkDato: Date? = null
-    var tt_anv: Int = 0
-    var resultatType: ResultatTypeCti? = null
-    var sivilstandType: SivilstandTypeCti? = null
-    var benyttetSivilstand: BorMedTypeCti? = null
-
-    protected constructor() : super()
-
-    protected constructor(sb: SisteBeregning) : super() {
-        virkDato = sb.virkDato
-        tt_anv = sb.tt_anv
-        if (sb.resultatType != null) {
-            resultatType = ResultatTypeCti(sb.resultatType)
-        }
-        if (sb.sivilstandType != null) {
-            sivilstandType = SivilstandTypeCti(sb.sivilstandType)
-        }
-        if (sb.benyttetSivilstand != null) {
-            benyttetSivilstand = BorMedTypeCti(sb.benyttetSivilstand)
-        }
-    }
-
-    constructor(
-            virkDato: Date? = null,
-            tt_anv: Int = 0,
-            resultatType: ResultatTypeCti? = null,
-            sivilstandType: SivilstandTypeCti? = null,
-            benyttetSivilstand: BorMedTypeCti? = null
-    ) {
-        this.virkDato = virkDato
-        this.tt_anv = tt_anv
-        this.resultatType = resultatType
-        this.sivilstandType = sivilstandType
-        this.benyttetSivilstand = benyttetSivilstand
-    }
-
+    var tt_anv = 0
+    var resultatTypeEnum: ResultattypeEnum? = null
+    var sivilstandTypeEnum: SivilstandEnum? = null
+    var benyttetSivilstandEnum: BorMedTypeEnum? = null
 }

@@ -1,16 +1,15 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.domain.RegelverkType
-import no.nav.pensjon.simulator.core.domain.VedtakResultat
+import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarsvedtakResultatCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.util.toLocalDate
@@ -32,9 +31,9 @@ class SisteBeregningCreator(
     fun opprettSisteBeregning(
         kravhode: Kravhode,
         vedtakListe: List<VilkarsVedtak>,
-        beregningResult: AbstraktBeregningsResultat?
+        beregningResultat: AbstraktBeregningsResultat?
     ): SisteBeregning? {
-        validate(beregning = null, kravhode = kravhode, virkningFom = null, beregningResult = beregningResult)
+        validate(beregning = null, kravhode = kravhode, virkningFom = null, beregningResult = beregningResultat)
 
         val spec: SisteBeregningSpec =
             createOpprettSisteBeregningParameter(
@@ -42,20 +41,20 @@ class SisteBeregningCreator(
                 kravhode = kravhode,
                 vedtakListe = vedtakListe,
                 virkningFom = null,
-                beregningResult = beregningResult
+                beregningResult = beregningResultat
             )
 
         if (spec.isRegelverk1967 && spec.regelverk1967VirkToEarly) {
             return null
         }
 
-        spec.regelverkKodePaNyttKrav = spec.kravhode?.regelverkTypeCti?.let { RegelverkType.valueOf(it.kode) }
+        spec.regelverkKodePaNyttKrav = spec.kravhode?.regelverkTypeEnum
 
         spec.forrigeKravhode =
-            findForrigeKravhode(beregningResult, kravhode.kravId)
+            findForrigeKravhode(beregningResultat, kravhode.kravId)
                 ?: periodiserGrunnlag(spec.kravhode!!, spec.fomDato, spec.tomDato) // periodiserGrunnlagFraNyttKrav
 
-        return sisteBeregningCreator(spec).createBeregning(spec, beregningResult)
+        return sisteBeregningCreator(spec).createBeregning(spec, beregningResultat)
     }
 
     // OpprettSisteBeregningCommand.findForrigeKravhode
@@ -90,9 +89,9 @@ class SisteBeregningCreator(
         }
 
         return when (regelverkType) {
-            RegelverkType.N_REG_G_N_OPPTJ -> alderspensjon2016SisteBeregningCreator
-            RegelverkType.N_REG_N_OPPTJ -> alderspensjon2025SisteBeregningCreator
-            RegelverkType.N_REG_G_OPPTJ -> alderspensjon2011SisteBeregningCreator
+            RegelverkTypeEnum.N_REG_G_N_OPPTJ -> alderspensjon2016SisteBeregningCreator
+            RegelverkTypeEnum.N_REG_N_OPPTJ -> alderspensjon2025SisteBeregningCreator
+            RegelverkTypeEnum.N_REG_G_OPPTJ -> alderspensjon2011SisteBeregningCreator
             else -> throw RuntimeException("Unexpected regelverkType $regelverkType in SisteBeregningCreator")
         }
     }
@@ -162,7 +161,7 @@ class SisteBeregningCreator(
         // -> FiltrerVilkarsvedtakCommand.execute
         private fun filtrerVedtak(fom: Date, tom: Date?, vedtakListe: List<VilkarsVedtak>): List<VilkarsVedtak> =
             vedtakListe.filter {
-                isInnvilget(it.vilkarsvedtakResultat)
+                isInnvilget(it.vilkarsvedtakResultatEnum)
                         && isVilkarsprovdOrFerdig(it.kravlinje)
                         && isNorsk(it.kravlinje)
                         && isVirkFomBeforeDate(it.virkFom, fom)
@@ -170,8 +169,8 @@ class SisteBeregningCreator(
             }
 
         // FiltrerVilkarsvedtakCommand.isVilkarsvedtakInnvilget
-        private fun isInnvilget(vedtak: VilkarsvedtakResultatCti?): Boolean =
-            VedtakResultat.INNV.name == vedtak?.kode
+        private fun isInnvilget(vedtak: VedtakResultatEnum?): Boolean =
+            VedtakResultatEnum.INNV == vedtak
 
         // FiltrerVilkarsvedtakCommand.isKravlinjeStatusVilkarsprovdOrFerdig
         private fun isVilkarsprovdOrFerdig(kravlinje: Kravlinje?): Boolean =

@@ -1,5 +1,5 @@
 package no.nav.pensjon.simulator.core.domain
-
+/*
 // no.nav.domain.pensjon.kjerne.kodetabeller.RegelverkTypeCode
 enum class RegelverkType(val kap19: Boolean, val kap20: Boolean) {
     /**
@@ -22,3 +22,4 @@ enum class RegelverkType(val kap19: Boolean, val kap20: Boolean) {
      */
     N_REG_N_OPPTJ(false, true);
 }
+*/

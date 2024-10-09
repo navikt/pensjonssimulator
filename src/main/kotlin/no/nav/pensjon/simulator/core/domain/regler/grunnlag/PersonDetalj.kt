@@ -1,13 +1,11 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.domain.regler.util.DateCompareUtil
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagsrolleCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.SivilstandTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonth
@@ -15,7 +13,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import java.io.Serializable
 import java.util.*
 
 /**
@@ -23,79 +20,80 @@ import java.util.*
  * dvs detaljer om den faktiske rollen en bruker har i et krav, sivilstand , pensjonsfaglig vurdert
  * sivilstand og barn for en definert periode.
  */
-class PersonDetalj(
+open class PersonDetalj {
 
     /**
      * Rollen denne personen har i kontekst av kravet.
      */
-    var grunnlagsrolle: GrunnlagsrolleCti? = null,
+    var grunnlagsrolleEnum: GrunnlagsrolleEnum? = null
+
     /**
      * Fra-og-med dato for rollens gyldighet.
      */
-    var rolleFomDato: Date? = null,
+    var rolleFomDato: Date? = null
+
     /**
      * Til-og-med dato for rollens gyldighet.
      */
-    var rolleTomDato: Date? = null,
+    var rolleTomDato: Date? = null
 
     /**
      * Representerer personens sivilstand i henhold til TPS.
      */
-    var sivilstandType: SivilstandTypeCti? = null,
+    var sivilstandTypeEnum: SivilstandEnum? = null
+
     /**
      * Eventuell angivelse av hvilken annen person som sivilstandType relaterer seg til,
      * for eksempel ektefelle eller samboer.
      */
-    var sivilstandRelatertPerson: PenPerson? = null,
+    var sivilstandRelatertPerson: PenPerson? = null
+
     /**
      * Representerer om og hvordan personen bor sammen med en annen person med persongrunnlag på kravet.
      * Refereres konseptuelt som pensjonsfaglig vurdert sivilstand.
      */
-    var borMed: BorMedTypeCti? = null,
+    var borMedEnum: BorMedTypeEnum? = null
+
     /**
      * Detaljer om barnet hvis rolle=BARN. Angir om barnet bor med en annen forelder.
      */
-    var barnDetalj: BarnDetalj? = null,
+    var barnDetalj: BarnDetalj? = null
 
     /**
      * Angir om det er opprettet barne- eller ektefelletillegg kravlinje for persongrunnlaget
      * med gitt rolle.
      */
-    var tillegg: Boolean = false,
+    var tillegg = false
+
     /**
      * Angir om persondetaljen brukes som grunnlag på kravet.
      */
-    var bruk: Boolean = true,
+    var bruk: Boolean = true
+
     /**
      * Angir kilden til persondetaljen.
      */
-    var grunnlagKilde: GrunnlagKildeCti? = null,
+    var grunnlagKildeEnum: GrunnlagkildeEnum? = null
 
-    /**
-     * Angir om minstepensjonsnivå satstype særskilt skal vurderes.
-     */
-    //var serskiltSatsUtenET: Boolean = false,
-    var serskiltSatsUtenET: Boolean? = null,
-
-    /**
-     * Angir om EPS (dette persongrunnlag) har gitt avkall på egen pensjon.
-     */
-    //var epsAvkallEgenPensjon: Boolean = false
-    var epsAvkallEgenPensjon: Boolean? = null,
-
-    ) : Comparable<PersonDetalj>, Serializable {
+    var serskiltSatsUtenET: Boolean? = null
+    var epsAvkallEgenPensjon: Boolean? = null
 
     // SIMDOM-ADD
     @JsonIgnore
     var virkFom: Date? = null
+
     @JsonIgnore
     var virkTom: Date? = null
+
     @JsonIgnore
     var legacyRolleFomDato: Date? = null
+
     @JsonIgnore
     var legacyRolleTomDato: Date? = null
+
     @JsonIgnore
     var rawRolleFomDato: Date? = null
+
     @JsonIgnore
     var rawRolleTomDato: Date? = null
 
@@ -116,109 +114,76 @@ class PersonDetalj(
 
         legacyRolleFomDato = rolleFomDato
         legacyRolleTomDato = rolleTomDato
-        rolleFomDato =
-            virkFom?.noon() // since rolleFomDato is set to virkFom.noon() in GrunnlagToReglerMapper.mapPersonDetaljToRegler
+        rolleFomDato = virkFom?.noon() // since rolleFomDato is set to virkFom.noon() in GrunnlagToReglerMapper.mapPersonDetaljToRegler
         rolleTomDato = virkTom?.noon()
     }
-    // end SIMDOM-ADD
 
-    constructor(personDetalj: PersonDetalj) : this() {
-        if (personDetalj.grunnlagsrolle != null) {
-            this.grunnlagsrolle = GrunnlagsrolleCti(personDetalj.grunnlagsrolle)
+    constructor() {}
+
+    constructor(source: PersonDetalj) : this() {
+        if (source.grunnlagsrolleEnum != null) {
+            this.grunnlagsrolleEnum = source.grunnlagsrolleEnum
         }
-        if (personDetalj.rolleFomDato != null) {
-            this.rolleFomDato = personDetalj.rolleFomDato!!.clone() as Date
+
+        if (source.rolleFomDato != null) {
+            this.rolleFomDato = source.rolleFomDato!!.clone() as Date
         }
-        if (personDetalj.rolleTomDato != null) {
-            this.rolleTomDato = personDetalj.rolleTomDato!!.clone() as Date
+
+        if (source.rolleTomDato != null) {
+            this.rolleTomDato = source.rolleTomDato!!.clone() as Date
         }
-        if (personDetalj.sivilstandType != null) {
-            this.sivilstandType = SivilstandTypeCti(personDetalj.sivilstandType)
+
+        if (source.sivilstandTypeEnum != null) {
+            this.sivilstandTypeEnum = source.sivilstandTypeEnum
         }
-        if (personDetalj.sivilstandRelatertPerson != null) {
-            this.sivilstandRelatertPerson = PenPerson(personDetalj.sivilstandRelatertPerson!!)
+
+        if (source.sivilstandRelatertPerson != null) {
+            this.sivilstandRelatertPerson = PenPerson(source.sivilstandRelatertPerson!!)
         }
-        if (personDetalj.borMed != null) {
-            this.borMed = BorMedTypeCti(personDetalj.borMed)
+
+        if (source.borMedEnum != null) {
+            this.borMedEnum = source.borMedEnum
         }
-        if (personDetalj.barnDetalj != null) {
-            this.barnDetalj = BarnDetalj(personDetalj.barnDetalj!!)
+
+        if (source.barnDetalj != null) {
+            this.barnDetalj = BarnDetalj(source.barnDetalj!!)
         }
-        this.tillegg = personDetalj.tillegg
-        this.bruk = personDetalj.bruk
-        if (personDetalj.grunnlagKilde != null) {
-            this.grunnlagKilde = GrunnlagKildeCti(personDetalj.grunnlagKilde)
+
+        this.tillegg = source.tillegg
+        this.bruk = source.bruk
+
+        if (source.grunnlagKildeEnum != null) {
+            this.grunnlagKildeEnum = source.grunnlagKildeEnum
         }
-        this.serskiltSatsUtenET = personDetalj.serskiltSatsUtenET
-        this.epsAvkallEgenPensjon = personDetalj.epsAvkallEgenPensjon
+
+        this.serskiltSatsUtenET = source.serskiltSatsUtenET
+        this.epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
 
         // SIMDOM-ADD:
-        if (personDetalj.virkFom != null) {
-            this.virkFom = personDetalj.virkFom!!.clone() as Date
+        if (source.virkFom != null) {
+            this.virkFom = source.virkFom!!.clone() as Date
         }
-        if (personDetalj.virkTom != null) {
-            this.virkTom = personDetalj.virkTom!!.clone() as Date
+
+        if (source.virkTom != null) {
+            this.virkTom = source.virkTom!!.clone() as Date
         }
-        if (personDetalj.legacyRolleFomDato != null) {
-            this.legacyRolleFomDato = personDetalj.legacyRolleFomDato!!.clone() as Date
+
+        if (source.legacyRolleFomDato != null) {
+            this.legacyRolleFomDato = source.legacyRolleFomDato!!.clone() as Date
         }
-        if (personDetalj.legacyRolleTomDato != null) {
-            this.legacyRolleTomDato = personDetalj.legacyRolleTomDato!!.clone() as Date
+
+        if (source.legacyRolleTomDato != null) {
+            this.legacyRolleTomDato = source.legacyRolleTomDato!!.clone() as Date
         }
-        if (personDetalj.rawRolleFomDato != null) {
-            this.rawRolleFomDato = personDetalj.rawRolleFomDato!!.clone() as Date
+
+        if (source.rawRolleFomDato != null) {
+            this.rawRolleFomDato = source.rawRolleFomDato!!.clone() as Date
         }
-        if (personDetalj.rawRolleTomDato != null) {
-            this.rawRolleTomDato = personDetalj.rawRolleTomDato!!.clone() as Date
+
+        if (source.rawRolleTomDato != null) {
+            this.rawRolleTomDato = source.rawRolleTomDato!!.clone() as Date
         }
-        // finishInit not called here, since it is assumed that all fields inited in personDetalj argument
         // end SIMDOM-ADD
-    }
-
-    constructor(
-        grunnlagsrolle: GrunnlagsrolleCti,
-        rolleFomDato: Date,
-        rolleTomDato: Date,
-        sivilstandType: SivilstandTypeCti,
-        sivilstandRelatertPerson: PenPerson,
-        borMed: BorMedTypeCti,
-        barnDetalj: BarnDetalj,
-        tillegg: Boolean,
-        grunnlagKilde: GrunnlagKildeCti,
-        serskiltSatsUtenET: Boolean
-    ) : this() {
-        this.grunnlagsrolle = grunnlagsrolle
-        this.rolleFomDato = rolleFomDato
-        this.rolleTomDato = rolleTomDato
-        this.sivilstandType = sivilstandType
-        this.sivilstandRelatertPerson = sivilstandRelatertPerson
-        this.borMed = borMed
-        this.barnDetalj = barnDetalj
-        this.tillegg = tillegg
-        this.bruk = true
-        this.grunnlagKilde = grunnlagKilde
-        this.serskiltSatsUtenET = serskiltSatsUtenET
-    }
-
-    override fun toString(): String {
-        val TAB = "    "
-
-        val retValue = StringBuilder()
-
-        retValue.append("PersonDetalj ( ").append(super.toString()).append(TAB).append("grunnlagsrolle = ")
-            .append(grunnlagsrolle).append(TAB).append("rolleFomDato = ")
-            .append(rolleFomDato).append(TAB).append("rolleTomDato = ").append(rolleTomDato).append(TAB)
-            .append("sivilstandType = ").append(sivilstandType).append(TAB)
-            .append("borMed = ").append(borMed).append(TAB).append("barnDetalj = ").append(barnDetalj).append(TAB)
-            .append("tillegg = ").append(tillegg).append(TAB)
-            .append("bruk = ").append(bruk).append(TAB).append("grunnlagKilde = ").append(grunnlagKilde).append(TAB)
-            .append(" )")
-
-        return retValue.toString()
-    }
-
-    override fun compareTo(other: PersonDetalj): Int {
-        return DateCompareUtil.compareTo(rolleFomDato, other.rolleFomDato)
     }
 
     // SIMDOM-ADD
@@ -252,8 +217,11 @@ class PersonDetalj(
     /**
      * EPS = Ektefelle/partner/samboer
      */
-    fun isEps() = hasGrunnlagsrolle(GrunnlagRolle.EKTEF, GrunnlagRolle.PARTNER, GrunnlagRolle.SAMBO)
+    fun isEps() = hasGrunnlagsrolle(GrunnlagsrolleEnum.EKTEF, GrunnlagsrolleEnum.PARTNER, GrunnlagsrolleEnum.SAMBO)
 
-    private fun hasGrunnlagsrolle(vararg roller: GrunnlagRolle) =
-        grunnlagsrolle?.let { roller.any { x -> x.name == it.kode } } ?: false
+    private fun hasGrunnlagsrolle(vararg roller: GrunnlagsrolleEnum) =
+        //grunnlagsrolle?.let { roller.any { x -> x.name == it.kode } } ?: false
+        grunnlagsrolleEnum?.let { roller.any { x -> x == it } } ?: false
+
+    // end SIMDOM-ADD
 }

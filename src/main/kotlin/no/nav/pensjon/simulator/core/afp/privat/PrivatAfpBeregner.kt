@@ -1,24 +1,21 @@
 package no.nav.pensjon.simulator.core.afp.privat
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.SimuleringSpec
-import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.krav.KravlinjeTypePlus
+import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SakType
-import no.nav.pensjon.simulator.core.domain.VedtakResultat
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarsvedtakResultatCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.BeregnAfpPrivatRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.CopyUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
@@ -72,7 +69,7 @@ class PrivatAfpBeregner(
 
         val afpKravlinje = newKravlinje(soekerGrunnlag.penPerson!!)
         afpKravhode.kravlinjeListe = mutableListOf(afpKravlinje)
-        afpKravhode.afpOrdning = AfpOrdningTypeCti(AfpOrdningType.LONHO.name) // any value will do
+        afpKravhode.afpOrdningEnum = AFPtypeEnum.LONHO // any value will do
         val satser: PrivatAfpSatser =
             generelleDataHolder.getPrivatAfpSatser(foersteVirkning, soekerGrunnlag.fodselsdato?.toLocalDate()!!)
         val afpBeholdningDato = calculateAfpBeholdningDato(simuleringSpec, soekerGrunnlag.fodselsdato.toLocalDate()!!)
@@ -229,17 +226,11 @@ class PrivatAfpBeregner(
         }
 
         private fun newKravlinje(person: PenPerson) =
-            Kravlinje(
-                kravlinjeType = kravlinjeType(),
+            Kravlinje().apply {
+                kravlinjeTypeEnum = KravlinjeTypeEnum.AFP_PRIVAT
                 relatertPerson = person
-            ).apply {
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 land = Land.NOR
-            }
-
-        private fun kravlinjeType() =
-            KravlinjeTypePlus.AFP_PRIVAT.let {
-                KravlinjeTypeCti(kode = it.name, hovedKravlinje = it.erHovedkravlinje)
             }
 
         /**
@@ -249,9 +240,9 @@ class PrivatAfpBeregner(
         private fun newAfpPrivatKravhode(kravhode: Kravhode) =
             Kravhode().apply {
                 sakType = SakType.AFP_PRIVAT
-                regelverkTypeCti = kravhode.regelverkTypeCti
+                regelverkTypeEnum = kravhode.regelverkTypeEnum
                 persongrunnlagListe.add(Persongrunnlag(
-                    persongrunnlag = kravhode.hentPersongrunnlagForSoker(),
+                    source = kravhode.hentPersongrunnlagForSoker(),
                     excludeForsteVirkningsdatoGrunnlag = true
                 ).also { it.finishInit() })
             }
@@ -266,8 +257,8 @@ class PrivatAfpBeregner(
                 this.forsteVirk = fromLocalDate(foersteVirkningFom)
                 this.penPerson = soeker
                 this.kravlinje = kravlinje
-                this.kravlinjeType = kravlinje.kravlinjeType
-                this.vilkarsvedtakResultat = VilkarsvedtakResultatCti(VedtakResultat.INNV.name)
+                this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
+                this.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
                 this.virkFom = fromLocalDate(virkningFom)
             }.also { it.finishInit() }
 

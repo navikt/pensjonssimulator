@@ -1,46 +1,35 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.util.DateCompareUtil
-import java.io.Serializable
 import java.util.*
 
-class ForsteVirkningsdatoGrunnlag : Serializable, Comparable<ForsteVirkningsdatoGrunnlag> {
+class ForsteVirkningsdatoGrunnlag {
+
     var virkningsdato: Date? = null
     var kravFremsattDato: Date? = null
     var bruker: PenPerson? = null
     var annenPerson: PenPerson? = null
-    var kravlinjeType: KravlinjeTypeCti? = null
 
-    constructor(forsteVirkningsdatoGrunnlag: ForsteVirkningsdatoGrunnlag) {
-        virkningsdato = forsteVirkningsdatoGrunnlag.virkningsdato
-        kravFremsattDato = forsteVirkningsdatoGrunnlag.kravFremsattDato
-        bruker = forsteVirkningsdatoGrunnlag.bruker
-        annenPerson = forsteVirkningsdatoGrunnlag.annenPerson
-        kravlinjeType = forsteVirkningsdatoGrunnlag.kravlinjeType
-    }
+    var kravlinjeType: KravlinjeTypeCti? = null //TODO remove
+    var kravlinjeTypeEnum: KravlinjeTypeEnum? = null
+        get() {
+            return field ?: kravlinjeType?.let { KravlinjeTypeEnum.valueOf(it.kode) }
+        }
+        set(value) {
+            field = value
+            kravlinjeType = value?.let { KravlinjeTypeCti(it.name).apply { hovedKravlinje = it.erHovedkravlinje } }
+        }
 
-    constructor(virkningsdato: Date? = null,
-                kravFremsattDato: Date? = null,
-                bruker: PenPerson? = null,
-                annenPerson: PenPerson? = null,
-                kravlinjeType: KravlinjeTypeCti? = null) {
-        this.virkningsdato = virkningsdato
-        this.kravFremsattDato = kravFremsattDato
-        this.bruker = bruker
-        this.annenPerson = annenPerson
-        this.kravlinjeType = kravlinjeType
-    }
-
-    // Får feil i Jackson-mapping ved å ikke ha denne...
     constructor()
 
-    override fun compareTo(other: ForsteVirkningsdatoGrunnlag): Int {
-        return DateCompareUtil.compareTo(kravFremsattDato, other.kravFremsattDato)
-    }
-
-    companion object {
-        private const val serialVersionUID = 8376138604433396886L
+    constructor(source: ForsteVirkningsdatoGrunnlag) {
+        virkningsdato = source.virkningsdato
+        kravFremsattDato = source.kravFremsattDato
+        bruker = source.bruker
+        annenPerson = source.annenPerson
+        kravlinjeTypeEnum = source.kravlinjeTypeEnum
+        kravlinjeType = source.kravlinjeType
     }
 }

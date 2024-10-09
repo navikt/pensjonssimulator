@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.virkning
 
-import no.nav.pensjon.simulator.core.krav.KravlinjeType
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import java.time.LocalDate
 
@@ -15,7 +15,7 @@ data class FoersteVirkningDatoCombo(
 // vedtak.kravhode.sak.forsteVirkningsdatoListe
 data class FoersteVirkningDato(
     val sakType: SakType?,
-    val kravlinjeType: KravlinjeType?,
+    val kravlinjeType: KravlinjeTypeEnum?,
     val virkningDato: LocalDate?,
     val annenPerson: PenPerson?
 )

@@ -1,11 +1,10 @@
 package no.nav.pensjon.simulator.core.virkning
 
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.krav.KravlinjeType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
@@ -68,13 +67,13 @@ object FoersteVirkningDatoRepopulator {
     }
 
     private fun copy(grunnlag: ForsteVirkningsdatoGrunnlag) =
-        ForsteVirkningsdatoGrunnlag(
-            grunnlag.virkningsdato,
-            grunnlag.kravFremsattDato,
-            grunnlag.bruker, // NB in ForsteVirkningsDatoMapper this is grunnlag.sak.penPerson
-            grunnlag.annenPerson,
-            grunnlag.kravlinjeType
-        )
+        ForsteVirkningsdatoGrunnlag().apply {
+            virkningsdato = grunnlag.virkningsdato
+            kravFremsattDato = grunnlag.kravFremsattDato
+            bruker = grunnlag.bruker // NB in ForsteVirkningsDatoMapper this is grunnlag.sak.penPerson
+            annenPerson = grunnlag.annenPerson
+            kravlinjeTypeEnum = grunnlag.kravlinjeTypeEnum
+        }
 
     private fun addDatogrunnlagBasedOnKrav(
         kravlinje: Kravlinje,
@@ -87,31 +86,31 @@ object FoersteVirkningDatoRepopulator {
             if (soeker.penPersonId == kravlinje.relatertPerson?.penPersonId) null else kravlinje.relatertPerson
 
         val alreadyExists = transferList
-            .filter { it.kravlinjeType == kravlinje.kravlinjeType }
+            .filter { it.kravlinjeTypeEnum == kravlinje.kravlinjeTypeEnum }
             .filter { soeker.penPersonId == it.bruker!!.penPersonId }
             .any { hasMatchingAnnenPerson(annenPerson, it) }
 
         if (alreadyExists) return
 
-        transferList.add(datoGrunnlag(kravlinje.kravlinjeType!!, kravhode, soeker, annenPerson))
+        kravlinje.kravlinjeTypeEnum?.let { transferList.add(datoGrunnlag(it, kravhode, soeker, annenPerson)) }
     }
 
     private fun datoGrunnlag(
-        kravlinjeType: KravlinjeTypeCti,
+        kravlinjeType: KravlinjeTypeEnum,
         kravhode: Kravhode,
         soeker: PenPerson,
         annenPerson: PenPerson?
     ) =
-        ForsteVirkningsdatoGrunnlag(
-            virkningsdato = kravhode.onsketVirkningsdato?.noon(),
-            kravFremsattDato = kravhode.kravFremsattDato?.noon(),
-            bruker = soeker,
-            annenPerson = if (gjelderForsorgingstillegg(kravlinjeType)) annenPerson else null,
-            kravlinjeType = kravlinjeType
-        )
+        ForsteVirkningsdatoGrunnlag().apply {
+            this.virkningsdato = kravhode.onsketVirkningsdato?.noon()
+            this.kravFremsattDato = kravhode.kravFremsattDato?.noon()
+            this.bruker = soeker
+            this.annenPerson = if (gjelderForsorgingstillegg(kravlinjeType)) annenPerson else null
+            this.kravlinjeTypeEnum = kravlinjeType
+        }
 
     private fun hasMatchingAnnenPerson(annenPerson: PenPerson?, grunnlag: ForsteVirkningsdatoGrunnlag) =
-        if (gjelderForsorgingstillegg(grunnlag.kravlinjeType!!)) {
+        if (grunnlag.kravlinjeTypeEnum?.let(::gjelderForsorgingstillegg) == true) {
             personId(annenPerson) == personId(grunnlag.annenPerson)
         } else {
             true
@@ -120,31 +119,34 @@ object FoersteVirkningDatoRepopulator {
     private fun personId(person: PenPerson?) = person?.penPersonId ?: 0L
 
     private fun gjelderAvdod(datogrunnlag: ForsteVirkningsdatoGrunnlag) =
-        kravlinjetyperForAvdod.contains(KravlinjeType.valueOf(datogrunnlag.kravlinjeType!!.kode))
+        avdoedKravlinjeTyper.contains(datogrunnlag.kravlinjeTypeEnum)
 
     private fun gjelderAvdod(persongrunnlag: Persongrunnlag) =
         persongrunnlag.personDetaljListe
             .filter { it.bruk }
-            .any { grunnlagsrollerForAvdod.contains(GrunnlagRolle.valueOf(it.grunnlagsrolle!!.kode)) }
+            .any { avdoedGrunnlagRoller.contains(it.grunnlagsrolleEnum) }
 
-    private fun gjelderForsorgingstillegg(kravlinjeType: KravlinjeTypeCti) =
-        kravlinjetyperForForsorger.contains(KravlinjeType.valueOf(kravlinjeType.kode))
+    private fun gjelderForsorgingstillegg(kravlinjeType: KravlinjeTypeEnum) =
+        forsoergerKravlinjeTyper.contains(kravlinjeType)
 
-    private val grunnlagsrollerForAvdod = EnumSet.of(
-        GrunnlagRolle.AVDOD,
-        GrunnlagRolle.FAR,
-        GrunnlagRolle.MOR
-    )
+    private val avdoedGrunnlagRoller =
+        EnumSet.of(
+            GrunnlagsrolleEnum.AVDOD,
+            GrunnlagsrolleEnum.FAR,
+            GrunnlagsrolleEnum.MOR
+        )
 
-    private val kravlinjetyperForAvdod = EnumSet.of(
-        KravlinjeType.BP,
-        KravlinjeType.GJP,
-        KravlinjeType.GJR,
-        KravlinjeType.UT_GJT
-    )
+    private val avdoedKravlinjeTyper =
+        EnumSet.of(
+            KravlinjeTypeEnum.BP,
+            KravlinjeTypeEnum.GJP,
+            KravlinjeTypeEnum.GJR,
+            KravlinjeTypeEnum.UT_GJT
+        )
 
-    private val kravlinjetyperForForsorger = EnumSet.of(
-        KravlinjeType.ET,
-        KravlinjeType.BT
-    )
+    private val forsoergerKravlinjeTyper =
+        EnumSet.of(
+            KravlinjeTypeEnum.ET,
+            KravlinjeTypeEnum.BT
+        )
 }

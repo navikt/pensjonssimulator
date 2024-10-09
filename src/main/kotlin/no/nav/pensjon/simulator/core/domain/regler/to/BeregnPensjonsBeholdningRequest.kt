@@ -5,12 +5,9 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import java.util.Date
 
 // https://github.com/navikt/pensjon-regler/blob/master/system/nav-system-pensjon-domain/src/main/kotlin/no/nav/pensjon/regler/internal/to/BeregnPensjonsBeholdningRequest.kt
-class BeregnPensjonsBeholdningRequest(
-    var beholdningTom: Date? = null,
-    var persongrunnlag: Persongrunnlag? = null,
-    var beholdning: Pensjonsbeholdning? = null
-) : ServiceRequest() {
-    override fun virkFom(): Date? = beholdningTom
+class BeregnPensjonsBeholdningRequest : ServiceRequest() {
 
-    override fun persons(): String = ""
+    var beholdningTom: Date? = null
+    var persongrunnlag: Persongrunnlag? = null
+    var beholdning: Pensjonsbeholdning? = null
 }

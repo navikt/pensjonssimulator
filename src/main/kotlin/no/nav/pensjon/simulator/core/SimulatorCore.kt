@@ -6,13 +6,11 @@ import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpRe
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpResult
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSpec
-import no.nav.pensjon.simulator.core.anonym.AnonymOutputMapper
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonBeregnerResult
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
-import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
-import no.nav.pensjon.simulator.core.krav.KravGjelder
+import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
@@ -21,19 +19,14 @@ import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
+import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktSpec
-import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
-import no.nav.pensjon.simulator.core.krav.KravhodeCreator
-import no.nav.pensjon.simulator.core.krav.KravhodeSpec
-import no.nav.pensjon.simulator.core.krav.KravhodeUpdateSpec
-import no.nav.pensjon.simulator.core.krav.KravhodeUpdater
-import no.nav.pensjon.simulator.core.out.OutputPensjonCombo
+import no.nav.pensjon.simulator.core.krav.*
 import no.nav.pensjon.simulator.core.result.ResultPreparerSpec
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
@@ -342,7 +335,8 @@ class SimulatorCore(
         return null
     }
 
-    override fun fetchFoedselDato(pid: Pid): LocalDate = generelleDataHolder.getFoedselDato(pid)
+    override fun fetchFoedselDato(pid: Pid): LocalDate =
+        generelleDataHolder.getPerson(pid).foedselDato
 
     private fun fetchGrunnbeloep(): Int {
         val grunnbeloepListe: List<SatsResultat> = context.fetchGrunnbeloepListe(LocalDate.now()).satsResultater

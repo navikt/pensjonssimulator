@@ -3,10 +3,12 @@ package no.nav.pensjon.simulator.generelt.client.pen
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
+import no.nav.pensjon.simulator.generelt.Person
 import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
 import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataResult
 import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataResultMapper
@@ -83,7 +85,7 @@ class PenGenerelleDataClient(
 
         private fun nullResult() =
             GenerelleData(
-                foedselDato = LocalDate.MIN,
+                person = Person(LocalDate.MIN, LandkodeEnum.NOR),
                 privatAfpSatser = PrivatAfpSatser(),
                 delingstallUtvalg = DelingstallUtvalg(),
                 forholdstallUtvalg = ForholdstallUtvalg(),

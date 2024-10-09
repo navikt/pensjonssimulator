@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tpregisteret.TpregisteretService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -28,8 +29,9 @@ import org.springframework.web.bind.annotation.RestController
 class BeholdningController(
     private val service: FolketrygdBeholdningService,
     private val traceAid: TraceAid,
-    organisasjonsnummerProvider: OrganisasjonsnummerProvider
-) : ControllerBase(traceAid, organisasjonsnummerProvider) {
+    organisasjonsnummerProvider: OrganisasjonsnummerProvider,
+    tpregisteretService: TpregisteretService,
+) : ControllerBase(traceAid, organisasjonsnummerProvider, tpregisteretService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-folketrygdbeholdning")
@@ -56,6 +58,7 @@ class BeholdningController(
         return try {
             val spec: FolketrygdBeholdningSpec = fromSpecV1(specV1)
             request.setAttribute("pid", spec.pid)
+            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
 
             resultV1(timed(service::simulerFolketrygdBeholdning, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }

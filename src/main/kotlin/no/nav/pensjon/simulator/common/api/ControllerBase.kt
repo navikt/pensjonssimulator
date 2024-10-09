@@ -1,11 +1,13 @@
 package no.nav.pensjon.simulator.common.api
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tpregisteret.TpregisteretService
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -13,7 +15,8 @@ import java.lang.System.currentTimeMillis
 
 abstract class ControllerBase(
     private val traceAid: TraceAid,
-    private val organisasjonsnummerProvider: OrganisasjonsnummerProvider?
+    private val organisasjonsnummerProvider: OrganisasjonsnummerProvider?,
+    private val tpregisteretService: TpregisteretService?,
 ) {
 
     private val log = KotlinLogging.logger {}
@@ -55,6 +58,20 @@ abstract class ControllerBase(
                 ?: "intern",
             callId = functionName
         )
+    }
+
+    protected fun verifiserAtBrukerTilknyttetTpLeverandoer(pid: Pid) {
+        organisasjonsnummerProvider?.let {
+            val orgNummer = it.provideOrganisasjonsnummer().value
+            if (tpregisteretService?.erBrukerTilknyttetAngittTpLeverandoer(pid.value, orgNummer) == false) {
+                log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $orgNummer" }
+                //TODO uncomment to enforce policy
+    //            throw ResponseStatusException(
+    //                HttpStatus.FORBIDDEN,
+    //                "Call ID: ${traceAid.callId()} | Error: Brukeren er ikke tilknyttet angitt TP-leverandør"
+    //            )
+            }
+        }
     }
 
     abstract fun errorMessage(): String

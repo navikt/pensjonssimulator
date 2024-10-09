@@ -69,9 +69,13 @@ spec:
         - application: pensjon-selvbetjening-fss-gateway
           namespace: pensjonselvbetjening
           cluster: dev-fss
+        - application: tp-q2
+          namespace: pensjonsamhandling
+          cluster: dev-fss
       external:
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
+        - host: tp-api-q2.dev-fss-pub.nais.io
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: dev-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
@@ -81,6 +85,10 @@ spec:
       value: dev-fss:pensjon-q2:pensjon-pen-q2
     - name: PEN_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io
+    - name: TJENESTEPENSJON_SERVICE_ID
+      value: dev-fss:pensjonsamhandling:tp-q2
+    - name: TJENESTEPENSJON_URL
+      value: https://tp-api-q2.dev-fss-pub.nais.io
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

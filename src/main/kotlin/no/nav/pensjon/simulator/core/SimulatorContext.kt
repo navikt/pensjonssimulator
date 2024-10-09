@@ -1,8 +1,6 @@
 package no.nav.pensjon.simulator.core
 
-import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
-import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
@@ -15,9 +13,7 @@ import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
 import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
-import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import org.springframework.stereotype.Component
@@ -30,34 +26,6 @@ class SimulatorContext(
     private val regelService: GenericRegelClient,
     private val penClient: GenerelleDataClient
 ) : RegelClient {
-    fun fetchFoedselDato(pid: Pid): LocalDate =
-        penClient.fetchGenerelleData(
-            spec = GenerelleDataSpec.forFoedselDato(pid)
-        ).foedselDato
-
-    // hentSatserAfpPrivat
-    fun fetchPrivatAfpSatser(virkningFom: LocalDate, foedselDato: LocalDate): PrivatAfpSatser =
-        penClient.fetchGenerelleData(
-            spec = GenerelleDataSpec.forPrivatAfp(virkningFom, foedselDato)
-        ).privatAfpSatser
-
-    // hentDelingstallUtvalg
-    fun fetchDelingstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): DelingstallUtvalg =
-        penClient.fetchGenerelleData(
-            spec = GenerelleDataSpec.forDelingstall(virkningFom, foedselDato)
-        ).delingstallUtvalg
-
-    // hentForholdstallUtvalg
-    fun fetchForholdstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): ForholdstallUtvalg =
-        penClient.fetchGenerelleData(
-            spec = GenerelleDataSpec.forForholdstall(virkningFom, foedselDato)
-        ).forholdstallUtvalg
-
-    // hentVeietGrunnbelopListe
-    fun fetchVeietGrunnbeloepListe(fomAar: Int?, tomAar: Int?): List<VeietSatsResultat> =
-        penClient.fetchGenerelleData(
-            spec = GenerelleDataSpec.forVeietGrunnbeloep(fomAar, tomAar)
-        ).satsResultatListe
 
     // BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2011FoersteUttak(

@@ -40,12 +40,12 @@ abstract class AbstraktBarnetillegg : Ytelseskomponent {
     var mpnSatsFT = 0.0
 
     /**
-     * Nevneren i proratabrøken for EØS-avtaleberegnet tillegg
+     * Nevneren i prorata-brøken for EØS-avtaleberegnet tillegg
      */
     var proratanevner = 0
 
     /**
-     * Telleren i proratabrøken for EØS-avtaleberegnet tillegg
+     * Telleren i prorata-brøken for EØS-avtaleberegnet tillegg
      */
     var proratateller = 0
 
@@ -60,12 +60,12 @@ abstract class AbstraktBarnetillegg : Ytelseskomponent {
     var tt_anv = 0
 
     /**
-     * Nedtrappingsgrad brukt ved utfasing av forsærgingstillegg fom 2023.
+     * Nedtrappingsgrad brukt ved utfasing av forsørgingstillegg fom 2023.
      */
     var forsorgingstilleggNiva = 100
 
     /**
-     * årsaken(e) til avkorting. Satt dersom avkortet er true.
+     * Årsaken(e) til avkorting. Satt dersom avkortet er true.
      */
     var avkortingsArsakListEnum: MutableList<AvkortningsArsakEnum> = mutableListOf()
 

@@ -22,7 +22,7 @@ class Ektefelletillegg : Ytelseskomponent {
     var avkortet = false
 
     /**
-     * årsaken(e) til avkorting. Satt dersom avkortet er true.
+     * Årsaken(e) til avkorting. Satt dersom avkortet er true.
      */
     var arsaksListEnum: MutableList<AvkortningsArsakEnum> = mutableListOf()
 
@@ -37,17 +37,17 @@ class Ektefelletillegg : Ytelseskomponent {
     var tt_anv = 0
 
     /**
-     * Nedtrappingsgrad brukt ved utfasing av forsærgingstillegg fom 2023.
+     * Nedtrappingsgrad brukt ved utfasing av forsørgingstillegg fom 2023.
      */
     var forsorgingstilleggNiva = 100
 
     /**
-     * Telleren i proratabrøken for EØS-avtaleberegnet tillegg
+     * Telleren i prorata-brøken for EØS-avtaleberegnet tillegg
      */
     var proratateller = 0
 
     /**
-     * Telleren i proratabrøken for EØS-avtaleberegnet tillegg
+     * Telleren i prorata-brøken for EØS-avtaleberegnet tillegg
      */
     var proratanevner = 0
 

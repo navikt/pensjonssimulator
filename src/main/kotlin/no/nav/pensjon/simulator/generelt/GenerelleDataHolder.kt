@@ -8,20 +8,21 @@ import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.util.Collections.synchronizedMap
 
 @Component
 class GenerelleDataHolder(val client: GenerelleDataClient) {
 
-    private val foedselDatoCache: MutableMap<Pid, LocalDate> = HashMap()
-    private val delingstallCache: MutableMap<DatoAvhengighetCacheKey, DelingstallUtvalg> = HashMap()
-    private val forholdstallCache: MutableMap<DatoAvhengighetCacheKey, ForholdstallUtvalg> = HashMap()
-    private val privatAfpSatsCache: MutableMap<DatoAvhengighetCacheKey, PrivatAfpSatser> = HashMap()
-    private val grunnbeloepCache: MutableMap<GrunnbeloepCacheKey, List<VeietSatsResultat>> = HashMap()
+    private val personCache: MutableMap<Pid, Person> = synchronizedMap(mutableMapOf())
+    private val delingstallCache: MutableMap<DatoAvhengighetCacheKey, DelingstallUtvalg> = synchronizedMap(mutableMapOf())
+    private val forholdstallCache: MutableMap<DatoAvhengighetCacheKey, ForholdstallUtvalg> = synchronizedMap(mutableMapOf())
+    private val privatAfpSatsCache: MutableMap<DatoAvhengighetCacheKey, PrivatAfpSatser> = synchronizedMap(mutableMapOf())
+    private val grunnbeloepCache: MutableMap<GrunnbeloepCacheKey, List<VeietSatsResultat>> = synchronizedMap(mutableMapOf())
 
-    fun getFoedselDato(pid: Pid): LocalDate =
-        foedselDatoCache[pid]
-            ?: client.fetchGenerelleData(GenerelleDataSpec.forFoedselDato(pid)).foedselDato.also {
-                foedselDatoCache[pid] = it
+    fun getPerson(pid: Pid): Person =
+        personCache[pid]
+            ?: client.fetchGenerelleData(GenerelleDataSpec.forPerson(pid)).person.also {
+                personCache[pid] = it
             }
 
     fun getDelingstallUtvalg(virkningFom: LocalDate, foedselDato: LocalDate): DelingstallUtvalg {

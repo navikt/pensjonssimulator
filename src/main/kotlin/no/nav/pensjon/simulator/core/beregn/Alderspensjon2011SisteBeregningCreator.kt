@@ -1,24 +1,24 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
+import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
 @Component
-class Alderspensjon2011SisteBeregningCreator(context: SimulatorContext) : SisteBeregningCreatorBase(context) {
+class Alderspensjon2011SisteBeregningCreator(kravService: KravService) : SisteBeregningCreatorBase(kravService) {
 
     // AbstraktOpprettSisteAldersberegning.execute
-    override fun createBeregning(input: SisteBeregningSpec, beregningsresultat: AbstraktBeregningsResultat?) =
-        newSisteAldersberegning2016(input).also {
-            populate(it, input, beregningsresultat)
+    override fun createBeregning(spec: SisteBeregningSpec, beregningResultat: AbstraktBeregningsResultat?) =
+        newSisteAldersberegning2016(spec).also {
+            populate(it, spec, beregningResultat)
         }
 
     // OpprettSisteAldersberegning2016Regelverk2016.createAndInitSisteBeregning
-    private fun newSisteAldersberegning2016(input: SisteBeregningSpec): SisteBeregning =
+    private fun newSisteAldersberegning2016(spec: SisteBeregningSpec): SisteBeregning =
         SisteAldersberegning2016().apply {
-            regelverkTypeEnum = input.regelverkKodePaNyttKrav
-            val resultat2016 = input.beregningsresultat as? BeregningsResultatAlderspensjon2016
+            regelverkTypeEnum = spec.regelverkKodePaNyttKrav
+            val resultat2016 = spec.beregningsresultat as? BeregningsResultatAlderspensjon2016
             setBeregningsresultat2016Data(this, resultat2016)
             pensjonUnderUtbetaling2011 =
                 utenIrrelevanteYtelseskomponenter(resultat2016?.beregningsResultat2011?.pensjonUnderUtbetaling)
@@ -26,7 +26,7 @@ class Alderspensjon2011SisteBeregningCreator(context: SimulatorContext) : SisteB
                 utenIrrelevanteYtelseskomponenter(resultat2016?.beregningsResultat2025?.pensjonUnderUtbetaling)
 
             if (resultat2016?.beregningsResultat2011 != null) {
-                setAnvendtGjenlevenderettVedtak(this, input.filtrertVilkarsvedtakList)
+                setAnvendtGjenlevenderettVedtak(this, spec.filtrertVilkarsvedtakList)
             }
         }
 

@@ -7,11 +7,16 @@ import java.time.LocalDate
  * Corresponds to SimulatorGenerelleData in pensjon-pen
  */
 data class PenGenerelleDataResult(
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val foedselDato: LocalDate?, // null if anonym
+    val person: PenPersonData?, // null if anonym
     val privatAfpSatser: PenPrivatAfpSatser?,
     val delingstallUtvalg: PenDelingstallUtvalg?,
     val forholdstallUtvalg: PenForholdstallUtvalg?,
     val satsResultatListe: List<PenVeietSatsResultat>?
+)
+
+data class PenPersonData(
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val foedselDato: LocalDate?,
+    val statsborgerskap: String?
 )
 
 data class PenPrivatAfpSatser(

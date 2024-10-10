@@ -11,7 +11,7 @@ data class GenerelleDataSpec(
     val inkludering: InkluderingSpec
 ) {
     companion object {
-        fun forFoedselDato(pid: Pid) =
+        fun forPerson(pid: Pid) =
             GenerelleDataSpec(
                 pid,
                 virkningFom = null,

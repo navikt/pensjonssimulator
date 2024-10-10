@@ -1,19 +1,19 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteAldersberegning2011
+import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
 // Corresponds to AbstraktOpprettSisteAldersberegning + OpprettSisteAldersberegning2011Regelverk2025
 @Component
-class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteBeregningCreatorBase(context) {
+class Alderspensjon2025SisteBeregningCreator(kravService: KravService) : SisteBeregningCreatorBase(kravService) {
 
     // AbstraktOpprettSisteAldersberegning.execute
-    override fun createBeregning(spec: SisteBeregningSpec, beregningsresultat: AbstraktBeregningsResultat?) =
+    override fun createBeregning(spec: SisteBeregningSpec, beregningResultat: AbstraktBeregningsResultat?) =
         newSisteAldersberegning2011(spec).also {
-            populate(it, spec, beregningsresultat)
+            populate(it, spec, beregningResultat)
         }
 
     // OpprettSisteAldersberegning2011Regelverk2025.createAndInitSisteBeregning
@@ -23,8 +23,8 @@ class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteB
         }
 
         populateSisteBeregningFromBeregningsresultat2025(
-            sisteBeregning,
-            spec.beregningsresultat as? BeregningsResultatAlderspensjon2025
+            beregning = sisteBeregning,
+            beregningResultat = spec.beregningsresultat as? BeregningsResultatAlderspensjon2025
         )
 
         return sisteBeregning
@@ -33,9 +33,9 @@ class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteB
     // OpprettSisteAldersberegning2011Regelverk2025.populateSisteBeregningFromBeregningsresultat2025
     private fun populateSisteBeregningFromBeregningsresultat2025(
         beregning: SisteAldersberegning2011,
-        beregningsresultat: BeregningsResultatAlderspensjon2025?
+        beregningResultat: BeregningsResultatAlderspensjon2025?
     ) {
-        val aldersberegningKapittel20 = beregningsresultat?.beregningKapittel20
+        val aldersberegningKapittel20 = beregningResultat?.beregningKapittel20
 
         aldersberegningKapittel20?.let {
             setAlternativKonvensjonData(beregning, aldersberegningKapittel20, it.beregningsMetodeEnum!!)
@@ -46,10 +46,10 @@ class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteB
             beregning.beholdninger = it.beholdninger
         }
 
-        beregning.virkDato = beregningsresultat?.virkFom
-        beregning.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(beregningsresultat?.pensjonUnderUtbetaling)
-        beregningsresultat?.benyttetSivilstandEnum?.let { beregning.benyttetSivilstandEnum = it }
-        val beregningsinformasjon = beregningsresultat?.beregningsInformasjonKapittel20
+        beregning.virkDato = beregningResultat?.virkFom
+        beregning.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(beregningResultat?.pensjonUnderUtbetaling)
+        beregningResultat?.benyttetSivilstandEnum?.let { beregning.benyttetSivilstandEnum = it }
+        val beregningsinformasjon = beregningResultat?.beregningsInformasjonKapittel20
 
         beregningsinformasjon?.let {
             beregning.epsMottarPensjon = it.epsMottarPensjon
@@ -76,29 +76,6 @@ class Alderspensjon2025SisteBeregningCreator(context: SimulatorContext) : SisteB
 
         // Clear id values of all TtUtlandTrygdeavtale objects. Also copied by FPEN003 periodiserGrunnlag.
         trygdetid.ttUtlandTrygdeavtaler?.let { avtaler -> avtaler.forEach { it.ttUtlandTrygdeavtaleId = null } }
-    }
-    */
-
-    //TODO:
-    /* This method fetches krav from database; assumed to be irrelevant during simulation
-    private fun fetchPersongrunnlagFraForrigeKrav(
-        beregningsresultat: BeregningHoveddel?,
-        kravService: KravServiceBi,
-        fpenService: FpenServiceBi): Persongrunnlag? {
-        if (beregningsresultat == null || beregningsresultat.kravId == null) {
-            return null
-        }
-
-        val sisteKravhode: Kravhode = kravService.hentKrav(beregningsresultat.kravId) // NB DB access
-
-        val pgRequest = PeriodiserGrunnlagRequest().apply {
-            kravHode = sisteKravhode
-            virkDatoFom = beregningsresultat.virkFom
-            virkDatoTom = beregningsresultat.virkTom
-        }
-
-        val sisteKravhodePeriodisert: Kravhode = fpenService.periodiserGrunnlag(pgRequest).getKravhode()
-        return getEpsPersongrunnlag(sisteKravhodePeriodisert)
     }
     */
 }

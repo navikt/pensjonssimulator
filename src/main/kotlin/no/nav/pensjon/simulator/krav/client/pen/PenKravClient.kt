@@ -1,18 +1,10 @@
-package no.nav.pensjon.simulator.generelt.client.pen
+package no.nav.pensjon.simulator.krav.client.pen
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
-import no.nav.pensjon.simulator.generelt.GenerelleData
-import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
-import no.nav.pensjon.simulator.generelt.Person
-import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
-import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataResult
-import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataResultMapper
-import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataSpecMapper
+import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.krav.client.KravClient
+import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravSpec
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -25,25 +17,20 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import java.time.LocalDate
 
 @Component
-class PenGenerelleDataClient(
+class PenKravClient(
     @Value("\${ps.pen.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid
-) : ExternalServiceClient(retryAttempts), GenerelleDataClient {
+) : ExternalServiceClient(retryAttempts), KravClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    override fun service() = service
-
-    override fun fetchGenerelleData(spec: GenerelleDataSpec): GenerelleData {
+    override fun fetchKravhode(kravhodeId: Long): Kravhode {
         val uri = "$BASE_PATH/$PATH"
-        val dto = PenGenerelleDataSpecMapper.toDto(spec)
-        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient
@@ -52,19 +39,21 @@ class PenGenerelleDataClient(
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(::setHeaders)
-                .bodyValue(dto)
+                .bodyValue(PenKravSpec(kravhodeId))
                 .retrieve()
-                .bodyToMono(PenGenerelleDataResult::class.java)
+                .bodyToMono(Kravhode::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let(PenGenerelleDataResultMapper::fromDto)
-                ?: nullResult()
+                ?: Kravhode()
+            // NB: No mapping of response; it is assumed that PEN returns regler-compatible Kravhode
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
             throw EgressException(e.responseBodyAsString, e)
         }
     }
+
+    override fun service() = service
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
@@ -79,17 +68,7 @@ class PenGenerelleDataClient(
 
     companion object {
         private const val BASE_PATH = "api"
-        private const val PATH = "v1/simulering/generelle-data"
-
+        private const val PATH = "v1/simulering/kravhode"
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
-
-        private fun nullResult() =
-            GenerelleData(
-                person = Person(LocalDate.MIN, LandkodeEnum.NOR),
-                privatAfpSatser = PrivatAfpSatser(),
-                delingstallUtvalg = DelingstallUtvalg(),
-                forholdstallUtvalg = ForholdstallUtvalg(),
-                satsResultatListe = emptyList(),
-            )
     }
 }

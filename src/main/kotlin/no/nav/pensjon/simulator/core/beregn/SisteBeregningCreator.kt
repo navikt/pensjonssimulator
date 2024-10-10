@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
@@ -13,18 +12,18 @@ import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
 @Component
 class SisteBeregningCreator(
-    private val context: SimulatorContext,
+    private val kravService: KravService,
     private val alderspensjon2011SisteBeregningCreator: Alderspensjon2011SisteBeregningCreator,
     private val alderspensjon2016SisteBeregningCreator: Alderspensjon2016SisteBeregningCreator,
     private val alderspensjon2025SisteBeregningCreator: Alderspensjon2025SisteBeregningCreator
 ) {
-
     // SimuleringEtter2011Context.opprettSisteBeregning
     // -> SimpleFpenService.opprettSisteBeregning
     // -> OpprettSisteBeregningCommand.execute
@@ -41,7 +40,7 @@ class SisteBeregningCreator(
                 kravhode = kravhode,
                 vedtakListe = vedtakListe,
                 virkningFom = null,
-                beregningResult = beregningResultat
+                beregningResultat = beregningResultat
             )
 
         if (spec.isRegelverk1967 && spec.regelverk1967VirkToEarly) {
@@ -62,7 +61,6 @@ class SisteBeregningCreator(
         beregningsresultat: AbstraktBeregningsResultat?,
         gjeldendeKravId: Long?
     ): Kravhode? {
-        /*ANON
         val kravId = beregningsresultat?.kravId
 
         if (kravId == gjeldendeKravId) {
@@ -71,13 +69,11 @@ class SisteBeregningCreator(
 
         return kravId?.let {
             periodiserGrunnlag(
-                kravhode = context.getKravhode(it),
-                fom = beregningsresultat.virkFom,
-                tom = beregningsresultat.virkTom
+                kravhode = kravService.fetchKravhode(it),
+                fom = beregningsresultat.virkFom?.toLocalDate(),
+                tom = beregningsresultat.virkTom?.toLocalDate()
             )
         }
-        */
-        return null
     }
 
     // OpprettSisteBeregningCommand.createOpprettSisteBeregningInstance
@@ -116,7 +112,7 @@ class SisteBeregningCreator(
             kravhode: Kravhode,
             vedtakListe: List<VilkarsVedtak>,
             virkningFom: LocalDate?,
-            beregningResult: AbstraktBeregningsResultat?
+            beregningResultat: AbstraktBeregningsResultat?
         ): SisteBeregningSpec {
             val isRegelverk1967 = beregning != null
 
@@ -127,7 +123,7 @@ class SisteBeregningCreator(
                     isRegelverk1967 = true,
                     kravhode = kravhode,
                     beregning = beregning,
-                    beregningsresultat = beregningResult,
+                    beregningsresultat = beregningResultat,
                     vilkarsvedtakListe = vedtakListe,
                     regelverk1967VirkToEarly = etterRegulering,
                     fomDato = if (etterRegulering) null else beregning?.virkFom.toLocalDate(),
@@ -139,7 +135,7 @@ class SisteBeregningCreator(
             }
 
             val filtrertVedtakListe: List<VilkarsVedtak> =
-                beregningResult?.virkFom?.let { filtrerVedtak(it, beregningResult.virkTom, vedtakListe) }
+                beregningResultat?.virkFom?.let { filtrerVedtak(it, beregningResultat.virkTom, vedtakListe) }
                 //?: throw ImplementationUnrecoverableException("Missing beregningsresultat.virkFom")
                     ?: throw RuntimeException("Missing beregningsresultat.virkFom")
 
@@ -147,10 +143,10 @@ class SisteBeregningCreator(
                 isRegelverk1967 = false,
                 kravhode = kravhode,
                 beregning = beregning,
-                beregningsresultat = beregningResult,
+                beregningsresultat = beregningResultat,
                 vilkarsvedtakListe = vedtakListe,
-                fomDato = beregningResult.virkFom.toLocalDate(),
-                tomDato = beregningResult.virkTom.toLocalDate(),
+                fomDato = beregningResultat.virkFom.toLocalDate(),
+                tomDato = beregningResultat.virkTom.toLocalDate(),
                 filtrertVilkarsvedtakList = filtrertVedtakListe,
                 forrigeKravhode = null,
                 regelverkKodePaNyttKrav = null

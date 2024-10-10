@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.person
 
-import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.SimuleringSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.SimuleringType
@@ -11,12 +10,13 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrun
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.PersongrunnlagMapper
 @Component
-class PersongrunnlagMapper(val context: SimulatorContext) {
+class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder) {
 
     fun mapToPersongrunnlag(person: PenPerson, spec: SimuleringSpec) =
         createPersongrunnlag(
@@ -58,7 +58,7 @@ class PersongrunnlagMapper(val context: SimulatorContext) {
             gjelderUforetrygd = false
             penPerson = person
             fodselsdato = person.fodselsdato
-            statsborgerskapEnum = norge //ANON person.pid?.let(context::getStatsborgerskap)?.let { LandCti(it.name) } ?: norge
+            statsborgerskapEnum = person.pid?.let { generelleDataHolder.getPerson(it).statsborgerskap }
             bosattLandEnum = norge
             afpHistorikkListe = person.afpHistorikkListe ?: mutableListOf()
             uforeHistorikk = person.uforehistorikk

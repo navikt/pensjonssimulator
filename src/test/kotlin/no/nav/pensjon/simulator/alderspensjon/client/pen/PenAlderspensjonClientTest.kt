@@ -35,7 +35,7 @@ class PenAlderspensjonClientTest : FunSpec({
         SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
             TestingAuthenticationToken(
                 "TEST_USER",
-                Jwt("j.w.t", null, null, mapOf(Pair("k", "v")), mapOf(Pair("k", "v")))
+                Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
             ),
             EgressTokenSuppliersByService(mapOf())
         )

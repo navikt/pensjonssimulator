@@ -33,7 +33,7 @@ class PenKravClientTest : FunSpec({
         SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
             TestingAuthenticationToken(
                 "TEST_USER",
-                Jwt("j.w.t", null, null, mapOf(Pair("k", "v")), mapOf(Pair("k", "v")))
+                Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
             ),
             EgressTokenSuppliersByService(mapOf())
         )
@@ -641,7 +641,7 @@ object PenKravhodeResponse {
                 "hovedKravlinje": true
             },
             "relatertPerson": {
-                "penPersonId": 22204461
+                "penPersonId": 2345
             },
             "kravlinjeAvbrutt": false
         }

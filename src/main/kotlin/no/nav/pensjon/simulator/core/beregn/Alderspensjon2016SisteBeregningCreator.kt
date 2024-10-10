@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
+import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
 @Component
-class Alderspensjon2016SisteBeregningCreator(context: SimulatorContext) : SisteBeregningCreatorBase(context) {
+class Alderspensjon2016SisteBeregningCreator(kravService: KravService) : SisteBeregningCreatorBase(kravService) {
 
     // AbstraktOpprettSisteAldersberegning.execute
     override fun createBeregning(spec: SisteBeregningSpec, beregningResultat: AbstraktBeregningsResultat?) =

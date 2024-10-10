@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.beregn.BehandlingPeriodeUtil.periodiserGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningsmetodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
@@ -9,14 +9,16 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.krav.KravService
 
 // AbstraktOpprettSisteAldersberegning, OpprettSisteAldersberegningCommon, OpprettSisteBeregningCommand
-abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) {
+abstract class SisteBeregningCreatorBase(private val kravService: KravService) {
 
     // OpprettSisteBeregningCommand.execute
     abstract fun createBeregning(
-        input: SisteBeregningSpec,
-        beregningsresultat: AbstraktBeregningsResultat?
+        spec: SisteBeregningSpec,
+        beregningResultat: AbstraktBeregningsResultat?
     ): SisteBeregning
 
     // AbstraktOpprettSisteAldersberegning.populateCommonValuesOnSisteBeregning
@@ -76,7 +78,8 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
         kravhode?.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
 
     // Extracted
-    private fun sokerDetalj(kravhode: Kravhode?): PersonDetalj? = kravhode?.findPersonDetaljIBruk(GrunnlagsrolleEnum.SOKER)
+    private fun sokerDetalj(kravhode: Kravhode?): PersonDetalj? =
+        kravhode?.findPersonDetaljIBruk(GrunnlagsrolleEnum.SOKER)
 
     // OpprettSisteAldersberegningCommon.findDelberegning (predicate from addAltKonv)
     private fun findTapendeDelberegning(
@@ -106,15 +109,14 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
     }
 
     // OpprettSisteAldersberegningCommon.fetchPersongrunnlagFraForrigeKrav
-    private fun fetchEpsGrunnlag(beregningsresultat: AbstraktBeregningsResultat): Persongrunnlag? {
-        /*ANON
-        val kravhode: Kravhode? = beregningsresultat.kravId?.let(context::fetchKravhode)
+    private fun fetchEpsGrunnlag(beregningResultat: AbstraktBeregningsResultat): Persongrunnlag? {
+        val kravhode: Kravhode? = beregningResultat.kravId?.let(kravService::fetchKravhode)
 
         val periodisertKravhode: Kravhode? =
             kravhode?.let {
                 periodiserGrunnlag(
-                    virkFom = beregningsresultat.virkFom,
-                    virkTom = null,
+                    virkningFom = beregningResultat.virkFom.toLocalDate(),
+                    virkningTom = null,
                     originalKravhode = it,
                     periodiserFomTomDatoUtenUnntak = true,
                     sakType = null
@@ -122,8 +124,6 @@ abstract class SisteBeregningCreatorBase(private val context: SimulatorContext) 
             }
 
         return periodisertKravhode?.let(::getEpsGrunnlag)
-        */
-        return null
     }
 
     // OpprettSisteAldersberegningCommon.getEpsPersongrunnlag

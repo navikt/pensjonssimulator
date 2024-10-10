@@ -8,7 +8,7 @@ import java.util.*
 object TestDateUtil {
 
     fun dateAtNoon(year: Int, month: Int, day: Int): Date =
-        Calendar.getInstance().apply {
+        Calendar.getInstance(TimeZone.getTimeZone("CET"), Locale.ENGLISH).apply {
             this.clear()
             this[year, month] = day
             this[Calendar.HOUR_OF_DAY] = 12

@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.ytelse
 
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
-import no.nav.pensjon.simulator.core.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDayOfMonth2
 import java.time.LocalDate

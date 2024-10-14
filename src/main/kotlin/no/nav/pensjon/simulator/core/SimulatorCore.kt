@@ -26,6 +26,7 @@ import no.nav.pensjon.simulator.core.krav.*
 import no.nav.pensjon.simulator.core.result.ResultPreparerSpec
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
@@ -35,6 +36,7 @@ import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseGetter
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseResult
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.person.Pid
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -53,7 +55,8 @@ class SimulatorCore(
     private val knekkpunktFinder: KnekkpunktFinder,
     private val alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner,
     private val privatAfpBeregner: PrivatAfpBeregner,
-    private val generelleDataHolder: GenerelleDataHolder
+    private val generelleDataHolder: GenerelleDataHolder,
+    private val sakService: SakService
 ) : UttakAlderDiscriminator {
 
     private val logger = LoggerFactory.getLogger(SimulatorCore::class.java)
@@ -77,10 +80,10 @@ class SimulatorCore(
 
         logger.info("Simulator steg 1 - Hent løpende ytelser")
 
-        //val personVirkningsdatoCombo: FoersteVirkningDatoCombo? = simulatorInput.pid?.let(context::fetchPersonVirkningsdatoCombo) // null if forenklet simulering
+        val personVirkningsdatoCombo: FoersteVirkningDatoCombo? = spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? = null
-        val person: PenPerson? = null //ANON personVirkningsdatoCombo?.person
-        val foedselDato: LocalDate? = null //ANON person?.let { toLocalDate(it.foedselsdato) }
+        val person: PenPerson? = personVirkningsdatoCombo?.person
+        val foedselDato: LocalDate? = person?.fodselsdato?.toLocalDate()
         val ytelser: LoependeYtelser =
             fetchLoependeYtelser(spec, personVirkningDatoCombo?.foersteVirkningDatoListe.orEmpty())
 
@@ -226,18 +229,13 @@ class SimulatorCore(
             )
         )
 
-        //return if (spec.erAnonym)
-        //    OutputPensjonCombo(
-        //        anonymSimuleringResult = AnonymOutputMapper.mapSimuleringResult(output)
-        //    )
-        //else
-        //    OutputPensjonCombo(
-        //        /*ANON
-        //        pensjon = SimulatorAllPurposeResultTrimmer.trim(output, foedselsdato),
-        //        */
-        //        pensjon = null
-        //    )
-        return output
+        return if (spec.erAnonym)
+            output
+        else
+            output.apply {
+                this.foedselDato = foedselDato
+                this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
+            }
     }
 
     private fun fetchLoependeYtelser(

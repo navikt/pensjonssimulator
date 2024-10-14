@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.afp.offentlig.livsvarig
 
-import no.nav.pensjon.simulator.core.domain.Alder
+import no.nav.pensjon.simulator.alder.Alder
 import java.time.LocalDate
 
 // no.nav.consumer.pensjon.pen.simuleroffentligtjenestepensjon.to.afpoffentliglivsvarig.response.SimulerAFPOffentligLivsvarigResponse

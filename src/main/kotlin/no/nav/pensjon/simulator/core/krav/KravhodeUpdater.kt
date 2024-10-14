@@ -1,13 +1,13 @@
 package no.nav.pensjon.simulator.core.krav
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
@@ -221,7 +221,7 @@ class KravhodeUpdater(
             val trygdetidGrunnlag = TrygdetidGrunnlagFactory.trygdetidPeriode(
                 fom = LocalDate.of(aar, 1, 1),
                 tom = LocalDate.of(aar, 12, 31),
-                land = Land.NOR
+                land = LandkodeEnum.NOR
             )
 
             trygdetidListe.add(TrygdetidOpphold(periode = trygdetidGrunnlag, arbeidet = true))

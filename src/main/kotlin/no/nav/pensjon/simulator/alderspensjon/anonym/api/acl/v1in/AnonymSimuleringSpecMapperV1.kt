@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.anonym.api.acl.v1in
 
-import no.nav.pensjon.simulator.core.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 
 /**
  * Maps between data transfer objects (DTOs) and domain objects related to 'anonym simulering'.
@@ -27,6 +27,7 @@ object AnonymSimuleringSpecMapperV1 {
             erAnonym = true,
             // Resten er irrelevante for anonym simulering:
             pid = null,
+            foedselDato = null,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,

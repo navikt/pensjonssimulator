@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.spec
 
-import no.nav.pensjon.simulator.alder.AlderDato
+import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SimuleringType
@@ -51,15 +51,17 @@ data class SimuleringSpec(
         if (isGradert())
             GradertUttakSimuleringSpec(
                 grad = uttakGrad,
-                uttakFom = foersteUttakDato?.let { AlderDato(it, foedselDato) }
+                uttakFom = foersteUttakDato?.let { PensjonAlderDato(it, foedselDato) }
                     ?: throw IllegalArgumentException("gradertUttak.uttakFomAlder undefined"),
                 aarligInntektBeloep = inntektUnderGradertUttakBeloep
             )
         else
             null
 
-    fun gradertUttak(foersteUttakFom: AlderDato,
-                     uttakGrad: UttakGradKode): GradertUttakSimuleringSpec? =
+    fun gradertUttak(
+        foersteUttakFom: PensjonAlderDato,
+        uttakGrad: UttakGradKode
+    ): GradertUttakSimuleringSpec? =
         if (isGradert(uttakGrad))
             GradertUttakSimuleringSpec(
                 grad = uttakGrad,
@@ -70,23 +72,24 @@ data class SimuleringSpec(
             null
 
     fun heltUttak(foedselDato: LocalDate): HeltUttakSimuleringSpec {
-        val uttakDato: LocalDate = heltUttakDato ?: foersteUttakDato?: throw IllegalArgumentException("Ingen uttaksdato definert")
+        val uttakDato: LocalDate =
+            heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
-            uttakFom = AlderDato(uttakDato, foedselDato),
+            uttakFom = PensjonAlderDato(uttakDato, foedselDato),
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = AlderDato(uttakDato.plusYears(inntektAntallAar), foedselDato)
+            inntektTom = PensjonAlderDato(uttakDato.plusYears(inntektAntallAar), foedselDato)
         )
     }
 
-    fun heltUttak(foedselDato: LocalDate, heltUttakFom: AlderDato): HeltUttakSimuleringSpec {
+    fun heltUttak(foedselDato: LocalDate, heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
             uttakFom = heltUttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = AlderDato(heltUttakFom.dato.plusYears(inntektAntallAar), foedselDato)
+            inntektTom = PensjonAlderDato(heltUttakFom.dato.plusYears(inntektAntallAar), foedselDato)
         )
     }
 
@@ -140,7 +143,7 @@ data class SimuleringSpec(
                 type == SimuleringType.ENDR_AP_M_AFP_PRIVAT ||
                 type == SimuleringType.ENDR_ALDER_M_GJEN
 
-    private companion object{
+    private companion object {
         //TODO move to UttakGradKode?
         private fun isGradert(grad: UttakGradKode) =
             grad != UttakGradKode.P_0 && grad != UttakGradKode.P_100

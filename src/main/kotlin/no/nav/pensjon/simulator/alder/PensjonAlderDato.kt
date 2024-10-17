@@ -4,9 +4,10 @@ import java.time.LocalDate
 import java.time.Period
 
 /**
- * Inneholder alder og den datoen som alderen representerer relativt til fødselsdato.
+ * Inneholder pensjonsrelatart alder og den datoen som alderen representerer relativt til fødselsdato.
+ * "Pensjonsrelatert" vil si at det er første dag i måneden som brukes.
  */
-data class AlderDato(
+data class PensjonAlderDato(
     val alder: Alder,
     val dato: LocalDate
 ) {

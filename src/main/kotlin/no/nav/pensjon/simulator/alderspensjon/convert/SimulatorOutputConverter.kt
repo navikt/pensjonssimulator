@@ -16,7 +16,7 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.alder.AlderDato
+import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import java.time.LocalDate
@@ -189,14 +189,14 @@ object SimulatorOutputConverter {
      * Bakgrunnen for dette er at det i pensjonssammenheng opereres med hele måneder;
      * det er den første dag i påfølgende måned som legges til grunn ved f.eks. uttak av pensjon.
      */
-    private fun alderDato(foedselDato: LocalDate, dato: LocalDate): AlderDato =
+    private fun alderDato(foedselDato: LocalDate, dato: LocalDate): PensjonAlderDato =
         with(
             Period.between(
                 foedselDato.plusMonths(1).withDayOfMonth(1),
                 dato.withDayOfMonth(1)
             )
         ) {
-            AlderDato(
+            PensjonAlderDato(
                 alder = Alder(aar = this.years, maaneder = this.months),
                 dato = dato
             )

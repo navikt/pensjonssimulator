@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.spec
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.alder.AlderDato
+import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import java.time.LocalDate
 
 object SimuleringSpecUtil {
@@ -17,7 +17,7 @@ object SimuleringSpecUtil {
         normAlder: Alder,
         foedselDato: LocalDate
     ): SimuleringSpec {
-        val uttakFomAlder = AlderDato(foedselDato, alderSpec(normAlder))
+        val uttakFomAlder = PensjonAlderDato(foedselDato, alderSpec(normAlder))
 
         return newSimuleringSpec(
             source,
@@ -44,9 +44,9 @@ object SimuleringSpecUtil {
 
         return newSimuleringSpec(
             source,
-            foersteUttakFom = AlderDato(foedselDato, utkantFoersteUttakFomAlderSpec),
+            foersteUttakFom = PensjonAlderDato(foedselDato, utkantFoersteUttakFomAlderSpec),
             uttakGrad = if (gradert) utkantUttakGrad else UttakGradKode.P_100,
-            heltUttakFom = AlderDato(foedselDato, heltUttakFomAlderDto),
+            heltUttakFom = PensjonAlderDato(foedselDato, heltUttakFomAlderDto),
             foedselDato
         )
     }
@@ -59,9 +59,9 @@ object SimuleringSpecUtil {
 
     private fun newSimuleringSpec(
         source: SimuleringSpec,
-        foersteUttakFom: AlderDato,
+        foersteUttakFom: PensjonAlderDato,
         uttakGrad: UttakGradKode,
-        heltUttakFom: AlderDato,
+        heltUttakFom: PensjonAlderDato,
         foedselDato: LocalDate
     ): SimuleringSpec {
         val heltUttakDato: LocalDate = source.heltUttak(foedselDato, heltUttakFom).uttakFom.dato

@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.krav
 
 //TODO replace by no.nav.pensjon.simulator.core.domain.regler.enum.UttaksgradEnum?
-// no.nav.domain.pensjon.kjerne.kodetabeller.UttaksgradCode
+// This enum is 1:1 with no.nav.domain.pensjon.kjerne.kodetabeller.UttaksgradCode
 enum class UttakGradKode(val value: String) {
     /**
      * 0 %

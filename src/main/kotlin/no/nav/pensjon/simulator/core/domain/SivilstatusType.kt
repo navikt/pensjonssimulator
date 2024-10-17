@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.domain
 
 //TODO SivilstatusType vs SivilstandType
-// no.nav.domain.pensjon.kjerne.kodetabeller.SivilstatusTypeCode
+// This enum is 1:1 with no.nav.domain.pensjon.kjerne.kodetabeller.SivilstatusTypeCode
 enum class SivilstatusType {
     /**
      * Enke/-mann

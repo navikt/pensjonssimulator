@@ -2,8 +2,10 @@ package no.nav.pensjon.simulator.core.result
 
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.out.OutputLivsvarigOffentligAfp
+import java.time.LocalDate
 
 // no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011Resultat
 class SimulatorOutput {
@@ -18,4 +20,7 @@ class SimulatorOutput {
     var epsHarInntektOver2G: Boolean = false
     val privatAfpPeriodeListe: MutableList<SimulertPrivatAfpPeriode> = mutableListOf()
     val opptjeningListe: MutableList<SimulertOpptjening> = mutableListOf()
+
+    var foedselDato: LocalDate? = null
+    var persongrunnlag: Persongrunnlag? = null
 }

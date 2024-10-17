@@ -2,10 +2,10 @@ package no.nav.pensjon.simulator.core.krav
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.SimuleringSpec
-import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import java.time.LocalDate
 
@@ -41,13 +41,13 @@ private fun simuleringSpecMedOverlappendeUtlandPerioder(): SimuleringSpec =
             UtlandPeriode(
                 fom = LocalDate.of(2001, 1, 15), // overlapper uttaksperiode 2001...
                 tom = LocalDate.of(2001, 9, 15), // ...1.aug.-15.sept. (1 hel måned)
-                land = Land.AUS,
+                land = LandkodeEnum.AUS,
                 arbeidet = false
             ),
             UtlandPeriode(
                 fom = LocalDate.of(2001, 5, 15), // overlapper uttaksperiode 2001...
                 tom = LocalDate.of(2001, 12, 15), // ...1.aug.-15.des. (4 hele måneder)
-                land = Land.AUS,
+                land = LandkodeEnum.AUS,
                 arbeidet = true
             )
         )
@@ -61,6 +61,7 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         foersteUttakDato = LocalDate.of(2001, 8, 1), // => uttaksperiode 2001 = 1.aug.-31.des.
         heltUttakDato = null,
         pid = null,
+        foedselDato = null,
         avdoed = null,
         isTpOrigSimulering = false,
         simulerForTp = false,

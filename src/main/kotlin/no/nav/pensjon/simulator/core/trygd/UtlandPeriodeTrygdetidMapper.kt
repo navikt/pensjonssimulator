@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -65,7 +65,7 @@ object UtlandPeriodeTrygdetidMapper {
         val trygdetidPeriode = TrygdetidGrunnlagFactory.trygdetidPeriode(
             fom = opprinnelig.fom,
             tom = opprinnelig.tom,
-            land = opprinnelig.land?.let { Land.valueOf(it.kode) }
+            land = opprinnelig.land?.let { LandkodeEnum.valueOf(it.kode) }
         )
 
         return TrygdetidOpphold(trygdetidPeriode, utlandPeriode.arbeidet)

@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import org.springframework.stereotype.Component
@@ -23,8 +22,7 @@ import java.util.*
 
 @Component
 class SimulatorContext(
-    private val regelService: GenericRegelClient,
-    private val penClient: GenerelleDataClient
+    private val regelService: GenericRegelClient
 ) : RegelClient {
 
     // BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute

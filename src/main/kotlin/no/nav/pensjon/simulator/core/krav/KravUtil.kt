@@ -1,15 +1,10 @@
 package no.nav.pensjon.simulator.core.krav
 
-import no.nav.pensjon.simulator.core.SimuleringSpec
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.maanederInnenforAaret
 import no.nav.pensjon.simulator.tech.time.DateUtil.maanederInnenforRestenAvAaret
 
 object KravUtil {
-
-    //fun kravlinjeType(type: KravlinjeTypeEnum) =
-    //    KravlinjeTypeCti(type.name).apply { hovedKravlinje = type.erHovedkravlinje }
 
     /**
      * Finner antall hele måneder utenlands i et gitt år.

@@ -53,6 +53,12 @@ spec:
             - orgno: "982583462" # SPK
             - orgno: "931936492" # Storebrand Pensjonstjenester
   accessPolicy:
+    inbound:
+      rules:
+        - application: pensjon-pen
+          namespace: pensjondeployer
+          cluster: prod-fss
+        - application: pensjonskalkulator-backend
     outbound:
       rules:
         - application: pensjon-pen

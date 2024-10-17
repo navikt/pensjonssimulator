@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.domain
+package no.nav.pensjon.simulator.alder
 
 data class Alder(val aar: Int, val maaneder: Int) {
 
@@ -11,6 +11,8 @@ data class Alder(val aar: Int, val maaneder: Int) {
         MAANEDER_PER_AAR * (aar - alder.aar) + maaneder - alder.maaneder
 
     fun minusAar(antall: Int) = Alder(aar - antall, maaneder)
+
+    fun plusAar(antall: Int) = Alder(aar + antall, maaneder)
 
     fun minusMaaneder(antall: Int): Alder {
         if (antall < 0) {

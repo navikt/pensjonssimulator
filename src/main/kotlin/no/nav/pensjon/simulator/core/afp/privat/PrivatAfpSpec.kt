@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.afp.privat
 
-import no.nav.pensjon.simulator.core.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import java.time.LocalDate

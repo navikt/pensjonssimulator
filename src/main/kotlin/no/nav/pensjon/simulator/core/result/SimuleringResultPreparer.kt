@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.result
 
-import no.nav.pensjon.simulator.core.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.findElementOfType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.sortedSubset

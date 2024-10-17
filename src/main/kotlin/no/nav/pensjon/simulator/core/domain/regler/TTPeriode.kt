@@ -54,23 +54,17 @@ class TTPeriode(
     }
     // end SIMDOM-ADD
 
-    constructor(tTPeriode: TTPeriode) : this() {
-        if (tTPeriode.fom != null) {
-            this.fom = tTPeriode.fom!!.clone() as Date
-        }
-        if (tTPeriode.tom != null) {
-            this.tom = tTPeriode.tom!!.clone() as Date
-        }
-        this.poengIInnAr = tTPeriode.poengIInnAr
-        this.poengIUtAr = tTPeriode.poengIUtAr
-        if (tTPeriode.land != null) {
-            this.land = LandCti(tTPeriode.land)
-        }
-        this.ikkeProRata = tTPeriode.ikkeProRata
-        this.bruk = tTPeriode.bruk
-        if (tTPeriode.grunnlagKilde != null) {
-            this.grunnlagKilde = GrunnlagKildeCti(tTPeriode.grunnlagKilde)
-        }
+    constructor(source: TTPeriode) : this() {
+        source.fom?.let { this.fom = it.clone() as Date }
+        source.rawFom?.let { this.rawFom = it.clone() as Date }
+        source.tom?.let { this.tom = it.clone() as Date }
+        source.rawTom?.let { this.rawTom = it.clone() as Date }
+        this.poengIInnAr = source.poengIInnAr
+        this.poengIUtAr = source.poengIUtAr
+        source.land?.let { this.land = LandCti(it) }
+        this.ikkeProRata = source.ikkeProRata
+        this.bruk = source.bruk
+        source.grunnlagKilde?.let { this.grunnlagKilde = GrunnlagKildeCti(it) }
     }
 
     override fun compareTo(other: TTPeriode): Int {

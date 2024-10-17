@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
@@ -177,7 +177,7 @@ object TrygdetidSetter {
         TrygdetidGrunnlagFactory.trygdetidPeriode(
             fom = fromLocalDate(fom)!!, //TODO noon?
             tom = fromLocalDate(tom),
-            land = Land.NOR,
+            land = LandkodeEnum.NOR,
             ikkeProRata = ikkeProRata,
             bruk = true
         )

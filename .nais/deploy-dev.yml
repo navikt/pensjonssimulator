@@ -56,10 +56,13 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: pensjon-pen-q2
+          namespace: pensjon-q2
+          cluster: dev-fss
         - application: pensjonskalkulator-backend
-        - application: azure-token-generator
+        - application: azure-token-generator # dev only
           namespace: aura
-        - application: tokenx-token-generator
+        - application: tokenx-token-generator # dev only
           namespace: aura
     outbound:
       rules:

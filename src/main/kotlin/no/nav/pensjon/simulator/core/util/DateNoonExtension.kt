@@ -4,16 +4,15 @@ import java.util.*
 
 // no.nav.consumer.pensjon.pen.regler.common.mapper.PenReglerPenDateMapper
 object DateNoonExtension {
-    val norwegianLocale = Locale("nb", "NO")
+    val norwegianLocale = Locale.of("nb", "NO")
     val norwegianTimeZone = TimeZone.getTimeZone("Europe/Oslo")
 
-    fun Date.noon(): Date {
-        val calendar = Calendar.getInstance(norwegianTimeZone, norwegianLocale)
-        calendar.time = this
-        calendar[Calendar.HOUR_OF_DAY] = 12
-        calendar[Calendar.MINUTE] = 0
-        calendar[Calendar.SECOND] = 0
-        calendar[Calendar.MILLISECOND] = 0
-        return calendar.time
-    }
+    fun Date.noon(): Date =
+        Calendar.getInstance(norwegianTimeZone, norwegianLocale).also {
+            it.time = this
+            it[Calendar.HOUR_OF_DAY] = 12
+            it[Calendar.MINUTE] = 0
+            it[Calendar.SECOND] = 0
+            it[Calendar.MILLISECOND] = 0
+        }.time
 }

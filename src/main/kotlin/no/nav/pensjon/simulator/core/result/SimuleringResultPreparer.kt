@@ -195,22 +195,22 @@ object SimuleringResultPreparer {
         soekerGrunnlag: Persongrunnlag,
         forrigeAfpBeregningResultat: BeregningsResultatAfpPrivat?
     ) {
-        val fodselsdato: LocalDate? = soekerGrunnlag.fodselsdato.toLocalDate()
-        val startAlder = calculateStartAlder(simuleringSpec, fodselsdato!!, forrigeAfpBeregningResultat, false)
+        val foedselDato: LocalDate? = soekerGrunnlag.fodselsdato.toLocalDate()
+        val startAlder = calculateStartAlder(simuleringSpec, foedselDato!!, forrigeAfpBeregningResultat, false)
         var forrigeAfpBeregningsresultatKopi: BeregningsResultatAfpPrivat? = null
 
         if (forrigeAfpBeregningResultat != null) {
             // Put a copy of the løpende beregningsresultat on the list. Adjust fom/tom.
-            forrigeAfpBeregningsresultatKopi = modifiedCopyOfBeregningsresultat(
+            forrigeAfpBeregningsresultatKopi = modifiedCopyOfPrivatAfpBeregningResultat(
                 beregningResultat = forrigeAfpBeregningResultat,
                 resultatListe = privatAfpBeregningResultatListe,
-                foedselDato = fodselsdato
+                foedselDato = foedselDato
             )
             privatAfpBeregningResultatListe.add(forrigeAfpBeregningsresultatKopi)
         }
 
         for (alder in startAlder..MAX_OPPTJENING_ALDER) {
-            val beloepPeriode: BeloepPeriode = beloepPeriode(fodselsdato, alder, privatAfpBeregningResultatListe)
+            val beloepPeriode: BeloepPeriode = beloepPeriode(foedselDato, alder, privatAfpBeregningResultatListe)
             val afpResultat: BeregningsResultatAfpPrivat? =
                 findEarliestIntersecting(privatAfpBeregningResultatListe, beloepPeriode.start, beloepPeriode.slutt)
 
@@ -360,8 +360,8 @@ object SimuleringResultPreparer {
             forrigeBeholdning = 0
         }
 
-        val fodselsdato = soekerGrunnlag.fodselsdato.toLocalDate()
-        val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, fodselsdato)
+        val foedselDato = soekerGrunnlag.fodselsdato.toLocalDate()
+        val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, foedselDato)
 
         createSimulertBeregningsinfoForKnekkpunkter(
             kravhode,
@@ -372,7 +372,7 @@ object SimuleringResultPreparer {
             forrigeBasispensjon,
             forrigeBeholdning,
             punkter,
-            fodselsdato!!
+            foedselDato!!
         )
 
         if (outputSimulertBeregningsinfoForAlleKnekkpunkter) {
@@ -381,7 +381,7 @@ object SimuleringResultPreparer {
                     kravhode,
                     resultatListe,
                     simulertAlderspensjon,
-                    fodselsdato,
+                    foedselDato,
                     spec
                 )
         }
@@ -426,7 +426,7 @@ object SimuleringResultPreparer {
     }
 
     // OpprettOutputHelper.createModifiedCopyOfForrigeAfpBeregningsresultat
-    private fun modifiedCopyOfBeregningsresultat(
+    private fun modifiedCopyOfPrivatAfpBeregningResultat(
         beregningResultat: BeregningsResultatAfpPrivat,
         resultatListe: List<BeregningsResultatAfpPrivat>,
         foedselDato: LocalDate

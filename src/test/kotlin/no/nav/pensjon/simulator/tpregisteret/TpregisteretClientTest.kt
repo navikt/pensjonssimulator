@@ -5,6 +5,9 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.testutil.TestObjects.jwt
+import no.nav.pensjon.simulator.testutil.TestObjects.organisasjonsnummer
+import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.mockito.Mockito.mock
@@ -16,7 +19,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.reactive.function.client.WebClient
 
 class TpregisteretClientTest : FunSpec({
@@ -27,10 +29,7 @@ class TpregisteretClientTest : FunSpec({
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
 
         SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
-            TestingAuthenticationToken(
-                "TEST_USER",
-                Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
-            ),
+            TestingAuthenticationToken("TEST_USER", jwt),
             EgressTokenSuppliersByService(mapOf())
         )
 
@@ -59,7 +58,7 @@ class TpregisteretClientTest : FunSpec({
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = TpregisteretClient(baseUrl!!, "2", webClientBuilder, mock(TraceAid::class.java))
 
-            val result = client.hentErBrukerTilknyttetTpLeverandoer("12345678910", "123456789")
+            val result = client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)
 
             result shouldBe true
         }
@@ -81,7 +80,7 @@ class TpregisteretClientTest : FunSpec({
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = TpregisteretClient(baseUrl!!, "2", webClientBuilder, mock(TraceAid::class.java))
 
-            val result = client.hentErBrukerTilknyttetTpLeverandoer("12345678910", "123456789")
+            val result = client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)
 
             result shouldBe false
         }
@@ -103,7 +102,7 @@ class TpregisteretClientTest : FunSpec({
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = TpregisteretClient(baseUrl!!, "2", webClientBuilder, mock(TraceAid::class.java))
 
-            val result = client.hentErBrukerTilknyttetTpLeverandoer("12345678910", "123456789")
+            val result = client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)
 
             result shouldBe false
         }
@@ -124,7 +123,7 @@ class TpregisteretClientTest : FunSpec({
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = TpregisteretClient(baseUrl!!, "2", webClientBuilder, mock(TraceAid::class.java))
 
-            val result = client.hentErBrukerTilknyttetTpLeverandoer("12345678910", "123456789")
+            val result = client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)
 
             result shouldBe false
         }

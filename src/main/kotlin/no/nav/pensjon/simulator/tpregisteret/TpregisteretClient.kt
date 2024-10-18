@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.tpregisteret
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -25,8 +27,8 @@ class TpregisteretClient(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    fun hentErBrukerTilknyttetTpLeverandoer(pid: String, orgNummer: String): Boolean {
-        val uri = "$PATH/hasForhold?orgnr=$orgNummer"
+    fun hentErBrukerTilknyttetTpLeverandoer(pid: Pid, organisasjonsnummer: Organisasjonsnummer): Boolean {
+        val uri = "$PATH/hasForhold?orgnr=$organisasjonsnummer"
         return try {
             val response = webClient.post()
                 .uri(uri)
@@ -35,19 +37,28 @@ class TpregisteretClient(
                 .retrieve()
                 .bodyToMono(BrukerTilknyttetTpLeverandoerResponse::class.java)
                 .block()
-            response?.forhold ?: logAndReturnFalse("Tom responsebody fra tpregisteret", orgNummer)
+            response?.forhold ?: logAndReturnFalse("Tom responsebody fra ${service.shortName}", organisasjonsnummer)
         } catch (e: WebClientRequestException) {
-            logAndReturnFalse("Failed calling $uri", orgNummer, e)
+            logAndReturnFalse("Failed calling $uri", organisasjonsnummer, e)
         } catch (e: WebClientResponseException) {
-            logAndReturnFalse(e.responseBodyAsString, orgNummer, e)
+            logAndReturnFalse(e.responseBodyAsString, organisasjonsnummer, e)
         } catch (e: Exception) {
-            logAndReturnFalse("Unexpected exception ${e.message}, while calling tpregisteret", orgNummer, e)
+            logAndReturnFalse(
+                "Unexpected exception ${e.message}, while calling ${service.shortName}",
+                organisasjonsnummer,
+                e
+            )
         }
     }
 
-    private fun logAndReturnFalse(feilmelding: String, orgNummer: String, e: Exception? = null): Boolean {
-        val errorMsg = "Teknisk feil ved verifisering av at brukeren er tilknyttet angitt tp-leverandør med orgnummer $orgNummer: $feilmelding"
-        e?.let { log.error(e) { errorMsg } } ?: log.error { errorMsg }
+    private fun logAndReturnFalse(
+        feilmelding: String,
+        organisasjonsnummer: Organisasjonsnummer,
+        e: Exception? = null
+    ): Boolean {
+        val message = "Teknisk feil ved verifisering av at brukeren er tilknyttet tjenestepensjonsordning" +
+                " med organisasjonsnummer $organisasjonsnummer: $feilmelding"
+        e?.let { log.error(e) { message } } ?: log.error { message }
         return false
     }
 

@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController
 class TpoAlderspensjonController(
     private val simulatorCore: SimulatorCore,
     private val traceAid: TraceAid
-) : ControllerBase(traceAid, organisasjonsnummerProvider = null, tpregisteretService = null) {
+) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-alderspensjon")

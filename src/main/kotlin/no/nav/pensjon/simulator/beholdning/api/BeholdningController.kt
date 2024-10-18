@@ -13,11 +13,11 @@ import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecMapperV1.fromSpecV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
-import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretService
+import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -30,8 +30,8 @@ class BeholdningController(
     private val service: FolketrygdBeholdningService,
     private val traceAid: TraceAid,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
-    tpregisteretService: TpregisteretService,
-) : ControllerBase(traceAid, organisasjonsnummerProvider, tpregisteretService) {
+    tilknytningService: TilknytningService,
+) : ControllerBase(traceAid, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-folketrygdbeholdning")

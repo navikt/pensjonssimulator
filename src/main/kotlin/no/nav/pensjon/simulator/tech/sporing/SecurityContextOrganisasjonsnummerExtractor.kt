@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.tech.sporing
 
+import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
+import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.sporing.context.SecurityContextClaimExtractor
 import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Component

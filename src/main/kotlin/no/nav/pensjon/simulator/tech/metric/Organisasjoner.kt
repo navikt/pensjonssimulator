@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tech.metric
 
-import no.nav.pensjon.simulator.tech.sporing.Organisasjonsnummer
+import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 
 object Organisasjoner {
 

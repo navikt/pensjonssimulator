@@ -4,10 +4,10 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
-import no.nav.pensjon.simulator.tech.sporing.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretService
+import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -16,8 +16,13 @@ import java.lang.System.currentTimeMillis
 abstract class ControllerBase(
     private val traceAid: TraceAid,
     private val organisasjonsnummerProvider: OrganisasjonsnummerProvider?,
-    private val tpregisteretService: TpregisteretService?,
+    private val tilknytningService: TilknytningService?
 ) {
+    constructor(traceAid: TraceAid) : this(
+        traceAid,
+        organisasjonsnummerProvider = null,
+        tilknytningService = null
+    )
 
     private val log = KotlinLogging.logger {}
 
@@ -62,9 +67,10 @@ abstract class ControllerBase(
 
     protected fun verifiserAtBrukerTilknyttetTpLeverandoer(pid: Pid) {
         organisasjonsnummerProvider?.let {
-            val orgNummer = it.provideOrganisasjonsnummer().value
-            if (tpregisteretService?.erBrukerTilknyttetAngittTpLeverandoer(pid.value, orgNummer) == false) {
-                log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $orgNummer" }
+            val organisasjonsnummer = it.provideOrganisasjonsnummer()
+
+            if (tilknytningService?.erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) == false) {
+                log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $organisasjonsnummer" }
                 //TODO uncomment to enforce policy
     //            throw ResponseStatusException(
     //                HttpStatus.FORBIDDEN,
@@ -76,7 +82,7 @@ abstract class ControllerBase(
 
     abstract fun errorMessage(): String
 
-    private fun <T> handleInternalError(e: EgressException): T? {
+    private fun <T> handleInternalError(e: EgressException): Nothing {
         logError(e, "Intern")
 
         throw ResponseStatusException(

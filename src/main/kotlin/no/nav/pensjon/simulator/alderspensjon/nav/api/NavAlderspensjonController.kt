@@ -33,7 +33,7 @@ class NavAlderspensjonController(
     private val service: SimuleringFacade,
     private val generelleDataHolder: GenerelleDataHolder,
     private val traceAid: TraceAid
-) : ControllerBase(traceAid, organisasjonsnummerProvider = null, tpregisteretService = null) {
+) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-alderspensjon")

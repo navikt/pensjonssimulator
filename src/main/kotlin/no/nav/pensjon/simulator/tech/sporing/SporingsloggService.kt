@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.tech.sporing
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.SecurityCoroutineContext
 import no.nav.pensjon.simulator.tech.sporing.client.SporingsloggClient

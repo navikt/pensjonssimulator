@@ -20,7 +20,7 @@ object TpoSimuleringResultMapperV3 {
         )
 
     private fun alderspensjon(source: SimulertAlderspensjon) =
-        SimulertAlderspensjonV3(
+        TpoAlderspensjonV3(
             pensjonsperiodeListe = source.pensjonPeriodeListe.map(::pensjonPeriode),
             pensjonsbeholdningListe = source.pensjonBeholdningListe.map(::beholdningPeriode),
             uttaksgradListe = source.uttakGradListe.map(::uttakGrad),
@@ -28,16 +28,16 @@ object TpoSimuleringResultMapperV3 {
         )
 
     private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
-        SimulertAfpPrivatperiodeV3(afpOpptjening = source.afpOpptjening)
+        TpoPrivatAfpPeriodeV3(afpOpptjening = source.afpOpptjening)
 
     private fun pensjonPeriode(source: PensjonPeriode) =
-        PensjonsperiodeV3(
+        TpoPensjonPeriodeV3(
             alder = source.alderAar,
             belop = source.beloep
         )
 
     private fun beholdningPeriode(source: BeholdningPeriode) =
-        PensjonsbeholdningPeriodeV3(
+        TpoPensjonBeholdningPeriodeV3(
             datoFom = source.datoFom,
             garantipensjonsbeholdning = source.garantipensjonsbeholdning,
             garantitilleggsbeholdning = source.garantitilleggsbeholdning,
@@ -46,14 +46,14 @@ object TpoSimuleringResultMapperV3 {
         )
 
     private fun uttakGrad(source: Uttaksgrad) =
-        UttaksgradV3(
+        TpoUttakGradV3(
             uttaksgrad = source.uttaksgrad,
             fomDato = source.fomDato.toLocalDate(),
             tomDato = source.tomDato.toLocalDate()
         )
 
     private fun beregningInformasjon(source: SimulertBeregningInformasjon) =
-        SimulertBeregningsinformasjonV3(
+        TpoBeregningInformasjonV3(
             datoFom = source.datoFom,
             uttaksgrad = source.uttakGrad,
 
@@ -81,7 +81,7 @@ object TpoSimuleringResultMapperV3 {
         )
 
     private fun garantipensjonNivaa(source: GarantipensjonNivaa) =
-        GarantipensjonsnivaV3(
+        TpoGarantipensjonNivaaV3(
             belop = source.beloep,
             satsType = source.satsType,
             sats = source.sats,

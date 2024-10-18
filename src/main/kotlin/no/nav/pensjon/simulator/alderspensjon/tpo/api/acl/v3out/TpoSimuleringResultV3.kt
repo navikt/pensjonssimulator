@@ -8,49 +8,56 @@ import java.time.LocalDate
  * (except that dates are represented by java.time.LocalDate here and by java.util.Date in PEN).
  */
 data class TpoSimuleringResultV3(
-    val ap: SimulertAlderspensjonV3? = null,
-    val afpPrivat: List<SimulertAfpPrivatperiodeV3> = emptyList(),
+    val ap: TpoAlderspensjonV3? = null,
+    val afpPrivat: List<TpoPrivatAfpPeriodeV3> = emptyList(),
     val sisteGyldigeOpptjeningsAr: Int? = null
 )
 
-data class SimulertAlderspensjonV3(
-    val pensjonsperiodeListe: List<PensjonsperiodeV3> = emptyList(),
-    val pensjonsbeholdningListe: List<PensjonsbeholdningPeriodeV3> = emptyList(),
-    val uttaksgradListe: List<UttaksgradV3> = emptyList(),
-    val simulertBeregningsinformasjonListe: List<SimulertBeregningsinformasjonV3> = emptyList()
+// SimulertAlderspensjonV3 in PEN
+data class TpoAlderspensjonV3(
+    val pensjonsperiodeListe: List<TpoPensjonPeriodeV3> = emptyList(),
+    val pensjonsbeholdningListe: List<TpoPensjonBeholdningPeriodeV3> = emptyList(),
+    val uttaksgradListe: List<TpoUttakGradV3> = emptyList(),
+    val simulertBeregningsinformasjonListe: List<TpoBeregningInformasjonV3> = emptyList()
 )
 
-data class SimulertAfpPrivatperiodeV3(
+// SimulertAfpPrivatperiodeV3 in PEN
+data class TpoPrivatAfpPeriodeV3(
     val afpOpptjening: Int? = null
 )
 
-data class PensjonsperiodeV3(
+// PensjonsperiodeV3 in PEN
+data class TpoPensjonPeriodeV3(
     val alder: Int? = null,
     val belop: Int? = null
 )
 
-data class PensjonsbeholdningPeriodeV3(
+// PensjonsbeholdningPeriodeV3 in PEN
+data class TpoPensjonBeholdningPeriodeV3(
     val datoFom: LocalDate? = null,
     val garantipensjonsbeholdning: Double? = null,
     val garantitilleggsbeholdning: Double? = null,
     val pensjonsbeholdning: Double? = null,
-    val garantipensjonsniva: GarantipensjonsnivaV3? = null
+    val garantipensjonsniva: TpoGarantipensjonNivaaV3? = null
 )
 
-data class GarantipensjonsnivaV3(
+// GarantipensjonsnivaV3 in PEN
+data class TpoGarantipensjonNivaaV3(
     val belop: Double? = null,
     val satsType: String? = null,
     val sats: Double? = null,
     val tt_anv: Int? = null
 )
 
-data class UttaksgradV3(
+// UttaksgradV3 in PEN
+data class TpoUttakGradV3(
     val uttaksgrad: Int? = null,
     val fomDato: LocalDate? = null,
     val tomDato: LocalDate? = null
 )
 
-data class SimulertBeregningsinformasjonV3(
+// SimulertBeregningsinformasjonV3 in PEN
+data class TpoBeregningInformasjonV3(
     val datoFom: LocalDate? = null,
     val uttaksgrad: Double? = null,
 

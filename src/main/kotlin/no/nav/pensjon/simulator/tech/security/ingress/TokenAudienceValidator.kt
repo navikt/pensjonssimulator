@@ -8,23 +8,19 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failu
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success
 import org.springframework.security.oauth2.jwt.Jwt
 
-class TokenScopeValidator(val scope: String) : OAuth2TokenValidator<Jwt> {
+class TokenAudienceValidator(val audience: String) : OAuth2TokenValidator<Jwt> {
 
     private val log = KotlinLogging.logger {}
 
     override fun validate(token: Jwt): OAuth2TokenValidatorResult =
-        validate(tokenScope = token.getClaimAsString(CLAIM_NAME) ?: "")
+        validate(token.audience.orEmpty())
 
-    private fun validate(tokenScope: String): OAuth2TokenValidatorResult =
-        if (tokenScope == scope)
+    private fun validate(audiences: List<String>): OAuth2TokenValidatorResult =
+        if (audiences.contains(audience))
             success()
         else
-            "Invalid $CLAIM_NAME: $tokenScope".let {
+            "Invalid audience claim: ${audiences.joinToString()}".let {
                 log.warn { it }
                 failure(OAuth2Error(it))
             }
-
-    private companion object {
-        private const val CLAIM_NAME = "scope"
-    }
 }

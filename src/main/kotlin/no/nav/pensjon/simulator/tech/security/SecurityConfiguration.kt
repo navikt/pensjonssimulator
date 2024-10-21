@@ -3,10 +3,13 @@ package no.nav.pensjon.simulator.tech.security
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.pensjon.simulator.tech.security.egress.SecurityContextEnricher
 import no.nav.pensjon.simulator.tech.security.ingress.AuthenticationEnricherFilter
+import no.nav.pensjon.simulator.tech.security.ingress.TokenAudienceValidator
 import no.nav.pensjon.simulator.tech.security.ingress.TokenScopeValidator
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.authentication.ProviderManager
@@ -51,18 +54,50 @@ open class SecurityConfiguration {
             .build()
 
     @Bean
-    open fun tokenAuthenticationManagerResolver(
-        @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}") issuerUri: String,
-        @Value("\${ps.maskinporten.scope}") scope: String
+    @Primary
+    open fun authenticationManagerResolver(
+        @Qualifier("entra-id-provider") entraProvider: ProviderManager,
+        @Qualifier("maskinporten-provider") maskinportenProvider: ProviderManager
     ): AuthenticationManagerResolver<HttpServletRequest> =
-        AuthenticationManagerResolver { ProviderManager(JwtAuthenticationProvider(jwtDecoder(issuerUri, scope))) }
+        ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
+
+    @Bean("entra-id-provider")
+    @Primary
+    open fun entraIdProvider(
+        @Value("\${azure.openid.config.issuer}") issuer: String,
+        @Value("\${azure-app.client-id}") audience: String
+    ): ProviderManager =
+        ProviderManager(
+            JwtAuthenticationProvider(
+                jwtDecoder(issuer, tokenValidator = TokenAudienceValidator(audience))
+            )
+        )
+
+    @Bean("maskinporten-provider")
+    open fun maskinportenProvider(
+        @Value("\${maskinporten.issuer}") issuer: String,
+        @Value("\${ps.maskinporten.scope}") scope: String
+    ): ProviderManager =
+        ProviderManager(
+            JwtAuthenticationProvider(
+                jwtDecoder(issuer, tokenValidator = TokenScopeValidator(scope))
+            )
+        )
+
 
     private companion object {
-        private fun jwtDecoder(issuerUri: String, scope: String): JwtDecoder {
-            val decoder = JwtDecoders.fromIssuerLocation(issuerUri) as NimbusJwtDecoder
-            val issuerValidator: OAuth2TokenValidator<Jwt> = JwtValidators.createDefaultWithIssuer(issuerUri)
-            decoder.setJwtValidator(DelegatingOAuth2TokenValidator(issuerValidator, TokenScopeValidator(scope)))
-            return decoder
-        }
+
+        private fun jwtDecoder(issuer: String, tokenValidator: OAuth2TokenValidator<Jwt>): JwtDecoder =
+            jwtDecoder(issuer).apply {
+                setJwtValidator(
+                    DelegatingOAuth2TokenValidator(
+                        JwtValidators.createDefaultWithIssuer(issuer),
+                        tokenValidator
+                    )
+                )
+            }
+
+        private fun jwtDecoder(issuer: String) =
+            JwtDecoders.fromIssuerLocation(issuer) as NimbusJwtDecoder
     }
 }

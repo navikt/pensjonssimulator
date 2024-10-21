@@ -6,7 +6,7 @@ object Organisasjoner {
 
     private val organisasjonNavnForNummer =
         mapOf(
-            "889640782" to "NAV",
+            "889640782" to "Nav",
             "938708606" to "KLP",
             "982583462" to "SPK",
             "931936492" to "Stb"

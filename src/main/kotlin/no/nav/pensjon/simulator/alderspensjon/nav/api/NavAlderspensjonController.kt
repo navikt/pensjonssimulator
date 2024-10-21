@@ -38,8 +38,8 @@ class NavAlderspensjonController(
 
     @PostMapping("v1/simuler-alderspensjon")
     @Operation(
-        summary = "Simuler alderspensjon for NAV-klient",
-        description = "Lager en prognose for utbetaling av alderspensjon, basert på NAV-lagret info og input fra bruker.",
+        summary = "Simuler alderspensjon for Nav-klient",
+        description = "Lager en prognose for utbetaling av alderspensjon, basert på Nav-lagret info og input fra bruker.",
     )
     @ApiResponses(
         value = [
@@ -87,7 +87,7 @@ class NavAlderspensjonController(
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
-        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for NAV-klient"
+        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for Nav-klient"
         private const val FUNCTION_ID = "nav-ap"
     }
 }

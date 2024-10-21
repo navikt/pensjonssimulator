@@ -131,7 +131,7 @@ object DateUtil {
         local(lastDayOfMonthUserTurns67(fromLocalDate(foedselDato)))!!
 
     /**
-     * Calculates the age in years of a person on a given date. The age is returned "NAV style", i.e. the user is considered to
+     * Calculates the age in years of a person on a given date. The age is returned "Nav style", i.e. the user is considered to
      * be of a certain age in a 12-month period starting from the 1st of the month after the birthday month.
      */
     // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.calculateAgeInYears

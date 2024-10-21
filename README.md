@@ -16,8 +16,8 @@ Appen er pr. august 2024 kun et mellomledd mellom tjenestepensjonsleverandører 
 
 ## Dokumentasjon
 
-* [NAV-intern dokumentasjon](https://confluence.adeo.no/display/PEN/Pensjonssimulator-app)
+* [Nav-intern dokumentasjon](https://confluence.adeo.no/display/PEN/Pensjonssimulator-app)
 
 ## Henvendelser
 
-NAV-interne henvendelser kan sendes via Slack i kanalen [#pensjonskalkulator](https://nav-it.slack.com/archives/C04M46SPSRL).
+Nav-interne henvendelser kan sendes via Slack i kanalen [#pensjonskalkulator](https://nav-it.slack.com/archives/C04M46SPSRL).

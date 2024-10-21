@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 // PEN: SimpleSimuleringService
-// Vil brukes av NAV-klienter og tjenestepensjonsordninger
+// Vil brukes av Nav-klienter og tjenestepensjonsordninger
 @Service
 class SimuleringFacade(
     private val simulator: SimulatorCore,

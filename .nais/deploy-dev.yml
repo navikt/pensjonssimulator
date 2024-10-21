@@ -49,7 +49,7 @@ spec:
           enabled: true
           product: "pensjonssimulator"
           consumers:
-            - orgno: "889640782" # NAV (NB: dev only)
+            - orgno: "889640782" # Nav (NB: dev only)
             - orgno: "938708606" # KLP
             - orgno: "982583462" # SPK
             - orgno: "931936492" # Storebrand Pensjonstjenester

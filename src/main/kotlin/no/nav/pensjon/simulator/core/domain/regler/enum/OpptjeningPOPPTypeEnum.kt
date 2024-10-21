@@ -63,7 +63,7 @@ enum class OpptjeningPOPPTypeEnum {
      */
     OSFE,
     /**
-     * PGI innland fastsatt av NAV
+     * PGI innland fastsatt av Nav
      */
     PGI_NAV,
     /**

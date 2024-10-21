@@ -14,7 +14,7 @@ class ApiAuthenticationManagerResolver(
     private val managerMap: Map<RequestMatcher, AuthenticationManager> =
         mapOf(
             AntPathRequestMatcher("/api/nav/**") to entraProvider,
-            AntPathRequestMatcher("/api/tpo/**") to maskinportenProvider,
+            AntPathRequestMatcher("/api/tpo/**") to entraProvider,
             AntPathRequestMatcher("/api/v4/simuler-alderspensjon") to maskinportenProvider,
             AntPathRequestMatcher("/api/v1/simuler-folketrygdbeholdning") to maskinportenProvider,
             AntPathRequestMatcher("/api/v1/tidligst-mulig-uttak") to maskinportenProvider

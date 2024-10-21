@@ -21,10 +21,21 @@ class ApiAuthenticationManagerResolverTest : FunSpec({
         authenticationManager.authenticate(entraAuthentication).isAuthenticated shouldBe true
     }
 
-    test("resolve uses Maskinporten when path is /api/tpo/**") {
+    test("resolve uses Entra ID when path is /api/tpo/**") {
+        val (entraProvider, entraAuthentication) = arrangeAuth(isAuthenticated = true)
+        val (maskinportenProvider, _) = arrangeAuth(isAuthenticated = false)
+        val request = arrangeRequest(path = "/api/tpo/service1")
+        val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
+
+        val authenticationManager = resolver.resolve(request)
+
+        authenticationManager.authenticate(entraAuthentication).isAuthenticated shouldBe true
+    }
+
+    test("resolve uses Maskinporten when path is /api/v4/simuler-alderspensjon") {
         val (entraProvider, _) = arrangeAuth(isAuthenticated = false)
         val (maskinportenProvider, maskinportenAuthentication) = arrangeAuth(isAuthenticated = true)
-        val request = arrangeRequest(path = "/api/tpo/service1")
+        val request = arrangeRequest(path = "/api/v4/simuler-alderspensjon")
         val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
 
         val authenticationManager = resolver.resolve(request)

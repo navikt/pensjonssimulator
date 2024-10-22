@@ -71,11 +71,10 @@ abstract class ControllerBase(
 
             if (tilknytningService?.erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) == false) {
                 log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $organisasjonsnummer" }
-                //TODO uncomment to enforce policy
-    //            throw ResponseStatusException(
-    //                HttpStatus.FORBIDDEN,
-    //                "Call ID: ${traceAid.callId()} | Error: Brukeren er ikke tilknyttet angitt TP-leverandør"
-    //            )
+                throw ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "Call ID: ${traceAid.callId()} | Error: Brukeren er ikke tilknyttet angitt TP-leverandør"
+                )
             }
         }
     }

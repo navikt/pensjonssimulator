@@ -28,12 +28,12 @@ class TpregisteretClient(
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
     fun hentErBrukerTilknyttetTpLeverandoer(pid: Pid, organisasjonsnummer: Organisasjonsnummer): Boolean {
-        val uri = "$PATH/hasForhold?orgnr=$organisasjonsnummer"
+        val uri = "$PATH/hasForhold?orgnr=${organisasjonsnummer.value}"
         return try {
             val response = webClient.post()
                 .uri(uri)
-                .bodyValue(pid)
-                .headers { setHeaders(it) }
+                .bodyValue(pid.value)
+                .headers(::setHeaders)
                 .retrieve()
                 .bodyToMono(BrukerTilknyttetTpLeverandoerResponse::class.java)
                 .block()

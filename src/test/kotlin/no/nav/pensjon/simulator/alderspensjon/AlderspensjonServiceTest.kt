@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.*
 import no.nav.pensjon.simulator.alderspensjon.client.AlderspensjonClient
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.BadRequestException

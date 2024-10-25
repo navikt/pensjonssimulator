@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.client.pen.acl
 
-import no.nav.pensjon.simulator.alderspensjon.AlderspensjonSpec
-import no.nav.pensjon.simulator.alderspensjon.GradertUttakSpec
-import no.nav.pensjon.simulator.alderspensjon.InntektSpec
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.GradertUttakSpec
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.InntektSpec
 
 object PenAlderspensjonSpecMapper {
 

@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.client
 
-import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
-import no.nav.pensjon.simulator.alderspensjon.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonResult
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonSpec
 
 interface AlderspensjonClient {
 

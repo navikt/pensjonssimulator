@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.client.pen
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
-import no.nav.pensjon.simulator.alderspensjon.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonResult
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.client.AlderspensjonClient
 import no.nav.pensjon.simulator.alderspensjon.client.pen.acl.*
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.client.pen.acl
 
-import no.nav.pensjon.simulator.alderspensjon.*
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.*
 import java.time.LocalDate
 
 object PenAlderspensjonResultMapper {

@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon.client.pen
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alderspensjon.*
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.*
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService

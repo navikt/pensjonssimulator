@@ -597,4 +597,41 @@ class Beregning : Serializable {
     }
 
     constructor()
+
+    //SIMDOM-ADD
+    var id: Long = 0L
+
+    fun getBrukteYtelseskomponenter(): List<Ytelseskomponent> {
+        val liste: MutableList<Ytelseskomponent> = mutableListOf()
+        krigOgGammelYrkesskade?.let(liste::add)
+        tilleggTilHjelpIHuset?.let(liste::add)
+        hjelpeloshetsbidrag?.let(liste::add)
+        mendel?.let(liste::add)
+        gp?.let(liste::add)
+        tp?.let(liste::add)
+        st?.let(liste::add)
+        et?.let(liste::add)
+        p851_tillegg?.let(liste::add)
+        vt?.let(liste::add)
+        familietillegg?.let(liste::add)
+        tfb?.let(liste::add)
+        tsb?.let(liste::add)
+        afpTillegg?.let(liste::add)
+        tilleggFasteUtgifter?.let(liste::add)
+        garantitillegg_Art_27?.let(liste::add)
+        garantitillegg_Art_50?.let(liste::add)
+        minstenivatilleggPensjonistpar?.let(liste::add)
+        minstenivatilleggIndividuelt?.let(liste::add)
+        // These are present in PEN (no.nav.domain.pensjon.kjerne.beregning.Beregning.getBrukteYtelseskomponenter),
+        // but missing here:
+        // SkattefriGrunnpensjon
+        // SkattefriUforetrygdOrdiner
+        // Arbeidsavklaringspenger
+        // Sykepenger
+        // PensjonstilleggListe
+        // UforetilleggTilAlderspensjonListe
+        // UforetrygdOrdinerListe
+        // FradragYtelseskomponentListe
+        return liste
+    }
 }

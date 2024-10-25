@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResul
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
@@ -47,6 +48,10 @@ interface RegelClient {
         spec: RevurderingAlderspensjon2025Request,
         sakId: Long?
     ): BeregningsResultatAlderspensjon2025
+
+    fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat
+
+    fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat
 
     fun vilkaarsproevUbetingetAlderspensjon(
         spec: VilkarsprovRequest,

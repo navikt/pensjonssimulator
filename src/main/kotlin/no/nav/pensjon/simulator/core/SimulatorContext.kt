@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResul
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
@@ -168,6 +169,37 @@ class SimulatorContext(
         validerResponse(response.pakkseddel)
         return response.revurdertBeregningsResultat!!
     }
+
+    // SimulerPensjonsberegningConsumerCommand.execute for AFP (pre-2025 offentlig AFP)
+    override fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
+        val response: SimuleringResponse =
+            regelService.makeRegelCall(
+                request = spec,
+                responseClass = SimuleringResponse::class.java,
+                serviceName = "simulerAFP",
+                map = null,
+                sakId = null
+            )
+
+        validerResponse(response.pakkseddel)
+        return response.simuleringsResultat ?: throw RuntimeException("Simuleringsresultat is null")
+    }
+
+    // SimulerVilkarsprovAfpConsumerCommand.execute (pre-2025 offentlig AFP)
+    override fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
+        val response: SimuleringResponse =
+            regelService.makeRegelCall(
+            request = spec,
+            responseClass = SimuleringResponse::class.java,
+            serviceName = "simulerVilkarsprovAFP",
+            map = null,
+            sakId = null
+        )
+
+        validerResponse(response.pakkseddel)
+        return response.simuleringsResultat ?: throw RuntimeException("Simuleringsresultat is null")
+    }
+
 
     // VilkarsprovAlderspensjonOver67ConsumerCommand.execute
     override fun vilkaarsproevUbetingetAlderspensjon(

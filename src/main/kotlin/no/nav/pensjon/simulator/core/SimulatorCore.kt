@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core
 
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregning
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpResult
@@ -55,6 +56,7 @@ class SimulatorCore(
     private val knekkpunktFinder: KnekkpunktFinder,
     private val alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner,
     private val privatAfpBeregner: PrivatAfpBeregner,
+    private val pre2025OffentligAfpBeregning: Pre2025OffentligAfpBeregning,
     private val generelleDataHolder: GenerelleDataHolder,
     private val sakService: SakService
 ) : UttakAlderDiscriminator {
@@ -75,6 +77,7 @@ class SimulatorCore(
             EndringValidator.validate(simulatorInput)
         }
         */
+        val gjelderEndring = false
 
         val grunnbeloep: Int = fetchGrunnbeloep()
 
@@ -154,35 +157,32 @@ class SimulatorCore(
 
         logger.info("Simulator steg 6 - Beregn AFP i offentlig sektor")
 
-        val afpOffentligPre2025Result: Pre2025OffentligAfpResult? = null
-        val livsvarigOffentligAfpBeregningResultat: LivsvarigOffentligAfpResult? = null
-        /*ANON
-        val afpOffentligPre2025Result: Pre2025OffentligAfpResult?
+        val pre2025OffentligAfpResult: Pre2025OffentligAfpResult?
         val livsvarigOffentligAfpBeregningResultat: LivsvarigOffentligAfpResult?
 
-        if (simulatorInput.gjelderAfpOffentligPre2025()) {
-            afpOffentligPre2025Result = AfpBeregning(context).beregnAfpOffentlig(simulatorInput, kravhode, ytelser.forrigeAlderspensjonBeregningsresultat, grunnbelop)
-            kravhode = afpOffentligPre2025Result.kravhode
+        if (spec.gjelderPre2025OffentligAfp()) {
+            pre2025OffentligAfpResult = pre2025OffentligAfpBeregning.beregnAfpOffentlig(spec, kravhode, ytelser.forrigeAlderspensjonBeregningResultat, grunnbeloep)
+            kravhode = pre2025OffentligAfpResult.kravhode
             livsvarigOffentligAfpBeregningResultat = null
         } else if (gjelderEndring) {
-            afpOffentligPre2025Result = simulatorInput.forsteUttakDato?.let { EndringAfpOffentligBeregning.beregnAfpOffentlig(kravhode, forsteUttakDato = it) }
+            pre2025OffentligAfpResult = null //TODO spec.foersteUttakDato?.let { EndringAfpOffentligBeregning.beregnAfpOffentlig(kravhode, forsteUttakDato = it) }
             livsvarigOffentligAfpBeregningResultat = null
         } else {
-            afpOffentligPre2025Result = null
+            pre2025OffentligAfpResult = null
             livsvarigOffentligAfpBeregningResultat =
-                if (flags.inkluderAfpOffentligLivsvarig)
-                    foedselsdato?.let {
+                if (flags.inkluderLivsvarigOffentligAfp)
+                    foedselDato?.let {
                         beregnLivsvarigOffentligAfp(
                             pid = person.pid!!,
-                            foedselsdato = it,
-                            forventetInntekt = simulatorInput.forventetInntekt,
-                            virkningsdato = simulatorInput.rettTilAfpOffentligFom ?: toLocalDate(simulatorInput.forsteUttakDato)
+                            foedselDato = it,
+                            forventetInntekt = spec.forventetInntektBeloep,
+                            virkningsdato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato ?: throw RuntimeException("Ingen virkningsdato angitt for livsvarig offentlig AFP")
                         )
                     }
                 else
                     null
         }
-        */
+
         logger.info("Simulator steg 7 - Vilkårsprøv og beregn alderspensjon")
 
         val vilkaarsproevOgBeregnAlderspensjonResult = vilkaarsproevOgBeregnAlderspensjon(
@@ -217,7 +217,7 @@ class SimulatorCore(
                 privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                 forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                 forrigePrivatAfpBeregningResultat = null, // forrigeAfpPrivatBeregningsresultat is null for SimulerFleksibelAPCommand & SimulerAFPogAPCommand
-                pre2025OffentligAfpBeregningResultat = afpOffentligPre2025Result?.simuleringResult,
+                pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResult?.simuleringResult,
                 livsvarigOffentligAfpBeregningResultatListe = LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
                     livsvarigOffentligAfpBeregningResultat,
                     foedselDato?.monthValue

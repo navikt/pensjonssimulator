@@ -17,8 +17,12 @@ import java.time.LocalDate
 class NormAlderService(
     private val generelleDataHolder: GenerelleDataHolder
 ) {
-    fun normAlder(foedselDato: LocalDate) = Alder(aar = 67, maaneder = 0)
+    fun normAlder(foedselDato: LocalDate?) = MINIMUM_NORM_ALDER
 
-    fun normAlder(pid: Pid) =
-        normAlder(generelleDataHolder.getPerson(pid).foedselDato)
+    fun normAlder(pid: Pid?): Alder =
+        normAlder(pid?.let { generelleDataHolder.getPerson(it) }?.foedselDato)
+
+    companion object {
+        val MINIMUM_NORM_ALDER = Alder(aar = 67, maaneder = 0)
+    }
 }

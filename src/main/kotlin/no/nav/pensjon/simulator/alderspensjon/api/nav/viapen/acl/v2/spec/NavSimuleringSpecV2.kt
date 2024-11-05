@@ -7,8 +7,11 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import java.time.LocalDate
 
-// Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011 in PEN
-// (which is the same as no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011 in PSELV)
+/**
+ * Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011
+ *              and no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011Dto in PEN
+ * (same as no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011 in PSELV)
+ */
 data class NavSimuleringSpecV2 (
     val simuleringId: Long? = null,
     val simuleringType: NavSimuleringTypeSpecV2? = null,

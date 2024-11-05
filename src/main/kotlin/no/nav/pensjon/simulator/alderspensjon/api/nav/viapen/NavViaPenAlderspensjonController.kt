@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApForTpResultMapperV2.toApForTpResultV2
+import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApForTpResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.NavSimuleringResultMapperV2.toSimuleringResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.NavSimuleringSpecAndResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecMapperV2.fromSimuleringSpecV2
@@ -27,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("api/nav")
 @SecurityRequirement(name = "BearerAuthentication")
 class NavViaPenAlderspensjonController(
-    private val simulatorCore: SimulatorCore,
+    private val simulator: SimulatorCore,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -63,12 +65,57 @@ class NavViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = fromSimuleringSpecV2(specV2)
-            val output: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags)
+            val output: SimulatorOutput = simulator.simuler(spec, simulatorFlags)
 
             NavSimuleringSpecAndResultV2(
                 simulering = specV2,
                 simuleringsresultat = toSimuleringResultV2(output)
             )
+        } catch (e: EgressException) {
+            handle(e)!!
+        } catch (e: BadRequestException) {
+            badRequest(e)!!
+        } catch (e: InvalidEnumValueException) {
+            badRequest(e)!!
+        } finally {
+            traceAid.end()
+        }
+    }
+
+    /**
+     * Supports PEN-service selvbetjening/simuler/tjenestepensjon.
+     * Used to obtain 'simulert alderspensjon for simulering av tjenestepnsjon'.
+     */
+    @PostMapping("v2/simuler-tjenestepensjon")
+    @Operation(
+        summary = "Simuler alderspensjon som grunnlag for tjenestepensjon",
+        description = "Lager en prognose for utbetaling av alderspensjon, basert på Nav-lagret info og input fra bruker.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Simulering av alderspensjon utført."
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
+                        " (1) helt uttak ikke etter gradert uttak," +
+                        " (2) inntekt ikke 1. i måneden," +
+                        " (3) inntekter har lik startdato, " +
+                        " (4) negativ inntekt."
+            )
+        ]
+    )
+    fun simulerAlderspensjonForTjenestepensjon(@RequestBody specV2: NavSimuleringSpecV2): ApForTpResultV2 {
+        traceAid.begin()
+        log.debug { "$FUNCTION_ID request: $specV2" }
+        countCall(FUNCTION_ID)
+
+        return try {
+            val spec: SimuleringSpec = fromSimuleringSpecV2(specV2)
+            val output: SimulatorOutput = simulator.simuler(spec, simulatorFlags) //TODO check flags
+            toApForTpResultV2(output)
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {

@@ -23,6 +23,11 @@ enum class SimuleringType {
     AFP_ETTERF_ALDER,
 
     /**
+     * AFP - vedtak om framtidige pensjonspoeng (FPP)
+     */
+    AFP_FPP,
+
+    /**
      * Alderspensjon med gjenlevenderettigheter
      * TODO: Check if relevant for 1963+
      */

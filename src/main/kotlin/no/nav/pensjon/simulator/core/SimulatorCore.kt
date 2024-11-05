@@ -41,9 +41,7 @@ import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
-import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
-import no.nav.pensjon.simulator.ytelse.YtelseService
+import no.nav.pensjon.simulator.ytelse.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.lang.System.currentTimeMillis
@@ -86,7 +84,8 @@ class SimulatorCore(
 
         logger.info("Simulator steg 1 - Hent løpende ytelser")
 
-        val personVirkningDatoCombo: FoersteVirkningDatoCombo? = spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
+        val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
+            spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
         val person: PenPerson? = personVirkningDatoCombo?.person
         val foedselDato: LocalDate? = person?.fodselsdato?.toLocalDate()
         val ytelser: LoependeYtelser =
@@ -161,11 +160,17 @@ class SimulatorCore(
         val livsvarigOffentligAfpBeregningResultat: LivsvarigOffentligAfpResult?
 
         if (spec.gjelderPre2025OffentligAfp()) {
-            pre2025OffentligAfpResult = pre2025OffentligAfpBeregning.beregnAfpOffentlig(spec, kravhode, ytelser.forrigeAlderspensjonBeregningResultat, grunnbeloep)
+            pre2025OffentligAfpResult = pre2025OffentligAfpBeregning.beregnAfpOffentlig(
+                spec,
+                kravhode,
+                ytelser.forrigeAlderspensjonBeregningResultat,
+                grunnbeloep
+            )
             kravhode = pre2025OffentligAfpResult.kravhode
             livsvarigOffentligAfpBeregningResultat = null
         } else if (gjelderEndring) {
-            pre2025OffentligAfpResult = null //TODO spec.foersteUttakDato?.let { EndringAfpOffentligBeregning.beregnAfpOffentlig(kravhode, forsteUttakDato = it) }
+            pre2025OffentligAfpResult =
+                null //TODO spec.foersteUttakDato?.let { EndringAfpOffentligBeregning.beregnAfpOffentlig(kravhode, forsteUttakDato = it) }
             livsvarigOffentligAfpBeregningResultat = null
         } else {
             pre2025OffentligAfpResult = null
@@ -176,7 +181,8 @@ class SimulatorCore(
                             pid = person.pid!!,
                             foedselDato = it,
                             forventetInntekt = spec.forventetInntektBeloep,
-                            virkningsdato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato ?: throw RuntimeException("Ingen virkningsdato angitt for livsvarig offentlig AFP")
+                            virkningsdato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato
+                            ?: throw RuntimeException("Ingen virkningsdato angitt for livsvarig offentlig AFP")
                         )
                     }
                 else
@@ -242,33 +248,43 @@ class SimulatorCore(
         spec: SimuleringSpec,
         soekerFoersteVirkningDatoListe: List<FoersteVirkningDato>
     ): LoependeYtelser {
-        /*ANON
-        if (spec.gjelderAfpOffentligPre2025()) {
+        if (spec.gjelderPre2025OffentligAfp()) {
             // SimulerAFPogAPCommand
-            // hentLopendeYtelser sets brukersForsteVirk, avdodesForsteVirk, forrigeAlderBeregningsresultat, forrigeVilkarsvedtakListe, sisteBeregning
-            // => these are null: forrigeAfpPrivatBeregningsresultat, forsteVirkAfpPrivat
-            val ytelser: AfpLoependeYtelserResult = AfpLoependeYtelser(context).fetchLoependeYtelser(spec) // TODO use soekerFoersteVirkningDatoListe argument?
+            val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
+                LoependeYtelserSpec(
+                    pid = spec.pid!!,
+                    foersteUttakDato = spec.foersteUttakDato!!,
+                    avdoed = spec.avdoed,
+                    alderspensjonFlags = null,
+                    pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
+                        gjelderFpp = spec.type == SimuleringType.AFP_FPP,
+                        sivilstatusUdefinert = false //TODO check if this can happen: spec.sivilstatus == null
+                    )
+                )
+            )
 
             return LoependeYtelser(
-                sokerVirkningFom = ytelser.sokerVirkningFom!!,
-                avdodVirkningFom = ytelser.avdodVirkningFom,
-                afpPrivatVirkningFom = null,
-                sisteBeregning = ytelser.sisteBeregning,
-                forrigeAlderspensjonBeregningsresultat = ytelser.forrigeAlderspensjonBeregningsresultat,
-                forrigeAfpPrivatBeregningsresultat = null,
-                forrigeVilkarsvedtakListe = norskeVedtak(ytelser.forrigeVilkarsvedtakListe)
+                soekerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
+                avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
+                privatAfpVirkningFom = ytelser.afpPrivat.virkningFom,
+                sisteBeregning = ytelser.alderspensjon.sisteBeregning,
+                forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
+                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat.forrigeBeregningsresultat,
+                forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
             )
         }
-*/
+
         if (spec.gjelderEndring()) {
             // SimulerEndringAvAPCommand
             val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
                 LoependeYtelserSpec(
                     pid = spec.pid!!,
                     foersteUttakDato = spec.foersteUttakDato!!,
-                    inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT,
-                    avdoedPid = spec.avdoed?.pid,
-                    doedDato = spec.avdoed?.doedDato
+                    avdoed = spec.avdoed,
+                    alderspensjonFlags = AlderspensjonYtelserFlags(
+                        inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT
+                    ),
+                    pre2025OffentligAfpYtelserFlags = null
                 )
             )
 

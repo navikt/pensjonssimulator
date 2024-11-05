@@ -12,12 +12,14 @@ import no.nav.pensjon.simulator.core.beregn.AlderspensjonBeregnerResult
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
 import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.endring.EndringValidator
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
@@ -39,6 +41,9 @@ import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
+import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
+import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.lang.System.currentTimeMillis
@@ -58,7 +63,8 @@ class SimulatorCore(
     private val privatAfpBeregner: PrivatAfpBeregner,
     private val pre2025OffentligAfpBeregning: Pre2025OffentligAfpBeregning,
     private val generelleDataHolder: GenerelleDataHolder,
-    private val sakService: SakService
+    private val sakService: SakService,
+    private val ytelseService: YtelseService
 ) : UttakAlderDiscriminator {
 
     private val logger = LoggerFactory.getLogger(SimulatorCore::class.java)
@@ -70,31 +76,25 @@ class SimulatorCore(
         ForLavtTidligUttakException::class
     )
     override fun simuler(spec: SimuleringSpec, flags: SimulatorFlags): SimulatorOutput {
-        /*ANON
-        val gjelderEndring = simulatorInput.gjelderEndring()
+        val gjelderEndring = spec.gjelderEndring()
 
         if (gjelderEndring) {
-            EndringValidator.validate(simulatorInput)
+            EndringValidator.validate(spec)
         }
-        */
-        val gjelderEndring = false
 
         val grunnbeloep: Int = fetchGrunnbeloep()
 
         logger.info("Simulator steg 1 - Hent løpende ytelser")
 
-        val personVirkningsdatoCombo: FoersteVirkningDatoCombo? = spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
-        val personVirkningDatoCombo: FoersteVirkningDatoCombo? = null
-        val person: PenPerson? = personVirkningsdatoCombo?.person
+        val personVirkningDatoCombo: FoersteVirkningDatoCombo? = spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
+        val person: PenPerson? = personVirkningDatoCombo?.person
         val foedselDato: LocalDate? = person?.fodselsdato?.toLocalDate()
         val ytelser: LoependeYtelser =
             fetchLoependeYtelser(spec, personVirkningDatoCombo?.foersteVirkningDatoListe.orEmpty())
 
-        /*ANON
         if (gjelderEndring) {
-            EndringValidator.validateRequestBasedOnLopendeYtelser(simulatorInput, ytelser.forrigeAlderspensjonBeregningsresultat)
+            EndringValidator.validateRequestBasedOnLoependeYtelser(spec, ytelser.forrigeAlderspensjonBeregningResultat)
         }
-        */
 
         logger.info("Simulator steg 2 - Opprett kravhode")
 
@@ -259,22 +259,29 @@ class SimulatorCore(
                 forrigeVilkarsvedtakListe = norskeVedtak(ytelser.forrigeVilkarsvedtakListe)
             )
         }
-
+*/
         if (spec.gjelderEndring()) {
             // SimulerEndringAvAPCommand
-            val ytelser: EndringLoependeYtelserResult = EndringLoependeYtelser(context).fetchLoependeYtelser(spec)
+            val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
+                LoependeYtelserSpec(
+                    pid = spec.pid!!,
+                    foersteUttakDato = spec.foersteUttakDato!!,
+                    inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT,
+                    avdoedPid = spec.avdoed?.pid,
+                    doedDato = spec.avdoed?.doedDato
+                )
+            )
 
             return LoependeYtelser(
-                sokerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
-                avdodVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-                afpPrivatVirkningFom = ytelser.afpPrivat.virkningFom,
+                soekerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
+                avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
+                privatAfpVirkningFom = ytelser.afpPrivat.virkningFom,
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
-                forrigeAlderspensjonBeregningsresultat = ytelser.alderspensjon.forrigeBeregningsresultat,
-                forrigeAfpPrivatBeregningsresultat = ytelser.afpPrivat.forrigeBeregningsresultat,
-                forrigeVilkarsvedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
+                forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
+                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat.forrigeBeregningsresultat,
+                forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
             )
         }
-        */
 
         // Simuleringtype ALDER or ALDER_M_AFP_PRIVAT (SimulerFleksibelAPCommand)
         // hentLopendeYtelser sets brukersForsteVirk, avdodesForsteVirk, forsteVirkAfpPrivat

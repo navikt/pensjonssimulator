@@ -130,7 +130,10 @@ jobs:
   trivy-imagescan:
     name: Scan Docker image
     needs: [ build ]
-    if: github.ref == 'refs/heads/main'
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.prod == 'true'
     runs-on: ubuntu-latest
     permissions:
       actions: read

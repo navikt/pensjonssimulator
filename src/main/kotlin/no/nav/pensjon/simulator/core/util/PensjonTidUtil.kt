@@ -16,6 +16,8 @@ object PensjonTidUtil {
      */
     const val LEGACY_UBETINGET_PENSJONERINGSALDER_AAR = 67
 
+    const val LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR: Long = 62
+
     fun ubetingetPensjoneringDato(foedselDato: Date): Date =
         foersteDagIMaanedenEtterAngittAlder(foedselDato, LEGACY_UBETINGET_PENSJONERINGSALDER_AAR)
 

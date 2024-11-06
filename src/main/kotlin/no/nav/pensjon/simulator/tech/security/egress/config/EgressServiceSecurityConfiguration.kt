@@ -15,13 +15,17 @@ open class EgressServiceSecurityConfiguration {
     open fun egressServiceListsByAudience(
         @Value("\${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
         @Value("\${ps.fss-gw.service-id}") fssGatewayServiceId: String,
-        @Value("\${tjenestepensjon.service-id}") tpregisteretServiceId: String,
+        @Value("\${tjenestepensjon.service-id}") tpRegisterServiceId: String,
+        @Value("\${ps.tp-simulering.service-id}") tpSimuleringServiceId: String
     ) =
-        EgressServicesByAudience(mapOf(
-            pensjonsfagligKjerneServiceId to EgressService.PENSJONSFAGLIG_KJERNE,
-            fssGatewayServiceId to EgressService.FSS_GATEWAY,
-            tpregisteretServiceId to EgressService.TP_REGISTERET,
-        ))
+        EgressServicesByAudience(
+            mapOf(
+                pensjonsfagligKjerneServiceId to EgressService.PENSJONSFAGLIG_KJERNE,
+                fssGatewayServiceId to EgressService.FSS_GATEWAY,
+                tpRegisterServiceId to EgressService.TP_REGISTERET,
+                tpSimuleringServiceId to EgressService.TJENESTEPENSJON_SIMULERING
+            )
+        )
 
     @Bean
     open fun egressTokenSuppliersByService(

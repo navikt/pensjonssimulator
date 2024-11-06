@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.core
 
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregning
@@ -31,6 +33,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
+import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
@@ -39,6 +42,7 @@ import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseGetter
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseResult
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.ytelse.*
@@ -46,7 +50,9 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.lang.System.currentTimeMillis
 import java.time.LocalDate
+import java.time.Period
 import java.util.*
+import java.util.stream.Stream
 
 /**
  * Corresponds to AbstraktSimulerAPFra2011Command, SimulerFleksibelAPCommand, SimulerAFPogAPCommand, SimulerEndringAvAPCommand
@@ -62,7 +68,8 @@ class SimulatorCore(
     private val pre2025OffentligAfpBeregning: Pre2025OffentligAfpBeregning,
     private val generelleDataHolder: GenerelleDataHolder,
     private val sakService: SakService,
-    private val ytelseService: YtelseService
+    private val ytelseService: YtelseService,
+    private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService
 ) : UttakAlderDiscriminator {
 
     private val logger = LoggerFactory.getLogger(SimulatorCore::class.java)
@@ -180,8 +187,8 @@ class SimulatorCore(
                         beregnLivsvarigOffentligAfp(
                             pid = person.pid!!,
                             foedselDato = it,
-                            forventetInntekt = spec.forventetInntektBeloep,
-                            virkningsdato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato
+                            forventetAarligInntektBeloep = spec.forventetInntektBeloep,
+                            virkningDato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato
                             ?: throw RuntimeException("Ingen virkningsdato angitt for livsvarig offentlig AFP")
                         )
                     }
@@ -325,35 +332,26 @@ class SimulatorCore(
     private fun beregnLivsvarigOffentligAfp(
         pid: Pid,
         foedselDato: LocalDate,
-        forventetInntekt: Int,
-        virkningsdato: LocalDate,
-    ): LivsvarigOffentligAfpResult? {
-        /*ANON
-        val fjorAarSomManglerOpptjeningIPopp = LocalDate.now().minusYears(1)
-        val aaretOpptjeningStoppes: LocalDate = foedselDato.plusYears(OPPTJENING_TIL_AFP_OFFENTLIG_LIVSVARIG_STOPPES_VED_ALDER_AAR)
+        forventetAarligInntektBeloep: Int,
+        virkningDato: LocalDate,
+    ): LivsvarigOffentligAfpResult {
+        val fom: LocalDate = foersteAarMedUregistrertInntekt()
+        val til: LocalDate = sisteAarMedAfpOpptjeningInntekt(foedselDato)
 
-        val fremtidigInntektListe: List<FremtidigInntekt> =
-            if (fjorAarSomManglerOpptjeningIPopp.isBefore(aaretOpptjeningStoppes)) {
-                fjorAarSomManglerOpptjeningIPopp.datesUntil(aaretOpptjeningStoppes, Period.ofYears(1))
-                    .map {
-                        FremtidigInntekt(
-                            belop = forventetInntekt,
-                            fraOgMed = it.withMonth(1).withDayOfMonth(1)
-                        )
-                    }
-                    .toList()
-            } else emptyList()
+        val fremtidigInntektListe: List<Inntekt> =
+            if (fom.isBefore(til))
+                aarligInntektListe(fom, til, forventetAarligInntektBeloep)
+            else
+                emptyList()
 
-        return context.simulerAfpOffentligLivsvarig(
-            SimulerAFPOffentligLivsvarigRequest(
-                fnr = pid.pid,
-                foedselsdato = foedselDato,
-                fremtidigeInntekter = fremtidigInntektListe,
-                fom = virkningsdato
+        return livsvarigOffentligAfpService.simuler(
+            LivsvarigOffentligAfpSpec(
+                pid,
+                foedselDato,
+                fom = virkningDato,
+                fremtidigInntektListe
             )
         )
-        */
-        return null
     }
 
     override fun fetchFoedselDato(pid: Pid): LocalDate =
@@ -411,6 +409,26 @@ class SimulatorCore(
     }
 
     private companion object {
+
+        private fun foersteAarMedUregistrertInntekt(): LocalDate =
+            LocalDate.now().minusYears(1)
+
+        private fun sisteAarMedAfpOpptjeningInntekt(foedselDato: LocalDate): LocalDate =
+            foedselDato.plusYears(LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR)
+
+        private fun aarligInntektListe(fom: LocalDate, til: LocalDate, aarligBeloep: Int): List<Inntekt> =
+            aarligeDatoer(fom, til)
+                .map { inntektVedAaretsStart(it, aarligBeloep) }
+                .toList()
+
+        private fun aarligeDatoer(fom: LocalDate, til: LocalDate): Stream<LocalDate> =
+            fom.datesUntil(til, Period.ofYears(1))
+
+        private fun inntektVedAaretsStart(dato: LocalDate, aarligBeloep: Int) =
+            Inntekt(
+                aarligBeloep,
+                fom = dato.withMonth(1).withDayOfMonth(1)
+            )
 
         // AbstraktSimulerAPFra2011Command.filterVilkarsVedtakListOnNOR
         private fun norskeVedtak(vedtakListe: List<VilkarsVedtak>): MutableList<VilkarsVedtak> =

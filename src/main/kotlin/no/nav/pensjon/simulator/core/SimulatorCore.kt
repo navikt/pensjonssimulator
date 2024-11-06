@@ -35,16 +35,13 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
 import no.nav.pensjon.simulator.core.util.toLocalDate
-import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
-import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseGetter
-import no.nav.pensjon.simulator.core.ytelse.LoependeYtelseResult
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.Inntekt
-import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.ytelse.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -93,10 +90,9 @@ class SimulatorCore(
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
-        val person: PenPerson? = personVirkningDatoCombo?.person
+        val person: PenPerson? = personVirkningDatoCombo?.person //TODO use a specialised person service?
         val foedselDato: LocalDate? = person?.fodselsdato?.toLocalDate()
-        val ytelser: LoependeYtelser =
-            fetchLoependeYtelser(spec, personVirkningDatoCombo?.foersteVirkningDatoListe.orEmpty())
+        val ytelser: LoependeYtelser = fetchLoependeYtelser(spec)
 
         if (gjelderEndring) {
             EndringValidator.validateRequestBasedOnLoependeYtelser(spec, ytelser.forrigeAlderspensjonBeregningResultat)
@@ -251,10 +247,7 @@ class SimulatorCore(
             }
     }
 
-    private fun fetchLoependeYtelser(
-        spec: SimuleringSpec,
-        soekerFoersteVirkningDatoListe: List<FoersteVirkningDato>
-    ): LoependeYtelser {
+    private fun fetchLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
         if (spec.gjelderPre2025OffentligAfp()) {
             // SimulerAFPogAPCommand
             val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
@@ -263,6 +256,7 @@ class SimulatorCore(
                     foersteUttakDato = spec.foersteUttakDato!!,
                     avdoed = spec.avdoed,
                     alderspensjonFlags = null,
+                    endringAlderspensjonFlags = null,
                     pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
                         gjelderFpp = spec.type == SimuleringType.AFP_FPP,
                         sivilstatusUdefinert = false //TODO check if this can happen: spec.sivilstatus == null
@@ -288,7 +282,8 @@ class SimulatorCore(
                     pid = spec.pid!!,
                     foersteUttakDato = spec.foersteUttakDato!!,
                     avdoed = spec.avdoed,
-                    alderspensjonFlags = AlderspensjonYtelserFlags(
+                    alderspensjonFlags = null,
+                    endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(
                         inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT
                     ),
                     pre2025OffentligAfpYtelserFlags = null
@@ -306,26 +301,28 @@ class SimulatorCore(
             )
         }
 
-        // Simuleringtype ALDER or ALDER_M_AFP_PRIVAT (SimulerFleksibelAPCommand)
-        // hentLopendeYtelser sets brukersForsteVirk, avdodesForsteVirk, forsteVirkAfpPrivat
-        // => these are null/empty: forrigeAlderBeregningsresultat, forrigeVilkarsvedtakListe, forrigeAfpPrivatBeregningsresultat, sisteBeregning
-        val avdoedFoersteVirkningDatoListe: List<FoersteVirkningDato> =
-            emptyList() //ANON spec.avdoed?.pid?.let(context::fetchForsteVirkningsdatoListe).orEmpty()
-
-        val ytelser: LoependeYtelseResult = LoependeYtelseGetter.finnForsteVirkningsdatoer(
-            spec,
-            soekerFoersteVirkningDatoListe,
-            avdoedFoersteVirkningDatoListe
+        // SimulerFleksibelAPCommand
+        val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
+            LoependeYtelserSpec(
+                pid = spec.pid,
+                foersteUttakDato = spec.foersteUttakDato!!,
+                avdoed = spec.avdoed,
+                alderspensjonFlags = AlderspensjonYtelserFlags(
+                    inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT
+                ),
+                endringAlderspensjonFlags = null,
+                pre2025OffentligAfpYtelserFlags = null
+            )
         )
 
         return LoependeYtelser(
-            soekerVirkningFom = ytelser.soekerFoersteVirkningDato!!,
-            avdoedVirkningFom = ytelser.avdoedFoersteVirkningDato,
-            privatAfpVirkningFom = ytelser.privatAfpFoersteVirkningDato,
+            soekerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
+            avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
+            privatAfpVirkningFom = ytelser.afpPrivat.virkningFom,
             sisteBeregning = null,
             forrigeAlderspensjonBeregningResultat = null,
             forrigePrivatAfpBeregningResultat = null,
-            forrigeVedtakListe = mutableListOf()
+            forrigeVedtakListe = mutableListOf() //TODO use value in ytelser?
         )
     }
 

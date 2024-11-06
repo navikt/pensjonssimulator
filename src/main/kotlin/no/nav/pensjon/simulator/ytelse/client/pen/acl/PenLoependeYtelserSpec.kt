@@ -7,10 +7,11 @@ import java.time.LocalDate
  * Corresponds 1-to-1 with LoependeYtelserSpecV1 in PEN.
  */
 data class PenLoependeYtelserSpec(
-    val pid: String,
+    val pid: String?,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val foersteUttakDato: LocalDate,
     val avdoed: PenAvdoedYtelserSpec?,
     val alderspensjonFlags: PenAlderspensjonYtelserFlags?,
+    val endringAlderspensjonFlags: PenEndringAlderspensjonYtelserFlags?,
     val pre2025OffentligAfpYtelserFlags: PenPre2025OffentligAfpYtelserFlags?
 )
 
@@ -26,6 +27,13 @@ data class PenAvdoedYtelserSpec(
  * Corresponds 1-to-1 with AlderspensjonYtelserFlagsV1 in PEN.
  */
 data class PenAlderspensjonYtelserFlags(
+    val inkluderPrivatAfp: Boolean
+)
+
+/**
+ * Corresponds 1-to-1 with EndringAlderspensjonYtelserFlagsV1 in PEN.
+ */
+data class PenEndringAlderspensjonYtelserFlags(
     val inkluderPrivatAfp: Boolean
 )
 

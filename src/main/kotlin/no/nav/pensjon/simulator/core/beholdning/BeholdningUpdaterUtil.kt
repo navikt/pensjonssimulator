@@ -12,8 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonth
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
@@ -33,17 +31,18 @@ object BeholdningUpdaterUtil {
 
     const val OPPTJENING_MINIMUM_ALDER = 13 // år
     const val OPPTJENING_MINIMUM_FODSELSAR = 1997 // OppdaterPensjonsbeholdningerHelper.YEAR_1997
-    const val YEAR_2010 = OPPTJENING_MINIMUM_ALDER + OPPTJENING_MINIMUM_FODSELSAR
-    private const val YEAR_2009 = 2009 // OppdaterPensjonsbeholdningerHelper.YEAR_2009
-    private const val TILVEKST =
-        "tilvekst" // OppdaterPensjonsbeholdningerHelper, OppdaterPensjonsbeholdningerRequestFactory
+    const val OPPTJENING_MINIMUM_AAR = OPPTJENING_MINIMUM_FODSELSAR + OPPTJENING_MINIMUM_ALDER
+    const val INITIERING_OPPTJENINGMODUS = "initiering" // OppdaterPensjonsbeholdningerHelper
+    const val KORRIGERING_OPPTJENINGMODUS = "korrigering"
+    const val TILVEKST_OPPTJENINGMODUS = "tilvekst"
+    private const val MINIMUM_TIDLIGSTE_OPPTJENING_AAR = 2009 // OppdaterPensjonsbeholdningerHelper.YEAR_2009
 
     // BeholdningHelper.updateBeholdningListeObject
     fun updateBeholdninger(
         persongrunnlag: Persongrunnlag,
         beholdningListe: List<Pensjonsbeholdning>
     ) {
-        deleteBeholdningerFromPenPersongrunnlagObject(persongrunnlag)
+        removeBeholdninger(persongrunnlag)
         beholdningListe.forEach(persongrunnlag::addBeholdning)
     }
 
@@ -120,41 +119,36 @@ object BeholdningUpdaterUtil {
         beholdning?.let(persongrunnlag::addBeholdning)
     }
 
-    /*ANON
-    // OppdaterPensjonsbeholdningerHelper.vedtakWithRegelverkForAP2016AndAP2025
-    fun vedtakWithRegelverkForAP2016AndAP2025(vedtak: Vedtak): Boolean {
-        val regelverkType = vedtak.kravhode.regelverkType
-        return RegelverkTypeEnum.N_REG_G_N_OPPTJ == regelverkType || RegelverkTypeEnum.N_REG_N_OPPTJ == regelverkType
-    }
-    */
-
     // BeholdningHelper.getPensjonsbeholdningOnGivenDate
-    fun getPensjonsbeholdningOnGivenDate(beholdningListe: List<Pensjonsbeholdning>, date: LocalDate): Pensjonsbeholdning? {
+    fun pensjonsbeholdningForDato(
+        beholdningListe: List<Pensjonsbeholdning>,
+        date: LocalDate
+    ): Pensjonsbeholdning? {
         val pensjonBeholdningListe: MutableList<Pensjonsbeholdning> = mutableListOf()
         beholdningListe.forEach(pensjonBeholdningListe::add)
         return findValidForDate(pensjonBeholdningListe, fromLocalDate(date)!!) //TODO use filter instead?
     }
 
     // OppdaterPensjonsbeholdningerCommand.getSisteBeholdning
-    fun getSisteBeholdning(beholdningListe: List<Pensjonsbeholdning>): Pensjonsbeholdning =
+    fun sisteBeholdning(beholdningListe: List<Pensjonsbeholdning>): Pensjonsbeholdning =
         beholdningListe[beholdningListe.size - 1]
 
     // OppdaterPensjonsbeholdningerHelper.createPersonBeholdning
-    fun createPersonBeholdning(pid: Pid?, beholdningListe: MutableList<Pensjonsbeholdning>) =
+    fun newPersonbeholdning(pid: Pid?, beholdningListe: MutableList<Pensjonsbeholdning>) =
         PersonBeholdning().apply {
             this.pid = pid
             this.beholdningListe = beholdningListe
         }
 
     // OppdaterPensjonsbeholdningerHelper.createEmptyBeholdning + createPersonBeholdning
-    fun createEmptyBeholdning(pid: Pid?, sisteGyldigeOpptjeningAar: Int) =
+    fun newPersonbeholdning(pid: Pid?, sisteGyldigeOpptjeningAar: Int) =
         PersonBeholdning().apply {
             this.pid = pid
             beholdningListe = pensjonsbeholdningListe(sisteGyldigeOpptjeningAar)
         }
 
     // OppdaterPensjonsbeholdningerCommand.createPersongrunnlagFromPerson
-    fun createPersongrunnlagFromPerson(person: PenPerson): Persongrunnlag =
+    fun newPersongrunnlag(person: PenPerson): Persongrunnlag =
         Persongrunnlag().apply {
             fodselsdato = person.fodselsdato
             penPerson = person
@@ -169,14 +163,14 @@ object BeholdningUpdaterUtil {
         }
 
     // OppdaterPensjonsbeholdningerHelper.generatePersonPensjonsbeholdning
-    fun generatePersonPensjonsbeholdning(persongrunnlag: Persongrunnlag, beholdning: Pensjonsbeholdning?) =
+    fun newPersonPensjonBeholdning(persongrunnlag: Persongrunnlag, beholdning: Pensjonsbeholdning?) =
         PersonPensjonsbeholdning().apply {
             fodselsnummer = persongrunnlag.penPerson?.pid?.value
             pensjonsbeholdning = beholdning
         }
 
     // OppdaterPensjonsbeholdningerHelper.generateHentGyldigSatsConsumerRequest
-    fun generateHentGyldigSatsConsumerRequest(aar: Int) =
+    fun newGyldigSatsRequest(aar: Int) =
         HentGyldigSatsRequest().apply {
             satsTypeEnum = SatsTypeEnum.LONNSVEKST
             fomDato = createDate(aar, Calendar.JANUARY, 1).noon()
@@ -184,9 +178,9 @@ object BeholdningUpdaterUtil {
         }
 
     // OppdaterPensjonsbeholdningerHelper.generateRegulerPensjonsbeholdningConsumerRequest
-    fun newRegulerPensjonsbeholdningRequest(personPensjonBeholdningListe: List<PersonPensjonsbeholdning>, fom: Date?) =
+    fun newRegulerPensjonBeholdningRequest(beholdningListe: List<PersonPensjonsbeholdning>, fom: Date?) =
         RegulerPensjonsbeholdningRequest().apply {
-            beregningsgrunnlagForPensjonsbeholdning = ArrayList(personPensjonBeholdningListe)
+            beregningsgrunnlagForPensjonsbeholdning = ArrayList(beholdningListe)
             virkFom = fom
         }
 
@@ -195,32 +189,31 @@ object BeholdningUpdaterUtil {
         var hasOpptjeningBefore2009 = false
 
         for (omsorgsgrunnlag in beregningGrunnlag.omsorgGrunnlagListe) {
-            if (omsorgsgrunnlag.ar < YEAR_2009) {
+            if (omsorgsgrunnlag.ar < MINIMUM_TIDLIGSTE_OPPTJENING_AAR) {
                 hasOpptjeningBefore2009 = true
                 break
             }
         }
 
         for (opptjeningsgrunnlag in beregningGrunnlag.opptjeningGrunnlagListe) {
-            if (opptjeningsgrunnlag.ar < YEAR_2009) {
-                hasOpptjeningBefore2009 = true
-            }
-        }
-
-        for (dagpengegrunnlag in beregningGrunnlag.dagpengerGrunnlagListe) {
-            if (dagpengegrunnlag.ar < YEAR_2009) {
+            if (opptjeningsgrunnlag.ar < MINIMUM_TIDLIGSTE_OPPTJENING_AAR) {
                 hasOpptjeningBefore2009 = true
                 break
             }
         }
 
-        val tjenestePerioder = beregningGrunnlag.foerstegangstjenesteGrunnlag?.periodeListe.orEmpty()
-
-        for (tjenestePeriode in tjenestePerioder) {
-            val aar = tjenestePeriode.ar()
-
-            if (aar != null && aar < YEAR_2009) {
+        for (dagpengegrunnlag in beregningGrunnlag.dagpengerGrunnlagListe) {
+            if (dagpengegrunnlag.ar < MINIMUM_TIDLIGSTE_OPPTJENING_AAR) {
                 hasOpptjeningBefore2009 = true
+                break
+            }
+        }
+
+        for (periode in beregningGrunnlag.foerstegangstjenesteGrunnlag?.periodeListe.orEmpty()) {
+            periode.ar()?.let {
+                if (it < MINIMUM_TIDLIGSTE_OPPTJENING_AAR) {
+                    hasOpptjeningBefore2009 = true
+                }
             }
         }
 
@@ -239,56 +232,54 @@ object BeholdningUpdaterUtil {
 
     // OppdaterPensjonsbeholdningerHelper.verifyBeholdningFom2010
     fun verifyBeholdningFom2010(fom: Date?): Boolean {
-        val beholdningFom = createDate(YEAR_2010, Calendar.JANUARY, 1)
+        val beholdningFom = createDate(OPPTJENING_MINIMUM_AAR, Calendar.JANUARY, 1)
         return isSameDay(fom, beholdningFom)
     }
 
     // OppdaterPensjonsbeholdningerCommand.determineBeregnTomYear
-    fun determineBeregnTomYear(foersteVirkningFom: Date?, sisteGyldigeOpptjeningAar: Int): Int =
-        if (foersteVirkningFom != null) {
-            if (getMonth(foersteVirkningFom) == Calendar.JANUARY) getYear(foersteVirkningFom) - 1 else getYear(foersteVirkningFom)
-        } else
-            sisteGyldigeOpptjeningAar + OPPTJENING_ETTERSLEP_ANTALL_AAR
+    fun findBeregnTomAar(foersteVirkningFom: LocalDate?, sisteGyldigeOpptjeningAar: Int): Int =
+        foersteVirkningFom?.let(::findBeregnTomAar) ?: findBeregnTomAar(sisteGyldigeOpptjeningAar)
 
     // OppdaterPensjonsbeholdningerHelper.findEarliestOpptjeningsAr
     fun tidligsteOpptjeningAar(
-        beregningsgrunnlag: BeholdningBeregningsgrunnlag,
+        beregningGrunnlag: BeholdningBeregningsgrunnlag,
         persongrunnlag: Persongrunnlag
     ): Int {
         var tidligsteOpptjeningAar = 0
 
-        if (beregningsgrunnlag.omsorgGrunnlagListe.isNotEmpty()) {
-            tidligsteOpptjeningAar = beregningsgrunnlag.omsorgGrunnlagListe[0].ar
-            for (omsorgsgrunnlag in beregningsgrunnlag.omsorgGrunnlagListe) {
+        if (beregningGrunnlag.omsorgGrunnlagListe.isNotEmpty()) {
+            tidligsteOpptjeningAar = beregningGrunnlag.omsorgGrunnlagListe[0].ar
+
+            for (omsorgsgrunnlag in beregningGrunnlag.omsorgGrunnlagListe) {
                 if (omsorgsgrunnlag.ar < tidligsteOpptjeningAar) {
                     tidligsteOpptjeningAar = omsorgsgrunnlag.ar
                 }
             }
         }
 
-        if (beregningsgrunnlag.opptjeningGrunnlagListe.isNotEmpty()) {
-            tidligsteOpptjeningAar = beregningsgrunnlag.opptjeningGrunnlagListe[0].ar
+        if (beregningGrunnlag.opptjeningGrunnlagListe.isNotEmpty()) {
+            tidligsteOpptjeningAar = beregningGrunnlag.opptjeningGrunnlagListe[0].ar
 
-            for (opptjening in beregningsgrunnlag.opptjeningGrunnlagListe) {
+            for (opptjening in beregningGrunnlag.opptjeningGrunnlagListe) {
                 if (opptjening.ar < tidligsteOpptjeningAar) {
                     tidligsteOpptjeningAar = opptjening.ar
                 }
             }
         }
 
-        if (beregningsgrunnlag.dagpengerGrunnlagListe.isNotEmpty()) {
+        if (beregningGrunnlag.dagpengerGrunnlagListe.isNotEmpty()) {
             if (tidligsteOpptjeningAar == 0) {
-                tidligsteOpptjeningAar = beregningsgrunnlag.dagpengerGrunnlagListe[0].ar
+                tidligsteOpptjeningAar = beregningGrunnlag.dagpengerGrunnlagListe[0].ar
             }
 
-            for (dagpengegrunnlag in beregningsgrunnlag.dagpengerGrunnlagListe) {
+            for (dagpengegrunnlag in beregningGrunnlag.dagpengerGrunnlagListe) {
                 if (dagpengegrunnlag.ar < tidligsteOpptjeningAar) {
                     tidligsteOpptjeningAar = dagpengegrunnlag.ar
                 }
             }
         }
 
-        val tjenestePerioder = beregningsgrunnlag.foerstegangstjenesteGrunnlag?.periodeListe.orEmpty()
+        val tjenestePerioder = beregningGrunnlag.foerstegangstjenesteGrunnlag?.periodeListe.orEmpty()
 
         if (tjenestePerioder.isNotEmpty()) {
             if (tidligsteOpptjeningAar == 0) {
@@ -321,7 +312,7 @@ object BeholdningUpdaterUtil {
                 }
 
                 val foersteMuligeOpptjeningAar: Int =
-                    calculateFirstPossibleOpptjeningsar(persongrunnlag.penPerson?.fodselsdato)
+                    foersteMuligeOpptjeningAar(persongrunnlag.penPerson?.fodselsdato)
 
                 if (tidligsteOpptjeningAar < foersteMuligeOpptjeningAar) {
                     tidligsteOpptjeningAar = foersteMuligeOpptjeningAar
@@ -329,8 +320,8 @@ object BeholdningUpdaterUtil {
             }
         }
 
-        if (tidligsteOpptjeningAar < YEAR_2009) {
-            tidligsteOpptjeningAar = YEAR_2009
+        if (tidligsteOpptjeningAar < MINIMUM_TIDLIGSTE_OPPTJENING_AAR) {
+            tidligsteOpptjeningAar = MINIMUM_TIDLIGSTE_OPPTJENING_AAR
         }
 
         return tidligsteOpptjeningAar
@@ -389,7 +380,6 @@ object BeholdningUpdaterUtil {
         }
 
     // RevurderingHelper.isFirstDayOfYear
-    //fun isFirstDayOfYear(date: Date?): Boolean = DateTime(date).dayOfYear == 1
     fun isFirstDayOfYear(date: Date?): Boolean =
         date.toLocalDate()?.dayOfYear == 1
 
@@ -405,17 +395,17 @@ object BeholdningUpdaterUtil {
         BeholdningUpdateSpec().apply {
             pensjonBeholdningBeregningGrunnlag = listOf(grunnlag)
             this.sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar
-            opptjeningModus = TILVEKST
+            opptjeningModus = TILVEKST_OPPTJENINGMODUS
         }
 
     // OppdaterPensjonsbeholdningerHelper.calculateFirstPossibleOpptjeningsar
-    private fun calculateFirstPossibleOpptjeningsar(foedselDato: Date?): Int {
+    private fun foersteMuligeOpptjeningAar(foedselDato: Date?): Int {
         val calendar = Calendar.getInstance()
         calendar[OPPTJENING_MINIMUM_FODSELSAR, 0] = 0
         val minimumDato = calendar.time
 
         return if (isBeforeDay(foedselDato, minimumDato)) {
-            OPPTJENING_MINIMUM_FODSELSAR + OPPTJENING_MINIMUM_ALDER
+            OPPTJENING_MINIMUM_AAR
         } else {
             calendar.time = foedselDato
             calendar.add(Calendar.YEAR, OPPTJENING_MINIMUM_ALDER)
@@ -427,8 +417,8 @@ object BeholdningUpdaterUtil {
     private fun pensjonsbeholdningListe(sisteGyldigeOpptjeningAar: Int): MutableList<Pensjonsbeholdning> =
         mutableListOf(
             Pensjonsbeholdning().apply {
-                ar = sisteGyldigeOpptjeningAar + 2
-                fom = createDate(sisteGyldigeOpptjeningAar + 2, Calendar.JANUARY, 1)
+                ar = sisteGyldigeOpptjeningAar + OPPTJENING_ETTERSLEP_ANTALL_AAR
+                fom = createDate(sisteGyldigeOpptjeningAar + OPPTJENING_ETTERSLEP_ANTALL_AAR, Calendar.JANUARY, 1)
                 tom = null
                 totalbelop = 0.0
                 /* This does not exist in pensjon-regler domain and is assumed to be irrelevant in simulering:
@@ -446,11 +436,17 @@ object BeholdningUpdaterUtil {
         }.also { it.finishInit() } //NB: Assuming finishInit is appropriate here
 
     // BeholdningHelper.deleteBeholdningerFromPenPersongrunnlagObject
-    private fun deleteBeholdningerFromPenPersongrunnlagObject(persongrunnlag: Persongrunnlag) {
+    private fun removeBeholdninger(persongrunnlag: Persongrunnlag) {
         for (beholdning in persongrunnlag.beholdninger) {
             persongrunnlag.beholdninger.remove(beholdning) //TODO check this
         }
 
         persongrunnlag.clearBeholdningListe()
     }
+
+    private fun findBeregnTomAar(foersteVirkningFom: LocalDate) =
+        if (foersteVirkningFom.monthValue == 1) foersteVirkningFom.year - 1 else foersteVirkningFom.year
+
+    private fun findBeregnTomAar(sisteGyldigeOpptjeningAar: Int) =
+        sisteGyldigeOpptjeningAar + OPPTJENING_ETTERSLEP_ANTALL_AAR
 }

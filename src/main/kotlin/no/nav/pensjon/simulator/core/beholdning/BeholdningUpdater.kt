@@ -7,16 +7,11 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.OPPTJENING
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.TILVEKST_OPPTJENINGMODUS
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.addDagpengeGrunnlagIfExists
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.addForstegangstjenesteIfExists
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newPersongrunnlag
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.createWithTilvekst
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.findBeregnTomAar
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.findReguleringDato
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.firstDateOf
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.firstDayOf
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newGyldigSatsRequest
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newPersonPensjonBeholdning
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.pensjonsbeholdningForDato
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.sisteBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.hasOpptjeningBefore2009
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.isFirstDayOfMay
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.isFirstDayOfYear
@@ -25,20 +20,24 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.isSokersPe
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.isVirkFomEligibleForSwitching
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.kravIsAp2016OrAp2025
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.lastDayOf
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newGyldigSatsRequest
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newPersonPensjonBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newPersonbeholdning
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newPersongrunnlag
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.newRegulerPensjonBeholdningRequest
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.openLatestBeholdning
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.pensjonsbeholdningForDato
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.postprocessBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.removeAllBeholdningAfter
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.setOmsorgsgrunnlagOnPersongrunnlagIfExists
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.setOpptjeningsgrunnlagOnPersongrunnlagIfExists
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.sisteBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.switchExistingBeholdningOnPersongrunnlag
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.tidligsteOpptjeningAar
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.updateBeholdninger
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.verifyBeholdningFom2010
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.verifyEmptyBeholdningAndGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SatsTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
@@ -61,6 +60,7 @@ import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
 import no.nav.pensjon.simulator.vedtak.VedtakService
 import org.springframework.stereotype.Component
 import org.springframework.util.StringUtils.hasLength
@@ -75,7 +75,8 @@ import java.util.*
 class BeholdningUpdater(
     private val context: SimulatorContext,
     private val vedtakService: VedtakService,
-    private val personService: PersonService
+    private val personService: PersonService,
+    private val ufoereService: UfoeretrygdUtbetalingService
 ) {
     // SimpleGrunnlagService.updateBeholdningFromEksisterendePersongrunnlag -> BeholdningSwitcherCommand.updateBeholdningFromEksisterendePersongrunnlag
     fun updateBeholdningFromEksisterendePersongrunnlag(nyttKravhode: Kravhode) {
@@ -85,15 +86,6 @@ class BeholdningUpdater(
         updateBeholdninger(persongrunnlag, kopiertPersongrunnlag.beholdninger)
         updateBeholdningOnVirk(nyttKravhode, kopiertPersongrunnlag)
     }
-
-    // OppdaterPensjonsbeholdningerHelper.getUforeOpptjeningGrunnlagCopy
-    private fun getUforeOpptjeningGrunnlagCopy(penPersonId: Long): MutableList<UtbetalingsgradUT> =
-        /*ANON
-        context.hentUforeOpptjeningGrunnlag(penPersonId)
-            ?.let(Ap2025KjerneToSimuleringUforeMapper::mapUforeOpptjeningGrunnlag).orEmpty()
-            .toMutableList()
-        */
-        mutableListOf()
 
     // OppdaterPensjonsbeholdningerCommand.updatePensjonsbeholdning
     private fun updatePensjonBeholdning(
@@ -168,7 +160,9 @@ class BeholdningUpdater(
             persongrunnlag.sisteGyldigeOpptjeningsAr = sisteGyldigeOpptjeningAar.toInt()
         }
 
-        persongrunnlag.utbetalingsgradUTListe = getUforeOpptjeningGrunnlagCopy(person.penPersonId)
+        // OppdaterPensjonsbeholdningerHelper.getUforeOpptjeningGrunnlagCopy
+        persongrunnlag.utbetalingsgradUTListe = ufoereService.getUtbetalingGradListe(person.penPersonId).toMutableList()
+
         return persongrunnlag
     }
 

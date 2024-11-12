@@ -48,13 +48,19 @@ spec:
         - name: "simulering"
           enabled: true
           product: "pensjonssimulator"
+          consumers:
+            - orgno: "889640782" # Nav (NB: dev only)
+            - orgno: "938708606" # KLP
+            - orgno: "982583462" # SPK
+            - orgno: "931936492" # Storebrand Pensjonstjenester
+        - name: simulering.read
+          enabled: true
+          product: pensjon
+          separator: "/"
           delegationSource: altinn
           consumers:
             - orgno: "889640782" # Nav (NB: dev only)
             - orgno: "927613298" # Aksio
-            - orgno: "938708606" # KLP
-            - orgno: "982583462" # SPK
-            - orgno: "931936492" # Storebrand Pensjonstjenester
   accessPolicy:
     inbound:
       rules:

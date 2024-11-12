@@ -19,8 +19,8 @@ open class OpenApiConfiguration {
             .info(
                 Info()
                     .title("Pensjonssimulator API")
-                    .description("For å kunne bruke tjenestene må scope i autentiseringen mot Maskinporten settes til nav:pensjonssimulator:simulering. Dette er simuleringstjenester for tjenestepensjonsordninger i offentlig sektor, og benyttes for å kunne simulere alderspensjon fra folketrygden for brukere med tjenestepensjonsforhold.")
-                    .version("v1.0.0")
+                    .description("For å kunne bruke tjenestene må scope i autentiseringen mot Maskinporten settes til nav:pensjonssimulator:simulering (hvis delegering ikke brukes) eller nav:pensjon/simulering.read (hvis delegering brukes). Dette er simuleringstjenester for tjenestepensjonsordninger i offentlig sektor, og benyttes for å kunne simulere alderspensjon fra folketrygden for brukere med tjenestepensjonsforhold.")
+                    .version("v1.1.0")
             ).components(
                 Components()
                     .addSecuritySchemes(

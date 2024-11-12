@@ -10,10 +10,11 @@ spec:
   krakend: pensjonssimulator
   auth:
     name: maskinporten
-    debug: true
+    debug: false
     cache: true
     scopes:
       - nav:pensjonssimulator:simulering
+      - nav:pensjon/simulering.read
   endpoints:
     - path: /pensjonssimulator/v4/simuler-alderspensjon
       method: POST

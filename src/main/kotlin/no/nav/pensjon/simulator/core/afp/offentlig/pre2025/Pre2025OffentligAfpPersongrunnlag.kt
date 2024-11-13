@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.KravhodeCreator
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.krav.KravService
@@ -24,8 +25,9 @@ import java.util.*
 // Corresponds to SimulerAFPogAPCommand (persongrunnlag part)
 @Component
 class Pre2025OffentligAfpPersongrunnlag(
-    val kravhodeCreator: KravhodeCreator,
-    val kravService: KravService
+    private val kravhodeCreator: KravhodeCreator,
+    private val kravService: KravService,
+    private val epsService: EpsService
 ) {
     // SimulerAFPogAPCommand.opprettPersongrunnlagForBruker
     fun opprettSoekerGrunnlag(
@@ -117,7 +119,7 @@ class Pre2025OffentligAfpPersongrunnlag(
     // AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
     // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
     private fun opprettEpsPersongrunnlag(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
-        kravhodeCreator.addAlderspensjonEpsGrunnlagToKrav(spec, kravhode, grunnbeloep)
+        epsService.addAlderspensjonEpsGrunnlagToKrav(spec, kravhode, grunnbeloep)
     }
 
     companion object {

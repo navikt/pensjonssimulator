@@ -12,6 +12,12 @@ object DateUtil {
     fun toLocalDate(dateTime: ZonedDateTime): LocalDate =
         dateTime.withZoneSameInstant(ZoneId.of(TIME_ZONE_ID)).toLocalDate()
 
+    fun foersteDag(aar: Int) =
+        LocalDate.of(aar, 1, 1)
+
+    fun sisteDag(aar: Int) =
+        LocalDate.of(aar, 12, 31)
+
     fun foersteDagNesteMaaned(dato: LocalDate): LocalDate =
         dato
             .plusMonths(1)

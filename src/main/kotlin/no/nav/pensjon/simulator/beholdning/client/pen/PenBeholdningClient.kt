@@ -9,9 +9,7 @@ import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.beholdning.*
 import no.nav.pensjon.simulator.beholdning.client.BeholdningClient
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningResult
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningResultMapper
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningSpecMapper
+import no.nav.pensjon.simulator.beholdning.client.pen.acl.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -33,8 +31,34 @@ class PenBeholdningClient(
 
     override fun service() = service
 
+    override fun fetchBeholdningerMedGrunnlag(spec: BeholdningerMedGrunnlagSpec): BeholdningerMedGrunnlagResult {
+        val uri = "$BASE_PATH/$BEHOLDNINGER_MED_GRUNNLAG_PATH"
+        val dto = PenBeholdningerMedGrunnlagSpecMapper.toDto(spec)
+        log.debug { "POST to URI: '$uri' with body '$dto'" }
+
+        return try {
+            webClient
+                .post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .headers(::setHeaders)
+                .bodyValue(dto)
+                .retrieve()
+                .bodyToMono(BeholdningerMedGrunnlagResult::class.java)
+                .retryWhen(retryBackoffSpec(uri))
+                .block()
+                ?: emptyBeholdningerMedGrunnlagResult()
+            // NB: No mapping of response; it is assumed that PEN returns regler-compatible response body
+        } catch (e: WebClientRequestException) {
+            throw EgressException("Failed calling $uri", e)
+        } catch (e: WebClientResponseException) {
+            throw EgressException(e.responseBodyAsString, e)
+        }
+    }
+
     override fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
-        val uri = "$BASE_PATH/$PATH"
+        val uri = "$LEGACY_BASE_PATH/$FOLKETRYGDBEHOLDNING_PATH"
         val dto = PenFolketrygdBeholdningSpecMapper.toDto(spec)
         log.debug { "POST to URI: '$uri' with body '$dto'" }
 
@@ -51,7 +75,7 @@ class PenBeholdningClient(
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.let(PenFolketrygdBeholdningResultMapper::fromDto)
-                ?: nullResult()
+                ?: emptyFolketrygdBeholdning()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -66,12 +90,27 @@ class PenBeholdningClient(
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 
-    companion object {
-        private const val BASE_PATH = "pen/springapi"
-        private const val PATH = "simulering/v1/simuler-folketrygdbeholdning"
+    private companion object {
+        private const val BASE_PATH = "pen/api"
+        private const val LEGACY_BASE_PATH = "pen/springapi"
+        private const val BEHOLDNINGER_MED_GRUNNLAG_PATH = "beholdning/v1/beholdninger-med-grunnlag"
+        private const val FOLKETRYGDBEHOLDNING_PATH = "simulering/v1/simuler-folketrygdbeholdning"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
 
-        private fun nullResult() = FolketrygdBeholdning(emptyList())
+        private fun emptyFolketrygdBeholdning() =
+            FolketrygdBeholdning(
+                pensjonBeholdningPeriodeListe = emptyList()
+            )
+
+        private fun emptyBeholdningerMedGrunnlagResult() =
+            BeholdningerMedGrunnlagResult(
+                beholdningListe = emptyList(),
+                opptjeningGrunnlagListe = emptyList(),
+                inntektGrunnlagListe = emptyList(),
+                dagpengerGrunnlagListe = emptyList(),
+                omsorgGrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
+            )
     }
 }

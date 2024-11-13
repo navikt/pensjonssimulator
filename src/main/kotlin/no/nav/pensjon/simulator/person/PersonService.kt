@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service
 @Service
 class PersonService(private val client: PersonClient) {
 
+    fun person(pid: Pid): PenPerson? =
+        personListe(listOf(pid))[pid]
+
     fun personListe(pidListe: List<Pid>): Map<Pid, PenPerson> =
         client.fetchPersonerVedPid(pidListe)
 }

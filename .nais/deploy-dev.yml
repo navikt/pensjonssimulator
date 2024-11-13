@@ -48,7 +48,6 @@ spec:
         - name: "simulering"
           enabled: true
           product: "pensjonssimulator"
-          delegationSource: altinn
           consumers:
             - orgno: "889640782" # Nav (NB: dev only)
             - orgno: "938708606" # KLP

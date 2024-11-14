@@ -1,9 +1,8 @@
 package no.nav.pensjon.simulator.core.krav
 
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagPersonSpec
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
 import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttakGrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.InntektType
@@ -23,6 +22,7 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
+import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
 import no.nav.pensjon.simulator.core.exception.BrukerFoedtFoer1943Exception
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
@@ -35,7 +35,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.monthOfYearRange1To12
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
+import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.result.OpptjeningType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -43,7 +43,6 @@ import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
-import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
@@ -63,73 +62,80 @@ import kotlin.streams.toList
 @Component
 class KravhodeCreator(
     private val context: SimulatorContext,
-    private val beholdningService: BeholdningerMedGrunnlagService,
     private val beholdningUpdater: BeholdningUpdater,
     private val epsService: EpsService,
-    private val persongrunnlagMapper: PersongrunnlagMapper,
+    private val persongrunnlagService: PersongrunnlagService,
     private val generelleDataHolder: GenerelleDataHolder,
     private val kravService: KravService,
     private val ufoereService: UfoeretrygdUtbetalingService,
     private val endringPersongrunnlag: EndringPersongrunnlag,
+    private val endringUttakGrad: EndringUttakGrad,
+    private val pre2025OffentligAfpPersongrunnlag: Pre2025OffentligAfpPersongrunnlag,
+    private val pre2025OffentligAfpUttakGrad: Pre2025OffentligAfpUttakGrad
 ) {
     // OpprettKravhodeHelper.opprettKravhode
     // Personer will be undefined in forenklet simulering (anonymous)
     fun opprettKravhode(
-        spec: KravhodeSpec,
+        kravhodeSpec: KravhodeSpec,
         person: PenPerson?,
-        virkningsdatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
+        virkningDatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
     ): Kravhode {
-        val simulatorInput = spec.simulatorInput
-        val forrigeAlderBeregningsresultat = spec.forrigeAlderspensjonBeregningResult
-        val grunnbeloep = spec.grunnbeloep
-        val gjelderEndring = simulatorInput.gjelderEndring()
-        val gjelderAfpOffentligPre2025 = simulatorInput.gjelderPre2025OffentligAfp()
+        val spec = kravhodeSpec.simulatorInput
+        val forrigeAlderspensjonBeregningResultat = kravhodeSpec.forrigeAlderspensjonBeregningResult
+        val grunnbeloep = kravhodeSpec.grunnbeloep
+        val gjelderEndring = spec.gjelderEndring()
+        val gjelderPre2025OffentligAfp = spec.gjelderPre2025OffentligAfp()
 
         val kravhode = Kravhode().apply {
             kravFremsattDato = Date()
-            onsketVirkningsdato = fromLocalDate(oensketVirkningDato(simulatorInput))
+            onsketVirkningsdato = fromLocalDate(oensketVirkningDato(spec))
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
-            regelverkTypeEnum = finnRegelverkType(simulatorInput)
+            regelverkTypeEnum = regelverkType(spec.foedselAar)
         }
 
-        addSoekerGrunnlagToKrav(simulatorInput, kravhode, person, forrigeAlderBeregningsresultat, grunnbeloep)
-        addEpsGrunnlagToKrav(simulatorInput, kravhode, forrigeAlderBeregningsresultat, grunnbeloep)
+        addSoekerGrunnlagToKravhode(spec, kravhode, person, forrigeAlderspensjonBeregningResultat, grunnbeloep)
+        addEpsGrunnlagToKrav(spec, kravhode, forrigeAlderspensjonBeregningResultat, grunnbeloep)
 
-        if (kravTilsierBoddEllerArbeidetUtenlands(forrigeAlderBeregningsresultat)) {
+        if (kravTilsierBoddEllerArbeidetUtenlands(forrigeAlderspensjonBeregningResultat)) {
             kravhode.boddEllerArbeidetIUtlandet = true
         } else {
-            kravhode.boddEllerArbeidetIUtlandet = harUtenlandsopphold(simulatorInput.utlandAntallAar, emptyList())
+            kravhode.boddEllerArbeidetIUtlandet = harUtenlandsopphold(spec.utlandAntallAar, emptyList())
         }
 
         // NB: Next line requires avdød persongrunnlag to be fetched above
-        val avdodGrunnlag = kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
+        val avdoedGrunnlag: Persongrunnlag? =
+            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
         kravhode.boddArbeidUtlandAvdod =
-            avdodGrunnlag?.let { harUtenlandsopphold(simulatorInput.avdoed?.antallAarUtenlands, it.trygdetidPerioder) }
-                ?: false
-        addForsteVirkningsdatoGrunnlagToKrav(kravhode, virkningsdatoGrunnlagListe)
-        kravhode.uttaksgradListe = alderspensjonUttaksgrader(simulatorInput)
+            avdoedGrunnlag?.let {
+                harUtenlandsopphold(
+                    antallAarUtenlands = spec.avdoed?.antallAarUtenlands,
+                    trygdetidPeriodeListe = it.trygdetidPerioder
+                )
+            } == true
+
+        addFoersteVirkningDatoGrunnlagToKravhode(kravhode, virkningDatoGrunnlagListe)
 
         kravhode.uttaksgradListe =
             when {
-                gjelderAfpOffentligPre2025 -> afpOffentligPre2025Uttaksgrader(
-                    simulatorInput,
-                    forrigeAlderBeregningsresultat
+                gjelderPre2025OffentligAfp -> pre2025OffentligAfpUttakGradListe(
+                    spec,
+                    forrigeAlderspensjonBeregningResultat
                 )
 
-                gjelderEndring -> endringUttaksgrader(simulatorInput, forrigeAlderBeregningsresultat)
-                else -> alderspensjonUttaksgrader(simulatorInput)
+                gjelderEndring -> endringUttakGradListe(spec, forrigeAlderspensjonBeregningResultat)
+                else -> alderspensjonUttakGradListe(spec)
             }
 
-        addKravlinjerToKrav(kravhode)
+        addKravlinjerToKravhode(kravhode)
         settGenerelleFelter(kravhode)
-        updateOnsketVirkAndUtbetalingsgrad(simulatorInput, kravhode)
+        updateOensketVirkningAndUtbetalingGrad(spec, kravhode)
         return kravhode
     }
 
-    private fun updateOnsketVirkAndUtbetalingsgrad(spec: SimuleringSpec, kravhode: Kravhode) {
+    private fun updateOensketVirkningAndUtbetalingGrad(spec: SimuleringSpec, kravhode: Kravhode) {
         if (spec.erAnonym) return
 
         val persongrunnlag = kravhode.hentPersongrunnlagForSoker()
@@ -161,20 +167,34 @@ class KravhodeCreator(
         kravhode.persongrunnlagListe.forEach { it.sisteGyldigeOpptjeningsAr = sisteGyldigeOpptjeningAar }
     }
 
-    private fun addKravlinjerToKrav(kravhode: Kravhode) {
+    private fun addKravlinjerToKravhode(kravhode: Kravhode) {
         kravhode.kravlinjeListe =
-            mutableListOf(norskKravlinje(KravlinjeTypeEnum.AP, kravhode.hentPersongrunnlagForSoker().penPerson!!))
-        val avdodGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
+            mutableListOf(
+                norskKravlinje(
+                    kravlinjeType = KravlinjeTypeEnum.AP,
+                    person = kravhode.hentPersongrunnlagForSoker().penPerson!!
+                )
+            )
 
-        if (avdodGrunnlag != null) {
-            kravhode.kravlinjeListe.add(norskKravlinje(KravlinjeTypeEnum.GJR, avdodGrunnlag.penPerson!!))
+        val avdoedGrunnlag: Persongrunnlag? = kravhode.hentPersongrunnlagForRolle(
+            grunnlagsrolle = GrunnlagsrolleEnum.AVDOD,
+            checkBruk = false
+        )
+
+        avdoedGrunnlag?.penPerson?.let {
+            kravhode.kravlinjeListe.add(
+                norskKravlinje(
+                    kravlinjeType = KravlinjeTypeEnum.GJR,
+                    person = it
+                )
+            )
         }
     }
 
     // OpprettKravHodeHelper.leggTilForstevirkningsdatoGrunnlag
-    private fun addForsteVirkningsdatoGrunnlagToKrav(
+    private fun addFoersteVirkningDatoGrunnlagToKravhode(
         kravhode: Kravhode,
-        virkningsdatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
+        virkningDatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
     ) {
         //TODO inspect this code:
         kravhode.persongrunnlagListe.forEach {
@@ -183,21 +203,21 @@ class KravhodeCreator(
         }
 
         kravhode.persongrunnlagListe.forEach {
-            addForsteVirkningsdatoGrunnlagToPersongrunnlag(
-                it,
-                virkningsdatoGrunnlagListe
+            addFoersteVirkningDatoGrunnlagToPersongrunnlag(
+                persongrunnlag = it,
+                virkningDatoGrunnlagListe
             )
         }
     }
 
     // OpprettKravHodeHelper.leggTilForstevirkningsdatoGrunnlag
-    private fun addForsteVirkningsdatoGrunnlagToPersongrunnlag(
+    private fun addFoersteVirkningDatoGrunnlagToPersongrunnlag(
         persongrunnlag: Persongrunnlag,
-        virkningsdatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
+        virkningDatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
     ) {
         if ((persongrunnlag.penPerson?.penPersonId ?: 0) <= 0) return
 
-        virkningsdatoGrunnlagListe.forEach(persongrunnlag.forsteVirkningsdatoGrunnlagListe::add)
+        virkningDatoGrunnlagListe.forEach(persongrunnlag.forsteVirkningsdatoGrunnlagListe::add)
     }
 
     // OpprettKravHodeHelper.isBoddArbeidUtlandTrueOnKravHode + findKravHode
@@ -219,7 +239,7 @@ class KravhodeCreator(
         forrigeResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ) {
-        //ANON AfpPersongrunnlag(context).opprettPersongrunnlagForEps(spec, kravhode, forrigeResultat, grunnbeloep)
+        pre2025OffentligAfpPersongrunnlag.opprettEpsGrunnlag(spec, kravhode, forrigeResultat, grunnbeloep)
         // TODO Optimize this call chain when forrigeAlderBeregningsresultat = null:
         //    KravhodeCreator.addPre2025OffentligAfpEpsGrunnlagToKrav (this method)
         // -> AfpPersongrunnlag.opprettPersongrunnlagForEps(4)
@@ -272,70 +292,26 @@ class KravhodeCreator(
     }
     */
 
-    private fun finnRegelverkType(spec: SimuleringSpec): RegelverkTypeEnum {
-        /*ANON? val pid = spec.fnr
-
-     val foedselAar: Int = if (pid != null) {
-         Pid.get4DigitYearOfBirth(pid.toString())
-     } else {
-         spec.fodselsar
-     }*/
-        val foedselAar = spec.foedselAar
-
-        if (foedselAar < 1943) {
-            throw BrukerFoedtFoer1943Exception("FPEN028 - Kan ikke sett regelverktype - Fødselsår < 1943")
-        }
-
-        if (foedselAar <= 1953) {
-            return RegelverkTypeEnum.N_REG_G_OPPTJ
-        }
-
-        if (foedselAar <= 1962) {
-            return RegelverkTypeEnum.N_REG_G_N_OPPTJ
-        }
-
-        return RegelverkTypeEnum.N_REG_N_OPPTJ
-    }
-
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBruker
     private fun opprettSokergrunnlag(
         spec: SimuleringSpec,
         kravhode: Kravhode,
-        person: PenPerson?
+        person: PenPerson? // null if anonym
     ): Kravhode {
         if (spec.erAnonym) {
             kravhode.persongrunnlagListe.add(anonymSoekerGrunnlag(spec))
             return kravhode
         }
 
-        val response: Kravhode = addSokerPersongrunnlagToKravForNormalSimulering(spec, kravhode, person!!)
+        val response: Kravhode = persongrunnlagService.addSoekerGrunnlagToKravhode(spec, kravhode, person!!)
         beholdningUpdater.updateBeholdningFromEksisterendePersongrunnlag(kravhode)
         return response
-    }
-
-    // OpprettKravHodeHelper.opprettPersongrunnlagForBruker
-    fun addSokerPersongrunnlagToKravForNormalSimulering(
-        spec: SimuleringSpec,
-        kravhode: Kravhode,
-        person: PenPerson
-    ): Kravhode {
-        val persongrunnlag = persongrunnlagMapper.mapToPersongrunnlag(person, spec)
-        kravhode.persongrunnlagListe.add(persongrunnlag)
-
-        addBeholdningerOgGrunnlagToPersongrunnlag(
-            persongrunnlag,
-            kravhode,
-            pid = person.pid!!,
-            hentBeholdninger = false
-        )
-
-        return kravhode
     }
 
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBrukerForenkletSimulering
     private fun anonymSoekerGrunnlag(spec: SimuleringSpec) =
         Persongrunnlag().apply {
-            penPerson = PenPerson().apply { penPersonId = FORENKLET_SIMULERING_PERSON_ID }
+            penPerson = PenPerson().apply { penPersonId = ANONYM_PERSON_ID }
             fodselsdato = legacyFoersteDag(spec.foedselAar)
             antallArUtland = spec.utlandAntallAar
             statsborgerskapEnum = norge
@@ -364,52 +340,9 @@ class KravhodeCreator(
             else -> SivilstandEnum.UGIF
         }
 
-    // OpprettKravHodeHelper.oppdaterGrunnlagMedBeholdninger
-    private fun addBeholdningerOgGrunnlagToPersongrunnlag(
-        persongrunnlag: Persongrunnlag,
-        kravhode: Kravhode,
-        pid: Pid,
-        hentBeholdninger: Boolean
-    ) {
-        with(beholdningService.getBeholdningerMedGrunnlag(beholdningSpec(pid, kravhode))) {
-            persongrunnlag.opptjeningsgrunnlagListe = opptjeningGrunnlagListe.toMutableList()
-            persongrunnlag.omsorgsgrunnlagListe = omsorgGrunnlagListe.toMutableList()
-            persongrunnlag.inntektsgrunnlagListe = inntektGrunnlagListe.toMutableList()
-            persongrunnlag.dagpengegrunnlagListe = dagpengerGrunnlagListe.toMutableList()
-            persongrunnlag.forstegangstjenestegrunnlag = foerstegangstjeneste
-
-            if (hentBeholdninger) {
-                beholdningListe.filterIsInstance<Pensjonsbeholdning>().forEach(persongrunnlag.beholdninger::add)
-            }
-        }
-    }
-
-    private fun beholdningSpec(pid: Pid, kravhode: Kravhode) =
-        BeholdningerMedGrunnlagSpec(
-            pid,
-            hentPensjonspoeng = true,
-            hentGrunnlagForOpptjeninger = true,
-            hentBeholdninger = false,
-            harUfoeretrygdKravlinje = kravhode.isUforetrygd(),
-            regelverkType = kravhode.regelverkTypeEnum,
-            sakType = kravhode.sakType?.let { SakTypeEnum.valueOf(it.name) },
-            personSpecListe = kravhode.persongrunnlagListe.map(::personligBeholdningSpec),
-            soekerSpec = kravhode.hentPersongrunnlagForSoker().let(::personligBeholdningSpec)
-        )
-
-    private fun personligBeholdningSpec(persongrunnlag: Persongrunnlag) =
-        BeholdningerMedGrunnlagPersonSpec(
-            pid = persongrunnlag.penPerson?.pid!!,
-            sisteGyldigeOpptjeningAar = persongrunnlag.sisteGyldigeOpptjeningsAr,
-            isGrunnlagRolleSoeker = persongrunnlag.findPersonDetaljIPersongrunnlag(
-                GrunnlagsrolleEnum.SOKER,
-                true
-            ) != null
-        )
-
     // OpprettKravHodeHelper.opprettPersongrunnlag
-    private fun addSoekerGrunnlagToKrav(
-        simulatorInput: SimuleringSpec,
+    private fun addSoekerGrunnlagToKravhode(
+        spec: SimuleringSpec,
         kravhode: Kravhode,
         person: PenPerson?,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
@@ -417,61 +350,60 @@ class KravhodeCreator(
     ) {
         val updatedKravhode: Kravhode =
             when {
-                /*ANON
-                simulatorInput.gjelderAfpOffentligPre2025() -> person?.let {
-                    AfpPersongrunnlag(context).opprettSokerGrunnlag(
+                spec.gjelderPre2025OffentligAfp() -> person?.let {
+                    pre2025OffentligAfpPersongrunnlag.opprettSoekerGrunnlag(
                         it,
-                        simulatorInput,
-                        kravhode,
-                        forrigeAlderspensjonBeregningsresultat
-                    )
-                } ?: kravhode
-*/
-                simulatorInput.gjelderEndring() -> person?.let {
-                    endringPersongrunnlag.opprettSoekerGrunnlag(
-                        it,
-                        simulatorInput,
+                        spec,
                         kravhode,
                         forrigeAlderspensjonBeregningResultat
                     )
                 } ?: kravhode
 
-                else -> opprettSokergrunnlag(simulatorInput, kravhode, person)
+                spec.gjelderEndring() -> person?.let {
+                    endringPersongrunnlag.opprettSoekerGrunnlag(
+                        it,
+                        spec,
+                        kravhode,
+                        forrigeAlderspensjonBeregningResultat
+                    )
+                } ?: kravhode
+
+                else -> opprettSokergrunnlag(spec, kravhode, person)
             }
 
         val persongrunnlag = updatedKravhode.hentPersongrunnlagForSoker()
-        val brukFremtidigInntekt = simulatorInput.fremtidigInntektListe.isNotEmpty()
-        val inntekter: MutableList<Inntekt>
+        val brukFremtidigInntekt = spec.fremtidigInntektListe.isNotEmpty()
+        val inntektListe: MutableList<Inntekt>
 
         if (brukFremtidigInntekt) {
-            val gjeldendeAr = SISTE_GYLDIGE_OPPTJENING_AAR + 1
-            val sisteOpptjeningsAr = MAX_OPPTJENING_ALDER + simulatorInput.foedselAar
-            val fom = foersteDag(gjeldendeAr)
+            val gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
+            val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + spec.foedselAar
+            val fom = foersteDag(gjeldendeAar)
 
             val inntektsgrunnlagList =
-                ArrayList(fjernForventetArbeidsinntektFraInntektsgrunnlag(persongrunnlag.inntektsgrunnlagListe))
+                ArrayList(fjernForventetArbeidsinntektFraInntektGrunnlag(persongrunnlag.inntektsgrunnlagListe))
                     .also {
                         it.addAll(
                             inntektsgrunnlagListeFraFremtidigeInntekter(
-                                simulatorInput,
-                                gjeldendeAr,
-                                sisteOpptjeningsAr,
+                                spec,
+                                gjeldendeAar,
+                                sisteOpptjeningAar,
                                 fom
                             )
                         )
                     }
 
             persongrunnlag.inntektsgrunnlagListe = inntektsgrunnlagList
-            inntekter = inntekter(inntektsgrunnlagList)
+            inntektListe = inntektListe(inntektsgrunnlagList)
         } else {
-            inntekter = aarligeInntekterFraDagensDato(simulatorInput, grunnbeloep, person?.fodselsdato)
+            inntektListe = aarligeInntekterFraDagensDato(spec, grunnbeloep, person?.fodselsdato)
             persongrunnlag.inntektsgrunnlagListe =
-                opprettInntektsgrunnlagForSoeker(simulatorInput, persongrunnlag.inntektsgrunnlagListe)
+                opprettInntektGrunnlagForSoeker(spec, persongrunnlag.inntektsgrunnlagListe)
         }
 
         persongrunnlag.opptjeningsgrunnlagListe =
             oppdaterOpptjeningsgrunnlagFraInntekter(
-                inntekter,
+                inntektListe,
                 persongrunnlag.opptjeningsgrunnlagListe,
                 persongrunnlag.fodselsdato.toLocalDate()
             )
@@ -480,21 +412,21 @@ class KravhodeCreator(
     private fun addEpsGrunnlagToKrav(
         spec: SimuleringSpec,
         kravhode: Kravhode,
-        forrigeAlderspensjonBeregningResult: AbstraktBeregningsResultat?,
+        forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ) {
         when {
             spec.gjelderPre2025OffentligAfp() -> addPre2025OffentligAfpEpsGrunnlagToKrav(
                 spec,
                 kravhode,
-                forrigeAlderspensjonBeregningResult,
+                forrigeAlderspensjonBeregningResultat,
                 grunnbeloep
             )
 
             spec.gjelderEndring() -> addEndringEpsGrunnlagToKrav(
                 spec,
                 kravhode,
-                forrigeAlderspensjonBeregningResult,
+                forrigeAlderspensjonBeregningResultat,
                 grunnbeloep
             )
 
@@ -511,7 +443,7 @@ class KravhodeCreator(
 
         for (inntekt in inntektListe) {
             if (inntekt.beloep > 0L) {
-                grunnlagListe.add(opptjeningsgrunnlag(inntekt))
+                grunnlagListe.add(opptjeningGrunnlag(inntekt))
             }
         }
 
@@ -640,39 +572,47 @@ class KravhodeCreator(
         }
     }
 
-    private fun afpOffentligPre2025Uttaksgrader(
-        simulatorInput: SimuleringSpec,
+    private fun pre2025OffentligAfpUttakGradListe(
+        spec: SimuleringSpec,
         forrigeResultat: AbstraktBeregningsResultat?
     ): MutableList<Uttaksgrad> =
-        mutableListOf() //ANON AfpUttaksgrad(context).uttaksgrader(simulatorInput, forrigeResultat, fodselsdato(simulatorInput))
+        pre2025OffentligAfpUttakGrad.uttakGradListe(spec, forrigeResultat, foedselDato(spec))
 
-    private fun endringUttaksgrader(
-        simulatorInput: SimuleringSpec,
+    private fun endringUttakGradListe(
+        spec: SimuleringSpec,
         forrigeResultat: AbstraktBeregningsResultat?
     ): MutableList<Uttaksgrad> =
-        mutableListOf() //ANON EndringUttaksgrad(context).uttaksgrader(simulatorInput, forrigeResultat?.kravId)
+        endringUttakGrad.uttakGradListe(spec, forrigeResultat?.kravId)
 
     private companion object {
         private const val MAX_ALDER = 80
         private const val MAX_OPPTJENING_ALDER = 75
         private const val MAX_UTTAKSGRAD = 100
-        private const val FORENKLET_SIMULERING_PERSON_ID = -1L
+        private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
+
+        private fun regelverkType(foedselAar: Int): RegelverkTypeEnum =
+            when {
+                foedselAar < 1943 -> throw BrukerFoedtFoer1943Exception("Kan ikke sette regelverktype - fødselsår < 1943")
+                foedselAar <= 1953 -> RegelverkTypeEnum.N_REG_G_OPPTJ
+                foedselAar <= 1962 -> RegelverkTypeEnum.N_REG_G_N_OPPTJ
+                else -> RegelverkTypeEnum.N_REG_N_OPPTJ
+            }
 
         // OpprettKravHodeHelper.finnUttaksgradListe
         // -> SimulerFleksibelAPCommand.finnUttaksgradListe
-        private fun alderspensjonUttaksgrader(spec: SimuleringSpec): MutableList<Uttaksgrad> {
-            val uttaksgrader = mutableListOf(angittUttaksgrad(spec))
+        private fun alderspensjonUttakGradListe(spec: SimuleringSpec): MutableList<Uttaksgrad> {
+            val uttakGradListe = mutableListOf(angittUttakGrad(spec))
 
             if (erGradertUttak(spec)) {
-                uttaksgrader.add(helUttaksgrad(spec.heltUttakDato))
+                uttakGradListe.add(heltUttakGrad(spec.heltUttakDato))
             }
 
-            return uttaksgrader
+            return uttakGradListe
         }
 
         // SimulerFleksibelAPCommand.createUttaksgradChosenByUser
-        private fun angittUttaksgrad(spec: SimuleringSpec) =
+        private fun angittUttakGrad(spec: SimuleringSpec) =
             Uttaksgrad().apply {
                 fomDato = fromLocalDate(spec.foersteUttakDato)
                 uttaksgrad = spec.uttakGrad.value.toInt()
@@ -699,8 +639,8 @@ class KravhodeCreator(
                 inntekt = nextInntekt
             }
 
-            val sistePeriodeAntallManeder = MAANEDER_PER_AAR - inntekt.fom.monthValue
-            return aarligInntekt.add(periodevisInntekt(inntekt, sistePeriodeAntallManeder))
+            val sistePeriodeAntallMaaneder = MAANEDER_PER_AAR - inntekt.fom.monthValue
+            return aarligInntekt.add(periodevisInntekt(inntekt, sistePeriodeAntallMaaneder))
         }
 
         private fun addFremtidigInntektAtStartOfEachYear(
@@ -714,16 +654,14 @@ class KravhodeCreator(
             while (inntektIterator.hasNext()) {
                 currentInntekt = inntektIterator.next()
 
-                if (sammeAr(currentInntekt, gjeldendeInntekt) || starterAretEtter(
-                        currentInntekt,
-                        gjeldendeInntekt
-                    ) && starterJanuar(currentInntekt)
+                if (sammeAar(currentInntekt, gjeldendeInntekt)
+                    || starterAaretEtter(currentInntekt, gjeldendeInntekt) && starterJanuar(currentInntekt)
                 ) {
                     gjeldendeInntekt = currentInntekt
-                } else if (starterAretEtter(currentInntekt, gjeldendeInntekt) && !starterJanuar(currentInntekt)
-                    || currentInntekt.fom.year > aretEtter(gjeldendeInntekt)
+                } else if (starterAaretEtter(currentInntekt, gjeldendeInntekt) && !starterJanuar(currentInntekt)
+                    || currentInntekt.fom.year > aaretEtter(gjeldendeInntekt)
                 ) {
-                    val firstOfYear = foersteDag(aretEtter(gjeldendeInntekt))
+                    val firstOfYear = foersteDag(aaretEtter(gjeldendeInntekt))
                     val nyInntekt = FremtidigInntekt(gjeldendeInntekt.aarligInntektBeloep, firstOfYear)
                     inntektIterator.previous()
                     inntektIterator.add(nyInntekt)
@@ -731,11 +669,11 @@ class KravhodeCreator(
                 }
             }
 
-            val lastYearWithFremtidigInntekt = gjeldendeInntekt.fom.year
+            val sisteFremtidigInntektAar = gjeldendeInntekt.fom.year
 
-            if (lastYearWithFremtidigInntekt < sisteOpptjeningAar) {
-                addFremtidigInntektForHvertArInntilSisteOpptjeningsar(
-                    lastYearWithFremtidigInntekt,
+            if (sisteFremtidigInntektAar < sisteOpptjeningAar) {
+                addFremtidigInntektForHvertAarInntilSisteOpptjeningAar(
+                    sisteFremtidigInntektAar,
                     sisteOpptjeningAar,
                     inntektIterator,
                     gjeldendeInntekt
@@ -743,16 +681,17 @@ class KravhodeCreator(
             }
         }
 
-        private fun addFremtidigInntektForHvertArInntilSisteOpptjeningsar(
-            sisteAarMedFremtidigInntekt: Int,
-            sisteOpptjeningAar: Int, fremtidigInntektIterator: MutableListIterator<FremtidigInntekt>,
+        private fun addFremtidigInntektForHvertAarInntilSisteOpptjeningAar(
+            sisteFremtidigInntektAar: Int,
+            sisteOpptjeningAar: Int,
+            fremtidigInntektIterator: MutableListIterator<FremtidigInntekt>,
             gjeldendeFremtidigInntekt: FremtidigInntekt
         ) {
-            for (ar in sisteAarMedFremtidigInntekt + 1..sisteOpptjeningAar) {
+            for (aar in sisteFremtidigInntektAar + 1..sisteOpptjeningAar) {
                 fremtidigInntektIterator.add(
                     FremtidigInntekt(
                         aarligInntektBeloep = gjeldendeFremtidigInntekt.aarligInntektBeloep,
-                        fom = foersteDag(ar)
+                        fom = foersteDag(aar)
                     )
                 )
             }
@@ -773,51 +712,56 @@ class KravhodeCreator(
                 }
         }
 
-        private fun fjernForventetArbeidsinntektFraInntektsgrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
+        private fun fjernForventetArbeidsinntektFraInntektGrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
             grunnlagListe.filter { it.bruk && it.inntektType!!.kode != InntektType.FPI.name }
 
-        private fun opprettInntektsgrunnlagForSoeker(
+        private fun opprettInntektGrunnlagForSoeker(
             spec: SimuleringSpec,
             existingInntektsgrunnlagList: MutableList<Inntektsgrunnlag>
         ): MutableList<Inntektsgrunnlag> {
-            val inntektsgrunnlagListe: MutableList<Inntektsgrunnlag> = mutableListOf()
+            val inntektGrunnlagListe: MutableList<Inntektsgrunnlag> = mutableListOf()
 
             // Inntekt frem til første uttak
             if (isAfterToday(spec.foersteUttakDato) && spec.forventetInntektBeloep > 0) {
-                val beloep = spec.forventetInntektBeloep
-                val fom = LocalDate.now()
-                val tom = getRelativeDateByDays(spec.foersteUttakDato, -1)
-                inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(beloep, fom, tom))
+                inntektGrunnlagListe.add(
+                    inntektsgrunnlagForSoekerOrEps(
+                        beloep = spec.forventetInntektBeloep,
+                        fom = LocalDate.now(),
+                        tom = getRelativeDateByDays(spec.foersteUttakDato, -1)
+                    )
+                )
             }
 
             val isHeltUttak = spec.uttakGrad == UttakGradKode.P_100
             val inntektUnderGradertUttak: Int = spec.inntektUnderGradertUttakBeloep
 
             if (!isHeltUttak && inntektUnderGradertUttak > 0) {
-                val beloep = inntektUnderGradertUttak
-                val fom = spec.foersteUttakDato
-                val tom = getRelativeDateByDays(spec.heltUttakDato, -1)
-                inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(beloep, fom, tom))
+                inntektGrunnlagListe.add(
+                    inntektsgrunnlagForSoekerOrEps(
+                        beloep = inntektUnderGradertUttak,
+                        fom = spec.foersteUttakDato,
+                        tom = getRelativeDateByDays(spec.heltUttakDato, -1)
+                    )
+                )
             }
 
             val antallArInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
 
             if (spec.inntektEtterHeltUttakBeloep > 0 && antallArInntektEtterHeltUttak > 0) {
-                val beloep = spec.inntektEtterHeltUttakBeloep
                 val fom = if (isHeltUttak) spec.foersteUttakDato else spec.heltUttakDato
                 val tom = getRelativeDateByDays(getRelativeDateByYear(fom, antallArInntektEtterHeltUttak), -1)
-                inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(beloep, fom!!, tom))
+                inntektGrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom!!, tom))
             }
 
-            inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
+            inntektGrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
                 it.bruk && !isForventetPensjongivendeInntekt(it)
             })
 
-            return inntektsgrunnlagListe
+            return inntektGrunnlagListe
         }
 
         private fun isForventetPensjongivendeInntekt(grunnlag: Inntektsgrunnlag): Boolean =
-            grunnlag.inntektType?.let { it.kode == InntektType.FPI.name } ?: false
+            grunnlag.inntektType?.let { it.kode == InntektType.FPI.name } == true
 
         private fun calculateGrunnbelopForhold(
             aar: Int,
@@ -825,22 +769,22 @@ class KravhodeCreator(
             veietGrunnbeloepListe: List<VeietSatsResultat>,
             grunnbeloep: Int
         ): Double {
-            val innevarendeAar = LocalDate.now().year
+            val innevaerendeAar = LocalDate.now().year
 
-            return if (spec.erAnonym && aar < innevarendeAar)
+            return if (spec.erAnonym && aar < innevaerendeAar)
                 findValidForYear(veietGrunnbeloepListe, aar)?.let { it.verdi / grunnbeloep } ?: 1.0
             else
                 1.0
         }
 
-        private fun oensketVirkningDato(simulatorInput: SimuleringSpec) =
-            if (simulatorInput.erAnonym) null else finnOensketVirkningDato(simulatorInput)
+        private fun oensketVirkningDato(spec: SimuleringSpec) =
+            if (spec.erAnonym)
+                null
+            else
+                spec.heltUttakDato ?: spec.foersteUttakDato
 
-        private fun finnOensketVirkningDato(simulatorInput: SimuleringSpec) =
-            simulatorInput.heltUttakDato ?: simulatorInput.foersteUttakDato
-
-        private fun inntekter(inntektsgrunnlagList: MutableList<Inntektsgrunnlag>) =
-            inntektsgrunnlagList.map {
+        private fun inntektListe(grunnlagListe: MutableList<Inntektsgrunnlag>) =
+            grunnlagListe.map {
                 Inntekt(
                     beloep = it.belop.toLong(),
                     inntektAar = getYear(it.fom)
@@ -853,13 +797,13 @@ class KravhodeCreator(
             sisteOpptjeningAar: Int,
             fom: LocalDate
         ): List<Inntektsgrunnlag> {
-            val fremtidigeInntekter = spec.fremtidigInntektListe
+            val fremtidigInntektListe = spec.fremtidigInntektListe
 
-            if (fremtidigeInntekter.isEmpty() || doesNotHaveFremtidigInntektBeforeFom(spec, fom)) {
-                fremtidigeInntekter.add(FremtidigInntekt(aarligInntektBeloep = 0, fom = fom))
+            if (fremtidigInntektListe.isEmpty() || doesNotHaveFremtidigInntektBeforeFom(spec, fom)) {
+                fremtidigInntektListe.add(FremtidigInntekt(aarligInntektBeloep = 0, fom = fom))
             }
 
-            val sortedFremtidigeInntekter = fremtidigeInntekter.toMutableList()
+            val sortedFremtidigeInntekter = fremtidigInntektListe.toMutableList()
             sortedFremtidigeInntekter.sortBy { it.fom }
             validateSortedFremtidigeInntekter(sortedFremtidigeInntekter)
             addFremtidigInntektAtStartOfEachYear(sortedFremtidigeInntekter, sisteOpptjeningAar)
@@ -874,10 +818,10 @@ class KravhodeCreator(
             aar: Int
         ): Inntektsgrunnlag {
             val arligeInntekter = inntektListe.filter { it.fom.year == aar }
-            return inntektsgrunnlagForAret(aar, arligeInntekter)
+            return inntektGrunnlagForAaret(aar, arligeInntekter)
         }
 
-        private fun inntektsgrunnlagForAret(aar: Int, aaretsInntektListe: List<FremtidigInntekt>) =
+        private fun inntektGrunnlagForAaret(aar: Int, aaretsInntektListe: List<FremtidigInntekt>) =
             Inntektsgrunnlag().apply {
                 fom = fromLocalDate(foersteDag(aar))
                 tom = fromLocalDate(sisteDag(aar))
@@ -904,7 +848,7 @@ class KravhodeCreator(
                 land = Land.NOR
             }
 
-        private fun opptjeningsgrunnlag(inntekt: Inntekt) =
+        private fun opptjeningGrunnlag(inntekt: Inntekt) =
             Opptjeningsgrunnlag().apply {
                 ar = inntekt.inntektAar
                 pi = inntekt.beloep.toInt()
@@ -912,7 +856,7 @@ class KravhodeCreator(
                 bruk = true
             }
 
-        private fun helUttaksgrad(fom: LocalDate?) =
+        private fun heltUttakGrad(fom: LocalDate?) =
             Uttaksgrad().apply {
                 fomDato = fromLocalDate(fom)
                 uttaksgrad = MAX_UTTAKSGRAD
@@ -924,27 +868,33 @@ class KravhodeCreator(
                 .multiply(BigInteger.valueOf(periodOfMonths.toLong()))
                 .divide(BigInteger.valueOf(MAANEDER_PER_AAR.toLong()))
 
-        private fun doesNotHaveFremtidigInntektBeforeFom(simulatorInput: SimuleringSpec, fom: LocalDate) =
-            simulatorInput.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }
+        private fun doesNotHaveFremtidigInntektBeforeFom(spec: SimuleringSpec, fom: LocalDate) =
+            spec.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }
 
-        private fun harUtenlandsopphold(antallAarUtenlands: Int?, trygdetidperioder: List<TTPeriode>) =
-            if (antallAarUtenlands == null) containsTrygdetidAbroad(trygdetidperioder) else antallAarUtenlands > 0
+        private fun foedselDato(spec: SimuleringSpec): LocalDate =
+            spec.foedselDato ?: foersteDag(spec.foedselAar)
 
-        private fun containsTrygdetidAbroad(trygdetidPeriodeListe: List<TTPeriode>) =
+        private fun harUtenlandsopphold(antallAarUtenlands: Int?, trygdetidPeriodeListe: List<TTPeriode>) =
+            if (antallAarUtenlands == null)
+                containsTrygdetidUtenlands(trygdetidPeriodeListe)
+            else
+                antallAarUtenlands > 0
+
+        private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
             trygdetidPeriodeListe.any { it.land!!.kode != Land.NOR.name }
 
         private fun erGradertUttak(spec: SimuleringSpec) = spec.uttakGrad != UttakGradKode.P_100
 
-        private fun sammeAr(inntekt1: FremtidigInntekt, inntekt2: FremtidigInntekt) =
-            inntekt1.fom.year == inntekt2.fom.year
+        private fun sammeAar(a: FremtidigInntekt, b: FremtidigInntekt) =
+            a.fom.year == b.fom.year
 
         private fun starterJanuar(inntekt: FremtidigInntekt) =
             inntekt.fom.monthValue == 1
 
-        private fun starterAretEtter(fremtidigInntekt: FremtidigInntekt, inntekt: FremtidigInntekt) =
-            fremtidigInntekt.fom.year == aretEtter(inntekt)
+        private fun starterAaretEtter(fremtidigInntekt: FremtidigInntekt, inntekt: FremtidigInntekt) =
+            fremtidigInntekt.fom.year == aaretEtter(inntekt)
 
-        private fun aretEtter(inntekt: FremtidigInntekt) =
+        private fun aaretEtter(inntekt: FremtidigInntekt) =
             inntekt.fom.year + 1
 
         private fun legacyFoersteDag(aar: Int) =

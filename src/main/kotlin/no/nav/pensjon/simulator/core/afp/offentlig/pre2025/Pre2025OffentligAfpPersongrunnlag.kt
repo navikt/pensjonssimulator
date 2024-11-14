@@ -12,9 +12,10 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.krav.KravhodeCreator
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
+import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.krav.KravService
@@ -25,8 +26,8 @@ import java.util.*
 // Corresponds to SimulerAFPogAPCommand (persongrunnlag part)
 @Component
 class Pre2025OffentligAfpPersongrunnlag(
-    private val kravhodeCreator: KravhodeCreator,
     private val kravService: KravService,
+    private val persongrunnlagService: PersongrunnlagService,
     private val epsService: EpsService
 ) {
     // SimulerAFPogAPCommand.opprettPersongrunnlagForBruker
@@ -103,7 +104,7 @@ class Pre2025OffentligAfpPersongrunnlag(
     private fun persongrunnlag(soekerGrunnlagBase: Persongrunnlag, spec: SimuleringSpec) =
         Persongrunnlag(source = soekerGrunnlagBase, excludeForsteVirkningsdatoGrunnlag = true).apply {
             beholdKunEnkeHvisEnSlikPersondetaljFinnes(persongrunnlag = this)
-            retainVirksommePersondetaljer(persongrunnlag = this)
+            beholdVirksommePersondetaljer(persongrunnlag = this)
             spec.flyktning?.let { this.flyktning = it }
             this.antallArUtland = spec.utlandAntallAar
             this.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
@@ -114,7 +115,7 @@ class Pre2025OffentligAfpPersongrunnlag(
     // AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForBruker
     // -> OpprettKravHodeHelper.opprettPersongrunnlagForBruker
     private fun opprettSoekerPersongrunnlag(spec: SimuleringSpec, kravhode: Kravhode, person: PenPerson): Kravhode =
-        kravhodeCreator.addSokerPersongrunnlagToKravForNormalSimulering(spec, kravhode, person)
+        persongrunnlagService.addSoekerGrunnlagToKravhode(spec, kravhode, person)
 
     // AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
     // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
@@ -200,7 +201,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         // SimulerAFPogAPCommand.createInntektsgrunnlagForEPS
         private fun epsInntektGrunnlag(grunnbeloep: Int, fomDatoInntekt: LocalDate) =
             Inntektsgrunnlag().apply {
-                belop = grunnbeloep * 3
+                belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
                 fom = fomDatoInntekt.toDate() // is set to noon in property
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.BRUKER.name)
@@ -224,7 +225,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         }
 
         // SimulerAFPogAPCommandHelper.removeAllPersondetaljWithTomDateBeforeToday
-        private fun retainVirksommePersondetaljer(persongrunnlag: Persongrunnlag) {
+        private fun beholdVirksommePersondetaljer(persongrunnlag: Persongrunnlag) {
             persongrunnlag.personDetaljListe =
                 persongrunnlag.personDetaljListe.filter { it.bruk && virksom(it) }.toMutableList()
         }

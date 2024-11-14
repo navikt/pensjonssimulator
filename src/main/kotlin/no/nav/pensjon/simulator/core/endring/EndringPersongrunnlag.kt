@@ -22,6 +22,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.eps.EpsService
+import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.krav.KravService
@@ -282,7 +283,7 @@ class EndringPersongrunnlag(
         // Assuming kopiertFraGammeltKrav and registerKilde are not used
         private fun epsInntektsgrunnlag(grunnbeloep: Int, inntektFom: LocalDate) =
             Inntektsgrunnlag().apply {
-                belop = grunnbeloep * 3
+                belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
                 fom = fromLocalDate(inntektFom)
                 tom = null

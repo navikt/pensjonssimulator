@@ -17,14 +17,14 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.util.*
 
 /**
  * Functionality related to 'ektefelle/partner/samboer' (EPS).
  */
-@Component
+@Service
 class EpsService(
     private val personService: PersonService,
     private val persongrunnlagMapper: PersongrunnlagMapper
@@ -32,7 +32,7 @@ class EpsService(
     private val log = KotlinLogging.logger {}
 
     // OpprettKravHodeHelper.opprettPersongrunnlagForEPS
-    fun addAlderspensjonEpsGrunnlagToKrav(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
+    fun addPersongrunnlagForEpsToKravhode(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
         if (EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN).contains(spec.type)) {
             //TODO createPersongrunnlagInCaseOfGjenlevenderett(simulering, kravhode)
             with("Simulering for gjenlevende is not supported") {
@@ -68,13 +68,13 @@ class EpsService(
     private fun foedselDato(spec: SimuleringSpec): LocalDate =
         spec.pid?.let(personService::person)?.fodselsdato.toLocalDate() ?: foersteDag(spec.foedselAar)
 
-    private companion object {
-        private const val GRUNNBELOP_MULTIPLIER = 3 // larger than 2 (due to 2G income limit for EPS)
+    companion object {
+        const val EPS_GRUNNBELOEP_MULTIPLIER = 3 // greater than 2 (due to 2G income limit for EPS)
 
         // OpprettKravHodeHelper.createInntektsgrunnlagForBrukerOrEps (special EPS variant)
         private fun epsInntektsgrunnlag(grunnbeloep: Int, foersteUttakAar: Int) =
             Inntektsgrunnlag().apply {
-                belop = GRUNNBELOP_MULTIPLIER * grunnbeloep
+                belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 fom = fromLocalDate(foersteDag(foersteUttakAar))
                 tom = null
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)

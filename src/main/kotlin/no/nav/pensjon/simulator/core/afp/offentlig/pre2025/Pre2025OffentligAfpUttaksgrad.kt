@@ -15,38 +15,38 @@ import java.time.LocalDate
  * (dvs. 'gammel' offentlig AFP, som erstattes av ny ordning fra 2025).
  */
 @Component
-class Pre2025OffentligAfpUttakGrad(
+class Pre2025OffentligAfpUttaksgrad(
     private val kravService: KravService,
     private val normAlderService: NormAlderService
 ) {
     // SimulerAFPogAPCommand.finnUttaksgradListe
-    fun uttakGradListe(
+    fun uttaksgradListe(
         spec: SimuleringSpec,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): MutableList<Uttaksgrad> {
-        val ubetingetUttakDato: LocalDate = ubetingetUttakDato(foedselDato)
+        val ubetingetUttakDato: LocalDate = ubetingetUttakDato(foedselsdato)
 
         if (forrigeAlderspensjonBeregningResultat == null) {
-            return mutableListOf(uttakGrad(fom = ubetingetUttakDato, grad = 100, tom = null))
+            return mutableListOf(uttaksgrad(fom = ubetingetUttakDato, grad = 100, tom = null))
         }
 
         val eksisterendeKravhode: Kravhode? =
             forrigeAlderspensjonBeregningResultat.kravId?.let(kravService::fetchKravhode)
 
-        val uttakGradListe: MutableList<Uttaksgrad> = mutableListOf()
-        uttakGradListe.addAll(copy(eksisterendeKravhode?.uttaksgradListe.orEmpty()))
-        spec.foersteUttakDato?.let { replaceNullTom(uttakGradListe, it.minusDays(1)) }
+        val uttaksgradListe: MutableList<Uttaksgrad> = mutableListOf()
+        uttaksgradListe.addAll(copy(eksisterendeKravhode?.uttaksgradListe.orEmpty()))
+        spec.foersteUttakDato?.let { replaceNullTom(uttaksgradListe, it.minusDays(1)) }
 
         val foersteTom: LocalDate = ubetingetUttakDato.minusDays(1)
-        uttakGradListe.add(uttakGrad(fom = spec.foersteUttakDato, grad = 0, tom = foersteTom))
-        uttakGradListe.add(uttakGrad(fom = ubetingetUttakDato, grad = 100, tom = null))
-        return uttakGradListe
+        uttaksgradListe.add(uttaksgrad(fom = spec.foersteUttakDato, grad = 0, tom = foersteTom))
+        uttaksgradListe.add(uttaksgrad(fom = ubetingetUttakDato, grad = 100, tom = null))
+        return uttaksgradListe
     }
 
-    private fun ubetingetUttakDato(foedselDato: LocalDate): LocalDate =
-        with(normAlderService.normAlder(foedselDato)) {
-            foedselDato
+    private fun ubetingetUttakDato(foedselsdato: LocalDate): LocalDate =
+        with(normAlderService.normAlder(foedselsdato)) {
+            foedselsdato
                 .plusYears(this.aar.toLong())
                 .plusMonths(this.maaneder.toLong() + 1)
                 .withDayOfMonth(1)
@@ -61,8 +61,8 @@ class Pre2025OffentligAfpUttakGrad(
         }
 
         // SimulerAFPogAPCommandHelper.updateUttaksgradWithTomDateNull
-        private fun replaceNullTom(uttaksgrader: List<Uttaksgrad>, tom: LocalDate) {
-            uttaksgrader.forEach {
+        private fun replaceNullTom(uttaksgradListe: List<Uttaksgrad>, tom: LocalDate) {
+            uttaksgradListe.forEach {
                 if (it.tomDato == null) {
                     it.tomDato = fromLocalDate(tom)
                     it.finishInit()
@@ -71,7 +71,7 @@ class Pre2025OffentligAfpUttakGrad(
         }
 
         // SimulerAFPogAPCommandHelper.createUttaksgrad
-        private fun uttakGrad(fom: LocalDate?, grad: Int, tom: LocalDate?) =
+        private fun uttaksgrad(fom: LocalDate?, grad: Int, tom: LocalDate?) =
             Uttaksgrad().apply {
                 fomDato = fromLocalDate(fom)
                 uttaksgrad = grad

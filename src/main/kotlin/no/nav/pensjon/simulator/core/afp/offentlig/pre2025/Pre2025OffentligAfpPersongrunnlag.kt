@@ -13,6 +13,8 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeToday
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
@@ -31,37 +33,43 @@ class Pre2025OffentligAfpPersongrunnlag(
     private val epsService: EpsService
 ) {
     // SimulerAFPogAPCommand.opprettPersongrunnlagForBruker
-    fun opprettSoekerGrunnlag(
+    // + AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForBruker
+    // -> OpprettKravHodeHelper.opprettPersongrunnlagForBruker
+    fun getPersongrunnlagForSoeker(
         person: PenPerson,
         spec: SimuleringSpec,
         kravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?
-    ): Kravhode {
+    ): Persongrunnlag? {
         if (forrigeAlderspensjonBeregningResultat == null) {
-            return opprettSoekerPersongrunnlag(spec, kravhode, person)
+            return persongrunnlagService.getPersongrunnlagForSoeker(spec, kravhode, person)
         }
 
         val eksisterendeKravhode: Kravhode? =
             forrigeAlderspensjonBeregningResultat.kravId?.let(kravService::fetchKravhode)
 
         if (eksisterendeKravhode?.findPersonDetaljIBruk(GrunnlagsrolleEnum.SOKER) == null) {
-            return kravhode
+            //TODO check eksisterendeKravhode.hentPersongrunnlagForSoker() == null instead (see below)
+            return null
         }
 
-        val eksisterendeSoekerGrunnlag: Persongrunnlag = eksisterendeKravhode.hentPersongrunnlagForSoker()
-        kravhode.persongrunnlagListe.add(persongrunnlag(eksisterendeSoekerGrunnlag, spec))
-        return kravhode
+        return persongrunnlag(
+            source = eksisterendeKravhode.hentPersongrunnlagForSoker(),
+            spec
+        )
     }
 
     // SimulerAFPogAPCommand.opprettPersongrunnlagForEPS
-    fun opprettEpsGrunnlag(
+    // + AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
+    // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
+    fun addPersongrunnlagForEpsToKravhode(
         spec: SimuleringSpec,
         kravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ): Kravhode {
         if (forrigeAlderspensjonBeregningResultat == null) {
-            opprettEpsPersongrunnlag(spec, kravhode, grunnbeloep)
+            epsService.addPersongrunnlagForEpsToKravhode(spec, kravhode, grunnbeloep)
             return kravhode
         }
 
@@ -101,8 +109,8 @@ class Pre2025OffentligAfpPersongrunnlag(
     }
 
     // Extracted from SimulerAFPogAPCommand.opprettPersongrunnlagForBruker
-    private fun persongrunnlag(soekerGrunnlagBase: Persongrunnlag, spec: SimuleringSpec) =
-        Persongrunnlag(source = soekerGrunnlagBase, excludeForsteVirkningsdatoGrunnlag = true).apply {
+    private fun persongrunnlag(source: Persongrunnlag, spec: SimuleringSpec) =
+        Persongrunnlag(source, excludeForsteVirkningsdatoGrunnlag = true).apply {
             beholdKunEnkeHvisEnSlikPersondetaljFinnes(persongrunnlag = this)
             beholdVirksommePersondetaljer(persongrunnlag = this)
             spec.flyktning?.let { this.flyktning = it }
@@ -111,17 +119,6 @@ class Pre2025OffentligAfpPersongrunnlag(
             this.bosattLandEnum = LandkodeEnum.NOR
             this.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
         }
-
-    // AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForBruker
-    // -> OpprettKravHodeHelper.opprettPersongrunnlagForBruker
-    private fun opprettSoekerPersongrunnlag(spec: SimuleringSpec, kravhode: Kravhode, person: PenPerson): Kravhode =
-        persongrunnlagService.addSoekerGrunnlagToKravhode(spec, kravhode, person)
-
-    // AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
-    // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
-    private fun opprettEpsPersongrunnlag(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
-        epsService.addAlderspensjonEpsGrunnlagToKrav(spec, kravhode, grunnbeloep)
-    }
 
     companion object {
         private val today: LocalDate = LocalDate.now()
@@ -169,7 +166,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         private fun virksom(detalj: PersonDetalj) = virksom(detalj, allowSameDay = true)
 
         private fun virksom(detalj: PersonDetalj, allowSameDay: Boolean) =
-            detalj.virkTom == null || DateUtil.isAfterByDay(detalj.virkTom, today.toDate(), allowSameDay)
+            detalj.virkTom == null || isAfterByDay(detalj.virkTom, today.toDate(), allowSameDay)
 
         // SimulerAFPogAPCommand.addInntektgrunnlagForEPS
         private fun addEpsInntektGrunnlag(
@@ -190,7 +187,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             val date1 = foersteUttakDato?.toDate() //TODO use LocalDate throughout
 
             val date: Date? =
-                if (DateUtil.isBeforeToday(date1))
+                if (isBeforeToday(date1))
                     date1
                 else
                     today.toDate()
@@ -253,7 +250,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             persongrunnlagListe.forEach {
                 if (it != null) {
                     val copy = Persongrunnlag(it, excludeForsteVirkningsdatoGrunnlag = true)
-                    retainForventetPensjongivendeInntekt(copy)
+                    beholdForventetPensjongivendeInntekt(copy)
                     addPersongrunnlagToEpsListForEachVirksomPersondetalj(it.personDetaljListe, epsGrunnlagListe, copy)
                 }
             }
@@ -261,11 +258,11 @@ class Pre2025OffentligAfpPersongrunnlag(
 
         // Extracted from SimulerAFPogAPCommandHelper.copyAndAddPersongrunnlagIfNotNull
         private fun addPersongrunnlagToEpsListForEachVirksomPersondetalj(
-            personDetaljListe: MutableList<PersonDetalj>,
+            persondetaljListe: MutableList<PersonDetalj>,
             epsGrunnlagListe: MutableList<Persongrunnlag>,
             persongrunnlag: Persongrunnlag
         ) {
-            personDetaljListe.forEach {
+            persondetaljListe.forEach {
                 if (it.bruk && it.virkTom == null) {
                     epsGrunnlagListe.add(persongrunnlag)
                 }
@@ -273,7 +270,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         }
 
         // SimulerAFPogAPCommandHelper.filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag
-        private fun retainForventetPensjongivendeInntekt(persongrunnlag: Persongrunnlag) {
+        private fun beholdForventetPensjongivendeInntekt(persongrunnlag: Persongrunnlag) {
             persongrunnlag.inntektsgrunnlagListe =
                 persongrunnlag.inntektsgrunnlagListe
                     .filter { it.bruk && isForventetPensjongivendeInntekt(it) }

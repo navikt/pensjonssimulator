@@ -19,13 +19,8 @@ class PersongrunnlagService(
     private val persongrunnlagMapper: PersongrunnlagMapper
 ) {
     // OpprettKravHodeHelper.opprettPersongrunnlagForBruker
-    fun addSoekerGrunnlagToKravhode(
-        spec: SimuleringSpec,
-        kravhode: Kravhode,
-        person: PenPerson
-    ): Kravhode {
+    fun getPersongrunnlagForSoeker(spec: SimuleringSpec, kravhode: Kravhode, person: PenPerson): Persongrunnlag {
         val persongrunnlag = persongrunnlagMapper.mapToPersongrunnlag(person, spec)
-        kravhode.persongrunnlagListe.add(persongrunnlag)
 
         addBeholdningerMedGrunnlagToPersongrunnlag(
             persongrunnlag,
@@ -34,7 +29,7 @@ class PersongrunnlagService(
             hentBeholdninger = false
         )
 
-        return kravhode
+        return persongrunnlag
     }
 
     // OpprettKravHodeHelper.oppdaterGrunnlagMedBeholdninger

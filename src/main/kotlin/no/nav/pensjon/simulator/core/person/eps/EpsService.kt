@@ -32,7 +32,7 @@ class EpsService(
     private val log = KotlinLogging.logger {}
 
     // OpprettKravHodeHelper.opprettPersongrunnlagForEPS
-    fun addAlderspensjonEpsGrunnlagToKrav(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
+    fun addPersongrunnlagForEpsToKravhode(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
         if (EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN).contains(spec.type)) {
             //TODO createPersongrunnlagInCaseOfGjenlevenderett(simulering, kravhode)
             with("Simulering for gjenlevende is not supported") {

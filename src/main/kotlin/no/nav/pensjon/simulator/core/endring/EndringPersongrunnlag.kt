@@ -44,39 +44,38 @@ class EndringPersongrunnlag(
     private val persongrunnlagMapper: PersongrunnlagMapper
 ) {
     // SimulerEndringAvAPCommand.opprettPersongrunnlagForBruker
-    fun opprettSoekerGrunnlag(
+    fun getPersongrunnlagForSoeker(
         person: PenPerson,
         spec: SimuleringSpec,
         endringKravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?
-    ): Kravhode {
+    ): Persongrunnlag? {
         val eksisterendeKravhode: Kravhode? =
             forrigeAlderspensjonBeregningResultat?.kravId?.let(kravService::fetchKravhode)
-        val soekerGrunnlag: Persongrunnlag? = eksisterendeKravhode?.hentPersongrunnlagForSoker()?.let(::Persongrunnlag)
 
-        soekerGrunnlag?.apply {
-            bosattLandEnum = LandkodeEnum.NOR
-            inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
-            sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-            opptjeningsgrunnlagListe = opptjeningGrunnlagListe(spec, endringKravhode, person)
-            spec.flyktning?.let { flyktning = it }
-            adjustPersonDetaljer(this, spec)
-        }?.also {
-            endringKravhode.persongrunnlagListe.add(it)
-        }
-
-        return endringKravhode
+        return eksisterendeKravhode?.hentPersongrunnlagForSoker()
+            ?.let(::Persongrunnlag)
+            ?.apply {
+                bosattLandEnum = LandkodeEnum.NOR
+                inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
+                sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+                opptjeningsgrunnlagListe = opptjeningGrunnlagListe(spec, endringKravhode, person)
+                spec.flyktning?.let { flyktning = it }
+                adjustPersondetaljListe(persongrunnlag = this, spec)
+            }
     }
 
     // SimulerEndringAvAPCommand.opprettPersongrunnlagForEPS
-    fun opprettEpsGrunnlag(
+    // + AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
+    // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
+    fun addPersongrunnlagForEpsToKravhode(
         spec: SimuleringSpec,
         endringKravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ): Kravhode {
         if (spec.isTpOrigSimulering) {
-            addEpsToPersongrunnlag(endringKravhode, spec, grunnbeloep)
+            epsService.addPersongrunnlagForEpsToKravhode(spec, endringKravhode, grunnbeloep)
             return endringKravhode
         }
 
@@ -126,7 +125,7 @@ class EndringPersongrunnlag(
         grunnbeloep: Int,
     ) {
         eksisterendePersongrunnlagListe.forEach {
-            addEpsToPersongrunnlag(
+            addEpsToEndringPersongrunnlagListe(
                 endringPersongrunnlagListe,
                 eksisterendePersongrunnlag = it,
                 spec,
@@ -138,7 +137,7 @@ class EndringPersongrunnlag(
     }
 
     // Extracted from SimulerEndringAvAPCommand.doOpprettPersongrunnlagForEPS
-    private fun addEpsToPersongrunnlag(
+    private fun addEpsToEndringPersongrunnlagListe(
         endringPersongrunnlagListe: MutableList<Persongrunnlag>,
         eksisterendePersongrunnlag: Persongrunnlag,
         spec: SimuleringSpec,
@@ -150,7 +149,7 @@ class EndringPersongrunnlag(
             endringPersongrunnlagListe.add(relevantPersongrunnlag(eksisterendePersongrunnlag))
         } else if (epsIsValid(eksisterendePersongrunnlag, foersteUttakDato)) {
             endringPersongrunnlagListe.add(
-                epsPersongrunnlag(
+                endringPersongrunnlagForEps(
                     eksisterendePersongrunnlag,
                     spec,
                     beregningInfo,
@@ -161,7 +160,7 @@ class EndringPersongrunnlag(
         }
     }
 
-    private fun epsPersongrunnlag(
+    private fun endringPersongrunnlagForEps(
         eksisterendeEps: Persongrunnlag,
         spec: SimuleringSpec,
         beregningInfo: BeregningsInformasjon?,
@@ -171,17 +170,10 @@ class EndringPersongrunnlag(
         relevantPersongrunnlag(eksisterendeEps).also {
             if (spec.type == SimuleringType.ENDR_ALDER_M_GJEN) {
                 convertEpsToAvdoed(it, spec.avdoed!!) // assuming non-null avdoed
-            } else if (shouldAddInntektGrunnlagForEps(beregningInfo)) {
-                addInntektGrunnlagForEps(it, foersteUttakDato, grunnbeloep)
+            } else if (shouldAddInntektsgrunnlagForEps(beregningInfo)) {
+                addInntektsgrunnlagForEps(it, foersteUttakDato, grunnbeloep)
             }
         }
-
-    // AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
-    // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
-    private fun addEpsToPersongrunnlag(kravhode: Kravhode, spec: SimuleringSpec, grunnbeloep: Int) {
-        //kravhodeCreator.addAlderspensjonEpsGrunnlagToKrav(spec, kravhode, grunnbeloep)
-        epsService.addAlderspensjonEpsGrunnlagToKrav(spec, kravhode, grunnbeloep)
-    }
 
     // SimulerEndringAvAPCommand.updateOpptjeningsgrunnlagOnPersongrunnlag
     private fun opptjeningGrunnlagListe(
@@ -209,7 +201,7 @@ class EndringPersongrunnlag(
     // SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun convertEpsToAvdoed(eps: Persongrunnlag, avdoed: Avdoed) {
         eps.dodsdato = fromLocalDate(avdoed.doedDato)
-        eps.personDetaljListe = mutableListOf(personDetalj(avdoed))
+        eps.personDetaljListe = mutableListOf(persondetalj(avdoed))
         eps.arligPGIMinst1G = avdoed.harInntektOver1G
         eps.medlemIFolketrygdenSiste3Ar = avdoed.erMedlemAvFolketrygden
 
@@ -247,12 +239,12 @@ class EndringPersongrunnlag(
 
         // Extracted from SimulerEndringAvAPCommand.doOpprettPersongrunnlagForEPS
         private fun avdoedIsValid(persongrunnlag: Persongrunnlag, foersteUttakDato: LocalDate?): Boolean =
-            foersteUttakDato?.let { isPersonDetaljValid(persongrunnlag, it, GrunnlagsrolleEnum.AVDOD) } == true
+            foersteUttakDato?.let { isPersondetaljValid(persongrunnlag, it, GrunnlagsrolleEnum.AVDOD) } == true
 
         // Extracted from SimulerEndringAvAPCommand.doOpprettPersongrunnlagForEPS
         private fun epsIsValid(persongrunnlag: Persongrunnlag, foersteUttakDato: LocalDate?): Boolean =
             foersteUttakDato?.let {
-                isPersonDetaljValid(
+                isPersondetaljValid(
                     persongrunnlag,
                     it,
                     GrunnlagsrolleEnum.EKTEF,
@@ -262,11 +254,11 @@ class EndringPersongrunnlag(
             } == true
 
         // SimulerEndringAvAPCommandHelper.shouldAddInntektgrunnlagForEPS
-        private fun shouldAddInntektGrunnlagForEps(info: BeregningsInformasjon?) =
+        private fun shouldAddInntektsgrunnlagForEps(info: BeregningsInformasjon?) =
             info?.let { it.epsOver2G || it.epsMottarPensjon } == true
 
         // SimulerEndringAvAPCommandHelper.addInntektgrunnlagForEPS
-        private fun addInntektGrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {
+        private fun addInntektsgrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {
             val inntektFom: LocalDate = findFomDatoInntekt(foersteUttakDato)
             eps.inntektsgrunnlagListe.add(epsInntektsgrunnlag(grunnbeloep, inntektFom))
         }
@@ -307,7 +299,7 @@ class EndringPersongrunnlag(
             )
 
         // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
-        private fun personDetalj(avdoed: Avdoed) =
+        private fun persondetalj(avdoed: Avdoed) =
             PersonDetalj().apply {
                 bruk = true
                 rolleFomDato = fromLocalDate(avdoed.doedDato)
@@ -316,19 +308,19 @@ class EndringPersongrunnlag(
             }
 
         // SimulerEndringAvAPCommandHelper.isPersonDetaljValid
-        private fun isPersonDetaljValid(
+        private fun isPersondetaljValid(
             persongrunnlag: Persongrunnlag,
             virkningDato: LocalDate,
             vararg roller: GrunnlagsrolleEnum
         ): Boolean {
             roller.forEach {
-                val personDetalj = persongrunnlag.findPersonDetaljWithRolleForPeriode(
+                val detalj = persongrunnlag.findPersonDetaljWithRolleForPeriode(
                     rolle = it,
-                    fromLocalDate(virkningDato),
+                    virkningDato = fromLocalDate(virkningDato),
                     checkBruk = true
                 )
 
-                if (isValidInFuture(personDetalj)) {
+                if (isValidInFuture(detalj)) {
                     return true
                 }
             }
@@ -366,25 +358,25 @@ class EndringPersongrunnlag(
             }
 
         // SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun adjustPersonDetaljer(soekerGrunnlag: Persongrunnlag, spec: SimuleringSpec) {
+        private fun adjustPersondetaljListe(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
             val medGjenlevenderett: Boolean = spec.type == SimuleringType.ENDR_ALDER_M_GJEN
 
             if (medGjenlevenderett) {
-                val enke: PersonDetalj = enke(soekerGrunnlag) ?: enke(spec.avdoed?.doedDato)
-                soekerGrunnlag.personDetaljListe =
+                val enke: PersonDetalj = enke(persongrunnlag) ?: enke(spec.avdoed?.doedDato)
+                persongrunnlag.personDetaljListe =
                     mutableListOf(enke) // only a single persondetalj is used when gjenlevenderett
             } else {
-                removeIrrelevantPersonDetaljer(soekerGrunnlag)
+                beholdRelevantePersondetaljer(persongrunnlag)
             }
         }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun removeIrrelevantPersonDetaljer(soekerGrunnlag: Persongrunnlag) {
-            val iterator = soekerGrunnlag.personDetaljListe.iterator()
+        private fun beholdRelevantePersondetaljer(grunnlag: Persongrunnlag) {
+            val iterator = grunnlag.personDetaljListe.iterator()
 
             while (iterator.hasNext()) {
                 with(iterator.next()) {
-                    if (this.bruk.not() || isValidInPast(this)) {
+                    if (this.bruk.not() || isValidInPast(detalj = this)) {
                         iterator.remove()
                     }
                 }
@@ -392,15 +384,8 @@ class EndringPersongrunnlag(
         }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun enke(persongrunnlag: Persongrunnlag): PersonDetalj? {
-            persongrunnlag.personDetaljListe.forEach {
-                if (it.bruk && isEnke(it) && isValidToday(it)) {
-                    return it
-                }
-            }
-
-            return null
-        }
+        private fun enke(persongrunnlag: Persongrunnlag): PersonDetalj? =
+            persongrunnlag.personDetaljListe.firstOrNull { it.bruk && isEnke(it) && isValidToday(it) }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun enke(fom: LocalDate?) =
@@ -423,9 +408,9 @@ class EndringPersongrunnlag(
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun isValidToday(detalj: PersonDetalj) =
             isDateInPeriod(
-                Date(),
-                detalj.virkFom,
-                detalj.virkTom
+                compDate = Date(),
+                fomDate = detalj.virkFom,
+                tomDate = detalj.virkTom
             ) // NB: Here virkFom|Tom is used (not rolleFom|TomDato)
         // The relationship between virk- and rolle-dato is described in https://confluence.adeo.no/pages/viewpage.action?pageId=282132550
         // ("Løsningsbeskrivelse - P17 - Periodisering av persongrunnlag - utbedring av periodebegrep i Familieforhold (PK-52707)")

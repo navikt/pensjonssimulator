@@ -7,17 +7,27 @@ import org.springframework.security.oauth2.jwt.Jwt
 class TokenScopeValidatorTest : FunSpec({
 
     test("validate has no errors when scope is valid") {
-        val validatorResult = TokenScopeValidator(scope = "scope1").validate(jwt(scope = "scope1"))
+        val validatorResult = TokenScopeValidator(scopes = listOf("scope1")).validate(jwt(scope = "scope1"))
+        validatorResult.hasErrors() shouldBe false
+    }
+
+    test("validate has no errors when scope 1 is valid") {
+        val validatorResult = TokenScopeValidator(scopes = listOf("scope1", "scope2")).validate(jwt(scope = "scope1"))
+        validatorResult.hasErrors() shouldBe false
+    }
+
+    test("validate has no errors when scope 2 is valid") {
+        val validatorResult = TokenScopeValidator(scopes = listOf("scope1", "scope2")).validate(jwt(scope = "scope2"))
         validatorResult.hasErrors() shouldBe false
     }
 
     test("validate has errors when scope is invalid") {
-        val validatorResult = TokenScopeValidator(scope = "scope1").validate(jwt(scope = "bad"))
+        val validatorResult = TokenScopeValidator(scopes = listOf("scope1")).validate(jwt(scope = "bad"))
         validatorResult.hasErrors() shouldBe true
     }
 
     test("validate has errors when scope claim is missing") {
-        val validatorResult = TokenScopeValidator(scope = "scope1").validate(jwt(claims = mapOf("x" to "y")))
+        val validatorResult = TokenScopeValidator(scopes = listOf("scope1")).validate(jwt(claims = mapOf("x" to "y")))
         validatorResult.hasErrors() shouldBe true
     }
 })

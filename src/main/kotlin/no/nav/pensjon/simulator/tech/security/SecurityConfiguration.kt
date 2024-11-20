@@ -76,11 +76,12 @@ open class SecurityConfiguration {
     @Bean("maskinporten-provider")
     open fun maskinportenProvider(
         @Value("\${maskinporten.issuer}") issuer: String,
-        @Value("\${ps.maskinporten.scope}") scope: String
+        @Value("\${ps.maskinporten.scope.1}") scope1: String,
+        @Value("\${ps.maskinporten.scope.2}") scope2: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
-                jwtDecoder(issuer, tokenValidator = TokenScopeValidator(scope))
+                jwtDecoder(issuer, tokenValidator = TokenScopeValidator(listOf(scope1, scope2))),
             )
         )
 

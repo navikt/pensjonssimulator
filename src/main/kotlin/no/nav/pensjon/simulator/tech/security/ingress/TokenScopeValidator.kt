@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failu
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success
 import org.springframework.security.oauth2.jwt.Jwt
 
-class TokenScopeValidator(val scope: String) : OAuth2TokenValidator<Jwt> {
+class TokenScopeValidator(val scopes: List<String>) : OAuth2TokenValidator<Jwt> {
 
     private val log = KotlinLogging.logger {}
 
@@ -16,7 +16,7 @@ class TokenScopeValidator(val scope: String) : OAuth2TokenValidator<Jwt> {
         validate(tokenScope = token.getClaimAsString(CLAIM_NAME) ?: "")
 
     private fun validate(tokenScope: String): OAuth2TokenValidatorResult =
-        if (tokenScope == scope)
+        if (scopes.contains(tokenScope))
             success()
         else
             "Invalid $CLAIM_NAME: $tokenScope".let {

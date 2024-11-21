@@ -8,5 +8,5 @@ import no.nav.pensjon.simulator.ufoere.client.UfoeretrygdUtbetalingClient
 class UfoeretrygdUtbetalingService(private val client: UfoeretrygdUtbetalingClient) {
 
     fun getUtbetalingGradListe(penPersonId: Long): List<UtbetalingsgradUT> =
-        client.fetchUtbetalingGradListe(penPersonId)
+        client.fetchUtbetalingsgradListe(penPersonId)
 }

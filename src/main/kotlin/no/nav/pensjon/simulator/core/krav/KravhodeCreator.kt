@@ -92,7 +92,7 @@ class KravhodeCreator(
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
-            regelverkTypeEnum = regelverkType(spec.foedselAar)
+            regelverkTypeEnum = regelverkType(person?.fodselsdato.toLocalDate()?.year ?: spec.foedselAar)
         }
 
         addPersongrunnlagForSoekerToKravhode(spec, kravhode, person, forrigeAlderspensjonBeregningResultat, grunnbeloep)

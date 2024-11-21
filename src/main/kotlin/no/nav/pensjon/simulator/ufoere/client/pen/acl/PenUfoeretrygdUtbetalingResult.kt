@@ -6,5 +6,5 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Utbetalingsgrad
  * Corresponds with UtbetalingsgradResultV1 in PEN
  */
 data class PenUfoeretrygdUtbetalingResult(
-    val utbetalingGradListe: List<UtbetalingsgradUT>
+    val utbetalingsgradListe: List<UtbetalingsgradUT>
 )

@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.ytelse.client.pen.acl
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import java.time.LocalDate
+import java.util.*
 
 data class PenLoependeYtelserResult(
     val alderspensjon: PenAlderspensjonYtelser,
@@ -11,14 +11,14 @@ data class PenLoependeYtelserResult(
 )
 
 data class PenAlderspensjonYtelser(
-    val sokerVirkningFom: LocalDate?,
-    val avdodVirkningFom: LocalDate?,
+    val sokerVirkningFom: Date?,
+    val avdodVirkningFom: Date?,
     val sisteBeregning: SisteBeregning?,
     val forrigeBeregningsresultat: AbstraktBeregningsResultat?,
     val forrigeVilkarsvedtakListe: List<VilkarsVedtak>
 )
 
 data class PenPrivatAfpYtelser(
-    val virkningFom: LocalDate? = null,
+    val virkningFom: Date? = null,
     val forrigeBeregningsresultat: AbstraktBeregningsResultat? = null
 )

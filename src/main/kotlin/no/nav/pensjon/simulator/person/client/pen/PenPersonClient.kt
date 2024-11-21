@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.person.client.PersonClient
 import no.nav.pensjon.simulator.person.client.pen.acl.PenPersonSpec
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.person.client.pen.acl.PenPersonHistorikkMapper
 import no.nav.pensjon.simulator.person.client.pen.acl.PenPersonResult
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -46,8 +47,7 @@ class PenPersonClient(
                 .bodyToMono(PenPersonResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.withPidAsKeys().orEmpty()
-            // NB: No mapping of PenPerson in response; it is assumed that PEN returns regler-compatible response body
+                ?.let { PenPersonHistorikkMapper.fromDto(it.personerVedPid) }.orEmpty()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -69,8 +69,8 @@ class PenPersonClient(
     }
 
     companion object {
-        private const val BASE_PATH = "api/person"
-        private const val PATH = "v1/personer"
+        private const val BASE_PATH = "api/persondata"
+        private const val PATH = "v1/historikk"
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
     }
 }

@@ -4,20 +4,19 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecMapperV1
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringResultMapperV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringResultV1
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecMapperV2
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecV2
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecMapperV1
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringResultMapperV2
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringResultV2
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecMapperV3
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecV3
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecMapperV2
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecV2
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringResultMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringResultV3
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecMapperV3
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.SimulatorFlags
@@ -67,10 +66,7 @@ class TpoViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonV1(
-        @RequestBody specV1: TpoSimuleringSpecV1,
-        request: HttpServletRequest
-    ): TpoSimuleringResultV1 {
+    fun simulerAlderspensjonV1(@RequestBody specV1: TpoSimuleringSpecV1): TpoSimuleringResultV1 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
@@ -111,10 +107,7 @@ class TpoViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonV2(
-        @RequestBody specV2: TpoSimuleringSpecV2,
-        request: HttpServletRequest
-    ): TpoSimuleringResultV2 {
+    fun simulerAlderspensjonV2(@RequestBody specV2: TpoSimuleringSpecV2): TpoSimuleringResultV2 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV2" }
         countCall(FUNCTION_ID)
@@ -155,10 +148,7 @@ class TpoViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonV3(
-        @RequestBody specV3: TpoSimuleringSpecV3,
-        request: HttpServletRequest
-    ): TpoSimuleringResultV3 {
+    fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): TpoSimuleringResultV3 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV3" }
         countCall(FUNCTION_ID)
@@ -181,8 +171,8 @@ class TpoViaPenAlderspensjonController(
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
-        private const val ERROR_MESSAGE = "feil ved V3 simulering av alderspensjon for TPO"
-        private const val FUNCTION_ID = "ap-v3"
+        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for TPO via PEN"
+        private const val FUNCTION_ID = "ap-tpo-pen"
 
         //TODO these flags are included in SimuleringSpec, hence redundant?
         private fun simulatorFlags(spec: SimuleringSpec) =

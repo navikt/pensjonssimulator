@@ -30,7 +30,7 @@ class PenUfoeretrygdUtbetalingClient(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    override fun fetchUtbetalingGradListe(penPersonId: Long): List<UtbetalingsgradUT> {
+    override fun fetchUtbetalingsgradListe(penPersonId: Long): List<UtbetalingsgradUT> {
         val uri = "$BASE_PATH/$PATH"
 
         return try {
@@ -45,7 +45,7 @@ class PenUfoeretrygdUtbetalingClient(
                 .bodyToMono(PenUfoeretrygdUtbetalingResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.utbetalingGradListe.orEmpty()
+                ?.utbetalingsgradListe.orEmpty()
             // NB: No mapping of response; it is assumed that PEN returns regler-compatible response body
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)

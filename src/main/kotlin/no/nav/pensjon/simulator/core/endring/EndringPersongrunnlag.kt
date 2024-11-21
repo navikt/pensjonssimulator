@@ -1,8 +1,6 @@
 package no.nav.pensjon.simulator.core.endring
 
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagPersonSpec
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.Avdoed
@@ -20,13 +18,13 @@ import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
+import no.nav.pensjon.simulator.core.person.BeholdningUtil.beholdningSpec
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.krav.KravService
-import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -213,29 +211,6 @@ class EndringPersongrunnlag(
     }
 
     private companion object {
-
-        private fun beholdningSpec(pid: Pid, persongrunnlag: Persongrunnlag, kravhode: Kravhode) =
-            BeholdningerMedGrunnlagSpec(
-                pid,
-                hentPensjonspoeng = true,
-                hentGrunnlagForOpptjeninger = true,
-                hentBeholdninger = false,
-                harUfoeretrygdKravlinje = kravhode.isUforetrygd(),
-                regelverkType = kravhode.regelverkTypeEnum,
-                sakType = kravhode.sakType?.let { SakTypeEnum.valueOf(it.name) },
-                personSpecListe = listOf(persongrunnlag.let(::personligBeholdningSpec)), //TODO redundant?
-                soekerSpec = persongrunnlag.let(::personligBeholdningSpec)
-            )
-
-        private fun personligBeholdningSpec(persongrunnlag: Persongrunnlag) =
-            BeholdningerMedGrunnlagPersonSpec(
-                pid = persongrunnlag.penPerson?.pid!!,
-                sisteGyldigeOpptjeningAar = persongrunnlag.sisteGyldigeOpptjeningsAr,
-                isGrunnlagRolleSoeker = persongrunnlag.findPersonDetaljIPersongrunnlag(
-                    grunnlagsrolle = GrunnlagsrolleEnum.SOKER,
-                    checkBruk = true
-                ) != null
-            )
 
         // Extracted from SimulerEndringAvAPCommand.doOpprettPersongrunnlagForEPS
         private fun avdoedIsValid(persongrunnlag: Persongrunnlag, foersteUttakDato: LocalDate?): Boolean =

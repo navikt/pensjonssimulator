@@ -7,6 +7,8 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.sak.client.SakClient
 import no.nav.pensjon.simulator.sak.client.pen.acl.PenSakSpec
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.sak.client.pen.acl.PenPersonVirkningDatoResult
+import no.nav.pensjon.simulator.sak.client.pen.acl.PenPersonVirkningDatoResultMapper
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -43,11 +45,11 @@ class PenSakClient(
                 .headers(::setHeaders)
                 .bodyValue(PenSakSpec(pid.value))
                 .retrieve()
-                .bodyToMono(FoersteVirkningDatoCombo::class.java)
+                .bodyToMono(PenPersonVirkningDatoResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?: FoersteVirkningDatoCombo(PenPerson(), emptyList(), emptyList())
-            // NB: No mapping of response; it is assumed that PEN returns regler-compatible response body
+                ?.let(PenPersonVirkningDatoResultMapper::fromDto)
+                ?: emptyFoersteVirkningDatoCombo()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -72,5 +74,12 @@ class PenSakClient(
         private const val BASE_PATH = "api"
         private const val PATH = "v1/simulering/person-virkningsdato"
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
+
+        private fun emptyFoersteVirkningDatoCombo() =
+            FoersteVirkningDatoCombo(
+                person = PenPerson(),
+                foersteVirkningDatoListe = emptyList(),
+                foersteVirkningDatoGrunnlagListe = emptyList()
+            )
     }
 }

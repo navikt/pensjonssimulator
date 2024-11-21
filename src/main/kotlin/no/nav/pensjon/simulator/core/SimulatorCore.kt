@@ -40,6 +40,7 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.ytelse.*
@@ -64,6 +65,7 @@ class SimulatorCore(
     private val privatAfpBeregner: PrivatAfpBeregner,
     private val pre2025OffentligAfpBeregning: Pre2025OffentligAfpBeregning,
     private val generelleDataHolder: GenerelleDataHolder,
+    private val personService: PersonService,
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService
@@ -90,7 +92,7 @@ class SimulatorCore(
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
-        val person: PenPerson? = personVirkningDatoCombo?.person //TODO use a specialised person service?
+        val person: PenPerson? = spec.pid?.let(personService::person)
         val foedselDato: LocalDate? = person?.fodselsdato?.toLocalDate()
         val ytelser: LoependeYtelser = fetchLoependeYtelser(spec)
 
@@ -326,6 +328,7 @@ class SimulatorCore(
         )
     }
 
+    //TODO change according to PEN fix in PEK-782
     private fun beregnLivsvarigOffentligAfp(
         pid: Pid,
         foedselDato: LocalDate,

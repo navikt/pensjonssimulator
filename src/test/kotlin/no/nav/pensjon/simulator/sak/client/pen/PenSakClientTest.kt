@@ -74,6 +74,9 @@ class PenSakClientTest : FunSpec({
 
 object PenPersonVirkningDatoResponse {
 
+    // NB: In PEN response: "virkningsdato": "2020-02-01T00:00:00+0100" (i.e. midnight)
+    // Using this value causes tests run on GitHub to fail, due to Finnish timezone
+    // (2020-02-01T00:00:00+0100 becomes 2020-01-31:23:00:00 Finnish time)
     @Language("json")
     const val BODY = """{
     "person": {
@@ -83,13 +86,13 @@ object PenPersonVirkningDatoResponse {
         {
             "sakType": "UFOREP",
             "kravlinjeType": "UT",
-            "virkningsdato": "2020-02-01T00:00:00+0100",
+            "virkningsdato": "2020-02-01T12:00:00+0100",
             "annenPerson": null
         },
         {
             "sakType": "ALDER",
             "kravlinjeType": "AP",
-            "virkningsdato": "2025-03-01T00:00:00+0100",
+            "virkningsdato": "2025-03-01T12:00:00+0100",
             "annenPerson": null
         }
     ],

@@ -73,10 +73,13 @@ class PenYtelseClientTest : FunSpec({
 
 object PenPersonVirkningDatoResponse {
 
+    // NB: In PEN response: "sokerVirkningFom": "2020-02-01T00:00:00+0100" (i.e. midnight)
+    // Using this value causes tests run on GitHub to fail, due to Finnish timezone
+    // (2020-02-01T00:00:00+0100 becomes 2020-01-31:23:00:00 Finnish time)
     @Language("json")
     const val BODY = """{
     "alderspensjon": {
-        "sokerVirkningFom": "2020-02-01T00:00:00+0100",
+        "sokerVirkningFom": "2020-02-01T12:00:00+0100",
         "avdodVirkningFom": null,
         "sisteBeregning": null,
         "forrigeBeregningsresultat": null,

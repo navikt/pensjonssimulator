@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.common.api
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
@@ -67,9 +68,9 @@ abstract class ControllerBase(
 
     protected fun verifiserAtBrukerTilknyttetTpLeverandoer(pid: Pid) {
         organisasjonsnummerProvider?.let {
-            val organisasjonsnummer = it.provideOrganisasjonsnummer()
+            val organisasjonsnummer: Organisasjonsnummer = it.provideOrganisasjonsnummer()
 
-            if (tilknytningService?.erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) == false) {
+            if (organisasjonsnummer != NAV_ORG_NUMMER && tilknytningService?.erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) == false) {
                 log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $organisasjonsnummer" }
                 throw ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -121,6 +122,8 @@ abstract class ControllerBase(
     }
 
     protected companion object {
+        val NAV_ORG_NUMMER = Organisasjonsnummer("889640782")
+
         @Language("json")
         const val SERVICE_UNAVAILABLE_EXAMPLE = """{
     "timestamp": "2023-09-12T10:37:47.056+00:00",

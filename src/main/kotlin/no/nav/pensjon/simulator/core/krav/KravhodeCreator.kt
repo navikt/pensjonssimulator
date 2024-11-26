@@ -92,7 +92,7 @@ class KravhodeCreator(
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
-            regelverkTypeEnum = regelverkType(person?.fodselsdato.toLocalDate()?.year ?: spec.foedselAar)
+            regelverkTypeEnum = regelverkType(foedselAar(person, spec))
         }
 
         addPersongrunnlagForSoekerToKravhode(spec, kravhode, person, forrigeAlderspensjonBeregningResultat, grunnbeloep)
@@ -134,6 +134,9 @@ class KravhodeCreator(
         updateOensketVirkningAndUtbetalingsgrad(spec, kravhode)
         return kravhode
     }
+
+    private fun foedselAar(person: PenPerson?, spec: SimuleringSpec): Int =
+        person?.fodselsdato.toLocalDate()?.year ?: spec.foedselAar
 
     private fun updateOensketVirkningAndUtbetalingsgrad(spec: SimuleringSpec, kravhode: Kravhode) {
         if (spec.erAnonym) return
@@ -358,7 +361,7 @@ class KravhodeCreator(
 
         if (brukFremtidigInntekt) {
             val gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
-            val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + spec.foedselAar
+            val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselAar(person, spec)
             val fom = foersteDag(gjeldendeAar)
 
             val inntektsgrunnlagList =

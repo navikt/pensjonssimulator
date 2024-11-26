@@ -147,34 +147,20 @@ object DateUtil {
     fun calculateAgeInYears(foedselDato: Date, compareDate: LocalDate): Int =
         calculateAgeInYears(local(foedselDato), compareDate)
 
-    // TODO compare this with SimuleringRequestConverter.convertDatoFomToAlder
-    fun calculateAgeInYears(foedselDato: LocalDate?, dato: LocalDate?): Int =
-        Period.between(
-            foedselDato?.withDayOfMonth(1),
-            dato?.withDayOfMonth(1)
-        ).years
+    // SimuleringEtter2011Utils.calculateAgeInYears
+    // NB: Compare this with calculateAgeInYears2 below, and with PensjonAlderDato.alderVedDato
+    fun calculateAgeInYears(foedselsdato: LocalDate?, dato: LocalDate?): Int =
+        foedselsdato?.let {
+            Period.between(
+                lastDayOfMonth(it),
+                dato?.withDayOfMonth(1)
+            ).years
+        } ?: 0
 
-    /**
-     * Calculates the last day of the month the user turns the given number of years of age.
-     */
-    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurnsGivenAge
-    private fun lastDayOfMonthUserTurnsGivenAge(foedselDato: Date?, age: Int): Date {
-        val calendar = Calendar.getInstance()
-        calendar.time = foedselDato
-        calendar.add(Calendar.YEAR, age)
-        calendar.add(Calendar.MONTH, 1)
-        return setTimeToZero(findLastDayInMonthBefore(calendar.time))
-    }
-
-    /**
-     * Finds the last day in the month before the given date.
-     */
-    // no.nav.domain.pensjon.common.util.DateUtils.findLastDayInMonthBefore
-    private fun findLastDayInMonthBefore(date: Date): Date {
-        val calendar: Calendar = createCalendar(date)
-        calendar[Calendar.DAY_OF_MONTH] = calendar.getActualMinimum(Calendar.DAY_OF_MONTH)
-        calendar.add(Calendar.DAY_OF_MONTH, -1)
-        return calendar.time
+    // SimuleringRequestConverter.convertDatoFomToAlderTuple
+    fun calculateAgeInYears2(fodselsdato: LocalDate, dato: LocalDate): Int {
+        val firstDayOfLastMonth = dato.minusMonths(1L).withDayOfMonth(1)
+        return Period.between(fodselsdato.withDayOfMonth(1), firstDayOfLastMonth).years
     }
 
     // no.nav.domain.pensjon.common.util.DateUtils.fromLocalDate
@@ -539,6 +525,34 @@ object DateUtil {
         val calendar: Calendar = createCalendar(date)
         return calendar.getActualMinimum(Calendar.DAY_OF_MONTH) == calendar[Calendar.DAY_OF_MONTH]
     }
+
+    private fun lastDayOfMonth(date: LocalDate): LocalDate =
+        date.plusMonths(1L).withDayOfMonth(1).minusDays(1L)
+
+    /**
+     * Calculates the last day of the month the user turns the given number of years of age.
+     */
+    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurnsGivenAge
+    private fun lastDayOfMonthUserTurnsGivenAge(foedselsdato: Date?, alderAar: Int): Date {
+        val dato: Date =
+            Calendar.getInstance().apply {
+                time = foedselsdato
+                add(Calendar.YEAR, alderAar)
+                add(Calendar.MONTH, 1)
+            }.time
+
+        return setTimeToZero(findLastDayInMonthBefore(dato))
+    }
+
+    /**
+     * Finds the last day in the month before the given date.
+     */
+    // no.nav.domain.pensjon.common.util.DateUtils.findLastDayInMonthBefore
+    private fun findLastDayInMonthBefore(date: Date): Date =
+        createCalendar(date).apply {
+            this[Calendar.DAY_OF_MONTH] = this.getActualMinimum(Calendar.DAY_OF_MONTH)
+            this.add(Calendar.DAY_OF_MONTH, -1)
+        }.time
 
     private fun isToday(date: Date?): Boolean {
         return isSameDay(date, fromLocalDate(LocalDate.now()))

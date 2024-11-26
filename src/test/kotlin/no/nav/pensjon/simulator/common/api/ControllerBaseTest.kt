@@ -28,6 +28,16 @@ class ControllerBaseTest : FunSpec({
         controller.testVerifiserAtBrukerTilknyttetTpLeverandoer(pid)
     }
 
+    test("verifiser at testVerifiserAtBrukerTilknyttetTpLeverandoer ikke kaster exception naar Nav simulerer (i dev)") {
+        val tilknytning = mock<TilknytningService>()
+        val orgNrProvider = mock<OrganisasjonsnummerProvider>()
+        val controller = TestController(mock(), orgNrProvider, tilknytning)
+
+        whenever(orgNrProvider.provideOrganisasjonsnummer()).thenReturn(Organisasjonsnummer("889640782"))
+
+        controller.testVerifiserAtBrukerTilknyttetTpLeverandoer(pid)
+    }
+
     test("should throw ResponseStatusException with correct message") {
         val traceAid = mock<TraceAid>()
         val controller = TestController(traceAid, mock(), mock())

@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 /**
@@ -34,6 +35,7 @@ data class TpoPensjonPeriodeV3(
 
 // PensjonsbeholdningPeriodeV3 in PEN
 data class TpoPensjonBeholdningPeriodeV3(
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val datoFom: LocalDate? = null,
     val garantipensjonsbeholdning: Double? = null,
     val garantitilleggsbeholdning: Double? = null,
@@ -52,12 +54,15 @@ data class TpoGarantipensjonNivaaV3(
 // UttaksgradV3 in PEN
 data class TpoUttakGradV3(
     val uttaksgrad: Int? = null,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val fomDato: LocalDate? = null,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val tomDato: LocalDate? = null
 )
 
 // SimulertBeregningsinformasjonV3 in PEN
 data class TpoBeregningInformasjonV3(
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val datoFom: LocalDate? = null,
     val uttaksgrad: Double? = null,
 

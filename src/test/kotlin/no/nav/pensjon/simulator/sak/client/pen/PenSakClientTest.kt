@@ -22,6 +22,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDate
+import java.util.TimeZone
 
 class PenSakClientTest : FunSpec({
     var server: MockWebServer? = null
@@ -37,6 +38,7 @@ class PenSakClientTest : FunSpec({
 
         server = MockWebServer().also { it.start() }
         baseUrl = server.let { "http://localhost:${it.port}" }
+        TimeZone.setDefault(TimeZone.getTimeZone("CET"))
     }
 
     afterSpec {
@@ -74,9 +76,6 @@ class PenSakClientTest : FunSpec({
 
 object PenPersonVirkningDatoResponse {
 
-    // NB: In PEN response: "virkningsdato": "2020-02-01T00:00:00+0100" (i.e. midnight)
-    // Using this value causes tests run on GitHub to fail, due to Finnish timezone
-    // (2020-02-01T00:00:00+0100 becomes 2020-01-31:23:00:00 Finnish time)
     @Language("json")
     const val BODY = """{
     "person": {
@@ -98,7 +97,7 @@ object PenPersonVirkningDatoResponse {
     ],
     "forsteVirkningsdatoGrunnlagListe": [
         {
-            "virkningsdato": "2020-02-01T12:00:00+0100",
+            "virkningsdato": "2020-02-01T00:00:00+0100",
             "kravFremsattDato": "2019-11-14T12:00:00+0100",
             "bruker": {
                 "penPersonId": 123456

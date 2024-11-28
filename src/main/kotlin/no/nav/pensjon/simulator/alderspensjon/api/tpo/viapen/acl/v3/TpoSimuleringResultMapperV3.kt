@@ -14,17 +14,17 @@ object TpoSimuleringResultMapperV3 {
 
     fun toDto(source: SimulatorOutput) =
         TpoSimuleringResultV3(
-            ap = source.alderspensjon?.let(TpoSimuleringResultMapperV3::alderspensjon),
-            afpPrivat = source.privatAfpPeriodeListe.map(TpoSimuleringResultMapperV3::privatAfpPeriode),
+            ap = source.alderspensjon?.let(::alderspensjon),
+            afpPrivat = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
             sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningAar
         )
 
     private fun alderspensjon(source: SimulertAlderspensjon) =
         TpoAlderspensjonV3(
-            pensjonsperiodeListe = source.pensjonPeriodeListe.map(TpoSimuleringResultMapperV3::pensjonPeriode),
-            pensjonsbeholdningListe = source.pensjonBeholdningListe.map(TpoSimuleringResultMapperV3::beholdningPeriode),
-            uttaksgradListe = source.uttakGradListe.map(TpoSimuleringResultMapperV3::uttakGrad),
-            simulertBeregningsinformasjonListe = source.simulertBeregningInformasjonListe.map(TpoSimuleringResultMapperV3::beregningInformasjon)
+            pensjonsperiodeListe = source.pensjonPeriodeListe.map(::pensjonPeriode),
+            pensjonsbeholdningListe = source.pensjonBeholdningListe.map(::beholdningPeriode),
+            uttaksgradListe = source.uttakGradListe.map(::uttaksgrad),
+            simulertBeregningsinformasjonListe = source.simulertBeregningInformasjonListe.map(::beregningInformasjon)
         )
 
     private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
@@ -42,10 +42,10 @@ object TpoSimuleringResultMapperV3 {
             garantipensjonsbeholdning = source.garantipensjonsbeholdning,
             garantitilleggsbeholdning = source.garantitilleggsbeholdning,
             pensjonsbeholdning = source.pensjonsbeholdning,
-            garantipensjonsniva = source.garantipensjonsniva?.let(TpoSimuleringResultMapperV3::garantipensjonNivaa)
+            garantipensjonsniva = source.garantipensjonsniva?.let(::garantipensjonNivaa)
         )
 
-    private fun uttakGrad(source: Uttaksgrad) =
+    private fun uttaksgrad(source: Uttaksgrad) =
         TpoUttakGradV3(
             uttaksgrad = source.uttaksgrad,
             fomDato = source.fomDato.toLocalDate(),
@@ -75,8 +75,8 @@ object TpoSimuleringResultMapperV3 {
             basisgp = source.basisGrunnpensjon?.toInt(),
             basistp = source.basisTilleggspensjon?.toInt(),
             basispt = source.basisPensjonstillegg?.toInt(),
-            forholdstall = source.forholdstall?.toInt(),
-            delingstall = source.delingstall?.toInt(),
+            forholdstall = source.forholdstall,
+            delingstall = source.delingstall,
             ufg = source.ufoereGrad
         )
 

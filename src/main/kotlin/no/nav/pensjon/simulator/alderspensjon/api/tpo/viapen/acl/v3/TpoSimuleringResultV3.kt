@@ -84,7 +84,7 @@ data class TpoBeregningInformasjonV3(
     val basisgp: Int? = null,
     val basistp: Int? = null,
     val basispt: Int? = null,
-    val forholdstall: Int? = null,
-    val delingstall: Int? = null,
+    val forholdstall: Double? = null,
+    val delingstall: Double? = null,
     val ufg: Int? = null
 )

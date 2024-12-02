@@ -42,9 +42,9 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
     ) {
         val inData = copy(request.rawData)
         val outData = copy(response.rawData)
-        val inLog: String = if (inData.isEmpty()) request.request.requestURI else String(inData)
-        val outLog: String = if (outData.isEmpty()) response.response.status.toString() else String(outData)
-        service.log(pid, leverteData = "In:${inLog}Out:$outLog")
+        val dataForespoersel: String = if (inData.isEmpty()) request.request.requestURI else String(inData)
+        val leverteData: String = if (outData.isEmpty()) response.response.status.toString() else String(outData)
+        service.log(pid, dataForespoersel, leverteData)
     }
 
     private fun copy(bytes: ByteArray) =
@@ -61,7 +61,7 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
         val data = copy(request.rawData)
 
         if (data.isNotEmpty()) {
-            service.log(pid, "In:${String(data)}")
+            service.log(pid, dataForespoersel = String(data), leverteData = "(no data)")
         }
     }
 
@@ -69,7 +69,7 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
         val data = copy(response.rawData)
 
         if (data.isNotEmpty()) {
-            service.log(pid, "Out:${String(data)}")
+            service.log(pid, dataForespoersel = "(no data)", leverteData = String(data))
         }
     }
 }

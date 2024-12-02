@@ -11,6 +11,7 @@ object SamhandlingSporingMapper {
             tema = source.tema,
             behandlingsGrunnlag = source.behandlingGrunnlag,
             uthentingsTidspunkt = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(source.uthentingTidspunkt),
+            dataForespoersel = source.dataForespoersel,
             leverteData = source.leverteData
         )
 }

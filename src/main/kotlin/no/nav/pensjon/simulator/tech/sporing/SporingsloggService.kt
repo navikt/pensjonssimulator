@@ -18,7 +18,7 @@ class SporingsloggService(
     /**
      * Log using fire-and-forget async call
      */
-    fun log(pid: Pid, leverteData: String) {
+    fun log(pid: Pid, dataForespoersel: String, leverteData: String) {
         CoroutineScope(Dispatchers.Default).launch(SecurityCoroutineContext()) {
             val organisasjonsnummer = organisasjonsnummerProvider.provideOrganisasjonsnummer()
 
@@ -29,6 +29,7 @@ class SporingsloggService(
                     tema = "PEK",
                     behandlingGrunnlag = "B353",
                     uthentingTidspunkt = LocalDateTime.now(),
+                    dataForespoersel,
                     leverteData
                 )
             )

@@ -1,13 +1,11 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecV2
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
-import java.time.LocalDate
+import java.util.*
 
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011ResultatResponse in PEN
 // (which is the same as no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011ResultatResponse in PSELV)
@@ -66,7 +64,7 @@ data class SimulertPrivatAfpPeriodeV2(
 @JsonInclude(NON_NULL)
 data class SimuleringResultatV2(
     val status: VedtakResultatEnum? = null, // VilkarsvedtakResultatCode
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val virk: LocalDate? = null,
+    val virk: Date? = null,
     val beregning: NavBeregningResultV2? = null,
     val delberegninger: Map<Long, NavBeregningResultV2> = emptyMap(),
     val merknader: List<MerknadV2> = emptyList()
@@ -155,8 +153,8 @@ data class SimulertBeregningInformasjonV2(
 // (which is the same as no.nav.pensjon.pen.domain.api.sak.Uttaksgrad in PSELV)
 @JsonInclude(NON_NULL)
 data class UttakGradV2(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val fomDato: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val tomDato: LocalDate? = null,
+    val fomDato: Date? = null, // not using LocalDate, since that gives time part of 01:00:00 instead of 00:00:00
+    val tomDato: Date? = null,
     val uttaksgrad: Int? = null,
     val version: Int? = null
     // Not used in PSELV:

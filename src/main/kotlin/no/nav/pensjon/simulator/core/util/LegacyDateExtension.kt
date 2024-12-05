@@ -16,3 +16,19 @@ fun Date?.toLocalDate(): LocalDate? {
         calendar[Calendar.DAY_OF_MONTH]
     )
 }
+
+fun Date.toNorwegianDate() = NorwegianCalendar.forDate(this).time
+
+object NorwegianCalendar {
+    private val locale = Locale.of("nb", "NO")
+    private val timeZone = TimeZone.getTimeZone("Europe/Oslo")
+
+    fun forDate(date: Date) =
+        Calendar.getInstance(timeZone, locale).also {
+            it.time = date
+            it[Calendar.HOUR_OF_DAY] = 0
+            it[Calendar.MINUTE] = 0
+            it[Calendar.SECOND] = 0
+            it[Calendar.MILLISECOND] = 0
+        }
+}

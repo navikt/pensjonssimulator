@@ -6,5 +6,6 @@ data class SamhandlingSporing(
     val tema: String,
     val behandlingsGrunnlag: String,
     val uthentingsTidspunkt: String,
+    val dataForespoersel: String,
     val leverteData: String
 )

@@ -10,5 +10,6 @@ data class Sporing(
     val tema: String,
     val behandlingGrunnlag: String,
     val uthentingTidspunkt: LocalDateTime,
+    val dataForespoersel: String,
     val leverteData: String
 )

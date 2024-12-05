@@ -10,6 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import java.util.concurrent.atomic.AtomicLong
 
 object NavSimuleringResultMapperV2 {
@@ -29,7 +30,7 @@ object NavSimuleringResultMapperV2 {
     private fun alderspensjon(source: SimulertAlderspensjon) =
         SimulertAlderspensjonV2(
             pensjonsperiodeListe = source.pensjonPeriodeListe.map(::pensjonPeriode),
-            uttaksgradListe = source.uttakGradListe.map(::uttakGrad),
+            uttaksgradListe = source.uttakGradListe.map(::uttaksgrad),
             andelKap19 = source.kapittel19Andel,
             andelKap20 = source.kapittel20Andel
         )
@@ -61,7 +62,7 @@ object NavSimuleringResultMapperV2 {
 
         return SimuleringResultatV2(
             status = source.status?.let { VedtakResultatEnum.valueOf(it.kode) },
-            virk = source.virk.toLocalDate(),
+            virk = source.virk?.toNorwegianDate(),
             beregning = source.beregning?.let(::beregning),
             delberegninger = beregningerPerId,
             merknader = source.merknadListe.map(::merknad)
@@ -233,10 +234,10 @@ object NavSimuleringResultMapperV2 {
             skjermingstillegg = source.skjermingstillegg
         )
 
-    private fun uttakGrad(source: Uttaksgrad) =
+    private fun uttaksgrad(source: Uttaksgrad) =
         UttakGradV2(
-            fomDato = source.fomDato.toLocalDate(),
-            tomDato = source.tomDato.toLocalDate(),
+            fomDato = source.fomDato?.toNorwegianDate(),
+            tomDato = source.tomDato?.toNorwegianDate(),
             uttaksgrad = source.uttaksgrad
             // Not used in PSELV:
             // uttaksgradId

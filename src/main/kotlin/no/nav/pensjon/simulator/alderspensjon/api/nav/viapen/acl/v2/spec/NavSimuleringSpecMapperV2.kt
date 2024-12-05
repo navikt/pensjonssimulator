@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.person.Pid
 
 object NavSimuleringSpecMapperV2 {
@@ -17,9 +18,9 @@ object NavSimuleringSpecMapperV2 {
             sivilstatus = source.sivilstatus?.let { NavSivilstandSpecV2.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
-            foersteUttakDato = source.forsteUttakDato,
-            heltUttakDato = source.heltUttakDato,
-            pid = source.fnr?.let(::Pid),
+            foersteUttakDato = source.forsteUttakDato.toLocalDate(),
+            heltUttakDato = source.heltUttakDato.toLocalDate(),
+            pid = source.fnr?.pid?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = avdoed(source),
             isTpOrigSimulering = false,
@@ -45,7 +46,7 @@ object NavSimuleringSpecMapperV2 {
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
         )
 
-    private fun utlandPeriode(source: UtlandPeriodeV2) =
+    private fun utlandPeriode(source: NavSimuleringUtlandPeriodeV2) =
         UtlandPeriode(
             land = source.land,
             arbeidet = source.arbeidetIUtland,
@@ -53,13 +54,13 @@ object NavSimuleringSpecMapperV2 {
             tom = source.periodeTom
         )
 
-  private  fun avdoed(source: NavSimuleringSpecV2): Avdoed? =
+    private fun avdoed(source: NavSimuleringSpecV2): Avdoed? =
         source.fnrAvdod?.let {
             Avdoed(
-                pid = it.let(::Pid),
+                pid = Pid(it.pid),
                 antallAarUtenlands = source.avdodAntallArIUtlandet ?: 0,
                 inntektFoerDoed = source.avdodInntektForDod ?: 0,
-                doedDato = source.dodsdato!!,
+                doedDato = source.dodsdato.toLocalDate()!!,
                 erMedlemAvFolketrygden = source.avdodMedlemAvFolketrygden == true,
                 harInntektOver1G = source.inntektAvdodOver1G == true
             )

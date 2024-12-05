@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import java.time.LocalDate
+import java.util.Date
 
 /**
  * Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011
@@ -17,8 +18,8 @@ data class NavSimuleringSpecV2 (
     val simuleringType: NavSimuleringTypeSpecV2? = null,
     val simuleringNavn: String? = null,
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val lagringstidspunkt: LocalDate? = null,
-    val fnr: String? = null,
-    val fnrAvdod: String? = null,
+    val fnr: NavSimuleringPersonIdComboSpecV2? = null,
+    val fnrAvdod: NavSimuleringPersonIdComboSpecV2? = null,
     val fodselsar: Int? = null,
     val offentligAfpRett: Boolean? = null,
     val privatAfpRett: Boolean? = null,
@@ -26,10 +27,10 @@ data class NavSimuleringSpecV2 (
     val samtykke: Boolean? = null,
     val forventetInntekt: Int? = null,
     val antArInntektOverG: Int? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val forsteUttakDato: LocalDate? = null,
+    val forsteUttakDato: Date? = null, // epoch value in JSON
     val utg: UttakGradKode? = null,
     val inntektUnderGradertUttak: Int? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val heltUttakDato: LocalDate? = null,
+    val heltUttakDato: Date? = null, // epoch value in JSON
     val inntektEtterHeltUttak: Int? = null,
     val antallArInntektEtterHeltUttak: Int? = null,
     val utenlandsopphold: Int? = null,
@@ -39,7 +40,7 @@ data class NavSimuleringSpecV2 (
     val eps2G: Boolean? = null,
     val afpOrdning: AfpOrdningType? = null,
     val afpInntektMndForUttak: Int? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val dodsdato: LocalDate? = null,
+    val dodsdato: Date? = null, // epoch value in JSON
     val avdodAntallArIUtlandet: Int? = null,
     val avdodInntektForDod: Int? = null,
     val inntektAvdodOver1G: Boolean? = null,
@@ -47,7 +48,7 @@ data class NavSimuleringSpecV2 (
     val avdodFlyktning: Boolean? = null,
     val simulerForTp: Boolean? = null,
     val tpOrigSimulering: Boolean = false,
-    val utenlandsperiodeForSimuleringList: List<UtlandPeriodeV2> = listOf()
+    val utenlandsperiodeForSimuleringList: List<NavSimuleringUtlandPeriodeV2> = listOf()
     // Not used in PSELV:
     // ansettelsessektor
     // brukerRegTPListe
@@ -57,9 +58,16 @@ data class NavSimuleringSpecV2 (
     // changeStamp
 )
 
+data class NavSimuleringPersonIdComboSpecV2(
+    val pid: String,
+    val dnummer: Boolean? = false,
+    val npid: Boolean? = false,
+    val pidInvalidWithBostnummer: Boolean? = false
+)
+
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PEN
 // (which is the same as no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PSELV)
-data class UtlandPeriodeV2(
+data class NavSimuleringUtlandPeriodeV2(
     val land: LandkodeEnum,
     val arbeidetIUtland: Boolean = false,
     val periodeFom: LocalDate,

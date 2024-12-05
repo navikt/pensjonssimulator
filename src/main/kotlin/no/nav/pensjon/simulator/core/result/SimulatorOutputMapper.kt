@@ -184,7 +184,7 @@ object SimulatorOutputMapper {
         return SimulertOpptjening(
             pensjonsgivendeInntekt = pensjonsgivendeInntektForAar(opptjeningGrunnlagListe, kalenderAar)?.pi ?: 0,
             kalenderAar = kalenderAar,
-            pensjonsgivendeInntektPensjonspoeng = findValidForAr(poengtallListe, kalenderAar)?.pp ?: 0.0,
+            pensjonsgivendeInntektPensjonspoeng = findValidForAr(poengtallListe, kalenderAar)?.pp, // nullable
             omsorgPensjonspoeng = omsorgspoengForAar(opptjeningGrunnlagListe, kalenderAar),
             pensjonBeholdning = pensjonBeholdning(soekerGrunnlag, kalenderAar, resultatListe)?.totalbelop?.toInt(),
             omsorg = containsValidOmsorgsgrunnlagForAr(soekerGrunnlag.omsorgsgrunnlagListe, kalenderAar),

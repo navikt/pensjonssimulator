@@ -64,7 +64,12 @@ class NavViaPenAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            val spec: SimuleringSpec = fromSimuleringSpecV2(specV2)
+            val spec: SimuleringSpec = fromSimuleringSpecV2(
+                source = specV2,
+                isHentPensjonsbeholdninger = false,
+                isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
+            )
+
             val output: SimulatorOutput = simulator.simuler(spec, simulatorFlags)
 
             NavSimuleringSpecAndResultV2(
@@ -113,8 +118,13 @@ class NavViaPenAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            val spec: SimuleringSpec = fromSimuleringSpecV2(specV2)
-            val output: SimulatorOutput = simulator.simuler(spec, simulatorFlags) //TODO check flags
+            val spec: SimuleringSpec = fromSimuleringSpecV2(
+                source = specV2,
+                isHentPensjonsbeholdninger = true,
+                isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
+            )
+
+            val output: SimulatorOutput = simulator.simuler(spec, tpSimulatorFlags)
             toApForTpResultV2(output)
         } catch (e: EgressException) {
             handle(e)!!
@@ -136,9 +146,13 @@ class NavViaPenAlderspensjonController(
         private val simulatorFlags =
             SimulatorFlags(
                 inkluderLivsvarigOffentligAfp = false,
-                inkluderPensjonBeholdninger = false,
-                ignoreAvslag = false,
-                outputSimulertBeregningInformasjonForAllKnekkpunkter = false
+                ignoreAvslag = false
+            )
+
+        private val tpSimulatorFlags =
+            SimulatorFlags(
+                inkluderLivsvarigOffentligAfp = false,
+                ignoreAvslag = false
             )
     }
 }

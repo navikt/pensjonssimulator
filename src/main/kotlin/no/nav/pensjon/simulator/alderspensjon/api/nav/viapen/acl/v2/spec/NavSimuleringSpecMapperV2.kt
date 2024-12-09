@@ -11,7 +11,11 @@ import no.nav.pensjon.simulator.person.Pid
 
 object NavSimuleringSpecMapperV2 {
 
-    fun fromSimuleringSpecV2(source: NavSimuleringSpecV2) =
+    fun fromSimuleringSpecV2(
+        source: NavSimuleringSpecV2,
+        isHentPensjonsbeholdninger: Boolean,
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
+    ) =
         SimuleringSpec(
             type = source.simuleringType?.let { NavSimuleringTypeSpecV2.fromExternalValue(it.name).internalValue }
                 ?: SimuleringType.ALDER,
@@ -42,8 +46,8 @@ object NavSimuleringSpecMapperV2 {
             afpOrdning = source.afpOrdning, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
             afpInntektMaanedFoerUttak = source.afpInntektMndForUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             erAnonym = false,
-            isHentPensjonsbeholdninger = false,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
+            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
         )
 
     private fun utlandPeriode(source: NavSimuleringUtlandPeriodeV2) =

@@ -85,9 +85,7 @@ class FolketrygdberegnetAfpController(
         private val simulatorFlags =
             SimulatorFlags(
                 inkluderLivsvarigOffentligAfp = false,
-                inkluderPensjonBeholdninger = false,
-                ignoreAvslag = false,
-                outputSimulertBeregningInformasjonForAllKnekkpunkter = false
+                ignoreAvslag = false
             )
     }
 }

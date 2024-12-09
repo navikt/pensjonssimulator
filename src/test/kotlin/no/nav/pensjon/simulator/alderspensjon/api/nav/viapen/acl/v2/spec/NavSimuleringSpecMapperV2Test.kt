@@ -18,7 +18,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
 
     test("fromSimuleringSpecV2 maps from domain to DTO version 2") {
         NavSimuleringSpecMapperV2.fromSimuleringSpecV2(
-            NavSimuleringSpecV2(
+            source = NavSimuleringSpecV2(
                 simuleringId = 123L,
                 simuleringType = NavSimuleringTypeSpecV2.ALDER,
                 simuleringNavn = "x",
@@ -61,7 +61,9 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                         periodeTom = LocalDate.of(2020, 5, 31)
                     )
                 )
-            )
+            ),
+            isHentPensjonsbeholdninger = true,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
         ) shouldBe
                 SimuleringSpec(
                     type = SimuleringType.ALDER,
@@ -111,7 +113,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     afpOrdning = null, // kun for simulering av pre-2025 offentlig AFP
                     afpInntektMaanedFoerUttak = null, // kun for simulering av pre-2025 offentlig AFP
                     erAnonym = false,
-                    isHentPensjonsbeholdninger = false,
+                    isHentPensjonsbeholdninger = true,
                     isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
                 )
     }

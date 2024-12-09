@@ -47,10 +47,10 @@ class AlternativSimuleringService(
             val result: SimulatorOutput = simulator.simuler(lavereGradSpec, flags)
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(lavereGradSpec, foedselDato, pensjon(result))
-        } catch (e: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (_: AvslagVilkaarsproevingForLavtTidligUttakException) {
             // Lavere grad ga "avslått" resultat; prøv utkanttilfellet og ev. alternative parametre:
             simulerAlternativHvisUtkanttilfelletInnvilges(spec, foedselDato, inkluderPensjonHvisUbetinget)
-        } catch (e: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
             simulerAlternativHvisUtkanttilfelletInnvilges(spec, foedselDato, inkluderPensjonHvisUbetinget)
         }
     }
@@ -82,13 +82,13 @@ class AlternativSimuleringService(
 
             // Ingen exception => utkanttilfellet innvilget => prøv alternative parametre:
             findAlternativtUttak(spec, flags, foedselDato, spec.gradertUttak(foedselDato), spec.heltUttak(foedselDato))
-        } catch (e: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (_: AvslagVilkaarsproevingForLavtTidligUttakException) {
             // Utkanttilfellet avslått (intet gradert uttak mulig); returner alternativ for ubetinget uttak:
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder, foedselDato)
             else
                 ubetingetUttakResponseUtenSimulertPensjon(foedselDato, normAlder)
-        } catch (e: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder, foedselDato)
             else
@@ -270,9 +270,7 @@ class AlternativSimuleringService(
         private fun simulatorFlags(lavereGradSpec: SimuleringSpec) =
             SimulatorFlags(
                 inkluderLivsvarigOffentligAfp = lavereGradSpec.type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
-                inkluderPensjonBeholdninger = lavereGradSpec.isHentPensjonsbeholdninger,
-                ignoreAvslag = false,
-                outputSimulertBeregningInformasjonForAllKnekkpunkter = lavereGradSpec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+                ignoreAvslag = false
             )
 
         private fun findAlternativFailed(): Nothing {

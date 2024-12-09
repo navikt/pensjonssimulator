@@ -73,7 +73,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV1.fromDto(specV1)
-            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags(spec))
+            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags())
             TpoSimuleringResultMapperV1.toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
@@ -114,7 +114,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV2.fromDto(specV2)
-            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags(spec))
+            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags())
             TpoSimuleringResultMapperV2.toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
@@ -155,7 +155,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV3.fromDto(specV3)
-            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags(spec))
+            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags())
             TpoSimuleringResultMapperV3.toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
@@ -175,12 +175,10 @@ class TpoViaPenAlderspensjonController(
         private const val FUNCTION_ID = "ap-tpo-pen"
 
         //TODO these flags are included in SimuleringSpec, hence redundant?
-        private fun simulatorFlags(spec: SimuleringSpec) =
+        private fun simulatorFlags() =
             SimulatorFlags(
                 inkluderLivsvarigOffentligAfp = false,
-                inkluderPensjonBeholdninger = spec.isHentPensjonsbeholdninger,
-                ignoreAvslag = false,
-                outputSimulertBeregningInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+                ignoreAvslag = false
             )
     }
 }

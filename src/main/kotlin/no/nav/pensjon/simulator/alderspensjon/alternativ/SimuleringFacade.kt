@@ -33,7 +33,7 @@ class SimuleringFacade(
                 pensjon = pensjon(result),
                 alternativ = null
             )
-        } catch (e: ForLavtTidligUttakException) {
+        } catch (_: ForLavtTidligUttakException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttakGrad(
@@ -46,7 +46,7 @@ class SimuleringFacade(
                     foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 )
-        } catch (e: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
             return if (isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttakGrad(
                     spec,
@@ -68,13 +68,11 @@ class SimuleringFacade(
     }
 
     private companion object {
-        // Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
+        //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
         private fun simulatorFlags(spec: SimuleringSpec, ignoreAvslag: Boolean) =
             SimulatorFlags(
                 inkluderLivsvarigOffentligAfp = spec.type === SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
-                inkluderPensjonBeholdninger = spec.isHentPensjonsbeholdninger,
-                ignoreAvslag,
-                outputSimulertBeregningInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+                ignoreAvslag
             )
 
         private fun isGradertAndReducible(spec: SimuleringSpec): Boolean =

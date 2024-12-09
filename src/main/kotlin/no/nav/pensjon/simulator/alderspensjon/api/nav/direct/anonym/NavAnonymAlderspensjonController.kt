@@ -4,12 +4,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecMapperV1.fromAnonymSimuleringSpecV1
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecV1
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringResultMapperV1.mapSimuleringResult
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringResultV1
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecMapperV1.fromAnonymSimuleringSpecV1
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.SimulatorFlags
@@ -52,17 +51,17 @@ class NavAnonymAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(
-        @RequestBody specV1: AnonymSimuleringSpecV1,
-        request: HttpServletRequest
-    ): AnonymSimuleringResultV1 {
+    fun simulerAlderspensjon(@RequestBody specV1: AnonymSimuleringSpecV1): AnonymSimuleringResultV1 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
 
         return try {
             val spec = fromAnonymSimuleringSpecV1(specV1)
-            val flags = SimulatorFlags(false, false, false, false)
+            val flags = SimulatorFlags(
+                inkluderLivsvarigOffentligAfp = false,
+                ignoreAvslag = false
+            )
             val result = service.simuler(spec, flags)
             mapSimuleringResult(result)
         } catch (e: EgressException) {

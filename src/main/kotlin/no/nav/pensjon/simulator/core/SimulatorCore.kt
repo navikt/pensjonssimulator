@@ -210,7 +210,7 @@ class SimulatorCore(
                 gjeldendeAfpPrivatBeregningsresultat = gjeldendePrivatAfpBeregningResultat,
                 forsteVirkAfpPrivat = ytelser.privatAfpVirkningFom,
                 afpOffentligLivsvarigBeregningsresultat = livsvarigOffentligAfpBeregningResultat,
-                isHentPensjonsbeholdninger = flags.inkluderPensjonBeholdninger,
+                isHentPensjonsbeholdninger = spec.isHentPensjonsbeholdninger,
                 kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
                 sakId = kravhode.sakId,
                 sakType = kravhode.sakType,
@@ -235,7 +235,7 @@ class SimulatorCore(
                 ),
                 grunnbeloep = grunnbeloep,
                 pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
-                outputSimulertBeregningsInformasjonForAllKnekkpunkter = flags.outputSimulertBeregningInformasjonForAllKnekkpunkter,
+                outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
                 sisteGyldigeOpptjeningAar = SISTE_GYLDIGE_OPPTJENING_AAR
             )
         )

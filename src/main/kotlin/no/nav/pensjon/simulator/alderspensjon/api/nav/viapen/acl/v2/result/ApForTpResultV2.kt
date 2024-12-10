@@ -1,9 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import no.nav.pensjon.simulator.core.domain.SivilstandType
-import java.time.LocalDate
+import java.util.*
 
 /**
  * DTO version 2 of result of 'AP for TP' (alderspensjon for tjenestepensjon-simulering).
@@ -22,14 +20,14 @@ data class ApForTpAlderspensjonV2(
 )
 
 data class ApForTpBeholdningPeriodeV2(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val datoFom: LocalDate? = null,
+    val datoFom: Date? = null,
     val pensjonsbeholdning: Double? = null,
     val garantipensjonsbeholdning: Double? = null,
     val garantitilleggsbeholdning: Double? = null
 )
 
 data class ApForTpBeregningInformasjonV2(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val datoFom: LocalDate? = null,
+    val datoFom: Date? = null,
     val basisgp: Double? = null,
     val basistp: Double? = null,
     val basispt: Double? = null,

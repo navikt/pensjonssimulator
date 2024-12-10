@@ -7,10 +7,19 @@ import java.util.*
  */
 object TestDateUtil {
 
-    fun dateAtNoon(year: Int, month: Int, day: Int): Date =
+    fun dateAtMidnight(year: Int, zeroBasedMonth: Int, day: Int): Date =
+        dateAt(year, zeroBasedMonth, day, 0)
+
+    fun dateAtNoon(year: Int, zeroBasedMonth: Int, day: Int): Date =
+        dateAt(year, zeroBasedMonth, day, 12)
+
+    private fun dateAt(year: Int, zeroBasedMonth: Int, day: Int, hourOfDay: Int): Date =
         Calendar.getInstance(TimeZone.getTimeZone("CET"), Locale.ENGLISH).apply {
             this.clear()
-            this[year, month] = day
-            this[Calendar.HOUR_OF_DAY] = 12
+            this[year, zeroBasedMonth] = day
+            this[Calendar.HOUR_OF_DAY] = hourOfDay
+            this[Calendar.MINUTE] = 0
+            this[Calendar.SECOND] = 0
+            this[Calendar.MILLISECOND] = 0
         }.time
 }

@@ -39,7 +39,7 @@ class PenKravClientTest : FunSpec({
         )
 
         server = MockWebServer().also { it.start() }
-        baseUrl = "http://localhost:${server!!.port}"
+        baseUrl = "http://localhost:${server.port}"
     }
 
     afterSpec {
@@ -69,7 +69,7 @@ class PenKravClientTest : FunSpec({
             with(result.persongrunnlagListe[0]) {
                 personDetaljListe.size shouldBe 1
                 personDetaljListe[0].bruk shouldBe true
-                fodselsdato shouldBe dateAtNoon(year = 1974, month = Calendar.MARCH, day = 30)
+                fodselsdato shouldBe dateAtNoon(year = 1974, zeroBasedMonth = Calendar.MARCH, day = 30)
             }
             result.kravlinjeListe.size shouldBe 1
             result.kravlinjeListe[0].kravlinjeType?.kode shouldBe "UT"

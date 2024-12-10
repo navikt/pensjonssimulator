@@ -53,12 +53,11 @@ enum class PenPensjonType(val externalValue: String, val internalValue: PensjonT
     MINSTENIVAATILLEGG_INDVIDUELT(externalValue = "MIN_NIVA_TILL_INDV", internalValue = PensjonType.NONE);
 
     companion object {
-        private val values = PenPensjonType.entries.toTypedArray()
-
         fun toInternalValue(value: String?): PensjonType = fromExternalValue(value)?.internalValue ?: PensjonType.NONE
 
+        @OptIn(ExperimentalStdlibApi::class)
         private fun fromExternalValue(value: String?): PenPensjonType? =
-            values.singleOrNull { it.externalValue == value }
+            entries.singleOrNull { it.externalValue == value }
     }
 }
 
@@ -90,12 +89,11 @@ enum class PenPensjonSimuleringStatusKode(val externalValue: String, val interna
     ANNET(externalValue = "ANNET", internalValue = PensjonSimuleringStatusKode.ANNET);
 
     companion object {
-        private val values = PenPensjonSimuleringStatusKode.entries.toTypedArray()
-
         fun toInternalValue(value: String?): PensjonSimuleringStatusKode =
             fromExternalValue(value)?.internalValue ?: PensjonSimuleringStatusKode.NONE
 
+        @OptIn(ExperimentalStdlibApi::class)
         private fun fromExternalValue(value: String?): PenPensjonSimuleringStatusKode? =
-            values.singleOrNull { it.externalValue == value }
+            entries.singleOrNull { it.externalValue == value }
     }
 }

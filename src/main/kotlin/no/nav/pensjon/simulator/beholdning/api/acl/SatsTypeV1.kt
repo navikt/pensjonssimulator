@@ -10,8 +10,7 @@ enum class SatsTypeV1(val externalValue: String, val internalValue: SatsType) {
     HOEY("HOY", SatsType.HOEY);
 
     companion object {
-        private val values = entries.toTypedArray()
-
-        fun fromInternalValue(value: SatsType): SatsTypeV1 = values.single { it.internalValue == value }
+        @OptIn(ExperimentalStdlibApi::class)
+        fun fromInternalValue(value: SatsType): SatsTypeV1 = entries.single { it.internalValue == value }
     }
 }

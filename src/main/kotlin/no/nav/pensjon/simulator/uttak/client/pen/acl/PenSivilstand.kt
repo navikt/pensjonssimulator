@@ -28,6 +28,7 @@ enum class PenSivilstand(val externalValue: String, val internalValue: Sivilstan
 
 
     companion object {
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromInternalValue(sivilstand: Sivilstand?): PenSivilstand =
             when (sivilstand) {
                 Sivilstand.UOPPGITT -> UDEFINERT // ambiguous UDEFINERT/GJENLEVENDE_*

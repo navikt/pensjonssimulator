@@ -67,11 +67,11 @@ enum class NavSimuleringTypeSpecV2(val externalValue: String, val internalValue:
     //GJENLEVENDE("GJENLEVENDE", SimuleringType.GJENLEVENDE);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): NavSimuleringTypeSpecV2 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): NavSimuleringTypeSpecV2 =
             if (hasLength(externalValue))

@@ -67,15 +67,15 @@ enum class AnonymSimuleringTypeSpecV1(val externalValue: String, val internalVal
     //GJENLEVENDE("GJENLEVENDE", SimuleringType.GJENLEVENDE);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): AnonymSimuleringTypeSpecV1 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): AnonymSimuleringTypeSpecV1 =
             if (StringUtils.hasLength(externalValue))
-                ALDER.also { log.warn { "Unknown AnonymSimuleringTypeSpec: '$externalValue'" } }
+                ALDER.also { log.warn { "Unknown AnonymSimuleringTypeSpecV1: '$externalValue'" } }
             else
                 ALDER
     }

@@ -66,6 +66,7 @@ enum class TrygdetidOpptjeningRettLand(val land: Land, val kravOmArbeid: Boolean
         private fun initMapper() {
             mapper = EnumMap(Land::class.java)
 
+            @OptIn(ExperimentalStdlibApi::class)
             for (entry in TrygdetidOpptjeningRettLand.entries) {
                 mapper!![entry.land] = entry
             }

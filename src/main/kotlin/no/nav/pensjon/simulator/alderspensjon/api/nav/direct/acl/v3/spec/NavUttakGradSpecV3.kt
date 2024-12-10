@@ -42,11 +42,11 @@ enum class NavUttakGradSpecV3(val externalValue: String, val internalValue: Utta
     P_80("80", UttakGradKode.P_80);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): NavUttakGradSpecV3 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): NavUttakGradSpecV3 =
             if (hasLength(externalValue))

@@ -11,11 +11,11 @@ enum class PenSatsType(val externalValue: String, val internalValue: SatsType) {
     HOEY("HOY", SatsType.HOEY);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?) =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?) =
             if (hasLength(externalValue))

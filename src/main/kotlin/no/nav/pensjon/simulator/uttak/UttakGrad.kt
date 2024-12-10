@@ -10,10 +10,9 @@ enum class UttakGrad(val prosentsats: Int) {
     HUNDRE_PROSENT(100);
 
     companion object {
-        private val values = entries.toTypedArray()
-
+        @OptIn(ExperimentalStdlibApi::class)
         fun from(prosentsats: Int) =
-            values.singleOrNull { it.prosentsats == prosentsats }
+            entries.singleOrNull { it.prosentsats == prosentsats }
                 ?: throw RuntimeException("Ugyldig prosentsats for uttaksgrad: $prosentsats")
     }
 }

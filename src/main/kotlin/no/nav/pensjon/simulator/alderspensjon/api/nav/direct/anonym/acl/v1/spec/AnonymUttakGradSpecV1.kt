@@ -42,11 +42,11 @@ enum class AnonymUttakGradSpecV1(val externalValue: String, val internalValue: U
     P_80("80", UttakGradKode.P_80);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): AnonymUttakGradSpecV1 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): AnonymUttakGradSpecV1 =
             if (StringUtils.hasLength(externalValue))

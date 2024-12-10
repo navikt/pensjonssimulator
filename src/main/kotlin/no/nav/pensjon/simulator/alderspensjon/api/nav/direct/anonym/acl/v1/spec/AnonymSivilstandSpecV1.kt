@@ -82,11 +82,11 @@ enum class AnonymSivilstandSpecV1(val externalValue: String, val internalValue: 
     UGIF("UGIF", SivilstatusType.UGIF);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): AnonymSivilstandSpecV1 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): AnonymSivilstandSpecV1 =
             if (StringUtils.hasLength(externalValue))

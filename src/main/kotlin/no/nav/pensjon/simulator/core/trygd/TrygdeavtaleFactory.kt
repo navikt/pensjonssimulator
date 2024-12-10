@@ -32,9 +32,9 @@ object TrygdeavtaleFactory {
             fpa_nordisk = 0
         }
 
+    @OptIn(ExperimentalStdlibApi::class)
     private fun latestAvtaleDato() =
         AvtaleDatoKode.entries
             .filter { it.name.startsWith(AVTALEDATO_NAME_PREFIX) }
-            .sortedBy { it.avtaledato }
-            .firstOrNull()
+            .minByOrNull { it.avtaledato }
 }

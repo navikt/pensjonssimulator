@@ -49,9 +49,8 @@ enum class PensjonTypeV4(val externalValue: String, val internalValue: PensjonTy
     GARANTIPENSJON("garantiPensjon", PensjonType.GARANTIPENSJON);
 
     companion object {
-        private val values = PensjonTypeV4.entries.toTypedArray()
-
-        fun fromInternalValue(value: PensjonType): PensjonTypeV4 = values.single { it.internalValue == value }
+        @OptIn(ExperimentalStdlibApi::class)
+        fun fromInternalValue(value: PensjonType): PensjonTypeV4 = entries.single { it.internalValue == value }
     }
 }
 
@@ -65,9 +64,8 @@ enum class PensjonSimuleringStatusKodeV4 (val externalValue: String, val interna
     ANNET("ANNET", PensjonSimuleringStatusKode.ANNET);
 
     companion object {
-        private val values = PensjonSimuleringStatusKodeV4.entries.toTypedArray()
-
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromInternalValue(value: PensjonSimuleringStatusKode): PensjonSimuleringStatusKodeV4 =
-            values.singleOrNull { it.internalValue == value } ?: ANNET
+            entries.singleOrNull { it.internalValue == value } ?: ANNET
     }
 }

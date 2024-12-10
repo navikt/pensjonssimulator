@@ -67,15 +67,15 @@ enum class FolketrygdberegnetAfpSimuleringTypeSpecV1(val externalValue: String, 
     //GJENLEVENDE("GJENLEVENDE", SimuleringType.GJENLEVENDE);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): FolketrygdberegnetAfpSimuleringTypeSpecV1 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): FolketrygdberegnetAfpSimuleringTypeSpecV1 =
             if (hasLength(externalValue))
-                ALDER.also { log.warn { "Unknown NavFppSimuleringTypeSpecV1: '$externalValue'" } }
+                ALDER.also { log.warn { "Unknown FolketrygdberegnetAfpSimuleringTypeSpecV1: '$externalValue'" } }
             else
                 ALDER
     }

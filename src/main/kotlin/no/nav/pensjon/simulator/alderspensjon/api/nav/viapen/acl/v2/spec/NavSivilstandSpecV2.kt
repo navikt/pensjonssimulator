@@ -82,11 +82,11 @@ enum class NavSivilstandSpecV2(val externalValue: String, val internalValue: Siv
     UGIF("UGIF", SivilstatusType.UGIF);
 
     companion object {
-        private val values = entries.toTypedArray()
         private val log = KotlinLogging.logger {}
 
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): NavSivilstandSpecV2 =
-            values.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
+            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): NavSivilstandSpecV2 =
             if (hasLength(externalValue))

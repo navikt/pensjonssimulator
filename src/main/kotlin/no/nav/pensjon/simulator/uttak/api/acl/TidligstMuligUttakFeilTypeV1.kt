@@ -9,8 +9,7 @@ enum class TidligstMuligUttakFeilTypeV1(val internalValue: TidligstMuligUttakFei
     TEKNISK_FEIL(TidligstMuligUttakFeilType.TEKNISK_FEIL);
 
     companion object {
-        private val values = entries.toTypedArray()
-
-        fun fromInternalValue(value: TidligstMuligUttakFeilType) = values.first { it.internalValue == value }
+        @OptIn(ExperimentalStdlibApi::class)
+        fun fromInternalValue(value: TidligstMuligUttakFeilType) = entries.first { it.internalValue == value }
     }
 }

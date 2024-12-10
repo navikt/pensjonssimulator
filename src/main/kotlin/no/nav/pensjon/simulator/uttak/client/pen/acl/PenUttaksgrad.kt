@@ -18,6 +18,7 @@ enum class PenUttaksgrad(val externalValue: String, val internalValue: UttakGrad
     HUNDRE_PROSENT("P_100", UttakGrad.HUNDRE_PROSENT);
 
     companion object {
+        @OptIn(ExperimentalStdlibApi::class)
         fun fromInternalValue(grad: UttakGrad?): PenUttaksgrad =
             entries.firstOrNull { it.internalValue == grad } ?: HUNDRE_PROSENT
     }

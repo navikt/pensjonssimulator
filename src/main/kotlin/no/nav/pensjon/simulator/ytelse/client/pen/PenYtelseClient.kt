@@ -10,8 +10,8 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
 import no.nav.pensjon.simulator.ytelse.client.YtelseClient
-import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserResultMapper
+import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserResultV1
 import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserSpecMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -44,10 +44,11 @@ class PenYtelseClient(
                 .headers(::setHeaders)
                 .bodyValue(PenLoependeYtelserSpecMapper.toDto(spec))
                 .retrieve()
-                .bodyToMono(PenLoependeYtelserResult::class.java)
+                .bodyToMono(PenLoependeYtelserResultV1::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let(PenLoependeYtelserResultMapper::fromDto)!!
+                ?.let(PenLoependeYtelserResultMapper::fromDto)
+                ?: LoependeYtelserResult(alderspensjon = null, afpPrivat = null)
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {

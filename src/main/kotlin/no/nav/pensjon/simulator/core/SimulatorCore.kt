@@ -267,12 +267,12 @@ class SimulatorCore(
             )
 
             return LoependeYtelser(
-                soekerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
+                soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
                 avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-                privatAfpVirkningFom = ytelser.afpPrivat.virkningFom,
+                privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
-                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat.forrigeBeregningsresultat,
+                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
                 forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
             )
         }
@@ -293,12 +293,12 @@ class SimulatorCore(
             )
 
             return LoependeYtelser(
-                soekerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
+                soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
                 avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-                privatAfpVirkningFom = ytelser.afpPrivat.virkningFom,
+                privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
-                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat.forrigeBeregningsresultat,
+                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
                 forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
             )
         }
@@ -318,9 +318,9 @@ class SimulatorCore(
         )
 
         return LoependeYtelser(
-            soekerVirkningFom = ytelser.alderspensjon.sokerVirkningFom!!,
+            soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
             avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-            privatAfpVirkningFom = ytelser.afpPrivat.virkningFom,
+            privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
             sisteBeregning = null,
             forrigeAlderspensjonBeregningResultat = null,
             forrigePrivatAfpBeregningResultat = null,

@@ -335,20 +335,20 @@ class Persongrunnlag() {
     var gjelderUforetrygd: Boolean = false
 
     @JsonIgnore
-    val barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> =
+    var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> =
         mutableListOf() // discriminator: BT_VURDERINGSPERIODE
 
     @JsonIgnore
-    val beholdninger: MutableList<Pensjonsbeholdning> = mutableListOf() // BEHOLDNING
+    var beholdninger: MutableList<Pensjonsbeholdning> = mutableListOf() // BEHOLDNING
 
     @JsonIgnore
-    val trygdetider: MutableList<Trygdetid> = mutableListOf() // TRYGDETID
+    var trygdetider: MutableList<Trygdetid> = mutableListOf() // TRYGDETID
 
     @JsonIgnore
-    val uforegrunnlagList: MutableList<Uforegrunnlag> = mutableListOf() // UFORE
+    var uforegrunnlagList: MutableList<Uforegrunnlag> = mutableListOf() // UFORE
 
     @JsonIgnore
-    val yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf() // YRKESKADE
+    var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf() // YRKESKADE
 
     @JsonIgnore
     var rawFodselsdato: Date? = null

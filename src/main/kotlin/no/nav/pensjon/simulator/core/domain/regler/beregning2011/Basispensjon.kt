@@ -30,6 +30,7 @@ class Basispensjon {
     var formelKodeEnum: FormelKodeEnum = FormelKodeEnum.ResPx
 
     // SIMDOM-ADD
+    constructor(): super()
     constructor(source: Basispensjon) {
         totalbelop = source.totalbelop
 

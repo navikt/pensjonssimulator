@@ -4,6 +4,8 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.krav.client.KravClient
+import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravhode
+import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravhodeMapper
 import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravSpec
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -41,9 +43,10 @@ class PenKravClient(
                 .headers(::setHeaders)
                 .bodyValue(PenKravSpec(kravhodeId))
                 .retrieve()
-                .bodyToMono(Kravhode::class.java)
+                .bodyToMono(PenKravhode::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
+                ?.let(PenKravhodeMapper::kravhode)
                 ?: Kravhode()
             // NB: No mapping of response; it is assumed that PEN returns regler-compatible Kravhode
         } catch (e: WebClientRequestException) {

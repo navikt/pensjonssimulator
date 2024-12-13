@@ -6,8 +6,8 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
 
 data class LoependeYtelserResult(
-    val alderspensjon: AlderspensjonYtelser,
-    val afpPrivat: PrivatAfpYtelser
+    val alderspensjon: AlderspensjonYtelser?,
+    val afpPrivat: PrivatAfpYtelser?
 )
 
 data class AlderspensjonYtelser(

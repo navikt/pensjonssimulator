@@ -1,6 +1,18 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+/**
+ * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/ResultattypeEnum.kt
+ */
 enum class ResultattypeEnum {
+    AP,
+    UP,
+    GJP,
+    AFP,
+    AFP_PRIVAT,
+    BP,
+    UT,
+    UT_GJT,
+    GJR,
     AP_GJP,
     AP_GJP_UP,
     AP_GJP_UP_YP,
@@ -12,19 +24,13 @@ enum class ResultattypeEnum {
     UT_YT,
     YT,
     YP,
-    FORELOPIG_UP,
     BP1,
     BP2,
     FAMP,
     GJP_UP,
     GJP_MOR,
     GJP_FAR,
-    TENKT_GJP,
-    BP_FELLES,
-    BP_SARKULL,
     TRYGDEAVTALE,
-    TENKT_UTEN_INST,
-    OMREGN_V_INST,
     AP2011,
     AP2011_GJP,
     AP2011_GJP_UP,
@@ -32,5 +38,6 @@ enum class ResultattypeEnum {
     KONV_ALDER,
     KONV_AFP,
     AP2016,
-    AP2025
+    AP2025,
+    KONV_KRIG
 }

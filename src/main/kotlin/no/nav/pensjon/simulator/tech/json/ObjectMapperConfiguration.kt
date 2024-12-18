@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.tech.json
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -19,26 +20,25 @@ open class ObjectMapperConfiguration {
     @Primary
     open fun objectMapper() =
         jacksonObjectMapper().apply {
-            enable(SerializationFeature.INDENT_OUTPUT)
             registerModule(JavaTimeModule())
             enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) // for Date in call to PEN
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            setSerializationInclusion(Include.NON_NULL)
+            // INDENT_OUTPUT must be disabled to avoid error 413 Request Too Large
         }
 
     // ConsPenReglerContextBeans.pensjonReglerObjectMapper
     @Bean("regler")
-    open fun reglerObjectMapper() =
+    open fun reglerObjectMapper(): ObjectMapper =
         ObjectMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
             .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).apply {
 
-                configOverride(MutableMap::class.java).include = JsonInclude.Value.construct(
-                    JsonInclude.Include.NON_NULL,
-                    JsonInclude.Include.NON_NULL
-                )
+                configOverride(MutableMap::class.java).include =
+                    JsonInclude.Value.construct(Include.NON_NULL, Include.NON_NULL)
 
-                setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                setSerializationInclusion(Include.NON_NULL)
 
                 setVisibility(
                     serializationConfig.defaultVisibilityChecker

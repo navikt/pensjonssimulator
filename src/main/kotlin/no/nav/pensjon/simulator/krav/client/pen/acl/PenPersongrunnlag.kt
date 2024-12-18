@@ -4,27 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUPtilUT
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpTpoUpGrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ArbeidsforholdEtterUforgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Arbeidsforholdsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Barnekull
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.BarnetilleggVurderingsperiode
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Dagpengegrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Forstegangstjeneste
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GenerellHistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InstOpphFasteUtgifterperiode
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InstOpphReduksjonsperiode
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtale
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtaledetaljer
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforegrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Utenlandsopphold
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Yrkesskadegrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
@@ -79,7 +59,7 @@ class PenPersongrunnlag(
     var instOpphReduksjonsperiodeListe: MutableList<InstOpphReduksjonsperiode> = mutableListOf(),
     var instOpphFasteUtgifterperiodeListe: MutableList<InstOpphFasteUtgifterperiode> = mutableListOf(),
     var bosattLand: LandCti? = null,
-    var pensjonsbeholdning: Pensjonsbeholdning? = null,
+    var pensjonsbeholdning: PenPensjonsbeholdning? = null,
     var forstegangstjenestegrunnlag: Forstegangstjeneste? = null,
     var dagpengegrunnlagListe: MutableList<Dagpengegrunnlag> = mutableListOf(),
     var omsorgsgrunnlagListe: MutableList<PenOmsorgGrunnlag> = mutableListOf(),
@@ -101,7 +81,7 @@ class PenPersongrunnlag(
     var gjelderOmsorg: Boolean = false,
     var gjelderUforetrygd: Boolean = false,
     var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> = mutableListOf(),
-    var beholdninger: MutableList<Pensjonsbeholdning> = mutableListOf(),
+    var beholdninger: MutableList<PenPensjonsbeholdning> = mutableListOf(),
     var trygdetider: MutableList<Trygdetid> = mutableListOf(),
     var uforegrunnlagList: MutableList<Uforegrunnlag> = mutableListOf(),
     var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf()

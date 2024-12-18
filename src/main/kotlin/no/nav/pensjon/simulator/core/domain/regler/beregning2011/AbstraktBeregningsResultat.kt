@@ -37,52 +37,26 @@ abstract class AbstraktBeregningsResultat {
     @JsonIgnore var kravId: Long? = null
     @JsonIgnore var virkTom: Date? = null
     @JsonIgnore var epsMottarPensjon: Boolean = false // false in old PREG class
-    @JsonIgnore private var beregningInformasjon: BeregningsInformasjon? = null
+    @JsonIgnore var epsPaavirkerBeregning: Boolean = false
+    @JsonIgnore var harGjenlevenderett: Boolean = false
 
     protected constructor() : super()
 
     protected constructor(source: AbstraktBeregningsResultat) : super() {
-        if (source.virkFom != null) {
-            virkFom = source.virkFom!!.clone() as Date
-        }
-
-        if (source.pensjonUnderUtbetaling != null) {
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling(source.pensjonUnderUtbetaling!!)
-        }
-
-        if (source.brukersSivilstandEnum != null) {
-            brukersSivilstandEnum = source.brukersSivilstandEnum
-        }
-
-        if (source.benyttetSivilstandEnum != null) {
-            benyttetSivilstandEnum = source.benyttetSivilstandEnum
-        }
-
-        if (source.beregningArsakEnum != null) {
-            beregningArsakEnum = source.beregningArsakEnum
-        }
-
-        if (source.lonnsvekstInformasjon != null) {
-            lonnsvekstInformasjon = LonnsvekstInformasjon(source.lonnsvekstInformasjon!!)
-        }
-
+        source.virkFom?.let { virkFom = it.clone() as Date }
+        source.virkTom?.let { virkTom = it.clone() as Date }
+        source.merknadListe.forEach { merknadListe.add(Merknad(it)) }
+        pensjonUnderUtbetaling = source.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)
+        brukersSivilstandEnum = source.brukersSivilstandEnum
+        benyttetSivilstandEnum = source.benyttetSivilstandEnum
+        beregningArsakEnum = source.beregningArsakEnum
+        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
         uttaksgrad = source.uttaksgrad
         gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr
-
-        for (merknad in source.merknadListe) {
-            merknadListe.add(Merknad(merknad))
-        }
-
-        source.virkTom?.let { virkTom = it.clone() as Date }
         kravId = source.kravId
         epsMottarPensjon = source.epsMottarPensjon
-        source.hentBeregningsinformasjon()?.let { setBeregningsinformasjon(BeregningsInformasjon(it)) }
-    }
-
-    open fun hentBeregningsinformasjon(): BeregningsInformasjon? = beregningInformasjon
-
-    fun setBeregningsinformasjon(value: BeregningsInformasjon) {
-        beregningInformasjon = value
+        epsPaavirkerBeregning = source.epsPaavirkerBeregning
+        harGjenlevenderett = source.harGjenlevenderett
     }
     // end SIMDOM-ADD
 }

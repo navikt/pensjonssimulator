@@ -48,7 +48,7 @@ class EpsService(
     private fun persongrunnlagBasedOnSivilstatus(spec: SimuleringSpec, grunnbeloep: Int): Persongrunnlag {
         val grunnlag = persongrunnlagMapper.mapToEpsPersongrunnlag(
             sivilstatus = spec.sivilstatus,
-            foedselsdato = foedselDato(spec)
+            foedselsdato = foedselsdato(spec)
         )
 
         if (spec.epsHarInntektOver2G) {
@@ -65,8 +65,9 @@ class EpsService(
         return grunnlag
     }
 
-    private fun foedselDato(spec: SimuleringSpec): LocalDate =
+    private fun foedselsdato(spec: SimuleringSpec): LocalDate =
         spec.pid?.let(personService::person)?.fodselsdato.toLocalDate() ?: foersteDag(spec.foedselAar)
+    // NB: Not using spec.foedselDato here (for unknown reasons)
 
     companion object {
         const val EPS_GRUNNBELOEP_MULTIPLIER = 3 // greater than 2 (due to 2G income limit for EPS)

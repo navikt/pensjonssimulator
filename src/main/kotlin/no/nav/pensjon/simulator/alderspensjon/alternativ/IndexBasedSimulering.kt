@@ -72,7 +72,7 @@ class IndexBasedSimulering(
         return try {
             val indexSimulatorSpec = simuleringSpec.withUttak(
                 foersteUttakDato = parameters.gradertUttakFom ?: parameters.heltUttakFom,
-                uttakGrad = parameters.uttakGrad,
+                uttaksgrad = parameters.uttakGrad,
                 heltUttakDato = parameters.heltUttakFom,
                 inntektEtterHeltUttakAntallAar = parameters.inntektEtterHeltUttakAntallAar
             )

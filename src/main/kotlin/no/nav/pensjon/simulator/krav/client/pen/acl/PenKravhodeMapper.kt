@@ -74,13 +74,27 @@ object PenKravhodeMapper {
             bruk = source.bruk
         }
 
-    private fun penPerson(src: PenPenPerson) =
-        PenPerson(src.penPersonId).apply {
-            pid = src.pid
-            fodselsdato = src.fodselsdato
-            afpHistorikkListe = src.afpHistorikkListe
-            uforehistorikk = src.uforehistorikk
-            generellHistorikk = src.generellHistorikk
+    private fun penPerson(source: PenPenPerson) =
+        PenPerson(source.penPersonId).apply {
+            pid = source.pid
+            fodselsdato = source.fodselsdato
+            afpHistorikkListe = source.afpHistorikkListe
+            uforehistorikk = source.uforehistorikk
+            generellHistorikk = source.generellHistorikk
+        }
+
+    private fun pensjonsbeholdning(source: PenPensjonsbeholdning) =
+        Pensjonsbeholdning().apply {
+            fom = source.fom
+            tom = source.tom
+            ar = source.ar
+            totalbelop = source.totalbelop
+            opptjening = source.opptjening
+            lonnsvekstInformasjon = source.lonnsvekstInformasjon
+            reguleringsInformasjon = source.reguleringsInformasjon
+            formelkode = source.formelkode
+            beholdningsType = source.beholdningsType
+            merknadListe = source.merknadListe
         }
 
     private fun personDetalj(source: PenPersonDetalj) =
@@ -156,7 +170,7 @@ object PenKravhodeMapper {
             uforeHistorikk = source.uforeHistorikk
             generellHistorikk = source.generellHistorikk
             forstegangstjenestegrunnlag = source.forstegangstjenestegrunnlag
-            pensjonsbeholdning = source.pensjonsbeholdning
+            pensjonsbeholdning = source.pensjonsbeholdning?.let(::pensjonsbeholdning)
             uforegrunnlag = source.uforegrunnlag
             uforegrunnlagList = source.uforegrunnlagList
             instOpphReduksjonsperiodeListe = source.instOpphReduksjonsperiodeListe
@@ -170,7 +184,7 @@ object PenKravhodeMapper {
             yrkesskadegrunnlag = source.yrkesskadegrunnlag
             yrkesskadegrunnlagList = source.yrkesskadegrunnlagList
             barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder
-            beholdninger = source.beholdninger
+            beholdninger = source.beholdninger.map(::pensjonsbeholdning).toMutableList()
             trygdetider = source.trygdetider
             gjelderOmsorg = source.gjelderOmsorg
             gjelderUforetrygd = source.gjelderUforetrygd

@@ -4,7 +4,8 @@ import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSer
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
-import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregning
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregner
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpResult
@@ -40,9 +41,11 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
+import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -63,12 +66,14 @@ class SimulatorCore(
     private val knekkpunktFinder: KnekkpunktFinder,
     private val alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner,
     private val privatAfpBeregner: PrivatAfpBeregner,
-    private val pre2025OffentligAfpBeregning: Pre2025OffentligAfpBeregning,
+    private val pre2025OffentligAfpBeregner: Pre2025OffentligAfpBeregner,
+    private val pre2025OffentligAfpEndringBeregner: Pre2025OffentligAfpEndringBeregner,
     private val generelleDataHolder: GenerelleDataHolder,
     private val personService: PersonService,
     private val sakService: SakService,
     private val ytelseService: YtelseService,
-    private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService
+    private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService,
+    private val normAlderService: NormAlderService
 ) : UttakAlderDiscriminator {
 
     private val logger = LoggerFactory.getLogger(SimulatorCore::class.java)
@@ -79,11 +84,11 @@ class SimulatorCore(
         ForKortTrygdetidException::class,
         ForLavtTidligUttakException::class
     )
-    override fun simuler(spec: SimuleringSpec, flags: SimulatorFlags): SimulatorOutput {
-        val gjelderEndring = spec.gjelderEndring()
+    override fun simuler(initialSpec: SimuleringSpec, flags: SimulatorFlags): SimulatorOutput {
+        val gjelderEndring = initialSpec.gjelderEndring()
 
         if (gjelderEndring) {
-            EndringValidator.validate(spec)
+            EndringValidator.validate(initialSpec)
         }
 
         val grunnbeloep: Int = fetchGrunnbeloep()
@@ -91,10 +96,20 @@ class SimulatorCore(
         logger.info("Simulator steg 1 - Hent løpende ytelser")
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
-            spec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
-        val person: PenPerson? = spec.pid?.let(personService::person)
-        val foedselDato: LocalDate? = person?.fodselsdato?.toLocalDate()
-        val ytelser: LoependeYtelser = fetchLoependeYtelser(spec)
+            initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
+        val person: PenPerson? = initialSpec.pid?.let(personService::person)
+        val foedselsdato: LocalDate? = person?.fodselsdato?.toLocalDate()
+        val ytelser: LoependeYtelser = fetchLoependeYtelser(initialSpec)
+
+        val spec: SimuleringSpec =
+            if (initialSpec.gjelderPre2025OffentligAfp())
+            // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
+                initialSpec.withHeltUttakDato(foedselsdato?.let {
+                    uttakDato(it, normAlderService.normAlder(it))
+                })
+            else
+                initialSpec
+
 
         if (gjelderEndring) {
             EndringValidator.validateRequestBasedOnLoependeYtelser(spec, ytelser.forrigeAlderspensjonBeregningResultat)
@@ -154,7 +169,7 @@ class SimulatorCore(
                 soekerVirkningFom = ytelser.soekerVirkningFom,
                 avdoedVirkningFom = ytelser.avdoedVirkningFom,
                 forrigeAlderspensjonBeregningResultatVirkningFom =
-                ytelser.forrigeAlderspensjonBeregningResultat?.virkFom?.toLocalDate(),
+                    ytelser.forrigeAlderspensjonBeregningResultat?.virkFom?.toLocalDate(),
                 sakId = kravhode.sakId
             )
         )
@@ -162,26 +177,26 @@ class SimulatorCore(
         logger.info("Simulator steg 6 - Beregn AFP i offentlig sektor")
 
         val pre2025OffentligAfpResult: Pre2025OffentligAfpResult?
-        val livsvarigOffentligAfpBeregningResultat: LivsvarigOffentligAfpResult?
+        val livsvarigOffentligAfpResult: LivsvarigOffentligAfpResult?
 
         if (spec.gjelderPre2025OffentligAfp()) {
-            pre2025OffentligAfpResult = pre2025OffentligAfpBeregning.beregnAfpOffentlig(
+            pre2025OffentligAfpResult = pre2025OffentligAfpBeregner.beregnAfp(
                 spec,
                 kravhode,
                 ytelser.forrigeAlderspensjonBeregningResultat,
                 grunnbeloep
             )
             kravhode = pre2025OffentligAfpResult.kravhode
-            livsvarigOffentligAfpBeregningResultat = null
+            livsvarigOffentligAfpResult = null
         } else if (gjelderEndring) {
             pre2025OffentligAfpResult =
-                null //TODO spec.foersteUttakDato?.let { EndringAfpOffentligBeregning.beregnAfpOffentlig(kravhode, forsteUttakDato = it) }
-            livsvarigOffentligAfpBeregningResultat = null
+                spec.foersteUttakDato?.let { pre2025OffentligAfpEndringBeregner.beregnAfp(kravhode, it) }
+            livsvarigOffentligAfpResult = null
         } else {
             pre2025OffentligAfpResult = null
-            livsvarigOffentligAfpBeregningResultat =
-                if (flags.inkluderLivsvarigOffentligAfp)
-                    foedselDato?.let {
+            livsvarigOffentligAfpResult =
+                if (flags.inkluderLivsvarigOffentligAfp) //TODO fremtidige inntekter
+                    foedselsdato?.let {
                         beregnLivsvarigOffentligAfp(
                             pid = person.pid!!,
                             foedselDato = it,
@@ -209,7 +224,7 @@ class SimulatorCore(
                 afpPrivatBeregningsresultater = privatAfpBeregningResultatListe,
                 gjeldendeAfpPrivatBeregningsresultat = gjeldendePrivatAfpBeregningResultat,
                 forsteVirkAfpPrivat = ytelser.privatAfpVirkningFom,
-                afpOffentligLivsvarigBeregningsresultat = livsvarigOffentligAfpBeregningResultat,
+                afpOffentligLivsvarigBeregningsresultat = livsvarigOffentligAfpResult,
                 isHentPensjonsbeholdninger = spec.isHentPensjonsbeholdninger,
                 kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
                 sakId = kravhode.sakId,
@@ -229,9 +244,10 @@ class SimulatorCore(
                 forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                 forrigePrivatAfpBeregningResultat = null, // forrigeAfpPrivatBeregningsresultat is null for SimulerFleksibelAPCommand & SimulerAFPogAPCommand
                 pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResult?.simuleringResult,
-                livsvarigOffentligAfpBeregningResultatListe = LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
-                    livsvarigOffentligAfpBeregningResultat,
-                    foedselDato?.monthValue
+                livsvarigOffentligAfpBeregningResultatListe =
+                    LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
+                        result = livsvarigOffentligAfpResult,
+                        foedselMaaned = foedselsdato?.monthValue
                 ),
                 grunnbeloep = grunnbeloep,
                 pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,

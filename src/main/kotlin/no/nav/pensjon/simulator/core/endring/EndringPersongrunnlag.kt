@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
@@ -85,7 +84,7 @@ class EndringPersongrunnlag(
                 endringPersongrunnlagListe = endringKravhode.persongrunnlagListe,
                 eksisterendePersongrunnlagListe = it,
                 spec,
-                beregningInfo = forrigeAlderspensjonBeregningResultat.hentBeregningsinformasjon(),
+                epsPaavirker = forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregning,
                 grunnbeloep
             )
         }
@@ -119,7 +118,7 @@ class EndringPersongrunnlag(
         endringPersongrunnlagListe: MutableList<Persongrunnlag>,
         eksisterendePersongrunnlagListe: List<Persongrunnlag>,
         spec: SimuleringSpec,
-        beregningInfo: BeregningsInformasjon?,
+        epsPaavirker: Boolean,
         grunnbeloep: Int,
     ) {
         eksisterendePersongrunnlagListe.forEach {
@@ -127,7 +126,7 @@ class EndringPersongrunnlag(
                 endringPersongrunnlagListe,
                 eksisterendePersongrunnlag = it,
                 spec,
-                beregningInfo,
+                epsPaavirker,
                 foersteUttakDato = spec.foersteUttakDato,
                 grunnbeloep
             )
@@ -139,7 +138,7 @@ class EndringPersongrunnlag(
         endringPersongrunnlagListe: MutableList<Persongrunnlag>,
         eksisterendePersongrunnlag: Persongrunnlag,
         spec: SimuleringSpec,
-        beregningInfo: BeregningsInformasjon?,
+        epsPaavirker: Boolean,
         foersteUttakDato: LocalDate?,
         grunnbeloep: Int
     ) {
@@ -150,7 +149,7 @@ class EndringPersongrunnlag(
                 endringPersongrunnlagForEps(
                     eksisterendePersongrunnlag,
                     spec,
-                    beregningInfo,
+                    epsPaavirker,
                     foersteUttakDato,
                     grunnbeloep
                 )
@@ -161,14 +160,14 @@ class EndringPersongrunnlag(
     private fun endringPersongrunnlagForEps(
         eksisterendeEps: Persongrunnlag,
         spec: SimuleringSpec,
-        beregningInfo: BeregningsInformasjon?,
+        epsPaavirker: Boolean,
         foersteUttakDato: LocalDate?,
         grunnbeloep: Int
     ): Persongrunnlag =
         relevantPersongrunnlag(eksisterendeEps).also {
             if (spec.type == SimuleringType.ENDR_ALDER_M_GJEN) {
                 convertEpsToAvdoed(it, spec.avdoed!!) // assuming non-null avdoed
-            } else if (shouldAddInntektsgrunnlagForEps(beregningInfo)) {
+            } else if (epsPaavirker) {
                 addInntektsgrunnlagForEps(it, foersteUttakDato, grunnbeloep)
             }
         }
@@ -227,10 +226,6 @@ class EndringPersongrunnlag(
                     GrunnlagsrolleEnum.SAMBO
                 )
             } == true
-
-        // SimulerEndringAvAPCommandHelper.shouldAddInntektgrunnlagForEPS
-        private fun shouldAddInntektsgrunnlagForEps(info: BeregningsInformasjon?) =
-            info?.let { it.epsOver2G || it.epsMottarPensjon } == true
 
         // SimulerEndringAvAPCommandHelper.addInntektgrunnlagForEPS
         private fun addInntektsgrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {

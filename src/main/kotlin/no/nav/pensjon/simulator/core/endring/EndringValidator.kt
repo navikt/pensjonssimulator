@@ -9,7 +9,10 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayOfMonth
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 
-// Corresponds to SimulerEndringAvAPCommand (validation part) in PEN
+/**
+ * Validates the request (specification) for 'simuler endring av alderspensjon'.
+ * Corresponds to SimulerEndringAvAPCommand (validation part) in PEN
+ */
 object EndringValidator {
 
     // SimulerEndringAvAPCommand.validateRequest
@@ -57,22 +60,18 @@ object EndringValidator {
 
     // SimulerEndringAvAPCommand.validateRequestBasedOnLopendeYtelser
     fun validateRequestBasedOnLoependeYtelser(spec: SimuleringSpec, forrigeAlderspensjon: AbstraktBeregningsResultat?) {
-        if (spec.type == SimuleringType.ENDR_ALDER_M_GJEN && !hasAlderspensjonWithGjenlevenderett(forrigeAlderspensjon)) {
+        if (spec.type == SimuleringType.ENDR_ALDER_M_GJEN && !harAlderspensjonMedGjenlevenderett(forrigeAlderspensjon)) {
             validateBasedOnLoependeYtelser(spec)
         }
     }
 
     // SimulerEndringAvAPCommand.hasApWithGjenlevenderett
-    private fun hasAlderspensjonWithGjenlevenderett(forrigeAlderspensjon: AbstraktBeregningsResultat?): Boolean {
-        if (forrigeAlderspensjon is BeregningsResultatAlderspensjon2011) {
-            return forrigeAlderspensjon.hentBeregningsinformasjon()?.rettPaGjenlevenderett == true
+    private fun harAlderspensjonMedGjenlevenderett(resultat: AbstraktBeregningsResultat?): Boolean {
+        return when (resultat) {
+            is BeregningsResultatAlderspensjon2011 -> resultat.harGjenlevenderett
+            is BeregningsResultatAlderspensjon2016 -> resultat.beregningsResultat2011?.beregningsInformasjonKapittel19?.rettPaGjenlevenderett == true
+            else -> false
         }
-
-        if (forrigeAlderspensjon is BeregningsResultatAlderspensjon2016) {
-            return forrigeAlderspensjon.beregningsResultat2011?.beregningsInformasjonKapittel19?.rettPaGjenlevenderett == true
-        }
-
-        return false
     }
 
     // SimulerEndringAvAPCommandHelper.validateRequestBasedOnLopendeYtelser
@@ -80,7 +79,7 @@ object EndringValidator {
         val simuleringType = spec.type
 
         if (spec.avdoed?.pid == null) {
-            throw InvalidArgumentException("avdod.pid must be set for SimuleringType $simuleringType!")
+            throw InvalidArgumentException("avdoed.pid must be set for SimuleringType $simuleringType")
         }
 
         /* Not relevant at this stage, but may be relevant closer to the API

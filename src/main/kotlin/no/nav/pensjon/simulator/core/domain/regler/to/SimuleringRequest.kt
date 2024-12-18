@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
+import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import java.util.*
 
 class SimuleringRequest() : ServiceRequest() {
@@ -19,7 +20,7 @@ class SimuleringRequest() : ServiceRequest() {
         beregnInstitusjonsopphold: Boolean
     ) : this() {
         this.simulering = simulering
-        this.fom = fom
+        this.fom = fom?.noon()
         this.ektefelleMottarPensjon = ektefelleMottarPensjon
         this.beregnForsorgingstillegg = beregnForsorgingstillegg
         this.beregnInstitusjonsopphold = beregnInstitusjonsopphold

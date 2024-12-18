@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.to
 
 import java.io.Serializable
 
+//TODO remove ServiceRequest
 abstract class ServiceRequest : Serializable {
 
     /**

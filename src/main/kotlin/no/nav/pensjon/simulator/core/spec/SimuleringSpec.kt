@@ -18,7 +18,7 @@ data class SimuleringSpec(
     val sivilstatus: SivilstatusType,
     var epsHarPensjon: Boolean,
     val foersteUttakDato: LocalDate?,
-    var heltUttakDato: LocalDate?, // NB var
+    val heltUttakDato: LocalDate?,
     val pid: Pid?, // null for forenklet simulering
     val foedselDato: LocalDate?, // null for forenklet simulering
     val avdoed: Avdoed?,
@@ -40,7 +40,7 @@ data class SimuleringSpec(
     val rettTilOffentligAfpFom: LocalDate?,
     val afpOrdning: AfpOrdningType? = null, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
     val afpInntektMaanedFoerUttak: Int? = null, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
-    var erAnonym: Boolean,
+    val erAnonym: Boolean,
     val isHentPensjonsbeholdninger: Boolean = false,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean = false
 ) {
@@ -95,7 +95,7 @@ data class SimuleringSpec(
 
     fun withUttak(
         foersteUttakDato: LocalDate?,
-        uttakGrad: UttakGradKode,
+        uttaksgrad: UttakGradKode,
         heltUttakDato: LocalDate?,
         inntektEtterHeltUttakAntallAar: Int?
     ) =
@@ -110,7 +110,7 @@ data class SimuleringSpec(
             avdoed,
             isTpOrigSimulering,
             simulerForTp,
-            uttakGrad = uttakGrad,
+            uttakGrad = uttaksgrad,
             forventetInntektBeloep,
             inntektUnderGradertUttakBeloep,
             inntektEtterHeltUttakBeloep,
@@ -130,6 +130,9 @@ data class SimuleringSpec(
             isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
         )
+
+    fun withHeltUttakDato(dato: LocalDate?) =
+        withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
 
     fun gjelderPre2025OffentligAfp() =
         type == SimuleringType.AFP_ETTERF_ALDER

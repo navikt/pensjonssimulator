@@ -26,6 +26,7 @@ import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.normalder.NormAlderService
@@ -37,7 +38,7 @@ import java.util.*
 
 // Corresponds to SimulerAFPogAPCommand (beregning part)
 @Component
-class Pre2025OffentligAfpBeregning(
+class Pre2025OffentligAfpBeregner(
     private val context: SimulatorContext,
     private val normAlderService: NormAlderService,
     private val sakService: SakService
@@ -49,7 +50,7 @@ class Pre2025OffentligAfpBeregning(
 
     // SimulerAFPogAPCommand.beregnAfpOffentlig
     //@Throws(PEN222BeregningstjenesteFeiletException::class)
-    fun beregnAfpOffentlig(
+    fun beregnAfp(
         spec: SimuleringSpec,
         kravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
@@ -65,13 +66,10 @@ class Pre2025OffentligAfpBeregning(
         )
 
         epsGrunnlag?.let {
-            addEpsInnteksgrunnlag(
+            addEpsInntektGrunnlag(
+                eps = eps(spec, kravhode.regelverkTypeEnum, forrigeAlderspensjonBeregningResultat),
                 inntektGrunnlagListe = it.inntektsgrunnlagListe,
-                spec,
-                beregningInfo = beregningInfoFraForrigeAlderspensjonBeregningResultat(
-                    kravhode,
-                    forrigeAlderspensjonBeregningResultat
-                ),
+                foersteUttakDato = spec.foersteUttakDato,
                 grunnbeloep
             )
         }
@@ -277,9 +275,10 @@ class Pre2025OffentligAfpBeregning(
         for (persongrunnlag in simulering.persongrunnlagListe) {
             val vedtak = VilkarsVedtak().apply {
                 vilkarsvedtakResultat = innvilgetResultat
-                virkFom = virkningFom(simulering.uttaksdato)
+                virkFom = virkningFom(simulering.uttaksdato).noon()
                 virkTom = null
                 gjelderPerson = persongrunnlag.penPerson
+                penPerson = persongrunnlag.penPerson // ref. PEN: VilkarsVedtakToReglerMapper.mapVilkarsVedtak
             }
 
             val grunnbeloep = fetchGrunnbeloep(vedtak.virkFom.toLocalDate()!!) // TODO reuse for each persongrunnlag?
@@ -376,54 +375,43 @@ class Pre2025OffentligAfpBeregning(
                 afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toDate()
-                virkTom =
-                    persongrunnlag.penPerson?.fodselsdato?.let{ DateUtil.firstDayOfMonthAfterUserTurnsGivenAge(it, AFP_VIRKNING_TOM_ALDER_AAR)}
+                virkTom = persongrunnlag.penPerson?.fodselsdato?.let {
+                    DateUtil.firstDayOfMonthAfterUserTurnsGivenAge(it, AFP_VIRKNING_TOM_ALDER_AAR)
+                }
             })
         }
 
         // Extracted from SimulerAFPogAPCommand.beregnAfpOffentlig
-        private fun addEpsInnteksgrunnlag(
+        private fun addEpsInntektGrunnlag(
+            eps: Eps,
             inntektGrunnlagListe: MutableList<Inntektsgrunnlag>,
-            spec: SimuleringSpec,
-            beregningInfo: BeregningsInformasjon?,
+            foersteUttakDato: LocalDate?,
             grunnbeloep: Int
         ) {
             removeInntektsgrunnlagForventetArbeidsinntekt(inntektGrunnlagListe)
 
-            if (epsMottarPensjon(spec, beregningInfo)) {
+            // SimulerAFPogAPCommand.isEpsMottarPensjon
+            if (eps.harPensjon) {
                 inntektGrunnlagListe.add(
                     inntektsgrunnlag(
-                        fom = spec.foersteUttakDato?.toDate(),
+                        fom = foersteUttakDato?.toDate(),
                         type = InntekttypeEnum.PENF, // Pensjonsinntekt fra folketrygden
                         beloep = 1
                     )
                 )
             }
 
-            if (epsHarInntektOver2G(spec, beregningInfo)) {
+            // SimulerAFPogAPCommand.isEpsInntektOver2g
+            if (eps.harInntektOver2G) {
                 inntektGrunnlagListe.add(
                     inntektsgrunnlag(
-                        fom = spec.foersteUttakDato?.toDate(),
+                        fom = foersteUttakDato?.toDate(),
                         type = InntekttypeEnum.FPI, // Forventet pensjongivende inntekt
                         beloep = 3 * grunnbeloep
                     )
                 )
             }
         }
-
-        // SimulerAFPogAPCommand.isEpsInntektOver2g
-        private fun epsHarInntektOver2G(
-            spec: SimuleringSpec,
-            forrigeBeregning: BeregningsInformasjon?
-        ): Boolean =
-            spec.epsHarInntektOver2G || (forrigeBeregning?.epsOver2G ?: false)
-
-        // SimulerAFPogAPCommand.isEpsMottarPensjon
-        private fun epsMottarPensjon(
-            spec: SimuleringSpec,
-            forrigeBeregning: BeregningsInformasjon?
-        ): Boolean =
-            spec.epsHarPensjon || (forrigeBeregning?.epsMottarPensjon ?: false)
 
         // EktefelleMottarPensjonDecider.isEktefelleMottarPensjon
         private fun epsMottarPensjon(persongrunnlagListe: List<Persongrunnlag>): Boolean {
@@ -540,8 +528,8 @@ class Pre2025OffentligAfpBeregning(
             // Add the vilkårsvedtak to the simulation:
             kravlinjeType?.let {
                 vedtak.kravlinje = Kravlinje().apply {
-                    kravlinjeType = it
-                    relatertPerson = persongrunnlag.penPerson
+                    this.kravlinjeType = it
+                    this.relatertPerson = persongrunnlag.penPerson
                 }
                 vedtak.kravlinjeType = it
                 vedtak.forsteVirk = virkningFom
@@ -553,7 +541,7 @@ class Pre2025OffentligAfpBeregning(
         private fun simulering(spec: SimuleringSpec, persongrunnlagListe: MutableList<Persongrunnlag>) =
             Simulering().apply {
                 simuleringType = SimuleringTypeCti(SimuleringTypeEnum.AFP.name) // getAfpSimuleringsType
-                uttaksdato = spec.foersteUttakDato?.toDate()
+                uttaksdato = spec.foersteUttakDato?.toDate()?.noon()
                 afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
                 this.persongrunnlagListe = persongrunnlagListe
             }
@@ -639,12 +627,12 @@ class Pre2025OffentligAfpBeregning(
 
         // SimulerAFPogAPCommand.findBeregningsInformasjonFromForrigeBerresAp
         private fun beregningInfoFraForrigeAlderspensjonBeregningResultat(
-            krav: Kravhode,
+            regelverkType: RegelverkTypeEnum?,
             beregningResultat: AbstraktBeregningsResultat?
         ): BeregningsInformasjon? {
             if (beregningResultat == null) return null
 
-            return when (krav.regelverkTypeEnum) {
+            return when (regelverkType) {
                 RegelverkTypeEnum.N_REG_G_OPPTJ ->
                     (beregningResultat as BeregningsResultatAlderspensjon2011).beregningsInformasjonKapittel19
 
@@ -654,6 +642,29 @@ class Pre2025OffentligAfpBeregning(
                 else ->
                     (beregningResultat as BeregningsResultatAlderspensjon2025).beregningsInformasjonKapittel20
             }
+        }
+
+        // Extra
+        private fun eps(regelverkType: RegelverkTypeEnum?, beregningResultat: AbstraktBeregningsResultat?): Eps? =
+            beregningInfoFraForrigeAlderspensjonBeregningResultat(regelverkType, beregningResultat)?.let {
+                Eps(harInntektOver2G = it.epsOver2G, harPensjon = it.epsMottarPensjon)
+            }
+
+        // Extra
+        private fun eps(
+            spec: SimuleringSpec,
+            regelverkType: RegelverkTypeEnum?,
+            beregningResultat: AbstraktBeregningsResultat?
+        ): Eps {
+            if (spec.epsHarInntektOver2G && spec.epsHarPensjon)
+                return Eps(harInntektOver2G = true, harPensjon = true)
+
+            val eps: Eps? = eps(regelverkType, beregningResultat)
+
+            return Eps(
+                harInntektOver2G = spec.epsHarInntektOver2G || eps?.harInntektOver2G == true,
+                harPensjon = spec.epsHarPensjon || eps?.harPensjon == true
+            )
         }
 
         // SimulerAFPogAPCommand.removeInntektsgrunnlagForventetArbeidsinntektFromList
@@ -701,5 +712,10 @@ class Pre2025OffentligAfpBeregning(
                 kode = type.name,
                 hovedKravlinje = type.erHovedkravlinje
             )
+
+        private data class Eps(
+            val harInntektOver2G: Boolean,
+            val harPensjon: Boolean
+        )
     }
 }

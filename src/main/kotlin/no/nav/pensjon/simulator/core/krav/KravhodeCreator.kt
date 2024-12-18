@@ -40,6 +40,7 @@ import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.result.OpptjeningType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
+import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
@@ -120,12 +121,17 @@ class KravhodeCreator(
 
         kravhode.uttaksgradListe =
             when {
-                gjelderPre2025OffentligAfp -> pre2025OffentligAfpUttaksgradListe(
+                gjelderPre2025OffentligAfp -> pre2025OffentligAfpUttaksgrad.uttaksgradListe(
                     spec,
-                    forrigeAlderspensjonBeregningResultat
+                    forrigeAlderspensjonBeregningResultat,
+                    foedselsdato = foedselsdato(person, spec) // NB: More robust than in PEN (which only uses spec.pid)
                 )
 
-                gjelderEndring -> endringUttaksgradListe(spec, forrigeAlderspensjonBeregningResultat)
+                gjelderEndring -> endringUttakGrad.uttakGradListe(
+                    spec,
+                    forrigeAlderspensjonKravhodeId = forrigeAlderspensjonBeregningResultat?.kravId
+                )
+
                 else -> alderspensjonUttakGradListe(spec)
             }
 
@@ -588,18 +594,6 @@ class KravhodeCreator(
         }
     }
 
-    private fun pre2025OffentligAfpUttaksgradListe(
-        spec: SimuleringSpec,
-        forrigeResultat: AbstraktBeregningsResultat?
-    ): MutableList<Uttaksgrad> =
-        pre2025OffentligAfpUttaksgrad.uttaksgradListe(spec, forrigeResultat, foedselsdato(spec))
-
-    private fun endringUttaksgradListe(
-        spec: SimuleringSpec,
-        forrigeResultat: AbstraktBeregningsResultat?
-    ): MutableList<Uttaksgrad> =
-        endringUttakGrad.uttakGradListe(spec, forrigeResultat?.kravId)
-
     private companion object {
         private const val MAX_ALDER = 80
         private const val MAX_OPPTJENING_ALDER = 75
@@ -618,7 +612,7 @@ class KravhodeCreator(
         // OpprettKravHodeHelper.finnUttaksgradListe
         // -> SimulerFleksibelAPCommand.finnUttaksgradListe
         private fun alderspensjonUttakGradListe(spec: SimuleringSpec): MutableList<Uttaksgrad> {
-            val uttakGradListe = mutableListOf(angittUttakGrad(spec))
+            val uttakGradListe = mutableListOf(angittUttaksgrad(spec))
 
             if (erGradertUttak(spec)) {
                 uttakGradListe.add(uttaksgradForHeltUttak(spec.heltUttakDato))
@@ -628,14 +622,14 @@ class KravhodeCreator(
         }
 
         // SimulerFleksibelAPCommand.createUttaksgradChosenByUser
-        private fun angittUttakGrad(spec: SimuleringSpec) =
+        private fun angittUttaksgrad(spec: SimuleringSpec) =
             Uttaksgrad().apply {
                 fomDato = fromLocalDate(spec.foersteUttakDato)
                 uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (erGradertUttak(spec)) {
-                    val dayBeforeHeltUttak = getRelativeDateByDays(spec.heltUttakDato, -1)
-                    tomDato = fromLocalDate(dayBeforeHeltUttak)
+                    val dayBeforeHeltUttak: LocalDate = getRelativeDateByDays(spec.heltUttakDato, -1)
+                    tomDato = dayBeforeHeltUttak.toDate()
                 }
             }.also { it.finishInit() }
 
@@ -884,8 +878,8 @@ class KravhodeCreator(
         private fun doesNotHaveFremtidigInntektBeforeFom(spec: SimuleringSpec, fom: LocalDate) =
             spec.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }
 
-        private fun foedselsdato(spec: SimuleringSpec): LocalDate =
-            spec.foedselDato ?: foersteDag(spec.foedselAar)
+        private fun foedselsdato(person: PenPerson?, spec: SimuleringSpec): LocalDate =
+            person?.fodselsdato.toLocalDate() ?: spec.foedselDato ?: foersteDag(spec.foedselAar)
 
         private fun harUtenlandsopphold(antallAarUtenlands: Int?, trygdetidPeriodeListe: List<TTPeriode>) =
             if (antallAarUtenlands == null)

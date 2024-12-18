@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
@@ -97,7 +96,8 @@ class Pre2025OffentligAfpPersongrunnlag(
         }
 
         epsGrunnlag?.let {
-            if (shouldAddEpsInntektGrunnlag(forrigeAlderspensjonBeregningResultat.hentBeregningsinformasjon())) {
+            // SimulerAFPogAPCommand.shouldAddInntektgrunnlagForEPS
+            if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregning) {
                 retainPersondetaljerHavingVirksomRolle(it)
                 it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
                 addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato, grunnbeloep, persongrunnlag = it)
@@ -207,13 +207,6 @@ class Pre2025OffentligAfpPersongrunnlag(
                 //registerKilde = null <--- not used by pensjon-regler
                 tom = null // is set to noon in property
             }
-
-        // SimulerAFPogAPCommand.shouldAddInntektgrunnlagForEPS
-        private fun shouldAddEpsInntektGrunnlag(beregningInformasjon: BeregningsInformasjon?): Boolean {
-            val epsHarInntektOver2G: Boolean = beregningInformasjon?.epsOver2G ?: false
-            val epsMottarPensjon: Boolean = beregningInformasjon?.epsMottarPensjon ?: false
-            return epsHarInntektOver2G || epsMottarPensjon
-        }
 
         // SimulerAFPogAPCommandHelper.removeInvalidPersondetaljFromPersongrunnlag
         private fun retainPersondetaljerHavingVirksomRolle(persongrunnlag: Persongrunnlag) {

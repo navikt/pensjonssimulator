@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.intellij.lang.annotations.Language
 import org.mockito.Mockito.mock
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
@@ -49,10 +48,12 @@ class PenYtelseClientTest : FunSpec({
             AutoConfigurations.of(WebClientAutoConfiguration::class.java)
         )
 
+        val text: String = this::class.java.getResource("/pen-loepende-ytelser.json")?.readText(Charsets.UTF_8)!!
+
         server?.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setResponseCode(HttpStatus.OK.value()).setBody(PenPersonVirkningDatoResponse.BODY)
+                .setResponseCode(HttpStatus.OK.value()).setBody(text)
         )
 
         contextRunner.run {
@@ -65,29 +66,8 @@ class PenYtelseClientTest : FunSpec({
                 client.fetchLoependeYtelser(LoependeYtelserSpec(pid, LocalDate.MIN, null, null, null, null))
 
             with(result) {
-                alderspensjon.sokerVirkningFom shouldBe LocalDate.of(2020, 2, 1)
+                alderspensjon?.sokerVirkningFom shouldBe LocalDate.of(2022, 12, 1)
             }
         }
     }
 })
-
-object PenPersonVirkningDatoResponse {
-
-    // NB: In PEN response: "sokerVirkningFom": "2020-02-01T00:00:00+0100" (i.e. midnight)
-    // Using this value causes tests run on GitHub to fail, due to Finnish timezone
-    // (2020-02-01T00:00:00+0100 becomes 2020-01-31:23:00:00 Finnish time)
-    @Language("json")
-    const val BODY = """{
-    "alderspensjon": {
-        "sokerVirkningFom": "2020-02-01T12:00:00+0100",
-        "avdodVirkningFom": null,
-        "sisteBeregning": null,
-        "forrigeBeregningsresultat": null,
-        "forrigeVilkarsvedtakListe": []
-    },
-    "afpPrivat": {
-        "virkningFom": null,
-        "forrigeBeregningsresultat": null
-    }
-}"""
-}

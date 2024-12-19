@@ -452,6 +452,8 @@ class KravhodeCreator(
         }
     }
 
+    // PEN: AbstraktSimulerAPFra2011Command.oppdaterOpptjeningsgrunnlagFraInntektListe
+    // -> OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
     private fun oppdaterOpptjeningsgrunnlagFraInntekter(
         inntektListe: List<Inntekt>,
         opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
@@ -477,12 +479,11 @@ class KravhodeCreator(
         return opptjeningsgrunnlagListToReturn
     }
 
-    // OpprettKravHodeHelper.finnListeOverInntektPerArFraDagensDato
-    // NB: fodselsdato is undefined if anonym simulering
+    // PEN: OpprettKravHodeHelper.finnListeOverInntektPerArFraDagensDato
     private fun aarligeInntekterFraDagensDato(
         spec: SimuleringSpec,
         grunnbeloep: Int,
-        foedselsdato: Date?
+        foedselsdato: Date? // null if anonym
     ): MutableList<Inntekt> {
         var veietGrunnbeloepListe: List<VeietSatsResultat> = emptyList()
         val innevaerendeAar = LocalDate.now().year

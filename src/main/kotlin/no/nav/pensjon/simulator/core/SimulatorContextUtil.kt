@@ -1,0 +1,155 @@
+package no.nav.pensjon.simulator.core
+
+import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpLivsvarig
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
+import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2011Request
+import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2016Request
+import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2025Request
+import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
+import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
+import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toDate
+import java.math.RoundingMode
+import java.time.LocalDate
+import java.util.*
+
+object SimulatorContextUtil {
+
+    private val log = KotlinLogging.logger {}
+
+    fun finishOpptjeningInit(beholdningListe: ArrayList<Pensjonsbeholdning>) {
+        beholdningListe.forEach {
+            it.opptjening?.finishInit()
+        }
+    }
+
+    // SimuleringEtter2011Context.updateBeholdningerWithFomAndTomDate
+    fun tidsbegrensedeBeholdninger(beholdningListe: MutableList<Pensjonsbeholdning>): MutableList<Pensjonsbeholdning> {
+        beholdningListe.forEach {
+            it.fom = createDate(it.ar, Calendar.JANUARY, 1)
+            it.tom = createDate(it.ar, Calendar.DECEMBER, 31)
+        }
+
+        return beholdningListe
+    }
+
+    // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2011Request
+    fun preprocess(spec: VilkarsprovAlderpensjon2011Request) {
+        spec.fom = spec.fom?.noon()
+        spec.tom = spec.tom?.noon()
+        spec.afpVirkFom = spec.afpVirkFom?.noon()
+        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
+        spec.afpLivsvarig?.let(::roundNettoPerAar)
+    }
+
+    // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2016Request
+    fun preprocess(spec: VilkarsprovAlderpensjon2016Request) {
+        spec.virkFom = spec.virkFom?.noon()
+        spec.afpVirkFom = spec.afpVirkFom?.noon()
+        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.finishInit() }
+        spec.afpLivsvarig?.let(::roundNettoPerAar)
+    }
+
+    // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2025Request
+    fun preprocess(spec: VilkarsprovAlderpensjon2025Request) {
+        spec.fom = spec.fom?.noon()
+        spec.afpVirkFom = spec.afpVirkFom?.noon()
+        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
+        spec.afpLivsvarig?.let(::roundNettoPerAar)
+    }
+
+    fun postprocess(result: BeregningsResultatAfpPrivat) {
+        result.virkTom = null
+        result.afpPrivatBeregning?.afpLivsvarig?.let(::roundNettoPerAar)
+    }
+
+    fun validerOgFerdigstillResponse(result: TrygdetidResponse, kravGjelderUfoeretrygd: Boolean) {
+        validerResponse(result.pakkseddel)
+
+        if (kravGjelderUfoeretrygd) {
+            result.trygdetid?.apply {
+                virkFom = null
+                virkTom = null
+            }
+        }
+    }
+
+    fun personOpptjeningsgrunnlag(opptjeningGrunnlag: Opptjeningsgrunnlag, foedselsdato: LocalDate?) =
+        PersonOpptjeningsgrunnlag().apply {
+            opptjening = opptjeningGrunnlag
+            fodselsdato = foedselsdato?.toDate()
+        }
+
+    // PEN: SimulatorContext.updatePersonOpptjeningsFieldFromPregResponse
+    fun updatePersonOpptjeningsFieldFromReglerResponse(
+        reglerInput: List<PersonOpptjeningsgrunnlag>,
+        reglerOutput: List<PersonOpptjeningsgrunnlag>
+    ) {
+        val map: MutableMap<String, Opptjeningsgrunnlag> = HashMap()
+
+        for (inputGrunnlag in reglerInput) {
+            inputGrunnlag.opptjening?.let { map[pidOgOpptjeningAar(inputGrunnlag)] = it }
+        }
+
+        for (outputGrunnlag in reglerOutput) {
+            outputGrunnlag.opptjening?.let {
+                copyUpdatedData(
+                    source = it,
+                    target = map[pidOgOpptjeningAar(outputGrunnlag)]!!
+                )
+            }
+        }
+    }
+
+    // RegelHelper.validateResponse
+    fun validerResponse(pakkseddel: Pakkseddel) {
+        val kontrollTjenesteOk = pakkseddel.kontrollTjenesteOk
+        val annenTjenesteOk = pakkseddel.annenTjenesteOk
+        if (kontrollTjenesteOk && annenTjenesteOk) return
+
+        val message = pakkseddel.merknaderAsString()
+
+        if (kontrollTjenesteOk) {
+            log.error { "regler validering andre merknader - $message" }
+            throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
+        } else {
+            log.error { "regler validering kontroll merknader - $message" }
+            throw BeregningsmotorValidereException(message, pakkseddel.merknadListe)
+        }
+    }
+
+    /**
+     * PEN's nettoPerAr is integer, whereas regler's is double;
+     * therefore need to round when calling regler from PEN.
+     */
+    private fun roundNettoPerAar(afp: AfpLivsvarig) {
+        afp.nettoPerAr = afp.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
+    }
+
+    private fun copyUpdatedData(source: Opptjeningsgrunnlag, target: Opptjeningsgrunnlag) {
+        target.pp = source.pp
+        target.pi = source.pi
+        target.pia = source.pia
+        target.ar = source.ar
+        target.opptjeningType = source.opptjeningType
+        target.bruk = source.bruk
+        target.grunnlagKilde = source.grunnlagKilde
+    }
+
+    /**
+     * Format: "pid:år"
+     */
+    private fun pidOgOpptjeningAar(grunnlag: PersonOpptjeningsgrunnlag): String {
+        val key = StringBuilder()
+        grunnlag.fnr?.let { key.append(it) }
+        key.append(":").append(grunnlag.opptjening?.ar)
+        return key.toString()
+    }
+}

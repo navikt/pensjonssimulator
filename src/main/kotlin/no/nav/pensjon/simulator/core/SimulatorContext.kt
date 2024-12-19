@@ -1,6 +1,13 @@
 package no.nav.pensjon.simulator.core
 
-import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.finishOpptjeningInit
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.personOpptjeningsgrunnlag
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.postprocess
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.preprocess
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.tidsbegrensedeBeholdninger
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.updatePersonOpptjeningsFieldFromReglerResponse
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.validerOgFerdigstillResponse
+import no.nav.pensjon.simulator.core.SimulatorContextUtil.validerResponse
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
@@ -9,24 +16,18 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import org.springframework.stereotype.Component
-import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
 
 @Component
-class SimulatorContext(
-    private val regelService: GenericRegelClient
-) : RegelClient {
+class SimulatorContext(private val regelService: GenericRegelClient) : RegelClient {
 
-    // BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
+    // PEN: BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2011FoersteUttak(
         spec: BeregnAlderspensjon2011ForsteUttakRequest,
         sakId: Long?
@@ -48,7 +49,7 @@ class SimulatorContext(
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2011ForsteUttak")
     }
 
-    // BeregnAlderspensjon2016ForsteUttakConsumerCommand.execute
+    // PEN: BeregnAlderspensjon2016ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2016FoersteUttak(
         spec: BeregnAlderspensjon2016ForsteUttakRequest,
         sakId: Long?
@@ -70,7 +71,7 @@ class SimulatorContext(
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2016ForsteUttak")
     }
 
-    // BeregnAlderspensjon2025ForsteUttakConsumerCommand.execute
+    // PEN: BeregnAlderspensjon2025ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2025FoersteUttak(
         spec: BeregnAlderspensjon2025ForsteUttakRequest,
         sakId: Long?
@@ -94,15 +95,16 @@ class SimulatorContext(
 
     override fun beregnPoengtallBatch(
         opptjeningGrunnlagListe: MutableList<Opptjeningsgrunnlag>,
-        foedselDato: LocalDate?
+        foedselsdato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag> {
-        val personOpptjeningsgrunnlagList = opptjeningGrunnlagListe.map { personOpptjeningsgrunnlag(it, foedselDato) }
+        val personOpptjeningsgrunnlagList = opptjeningGrunnlagListe.map { personOpptjeningsgrunnlag(it, foedselsdato) }
         // this call updates all opptjeningsgrunnlag - no need to return them, because the caller has the opptjeningsgrunnlag reference.
         beregnPoengtallBatch(personOpptjeningsgrunnlagList)
         // ..but in order to adhere to the service design: TODO
         return opptjeningGrunnlagListe
     }
 
+    // PEN: SimulatorContext.beregnPoengtallBatch
     private fun beregnPoengtallBatch(inputList: List<PersonOpptjeningsgrunnlag>): List<PersonOpptjeningsgrunnlag> {
         val response: BeregnPoengtallBatchResponse = regelService.makeRegelCall(
             request = BeregnPoengtallBatchRequest().apply {
@@ -170,7 +172,7 @@ class SimulatorContext(
         return response.revurdertBeregningsResultat!!
     }
 
-    // SimulerPensjonsberegningConsumerCommand.execute for AFP (pre-2025 offentlig AFP)
+    // PEN: SimulerPensjonsberegningConsumerCommand.execute for AFP (pre-2025 offentlig AFP)
     override fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
         val response: SimuleringResponse =
             regelService.makeRegelCall(
@@ -185,23 +187,23 @@ class SimulatorContext(
         return response.simuleringsResultat ?: throw RuntimeException("Simuleringsresultat is null")
     }
 
-    // SimulerVilkarsprovAfpConsumerCommand.execute (pre-2025 offentlig AFP)
+    // PEN: SimulerVilkarsprovAfpConsumerCommand.execute (pre-2025 offentlig AFP)
     override fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
         val response: SimuleringResponse =
             regelService.makeRegelCall(
-            request = spec,
-            responseClass = SimuleringResponse::class.java,
-            serviceName = "simulerVilkarsprovAFP",
-            map = null,
-            sakId = null
-        )
+                request = spec,
+                responseClass = SimuleringResponse::class.java,
+                serviceName = "simulerVilkarsprovAFP",
+                map = null,
+                sakId = null
+            )
 
         validerResponse(response.pakkseddel)
         return response.simuleringsResultat ?: throw RuntimeException("Simuleringsresultat is null")
     }
 
 
-    // VilkarsprovAlderspensjonOver67ConsumerCommand.execute
+    // PEN: VilkarsprovAlderspensjonOver67ConsumerCommand.execute
     override fun vilkaarsproevUbetingetAlderspensjon(
         spec: VilkarsprovRequest,
         sakId: Long?
@@ -219,7 +221,7 @@ class SimulatorContext(
         return response.vedtaksliste
     }
 
-    // VilkarsprovAlderspensjon2011ConsumerCommand.execute
+    // PEN: VilkarsprovAlderspensjon2011ConsumerCommand.execute
     override fun vilkaarsproevAlderspensjon2011(
         spec: VilkarsprovAlderpensjon2011Request,
         sakId: Long?
@@ -238,7 +240,7 @@ class SimulatorContext(
         return response.vedtaksliste
     }
 
-    // VilkarsprovAlderspensjon2016ConsumerCommand.execute
+    // PEN: VilkarsprovAlderspensjon2016ConsumerCommand.execute
     override fun vilkaarsproevAlderspensjon2016(
         spec: VilkarsprovAlderpensjon2016Request,
         sakId: Long?
@@ -257,7 +259,7 @@ class SimulatorContext(
         return response.vedtaksliste
     }
 
-    // VilkarsprovAlderspensjon2025ConsumerCommand.execute
+    // PEN: VilkarsprovAlderspensjon2025ConsumerCommand.execute
     override fun vilkaarsproevAlderspensjon2025(
         spec: VilkarsprovAlderpensjon2025Request,
         sakId: Long?
@@ -276,7 +278,7 @@ class SimulatorContext(
         return response.vedtaksliste
     }
 
-    // BeregnAFPpaslagPrivatConsumerCommand.execute
+    // PEN: BeregnAFPpaslagPrivatConsumerCommand.execute
     //@Throws(PEN165KanIkkeBeregnesException::class, PEN166BeregningsmotorValidereException::class)
     override fun beregnPrivatAfp(spec: BeregnAfpPrivatRequest, sakId: Long?): BeregningsResultatAfpPrivat {
         val response: BeregnAfpPrivatResponse = regelService.makeRegelCall(
@@ -292,7 +294,7 @@ class SimulatorContext(
         return response.beregningsResultatAfpPrivat!!
     }
 
-    // FastsettTrygdetidConsumerCommand.execute
+    // PEN: FastsettTrygdetidConsumerCommand.execute
     override fun refreshFastsettTrygdetid(
         spec: TrygdetidRequest,
         kravIsUfoeretrygd: Boolean,
@@ -310,7 +312,7 @@ class SimulatorContext(
         return response
     }
 
-    // DefaultBeregningConsumerService.beregnOpptjening -> BeregnOpptjeningConsumerCommand.execute
+    // PEN: DefaultBeregningConsumerService.beregnOpptjening -> BeregnOpptjeningConsumerCommand.execute
     // NB: No sakId in legacy code
     override fun beregnOpptjening(
         beholdningTom: LocalDate?,
@@ -340,7 +342,7 @@ class SimulatorContext(
         return tidsbegrensedeBeholdninger(response.beholdninger)
     }
 
-    // no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
+    // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
     override fun fetchGrunnbeloepListe(localDate: LocalDate): SatsResponse {
         val date: Date = fromLocalDate(localDate)!!.noon()
 
@@ -356,7 +358,7 @@ class SimulatorContext(
         )
     }
 
-    // HentGyldigSatsConsumerCommand.execute
+    // PEN: HentGyldigSatsConsumerCommand.execute
     override fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse =
         regelService.makeRegelCall(
             request = request,
@@ -366,7 +368,7 @@ class SimulatorContext(
             sakId = null
         )
 
-    // RegulerPensjonsbeholdningConsumerCommand.execute
+    // PEN: RegulerPensjonsbeholdningConsumerCommand.execute
     override fun regulerPensjonsbeholdning(request: RegulerPensjonsbeholdningRequest): RegulerPensjonsbeholdningResponse {
         val response: RegulerPensjonsbeholdningResponse =
             regelService.makeRegelCall(
@@ -383,132 +385,5 @@ class SimulatorContext(
     private fun setRollePeriode(detalj: PersonDetalj) {
         detalj.virkFom?.let { detalj.rolleFomDato = it.noon() }
         detalj.virkTom?.let { detalj.rolleTomDato = it.noon() }
-    }
-
-    private companion object {
-        private fun finishOpptjeningInit(beholdninger: ArrayList<Pensjonsbeholdning>) {
-            beholdninger.forEach {
-                it.opptjening?.finishInit()
-            }
-        }
-
-        // SimuleringEtter2011Context.updateBeholdningerWithFomAndTomDate
-        private fun tidsbegrensedeBeholdninger(pensjonsbeholdninger: MutableList<Pensjonsbeholdning>): MutableList<Pensjonsbeholdning> {
-            pensjonsbeholdninger.forEach {
-                it.fom = createDate(it.ar, Calendar.JANUARY, 1)
-                it.tom = createDate(it.ar, Calendar.DECEMBER, 31)
-            }
-
-            return pensjonsbeholdninger
-        }
-
-        //TODO Verify same preprocessing as for AP2025
-        private fun preprocess(request: VilkarsprovAlderpensjon2011Request) {
-            request.fom = request.fom?.noon()
-            request.kravhode!!.uttaksgradListe.forEach { it.fomDato = it.fomDato?.noon() }
-
-            request.afpLivsvarig?.let {
-                it.nettoPerAr = it.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
-            }
-        }
-
-        //TODO Verify same preprocessing as for AP2025
-        private fun preprocess(request: VilkarsprovAlderpensjon2016Request) {
-            request.virkFom = request.virkFom?.noon()
-            request.kravhode!!.uttaksgradListe.forEach { it.fomDato = it.fomDato?.noon() }
-
-            request.afpLivsvarig?.let {
-                it.nettoPerAr = it.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
-            }
-        }
-
-        private fun preprocess(request: VilkarsprovAlderpensjon2025Request) {
-            request.fom = request.fom?.noon()
-            request.kravhode!!.uttaksgradListe.forEach { it.fomDato = it.fomDato?.noon() }
-
-            request.afpLivsvarig?.let {
-                it.nettoPerAr = it.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
-            }
-        }
-
-        private fun postprocess(resultat: BeregningsResultatAfpPrivat) {
-            resultat.virkTom = null
-
-            resultat.afpPrivatBeregning?.afpLivsvarig?.let {
-                it.nettoPerAr = it.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
-            }
-        }
-
-        private fun validerOgFerdigstillResponse(response: TrygdetidResponse, kravIsUforetrygd: Boolean) {
-            validerResponse(response.pakkseddel)
-
-            if (kravIsUforetrygd) {
-                response.trygdetid?.apply {
-                    virkFom = null
-                    virkTom = null
-                }
-            }
-        }
-
-        // RegelHelper.validateResponse
-        private fun validerResponse(pakkseddel: Pakkseddel) {
-            val kontrollTjenesteOk = pakkseddel.kontrollTjenesteOk
-            val annenTjenesteOk = pakkseddel.annenTjenesteOk
-            if (kontrollTjenesteOk && annenTjenesteOk) return
-
-            val message = pakkseddel.merknaderAsString()
-
-            if (kontrollTjenesteOk) {
-                throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
-            } else {
-                throw BeregningsmotorValidereException(message, pakkseddel.merknadListe)
-            }
-        }
-
-        private fun personOpptjeningsgrunnlag(opptjeningGrunnlag: Opptjeningsgrunnlag, foedselDato: LocalDate?) =
-            PersonOpptjeningsgrunnlag().apply {
-                this.opptjening = opptjeningGrunnlag
-                this.fodselsdato = fromLocalDate(foedselDato)
-            }
-
-        private fun updatePersonOpptjeningsFieldFromReglerResponse(
-            originalList: List<PersonOpptjeningsgrunnlag>,
-            regelResponseList: List<PersonOpptjeningsgrunnlag>
-        ) {
-            val map: MutableMap<String, Opptjeningsgrunnlag> = HashMap()
-
-            for (requestPersonOpptjeningsgrunnlag in originalList) {
-                val key = getKey(requestPersonOpptjeningsgrunnlag)
-                map[key] = requestPersonOpptjeningsgrunnlag.opptjening!!
-            }
-
-            for (regelOpptjeningsGrunnlag in regelResponseList) {
-                copyUpdatedData(regelOpptjeningsGrunnlag.opptjening!!, map[getKey(regelOpptjeningsGrunnlag)]!!)
-            }
-        }
-
-        private fun copyUpdatedData(source: Opptjeningsgrunnlag, target: Opptjeningsgrunnlag) {
-            target.pp = source.pp
-            target.pi = source.pi
-            target.pia = source.pia
-            target.ar = source.ar
-            target.opptjeningType = source.opptjeningType
-            target.bruk = source.bruk
-            target.grunnlagKilde = source.grunnlagKilde
-        }
-
-        /**
-         * Format: "pid:år"
-         */
-        private fun getKey(grunnlag: PersonOpptjeningsgrunnlag): String {
-            val key = StringBuilder()
-
-            if (grunnlag.fnr != null) {
-                key.append(grunnlag.fnr)
-            }
-
-            key.append(":").append(grunnlag.opptjening!!.ar)
-            return key.toString()
-        }
     }
 }

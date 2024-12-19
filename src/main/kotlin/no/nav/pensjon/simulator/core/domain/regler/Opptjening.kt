@@ -33,43 +33,48 @@ class Opptjening(
     // SIMDOM-ADD
     @JsonIgnore var rawPoengtall: Poengtall? = null
 
+    /**
+     * Ref. PEN: CommonToPen.mapOpptjeningToPen (poengtall part)
+     */
     fun finishInit() {
         rawPoengtall = poengtall
         poengtall = rawPoengtall?.let(::simplePoengtall)
     }
 
+    /**
+     * Ref. PEN: CommonToPen.mapOpptjeningToPen (poengtall part)
+     * There only these poengtall values are mapped:
+     * - veietGrunnbelop = Opptjening.poengtall.gv
+     * - uforeOpptjening.uforear = Opptjening.poengtall.uforear
+     * Therefore only the 'gv' and 'uforear' values from regler are kept.
+     */
     private fun simplePoengtall(source: Poengtall) =
         Poengtall().apply {
             gv = source.gv
             uforear = source.uforear
         }
 
-    constructor(o: Opptjening) : this() {
-        this.ar = o.ar
-        this.opptjeningsgrunnlag = o.opptjeningsgrunnlag
-        this.anvendtOpptjeningsgrunnlag = o.anvendtOpptjeningsgrunnlag
-        this.arligOpptjening = o.arligOpptjening
-        if (o.lonnsvekstInformasjon != null) {
-            this.lonnsvekstInformasjon = LonnsvekstInformasjon(o.lonnsvekstInformasjon!!)
-        }
-        if (o.poengtall != null) {
-            this.poengtall = Poengtall(o.poengtall!!)
-        }
-        this.pSatsOpptjening = o.pSatsOpptjening
-        this.inntektUtenDagpenger = o.inntektUtenDagpenger
-        if (o.uforeOpptjening != null) {
-            this.uforeOpptjening = Uforeopptjening(o.uforeOpptjening!!)
-        }
-        this.dagpenger = o.dagpenger
-        this.dagpengerFiskerOgFangstmenn = o.dagpengerFiskerOgFangstmenn
-        this.omsorg = o.omsorg
-        this.forstegangstjeneste = o.forstegangstjeneste
-        this.arligOpptjeningOmsorg = o.arligOpptjeningOmsorg
-        this.arligOpptjeningUtenOmsorg = o.arligOpptjeningUtenOmsorg
-        this.antFgtMnd = o.antFgtMnd
-        this.samletDagpenger = o.samletDagpenger
-        this.samletUtbetalteDagpenger = o.samletUtbetalteDagpenger
-        this.samletFerietillegg = o.samletFerietillegg
-        this.samletBarnetillegg = o.samletBarnetillegg
+    constructor(source: Opptjening) : this() {
+        ar = source.ar
+        opptjeningsgrunnlag = source.opptjeningsgrunnlag
+        anvendtOpptjeningsgrunnlag = source.anvendtOpptjeningsgrunnlag
+        arligOpptjening = source.arligOpptjening
+        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
+        poengtall = source.poengtall?.let(::Poengtall)
+        rawPoengtall = source.rawPoengtall?.let(::Poengtall)
+        pSatsOpptjening = source.pSatsOpptjening
+        inntektUtenDagpenger = source.inntektUtenDagpenger
+        uforeOpptjening = source.uforeOpptjening?.let(::Uforeopptjening)
+        dagpenger = source.dagpenger
+        dagpengerFiskerOgFangstmenn = source.dagpengerFiskerOgFangstmenn
+        omsorg = source.omsorg
+        forstegangstjeneste = source.forstegangstjeneste
+        arligOpptjeningOmsorg = source.arligOpptjeningOmsorg
+        arligOpptjeningUtenOmsorg = source.arligOpptjeningUtenOmsorg
+        antFgtMnd = source.antFgtMnd
+        samletDagpenger = source.samletDagpenger
+        samletUtbetalteDagpenger = source.samletUtbetalteDagpenger
+        samletFerietillegg = source.samletFerietillegg
+        samletBarnetillegg = source.samletBarnetillegg
     }
 }

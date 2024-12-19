@@ -14,6 +14,10 @@ class Uttaksgrad(
     @JsonIgnore var rawFomDato: Date? = null
     @JsonIgnore var rawTomDato: Date? = null
 
+    /**
+     * Backs up original "raw" date values before setting their time part to noon.
+     * (Ref. PEN: CommonToReglerMapper.mapUttaksgradToRegler)
+     */
     fun finishInit() {
         rawFomDato = fomDato
         rawTomDato = tomDato

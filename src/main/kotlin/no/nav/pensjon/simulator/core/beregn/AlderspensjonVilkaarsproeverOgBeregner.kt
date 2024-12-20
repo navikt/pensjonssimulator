@@ -1175,8 +1175,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
 private fun BeregningsResultatAfpPrivat.hentLivsvarigDelIBruk() =
     pensjonUnderUtbetaling?.ytelseskomponenter?.firstOrNull {
-        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG && it is AfpLivsvarig
+        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG && it is AfpLivsvarig
     } as AfpLivsvarig?
 
 private fun Beholdninger.findBeholdningAvType(type: BeholdningType) =
-    beholdninger.filter { type.name == it.beholdningsType!!.kode }.firstOrNull()
+    beholdninger.firstOrNull { type.name == it.beholdningsType?.kode }

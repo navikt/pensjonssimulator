@@ -31,7 +31,12 @@ object PenGenerelleDataResultMapper {
         )
 
     private fun privatAfpSatser(source: PenPrivatAfpSatser) =
-        PrivatAfpSatser(ft = source.forholdstall?.let(::forholdstall))
+        PrivatAfpSatser(
+            forholdstall = source.forholdstall ?: 0.0,
+            kompensasjonstilleggForholdstall = source.kompensasjonstilleggForholdstall ?: 0.0,
+            justeringsbeloep = source.justeringsbeloep?.toInt() ?: 0,
+            referansebeloep = source.referansebeloep?.toInt() ?: 0
+        )
 
     private fun delingstallUtvalg(source: PenDelingstallUtvalg) =
         DelingstallUtvalg(

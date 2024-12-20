@@ -19,13 +19,14 @@ data class PenPersonData(
     val statsborgerskap: String?
 )
 
+/**
+ * PEN: SimulatorPrivatAfpSatser (based on no.nav.service.pensjon.fpen.HentSatserAFPPrivatResponse)
+ */
 data class PenPrivatAfpSatser(
-    val forholdstall: PenAarskullTall? = null,
-    /* TODO:
-    val justeringsbelop: Justeringsbelop? = null,
-    val ftKomp: ForholdstallKompensasjonstillegg? = null,
-    val referansebelop: Referansebelop? = null
-    */
+    val forholdstall: Double? = null,
+    val kompensasjonstilleggForholdstall: Double? = null,
+    val justeringsbeloep: Long? = null,
+    val referansebeloep: Long? = null
 )
 
 data class PenAarskullTall(

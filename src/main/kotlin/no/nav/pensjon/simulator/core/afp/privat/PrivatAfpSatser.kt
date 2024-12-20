@@ -1,13 +1,11 @@
 package no.nav.pensjon.simulator.core.afp.privat
 
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Forholdstall
-
-// no.nav.service.pensjon.fpen.HentSatserAFPPrivatResponse
+/**
+ * PEN: no.nav.service.pensjon.fpen.HentSatserAFPPrivatResponse
+ */
 data class PrivatAfpSatser(
-    val ft: Forholdstall? = null,
-    /* TODO:
-    val justeringsbelop: Justeringsbelop? = null,
-    val ftKomp: ForholdstallKompensasjonstillegg? = null,
-    val referansebelop: Referansebelop? = null
-    */
+    val forholdstall: Double = 0.0,
+    val kompensasjonstilleggForholdstall: Double = 0.0,
+    val justeringsbeloep: Int = 0,
+    val referansebeloep: Int = 0
 )

@@ -24,7 +24,15 @@ data class TpoAlderspensjonV3(
 
 // SimulertAfpPrivatperiodeV3 in PEN
 data class TpoPrivatAfpPeriodeV3(
-    val afpOpptjening: Int? = null
+    val afpOpptjening: Int? = null,
+    val alderAar: Int? = null, // Brukers alder i perioden
+    val aarligBeloep: Int? = null, // Beregnet årlig AFP
+    val maanedligBeloep: Int? = null, // Beregnet månedlig AFP
+    val livsvarig: Int? = null, // Den livsvarige delen av privat AFP for perioden
+    val kronetillegg: Int? = null, // Kronetillegget i perioden
+    val kompensasjonstillegg: Int? = null, // Beregnet kompensasjonstillegg i perioden
+    val afpForholdstall: Double? = null, // Forholdstall brukt i beregningen av AFP
+    val justeringBeloep: Int? = null // Ev. justeringsbeløp brukt i beregningen av AFP
 )
 
 // PensjonsperiodeV3 in PEN
@@ -79,11 +87,11 @@ data class TpoBeregningInformasjonV3(
     // Simuleringsdata:
     val pa_f92: Int? = null,
     val pa_e91: Int? = null,
-    val spt: Int? = null,
+    val spt: Double? = null,
     val tt_anv_kap19: Int? = null,
-    val basisgp: Int? = null,
-    val basistp: Int? = null,
-    val basispt: Int? = null,
+    val basisgp: Double? = null,
+    val basistp: Double? = null,
+    val basispt: Double? = null,
     val forholdstall: Double? = null,
     val delingstall: Double? = null,
     val ufg: Int? = null

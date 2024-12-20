@@ -70,17 +70,17 @@ class PrivatAfpBeregner(
         val afpKravlinje = newKravlinje(soekerGrunnlag.penPerson!!)
         afpKravhode.kravlinjeListe = mutableListOf(afpKravlinje)
         afpKravhode.afpOrdningEnum = AFPtypeEnum.LONHO // any value will do
-        val satser: PrivatAfpSatser =
-            generelleDataHolder.getPrivatAfpSatser(foersteVirkning, soekerGrunnlag.fodselsdato?.toLocalDate()!!)
-        val afpBeholdningDato = calculateAfpBeholdningDato(simuleringSpec, soekerGrunnlag.fodselsdato.toLocalDate()!!)
+        val foedselsdato = soekerGrunnlag.fodselsdato.toLocalDate()!!
+        val satser: PrivatAfpSatser = generelleDataHolder.getPrivatAfpSatser(foersteVirkning, foedselsdato)
+        val afpBeholdningDato = calculateAfpBeholdningDato(simuleringSpec, foedselsdato)
         soekerGrunnlag.replaceBeholdninger(context.beregnOpptjening(afpBeholdningDato, soekerGrunnlag))
-        val earliestKnekkpunktDato = knekkpunktDatoer.first()
+        val tidligsteKnekkpunktDato = knekkpunktDatoer.first()
 
         val afpVedtak = newInnvilgetVedtak(
             soeker = soekerGrunnlag.penPerson!!,
             kravlinje = afpKravlinje,
             foersteVirkningFom = foersteVirkning,
-            virkningFom = earliestKnekkpunktDato
+            virkningFom = tidligsteKnekkpunktDato
         )
 
         // Call BEF3704 beregnAfpPrivat for each knekkpunkt
@@ -94,7 +94,7 @@ class PrivatAfpBeregner(
             afpSpec.sakId
         )
         val gjeldendeAfpBeregningsresultat =
-            regdomBeregningsresultatAfpPrivat(forrigeBeregningResultat, earliestKnekkpunktDato)
+            regdomBeregningsresultatAfpPrivat(forrigeBeregningResultat, tidligsteKnekkpunktDato)
         return PrivatAfpResult(afpBeregningsresultater, gjeldendeAfpBeregningsresultat)
     }
 
@@ -150,10 +150,10 @@ class PrivatAfpBeregner(
             kravhode = afpKravhode
             vilkarsvedtakListe = arrayListOf(afpVedtak)
             virkFom = fromLocalDate(knekkpunktDato)
-            ft = satser.ft?.forholdstall ?: 0.0
-            justeringsbelop = 0 //TODO satser.justeringsbelop?.justeringsbelop?.toInt() ?: 0
-            referansebelop = 0 //TODO satser.referansebelop?.referansebelop?.toInt() ?: 0
-            ftKompensasjonstillegg = 0.0 //TODO satser.ftKomp?.forholdstall ?: 0.0
+            ft = satser.forholdstall
+            justeringsbelop = satser.justeringsbeloep
+            referansebelop = satser.referansebeloep
+            ftKompensasjonstillegg = satser.kompensasjonstilleggForholdstall
             sisteAfpPrivatBeregning = forrigeAfpBeregningResultat
             virkFomAfpPrivatUttak = fromLocalDate(afpFoersteVirkning)
         }
@@ -241,10 +241,11 @@ class PrivatAfpBeregner(
             Kravhode().apply {
                 sakType = SakType.AFP_PRIVAT
                 regelverkTypeEnum = kravhode.regelverkTypeEnum
-                persongrunnlagListe.add(Persongrunnlag(
-                    source = kravhode.hentPersongrunnlagForSoker(),
-                    excludeForsteVirkningsdatoGrunnlag = true
-                ).also { it.finishInit() })
+                persongrunnlagListe.add(
+                    Persongrunnlag(
+                        source = kravhode.hentPersongrunnlagForSoker(),
+                        excludeForsteVirkningsdatoGrunnlag = true
+                    ).also { it.finishInit() })
             }
 
         private fun newInnvilgetVedtak(

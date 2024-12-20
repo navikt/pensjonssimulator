@@ -24,6 +24,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
 import no.nav.pensjon.simulator.core.exception.BrukerFoedtFoer1943Exception
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
@@ -49,7 +50,6 @@ import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
 import org.springframework.stereotype.Component
-import java.math.BigInteger
 import java.time.LocalDate
 import java.util.*
 import java.util.stream.IntStream
@@ -634,26 +634,6 @@ class KravhodeCreator(
                 }
             }.also { it.finishInit() }
 
-        // OpprettKravHodeHelper.createArliginntekt
-        private fun aarligInntekt(aarligInntektListe: List<FremtidigInntekt>): BigInteger {
-            val iterator = aarligInntektListe.listIterator()
-            if (!iterator.hasNext()) return BigInteger.ZERO
-
-            var inntekt = iterator.next()
-            var nextInntekt: FremtidigInntekt
-            var aarligInntekt = BigInteger.ZERO
-
-            while (iterator.hasNext()) {
-                nextInntekt = iterator.next()
-                val periodeAntallManeder = nextInntekt.fom.monthValue - inntekt.fom.monthValue
-                aarligInntekt = aarligInntekt.add(periodevisInntekt(inntekt, periodeAntallManeder))
-                inntekt = nextInntekt
-            }
-
-            val sistePeriodeAntallMaaneder = MAANEDER_PER_AAR - inntekt.fom.monthValue
-            return aarligInntekt.add(periodevisInntekt(inntekt, sistePeriodeAntallMaaneder))
-        }
-
         private fun addFremtidigInntektVedStartAvHvertAar(
             sortertInntektListe: MutableList<FremtidigInntekt>,
             sisteOpptjeningAar: Int
@@ -833,7 +813,7 @@ class KravhodeCreator(
             Inntektsgrunnlag().apply {
                 fom = fromLocalDate(foersteDag(aar))
                 tom = fromLocalDate(sisteDag(aar))
-                belop = aarligInntekt(aaretsInntektListe).toInt()
+                belop = faktiskAarligInntekt(aaretsInntektListe).toInt()
                 bruk = true
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
                 inntektType = InntektTypeCti(InntektType.FPI.name)
@@ -869,12 +849,6 @@ class KravhodeCreator(
                 fomDato = fromLocalDate(fom)
                 uttaksgrad = MAX_UTTAKSGRAD
             }
-
-        // Extracted from OpprettKravHodeHelper.createArliginntekt
-        private fun periodevisInntekt(inntekt: FremtidigInntekt, periodOfMonths: Int) =
-            BigInteger.valueOf(inntekt.aarligInntektBeloep.toLong())
-                .multiply(BigInteger.valueOf(periodOfMonths.toLong()))
-                .divide(BigInteger.valueOf(MAANEDER_PER_AAR.toLong()))
 
         private fun doesNotHaveFremtidigInntektBeforeFom(spec: SimuleringSpec, fom: LocalDate) =
             spec.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }

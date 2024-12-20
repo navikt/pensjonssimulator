@@ -1,5 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+/**
+ * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/YtelseskomponentTypeEnum.kt
+ */
 enum class YtelseskomponentTypeEnum {
     GP,
     PT,
@@ -22,6 +25,7 @@ enum class YtelseskomponentTypeEnum {
     MENDEL,
     DIFF_BER,
     SEG,
+    AFP_LIVSVARIG,
     AFP_PRIVAT_LIVSVARIG,
     AFP_OFFENTLIG_LIVSVARIG,
     AFP_KRONETILLEGG,

@@ -14,14 +14,11 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPP
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonBeregnerResult
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
-import no.nav.pensjon.simulator.core.domain.Land
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
-import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.endring.EndringValidator
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
@@ -46,7 +43,7 @@ import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
-import no.nav.pensjon.simulator.ytelse.*
+import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.lang.System.currentTimeMillis
@@ -99,7 +96,7 @@ class SimulatorCore(
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
         val person: PenPerson? = initialSpec.pid?.let(personService::person)
         val foedselsdato: LocalDate? = person?.fodselsdato?.toLocalDate()
-        val ytelser: LoependeYtelser = fetchLoependeYtelser(initialSpec)
+        val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 
         val spec: SimuleringSpec =
             if (initialSpec.gjelderPre2025OffentligAfp())
@@ -265,85 +262,6 @@ class SimulatorCore(
             }
     }
 
-    private fun fetchLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
-        if (spec.gjelderPre2025OffentligAfp()) {
-            // SimulerAFPogAPCommand
-            val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
-                LoependeYtelserSpec(
-                    pid = spec.pid!!,
-                    foersteUttakDato = spec.foersteUttakDato!!,
-                    avdoed = spec.avdoed,
-                    alderspensjonFlags = null,
-                    endringAlderspensjonFlags = null,
-                    pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
-                        gjelderFpp = spec.type == SimuleringType.AFP_FPP,
-                        sivilstatusUdefinert = false //TODO check if this can happen: spec.sivilstatus == null
-                    )
-                )
-            )
-
-            return LoependeYtelser(
-                soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
-                avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-                privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
-                sisteBeregning = ytelser.alderspensjon.sisteBeregning,
-                forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
-                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
-                forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
-            )
-        }
-
-        if (spec.gjelderEndring()) {
-            // SimulerEndringAvAPCommand
-            val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
-                LoependeYtelserSpec(
-                    pid = spec.pid!!,
-                    foersteUttakDato = spec.foersteUttakDato!!,
-                    avdoed = spec.avdoed,
-                    alderspensjonFlags = null,
-                    endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(
-                        inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT
-                    ),
-                    pre2025OffentligAfpYtelserFlags = null
-                )
-            )
-
-            return LoependeYtelser(
-                soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
-                avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-                privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
-                sisteBeregning = ytelser.alderspensjon.sisteBeregning,
-                forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
-                forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
-                forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
-            )
-        }
-
-        // SimulerFleksibelAPCommand
-        val ytelser: LoependeYtelserResult = ytelseService.getLoependeYtelser(
-            LoependeYtelserSpec(
-                pid = spec.pid,
-                foersteUttakDato = spec.foersteUttakDato!!,
-                avdoed = spec.avdoed,
-                alderspensjonFlags = AlderspensjonYtelserFlags(
-                    inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT
-                ),
-                endringAlderspensjonFlags = null,
-                pre2025OffentligAfpYtelserFlags = null
-            )
-        )
-
-        return LoependeYtelser(
-            soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
-            avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
-            privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
-            sisteBeregning = null,
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            forrigeVedtakListe = mutableListOf() //TODO use value in ytelser?
-        )
-    }
-
     //TODO change according to PEN fix in PEK-782
     private fun beregnLivsvarigOffentligAfp(
         pid: Pid,
@@ -445,9 +363,5 @@ class SimulatorCore(
                 aarligBeloep,
                 fom = dato.withMonth(1).withDayOfMonth(1)
             )
-
-        // AbstraktSimulerAPFra2011Command.filterVilkarsVedtakListOnNOR
-        private fun norskeVedtak(vedtakListe: List<VilkarsVedtak>): MutableList<VilkarsVedtak> =
-            vedtakListe.filter { Land.NOR == it.kravlinje?.land }.toMutableList()
     }
 }

@@ -2,8 +2,13 @@ package no.nav.pensjon.simulator.core
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAP
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAPKap19
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
@@ -47,6 +52,7 @@ object SimulatorContextUtil {
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
         spec.afpLivsvarig?.let(::roundNettoPerAar)
+        spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2016Request
@@ -55,6 +61,7 @@ object SimulatorContextUtil {
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.finishInit() }
         spec.afpLivsvarig?.let(::roundNettoPerAar)
+        spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2025Request
@@ -63,6 +70,7 @@ object SimulatorContextUtil {
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
         spec.afpLivsvarig?.let(::roundNettoPerAar)
+        spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     fun postprocess(result: BeregningsResultatAfpPrivat) {
@@ -125,12 +133,25 @@ object SimulatorContextUtil {
         }
     }
 
+    private fun preprocess(pensjon: PensjonUnderUtbetaling) {
+        pensjon.ytelseskomponenter.forEach {
+            (it as? Tilleggspensjon)?.let { it.formelMap = HashMap() }
+            (it as? GjenlevendetilleggAP)?.let { it.formelMap = HashMap() }
+            (it as? GjenlevendetilleggAPKap19)?.let { it.formelMap = HashMap() }
+            roundNettoPerAar(it)
+        }
+    }
+
     /**
      * PEN's nettoPerAr is integer, whereas regler's is double;
      * therefore need to round when calling regler from PEN.
      */
     private fun roundNettoPerAar(afp: AfpLivsvarig) {
         afp.nettoPerAr = afp.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
+    }
+
+    private fun roundNettoPerAar(ytelse: Ytelseskomponent) {
+        ytelse.nettoPerAr = ytelse.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
     }
 
     private fun copyUpdatedData(source: Opptjeningsgrunnlag, target: Opptjeningsgrunnlag) {

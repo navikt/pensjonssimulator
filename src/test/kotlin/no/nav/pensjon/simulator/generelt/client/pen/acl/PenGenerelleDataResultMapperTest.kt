@@ -2,13 +2,9 @@ package no.nav.pensjon.simulator.generelt.client.pen.acl
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
-import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
-import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Delingstall
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Forholdstall
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.Person
@@ -45,7 +41,12 @@ class PenGenerelleDataResultMapperTest : FunSpec({
                         foedselDato = LocalDate.of(1964, 5, 6),
                         statsborgerskap = LandkodeEnum.ABW
                     ),
-                    privatAfpSatser = PrivatAfpSatser(ft = null),
+                    privatAfpSatser = PrivatAfpSatser(
+                        forholdstall = 0.0,
+                        kompensasjonstilleggForholdstall = 0.0,
+                        justeringsbeloep = 0,
+                        referansebeloep = 0
+                    ),
                     delingstallUtvalg = DelingstallUtvalg().apply {
                         dt = 1.2
                         dt67soker = 0.0 // not mapped, so not 3.4

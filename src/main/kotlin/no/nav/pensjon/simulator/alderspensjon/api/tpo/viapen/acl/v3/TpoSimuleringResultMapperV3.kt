@@ -28,7 +28,18 @@ object TpoSimuleringResultMapperV3 {
         )
 
     private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
-        TpoPrivatAfpPeriodeV3(afpOpptjening = source.afpOpptjening)
+        TpoPrivatAfpPeriodeV3(
+            afpOpptjening = source.afpOpptjening,
+            // The remaining values are strictly not returned to TPO, but included for comparison purposes:
+            alderAar = source.alderAar,
+            aarligBeloep = source.aarligBeloep,
+            maanedligBeloep = source.maanedligBeloep,
+            livsvarig = source.livsvarig,
+            kronetillegg = source.kronetillegg,
+            kompensasjonstillegg = source.kompensasjonstillegg,
+            afpForholdstall = source.afpForholdstall,
+            justeringBeloep = source.justeringBeloep
+        )
 
     private fun pensjonPeriode(source: PensjonPeriode) =
         TpoPensjonPeriodeV3(
@@ -70,11 +81,11 @@ object TpoSimuleringResultMapperV3 {
             // Simuleringsdata:
             pa_f92 = source.pa_f92,
             pa_e91 = source.pa_e91,
-            spt = source.spt?.toInt(),
+            spt = source.spt,
             tt_anv_kap19 = source.tt_anv_kap19,
-            basisgp = source.basisGrunnpensjon?.toInt(),
-            basistp = source.basisTilleggspensjon?.toInt(),
-            basispt = source.basisPensjonstillegg?.toInt(),
+            basisgp = source.basisGrunnpensjon,
+            basistp = source.basisTilleggspensjon,
+            basispt = source.basisPensjonstillegg,
             forholdstall = source.forholdstall,
             delingstall = source.delingstall,
             ufg = source.ufoereGrad

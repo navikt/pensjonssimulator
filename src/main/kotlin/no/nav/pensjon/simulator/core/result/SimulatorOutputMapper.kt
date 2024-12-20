@@ -45,7 +45,7 @@ object SimulatorOutputMapper {
     ): SimulertPrivatAfpPeriode {
         val privatAfpUnderUtbetaling = resultat.pensjonUnderUtbetaling
         val ytelseKomponentListe = privatAfpUnderUtbetaling?.ytelseskomponenter.orEmpty()
-        val privatAfp = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG) as AfpLivsvarig // privat AFP er livsvarig
+        val privatAfp = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_LIVSVARIG) as AfpLivsvarig // privat AFP er livsvarig
         val afpKronetillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KRONETILLEGG)
         val afpKompensasjonstillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KOMP_TILLEGG)
 

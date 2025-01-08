@@ -107,7 +107,7 @@ class KravhodeCreator(
 
         // NB: Next line requires avdød persongrunnlag to be fetched above
         val avdoedGrunnlag: Persongrunnlag? =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
+            kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
         kravhode.boddArbeidUtlandAvdod =
             avdoedGrunnlag?.let {
@@ -186,7 +186,7 @@ class KravhodeCreator(
             )
 
         val avdoedGrunnlag: Persongrunnlag? = kravhode.hentPersongrunnlagForRolle(
-            grunnlagsrolle = GrunnlagsrolleEnum.AVDOD,
+            rolle = GrunnlagsrolleEnum.AVDOD,
             checkBruk = false
         )
 
@@ -368,7 +368,7 @@ class KravhodeCreator(
         if (brukFremtidigInntekt) {
             val gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
             val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselAar(person, spec)
-            val fom = foersteDag(gjeldendeAar)
+            val fom: LocalDate = foersteDag(gjeldendeAar)
 
             val inntektsgrunnlagList =
                 ArrayList(fjernForventetArbeidsinntektFraInntektGrunnlag(persongrunnlag.inntektsgrunnlagListe))
@@ -704,7 +704,7 @@ class KravhodeCreator(
         }
 
         private fun fjernForventetArbeidsinntektFraInntektGrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
-            grunnlagListe.filter { it.bruk && it.inntektType!!.kode != InntektType.FPI.name }
+            grunnlagListe.filter { it.bruk == true && InntektType.FPI.name != it.inntektType?.kode }
 
         private fun opprettInntektGrunnlagForSoeker(
             spec: SimuleringSpec,
@@ -745,7 +745,7 @@ class KravhodeCreator(
             }
 
             inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
-                it.bruk && !isForventetPensjongivendeInntekt(it)
+                it.bruk == true && !isForventetPensjongivendeInntekt(it)
             })
 
             return inntektsgrunnlagListe

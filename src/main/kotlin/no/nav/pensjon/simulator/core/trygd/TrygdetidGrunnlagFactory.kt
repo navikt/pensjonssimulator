@@ -25,7 +25,7 @@ object TrygdetidGrunnlagFactory {
         ).also { it.finishInit() }
 
     // SettTrygdetidHelper.createTrygdetidsgrunnlagNorge + TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
-    fun trygdetidPeriode(fom: Date, tom: Date?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean) =
+    fun trygdetidPeriode(fom: Date, tom: Date?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean?) =
         TTPeriode(
             fom = fom,
             tom = tom,

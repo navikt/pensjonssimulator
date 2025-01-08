@@ -36,7 +36,7 @@ class TTPeriode(
     /**
      * Angir om trygdetidsperioden brukes somm grunnlag på kravet.
      */
-    var bruk: Boolean = true,
+    var bruk: Boolean? = null, // SIMDOM-EDIT true -> null, since nullable in Trygdetidsgrunnlag in PEN
     var grunnlagKilde: GrunnlagKildeCti? = null
 ) : Comparable<TTPeriode>, Serializable {
 

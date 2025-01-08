@@ -69,7 +69,7 @@ class Inntektsgrunnlag : Serializable {
     /**
      * Angir om inntektsgrunnlaget brukes som grunnlag på kravet.
      */
-    var bruk: Boolean = true
+    var bruk: Boolean? = null // SIMDOM-EDIT true -> null, since nullable in Inntektsgrunnlag in PEN
 
     /**
      * Kilden til inntektsgrunnlaget.

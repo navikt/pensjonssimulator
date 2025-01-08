@@ -23,6 +23,7 @@ import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -615,15 +616,13 @@ class Pre2025OffentligAfpBeregner(
         private fun minsteTrygdetidMerknad() = Merknad().apply { kode = MINSTE_TRYGDETID }
 
         // SimulerAFPogAPCommandHelper.copyPersongrunnlagList
-        private fun copy(persongrunnlagListe: List<Persongrunnlag>): MutableList<Persongrunnlag> {
-            val copy: MutableList<Persongrunnlag> = mutableListOf()
-
-            persongrunnlagListe.forEach {
-                copy.add(Persongrunnlag(source = it, excludeForsteVirkningsdatoGrunnlag = true))
-            }
-
-            return copy
-        }
+        private fun copy(persongrunnlagListe: List<Persongrunnlag>): MutableList<Persongrunnlag> =
+            persongrunnlagListe.map {
+                Persongrunnlag(
+                    source = it,
+                    excludeForsteVirkningsdatoGrunnlag = true
+                )
+            }.toMutableList()
 
         // SimulerAFPogAPCommand.findBeregningsInformasjonFromForrigeBerresAp
         private fun beregningInfoFraForrigeAlderspensjonBeregningResultat(

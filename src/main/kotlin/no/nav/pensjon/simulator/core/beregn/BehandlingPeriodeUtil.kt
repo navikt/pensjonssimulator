@@ -43,10 +43,11 @@ object BehandlingPeriodeUtil {
 
             // Trygdetid should always be copied (and sent to preg) since this is the only way that preg can tell us exactly
             // which trygdetid that has been used by them.
-            val newPersongrunnlag = Persongrunnlag(originalPersongrunnlag).apply {
-                gjelderOmsorg = false
-                gjelderUforetrygd = true
-            }.also { it.finishInit() }
+            val newPersongrunnlag =
+                Persongrunnlag(originalPersongrunnlag).apply {
+                    gjelderOmsorg = false
+                    gjelderUforetrygd = true
+                }.also { it.finishInit() }
 
             originalPersongrunnlag.overgangsInfoUPtilUT?.let { newPersongrunnlag.overgangsInfoUPtilUT = it }
             newPersongrunnlag.personDetaljListe.removeIf { it.virkFom == null }
@@ -61,7 +62,7 @@ object BehandlingPeriodeUtil {
                     detaljVirkningTom = null
                 }
 
-                if (detalj.bruk
+                if (detalj.bruk == true
                     && (detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.MOR
                             || detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.FAR
                             || dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
@@ -76,7 +77,20 @@ object BehandlingPeriodeUtil {
 
             // Persongrunnlag - include only if there is a PersonDetalj attached that is in use for this period.
             if (usePersongrunnlag) {
-                newPersongrunnlag.trygdetidPerioder.removeIf { !it.bruk }
+                /* TODO: Include when regler supports omstillingsstønad:
+                // Kopier relevant omstillingsstønadgrunnlag:
+                if (originalPersongrunnlag.is3_2Samboer()) {
+                    originalPersongrunnlag.omstillingsstonadGrunnlagList.forEach {
+                        if (dateIsValid(it.getFomDato(), it.getTomDato(), virkDatoFom, virkDatoTom)) {
+                            newPersongrunnlag.addOmstillingsstonadGrunnlag(it.copy())
+                        }
+                    }
+                }
+                */
+
+                // NB: trygdetidperioder removed also if bruk = null:
+                newPersongrunnlag.trygdetidPerioder.removeIf { it.bruk != true }
+                newPersongrunnlag.trygdetidPerioderKapittel20.removeIf { it.bruk != true }
                 newPersongrunnlag.opptjeningsgrunnlagListe.removeIf { !it.bruk }
 
                 newPersongrunnlag.inntektsgrunnlagListe.removeIf(
@@ -88,35 +102,29 @@ object BehandlingPeriodeUtil {
                     ).negate()
                 )
 
-                if (newPersongrunnlag.uforegrunnlag != null && !newPersongrunnlag.uforegrunnlag!!.bruk) {
+                if (newPersongrunnlag.uforegrunnlag?.bruk == false) {
                     newPersongrunnlag.deleteUforegrunnlag()
                 }
 
-                if (newPersongrunnlag.yrkesskadegrunnlag != null && !newPersongrunnlag.yrkesskadegrunnlag!!.bruk) {
+                if (newPersongrunnlag.yrkesskadegrunnlag?.bruk == false) {
                     newPersongrunnlag.deleteYrkesskadegrunnlag()
                 }
 
                 val dateValidator = DateValidator(fromLocalDate(virkningFom), fromLocalDate(virkningTom))
                 newPersongrunnlag.utenlandsoppholdListe.removeIf { !dateValidator.areValid(it.fom!!, it.tom) }
+
                 newPersongrunnlag.instOpphFasteUtgifterperiodeListe.removeIf {
-                    !dateValidator.areValid(
-                        it.fom!!,
-                        it.tom
-                    )
+                    !dateValidator.areValid(it.fom!!, it.tom)
                 }
+
                 newPersongrunnlag.barnetilleggVurderingsperioder.removeIf {
-                    !dateValidator.areValid(
-                        it.fomDato!!,
-                        it.tomDato
-                    )
+                    !dateValidator.areValid(it.fomDato!!, it.tomDato)
                 }
 
                 newPersongrunnlag.beholdninger
                     .removeIf {
-                        BeholdningType.PEN_B.name == it.beholdningsType!!.kode && !dateValidator.areValid(
-                            it.fom!!,
-                            it.tom
-                        )
+                        it.beholdningsType?.kode == BeholdningType.PEN_B.name &&
+                                !dateValidator.areValid(it.fom!!, it.tom)
                     }
 
                 /* NB Tjenestepensjonsgrunnlag ikke brukt?
@@ -132,6 +140,7 @@ object BehandlingPeriodeUtil {
         val kravhode = copyKravhodeExceptPersongrunnlag(originalKravhode, persongrunnlagList).also {
             it.persongrunnlagListe.addAll(persongrunnlagList)
         }
+
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
         return kravhode
     }
@@ -329,7 +338,7 @@ object BehandlingPeriodeUtil {
         virkningTom: LocalDate?,
         periodiserFomTomDatoUtenUnntak: Boolean
     ): Boolean {
-        if (!grunnlag.bruk) {
+        if (grunnlag.bruk != true) {
             return false
         }
 

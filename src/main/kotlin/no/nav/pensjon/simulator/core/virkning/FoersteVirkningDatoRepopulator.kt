@@ -48,7 +48,7 @@ object FoersteVirkningDatoRepopulator {
             .flatMap { it.forsteVirkningsdatoGrunnlagListe }
 
         persongrunnlagList
-            .filter { gjelderAvdod(it) }
+            .filter { gjelderAvdoed(it) }
             .forEach { addAvdoedDatoGrunnlag(it, soekerDatoGrunnlagListe) }
     }
 
@@ -60,7 +60,7 @@ object FoersteVirkningDatoRepopulator {
         avdoedPersongrunnlag.forsteVirkningsdatoGrunnlagListe.forEach { transferList.add(copy(it)) }
 
         soekerDatoGrunnlagListe
-            .filter { gjelderAvdod(it) }
+            .filter { gjelderAvdoed(it) }
             .forEach { transferList.add(it) }
 
         avdoedPersongrunnlag.forsteVirkningsdatoGrunnlagListe = transferList
@@ -118,12 +118,12 @@ object FoersteVirkningDatoRepopulator {
 
     private fun personId(person: PenPerson?) = person?.penPersonId ?: 0L
 
-    private fun gjelderAvdod(datogrunnlag: ForsteVirkningsdatoGrunnlag) =
+    private fun gjelderAvdoed(datogrunnlag: ForsteVirkningsdatoGrunnlag) =
         avdoedKravlinjeTyper.contains(datogrunnlag.kravlinjeTypeEnum)
 
-    private fun gjelderAvdod(persongrunnlag: Persongrunnlag) =
+    private fun gjelderAvdoed(persongrunnlag: Persongrunnlag) =
         persongrunnlag.personDetaljListe
-            .filter { it.bruk }
+            .filter { it.bruk == true }
             .any { avdoedGrunnlagRoller.contains(it.grunnlagsrolleEnum) }
 
     private fun gjelderForsorgingstillegg(kravlinjeType: KravlinjeTypeEnum) =

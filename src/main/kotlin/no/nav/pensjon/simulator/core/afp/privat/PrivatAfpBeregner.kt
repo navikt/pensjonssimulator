@@ -16,7 +16,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.BeregnAfpPrivatRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.legacy.util.CopyUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
@@ -24,10 +23,10 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurns67
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
+import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
-import java.io.IOException
 import java.time.LocalDate
 import java.util.*
 
@@ -38,21 +37,22 @@ class PrivatAfpBeregner(
     private val generelleDataHolder: GenerelleDataHolder
 ) {
 
+    // PEN: BeregnAfpPrivatHelper.beregnAfpPrivat
     //@Throws(PEN222BeregningstjenesteFeiletException::class)
     fun beregnPrivatAfp(afpSpec: PrivatAfpSpec): PrivatAfpResult {
         val simuleringSpec: SimuleringSpec = afpSpec.simulering
         val forrigeBeregningResultat: BeregningsResultatAfpPrivat? = afpSpec.forrigePrivatAfpBeregningResult
         val kravhode: Kravhode = afpSpec.kravhode
         val foersteVirkning: LocalDate = afpSpec.virkningFom
-        val afpKravhode: Kravhode = periodiserGrunnlag(newAfpPrivatKravhode(kravhode))
+        val afpKravhode: Kravhode = periodiserGrunnlag(privatAfpKravhode(kravhode))
         val soekerGrunnlag: Persongrunnlag = afpKravhode.hentPersongrunnlagForSoker()
 
         val knekkpunktDatoer: SortedSet<LocalDate> =
             findKnekkpunktDatoer(
-                simuleringSpec.foersteUttakDato,
+                foersteUttakDato = simuleringSpec.foersteUttakDato,
                 soekerGrunnlag,
-                foersteVirkning,
-                afpSpec.gjelderOmsorg
+                privatAfpFoersteVirkning = foersteVirkning,
+                gjelderOmsorg = afpSpec.gjelderOmsorg
             )
 
         if (knekkpunktDatoer.isEmpty()) {
@@ -84,7 +84,7 @@ class PrivatAfpBeregner(
         )
 
         // Call BEF3704 beregnAfpPrivat for each knekkpunkt
-        val afpBeregningsresultater = beregnPrivatAfpForHvertKnekkpunkt(
+        val beregningResultatListe = beregnPrivatAfpForHvertKnekkpunkt(
             forrigeBeregningResultat,
             foersteVirkning,
             afpKravhode,
@@ -93,9 +93,15 @@ class PrivatAfpBeregner(
             knekkpunktDatoer,
             afpSpec.sakId
         )
-        val gjeldendeAfpBeregningsresultat =
-            regdomBeregningsresultatAfpPrivat(forrigeBeregningResultat, tidligsteKnekkpunktDato)
-        return PrivatAfpResult(afpBeregningsresultater, gjeldendeAfpBeregningsresultat)
+
+        val gjeldendeBeregningResultat =
+            forrigeBeregningResultat?.let {
+                BeregningsResultatAfpPrivat(it).apply {
+                    virkTom = tidligsteKnekkpunktDato?.let { getRelativeDateByDays(it, -1).toDate() }
+                }
+            }
+
+        return PrivatAfpResult(beregningResultatListe, gjeldendeBeregningResultat)
     }
 
     //@Throws(PEN222BeregningstjenesteFeiletException::class)
@@ -162,37 +168,37 @@ class PrivatAfpBeregner(
     }
 
     private companion object {
-        private const val AFP_ALDER = 63
+        private const val AFP_ALDER = 63 //TODO normert?
 
         private fun findKnekkpunktDatoer(
             foersteUttakDato: LocalDate?,
             soekerGrunnlag: Persongrunnlag,
             privatAfpFoersteVirkning: LocalDate?,
-            isOmsorg: Boolean
+            gjelderOmsorg: Boolean
         ): SortedSet<LocalDate> {
             // A knekkpunkt should be created for the year the user turns 63 years of age if and only if the user had opptjening the
             // year he turned 61 years, and hence we need to find that opptjening.
-            val relevantOpptjeningAr =
+            val relevantOpptjeningAar =
                 yearUserTurnsGivenAge(soekerGrunnlag.fodselsdato!!, AFP_ALDER - OPPTJENING_ETTERSLEP_ANTALL_AAR)
 
-            val relevantOpptjeningsgrunnlag =
-                soekerGrunnlag.opptjeningsgrunnlagListe.firstOrNull { it.ar == relevantOpptjeningAr }
+            val relevantOpptjeningGrunnlag =
+                soekerGrunnlag.opptjeningsgrunnlagListe.firstOrNull { it.ar == relevantOpptjeningAar }
 
             return findPrivatAfpPerioder(
                 foersteUttakDato,
                 soekerGrunnlag.fodselsdato.toLocalDate(),
-                relevantOpptjeningsgrunnlag,
+                relevantOpptjeningGrunnlag,
                 privatAfpFoersteVirkning,
-                isOmsorg
+                gjelderOmsorg
             )
         }
 
         private fun findPrivatAfpPerioder(
             foersteUttakDato: LocalDate?,
-            foedselDato: LocalDate?,
-            opptjeningsgrunnlagAtAge61: Opptjeningsgrunnlag?,
+            foedselsdato: LocalDate?,
+            opptjeningGrunnlag: Opptjeningsgrunnlag?,
             privatAfpFoersteVirkning: LocalDate?,
-            isOmsorg: Boolean
+            gjelderOmsorg: Boolean
         ): SortedSet<LocalDate> {
             val knekkpunktDatoer: SortedSet<LocalDate> = TreeSet()
 
@@ -202,25 +208,25 @@ class PrivatAfpBeregner(
             }
 
             // Jan 1st the year the user turns 63 years old, but only if bruker has opptjening the year he/she turns 61 years of age
-            if (opptjeningsgrunnlagAtAge61 != null) {
-                if (isOmsorg || opptjeningsgrunnlagAtAge61.pi > 0) {
-                    knekkpunktDatoer.add(LocalDate.of(yearUserTurnsGivenAge(foedselDato!!, AFP_ALDER), 1, 1))
+            opptjeningGrunnlag?.let {
+                if (gjelderOmsorg || it.pi > 0) {
+                    knekkpunktDatoer.add(LocalDate.of(yearUserTurnsGivenAge(foedselsdato!!, AFP_ALDER), 1, 1))
                 }
             }
 
             // 1st of month after user turns 67 years old
-            knekkpunktDatoer.add(getRelativeDateByDays(lastDayOfMonthUserTurns67(foedselDato), 1))
-            //val today = setTimeToZero(DateProvider.getToday())
+            //TODO normert?
+            knekkpunktDatoer.add(getRelativeDateByDays(lastDayOfMonthUserTurns67(foedselsdato), 1))
 
             // Returns only unique values that must be in future and not before første virk AFP Privat (CR213963 11.01.2011 OJB2812)
             return knekkpunktDatoer.tailSet(findLatestDateByDay(LocalDate.now(), privatAfpFoersteVirkning))
         }
 
-        private fun calculateAfpBeholdningDato(spec: SimuleringSpec, foedselDato: LocalDate): LocalDate {
-            val yearUserTurns63 = yearUserTurnsGivenAge(foedselDato, AFP_ALDER)
+        private fun calculateAfpBeholdningDato(spec: SimuleringSpec, foedselsdato: LocalDate): LocalDate {
+            val aarSoekerOppnaarAfpAlder: Int = yearUserTurnsGivenAge(foedselsdato, AFP_ALDER)
 
-            return if (spec.foersteUttakDato!!.year < yearUserTurns63)
-                LocalDate.of(yearUserTurns63, 1, 1)
+            return if (spec.foersteUttakDato!!.year < aarSoekerOppnaarAfpAlder)
+                LocalDate.of(aarSoekerOppnaarAfpAlder, 1, 1)
             else
                 spec.foersteUttakDato
         }
@@ -237,7 +243,7 @@ class PrivatAfpBeregner(
          * Creates a kravhode specific for AFP privat, based on existing kravhode.
          * NB: Need to copy persongrunnlag (which will be modified in AFP-specific way).
          */
-        private fun newAfpPrivatKravhode(kravhode: Kravhode) =
+        private fun privatAfpKravhode(kravhode: Kravhode) =
             Kravhode().apply {
                 sakType = SakType.AFP_PRIVAT
                 regelverkTypeEnum = kravhode.regelverkTypeEnum
@@ -245,7 +251,9 @@ class PrivatAfpBeregner(
                     Persongrunnlag(
                         source = kravhode.hentPersongrunnlagForSoker(),
                         excludeForsteVirkningsdatoGrunnlag = true
-                    ).also { it.finishInit() })
+                    ).also {
+                        it.finishInit()
+                    })
             }
 
         private fun newInnvilgetVedtak(
@@ -264,38 +272,17 @@ class PrivatAfpBeregner(
             }.also { it.finishInit() }
 
         private fun periodiserGrunnlag(kravhode: Kravhode): Kravhode {
-            for (persongrunnlag in kravhode.persongrunnlagListe) {
-                if (persongrunnlag.personDetaljListe.isNotEmpty()) {
-                    for (personDetalj in persongrunnlag.personDetaljListe) {
-                        if (!personDetalj.bruk) {
-                            persongrunnlag.personDetaljListe.remove(personDetalj)
+            kravhode.persongrunnlagListe.forEach {
+                if (it.personDetaljListe.isNotEmpty()) {
+                    for (personDetalj in it.personDetaljListe) {
+                        if (personDetalj.bruk != true) {
+                            it.personDetaljListe.remove(personDetalj)
                         }
                     }
                 }
             }
 
             return kravhode
-        }
-
-        private fun regdomBeregningsresultatAfpPrivat(
-            forrigeBeregningResultat: BeregningsResultatAfpPrivat?,
-            earliestKnekkpunktDato: LocalDate?
-        ): BeregningsResultatAfpPrivat? {
-            if (forrigeBeregningResultat == null) return null
-
-            val gjeldendeAfpBeregningsresultat = try {
-                CopyUtil.copy(forrigeBeregningResultat) as BeregningsResultatAfpPrivat
-            } catch (e: ClassNotFoundException) {
-                //throw ImplementationUnrecoverableException(e)
-                throw RuntimeException(e)
-            } catch (e: IOException) {
-                //throw ImplementationUnrecoverableException(e)
-                throw RuntimeException(e)
-            }
-
-            gjeldendeAfpBeregningsresultat.virkTom =
-                earliestKnekkpunktDato?.let { fromLocalDate(getRelativeDateByDays(it, -1)) }
-            return gjeldendeAfpBeregningsresultat
         }
     }
 }

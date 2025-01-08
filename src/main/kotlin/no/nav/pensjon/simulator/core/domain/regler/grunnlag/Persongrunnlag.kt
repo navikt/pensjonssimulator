@@ -370,54 +370,29 @@ class Persongrunnlag() {
         sistMedlITrygden = rawSistMedlITrygden?.noon()
     }
 
-    // SIMDOM-ADD excludeForsteVirkningsdatoGrunnlag
-    constructor(source: Persongrunnlag, excludeForsteVirkningsdatoGrunnlag: Boolean = false) : this() {
-        source.penPerson?.let { this.penPerson = PenPerson(it) }
-        source.fodselsdato?.let { this.fodselsdato = it.clone() as Date }
-        source.dodsdato?.let { this.dodsdato = it.clone() as Date }
-        source.statsborgerskap?.let { this.statsborgerskap = it }
-        source.statsborgerskapEnum?.let { this.statsborgerskapEnum = it }
-
-        if (source.flyktning != null) {
-            this.flyktning = source.flyktning
-        }
-
-        for (personDetalj in source.personDetaljListe) {
-            this.personDetaljListe.add(PersonDetalj(personDetalj))
-        }
-
-        if (source.sistMedlITrygden != null) {
-            this.sistMedlITrygden = source.sistMedlITrygden!!.clone() as Date
-        }
-
-        if (source.hentetPopp != null) {
-            this.hentetPopp = source.hentetPopp
-        }
-
-        this.hentetInnt = source.hentetInnt
-        this.hentetInst = source.hentetInst
-        this.hentetTT = source.hentetTT
-        this.hentetArbeid = source.hentetArbeid
-
-        if (source.overkompUtl != null) {
-            this.overkompUtl = source.overkompUtl
-        }
-
-        for (opptjeningsgrunnlag in source.opptjeningsgrunnlagListe) {
-            this.opptjeningsgrunnlagListe.add(Opptjeningsgrunnlag(opptjeningsgrunnlag))
-        }
-
-        for (inntektsgrunnlag in source.inntektsgrunnlagListe) {
-            this.inntektsgrunnlagListe.add(Inntektsgrunnlag(inntektsgrunnlag))
-        }
-
-        for (ttPeriode in source.trygdetidPerioder) {
-            this.trygdetidPerioder.add(TTPeriode(ttPeriode))
-        }
-
-        for (ttPeriode in source.trygdetidPerioderKapittel20) {
-            this.trygdetidPerioderKapittel20.add(TTPeriode(ttPeriode))
-        }
+    // SIMDOM-ADD excludeTrygdetidPerioder, excludeForsteVirkningsdatoGrunnlag
+    constructor(
+        source: Persongrunnlag,
+        excludeForsteVirkningsdatoGrunnlag: Boolean = false
+    ) : this() {
+        source.penPerson?.let { penPerson = PenPerson(it) }
+        source.fodselsdato?.let { fodselsdato = it.clone() as Date }
+        source.dodsdato?.let { dodsdato = it.clone() as Date }
+        source.statsborgerskap?.let { statsborgerskap = it }
+        source.statsborgerskapEnum?.let { statsborgerskapEnum = it }
+        source.flyktning?.let { flyktning = it }
+        source.personDetaljListe.forEach { personDetaljListe.add(PersonDetalj(it)) }
+        source.sistMedlITrygden?.let { sistMedlITrygden = it.clone() as Date }
+        source.hentetPopp?.let { hentetPopp = it }
+        hentetInnt = source.hentetInnt
+        hentetInst = source.hentetInst
+        hentetTT = source.hentetTT
+        hentetArbeid = source.hentetArbeid
+        source.overkompUtl?.let { overkompUtl = it }
+        source.opptjeningsgrunnlagListe.forEach { opptjeningsgrunnlagListe.add(Opptjeningsgrunnlag(it)) }
+        source.inntektsgrunnlagListe.forEach { inntektsgrunnlagListe.add(Inntektsgrunnlag(it)) }
+        source.trygdetidPerioder.forEach { trygdetidPerioder.add(TTPeriode(it)) }
+        source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(TTPeriode(it)) }
 
         if (source.trygdetid != null) {
             this.trygdetid = Trygdetid(source.trygdetid!!)
@@ -550,22 +525,20 @@ class Persongrunnlag() {
         //    this.vilkarsvedtakEPSListe.add(VilkarsVedtak(vilkarsVedtak))
         //}
         // SIMDOM-ADD
-        this.gjelderOmsorg = source.gjelderOmsorg //: Boolean = false
-        this.gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
+        gjelderOmsorg = source.gjelderOmsorg //: Boolean = false
+        gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
 
         source.barnetilleggVurderingsperioder.forEach {
-            this.barnetilleggVurderingsperioder.add(
-                BarnetilleggVurderingsperiode(it)
-            )
+            barnetilleggVurderingsperioder.add(BarnetilleggVurderingsperiode(it))
         }
 
-        source.beholdninger.forEach { this.beholdninger.add(Pensjonsbeholdning(it)) }
-        source.trygdetider.forEach { this.trygdetider.add(Trygdetid(it)) }
-        source.uforegrunnlagList.forEach { this.uforegrunnlagList.add(Uforegrunnlag(it)) }
-        source.yrkesskadegrunnlagList.forEach { this.yrkesskadegrunnlagList.add(Yrkesskadegrunnlag(it)) }
-        this.rawFodselsdato = source.rawFodselsdato?.clone() as? Date
-        this.rawDodsdato = source.rawDodsdato?.clone() as? Date
-        this.rawSistMedlITrygden = source.rawSistMedlITrygden?.clone() as? Date
+        source.beholdninger.forEach { beholdninger.add(Pensjonsbeholdning(it)) }
+        source.trygdetider.forEach { trygdetider.add(Trygdetid(it)) }
+        source.uforegrunnlagList.forEach { uforegrunnlagList.add(Uforegrunnlag(it)) }
+        source.yrkesskadegrunnlagList.forEach { yrkesskadegrunnlagList.add(Yrkesskadegrunnlag(it)) }
+        rawFodselsdato = source.rawFodselsdato?.clone() as? Date
+        rawDodsdato = source.rawDodsdato?.clone() as? Date
+        rawSistMedlITrygden = source.rawSistMedlITrygden?.clone() as? Date
         // end SIMDOM-ADD
     }
 
@@ -585,21 +558,10 @@ class Persongrunnlag() {
      * NB: Comment on source of this method (no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljIPersongrunnlag):
      * "deprecated - this method picks PersonDetalj without considering periode; this is a strategy that could lead to errors"
      */
-    fun findPersonDetaljIPersongrunnlag(grunnlagsrolle: GrunnlagsrolleEnum, checkBruk: Boolean): PersonDetalj? {
-        for (detalj in personDetaljListe) {
-            if (detalj.grunnlagsrolleEnum == grunnlagsrolle) {
-                if (checkBruk) {
-                    if (detalj.bruk) {
-                        return detalj
-                    }
-                } else {
-                    return detalj
-                }
-            }
+    fun findPersonDetaljIPersongrunnlag(rolle: GrunnlagsrolleEnum, checkBruk: Boolean): PersonDetalj? =
+        personDetaljListe.firstOrNull {
+            (!checkBruk || it.bruk == true) && it.grunnlagsrolleEnum == rolle
         }
-
-        return null
-    }
 
     // no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljWithRolleForPeriode
     fun findPersonDetaljWithRolleForPeriode(
@@ -608,13 +570,13 @@ class Persongrunnlag() {
         checkBruk: Boolean
     ): PersonDetalj? =
         personDetaljListe.firstOrNull {
-            (!checkBruk || it.bruk) &&
-                    (rolle == it.grunnlagsrolleEnum) &&
+            (!checkBruk || it.bruk == true) &&
+                    rolle == it.grunnlagsrolleEnum &&
                     isDateInPeriod(virkningDato, it.virkFom, it.virkTom)
         }
 
     // no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.isAvdod
-    fun isAvdod() = findPersonDetaljIPersongrunnlag(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = true) != null
+    fun isAvdod() = findPersonDetaljIPersongrunnlag(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = true) != null
 
     fun isBarnOrFosterbarn() =
         hasPersondetaljWithRolle(GrunnlagsrolleEnum.BARN) ||
@@ -628,7 +590,7 @@ class Persongrunnlag() {
     fun isSoker() = hasPersondetaljWithRolle(GrunnlagsrolleEnum.SOKER)
 
     private fun hasPersondetaljWithRolle(rolle: GrunnlagsrolleEnum) =
-        personDetaljListe.any { it.bruk && it.grunnlagsrolleEnum == rolle }
+        personDetaljListe.any { it.bruk == true && it.grunnlagsrolleEnum == rolle }
 
     fun removePersonDetalj(detalj: PersonDetalj) {
         personDetaljListe.remove(detalj)
@@ -651,5 +613,10 @@ class Persongrunnlag() {
     fun deleteYrkesskadegrunnlag() {
         yrkesskadegrunnlagList.clear()
     }
+
+    fun is3_2Samboer(): Boolean =
+        personDetaljListe.any {
+            it.bruk == true && it.isGrunnlagsrolleSamboer() && it.is3_2Samboer()
+        }
     // end SIMDOM-ADD
 }

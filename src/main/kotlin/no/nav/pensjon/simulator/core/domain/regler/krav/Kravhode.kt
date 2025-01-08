@@ -125,17 +125,11 @@ open class Kravhode {
 
     fun sakForsteVirkningsdato(): Date? = sakForsteVirkningsdatoListe.minOfOrNull { it }
 
-    fun hentPersongrunnlagForRolle(grunnlagsrolle: GrunnlagsrolleEnum, checkBruk: Boolean): Persongrunnlag? {
+    fun hentPersongrunnlagForRolle(rolle: GrunnlagsrolleEnum, checkBruk: Boolean): Persongrunnlag? {
         for (persongrunnlag in persongrunnlagListe) {
             for (detalj in persongrunnlag.personDetaljListe) {
-                if (grunnlagsrolle == detalj.grunnlagsrolleEnum) {
-                    if (checkBruk) {
-                        if (detalj.bruk) {
-                            return persongrunnlag
-                        }
-                    } else {
-                        return persongrunnlag
-                    }
+                if ((!checkBruk || detalj.bruk == true) && rolle == detalj.grunnlagsrolleEnum) {
+                    return persongrunnlag
                 }
             }
         }
@@ -161,7 +155,9 @@ open class Kravhode {
         persongrunnlagListe.firstOrNull { it.findPersonDetaljIPersongrunnlag(rolle, inUse) != null }
 
     private fun isSokerAmongDetaljer(persongrunnlag: Persongrunnlag): Boolean =
-        persongrunnlag.personDetaljListe.any { it.bruk && GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }
+        persongrunnlag.personDetaljListe.any {
+            it.bruk == true && GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum
+        }
 
     //SIMDOM-ADD:
     fun isUforetrygd() = hasKravlinjeOfType(KravlinjeTypeEnum.UT)
@@ -172,7 +168,7 @@ open class Kravhode {
     fun findPersonDetaljIBruk(rolle: GrunnlagsrolleEnum): PersonDetalj? {
         for (persongrunnlag in persongrunnlagListe) {
             for (detalj in persongrunnlag.personDetaljListe) {
-                if (rolle == detalj.grunnlagsrolleEnum && detalj.bruk) {
+                if (detalj.bruk == true && rolle == detalj.grunnlagsrolleEnum) {
                     return detalj
                 }
             }
@@ -183,7 +179,6 @@ open class Kravhode {
 
     fun findPersongrunnlag(person: PenPerson) =
         persongrunnlagListe.firstOrNull { it.penPerson!!.penPersonId == person.penPersonId }
-
 
     fun findHovedKravlinje(kravGjelder: KravGjelder?): Kravlinje? {
         var hovedKravlinje: Kravlinje? = null

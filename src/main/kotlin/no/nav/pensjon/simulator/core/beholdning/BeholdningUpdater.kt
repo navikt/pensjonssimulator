@@ -81,10 +81,9 @@ class BeholdningUpdater(
     // SimpleGrunnlagService.updateBeholdningFromEksisterendePersongrunnlag -> BeholdningSwitcherCommand.updateBeholdningFromEksisterendePersongrunnlag
     fun updateBeholdningFromEksisterendePersongrunnlag(nyttKravhode: Kravhode) {
         val persongrunnlag: Persongrunnlag = nyttKravhode.hentPersongrunnlagForSoker()
-        val kopiertPersongrunnlag =
-            Persongrunnlag(persongrunnlag).also { it.finishInit() } // NB: Assuming this copies all relevant data
-        updateBeholdninger(persongrunnlag, kopiertPersongrunnlag.beholdninger)
-        updateBeholdningOnVirk(nyttKravhode, kopiertPersongrunnlag)
+        val persongrunnlagCopy = Persongrunnlag(source = persongrunnlag)
+        updateBeholdninger(persongrunnlag, persongrunnlagCopy.beholdninger)
+        updateBeholdningOnVirk(nyttKravhode, persongrunnlagCopy)
     }
 
     // OppdaterPensjonsbeholdningerCommand.updatePensjonsbeholdning

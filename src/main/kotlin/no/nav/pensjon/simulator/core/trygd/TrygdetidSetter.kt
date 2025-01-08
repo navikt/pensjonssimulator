@@ -175,10 +175,10 @@ object TrygdetidSetter {
     // SettTrygdetidHelper.createTrygdetidsgrunnlagNorge
     private fun newNorskTrygdetidPeriode(fom: LocalDate, tom: LocalDate?, ikkeProRata: Boolean) =
         TrygdetidGrunnlagFactory.trygdetidPeriode(
-            fom = fromLocalDate(fom)!!, //TODO noon?
+            fom = fromLocalDate(fom)!!, // set to noon in trygdetidPeriode -> finishInit
             tom = fromLocalDate(tom),
             land = LandkodeEnum.NOR,
             ikkeProRata = ikkeProRata,
-            bruk = true
+            bruk = null // bruk is not set in SettTrygdetidHelper.createTrygdetidsgrunnlagNorge in PEN
         )
 }

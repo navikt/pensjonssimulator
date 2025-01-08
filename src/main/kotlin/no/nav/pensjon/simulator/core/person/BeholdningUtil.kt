@@ -33,7 +33,7 @@ object BeholdningUtil {
 
     private fun soekerIBruk(grunnlag: Persongrunnlag): PersonDetalj? =
         grunnlag.findPersonDetaljIPersongrunnlag(
-            grunnlagsrolle = GrunnlagsrolleEnum.SOKER,
+            rolle = GrunnlagsrolleEnum.SOKER,
             checkBruk = true
         )
 }

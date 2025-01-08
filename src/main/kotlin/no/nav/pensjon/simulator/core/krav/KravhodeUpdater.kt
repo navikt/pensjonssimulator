@@ -42,7 +42,7 @@ class KravhodeUpdater(
         val forrigeAlderspensjonBeregningResult = spec.forrigeAlderspensjonBeregningResult
         var soekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
         var avdoedGrunnlag =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
+            kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
         logger.info("STEP 4.1 - Sett trygdetidsgrunnlag")
         soekerGrunnlag = setTrygdetid(

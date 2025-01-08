@@ -65,10 +65,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         var forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat? = spec.forrigeAlderBeregningsresultat
         var sisteBeregning = spec.sisteBeregning
         var kravhode = periodiserGrunnlag(spec.kravhode)
-        val soekerGrunnlag =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
-        val avdoedGrunnlag =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
+        val soekerGrunnlag = kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
+        val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
         var vedtakListe: List<VilkarsVedtak>
         val garantitilleggBeholdningGrunnlag = hentGarantiTilleggsbeholdningGrunnlag()
         var sisteBeregning2011Tp: SisteBeregning? = null
@@ -437,7 +435,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         sakId: Long?,
         ignoreAvslag: Boolean
     ): AbstraktBeregningsResultat {
-        val regelverkType: RegelverkTypeEnum = spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
+        val regelverkType: RegelverkTypeEnum =
+            spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
 
         // SIMDOM-ADD for 'simuler folketrygdbeholdning' (da avslag ignoreres):
         if (ignoreAvslag && spec.vilkarsvedtakListe.any { it.anbefaltResultatEnum != innvilgetResultat }) {
@@ -465,7 +464,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         spec: AlderspensjonRevurderingCommonSpec,
         sakId: Long?
     ): AbstraktBeregningsResultat {
-        val regelverkType: RegelverkTypeEnum = spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
+        val regelverkType: RegelverkTypeEnum =
+            spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
 
         return when (regelverkType) {
             RegelverkTypeEnum.N_REG_G_OPPTJ ->
@@ -876,7 +876,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         private fun periodiserDetaljer(detaljListe: MutableList<PersonDetalj>) {
             for (detalj in detaljListe) {
-                if (!detalj.bruk) {
+                if (detalj.bruk != true) {
                     detaljListe.remove(detalj)
                 }
             }

@@ -123,7 +123,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
     ): TrygdetidCombo {
         if (aarsak == KnekkpunktAarsak.TTBRUKER) { // from FinnKnekkpunkterHelper.addKnekkpunkterBasedOnTrygdetid
             val persongrunnlag =
-                kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
+                kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
 
             return trygdetidFastsetter.fastsettTrygdetidForPeriode(
                 spec = trygdetidFastsetterInput(
@@ -141,7 +141,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         }
 
         val persongrunnlag =
-            kravhode.hentPersongrunnlagForRolle(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)!!
+            kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)!!
 
         return trygdetidFastsetter.fastsettTrygdetidForPeriode(
             spec = trygdetidFastsetterInput(

@@ -318,10 +318,13 @@ class EndringPersongrunnlag(
         // SimulerEndringAvAPCommandHelper.createPersongrunnlagWithValidPersonDetaljer + filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag
         private fun relevantPersongrunnlag(source: Persongrunnlag) =
             Persongrunnlag(source).apply {
-                inntektsgrunnlagListe =
-                    inntektsgrunnlagListe.filter { it.bruk && it.inntektType?.kode != InntekttypeEnum.FPI.name }
-                        .toMutableList()
-                personDetaljListe = personDetaljListe.filter { it.bruk && it.rolleTomDato == null }.toMutableList()
+                inntektsgrunnlagListe = inntektsgrunnlagListe.filter {
+                    it.bruk == true && InntekttypeEnum.FPI.name != it.inntektType?.kode
+                }.toMutableList()
+
+                personDetaljListe = personDetaljListe.filter {
+                    it.bruk == true && it.rolleTomDato == null
+                }.toMutableList()
                 // NB: In the original code (SimulerEndringAvAPCommandHelper.createPersongrunnlagWithValidPersonDetaljer)
                 // the PersonDetalj objects are copied twice: new Persongrunnlag(...) and then new PersonDetalj(...)
                 // which seems unnecessary
@@ -346,7 +349,7 @@ class EndringPersongrunnlag(
 
             while (iterator.hasNext()) {
                 with(iterator.next()) {
-                    if (this.bruk.not() || isValidInPast(detalj = this)) {
+                    if (this.bruk != true || isValidInPast(detalj = this)) {
                         iterator.remove()
                     }
                 }
@@ -355,7 +358,7 @@ class EndringPersongrunnlag(
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun enke(persongrunnlag: Persongrunnlag): PersonDetalj? =
-            persongrunnlag.personDetaljListe.firstOrNull { it.bruk && isEnke(it) && isValidToday(it) }
+            persongrunnlag.personDetaljListe.firstOrNull { it.bruk == true && isEnke(it) && isValidToday(it) }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun enke(fom: LocalDate?) =

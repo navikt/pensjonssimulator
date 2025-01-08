@@ -68,7 +68,8 @@ open class PersonDetalj {
     /**
      * Angir om persondetaljen brukes som grunnlag på kravet.
      */
-    var bruk: Boolean = true
+    var bruk: Boolean? = null // SIMDOM-EDIT true -> null, since nullable in PersonDetalj in PEN
+    // and default is 'false' in GrunnlagToReglerMapper.mapPersonDetaljToRegler in PEN
 
     /**
      * Angir kilden til persondetaljen.
@@ -219,9 +220,15 @@ open class PersonDetalj {
      */
     fun isEps() = hasGrunnlagsrolle(GrunnlagsrolleEnum.EKTEF, GrunnlagsrolleEnum.PARTNER, GrunnlagsrolleEnum.SAMBO)
 
-    private fun hasGrunnlagsrolle(vararg roller: GrunnlagsrolleEnum) =
-        //grunnlagsrolle?.let { roller.any { x -> x.name == it.kode } } ?: false
-        grunnlagsrolleEnum?.let { roller.any { x -> x == it } } ?: false
+    // PEN: no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj.isGrunnlagsrolleSamboer
+    fun isGrunnlagsrolleSamboer(): Boolean =
+        GrunnlagsrolleEnum.SAMBO == grunnlagsrolleEnum
 
+    // PEN: no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj.is3_2Samboer
+    fun is3_2Samboer(): Boolean =
+        BorMedTypeEnum.SAMBOER3_2 == borMedEnum
+
+    private fun hasGrunnlagsrolle(vararg roller: GrunnlagsrolleEnum) : Boolean =
+        grunnlagsrolleEnum?.let { roller.any { x -> x == it } } == true
     // end SIMDOM-ADD
 }

@@ -29,13 +29,11 @@ class Pakkseddel(
 
     constructor(pakkseddel: Pakkseddel) : this() {
         //SIMDOM-MOD this.version = pakkseddel.version
-        for (merknad in pakkseddel.merknadListe) {
-            this.merknadListe.add(Merknad(merknad))
-        }
+        pakkseddel.merknadListe.forEach { merknadListe.add(Merknad(it)) }
     }
 
     // SIMDOM-ADD
     fun merknaderAsString(): String =
-        merknadListe.map { it.tekst }.joinToString()
+        merknadListe.joinToString { it.tekst }
     // end SIMDOM-ADD
 }

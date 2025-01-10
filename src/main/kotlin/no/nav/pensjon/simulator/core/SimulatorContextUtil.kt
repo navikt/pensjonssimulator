@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
@@ -123,6 +124,23 @@ object SimulatorContextUtil {
         if (kontrollTjenesteOk && annenTjenesteOk) return
 
         val message = pakkseddel.merknaderAsString()
+
+        if (kontrollTjenesteOk) {
+            log.error { "regler validering andre merknader - $message" }
+            throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
+        } else {
+            log.error { "regler validering kontroll merknader - $message" }
+            throw BeregningsmotorValidereException(message, pakkseddel.merknadListe)
+        }
+    }
+
+    fun validerResponse(pakkseddel: Pakkseddel, spec: Any, objectMapper: ObjectMapper, call: String) {
+        val kontrollTjenesteOk = pakkseddel.kontrollTjenesteOk
+        val annenTjenesteOk = pakkseddel.annenTjenesteOk
+        if (kontrollTjenesteOk && annenTjenesteOk) return
+
+        val message = pakkseddel.merknaderAsString()
+        log.error { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
 
         if (kontrollTjenesteOk) {
             log.error { "regler validering andre merknader - $message" }

@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.finishOpptjeningInit
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.personOpptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.postprocess
@@ -25,7 +26,10 @@ import java.time.LocalDate
 import java.util.*
 
 @Component
-class SimulatorContext(private val regelService: GenericRegelClient) : RegelClient {
+class SimulatorContext(
+    private val regelService: GenericRegelClient,
+    private val objectMapper: ObjectMapper
+) : RegelClient {
 
     // PEN: BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2011FoersteUttak(
@@ -41,7 +45,7 @@ class SimulatorContext(private val regelService: GenericRegelClient) : RegelClie
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2011FoersteUttak")
 
         return response.beregningsResultat?.apply {
             virkTom = null
@@ -63,7 +67,7 @@ class SimulatorContext(private val regelService: GenericRegelClient) : RegelClie
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2016FoersteUttak")
 
         return response.beregningsResultat?.apply {
             virkTom = null
@@ -85,7 +89,7 @@ class SimulatorContext(private val regelService: GenericRegelClient) : RegelClie
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2025FoersteUttak")
 
         return response.beregningsResultat?.apply {
             virkTom = null

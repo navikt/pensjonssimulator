@@ -138,7 +138,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "revurderingAlderspensjon2011")
         return response.revurdertBeregningsResultat!!
     }
 
@@ -155,7 +155,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "revurderingAlderspensjon2016")
         return response.revurdertBeregningsResultat!!
     }
 
@@ -172,7 +172,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "revurderingAlderspensjon2025")
         return response.revurdertBeregningsResultat!!
     }
 
@@ -221,7 +221,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "vilkaarsproevUbetingetAlderspensjon")
         return response.vedtaksliste
     }
 
@@ -240,7 +240,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "vilkarsprovAlderspensjon2011")
         return response.vedtaksliste
     }
 
@@ -259,7 +259,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "vilkarsprovAlderspensjon2016")
         return response.vedtaksliste
     }
 
@@ -278,7 +278,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerResponse(response.pakkseddel)
+        validerResponse(response.pakkseddel, spec, objectMapper, "vilkaarsproevAlderspensjon2025")
         return response.vedtaksliste
     }
 

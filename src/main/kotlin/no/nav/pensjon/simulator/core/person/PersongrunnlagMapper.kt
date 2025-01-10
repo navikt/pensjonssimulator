@@ -10,6 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrun
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
+import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -104,11 +105,15 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
         private fun mapToEpsPersonDetalj(sivilstatus: SivilstatusType, foedselsdato: LocalDate?) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = mapToEpsGrunnlagRolle(sivilstatus)
-                rolleFomDato = fromLocalDate(foedselsdato)
+                rolleFomDato = foedselsdato?.toDate()
                 borMedEnum = mapToEpsBorMedType(sivilstatus)
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-            }.also { it.finishInit() }
+            }.also {
+                // finishInit sets virkFom and then rolleFomDato = virkFom.noon()
+                // (ref. PEN GrunnlagToReglerMapper.mapPersonDetaljToRegler):
+                it.finishInit()
+            }
 
         private fun mapToEpsGrunnlagRolle(sivilstatus: SivilstatusType): GrunnlagsrolleEnum? =
             when (sivilstatus) {

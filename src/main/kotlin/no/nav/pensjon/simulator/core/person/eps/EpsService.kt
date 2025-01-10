@@ -10,10 +10,11 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
@@ -76,7 +77,7 @@ class EpsService(
         private fun epsInntektsgrunnlag(grunnbeloep: Int, foersteUttakAar: Int) =
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
-                fom = fromLocalDate(foersteDag(foersteUttakAar))
+                fom = foersteDag(foersteUttakAar).toDate().noon() // noon: ref. GrunnlagToReglerMapper.mapToInntektsgrunnlag in PEN
                 tom = null
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
                 inntektType = InntektTypeCti(InntektType.FPI.name)

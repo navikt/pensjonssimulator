@@ -31,14 +31,19 @@ class TrygdetidFastsetter(private val context: SimulatorContext) {
     private fun fastsettTrygdetid(
         spec: TrygdetidRequest,
         rolle: GrunnlagsrolleEnum,
-        kravIsUfoeretrygd: Boolean,
+        gjelderUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo {
+        /*
+        TODO restore cache?
+        NB: This cache cannot be used by consecutive simuleringer
         if (trygdetidCache == null) {
             trygdetidCache = TrygdetidCache(context = context)
                 .also { it.createCacheForGrunnlagsroller(GrunnlagsrolleEnum.SOKER, GrunnlagsrolleEnum.AVDOD) }
         }
 
-        return trygdetidCache!!.fastsettTrygdetid(spec, rolle, kravIsUfoeretrygd, sakId)
+        return trygdetidCache!!.fastsettTrygdetid(spec, rolle, gjelderUfoeretrygd, sakId)
+        */
+        return TrygdetidCache(context).fastsettTrygdetid(spec, rolle, gjelderUfoeretrygd, sakId)
     }
 }

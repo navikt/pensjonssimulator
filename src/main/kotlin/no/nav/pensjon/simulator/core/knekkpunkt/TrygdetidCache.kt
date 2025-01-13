@@ -24,7 +24,7 @@ class TrygdetidCache(val context: SimulatorContext) {
     fun fastsettTrygdetid(
         parameters: TrygdetidRequest,
         grunnlagsrolle: GrunnlagsrolleEnum,
-        kravIsUforetrygd: Boolean,
+        gjelderUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo {
         validate(parameters)
@@ -34,9 +34,13 @@ class TrygdetidCache(val context: SimulatorContext) {
         // updateSisteGyldigeOpptjeningsaar(parameters)
         // **** Such modification should not be made here, and hence this has been moved to SimulatorTrygdetidFastsetter
 
+        /*
+        //TODO Drop using cache, due to PEK-559 (trygdetid depends also on inntektsår and possibly other parameters)
         return trygdetidCache(grunnlagsrolle)
-            ?.let { fastsettTrygdetidWithCache(it, parameters, kravIsUforetrygd, sakId) }
-            ?: refreshFastsettTrygdetid(parameters, kravIsUforetrygd, sakId)
+            ?.let { fastsettTrygdetidWithCache(it, parameters, gjelderUfoeretrygd, sakId) }
+            ?: refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
+        */
+        return refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
     }
 
     // FastsettTrygdetidCache.getTrygdetidCacheFromGrunnlagsrolle
@@ -50,11 +54,11 @@ class TrygdetidCache(val context: SimulatorContext) {
     //@Throws(BeregningstjenesteFeiletException::class)
     private fun refreshFastsettTrygdetid(
         parameters: TrygdetidRequest,
-        kravIsUforetrygd: Boolean,
+        gjelderUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo =
         try {
-            context.refreshFastsettTrygdetid(parameters, kravIsUforetrygd, sakId)
+            context.refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
                 .let { TrygdetidCombo(it.trygdetid, it.trygdetidKapittel20) }
         } catch (e: KanIkkeBeregnesException) {
             throw BeregningstjenesteFeiletException(e)

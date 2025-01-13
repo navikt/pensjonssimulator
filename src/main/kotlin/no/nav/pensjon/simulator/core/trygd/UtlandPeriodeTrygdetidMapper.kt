@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.core.trygd
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdetidsgrunnlagForUtenlandsperioderMapper
@@ -33,20 +33,20 @@ object UtlandPeriodeTrygdetidMapper {
                 if (endsBefore(utlandPeriode, poengPeriode)) {
                     break@innenlandsLoop
                 } else if (startsBeforeAndEndsIn(utlandPeriode, poengPeriode)) {
-                    utlandPeriode.periode.tom = fromLocalDate(findDayBeforeStartOfPeriod(poengPeriode))
+                    utlandPeriode.periode.tom = findDayBeforeStartOfPeriod(poengPeriode)?.toNorwegianDateAtNoon()
                     break@innenlandsLoop
                 } else if (startsAndEndsIn(utlandPeriode, poengPeriode)) {
                     continue@utenlandsLoop
                 } else if (startsBeforeAndEndsAfter(utlandPeriode, poengPeriode)) {
                     val utenlandsperiodeCopy = copy(utlandPeriode).apply {
-                        periode.tom = fromLocalDate(findDayBeforeStartOfPeriod(poengPeriode))
+                        periode.tom = findDayBeforeStartOfPeriod(poengPeriode)?.toNorwegianDateAtNoon()
                     }
                     resultList.add(utenlandsperiodeCopy)
-                    utlandPeriode.periode.fom = fromLocalDate(findDayAfterEndOfPeriod(poengPeriode))
+                    utlandPeriode.periode.fom = findDayAfterEndOfPeriod(poengPeriode)?.toNorwegianDateAtNoon()
                 } else if (endsBefore(poengPeriode, utlandPeriode)) {
                     // No action
                 } else if (startsInAndEndsAfter(utlandPeriode, poengPeriode)) {
-                    utlandPeriode.periode.fom = fromLocalDate(findDayAfterEndOfPeriod(poengPeriode))
+                    utlandPeriode.periode.fom = findDayAfterEndOfPeriod(poengPeriode)?.toNorwegianDateAtNoon()
                 }
 
                 innerIndex++
@@ -84,10 +84,10 @@ object UtlandPeriodeTrygdetidMapper {
     }
 
     private fun findDayBeforeStartOfPeriod(grunnlag: TrygdetidOpphold): LocalDate? =
-        grunnlag.periode.fom.toLocalDate()?.minusDays(1)
+        grunnlag.periode.fom?.toNorwegianLocalDate()?.minusDays(1)
 
     private fun findDayAfterEndOfPeriod(grunnlag: TrygdetidOpphold): LocalDate? =
-        grunnlag.periode.tom.toLocalDate()?.plusDays(1)
+        grunnlag.periode.tom?.toNorwegianLocalDate()?.plusDays(1)
 
     private fun startsBeforeAndEndsIn(grunnlagA: TrygdetidOpphold, grunnlagB: TrygdetidOpphold): Boolean {
         val a = grunnlagA.periode

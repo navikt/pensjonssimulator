@@ -9,8 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
-import no.nav.pensjon.simulator.core.util.toDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -36,7 +35,7 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
             gjelderOmsorg = false
             gjelderUforetrygd = false
             penPerson = PenPerson(EPS_PERSON_ID)
-            this.fodselsdato = fromLocalDate(foedselsdato)
+            this.fodselsdato = foedselsdato.toNorwegianDateAtNoon()
             antallArUtland = 0
             dodsdato = null
             statsborgerskapEnum = norge
@@ -83,7 +82,7 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
                 } else {
                     rolleFomDato = DateProvider.getToday()
                 }*/
-                rolleFomDato = fromLocalDate(LocalDate.now())
+                rolleFomDato = LocalDate.now().toNorwegianDateAtNoon()
                 sivilstandTypeEnum = mapToSivilstand(spec)
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
@@ -105,7 +104,7 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
         private fun mapToEpsPersonDetalj(sivilstatus: SivilstatusType, foedselsdato: LocalDate?) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = mapToEpsGrunnlagRolle(sivilstatus)
-                rolleFomDato = foedselsdato?.toDate()
+                rolleFomDato = foedselsdato?.toNorwegianDateAtNoon()
                 borMedEnum = mapToEpsBorMedType(sivilstatus)
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER

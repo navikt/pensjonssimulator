@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 
 // AbstraktOpprettSisteAldersberegning, OpprettSisteAldersberegningCommon, OpprettSisteBeregningCommand
@@ -115,7 +115,7 @@ abstract class SisteBeregningCreatorBase(private val kravService: KravService) {
         val periodisertKravhode: Kravhode? =
             kravhode?.let {
                 periodiserGrunnlag(
-                    virkningFom = beregningResultat.virkFom.toLocalDate(),
+                    virkningFom = beregningResultat.virkFom?.toNorwegianLocalDate(),
                     virkningTom = null,
                     originalKravhode = it,
                     periodiserFomTomDatoUtenUnntak = true,
@@ -131,7 +131,8 @@ abstract class SisteBeregningCreatorBase(private val kravService: KravService) {
         kravhode.persongrunnlagListe.firstOrNull(::epsIsAmongDetaljer)
 
     // Extracted from OpprettSisteAldersberegningCommon.getEpsPersongrunnlag
-    private fun epsIsAmongDetaljer(grunnlag: Persongrunnlag): Boolean = grunnlag.personDetaljListe.any { it.isEps() }
+    private fun epsIsAmongDetaljer(grunnlag: Persongrunnlag): Boolean =
+        grunnlag.personDetaljListe.any { it.isEps() }
 
     // OpprettSisteAldersberegningCommon.setAnvendtGjenlevenderettVedtak
     private fun setAnvendtGjenlevenderettVedtak(sink: SisteBeregning?, vedtak: VilkarsVedtak?) {

@@ -12,13 +12,13 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AR
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011ResultatMapper
@@ -241,8 +241,8 @@ object SimulatorOutputMapper {
         kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_N_OPPTJ
 
     private fun getMonthsBetweenInRange1To12(firstDate: LocalDate, secondDate: LocalDate): Int {
-        val monthsBetween = getMonthBetween(firstDate, secondDate) % MAANEDER_PER_AR
-        return if (monthsBetween == 0) MAANEDER_PER_AR else monthsBetween
+        val monthsBetween = getMonthBetween(firstDate, secondDate) % MAANEDER_PER_AAR
+        return if (monthsBetween == 0) MAANEDER_PER_AAR else monthsBetween
     }
 
     // SimuleringEtter2011ResultatMapper.findBeholdningOfTypeForYear
@@ -395,7 +395,7 @@ object SimulatorOutputMapper {
         for (element in list) {
             if (intersectsWithPossiblyOpenEndings(startDate, endDate, element.ufgFom, element.ufgTom, true)) {
                 if (isBeforeByDay(element.ufgFom, earliestDate, false)) {
-                    earliestDate = element.ufgFom.toLocalDate()
+                    earliestDate = element.ufgFom?.toNorwegianLocalDate()
                     result = element
                 }
             }
@@ -407,7 +407,7 @@ object SimulatorOutputMapper {
     // Specific variant of ArligInformasjonListeUtils.findElementOfType
     // Duplicate in RegdomOpprettOutputHelper
     private fun firstPensjonsbeholdning(list: List<Beholdning>): Pensjonsbeholdning? =
-        list.firstOrNull { it.beholdningsType?.kode == BeholdningType.PEN_B.name } as? Pensjonsbeholdning
+        list.firstOrNull { BeholdningType.PEN_B.name == it.beholdningsType?.kode } as? Pensjonsbeholdning
 
     // Specific variant of ArligInformasjonListeUtils.findElementOfType
     private fun firstYtelseOfType(list: List<Ytelseskomponent>, type: YtelseskomponentTypeEnum): Ytelseskomponent? =

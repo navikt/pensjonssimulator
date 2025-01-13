@@ -18,7 +18,7 @@ import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.time.Period
 import java.util.*
@@ -166,8 +166,8 @@ object SimulatorOutputConverter {
             pensjonsgivendeInntekt = source.pi
         )
 
-    private fun alderAar(foedselDato: LocalDate, dato: Date): Int =
-        alderDato(foedselDato, dato.toLocalDate()!!).alder.aar
+    private fun alderAar(foedselsdato: LocalDate, dato: Date): Int =
+        alderDato(foedselsdato, dato.toNorwegianLocalDate()).alder.aar
 
     private fun harUttakToday(grad: Uttaksgrad) = grad.uttaksgrad > 0 && coversToday(grad.fomDato, grad.tomDato)
 

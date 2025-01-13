@@ -17,8 +17,8 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import org.springframework.stereotype.Component
@@ -326,7 +326,7 @@ class SimulatorContext(
         persongrunnlag.personDetaljListe.forEach(::setRollePeriode)
 
         val request = BeregnPensjonsBeholdningRequest().apply {
-            this.beholdningTom = fromLocalDate(beholdningTom)?.noon()
+            this.beholdningTom = beholdningTom?.toNorwegianDateAtNoon()
             this.persongrunnlag = persongrunnlag
             this.beholdning = beholdning
         }
@@ -348,7 +348,7 @@ class SimulatorContext(
 
     // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
     override fun fetchGrunnbeloepListe(localDate: LocalDate): SatsResponse {
-        val date: Date = fromLocalDate(localDate)!!.noon()
+        val date: Date = localDate.toNorwegianDateAtNoon()
 
         return regelService.makeRegelCall(
             request = HentGrunnbelopListeRequest().apply {

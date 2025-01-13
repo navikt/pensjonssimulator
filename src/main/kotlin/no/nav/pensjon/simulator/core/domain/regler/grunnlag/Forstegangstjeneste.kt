@@ -6,7 +6,7 @@ import java.util.*
 class Forstegangstjeneste(
     var periodeListe: MutableList<ForstegangstjenestePeriode> = mutableListOf()
 ) : Serializable {
-
+/*
     val sortertPeriodeListe: MutableList<ForstegangstjenestePeriode>
         get() {
             val sortertPeriodeListe = periodeListe
@@ -35,7 +35,7 @@ class Forstegangstjeneste(
             }
             return arSet.toMutableList()
         }
-
+*/
     constructor(f: Forstegangstjeneste) : this() {
         for (p in f.periodeListe) {
             periodeListe.add(p.let { ForstegangstjenestePeriode(it) })

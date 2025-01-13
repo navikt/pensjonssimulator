@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.trygd
 
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.InsertTrygdetidsgrunnlagForDomesticPeriods
@@ -9,25 +9,25 @@ object InnlandTrygdetidGrunnlagInserter {
 
     fun createTrygdetidGrunnlagForInnlandPerioder(
         trygdetidGrunnlagListe: List<TrygdetidOpphold>,
-        foedselDato: LocalDate?
+        foedselsdato: LocalDate?
     ): List<TrygdetidOpphold> {
         if (trygdetidGrunnlagListe.isEmpty()) return emptyList()
 
         val sortedGrunnlagListe = trygdetidGrunnlagListe.sortedBy { it.periode.fom }.toMutableList()
-        addGrunnlagFraFoedselDato(sortedGrunnlagListe, foedselDato)
+        addGrunnlagFraFoedselsdato(sortedGrunnlagListe, foedselsdato)
         addGrunnlagAfterLastUtlandTrygdetidGrunnlag(sortedGrunnlagListe)
         addGrunnlagBetweenUtlandTrygdetidGrunnlag(sortedGrunnlagListe)
         return sortedGrunnlagListe
     }
 
-    private fun addGrunnlagFraFoedselDato(grunnlagListe: MutableList<TrygdetidOpphold>, foedselDato: LocalDate?) {
-        val fom: LocalDate? = grunnlagListe.firstOrNull()?.periode?.fom.toLocalDate()
-        if (fom == foedselDato) return
+    private fun addGrunnlagFraFoedselsdato(grunnlagListe: MutableList<TrygdetidOpphold>, foedselsdato: LocalDate?) {
+        val fom: LocalDate? = grunnlagListe.firstOrNull()?.periode?.fom?.toNorwegianLocalDate()
+        if (fom == foedselsdato) return
 
         grunnlagListe.add(
             index = 0,
             element = trygdetidMedArbeid(
-                fom = foedselDato,
+                fom = foedselsdato,
                 tom = fom?.minusDays(1)
             )
         )
@@ -35,7 +35,7 @@ object InnlandTrygdetidGrunnlagInserter {
 
     private fun addGrunnlagAfterLastUtlandTrygdetidGrunnlag(grunnlagListe: MutableList<TrygdetidOpphold>) {
         val tom = grunnlagListe[grunnlagListe.size - 1].periode.tom ?: return
-        grunnlagListe.add(trygdetidMedArbeid(tom.toLocalDate()?.plusDays(1), null))
+        grunnlagListe.add(trygdetidMedArbeid(tom.toNorwegianLocalDate().plusDays(1), null))
     }
 
     private fun addGrunnlagBetweenUtlandTrygdetidGrunnlag(grunnlagListe: MutableList<TrygdetidOpphold>) {
@@ -44,9 +44,9 @@ object InnlandTrygdetidGrunnlagInserter {
         while (index < grunnlagListe.size - 1) {
             val grunnlagBefore: TrygdetidOpphold = grunnlagListe[index]
             val grunnlagAfter: TrygdetidOpphold = grunnlagListe[index + 1]
-            val secondGrunnlagFom: LocalDate? = grunnlagAfter.periode.fom.toLocalDate()
+            val secondGrunnlagFom: LocalDate? = grunnlagAfter.periode.fom?.toNorwegianLocalDate()
             val firstGrunnlagTom: LocalDate? =
-                grunnlagBefore.periode.tom?.toLocalDate() ?: secondGrunnlagFom?.minusDays(1)
+                grunnlagBefore.periode.tom?.toNorwegianLocalDate() ?: secondGrunnlagFom?.minusDays(1)
             val dayAfterFirstGrunnlagTom: LocalDate? = firstGrunnlagTom?.plusDays(1)
 
             if (secondGrunnlagFom != dayAfterFirstGrunnlagTom) {

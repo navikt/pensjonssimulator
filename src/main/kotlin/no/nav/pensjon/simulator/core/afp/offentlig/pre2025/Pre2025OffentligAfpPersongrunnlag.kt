@@ -11,14 +11,15 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeToday
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -169,7 +170,8 @@ class Pre2025OffentligAfpPersongrunnlag(
         private fun virksom(detalj: PersonDetalj) = virksom(detalj, allowSameDay = true)
 
         private fun virksom(detalj: PersonDetalj, allowSameDay: Boolean) =
-            detalj.virkTom == null || isAfterByDay(detalj.virkTom, today.toDate(), allowSameDay)
+            detalj.virkTom == null ||
+                    isAfterByDay(detalj.virkTom?.toNorwegianNoon(), today.toNorwegianDateAtNoon(), allowSameDay)
 
         // SimulerAFPogAPCommand.addInntektgrunnlagForEPS
         private fun addEpsInntektGrunnlag(
@@ -187,15 +189,15 @@ class Pre2025OffentligAfpPersongrunnlag(
 
         // SimulerAFPogAPCommand.findFomDatoInntekt
         private fun inntektFom(foersteUttakDato: LocalDate?): LocalDate {
-            val date1 = foersteUttakDato?.toDate() //TODO use LocalDate throughout
+            val date1 = foersteUttakDato?.toNorwegianDateAtNoon() //TODO use LocalDate throughout
 
             val date: Date? =
                 if (isBeforeToday(date1))
                     date1
                 else
-                    today.toDate()
+                    today.toNorwegianDateAtNoon()
 
-            return LocalDate.of(DateUtil.getYear(date), 1, 1)
+            return date?.let { LocalDate.of(getYear(it), 1, 1) } ?: LocalDate.MIN
         }
 
         // SimulerAFPogAPCommand.createInntektsgrunnlagForEPS
@@ -203,12 +205,12 @@ class Pre2025OffentligAfpPersongrunnlag(
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
-                fom = fomDatoInntekt.toDate() // is set to noon in property
+                fom = fomDatoInntekt.toNorwegianDateAtNoon() // is set to noon in property
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.BRUKER.name)
                 inntektType = InntektTypeCti(InntekttypeEnum.FPI.name)
                 //kopiertFraGammeltKrav = false <--- not used by pensjon-regler
                 //registerKilde = null <--- not used by pensjon-regler
-                tom = null // is set to noon in property
+                tom = null
             }
 
         // SimulerAFPogAPCommandHelper.removeInvalidPersondetaljFromPersongrunnlag

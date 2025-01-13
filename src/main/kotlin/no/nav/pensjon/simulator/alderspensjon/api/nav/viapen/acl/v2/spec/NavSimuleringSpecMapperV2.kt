@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 
 object NavSimuleringSpecMapperV2 {
@@ -22,8 +22,8 @@ object NavSimuleringSpecMapperV2 {
             sivilstatus = source.sivilstatus?.let { NavSivilstandSpecV2.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
-            foersteUttakDato = source.forsteUttakDato.toLocalDate(),
-            heltUttakDato = source.heltUttakDato.toLocalDate(),
+            foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
+            heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate(),
             pid = source.fnr?.pid?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = avdoed(source),
@@ -64,7 +64,7 @@ object NavSimuleringSpecMapperV2 {
                 pid = Pid(it.pid),
                 antallAarUtenlands = source.avdodAntallArIUtlandet ?: 0,
                 inntektFoerDoed = source.avdodInntektForDod ?: 0,
-                doedDato = source.dodsdato.toLocalDate()!!,
+                doedDato = source.dodsdato!!.toNorwegianLocalDate(),
                 erMedlemAvFolketrygden = source.avdodMedlemAvFolketrygden == true,
                 harInntektOver1G = source.inntektAvdodOver1G == true
             )

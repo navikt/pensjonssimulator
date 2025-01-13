@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.person.client.pen
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
@@ -65,7 +65,7 @@ class PenPersonClientTest : FunSpec({
 
            with(result[Pid("22426305678")]!!) {
                penPersonId shouldBe 123456L
-               fodselsdato = fromLocalDate(LocalDate.of(1963, 2, 22))
+               fodselsdato = LocalDate.of(1963, 2, 22).toNorwegianDateAtNoon()
                afpHistorikkListe?.size shouldBe 0
                uforehistorikk?.uforeperiodeListe?.size shouldBe 1
                generellHistorikk?.generellHistorikkId shouldBe 54836715

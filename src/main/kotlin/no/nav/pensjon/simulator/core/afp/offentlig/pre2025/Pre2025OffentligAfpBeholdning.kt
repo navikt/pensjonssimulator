@@ -10,7 +10,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LEGACY_UBETINGET_PENSJONERINGSALDER_AAR
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -29,7 +29,7 @@ class Pre2025OffentligAfpBeholdning(val context: SimulatorContext) {
         val normAlder: Date =
             getRelativeDateByYear(persongrunnlag.fodselsdato!!, LEGACY_UBETINGET_PENSJONERINGSALDER_AAR)
         val beholdningListe: List<Beholdning> =
-            context.beregnOpptjening(getFirstDateInYear(normAlder).toLocalDate(), persongrunnlag)
+            context.beregnOpptjening(getFirstDateInYear(normAlder).toNorwegianLocalDate(), persongrunnlag)
         addMissingBeholdningerToPersongrunnlag(beholdningListe, persongrunnlag)
         return persongrunnlag
     }

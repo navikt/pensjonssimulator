@@ -27,6 +27,7 @@ import java.util.TimeZone
 class PenSakClientTest : FunSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
+    val defaultTimeZone = TimeZone.getDefault()
 
     beforeSpec {
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
@@ -43,6 +44,7 @@ class PenSakClientTest : FunSpec({
 
     afterSpec {
         server?.shutdown()
+        TimeZone.setDefault(defaultTimeZone)
     }
 
     test("fetchPersonVirkningDato") {

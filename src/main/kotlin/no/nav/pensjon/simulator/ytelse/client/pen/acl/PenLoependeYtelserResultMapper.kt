@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.ytelse.client.pen.acl
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelser
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.PrivatAfpYtelser
@@ -41,8 +41,8 @@ object PenLoependeYtelserResultMapper {
         val kapittel20AlderspensjonInfo = extraInfo.extraKapittel20AlderspensjonInfo
 
         return AlderspensjonYtelser(
-            sokerVirkningFom = alderspensjon.sokerVirkningFom.toLocalDate(),
-            avdodVirkningFom = alderspensjon.avdodVirkningFom.toLocalDate(),
+            sokerVirkningFom = alderspensjon.sokerVirkningFom?.toNorwegianLocalDate(),
+            avdodVirkningFom = alderspensjon.avdodVirkningFom?.toNorwegianLocalDate(),
             sisteBeregning = alderspensjon.sisteBeregning,
 
             forrigeBeregningsresultat = alderspensjon.forrigeBeregningsresultat?.apply {
@@ -70,7 +70,7 @@ object PenLoependeYtelserResultMapper {
 
     private fun privatAfpYtelser(afp: PenPrivatAfpYtelser, extraInfo: PenYtelserExtraInfo) =
         PrivatAfpYtelser(
-            virkningFom = afp.virkningFom.toLocalDate(),
+            virkningFom = afp.virkningFom?.toNorwegianLocalDate(),
 
             forrigeBeregningsresultat = afp.forrigeBeregningsresultat?.apply {
                 kravId = extraInfo.kravId

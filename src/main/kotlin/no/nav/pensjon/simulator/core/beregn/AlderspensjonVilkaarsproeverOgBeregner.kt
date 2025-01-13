@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.core.beregn
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
@@ -18,7 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbehol
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
-import no.nav.pensjon.simulator.core.domain.regler.util.formula.FormelProvider
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensjonResultat
 import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
@@ -27,17 +25,17 @@ import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.isBeforeOrOn
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
@@ -104,9 +102,9 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             // Corresponds to part 3
-            val foedselDato: LocalDate = soekerGrunnlag.fodselsdato.toLocalDate()!!
-            val forholdstallUtvalg = generelleDataHolder.getForholdstallUtvalg(knekkpunktDato, foedselDato)
-            val delingstallUtvalg = generelleDataHolder.getDelingstallUtvalg(knekkpunktDato, foedselDato)
+            val foedselsdato: LocalDate = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
+            val forholdstallUtvalg = generelleDataHolder.getForholdstallUtvalg(knekkpunktDato, foedselsdato)
+            val delingstallUtvalg = generelleDataHolder.getDelingstallUtvalg(knekkpunktDato, foedselsdato)
 
             // Corresponds to part 4
             val gjeldendePrivatAfp = getAfpPrivatLivsvarig(privatAfpBeregningResultatListe, knekkpunktDato)
@@ -193,7 +191,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             // should force a Kap 19 simulation even for pure Kap 20 brukere (2025) since eksterne ordninger currently
             // aren't able to parse a Kap 20 result. But - we are required to do a 2025-beregning as well due to the
             // vilkårsprøving. This "hack" should be removed as soon as they're able to receive Kap 20 results.
-            if (isCriteriaForDoingKap20ForSimulerForTpFullfilled(simuleringSpec, foedselDato, knekkpunktDato)) {
+            if (isCriteriaForDoingKap20ForSimulerForTpFullfilled(simuleringSpec, foedselsdato, knekkpunktDato)) {
                 simuleringSpec.simulerForTp = false
 
                 val gjeldendeBeregningsresultatTp = beregnAlderspensjon(
@@ -250,18 +248,18 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                         beregningResultat.beregningsResultat2025?.beregningKapittel20?.beholdningerForForsteuttak!!
                     pensjonBeholdningPeriodeListe.add(
                         beholdningPeriode(
-                            virkningFom = beregningResultat.virkFom.toLocalDate()!!,
-                            beholdninger = beholdninger,
-                            foedselDato = foedselDato
+                            virkningFom = beregningResultat.virkFom!!.toNorwegianLocalDate(),
+                            beholdninger,
+                            foedselsdato
                         )
                     )
                 } else if (beregningResultat is BeregningsResultatAlderspensjon2025) {
                     val beholdninger = beregningResultat.beregningKapittel20?.beholdningerForForsteuttak!!
                     pensjonBeholdningPeriodeListe.add(
                         beholdningPeriode(
-                            virkningFom = beregningResultat.virkFom.toLocalDate()!!,
-                            beholdninger = beholdninger,
-                            foedselDato = foedselDato
+                            virkningFom = beregningResultat.virkFom!!.toNorwegianLocalDate(),
+                            beholdninger,
+                            foedselsdato
                         )
                     )
                 }
@@ -551,7 +549,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     else
                         soekerForsteVirkning
 
-                val foersteVirk = fromLocalDate(localFoersteVirk)
+                val foersteVirk = localFoersteVirk.toNorwegianDateAtNoon()
                 it.forsteVirk = foersteVirk // NB: modified in VilkarsprovOgBeregnAlderHelper 2023-08-30
                 it.kravlinjeForsteVirk =
                     foersteVirk // NB: modified in VilkarsprovOgBeregnAlderHelper 2023-12-05 (PEB-476)
@@ -712,7 +710,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         private fun opprettInnvilgetVedtak(kravlinje: Kravlinje?, virkFom: LocalDate): VilkarsVedtak =
             opprettManueltVilkarsvedtak(kravlinje, virkFom).also {
-                it.forsteVirk = fromLocalDate(virkFom)
+                it.forsteVirk = virkFom.toNorwegianDateAtNoon()
                 it.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
             }
 
@@ -789,7 +787,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             forrigeResultat: AbstraktBeregningsResultat,
             knekkpunktDato: LocalDate
         ) {
-            forrigeResultat.virkTom = fromLocalDate(getRelativeDateByDays(knekkpunktDato, -1))
+            forrigeResultat.virkTom = getRelativeDateByDays(knekkpunktDato, -1).toNorwegianDateAtNoon()
         }
 
         /**
@@ -804,8 +802,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             boddEllerArbeidetUtenlands: Boolean
         ) =
             TrygdetidRequest().apply {
-                this.virkFom = fromLocalDate(knekkpunktDato)?.noon()
-                this.brukerForsteVirk = fromLocalDate(soekerForsteVirkningFom)?.noon()
+                this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
+                this.brukerForsteVirk = soekerForsteVirkningFom.toNorwegianDateAtNoon()
                 this.ytelsesTypeEnum = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
@@ -822,7 +820,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             return VilkarsVedtak().apply {
                 this.anbefaltResultatEnum = vedtakResultat
                 this.vilkarsvedtakResultatEnum = vedtakResultat
-                this.virkFom = fromLocalDate(virkningFom)
+                this.virkFom = virkningFom.toNorwegianDateAtNoon()
                 this.virkTom = null
                 this.kravlinje = kravlinje
                 this.kravlinjeTypeEnum = kravlinje?.kravlinjeTypeEnum
@@ -837,12 +835,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             return VilkarsVedtak().apply {
                 this.anbefaltResultatEnum = vedtakResultat
                 this.vilkarsvedtakResultatEnum = vedtakResultat
-                this.virkFom = fromLocalDate(virkningFom)
+                this.virkFom = virkningFom.toNorwegianDateAtNoon()
                 this.virkTom = null
                 this.kravlinje = kravlinje
                 this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
                 this.penPerson = kravlinje.relatertPerson
-                this.forsteVirk = fromLocalDate(virkningFom)
+                this.forsteVirk = virkningFom.toNorwegianDateAtNoon()
             }.also { it.finishInit() }
         }
 
@@ -892,7 +890,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun defaultBegrunnelse() = BegrunnelseTypeEnum.ANNET
 
         private fun avslag(vedtak: VilkarsVedtak): Boolean =
-            vedtak.anbefaltResultatEnum?.let { it == VedtakResultatEnum.AVSL } ?: false
+            vedtak.anbefaltResultatEnum?.let { it == VedtakResultatEnum.AVSL } == true
 
         private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
             when (begrunnelse) {
@@ -913,16 +911,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             VilkarsprovRequest(
                 kravhode = spec.kravhode,
                 sisteBeregning = null,
-                fom = fromLocalDate(spec.virkFom)?.noon(),
+                fom = spec.virkFom.toNorwegianDateAtNoon(),
                 tom = null
             )
 
         private fun vilkaarsproeving2011Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2011Request().apply {
                 kravhode = spec.kravhode
-                fom = fromLocalDate(spec.virkFom)?.noon()
+                fom = spec.virkFom.toNorwegianDateAtNoon()
                 tom = null
-                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon()
+                afpVirkFom = spec.afpForsteVirk?.toNorwegianDateAtNoon()
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 afpLivsvarig = spec.afpLivsvarig
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011
@@ -932,11 +930,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun vilkaarsproeving2016Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2016Request().apply {
                 kravhode = spec.kravhode
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom.toNorwegianDateAtNoon()
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 delingstallUtvalg = spec.delingstallUtvalg
                 afpLivsvarig = spec.afpLivsvarig
-                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon()
+                afpVirkFom = spec.afpForsteVirk?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016
                 utforVilkarsberegning = true
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
@@ -945,11 +943,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun vilkaarsproeving2025Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2025Request().apply {
                 kravhode = spec.kravhode
-                fom = fromLocalDate(spec.virkFom)?.noon()
+                fom = spec.virkFom.toNorwegianDateAtNoon()
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 delingstallUtvalg = spec.delingstallUtvalg
                 afpLivsvarig = spec.afpLivsvarig
-                afpVirkFom = fromLocalDate(spec.afpForsteVirk)?.noon()
+                afpVirkFom = spec.afpForsteVirk?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011 // NB: 2011
                 utforVilkarsberegning = true
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
@@ -987,7 +985,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 ektefellenMottarPensjon = spec.epsMottarPensjon
@@ -999,7 +997,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 delingstallUtvalg = spec.delingstallUtvalg
                 epsMottarPensjon = spec.epsMottarPensjon
@@ -1009,7 +1007,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         private fun beregning2025Request(spec: AlderspensjonBeregningCommonSpec) =
             BeregnAlderspensjon2025ForsteUttakRequest().apply {
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
@@ -1055,7 +1053,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 epsMottarPensjon = spec.epsMottarPensjon
                 forholdstallUtvalg = spec.forholdstallUtvalg
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2011
                 afpLivsvarig = spec.afpLivsvarig
@@ -1069,7 +1067,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 epsMottarPensjon = spec.epsMottarPensjon
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 delingstallUtvalg = spec.delingstallUtvalg
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016
                 afpLivsvarig = spec.afpLivsvarig
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
@@ -1086,7 +1084,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 epsMottarPensjon = spec.epsMottarPensjon
                 forholdstallUtvalg = spec.forholdstallUtvalg
                 delingstallUtvalg = spec.delingstallUtvalg
-                virkFom = fromLocalDate(spec.virkFom)?.noon()
+                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011 // NB: 2011
                 afpLivsvarig = spec.afpLivsvarig
                 garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
@@ -1165,10 +1163,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         private fun clearFormelMap(pensjon: Basispensjon) {
             pensjon.tp?.formelMap?.clear()
-        }
-
-        private fun clearFormelMap(provider: FormelProvider) {
-            provider.formelMap.clear()
         }
     }
 }

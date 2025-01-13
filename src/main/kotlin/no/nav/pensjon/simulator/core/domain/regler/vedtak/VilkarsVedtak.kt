@@ -12,8 +12,8 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarsvedtakResultatCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import java.io.Serializable
 import java.time.LocalDate
@@ -137,7 +137,7 @@ class VilkarsVedtak : Serializable {
             findFirstInnvilgetDateForKravlinjeOnSakForKravlinjePerson(kravhodeSakForsteVirkningsdatoer)
 
         kravlinjeForsteVirk = DateUtil.findEarliestDateByDay(
-            fromLocalDate(forsteVirkForKravlinjeOnSak),
+            forsteVirkForKravlinjeOnSak?.toNorwegianDateAtNoon(),
             forsteVirkForKravlinjeOnVedtak
         ) // NB: legacy constructs new Date
     }

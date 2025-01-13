@@ -11,14 +11,14 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import java.time.LocalDate
 import java.util.*
@@ -96,8 +96,8 @@ object BehandlingPeriodeUtil {
                 newPersongrunnlag.inntektsgrunnlagListe.removeIf(
                     InntektsgrunnlagIsValidPredicate(
                         sakType,
-                        fromLocalDate(virkningFom),
-                        fromLocalDate(virkningTom),
+                        virkningFom?.toNorwegianDateAtNoon(),
+                        virkningTom?.toNorwegianDateAtNoon(),
                         periodiserFomTomDatoUtenUnntak
                     ).negate()
                 )
@@ -110,7 +110,7 @@ object BehandlingPeriodeUtil {
                     newPersongrunnlag.deleteYrkesskadegrunnlag()
                 }
 
-                val dateValidator = DateValidator(fromLocalDate(virkningFom), fromLocalDate(virkningTom))
+                val dateValidator = DateValidator(virkningFom?.toNorwegianDateAtNoon(), virkningTom?.toNorwegianDateAtNoon())
                 newPersongrunnlag.utenlandsoppholdListe.removeIf { !dateValidator.areValid(it.fom!!, it.tom) }
 
                 newPersongrunnlag.instOpphFasteUtgifterperiodeListe.removeIf {
@@ -181,8 +181,8 @@ object BehandlingPeriodeUtil {
             inntektsgrunnlagIsValid(
                 sakType,
                 inntektsgrunnlag,
-                virkDatoFom.toLocalDate(),
-                virkDatoTom.toLocalDate(),
+                virkDatoFom?.toNorwegianLocalDate(),
+                virkDatoTom?.toNorwegianLocalDate(),
                 periodiserFomTomDatoUtenUnntak
             )
     }
@@ -324,8 +324,8 @@ object BehandlingPeriodeUtil {
 
     private fun dateIsValid(fom: Date?, tom: Date?, virkFom: LocalDate?, virkTom: LocalDate?) =
         intersectsWithPossiblyOpenEndings(
-            o1Start = fom.toLocalDate(),
-            o1End = tom.toLocalDate(),
+            o1Start = fom?.toNorwegianLocalDate(),
+            o1End = tom?.toNorwegianLocalDate(),
             o2Start = virkFom,
             o2End = virkTom,
             considerContactByDayAsIntersection = true

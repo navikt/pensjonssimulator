@@ -1,5 +1,8 @@
 package no.nav.pensjon.simulator.core.legacy.util
 
+import no.nav.pensjon.simulator.core.util.NorwegianCalendar
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.time.Period
 import java.util.*
@@ -10,15 +13,15 @@ import kotlin.math.min
 object DateUtil {
 
     val LOCAL_ETERNITY: LocalDate = LocalDate.of(9999, 12, 31)
-    val ETERNITY: Date = fromLocalDate(LOCAL_ETERNITY)!!
-    const val MAANEDER_PER_AR = 12
+    val ETERNITY: Date = LOCAL_ETERNITY.toNorwegianDateAtNoon()
+    const val MAANEDER_PER_AAR = 12
 
     // SimuleringEtter2011Utils.monthOfYearRange1To12
-    fun monthOfYearRange1To12(date: Date?): Int =
+    fun monthOfYearRange1To12(date: Date): Int =
         getMonth(date) + 1
 
-    fun monthOfYearRange1To12(date: LocalDate?): Int =
-        monthOfYearRange1To12(fromLocalDate(date))
+    fun monthOfYearRange1To12(date: LocalDate): Int =
+        monthOfYearRange1To12(date.toNorwegianDateAtNoon())
 
     /**
      * {@see DateUtil.intersects} Removes the values for HOUR_OF_DAY, MINUTES, SECONDS and MILLISECONDS before the compare such
@@ -30,10 +33,10 @@ object DateUtil {
         considerContactByDayAsIntersection: Boolean
     ): Boolean =
         intersectsWithPossiblyOpenEndings(
-            fromLocalDate(o1Start),
-            fromLocalDate(o1End),
-            fromLocalDate(o2Start),
-            fromLocalDate(o2End),
+            o1Start?.toNorwegianDateAtNoon(),
+            o1End?.toNorwegianDateAtNoon(),
+            o2Start?.toNorwegianDateAtNoon(),
+            o2End?.toNorwegianDateAtNoon(),
             considerContactByDayAsIntersection
         )
 
@@ -42,20 +45,26 @@ object DateUtil {
         considerContactByDayAsIntersection: Boolean
     ): Boolean =
         intersectsWithPossiblyOpenEndings(
-            fromLocalDate(o1Start),
-            fromLocalDate(o1End),
+            o1Start?.toNorwegianDateAtNoon(),
+            o1End?.toNorwegianDateAtNoon(),
             o2Start,
             o2End,
             considerContactByDayAsIntersection
         )
 
+    // PEN: no.stelvio.common.util.DateUtil.intersectsWithPossiblyOpenEndings
+    // NB: Here ETERNITY is used instead of Date(Long.MAX_VALUE)
+    //     in order to avoid timezone problems
     fun intersectsWithPossiblyOpenEndings(
         o1Start: Date?, o1End: Date?, o2Start: Date?, o2End: Date?,
         considerContactByDayAsIntersection: Boolean
     ): Boolean =
         intersects(
-            o1Start, if ((o1End == null)) Date(Long.MAX_VALUE) else o1End, o2Start,
-            if ((o2End == null)) Date(Long.MAX_VALUE) else o2End, considerContactByDayAsIntersection
+            o1Start,
+            o1End ?: ETERNITY,
+            o2Start,
+            o2End ?: ETERNITY,
+            considerContactByDayAsIntersection
         )
 
     /**
@@ -120,35 +129,18 @@ object DateUtil {
             start < end
     }
 
-    /**
-     * Calculates the last day of the month the user turns 67 years of age.
-     */
     // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
-    fun lastDayOfMonthUserTurns67(foedselDato: Date?): Date =
-        lastDayOfMonthUserTurnsGivenAge(foedselDato, 67)
+    fun lastDayOfMonthUserTurns67(foedselsdato: Date): Date =
+        lastDayOfMonthUserTurnsGivenAge(foedselsdato, 67) //TODO normert?
 
-    fun lastDayOfMonthUserTurns67(foedselDato: LocalDate?): LocalDate =
-        local(lastDayOfMonthUserTurns67(fromLocalDate(foedselDato)))!!
+    fun lastDayOfMonthUserTurns67(foedselsdato: LocalDate): LocalDate =
+        lastDayOfMonthUserTurns67(foedselsdato.toNorwegianDateAtNoon()).toNorwegianLocalDate()
 
-    /**
-     * Calculates the age in years of a person on a given date. The age is returned "Nav style", i.e. the user is considered to
-     * be of a certain age in a 12-month period starting from the 1st of the month after the birthday month.
-     */
-    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.calculateAgeInYears
-    fun calculateAgeInYears(foedselDato: Date, compareDate: Date): Int {
-        /*
-        val adjustedDateOfBirth: Date = getLastDayOfMonth(dateOfBirth)
-        val period: Period = Period(adjustedDateOfBirth.time, compareDate.time, PeriodType.years())
-        return period.getYears()
-        */
-        return calculateAgeInYears(local(foedselDato), local(compareDate))
-    }
-
-    fun calculateAgeInYears(foedselDato: Date, compareDate: LocalDate): Int =
-        calculateAgeInYears(local(foedselDato), compareDate)
+    fun calculateAgeInYears(foedselsdato: Date, dato: LocalDate): Int =
+        calculateAgeInYears(foedselsdato.toNorwegianLocalDate(), dato)
 
     // SimuleringEtter2011Utils.calculateAgeInYears
-    // NB: Compare this with calculateAgeInYears2 below, and with PensjonAlderDato.alderVedDato
+    // NB: Compare this with PensjonAlderDato.alderVedDato
     fun calculateAgeInYears(foedselsdato: LocalDate?, dato: LocalDate?): Int =
         foedselsdato?.let {
             Period.between(
@@ -157,95 +149,63 @@ object DateUtil {
             ).years
         } ?: 0
 
-    // SimuleringRequestConverter.convertDatoFomToAlderTuple
-    fun calculateAgeInYears2(fodselsdato: LocalDate, dato: LocalDate): Int {
-        val firstDayOfLastMonth = dato.minusMonths(1L).withDayOfMonth(1)
-        return Period.between(fodselsdato.withDayOfMonth(1), firstDayOfLastMonth).years
-    }
-
-    // no.nav.domain.pensjon.common.util.DateUtils.fromLocalDate
-    fun fromLocalDate(date: LocalDate?): Date? {
-        if (date == null) {
-            return null
-        }
-
-        return createCalendar(
-            year = date.year,
-            month = date.monthValue - 1,
-            day = date.dayOfMonth
-        ).time
-    }
-
-    fun setTimeToZero(date: Date): Date = createEmptyTimeFieldsCalendar(date).time
-
-    /**
-     * Creates a new Date object set to the date fields given by the input parameters. All other date fields are cleared.
-     */
-    fun createDate(year: Int, month: Int, day: Int): Date {
-        val calendar = Calendar.getInstance()
-        calendar.clear()
-        calendar[year, month] = day
-        return calendar.time
-    }
+    fun createDate(year: Int, month: Int, day: Int): Date =
+        NorwegianCalendar.dateAtNoon(year, month, day)
 
     /**
      * Returns the number of months between two dates.
      */
     // no.stelvio.common.util.DateUtil.getMonthBetween
-    fun getMonthBetween(fromDate: Date?, toDate: Date?): Int {
-        val fromCalendar: Calendar = createCalendar(fromDate)
-        val toCalendar: Calendar = createCalendar(toDate)
+    fun getMonthBetween(fromDate: Date, toDate: Date): Int {
+        val fromCalendar: Calendar = NorwegianCalendar.forNoon(fromDate)
+        val toCalendar: Calendar = NorwegianCalendar.forNoon(toDate)
 
         val fromTotalMonths: Int =
-            MAANEDER_PER_AR * fromCalendar[Calendar.YEAR] + fromCalendar[Calendar.MONTH]
+            MAANEDER_PER_AAR * fromCalendar[Calendar.YEAR] + fromCalendar[Calendar.MONTH]
         val toTotalMonths: Int =
-            MAANEDER_PER_AR * toCalendar[Calendar.YEAR] + toCalendar[Calendar.MONTH]
+            MAANEDER_PER_AAR * toCalendar[Calendar.YEAR] + toCalendar[Calendar.MONTH]
 
         return abs((fromTotalMonths - toTotalMonths).toDouble()).toInt()
     }
 
     fun getMonthBetween(fromDate: LocalDate, toDate: LocalDate): Int =
-        getMonthBetween(fromLocalDate(fromDate), fromLocalDate(toDate))
+        getMonthBetween(fromDate.toNorwegianDateAtNoon(), toDate.toNorwegianDateAtNoon())
 
     // no.stelvio.common.util.DateUtil.isDateInPeriod
-    fun isDateInPeriod(compDate: Date?, fomDate: Date?, tomDate: Date?): Boolean {
-        if (null == fomDate || null == compDate) {
+    fun isDateInPeriod(dato: Date?, fom: Date?, tom: Date?): Boolean {
+        if (fom == null || dato == null) {
             return false
         }
 
-        var tomOK = false
+        var tomOk = false
 
-        if (null != tomDate) {
-            if (isBeforeDay(compDate, tomDate) || isSameDay(compDate, tomDate)) {
-                tomOK = true
-            }
+        if (tom == null) {
+            tomOk = true
         } else {
-            tomOK = true
+            if (isBeforeDay(dato, tom) || isSameDay(dato, tom)) {
+                tomOk = true
+            }
         }
 
-        return (isBeforeDay(fomDate, compDate) || isSameDay(compDate, fomDate)) && tomOK
+        return tomOk && (isBeforeDay(fom, dato) || isSameDay(dato, fom))
     }
 
-    fun isDateInPeriod(compDate: LocalDate?, fomDate: Date?, tomDate: Date?): Boolean =
-        isDateInPeriod(fromLocalDate(compDate), fomDate, tomDate)
+    fun isDateInPeriod(dato: LocalDate?, fom: Date?, tom: Date?): Boolean =
+        isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom, tom)
 
     /**
      * Returns true if the dates are the same day.
      * Hours, minutes, seconds and milliseconds are not regarded.
      */
     // no.stelvio.common.util.DateUtil.isSameDay
-    fun isSameDay(a: Date?, b: Date?): Boolean {
-        if (a == null && b == null) {
-            return false
+    fun isSameDay(a: Date?, b: Date?): Boolean =
+        when {
+            a == null && b == null -> false
+            else -> createDayCalendar(a) == createDayCalendar(b)
         }
 
-        val thisCal: Calendar = createDayCalendar(a)
-        val thatCal: Calendar = createDayCalendar(b)
-        return thisCal == thatCal
-    }
-
     fun isSameDay(a: LocalDate?, b: LocalDate?): Boolean =
-        isSameDay(fromLocalDate(a), fromLocalDate(b))
+        isSameDay(a?.toNorwegianDateAtNoon(), b?.toNorwegianDateAtNoon())
 
     /**
      * Checks if one date is before another date.
@@ -257,16 +217,16 @@ object DateUtil {
             return false
         }
 
-        val firstCalendar: Calendar = createEmptyTimeFieldsCalendar(first)
-        val secondCalendar: Calendar = createEmptyTimeFieldsCalendar(second ?: Date())
+        val firstCalendar: Calendar = NorwegianCalendar.forNoon(first)
+        val secondCalendar: Calendar = NorwegianCalendar.forNoon(second ?: Date())
         return firstCalendar.time.before(secondCalendar.time)
     }
 
     fun isBeforeDay(first: Date?, second: LocalDate?): Boolean =
-        isBeforeDay(first, fromLocalDate(second))
+        isBeforeDay(first, second?.toNorwegianDateAtNoon())
 
     fun isBeforeDay(first: LocalDate?, second: LocalDate?): Boolean =
-        isBeforeDay(fromLocalDate(first), fromLocalDate(second))
+        isBeforeDay(first?.toNorwegianDateAtNoon(), second?.toNorwegianDateAtNoon())
 
     // no.stelvio.common.util.DateUtil.isBeforeToday
     fun isBeforeToday(date: Date?): Boolean = isBeforeDay(date, null as Date?)
@@ -275,151 +235,140 @@ object DateUtil {
     fun getYesterday(): Date = getRelativeDateFromNow(-1)
 
     // SimuleringEtter2011Utils.firstDayOfMonthAfterUserTurnsGivenAge
-    fun firstDayOfMonthAfterUserTurnsGivenAge(dateOfBirth: Date?, age: Int): Date {
-        val calendar = Calendar.getInstance()
-        calendar.time = dateOfBirth
-        calendar.add(Calendar.YEAR, age)
-        calendar.add(Calendar.MONTH, 1)
-        calendar[Calendar.DAY_OF_MONTH] = 1
-        return setTimeToZero(calendar.time)
-    }
+    fun firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato: Date, alderAar: Int): Date =
+        NorwegianCalendar.forNoon(foedselsdato).apply {
+            add(Calendar.YEAR, alderAar)
+            add(Calendar.MONTH, 1)
+            this[Calendar.DAY_OF_MONTH] = 1
+        }.time
 
-    fun firstDayOfMonthAfterUserTurnsGivenAge(dateOfBirth: LocalDate, age: Int): Date =
-        firstDayOfMonthAfterUserTurnsGivenAge(fromLocalDate(dateOfBirth), age)
+    fun firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato: LocalDate, alderAar: Int): Date =
+        firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato.toNorwegianDateAtNoon(), alderAar)
+
+    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurnsGivenAge
+    private fun lastDayOfMonthUserTurnsGivenAge(foedselsdato: Date, alderAar: Int): Date {
+        val dato: Date =
+            NorwegianCalendar.forNoon(foedselsdato).apply {
+                add(Calendar.YEAR, alderAar)
+                add(Calendar.MONTH, 1)
+            }.time
+
+        return findLastDayInMonthBefore(dato)
+    }
 
     // no.stelvio.common.util.DateUtil.getFirstDayOfMonth
     fun getFirstDayOfMonth(date: Date): Date =
         getFirstOrLastDayOfMonth(date, true)
 
     fun getFirstDayOfMonth(date: LocalDate): Date =
-        getFirstOrLastDayOfMonth(fromLocalDate(date)!!, true)
-
-    fun getFirstDayOfMonth2(date: LocalDate): LocalDate =
-        local(getFirstOrLastDayOfMonth(fromLocalDate(date), true))!!
+        getFirstOrLastDayOfMonth(date.toNorwegianDateAtNoon(), true)
 
     // no.stelvio.common.util.DateUtil.getFirstOrLastDayOfMonth
-    private fun getFirstOrLastDayOfMonth(date: Date?, first: Boolean): Date {
-        val calendar: Calendar = createCalendar(date)
-        val dayOfMonth =
-            if (first) calendar.getActualMinimum(Calendar.DAY_OF_MONTH) else calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        calendar[Calendar.DAY_OF_MONTH] = dayOfMonth
-        return calendar.time
-    }
+    private fun getFirstOrLastDayOfMonth(date: Date, first: Boolean): Date =
+        NorwegianCalendar.forNoon(date).apply {
+            this[Calendar.DAY_OF_MONTH] = if (first)
+                getActualMinimum(Calendar.DAY_OF_MONTH)
+            else
+                getActualMaximum(Calendar.DAY_OF_MONTH)
+        }.time
 
-    fun getLastDayOfMonth(date: Date?): Date =
+    fun getLastDayOfMonth(date: Date): Date =
         getFirstOrLastDayOfMonth(date, false)
 
     // no.stelvio.common.util.DateUtil.getFirstDateInYear
-    fun getFirstDateInYear(date: Date?): Date {
-        val calendar: Calendar = createEmptyTimeFieldsCalendar(date)
-        calendar[Calendar.MONTH] = Calendar.JANUARY
-        calendar[Calendar.DAY_OF_MONTH] = calendar.getActualMinimum(Calendar.DAY_OF_MONTH)
-        return calendar.time
-    }
+    fun getFirstDateInYear(date: Date): Date =
+        NorwegianCalendar.forNoon(date).apply {
+            this[Calendar.MONTH] = Calendar.JANUARY
+            this[Calendar.DAY_OF_MONTH] = getActualMinimum(Calendar.DAY_OF_MONTH)
+        }.time
 
-    fun getFirstDateInYear(date: LocalDate?): LocalDate =
-        local(getFirstDateInYear(fromLocalDate(date)))!!
+    fun getFirstDateInYear(date: LocalDate): LocalDate =
+        getFirstDateInYear(date.toNorwegianDateAtNoon()).toNorwegianLocalDate()
 
     // no.stelvio.common.util.DateUtil.getLastDateInYear
-    fun getLastDateInYear(date: Date?): Date {
-        val calendar: Calendar = createEmptyTimeFieldsCalendar(date)
-        calendar[Calendar.MONTH] = Calendar.DECEMBER
-        calendar[Calendar.DAY_OF_MONTH] = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        return calendar.time
-    }
+    fun getLastDateInYear(date: Date): Date =
+        NorwegianCalendar.forNoon(date).apply {
+            this[Calendar.MONTH] = Calendar.DECEMBER
+            this[Calendar.DAY_OF_MONTH] = getActualMaximum(Calendar.DAY_OF_MONTH)
+        }.time
 
     fun getLastDateInYear(date: LocalDate): LocalDate =
-        local(getLastDateInYear(fromLocalDate(date)))!!
+        getLastDateInYear(date.toNorwegianDateAtNoon()).toNorwegianLocalDate()
 
     // no.stelvio.common.util.DateUtil.getRelativeDateFromNow
     private fun getRelativeDateFromNow(days: Int): Date =
-        getRelativeDateByDays(fromLocalDate(LocalDate.now()), days)
-
-    // no.stelvio.common.util.DateUtil.createEmptyTimeFieldsCalendar
-    private fun createEmptyTimeFieldsCalendar(date: Date?): Calendar {
-        val calendar: Calendar = createCalendar(date)
-        clearTimeFields(calendar)
-        return calendar
-    }
+        getRelativeDateByDays(LocalDate.now().toNorwegianDateAtNoon(), days)
 
     // SimuleringEtter2011Utils.yearUserTurnsGivenAge
-    fun yearUserTurnsGivenAge(foedselDato: Date?, age: Int): Int {
-        val calendar = Calendar.getInstance()
-        calendar.time = foedselDato
-        calendar.add(Calendar.YEAR, age)
-        return getYear(calendar.time)
-    }
+    fun yearUserTurnsGivenAge(foedselsdato: Date, age: Int): Int =
+        NorwegianCalendar.forNoon(foedselsdato).apply {
+            add(Calendar.YEAR, age)
+        }.let {
+            getYear(it.time)
+        }
 
-    fun yearUserTurnsGivenAge(foedselDato: LocalDate, age: Int): Int =
-        yearUserTurnsGivenAge(fromLocalDate(foedselDato), age)
+    fun yearUserTurnsGivenAge(foedselsdato: LocalDate, age: Int): Int =
+        yearUserTurnsGivenAge(foedselsdato.toNorwegianDateAtNoon(), age)
 
     // no.stelvio.common.util.DateUtil.getMonth
-    fun getMonth(date: Date?): Int =
+    fun getMonth(date: Date): Int =
         getField(date, Calendar.MONTH)
 
     // no.stelvio.common.util.DateUtil.getYear
-    fun getYear(date: Date?): Int =
+    fun getYear(date: Date): Int =
         getField(date, Calendar.YEAR)
 
     /**
      * Finner datoer X dager fram/tilbake i tid.
      */
     // no.stelvio.common.util.DateUtil.getRelativeDateByDays
-    fun getRelativeDateByDays(date: Date?, days: Int): Date {
-        val calendar: Calendar = createCalendar(date)
-        calendar.add(Calendar.DAY_OF_MONTH, days)
-        return calendar.time
-    }
+    fun getRelativeDateByDays(date: Date, days: Int): Date =
+        NorwegianCalendar.forNoon(date).apply {
+            add(Calendar.DAY_OF_MONTH, days)
+        }.time
 
-    fun getRelativeDateByDays(date: LocalDate?, days: Int): LocalDate =
-        local(getRelativeDateByDays(fromLocalDate(date), days))!!
+    fun getRelativeDateByDays(date: LocalDate, days: Int): LocalDate =
+        getRelativeDateByDays(date.toNorwegianDateAtNoon(), days).toNorwegianLocalDate()
 
     /**
      * Finner datoer X måneder fremover/tilbake i tid.
      */
-    fun getRelativeDateByMonth(date: Date?, months: Int): Date {
-        val calendar: Calendar = createCalendar(date)
-        calendar.add(Calendar.MONTH, months)
-        return calendar.time
-    }
+    fun getRelativeDateByMonth(date: Date, months: Int): Date =
+        NorwegianCalendar.forNoon(date).apply {
+            add(Calendar.MONTH, months)
+        }.time
 
     /**
      * Finner datoer X år fram/tilbake i tid.
      */
     // no.stelvio.common.util.DateUtil.getRelativeDateByYear
-    fun getRelativeDateByYear(date: Date?, years: Int): Date {
-        val calendar: Calendar = createCalendar(date)
-        calendar.add(Calendar.YEAR, years)
-        return calendar.time
-    }
+    fun getRelativeDateByYear(date: Date, years: Int): Date =
+        NorwegianCalendar.forNoon(date).apply {
+            add(Calendar.YEAR, years)
+        }.time
 
-    fun getRelativeDateByYear(date: LocalDate?, years: Int): LocalDate =
-        local(getRelativeDateByYear(fromLocalDate(date), years))!!
+    fun getRelativeDateByYear(date: LocalDate, years: Int): LocalDate =
+        getRelativeDateByYear(date.toNorwegianDateAtNoon(), years).toNorwegianLocalDate()
 
     /**
      * Returns the given field for a date.
      * Be careful when calling this from inside another synchronized block as it could lead to a dealock.
      */
     // no.stelvio.common.util.DateUtil.getField
-    private fun getField(date: Date?, dateField: Int): Int {
-        val calendar: Calendar = createCalendar(date)
-        return calendar[dateField]
-    }
+    private fun getField(date: Date, dateField: Int): Int =
+        NorwegianCalendar.forNoon(date)[dateField]
 
     /**
      * Finds the lowest date of two dates by day, down to the granularity of days (not milliseconds, which is the default
      * behaviour in the standard API). If one date is null, the other will be returned. If both are null, null will be returned.
      */
     // no.stelvio.common.util.DateUtil.findEarliestDateByDay
-    fun findEarliestDateByDay(first: Date?, second: Date?): Date? {
-        return if (first == null) {
-            second
-        } else if (second == null) {
-            first
-        } else {
-            if (isBeforeByDay(first, second, true)) first else second
+    fun findEarliestDateByDay(first: Date?, second: Date?): Date? =
+        when {
+            first == null -> second
+            second == null -> first
+            else -> if (isBeforeByDay(first, second, allowSameDay = true)) first else second
         }
-    }
 
     /**
      * Finds the latest of two dates by day, down to the granularity of days (not milliseconds, which is the default behaviour
@@ -427,16 +376,14 @@ object DateUtil {
      */
     // no.stelvio.common.util.DateUtil.findLatestDateByDay
     fun findLatestDateByDay(first: Date?, second: Date?): Date? =
-        if (first == null) {
-            second
-        } else if (second == null) {
-            first
-        } else {
-            if (isAfterByDay(first, second, true)) first else second
+        when {
+            first == null -> second
+            second == null -> first
+            else -> if (isAfterByDay(first, second, allowSameDay = true)) first else second
         }
 
     fun findLatestDateByDay(first: LocalDate?, second: LocalDate?): LocalDate? =
-        local(findLatestDateByDay(fromLocalDate(first), fromLocalDate(second)))
+        findLatestDateByDay(first?.toNorwegianDateAtNoon(), second?.toNorwegianDateAtNoon())?.toNorwegianLocalDate()
 
     /**
      * Comparing two dates down to the granularity of days (not milliseconds, which is the default
@@ -446,33 +393,32 @@ object DateUtil {
      * and day. If set to false, the method returns false on this condition
      */
     // no.stelvio.common.util.DateUtil.isBeforeByDay
-    fun isBeforeByDay(thisDate: Date?, thatDate: Date?, allowSameDay: Boolean): Boolean {
-        return compareDates(thisDate, thatDate, allowSameDay, false)
-    }
+    fun isBeforeByDay(thisDate: Date?, thatDate: Date?, allowSameDay: Boolean): Boolean =
+        compareDates(thisDate, thatDate, allowSameDay, isAfter = false)
 
     // no.stelvio.common.util.DateUtil.isBeforeByDay
     fun isBeforeByDay(thisDate: LocalDate?, thatDate: Date?, allowSameDay: Boolean): Boolean =
         compareDates(
-            thisDate = fromLocalDate(thisDate),
-            thatDate = thatDate,
-            allowSameDay = allowSameDay,
+            thisDate = thisDate?.toNorwegianDateAtNoon(),
+            thatDate, // compareDates applies noon
+            allowSameDay,
             isAfter = false
         )
 
     // no.stelvio.common.util.DateUtil.isBeforeByDay
     fun isBeforeByDay(thisDate: LocalDate?, thatDate: LocalDate?, allowSameDay: Boolean): Boolean =
         compareDates(
-            thisDate = fromLocalDate(thisDate),
-            thatDate = fromLocalDate(thatDate),
-            allowSameDay = allowSameDay,
+            thisDate = thisDate?.toNorwegianDateAtNoon(),
+            thatDate = thatDate?.toNorwegianDateAtNoon(),
+            allowSameDay,
             isAfter = false
         )
 
     fun isBeforeByDay(thisDate: Date?, thatDate: LocalDate?, allowSameDay: Boolean): Boolean =
         compareDates(
-            thisDate = thisDate,
-            thatDate = fromLocalDate(thatDate),
-            allowSameDay = allowSameDay,
+            thisDate, // compareDates applies noon
+            thatDate = thatDate?.toNorwegianDateAtNoon(),
+            allowSameDay,
             isAfter = false
         )
 
@@ -482,29 +428,27 @@ object DateUtil {
      * If allowSameDay is true, the method returns true if thisDate is equal to thatDate with respect to year, month
      * and day. If set to false, the method returns false on this condition
      */
-    fun isAfterByDay(thisDate: Date?, thatDate: Date?, allowSameDay: Boolean): Boolean {
-        return compareDates(thisDate, thatDate, allowSameDay, true)
-    }
+    fun isAfterByDay(thisDate: Date?, thatDate: Date?, allowSameDay: Boolean): Boolean =
+        compareDates(thisDate, thatDate, allowSameDay, isAfter = true)
 
-    fun isAfterByDay(thisDate: LocalDate?, thatDate: Date?, allowSameDay: Boolean): Boolean {
-        return compareDates(
-            fromLocalDate(thisDate),
-            thatDate,
+    fun isAfterByDay(thisDate: LocalDate?, thatDate: Date?, allowSameDay: Boolean): Boolean =
+        compareDates(
+            thisDate = thisDate?.toNorwegianDateAtNoon(),
+            thatDate, // compareDates applies noon
             allowSameDay,
-            true
+            isAfter = true
         )
-    }
 
-    fun isAfterByDay(thisDate: LocalDate?, thatDate: LocalDate?, allowSameDay: Boolean): Boolean {
-        return compareDates(
-            fromLocalDate(thisDate),
-            fromLocalDate(thatDate),
+    fun isAfterByDay(thisDate: LocalDate?, thatDate: LocalDate?, allowSameDay: Boolean): Boolean =
+        compareDates(
+            thisDate = thisDate?.toNorwegianDateAtNoon(),
+            thatDate = thatDate?.toNorwegianDateAtNoon(),
             allowSameDay,
-            true
+            isAfter = true
         )
-    }
 
-    fun isAfterToday(date: LocalDate?): Boolean = isAfterToday(fromLocalDate(date))
+    fun isAfterToday(date: LocalDate?): Boolean =
+        isAfterToday(date?.toNorwegianDateAtNoon())
 
     fun isAfterToday(date: Date?): Boolean {
         if (date == null) {
@@ -514,15 +458,11 @@ object DateUtil {
         return !isBeforeToday(date) && !isToday(date)
     }
 
-    fun isFirstDayOfMonth(date: LocalDate?): Boolean =
-        isFirstDayOfMonth(fromLocalDate(date))
+    fun isFirstDayOfMonth(date: LocalDate): Boolean =
+        isFirstDayOfMonth(date.toNorwegianDateAtNoon())
 
-    fun isFirstDayOfMonth(date: Date?): Boolean {
-        if (date == null) {
-            throw IllegalArgumentException("null is a not valid input date")
-        }
-
-        val calendar: Calendar = createCalendar(date)
+    fun isFirstDayOfMonth(date: Date): Boolean {
+        val calendar: Calendar = NorwegianCalendar.forNoon(date)
         return calendar.getActualMinimum(Calendar.DAY_OF_MONTH) == calendar[Calendar.DAY_OF_MONTH]
     }
 
@@ -530,33 +470,17 @@ object DateUtil {
         date.plusMonths(1L).withDayOfMonth(1).minusDays(1L)
 
     /**
-     * Calculates the last day of the month the user turns the given number of years of age.
-     */
-    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurnsGivenAge
-    private fun lastDayOfMonthUserTurnsGivenAge(foedselsdato: Date?, alderAar: Int): Date {
-        val dato: Date =
-            Calendar.getInstance().apply {
-                time = foedselsdato
-                add(Calendar.YEAR, alderAar)
-                add(Calendar.MONTH, 1)
-            }.time
-
-        return setTimeToZero(findLastDayInMonthBefore(dato))
-    }
-
-    /**
      * Finds the last day in the month before the given date.
      */
     // no.nav.domain.pensjon.common.util.DateUtils.findLastDayInMonthBefore
     private fun findLastDayInMonthBefore(date: Date): Date =
-        createCalendar(date).apply {
-            this[Calendar.DAY_OF_MONTH] = this.getActualMinimum(Calendar.DAY_OF_MONTH)
-            this.add(Calendar.DAY_OF_MONTH, -1)
+        NorwegianCalendar.forNoon(date).apply {
+            this[Calendar.DAY_OF_MONTH] = getActualMinimum(Calendar.DAY_OF_MONTH)
+            add(Calendar.DAY_OF_MONTH, -1)
         }.time
 
-    private fun isToday(date: Date?): Boolean {
-        return isSameDay(date, fromLocalDate(LocalDate.now()))
-    }
+    private fun isToday(date: Date?): Boolean =
+        isSameDay(date, LocalDate.now().toNorwegianDateAtNoon())
 
     /**
      * Comparing two dates down to the granularity of days (not milliseconds, which is the default
@@ -566,16 +490,13 @@ object DateUtil {
      */
     // no.stelvio.common.util.DateUtil.compareDates
     private fun compareDates(thisDate: Date?, thatDate: Date?, allowSameDay: Boolean, isAfter: Boolean): Boolean {
-        val thisCal: Calendar = createDayCalendar(thisDate)
-        val thatCal: Calendar = createDayCalendar(thatDate)
+        val thisCalendar: Calendar = createDayCalendar(thisDate)
+        val thatCalendar: Calendar = createDayCalendar(thatDate)
 
-        if (allowSameDay && thisCal == thatCal) {
-            return true
-        }
-        return if (isAfter) {
-            thisCal.after(thatCal)
-        } else {
-            thisCal.before(thatCal)
+        return when {
+            allowSameDay && thisCalendar == thatCalendar -> true
+            isAfter -> thisCalendar.after(thatCalendar)
+            else -> thisCalendar.before(thatCalendar)
         }
     }
 
@@ -584,51 +505,10 @@ object DateUtil {
      * reasonably far from our time.
      */
     // no.stelvio.common.util.DateUtil.createDayCalendar
-    private fun createDayCalendar(date: Date?): Calendar {
-        val calendar = Calendar.getInstance()
-
-        if (date == null) {
-            calendar.clear()
-            calendar[0, Calendar.JANUARY, 0, 0, 0] = 0
-        } else {
-            calendar.time = date
-            clearTimeFields(calendar)
-        }
-
-        return calendar
-    }
-
-    // no.stelvio.common.util.DateUtil.clearTimeFields
-    private fun clearTimeFields(calendar: Calendar) {
-        calendar[Calendar.HOUR_OF_DAY] = 0
-        calendar[Calendar.MINUTE] = 0
-        calendar[Calendar.SECOND] = 0
-        calendar[Calendar.MILLISECOND] = 0
-    }
-
-    // no.stelvio.common.util.DateUtil.createCalendar
-    private fun createCalendar(date: Date?): Calendar {
-        val calendar = Calendar.getInstance()
-        calendar.isLenient = false
-        calendar.time = date
-        return calendar
-    }
-
-    // no.nav.domain.pensjon.common.util.DateUtils.createCalendar
-    private fun createCalendar(year: Int, month: Int, day: Int): Calendar {
-        val calendar = Calendar.getInstance()
-        calendar.clear()
-        calendar[year, month] = day
-        return calendar
-    }
-
-    // no.stelvio.common.util.DateUtil.toLocalDate
-    private fun local(date: Date?): LocalDate? {
-        if (date == null) {
-            return null
-        }
-
-        val calendar = Calendar.getInstance().apply { time = date }
-        return LocalDate.of(calendar[Calendar.YEAR], calendar[Calendar.MONTH] + 1, calendar[Calendar.DAY_OF_MONTH])
-    }
+    private fun createDayCalendar(date: Date?): Calendar =
+        date?.let(NorwegianCalendar::forNoon)
+            ?: NorwegianCalendar.instance().apply {
+                clear()
+                this[0, Calendar.JANUARY, 0, 0, 0] = 0
+            }
 }

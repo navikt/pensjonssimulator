@@ -27,7 +27,6 @@ import no.nav.pensjon.simulator.core.exception.BrukerFoedtFoer1943Exception
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
@@ -41,8 +40,8 @@ import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.result.OpptjeningType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
-import no.nav.pensjon.simulator.core.util.toDate
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
@@ -89,7 +88,7 @@ class KravhodeCreator(
 
         val kravhode = Kravhode().apply {
             kravFremsattDato = Date()
-            onsketVirkningsdato = fromLocalDate(oensketVirkningDato(spec))
+            onsketVirkningsdato = oensketVirkningDato(spec)?.toNorwegianDateAtNoon()
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
@@ -142,7 +141,7 @@ class KravhodeCreator(
     }
 
     private fun foedselAar(person: PenPerson?, spec: SimuleringSpec): Int =
-        person?.fodselsdato.toLocalDate()?.year ?: spec.foedselAar
+        person?.fodselsdato?.toNorwegianLocalDate()?.year ?: spec.foedselAar
 
     private fun updateOensketVirkningAndUtbetalingsgrad(spec: SimuleringSpec, kravhode: Kravhode) {
         if (spec.erAnonym) return
@@ -395,7 +394,7 @@ class KravhodeCreator(
             oppdaterOpptjeningsgrunnlagFraInntekter(
                 inntektListe,
                 persongrunnlag.opptjeningsgrunnlagListe,
-                persongrunnlag.fodselsdato.toLocalDate()
+                persongrunnlag.fodselsdato!!.toNorwegianLocalDate()
             )
     }
 
@@ -512,7 +511,7 @@ class KravhodeCreator(
             val beregnetForventetInntekt =
                 (forventetInntekt * forventetInntektAntallMaaneder(aar, spec) / MAANEDER_PER_AAR).toLong()
             val beregnetInntektUnderGradertUttak = (inntektUnderGradertUttak *
-                    antallManederMedInntektUnderGradertUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
+                    antallMaanederMedInntektUnderGradertUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val beregnetInntektEtterHeltUttak = (inntektEtterHeltUttak *
                     antallMaanederMedInntektEtterHeltUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val forhold = calculateGrunnbeloepForhold(aar, spec, veietGrunnbeloepListe, grunnbeloep)
@@ -531,11 +530,11 @@ class KravhodeCreator(
     private fun antallMaanederMedInntektEtterHeltUttak(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
         val antallAarInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
-        val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato)
+        val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato!!)
         val isHeltUttak = spec.uttakGrad == UttakGradKode.P_100
         val heltUttakAar: Int = if (isHeltUttak) foersteUttakAar else spec.heltUttakDato?.year ?: 0
         val heltUttakMaaned =
-            if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato)
+            if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato!!)
 
         if (aar == heltUttakAar) {
             val antallMaanederMedInntektUnderGradertUttak = heltUttakMaaned - 1
@@ -553,13 +552,13 @@ class KravhodeCreator(
         return 0
     }
 
-    private fun antallManederMedInntektUnderGradertUttak(aar: Int, spec: SimuleringSpec): Int {
+    private fun antallMaanederMedInntektUnderGradertUttak(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
-        val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato)
+        val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato!!)
         val isHeltUttak = spec.uttakGrad == UttakGradKode.P_100
         val heltUttakAar: Int = if (isHeltUttak) foersteUttakAar else spec.heltUttakDato?.year ?: 0
         val heltUttakMaaned =
-            if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato)
+            if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato!!)
 
         if (aar == foersteUttakAar) {
             return if (foersteUttakAar != heltUttakAar) {
@@ -587,7 +586,7 @@ class KravhodeCreator(
 
         return when {
             aar < foersteUttakAar -> MAANEDER_PER_AAR - utlandMaanederInnenforAaret(spec, aar)
-            aar == foersteUttakAar -> monthOfYearRange1To12(spec.foersteUttakDato) - 1 - utlandMaanederInnenforRestenAvAaret(
+            aar == foersteUttakAar -> monthOfYearRange1To12(spec.foersteUttakDato!!) - 1 - utlandMaanederInnenforRestenAvAaret(
                 spec
             )
 
@@ -625,12 +624,12 @@ class KravhodeCreator(
         // SimulerFleksibelAPCommand.createUttaksgradChosenByUser
         private fun angittUttaksgrad(spec: SimuleringSpec) =
             Uttaksgrad().apply {
-                fomDato = fromLocalDate(spec.foersteUttakDato)
+                fomDato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (erGradertUttak(spec)) {
-                    val dayBeforeHeltUttak: LocalDate = getRelativeDateByDays(spec.heltUttakDato, -1)
-                    tomDato = dayBeforeHeltUttak.toDate()
+                    val dayBeforeHeltUttak: LocalDate = getRelativeDateByDays(spec.heltUttakDato!!, -1)
+                    tomDato = dayBeforeHeltUttak.toNorwegianDateAtNoon()
                 }
             }.also { it.finishInit() }
 
@@ -718,7 +717,7 @@ class KravhodeCreator(
                     inntektsgrunnlagForSoekerOrEps(
                         beloep = spec.forventetInntektBeloep,
                         fom = LocalDate.now(),
-                        tom = getRelativeDateByDays(spec.foersteUttakDato, -1)
+                        tom = getRelativeDateByDays(spec.foersteUttakDato!!, -1)
                     )
                 )
             }
@@ -731,7 +730,7 @@ class KravhodeCreator(
                     inntektsgrunnlagForSoekerOrEps(
                         beloep = inntektUnderGradertUttak,
                         fom = spec.foersteUttakDato,
-                        tom = getRelativeDateByDays(spec.heltUttakDato, -1)
+                        tom = getRelativeDateByDays(spec.heltUttakDato!!, -1)
                     )
                 )
             }
@@ -740,8 +739,8 @@ class KravhodeCreator(
 
             if (spec.inntektEtterHeltUttakBeloep > 0 && antallArInntektEtterHeltUttak > 0) {
                 val fom = if (isHeltUttak) spec.foersteUttakDato else spec.heltUttakDato
-                val tom = getRelativeDateByDays(getRelativeDateByYear(fom, antallArInntektEtterHeltUttak), -1)
-                inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom!!, tom))
+                val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, antallArInntektEtterHeltUttak), -1)
+                inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
             }
 
             inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
@@ -778,7 +777,7 @@ class KravhodeCreator(
             grunnlagListe.map {
                 Inntekt(
                     beloep = it.belop.toLong(),
-                    inntektAar = getYear(it.fom)
+                    inntektAar = getYear(it.fom!!)
                 )
             }.toMutableList()
 
@@ -811,8 +810,8 @@ class KravhodeCreator(
 
         private fun inntektsgrunnlagForAaret(aar: Int, aaretsInntektListe: List<FremtidigInntekt>) =
             Inntektsgrunnlag().apply {
-                fom = fromLocalDate(foersteDag(aar))
-                tom = fromLocalDate(sisteDag(aar))
+                fom = foersteDag(aar).toNorwegianDateAtNoon()
+                tom = sisteDag(aar).toNorwegianDateAtNoon()
                 belop = faktiskAarligInntekt(aaretsInntektListe).toInt()
                 bruk = true
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
@@ -824,10 +823,10 @@ class KravhodeCreator(
             Inntektsgrunnlag().apply {
                 this.belop = beloep
                 this.bruk = true
-                this.fom = fromLocalDate(fom)
+                this.fom = fom?.toNorwegianDateAtNoon()
                 this.grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
                 this.inntektType = InntektTypeCti(InntektType.FPI.name)
-                this.tom = fromLocalDate(tom)
+                this.tom = tom?.toNorwegianDateAtNoon()
             }
 
         private fun norskKravlinje(kravlinjeType: KravlinjeTypeEnum, person: PenPerson) =
@@ -846,7 +845,7 @@ class KravhodeCreator(
 
         private fun uttaksgradForHeltUttak(fom: LocalDate?) =
             Uttaksgrad().apply {
-                fomDato = fromLocalDate(fom)
+                fomDato = fom?.toNorwegianDateAtNoon()
                 uttaksgrad = MAX_UTTAKSGRAD
             }
 
@@ -854,7 +853,7 @@ class KravhodeCreator(
             spec.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }
 
         private fun foedselsdato(person: PenPerson?, spec: SimuleringSpec): LocalDate =
-            person?.fodselsdato.toLocalDate() ?: spec.foedselDato ?: foersteDag(spec.foedselAar)
+            person?.fodselsdato?.toNorwegianLocalDate() ?: spec.foedselDato ?: foersteDag(spec.foedselAar)
 
         private fun harUtenlandsopphold(antallAarUtenlands: Int?, trygdetidPeriodeListe: List<TTPeriode>) =
             if (antallAarUtenlands == null)
@@ -880,6 +879,6 @@ class KravhodeCreator(
             inntekt.fom.year + 1
 
         private fun legacyFoersteDag(aar: Int) =
-            fromLocalDate(foersteDag(aar))
+            foersteDag(aar).toNorwegianDateAtNoon()
     }
 }

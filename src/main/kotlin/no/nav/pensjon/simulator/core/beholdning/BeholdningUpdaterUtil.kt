@@ -11,16 +11,17 @@ import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.NorwegianCalendar
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForDate
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 import java.util.*
@@ -29,13 +30,13 @@ import java.util.*
 // OppdaterPensjonsbeholdningerCommand, OppdaterPensjonsbeholdningerHelper, SimpleGrunnlagService.
 object BeholdningUpdaterUtil {
 
-    const val OPPTJENING_MINIMUM_ALDER = 13 // år
-    const val OPPTJENING_MINIMUM_FODSELSAR = 1997 // OppdaterPensjonsbeholdningerHelper.YEAR_1997
-    const val OPPTJENING_MINIMUM_AAR = OPPTJENING_MINIMUM_FODSELSAR + OPPTJENING_MINIMUM_ALDER
     const val INITIERING_OPPTJENINGMODUS = "initiering" // OppdaterPensjonsbeholdningerHelper
     const val KORRIGERING_OPPTJENINGMODUS = "korrigering"
     const val TILVEKST_OPPTJENINGMODUS = "tilvekst"
+    private const val OPPTJENING_MINIMUM_ALDER = 13 // år
+    private const val OPPTJENING_MINIMUM_FOEDSEL_AAR = 1997 // OppdaterPensjonsbeholdningerHelper.YEAR_1997
     private const val MINIMUM_TIDLIGSTE_OPPTJENING_AAR = 2009 // OppdaterPensjonsbeholdningerHelper.YEAR_2009
+    const val OPPTJENING_MINIMUM_AAR = OPPTJENING_MINIMUM_FOEDSEL_AAR + OPPTJENING_MINIMUM_ALDER
 
     // BeholdningHelper.updateBeholdningListeObject
     fun updateBeholdninger(
@@ -70,7 +71,7 @@ object BeholdningUpdaterUtil {
     // BeholdningHelper.removeAllBeholdningAfter
     fun removeAllBeholdningAfter(beholdningListe: MutableList<Pensjonsbeholdning>, date: LocalDate?) {
         beholdningListe.removeIf {
-            isAfterByDay(it.fom, fromLocalDate(date), true)
+            isAfterByDay(it.fom, date?.toNorwegianDateAtNoon(), true)
         }
 
         findLatest(beholdningListe)?.let { it.tom = null }
@@ -126,7 +127,7 @@ object BeholdningUpdaterUtil {
     ): Pensjonsbeholdning? {
         val pensjonBeholdningListe: MutableList<Pensjonsbeholdning> = mutableListOf()
         beholdningListe.forEach(pensjonBeholdningListe::add)
-        return findValidForDate(pensjonBeholdningListe, fromLocalDate(date)!!) //TODO use filter instead?
+        return findValidForDate(pensjonBeholdningListe, date.toNorwegianDateAtNoon()) //TODO use filter instead?
     }
 
     // OppdaterPensjonsbeholdningerCommand.getSisteBeholdning
@@ -300,7 +301,7 @@ object BeholdningUpdaterUtil {
             val uforeperiodeListe = persongrunnlag.uforeHistorikk?.realUforePeriodeList().orEmpty()
 
             if (uforeperiodeListe.isNotEmpty()) {
-                val calendar = Calendar.getInstance().apply { time = uforeperiodeListe[0].ufgFom }
+                val calendar = NorwegianCalendar.forNoon(uforeperiodeListe[0].ufgFom!!)
                 tidligsteOpptjeningAar = calendar[Calendar.YEAR]
 
                 for (uforeperiode in uforeperiodeListe) {
@@ -357,10 +358,8 @@ object BeholdningUpdaterUtil {
     fun lastDayOf(beholdning: Pensjonsbeholdning): Date = createDate(beholdning.ar, Calendar.DECEMBER, 31)
 
     // BeholdningSwitchDecider.beholdningShouldBeSwitched
-    fun isVirkFomEligibleForSwitching(kravhode: Kravhode): Boolean {
-        val onsketVirkningsDato = kravhode.onsketVirkningsdato
-        return isFirstDayOfYear(onsketVirkningsDato) || isFirstDayOfMay(onsketVirkningsDato)
-    }
+    fun isVirkFomEligibleForSwitching(kravhode: Kravhode): Boolean =
+        kravhode.onsketVirkningsdato?.let { isFirstDayOfYear(it) || isFirstDayOfMay(it) } == true
 
     // BeholdningSwitchDecider.isSokersPersongrunnlag
     fun isSokersPersongrunnlag(kravhode: Kravhode, persongrunnlag: Persongrunnlag): Boolean =
@@ -380,12 +379,12 @@ object BeholdningUpdaterUtil {
         }
 
     // RevurderingHelper.isFirstDayOfYear
-    fun isFirstDayOfYear(date: Date?): Boolean =
-        date.toLocalDate()?.dayOfYear == 1
+    fun isFirstDayOfYear(date: Date): Boolean =
+        date.toNorwegianLocalDate().dayOfYear == 1
 
     // RevurderingHelper.isFirstDayOfMay
-    fun isFirstDayOfMay(date: Date?): Boolean =
-        with(date.toLocalDate()!!) {
+    fun isFirstDayOfMay(date: Date): Boolean =
+        with(date.toNorwegianLocalDate()) {
             dayOfMonth == 1 && monthValue == 5
             //TODO use const
         }
@@ -399,15 +398,17 @@ object BeholdningUpdaterUtil {
         }
 
     // OppdaterPensjonsbeholdningerHelper.calculateFirstPossibleOpptjeningsar
-    private fun foersteMuligeOpptjeningAar(foedselDato: Date?): Int {
-        val calendar = Calendar.getInstance()
-        calendar[OPPTJENING_MINIMUM_FODSELSAR, 0] = 0
+    private fun foersteMuligeOpptjeningAar(foedselsdato: Date?): Int {
+        val calendar = NorwegianCalendar.instance().apply {
+            this[OPPTJENING_MINIMUM_FOEDSEL_AAR, 0] = 0
+        }
+
         val minimumDato = calendar.time
 
-        return if (isBeforeDay(foedselDato, minimumDato)) {
+        return if (isBeforeDay(foedselsdato, minimumDato)) {
             OPPTJENING_MINIMUM_AAR
         } else {
-            calendar.time = foedselDato
+            calendar.time = foedselsdato
             calendar.add(Calendar.YEAR, OPPTJENING_MINIMUM_ALDER)
             calendar[Calendar.YEAR]
         }

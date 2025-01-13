@@ -2,11 +2,11 @@ package no.nav.pensjon.simulator.core.trygd
 
 import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.util.*
 
@@ -17,20 +17,23 @@ object TrygdetidTrimmer {
     private const val NEDRE_ALDERSGRENSE = 16
     private const val OEVRE_ALDERSGRENSE = 66
 
-    fun removePeriodBeforeAdulthood(trygdetidPeriodeListe: List<TTPeriode>, foedselDato: LocalDate): List<TTPeriode> =
+    fun removePeriodBeforeAdulthood(trygdetidPeriodeListe: List<TTPeriode>, foedselsdato: LocalDate): List<TTPeriode> =
         trygdetidPeriodeListe
-            .filter { !isBeforeNedreDatogrense(it.tom.toLocalDate(), foedselDato) }
+            .filter { !isBeforeNedreDatogrense(it.tom?.toNorwegianLocalDate(), foedselsdato) }
             .map {
-                if (isBeforeNedreDatogrense(it.fom.toLocalDate(), foedselDato)) adjustFom(it, foedselDato) else it
+                if (isBeforeNedreDatogrense(it.fom?.toNorwegianLocalDate(), foedselsdato))
+                    adjustFom(it, foedselsdato)
+                else
+                    it
             }
 
     fun removePeriodAfterPensionAge(
         trygdetidPeriodeListe: MutableList<TTPeriode>,
         foersteUttakDato: LocalDate,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): List<TTPeriode> {
-        val localMaxDato: LocalDate = sisteMuligeTrygdetidDato(foedselDato, foersteUttakDato)
-        val maxDato: Date = fromLocalDate(localMaxDato)!!
+        val localMaxDato: LocalDate = sisteMuligeTrygdetidDato(foedselsdato, foersteUttakDato)
+        val maxDato: Date = localMaxDato.toNorwegianDateAtNoon()
 
         return trygdetidPeriodeListe
             .filter { !it.fom!!.after(maxDato) }
@@ -55,16 +58,16 @@ object TrygdetidTrimmer {
         dato?.isBefore(nedreDatogrense(foedselDato)) == true
 
     private fun sisteMuligeTrygdetidDato(foedselDato: LocalDate, foersteUttakDato: LocalDate): LocalDate {
-        val sisteDatoIAretForOvreDatogrense: LocalDate = getLastDateInYear(oevreDatogrense(foedselDato))
+        val sisteDatoIAaretForOevreDatogrense: LocalDate = getLastDateInYear(oevreDatogrense(foedselDato))
 
-        return if (sisteDatoIAretForOvreDatogrense.isBefore(foersteUttakDato))
-            sisteDatoIAretForOvreDatogrense
+        return if (sisteDatoIAaretForOevreDatogrense.isBefore(foersteUttakDato))
+            sisteDatoIAaretForOevreDatogrense
         else
             getRelativeDateByDays(foersteUttakDato, -1)
     }
 
     private fun adjustFom(trygdetidPeriode: TTPeriode, foedselDato: LocalDate): TTPeriode {
-        trygdetidPeriode.fom = fromLocalDate(nedreDatogrense(foedselDato))
+        trygdetidPeriode.fom = nedreDatogrense(foedselDato).toNorwegianDateAtNoon()
         return trygdetidPeriode
     }
 
@@ -76,9 +79,9 @@ object TrygdetidTrimmer {
         return periode
     }
 
-    private fun nedreDatogrense(foedselDato: LocalDate): LocalDate =
-        getRelativeDateByYear(foedselDato, NEDRE_ALDERSGRENSE)
+    private fun nedreDatogrense(foedselsdato: LocalDate): LocalDate =
+        getRelativeDateByYear(foedselsdato, NEDRE_ALDERSGRENSE)
 
-    private fun oevreDatogrense(foedselDato: LocalDate): LocalDate =
-        getRelativeDateByYear(foedselDato, OEVRE_ALDERSGRENSE)
+    private fun oevreDatogrense(foedselsdato: LocalDate): LocalDate =
+        getRelativeDateByYear(foedselsdato, OEVRE_ALDERSGRENSE)
 }

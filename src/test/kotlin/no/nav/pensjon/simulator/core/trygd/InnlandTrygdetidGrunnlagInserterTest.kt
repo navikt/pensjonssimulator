@@ -4,9 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.trygd.DateUtil.atNoon
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
@@ -32,7 +31,7 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
                         arbeidet = true
                     )
                 ),
-                foedselDato = LocalDate.of(1963, 2, 15)
+                foedselsdato = LocalDate.of(1963, 2, 15)
             )
 
         grunnlagListe.size shouldBe 3
@@ -78,7 +77,7 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
                         arbeidet = false
                     )
                 ),
-                foedselDato = LocalDate.of(1963, 2, 15)
+                foedselsdato = LocalDate.of(1963, 2, 15)
             )
 
         grunnlagListe.size shouldBe 4
@@ -111,5 +110,5 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
 
 object DateUtil {
     fun atNoon(year: Int, month: Int, dayOfMonth: Int) =
-        fromLocalDate(LocalDate.of(year, month, dayOfMonth))?.noon()
+        LocalDate.of(year, month, dayOfMonth)?.toNorwegianDateAtNoon()
 }

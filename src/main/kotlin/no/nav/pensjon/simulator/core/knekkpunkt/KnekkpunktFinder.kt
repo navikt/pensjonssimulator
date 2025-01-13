@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.knekkpunkt
 
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
@@ -12,16 +11,16 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -45,7 +44,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         val foersteBeregningDato =
             knekkpunktSpec.forrigeAlderspensjonBeregningResultatVirkningFom?.let {
                 calculateFoersteBeregningDato(
-                    foedselDato = soekerGrunnlag.fodselsdato.toLocalDate()!!,
+                    foedselDato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate(),
                     foersteUttakDato = foersteUttakDato!!,
                     forrigeBeregningResultVirkning = it
                 )
@@ -94,7 +93,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         // STEP 5 - Add a knekkpunkt the 1st of the month after bruker turns 67 years old
         addKnekkpunkt(
             knekkpunktMap = knekkpunktMap,
-            knekkpunktDato = soekerGrunnlag.fodselsdato?.let { ubetingetPensjoneringDato(it).toLocalDate() }!!,
+            knekkpunktDato = soekerGrunnlag.fodselsdato!!.let { ubetingetPensjoneringDato(it).toNorwegianLocalDate() },
             aarsak = KnekkpunktAarsak.OPPTJBRUKER
         )
 
@@ -107,7 +106,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         // receive Kap 20 results.
         if (simuleringSpec.simulerForTp) {
             knekkpunktMap =
-                trimKnekkpunkterInCaseOfSimulerForTp(soekerGrunnlag.fodselsdato.toLocalDate()!!, knekkpunktMap)
+                trimKnekkpunkterInCaseOfSimulerForTp(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate(), knekkpunktMap)
         }
 
         return knekkpunktMap
@@ -260,10 +259,14 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         // FinnKnekkpunkterHelper.addKnekkpunkterBasedOnUttaksgradListe
         private fun addKnekkpunkterBasedOnUttaksgrader(
             knekkpunktMap: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>>,
-            uttakGradListe: MutableList<Uttaksgrad>
+            uttaksgradListe: MutableList<Uttaksgrad>
         ) {
-            for (uttaksgrad in uttakGradListe) {
-                addKnekkpunkt(knekkpunktMap, uttaksgrad.fomDato.toLocalDate()!!, KnekkpunktAarsak.UTG)
+            for (uttaksgrad in uttaksgradListe) {
+                addKnekkpunkt(
+                    knekkpunktMap,
+                    knekkpunktDato = uttaksgrad.fomDato!!.toNorwegianLocalDate(),
+                    aarsak = KnekkpunktAarsak.UTG
+                )
             }
         }
 
@@ -280,18 +283,18 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             // - den 1. i måneden etter at bruker blir 67 år, dersom denne er etter dagens dato og forrigeBerResAP.virkDato
             //val today = DateProvider.getToday()
             val today = LocalDate.now()
-            val ubetingetPensjoneringDato: Date = ubetingetPensjoneringDato(fromLocalDate(foedselDato)!!)
+            val ubetingetPensjoneringDato: Date = ubetingetPensjoneringDato(foedselDato.toNorwegianDateAtNoon())
             val latestOfTodayAndForrigeBerResVirk: Date? =
-                findLatestDateByDay(fromLocalDate(today), fromLocalDate(forrigeBeregningResultVirkning))
+                findLatestDateByDay(today?.toNorwegianDateAtNoon(), forrigeBeregningResultVirkning.toNorwegianDateAtNoon())
             val sortedDates: SortedSet<Date> = TreeSet()
             sortedDates.add(createDate(getYear(latestOfTodayAndForrigeBerResVirk!!) + 1, Calendar.JANUARY, 1))
-            sortedDates.add(fromLocalDate(foersteUttakDato))
+            sortedDates.add(foersteUttakDato.toNorwegianDateAtNoon())
 
             if (isAfterByDay(ubetingetPensjoneringDato, latestOfTodayAndForrigeBerResVirk, false)) {
                 sortedDates.add(ubetingetPensjoneringDato)
             }
 
-            return sortedDates.iterator().next().toLocalDate()!!
+            return sortedDates.iterator().next().toNorwegianLocalDate()
         }
 
         // FinnKnekkpunkterHelper.trimKnekkpunktListeInCaseOfSimulerForTp
@@ -341,8 +344,8 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             boddEllerArbeidetUtenlands: Boolean
         ) =
             TrygdetidRequest().apply {
-                this.virkFom = fromLocalDate(knekkpunktDato)!!.noon()
-                this.brukerForsteVirk = fromLocalDate(soekerFoersteVirkning)!!.noon()
+                this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
+                this.brukerForsteVirk = soekerFoersteVirkning.toNorwegianDateAtNoon()
                 this.ytelsesTypeEnum = ytelseType
                 this.ytelsesType = KravlinjeTypeCti(ytelseType.name).apply { hovedKravlinje = ytelseType.erHovedkravlinje } //TODO remove
                 this.persongrunnlag = persongrunnlag

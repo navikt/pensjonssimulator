@@ -16,10 +16,9 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AR
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
@@ -31,14 +30,15 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersects
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.setTimeToZero
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.PeriodeUtil
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForDate
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.numberOfMonths
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.time.LocalDate
 import java.util.*
 
@@ -195,8 +195,8 @@ object SimuleringResultPreparer {
         soekerGrunnlag: Persongrunnlag,
         forrigeAfpBeregningResultat: BeregningsResultatAfpPrivat?
     ) {
-        val foedselDato: LocalDate? = soekerGrunnlag.fodselsdato.toLocalDate()
-        val startAlder = calculateStartAlder(simuleringSpec, foedselDato!!, forrigeAfpBeregningResultat, false)
+        val foedselsdato: LocalDate? = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate()
+        val startAlder = calculateStartAlder(simuleringSpec, foedselsdato!!, forrigeAfpBeregningResultat, false)
         var forrigeAfpBeregningsresultatKopi: BeregningsResultatAfpPrivat? = null
 
         if (forrigeAfpBeregningResultat != null) {
@@ -204,13 +204,13 @@ object SimuleringResultPreparer {
             forrigeAfpBeregningsresultatKopi = modifiedCopyOfPrivatAfpBeregningResultat(
                 beregningResultat = forrigeAfpBeregningResultat,
                 resultatListe = privatAfpBeregningResultatListe,
-                foedselDato = foedselDato
+                foedselsdato
             )
             privatAfpBeregningResultatListe.add(forrigeAfpBeregningsresultatKopi)
         }
 
         for (alder in startAlder..MAX_OPPTJENING_ALDER) {
-            val beloepPeriode: BeloepPeriode = beloepPeriode(foedselDato, alder, privatAfpBeregningResultatListe)
+            val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, privatAfpBeregningResultatListe)
             val afpResultat: BeregningsResultatAfpPrivat? =
                 findEarliestIntersecting(privatAfpBeregningResultatListe, beloepPeriode.start, beloepPeriode.slutt)
 
@@ -277,41 +277,41 @@ object SimuleringResultPreparer {
         forrigeResultat: AbstraktBeregningsResultat?,
         resultatListe: MutableList<AbstraktBeregningsResultat>
     ) {
-        val foedselDato = soekerGrunnlag.fodselsdato.toLocalDate()!!
-        val startAlder = calculateStartAlder(spec, foedselDato, forrigeResultat, true)
-        var forrigeResultatKopi: AbstraktBeregningsResultat? = null
+        val foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
+        val startAlder = calculateStartAlder(spec, foedselsdato, forrigeResultat, true)
+        var forrigeResultatCopy: AbstraktBeregningsResultat? = null
 
         if (forrigeResultat != null) {
             // Put a copy of the løpende beregningsresultat on the list. Remove ET/BT from totalbeløp and set fom/tom
-            forrigeResultatKopi = modifiedCopyOfBeregningsresultat(forrigeResultat, resultatListe, foedselDato)
-            resultatListe.add(forrigeResultatKopi)
+            forrigeResultatCopy = modifiedCopyOfBeregningsresultat(forrigeResultat, resultatListe, foedselsdato)
+            resultatListe.add(forrigeResultatCopy)
         }
 
         for (alder in startAlder..MAX_KNEKKPUNKT_ALDER) {
-            val beloepPeriode: BeloepPeriode = beloepPeriode(foedselDato, alder, resultatListe)
+            val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, resultatListe)
             simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(alder, beloepPeriode.beloep))
         }
 
-        forrigeResultatKopi?.let {
+        forrigeResultatCopy?.let {
             // Add a periode representing løpende ytelser (tagged with alder=null)
-            val beloep = (it.pensjonUnderUtbetaling?.totalbelopNetto ?: 0) * MAANEDER_PER_AR
+            val beloep = (it.pensjonUnderUtbetaling?.totalbelopNetto ?: 0) * MAANEDER_PER_AAR
             simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(null, beloep))
         }
     }
 
     private fun <T : AbstraktBeregningsResultat> beloepPeriode(
-        foedselDato: LocalDate,
+        foedselsdato: LocalDate,
         alderAar: Int,
         resultatListe: MutableList<T>
     ): BeloepPeriode {
         val periodeStart: Date =
-            getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselDato, alderAar)), 1)
-        val periodeSlutt: Date = getLastDayOfMonth(fromLocalDate(getRelativeDateByYear(foedselDato, alderAar + 1))!!)
+            getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
+        val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
         var beloep = 0
 
         for (resultat in resultatListe) {
-            val fom: Date = setTimeToZero(resultat.virkFom!!)
-            val tom: Date = setTimeToZero(resultat.virkTom ?: ETERNITY)
+            val fom: Date = resultat.virkFom!!.toNorwegianNoon()
+            val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
 
             if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
                 beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
@@ -360,8 +360,8 @@ object SimuleringResultPreparer {
             forrigeBeholdning = 0
         }
 
-        val foedselDato = soekerGrunnlag.fodselsdato.toLocalDate()
-        val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, foedselDato)
+        val foedselsdato = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate()
+        val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, foedselsdato)
 
         createSimulertBeregningsinfoForKnekkpunkter(
             kravhode,
@@ -372,7 +372,7 @@ object SimuleringResultPreparer {
             forrigeBasispensjon,
             forrigeBeholdning,
             punkter,
-            foedselDato!!
+            foedselsdato!!
         )
 
         if (outputSimulertBeregningsinfoForAlleKnekkpunkter) {
@@ -381,7 +381,7 @@ object SimuleringResultPreparer {
                     kravhode,
                     resultatListe,
                     simulertAlderspensjon,
-                    foedselDato,
+                    foedselsdato,
                     spec
                 )
         }
@@ -477,11 +477,11 @@ object SimuleringResultPreparer {
         tom: Date
     ): Int =
         getBeloep(
-            periodeStart.toLocalDate()!!,
-            periodeSlutt.toLocalDate()!!,
+            periodeStart.toNorwegianLocalDate(),
+            periodeSlutt.toNorwegianLocalDate(),
             gjeldendeResultat,
-            fom.toLocalDate()!!,
-            tom.toLocalDate()!!
+            fom.toNorwegianLocalDate(),
+            tom.toNorwegianLocalDate()
         )
 
     private fun findKnekkpunkter(spec: SimuleringSpec, foedselDato: LocalDate?): SortedSet<LocalDate> {
@@ -569,7 +569,7 @@ object SimuleringResultPreparer {
                 spec.foersteUttakDato!! // Assuming forsteUttakDato cannot be null in this context
         } else {
             gradertUttak = spec.foersteUttakDato
-            foersteHeleUttak = spec.heltUttakDato!!
+            foersteHeleUttak = spec.heltUttakDato
         }
 
         val ubetingetPensjoneringDato = ubetingetPensjoneringDato(foedselDato)

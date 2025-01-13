@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -70,8 +70,8 @@ class SisteBeregningCreator(
         return kravId?.let {
             periodiserGrunnlag(
                 kravhode = kravService.fetchKravhode(it),
-                fom = beregningsresultat.virkFom?.toLocalDate(),
-                tom = beregningsresultat.virkTom?.toLocalDate()
+                fom = beregningsresultat.virkFom?.toNorwegianLocalDate(),
+                tom = beregningsresultat.virkTom?.toNorwegianLocalDate()
             )
         }
     }
@@ -126,8 +126,8 @@ class SisteBeregningCreator(
                     beregningsresultat = beregningResultat,
                     vilkarsvedtakListe = vedtakListe,
                     regelverk1967VirkToEarly = etterRegulering,
-                    fomDato = if (etterRegulering) null else beregning?.virkFom.toLocalDate(),
-                    tomDato = if (etterRegulering) null else beregning?.virkTom.toLocalDate(),
+                    fomDato = if (etterRegulering) null else beregning.virkFom?.toNorwegianLocalDate(),
+                    tomDato = if (etterRegulering) null else beregning.virkTom?.toNorwegianLocalDate(),
                     filtrertVilkarsvedtakList = emptyList(),
                     forrigeKravhode = null,
                     regelverkKodePaNyttKrav = null
@@ -145,8 +145,8 @@ class SisteBeregningCreator(
                 beregning = beregning,
                 beregningsresultat = beregningResultat,
                 vilkarsvedtakListe = vedtakListe,
-                fomDato = beregningResultat.virkFom.toLocalDate(),
-                tomDato = beregningResultat.virkTom.toLocalDate(),
+                fomDato = beregningResultat.virkFom?.toNorwegianLocalDate(),
+                tomDato = beregningResultat.virkTom?.toNorwegianLocalDate(),
                 filtrertVilkarsvedtakList = filtrertVedtakListe,
                 forrigeKravhode = null,
                 regelverkKodePaNyttKrav = null

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.sak.client.pen.acl
 
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 
@@ -22,7 +22,7 @@ object PenPersonVirkningDatoResultMapper {
         FoersteVirkningDato(
             sakType = source.sakType,
             kravlinjeType = source.kravlinjeType,
-            virkningDato = source.virkningsdato.toLocalDate(),
+            virkningDato = source.virkningsdato?.toNorwegianLocalDate(),
             annenPerson = source.annenPerson
         )
 }

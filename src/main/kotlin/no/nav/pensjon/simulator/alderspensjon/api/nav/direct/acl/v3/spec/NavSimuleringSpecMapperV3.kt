@@ -1,14 +1,14 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec
 
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import java.time.LocalDate
@@ -22,10 +22,10 @@ object NavSimuleringSpecMapperV3 {
 
     fun fromNavSimuleringSpecV3(
         source: NavSimuleringSpecV3,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): SimuleringSpec {
-        val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselDato)
-        val heltUttak: SimuleringHeltUttak = heltUttak(source, foedselDato)
+        val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselsdato)
+        val heltUttak: SimuleringHeltUttak = heltUttak(source, foedselsdato)
         val utlandPeriodeListe: List<UtlandPeriode> =
             source.utenlandsperiodeListe.orEmpty().map(::utlandPeriode)
 
@@ -34,11 +34,11 @@ object NavSimuleringSpecMapperV3 {
             foedselAar = 0, // only for anonym
             forventetInntektBeloep = source.sisteInntekt,
             inntektOver1GAntallAar = 0, // only for anonym
-            foersteUttakDato = (gradertUttak?.uttakFom ?: heltUttak.uttakFom).toLocalDate(),
+            foersteUttakDato = (gradertUttak?.uttakFom ?: heltUttak.uttakFom).toNorwegianLocalDate(),
             uttakGrad = gradertUttak?.let { NavUttakGradSpecV3.fromExternalValue(it.grad.value).internalValue }
                 ?: UttakGradKode.P_100,
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
-            heltUttakDato = heltUttak.uttakFom.toLocalDate(),
+            heltUttakDato = heltUttak.uttakFom.toNorwegianLocalDate(),
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
             inntektEtterHeltUttakAntallAar = heltUttak.antallArInntektEtterHeltUttak,
             utlandAntallAar = 0, // only for anonym
@@ -48,7 +48,7 @@ object NavSimuleringSpecMapperV3 {
             erAnonym = false,
             // Resten er kun for ikke-anonym simulering:
             pid = Pid(source.pid),
-            foedselDato = foedselDato,
+            foedselDato = foedselsdato,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,
@@ -63,7 +63,7 @@ object NavSimuleringSpecMapperV3 {
 
     private fun gradertUttak(
         source: NavSimuleringSpecV3,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): SimuleringGradertUttak? =
         source.gradertUttak?.let {
             val localUttakFom: LocalDate =
@@ -71,11 +71,11 @@ object NavSimuleringSpecMapperV3 {
             //     it.uttakFom.dato
             // else
                 //TODO V4
-                uttakDato(foedselDato, alder(it.uttakFomAlder!!))
+                uttakDato(foedselsdato, alder(it.uttakFomAlder!!))
 
             SimuleringGradertUttak(
                 grad = it.grad!!,
-                uttakFom = fromLocalDate(validated(localUttakFom))!!,
+                uttakFom = validated(localUttakFom).toNorwegianDateAtNoon(),
                 aarligInntekt = it.aarligInntekt ?: 0
             )
         }
@@ -84,8 +84,8 @@ object NavSimuleringSpecMapperV3 {
      * 'Inntekt til og med'-dato beregnes på minimumsbasis for at ikke inntekt skal overvurderes i simuleringen.
      */
     // SimulatorPensjonTidUtil
-    private fun inntektTomDato(foedselDato: LocalDate, tomAlder: Alder) =
-        foedselDato
+    private fun inntektTomDato(foedselsdato: LocalDate, tomAlder: Alder) =
+        foedselsdato
             .plusYears(tomAlder.aar.toLong())
             .plusMonths(tomAlder.maaneder.toLong())
 
@@ -102,9 +102,9 @@ object NavSimuleringSpecMapperV3 {
             uttakDato(foedselDato, alder(uttakFomAlderSpec))
 
         return SimuleringHeltUttak(
-            uttakFom = fromLocalDate(validated(localUttakFom))!!,
+            uttakFom = validated(localUttakFom).toNorwegianDateAtNoon(),
             aarligInntekt = heltUttak.aarligInntekt,
-            inntektTom = fromLocalDate(inntektTomDato(foedselDato, alder(inntektTomAlderSpec)))!!,
+            inntektTom = inntektTomDato(foedselDato, alder(inntektTomAlderSpec)).toNorwegianDateAtNoon(),
             antallArInntektEtterHeltUttak = inntektTomAlderSpec.aar - uttakFomAlderSpec.aar + 1 // +1, siden fra/til OG MED
         )
     }
@@ -112,13 +112,13 @@ object NavSimuleringSpecMapperV3 {
     private fun fremtidigInntekt(source: NavSimuleringInntektSpecV3) =
         FremtidigInntekt(
             aarligInntektBeloep = source.aarligInntekt ?: 0,
-            fom = source.fom.toLocalDate()!!
+            fom = source.fom!!.toNorwegianLocalDate()
         )
 
     private fun utlandPeriode(source: NavSimuleringUtlandSpecV3) =
         UtlandPeriode(
-            fom = source.fom.toLocalDate()!!,
-            tom = source.tom.toLocalDate()!!,
+            fom = source.fom.toNorwegianLocalDate(),
+            tom = source.tom?.toNorwegianLocalDate(),
             land = LandkodeEnum.valueOf(source.land),
             arbeidet = source.arbeidetUtenlands
         )

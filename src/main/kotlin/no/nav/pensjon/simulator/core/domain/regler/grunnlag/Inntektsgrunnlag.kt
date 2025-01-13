@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.io.Serializable
 import java.util.*
 
@@ -54,7 +54,7 @@ class Inntektsgrunnlag : Serializable {
     var fom: Date? = null
         set(value) {
             rawFom = value
-            field = value?.noon()
+            field = value?.toNorwegianNoon()
         }
 
     /**
@@ -63,7 +63,7 @@ class Inntektsgrunnlag : Serializable {
     var tom: Date? = null
         set(value) {
             rawTom = value
-            field = value?.noon()
+            field = value?.toNorwegianNoon()
         }
 
     /**

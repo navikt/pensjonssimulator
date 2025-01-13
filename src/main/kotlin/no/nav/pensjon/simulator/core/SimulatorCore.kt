@@ -32,7 +32,7 @@ import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
@@ -95,7 +95,7 @@ class SimulatorCore(
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
         val person: PenPerson? = initialSpec.pid?.let(personService::person)
-        val foedselsdato: LocalDate? = person?.fodselsdato?.toLocalDate()
+        val foedselsdato: LocalDate? = person?.fodselsdato?.toNorwegianLocalDate()
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 
         val spec: SimuleringSpec =
@@ -166,7 +166,7 @@ class SimulatorCore(
                 soekerVirkningFom = ytelser.soekerVirkningFom,
                 avdoedVirkningFom = ytelser.avdoedVirkningFom,
                 forrigeAlderspensjonBeregningResultatVirkningFom =
-                    ytelser.forrigeAlderspensjonBeregningResultat?.virkFom?.toLocalDate(),
+                    ytelser.forrigeAlderspensjonBeregningResultat?.virkFom?.toNorwegianLocalDate(),
                 sakId = kravhode.sakId
             )
         )

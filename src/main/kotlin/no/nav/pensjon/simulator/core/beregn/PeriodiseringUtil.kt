@@ -5,8 +5,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 // Extracts from VilkarsprovOgBeregnAlderHelper + SimpleFpenService
@@ -54,7 +54,7 @@ object PeriodiseringUtil {
     // VilkarsprovOgBeregnAlderHelper.setUttaksgradListeOnKravhodeWithFullUttakAndVirkDatoFom
     private fun setLivsvarigFulltUttak(kravhode: Kravhode, virkningFom: LocalDate) {
         val uttaksgrad = Uttaksgrad().apply {
-            fomDato = fromLocalDate(virkningFom)
+            fomDato = virkningFom.toNorwegianDateAtNoon()
             tomDato = null
             uttaksgrad = 100
             // uttaksgradKopiert = false <----- seemingly unused in simulering context

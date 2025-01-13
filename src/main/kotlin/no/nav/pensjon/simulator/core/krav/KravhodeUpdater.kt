@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
@@ -21,7 +20,8 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurns67
 import no.nav.pensjon.simulator.core.trygd.*
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -63,23 +63,28 @@ class KravhodeUpdater(
             )
 
             simuleringSpec.gjelderEndring() -> {} // ref. SimulerEndringAvAPCommand.settPensjonsbeholdning
-            else -> soekerGrunnlag.replaceBeholdninger(fetchBeholdninger(soekerGrunnlag, simuleringSpec.foersteUttakDato))
+            else -> soekerGrunnlag.replaceBeholdninger(
+                fetchBeholdninger(
+                    soekerGrunnlag,
+                    simuleringSpec.foersteUttakDato
+                )
+            )
         }
 
         logger.info("STEP 4.3 - Sett uførehistorikk")
-        val ufoerePeriodeTom = uforeperiodeTom(simuleringSpec, soekerGrunnlag)
+        val ufoerePeriodeTom = ufoerePeriodeTom(simuleringSpec, soekerGrunnlag)
         setUfoereHistorikk(soekerGrunnlag, ufoerePeriodeTom)
 
         if (avdoedGrunnlag != null) {
             logger.info("STEP 4.4 - Sett trygdetidsgrunnlag for avdød")
             // Dodsdato set to Dec 31 the previous year
-            val lastDayOfYearBeforeDodsdato = getLastDateInYear(getRelativeDateByYear(avdoedGrunnlag.dodsdato!!, -1))
+            val lastDayOfYearBeforeDoedDato = getLastDateInYear(getRelativeDateByYear(avdoedGrunnlag.dodsdato!!, -1))
 
             avdoedGrunnlag = setTrygdetid(
                 TrygdetidGrunnlagSpec(
                     persongrunnlag = avdoedGrunnlag,
                     utlandAntallAar = simuleringSpec.avdoed?.antallAarUtenlands,
-                    tom = lastDayOfYearBeforeDodsdato.toLocalDate(),
+                    tom = lastDayOfYearBeforeDoedDato.toNorwegianLocalDate(),
                     forrigeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResult,
                     simuleringSpec = simuleringSpec
                 ),
@@ -119,16 +124,17 @@ class KravhodeUpdater(
         persongrunnlag.uforeHistorikk = historikkCopy
     }
 
-    private fun uforeperiodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): Date {
-        val sisteDagIManedenSokerBlir67 = lastDayOfMonthUserTurns67(soekerGrunnlag.fodselsdato)
+    private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): Date {
+        val sisteDagIManedenSokerBlir67 = lastDayOfMonthUserTurns67(soekerGrunnlag.fodselsdato!!) //TODO normert
 
-        return if (spec.type == SimuleringType.ALDER_M_AFP_PRIVAT && isBeforeByDay(
-                spec.foersteUttakDato,
-                sisteDagIManedenSokerBlir67,
-                false
+        return if (spec.type == SimuleringType.ALDER_M_AFP_PRIVAT &&
+            isBeforeByDay(
+                thisDate = spec.foersteUttakDato,
+                thatDate = sisteDagIManedenSokerBlir67,
+                allowSameDay = false
             )
         )
-            getRelativeDateByDays(fromLocalDate(spec.foersteUttakDato)!!, -1)
+            getRelativeDateByDays(spec.foersteUttakDato!!.toNorwegianDateAtNoon(), -1)
         else
             sisteDagIManedenSokerBlir67
     }
@@ -189,7 +195,7 @@ class KravhodeUpdater(
 
         val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe,
-            foedselDato = persongrunnlag.penPerson?.fodselsdato.toLocalDate()!!,
+            foedselsdato = persongrunnlag.penPerson!!.fodselsdato!!.toNorwegianLocalDate(),
             spec.foersteUttakDato
         )
 
@@ -203,7 +209,7 @@ class KravhodeUpdater(
 
         val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe,
-            foedselDato = persongrunnlag.penPerson?.fodselsdato.toLocalDate()!!,
+            foedselsdato = persongrunnlag.penPerson!!.fodselsdato!!.toNorwegianLocalDate(),
             spec.foersteUttakDato
         )
 
@@ -252,14 +258,14 @@ class KravhodeUpdater(
         // SimulerFleksibelAPCommand.createTrygdetidsgrunnlagList
         private fun createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe: List<TrygdetidOpphold>,
-            foedselDato: LocalDate,
+            foedselsdato: LocalDate,
             foersteUttakDato: LocalDate?
         ): List<TTPeriode> {
             // Step 2 Gap-fill domestic basis for pension
             val trygdetidGrunnlagMedInnlandBasisListe: List<TrygdetidOpphold> =
                 InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
                     trygdetidGrunnlagUtlandOppholdListe,
-                    foedselDato
+                    foedselsdato
                 )
 
             // Step 3 Remove periods of non-contributing countries (ikkeAvtaleLand)
@@ -268,13 +274,13 @@ class KravhodeUpdater(
 
             // Step 4a Remove periods before age of adulthood
             val trygdetidGrunnlagPendingEndListe: List<TTPeriode> =
-                TrygdetidTrimmer.removePeriodBeforeAdulthood(trygdetidGrunnlagOpptjeningListe, foedselDato)
+                TrygdetidTrimmer.removePeriodBeforeAdulthood(trygdetidGrunnlagOpptjeningListe, foedselsdato)
 
             // Step 4b Remove periods after obtained pension age
             return TrygdetidTrimmer.removePeriodAfterPensionAge(
                 trygdetidPeriodeListe = trygdetidGrunnlagPendingEndListe.toMutableList(),
-                foersteUttakDato = foersteUttakDato!!,
-                foedselDato = foedselDato
+                foersteUttakDato!!,
+                foedselsdato
             )
         }
     }

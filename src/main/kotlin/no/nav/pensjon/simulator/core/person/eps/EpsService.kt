@@ -13,9 +13,8 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.core.util.toDate
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import org.springframework.stereotype.Service
@@ -59,7 +58,7 @@ class EpsService(
                 spec.foersteUttakDato?.let { if (isBeforeDay(it, today)) it else today } ?: today
 
             grunnlag.inntektsgrunnlagListe.add(
-                epsInntektsgrunnlag(grunnbeloep, foersteUttakAar = foersteUttakDato.year)
+                epsInntektGrunnlag(grunnbeloep, foersteUttakAar = foersteUttakDato.year)
             )
         }
 
@@ -67,17 +66,17 @@ class EpsService(
     }
 
     private fun foedselsdato(spec: SimuleringSpec): LocalDate =
-        spec.pid?.let(personService::person)?.fodselsdato.toLocalDate() ?: foersteDag(spec.foedselAar)
+        spec.pid?.let(personService::person)?.fodselsdato?.toNorwegianLocalDate() ?: foersteDag(spec.foedselAar)
     // NB: Not using spec.foedselDato here (for unknown reasons)
 
     companion object {
         const val EPS_GRUNNBELOEP_MULTIPLIER = 3 // greater than 2 (due to 2G income limit for EPS)
 
         // OpprettKravHodeHelper.createInntektsgrunnlagForBrukerOrEps (special EPS variant)
-        private fun epsInntektsgrunnlag(grunnbeloep: Int, foersteUttakAar: Int) =
+        private fun epsInntektGrunnlag(grunnbeloep: Int, foersteUttakAar: Int) =
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
-                fom = foersteDag(foersteUttakAar).toDate().noon() // noon: ref. GrunnlagToReglerMapper.mapToInntektsgrunnlag in PEN
+                fom = foersteDag(foersteUttakAar).toNorwegianDateAtNoon() // noon: ref. GrunnlagToReglerMapper.mapToInntektsgrunnlag in PEN
                 tom = null
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
                 inntektType = InntektTypeCti(InntektType.FPI.name)

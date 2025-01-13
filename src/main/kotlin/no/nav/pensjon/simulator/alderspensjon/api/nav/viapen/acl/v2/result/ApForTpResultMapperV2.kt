@@ -11,9 +11,8 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.core.util.toDate
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 
 /**
  * Maps result of 'AP for TP' (alderspensjon for tjenestepensjon-simulering)
@@ -49,7 +48,7 @@ object ApForTpResultMapperV2 {
 
     private fun beholdningPeriode(source: BeholdningPeriode) =
         ApForTpBeholdningPeriodeV2(
-            datoFom = source.datoFom.toDate().noon(),
+            datoFom = source.datoFom.toNorwegianDateAtNoon(),
             pensjonsbeholdning = source.pensjonsbeholdning,
             garantipensjonsbeholdning = source.garantipensjonsbeholdning,
             garantitilleggsbeholdning = source.garantitilleggsbeholdning
@@ -57,7 +56,7 @@ object ApForTpResultMapperV2 {
 
     private fun beregningInformasjon(source: SimulertBeregningInformasjon) =
         ApForTpBeregningInformasjonV2(
-            datoFom = source.datoFom?.toDate()?.toNorwegianDate(),
+            datoFom = source.datoFom?.toNorwegianDate(),
             basisgp = source.basisGrunnpensjon,
             basistp = source.basisTilleggspensjon,
             basispt = source.basisPensjonstillegg,
@@ -83,7 +82,7 @@ object ApForTpResultMapperV2 {
 
     private fun sluttpoengtall(source: Sluttpoengtall) =
         ApForTpSluttpoengtallV2(
-            poengrekke = source.poengrekke?.let(::poengrekke)!! //TODO null-check
+            poengrekke = source.poengrekke!!.let(::poengrekke) //TODO null-check
         )
 
     private fun poengrekke(source: Poengrekke) =

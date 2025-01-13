@@ -21,7 +21,7 @@ import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.core.util.toDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
@@ -93,7 +93,7 @@ object SimulatorContextUtil {
     fun personOpptjeningsgrunnlag(opptjeningGrunnlag: Opptjeningsgrunnlag, foedselsdato: LocalDate?) =
         PersonOpptjeningsgrunnlag().apply {
             opptjening = opptjeningGrunnlag
-            fodselsdato = foedselsdato?.toDate()
+            fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
         }
 
     // PEN: SimulatorContext.updatePersonOpptjeningsFieldFromPregResponse
@@ -123,7 +123,7 @@ object SimulatorContextUtil {
         val annenTjenesteOk = pakkseddel.annenTjenesteOk
         if (kontrollTjenesteOk && annenTjenesteOk) return
 
-        val message = pakkseddel.merknaderAsString()
+        val message = pakkseddel.merknadListe.joinToString { it.kode }
 
         if (kontrollTjenesteOk) {
             log.error { "regler validering andre merknader - $message" }

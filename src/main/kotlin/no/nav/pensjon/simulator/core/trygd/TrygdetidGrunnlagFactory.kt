@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core.trygd
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 import java.util.Date
 
@@ -11,7 +11,7 @@ import java.util.Date
 object TrygdetidGrunnlagFactory {
 
     fun trygdetidPeriode(fom: LocalDate?, tom: LocalDate?) =
-        trygdetidPeriode(fromLocalDate(fom), fromLocalDate(tom))
+        trygdetidPeriode(fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon())
 
     fun trygdetidPeriode(fom: Date?, tom: Date?) =
         TTPeriode(
@@ -37,7 +37,7 @@ object TrygdetidGrunnlagFactory {
         ).also { it.finishInit() }
 
     fun trygdetidPeriode(fom: LocalDate, tom: LocalDate?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean) =
-        trygdetidPeriode(fromLocalDate(fom)!!, fromLocalDate(tom), land, ikkeProRata, bruk)
+        trygdetidPeriode(fom.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon(), land, ikkeProRata, bruk)
 
     // TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
     fun trygdetidPeriode(fom: Date?, tom: Date?, land: LandkodeEnum?) =
@@ -52,7 +52,7 @@ object TrygdetidGrunnlagFactory {
         ).also { it.finishInit() }
 
     fun trygdetidPeriode(fom: LocalDate?, tom: LocalDate?, land: LandkodeEnum) =
-        trygdetidPeriode(fromLocalDate(fom), fromLocalDate(tom), land)
+        trygdetidPeriode(fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon(), land)
 
     // TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlagForenkletSimulering + createTrygdetidsgrunnlag
     fun anonymSimuleringTrygdetidPeriode(fom: Date?, tom: Date?) =
@@ -67,5 +67,5 @@ object TrygdetidGrunnlagFactory {
         ).also { it.finishInit() }
 
     fun anonymSimuleringTrygdetidPeriode(fom: LocalDate?, tom: LocalDate?) =
-        anonymSimuleringTrygdetidPeriode(fromLocalDate(fom), fromLocalDate(tom))
+        anonymSimuleringTrygdetidPeriode(fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon())
 }

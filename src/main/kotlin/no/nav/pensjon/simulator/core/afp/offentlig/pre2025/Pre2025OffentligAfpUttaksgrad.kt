@@ -3,8 +3,8 @@ package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import org.springframework.stereotype.Component
@@ -64,7 +64,7 @@ class Pre2025OffentligAfpUttaksgrad(
         private fun replaceNullTom(uttaksgradListe: List<Uttaksgrad>, tom: LocalDate) {
             uttaksgradListe.forEach {
                 if (it.tomDato == null) {
-                    it.tomDato = fromLocalDate(tom)
+                    it.tomDato = tom.toNorwegianDateAtNoon()
                     it.finishInit()
                 }
             }
@@ -73,9 +73,9 @@ class Pre2025OffentligAfpUttaksgrad(
         // SimulerAFPogAPCommandHelper.createUttaksgrad
         private fun uttaksgrad(fom: LocalDate?, grad: Int, tom: LocalDate?) =
             Uttaksgrad().apply {
-                fomDato = fromLocalDate(fom)
+                fomDato = fom?.toNorwegianDateAtNoon()
                 uttaksgrad = grad
-                tomDato = fromLocalDate(tom)
+                tomDato = tom?.toNorwegianDateAtNoon()
             }.also { it.finishInit() }
     }
 }

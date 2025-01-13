@@ -14,7 +14,6 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.Inntekt
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.person.BeholdningUtil.beholdningSpec
@@ -22,7 +21,8 @@ import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -179,7 +179,7 @@ class EndringPersongrunnlag(
         person: PenPerson
     ): MutableList<Opptjeningsgrunnlag> {
         val pid = spec.pid
-        val foedselDato = person.fodselsdato.toLocalDate()
+        val foedselDato = person.fodselsdato?.toNorwegianLocalDate()
 
         if (pid == null || foedselDato == null)
             return mutableListOf()
@@ -197,7 +197,7 @@ class EndringPersongrunnlag(
 
     // SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun convertEpsToAvdoed(eps: Persongrunnlag, avdoed: Avdoed) {
-        eps.dodsdato = fromLocalDate(avdoed.doedDato)
+        eps.dodsdato = avdoed.doedDato.toNorwegianDateAtNoon()
         eps.personDetaljListe = mutableListOf(persondetalj(avdoed))
         eps.arligPGIMinst1G = avdoed.harInntektOver1G
         eps.medlemIFolketrygdenSiste3Ar = avdoed.erMedlemAvFolketrygden
@@ -205,7 +205,7 @@ class EndringPersongrunnlag(
         eps.opptjeningsgrunnlagListe = oppdaterOpptjeningsgrunnlagFraInntekt(
             opprinneligOpptjeningsgrunnlagListe = eps.opptjeningsgrunnlagListe,
             inntektListe = mutableListOf(inntekt(avdoed)),
-            foedselDato = eps.fodselsdato.toLocalDate()
+            foedselDato = eps.fodselsdato?.toNorwegianLocalDate()
         )
     }
 
@@ -220,7 +220,7 @@ class EndringPersongrunnlag(
             foersteUttakDato?.let {
                 isPersondetaljValid(
                     persongrunnlag,
-                    it,
+                    virkningDato = it,
                     GrunnlagsrolleEnum.EKTEF,
                     GrunnlagsrolleEnum.PARTNER,
                     GrunnlagsrolleEnum.SAMBO
@@ -247,7 +247,7 @@ class EndringPersongrunnlag(
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
-                fom = fromLocalDate(inntektFom)
+                fom = inntektFom.toNorwegianDateAtNoon()
                 tom = null
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.BRUKER.name)
                 inntektType = InntektTypeCti(InntekttypeEnum.FPI.name) // Forventet pensjongivende inntekt
@@ -272,7 +272,7 @@ class EndringPersongrunnlag(
         private fun persondetalj(avdoed: Avdoed) =
             PersonDetalj().apply {
                 bruk = true
-                rolleFomDato = fromLocalDate(avdoed.doedDato)
+                rolleFomDato = avdoed.doedDato.toNorwegianDateAtNoon()
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             }
@@ -286,7 +286,7 @@ class EndringPersongrunnlag(
             roller.forEach {
                 val detalj = persongrunnlag.findPersonDetaljWithRolleForPeriode(
                     rolle = it,
-                    virkningDato = fromLocalDate(virkningDato),
+                    virkningDato = virkningDato.toNorwegianDateAtNoon(),
                     checkBruk = true
                 )
 
@@ -366,7 +366,7 @@ class EndringPersongrunnlag(
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                rolleFomDato = fromLocalDate(fom)
+                rolleFomDato = fom?.toNorwegianDateAtNoon()
                 bruk = true
             }
 
@@ -381,9 +381,9 @@ class EndringPersongrunnlag(
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun isValidToday(detalj: PersonDetalj) =
             isDateInPeriod(
-                compDate = Date(),
-                fomDate = detalj.virkFom,
-                tomDate = detalj.virkTom
+                dato = Date(),
+                fom = detalj.virkFom,
+                tom = detalj.virkTom
             ) // NB: Here virkFom|Tom is used (not rolleFom|TomDato)
         // The relationship between virk- and rolle-dato is described in https://confluence.adeo.no/pages/viewpage.action?pageId=282132550
         // ("Løsningsbeskrivelse - P17 - Periodisering av persongrunnlag - utbedring av periodebegrep i Familieforhold (PK-52707)")

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.util.DateRange
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.*
 import no.nav.pensjon.simulator.core.domain.regler.util.DateCompareUtil
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.io.Serializable
 import java.time.LocalDate
 import java.util.*
@@ -121,37 +121,37 @@ class BeregningsvilkarPeriode : Comparable<BeregningsvilkarPeriode>, Serializabl
 
     var ungUfor: UngUfor?
         get() = hentVilkar(UngUfor::class.java)
-        set(ungUfor) = settVilkar(UngUfor::class.java, ungUfor)
+        set(ungUfor) = settVilkaar(UngUfor::class.java, ungUfor)
 
     var yrkesskade: Yrkesskade?
         get() = hentVilkar(Yrkesskade::class.java)
-        set(yrkesskade) = settVilkar(Yrkesskade::class.java, yrkesskade)
+        set(yrkesskade) = settVilkaar(Yrkesskade::class.java, yrkesskade)
 
     var fortsattMedlemskap: FortsattMedlemskap?
         get() = hentVilkar(FortsattMedlemskap::class.java)
-        set(fortsattMedlemskap) = settVilkar(FortsattMedlemskap::class.java, fortsattMedlemskap)
+        set(fortsattMedlemskap) = settVilkaar(FortsattMedlemskap::class.java, fortsattMedlemskap)
 
     var forutgaendeMedlemskap: ForutgaendeMedlemskap?
         get() = hentVilkar(ForutgaendeMedlemskap::class.java)
-        set(forutgaendeMedlemskap) = settVilkar(ForutgaendeMedlemskap::class.java, forutgaendeMedlemskap)
+        set(forutgaendeMedlemskap) = settVilkaar(ForutgaendeMedlemskap::class.java, forutgaendeMedlemskap)
 
     var medlemskapForUTEtterTrygdeavtaler: MedlemskapForUTEtterTrygdeavtaler?
         get() = hentVilkar(MedlemskapForUTEtterTrygdeavtaler::class.java)
-        set(medlemskapForUTEtterTrygdeavtaler) = settVilkar(
+        set(medlemskapForUTEtterTrygdeavtaler) = settVilkaar(
             MedlemskapForUTEtterTrygdeavtaler::class.java,
             medlemskapForUTEtterTrygdeavtaler
         )
 
     var rettTilEksportEtterTrygdeavtaler: RettTilEksportEtterTrygdeavtaler?
         get() = hentVilkar(RettTilEksportEtterTrygdeavtaler::class.java)
-        set(rettTilEksportEtterTrygdeavtaler) = settVilkar(
+        set(rettTilEksportEtterTrygdeavtaler) = settVilkaar(
             RettTilEksportEtterTrygdeavtaler::class.java,
             rettTilEksportEtterTrygdeavtaler
         )
 
     var rettTilGjenlevendetillegg: RettTilGjenlevendetillegg?
         get() = hentVilkar(RettTilGjenlevendetillegg::class.java)
-        set(rettTilGjenlevendetillegg) = settVilkar(RettTilGjenlevendetillegg::class.java, rettTilGjenlevendetillegg)
+        set(rettTilGjenlevendetillegg) = settVilkaar(RettTilGjenlevendetillegg::class.java, rettTilGjenlevendetillegg)
 
     var alderspensjon2011VedDod: Alderspensjon2011VedDod?
         get() = hentBeregningsvilkar(Alderspensjon2011VedDod::class.java)
@@ -242,22 +242,17 @@ class BeregningsvilkarPeriode : Comparable<BeregningsvilkarPeriode>, Serializabl
         }
     }
 
-    private fun <T : AbstraktVilkar> settVilkar(classOfVilkar: Class<T>, vilkar: T?) {
-        val old = hentVilkar(classOfVilkar)
-        if (old != null) {
-            vilkarListe.remove(old)
-        }
-        if (vilkar != null) {
-            vilkarListe.add(vilkar)
-        }
+    private fun <T : AbstraktVilkar> settVilkaar(vilkaarClass: Class<T>, vilkaar: T?) {
+        hentVilkar(vilkaarClass)?.let(vilkarListe::remove)
+        vilkaar?.let(vilkarListe::add)
     }
 
     override fun compareTo(other: BeregningsvilkarPeriode): Int =
         DateCompareUtil.compareTo(fomDato, other.fomDato)
 
     override fun range(): ClosedRange<LocalDate> {
-        val fom = fomDato?.toLocalDate() ?: LocalDate.MIN // SIMDOM-MOD LocalDateHelper.MIN
-        val tom = tomDato?.toLocalDate() ?: LocalDate.MAX //LocalDateHelper.MAX
+        val fom = fomDato?.toNorwegianLocalDate() ?: LocalDate.MIN // SIMDOM-MOD LocalDateHelper.MIN
+        val tom = tomDato?.toNorwegianLocalDate() ?: LocalDate.MAX //LocalDateHelper.MAX
         return fom..tom
     }
 }

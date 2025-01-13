@@ -26,10 +26,12 @@ import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.core.util.toDate
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.NorwegianCalendar
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
@@ -274,18 +276,22 @@ class Pre2025OffentligAfpBeregner(
         val innvilgetResultat = VilkarsvedtakResultatCti(VedtakResultatEnum.INNV.name)
 
         for (persongrunnlag in simulering.persongrunnlagListe) {
+            val virkningFom: Date? = simulering.uttaksdato?.let { virkningFom(it).noon() }// TODO LocalDate
+
             val vedtak = VilkarsVedtak().apply {
                 vilkarsvedtakResultat = innvilgetResultat
-                virkFom = virkningFom(simulering.uttaksdato).noon()
+                virkFom = virkningFom
                 virkTom = null
                 gjelderPerson = persongrunnlag.penPerson
                 penPerson = persongrunnlag.penPerson // ref. PEN: VilkarsVedtakToReglerMapper.mapVilkarsVedtak
             }
 
-            val grunnbeloep = fetchGrunnbeloep(vedtak.virkFom.toLocalDate()!!) // TODO reuse for each persongrunnlag?
+            val grunnbeloep = virkningFom?.let {
+                fetchGrunnbeloep(it.toNorwegianLocalDate()) // TODO cache?
+            } ?: throw RuntimeException("Failed to obtain grunnbeløp - virkningFom null")
 
             persongrunnlag.personDetaljListe.forEach {
-                updateVilkarsvedtak(simulering, vedtak, persongrunnlag, it, grunnbeloep)
+                updateVedtak(simulering, vedtak, persongrunnlag, it, grunnbeloep)
             }
         }
     }
@@ -375,7 +381,7 @@ class Pre2025OffentligAfpBeregner(
                     ?: 0.0 // SimulerAFPogAPCommand.getFppValueFromTilleggspensjonList + SimulerAFPogAPCommandHelper.checkValuesForNullAndReturnFpp
                 afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
-                virkFom = spec.foersteUttakDato?.toDate()
+                virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 virkTom = persongrunnlag.penPerson?.fodselsdato?.let {
                     DateUtil.firstDayOfMonthAfterUserTurnsGivenAge(it, AFP_VIRKNING_TOM_ALDER_AAR)
                 }
@@ -395,7 +401,7 @@ class Pre2025OffentligAfpBeregner(
             if (eps.harPensjon) {
                 inntektGrunnlagListe.add(
                     inntektsgrunnlag(
-                        fom = foersteUttakDato?.toDate(),
+                        fom = foersteUttakDato?.toNorwegianDateAtNoon(),
                         type = InntekttypeEnum.PENF, // Pensjonsinntekt fra folketrygden
                         beloep = 1
                     )
@@ -406,7 +412,7 @@ class Pre2025OffentligAfpBeregner(
             if (eps.harInntektOver2G) {
                 inntektGrunnlagListe.add(
                     inntektsgrunnlag(
-                        fom = foersteUttakDato?.toDate(),
+                        fom = foersteUttakDato?.toNorwegianDateAtNoon(),
                         type = InntekttypeEnum.FPI, // Forventet pensjongivende inntekt
                         beloep = 3 * grunnbeloep
                     )
@@ -438,7 +444,7 @@ class Pre2025OffentligAfpBeregner(
             Inntektsgrunnlag().apply {
                 bruk = true
                 inntektType = InntektTypeCti(InntekttypeEnum.IMFU.name) // IMFU = Inntekt måneden før uttak
-                fom = DateUtil.getRelativeDateByMonth(spec.foersteUttakDato?.toDate(), -1)
+                fom = spec.foersteUttakDato?.toNorwegianDateAtNoon()?.let { getRelativeDateByMonth(it, -1) }
                 belop = spec.afpInntektMaanedFoerUttak ?: 0
                 grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.SIMULERING.name)
             }
@@ -493,7 +499,7 @@ class Pre2025OffentligAfpBeregner(
         }
 
         // SimulerPensjonsberegningCommand.updateVilkarsvedtak
-        private fun updateVilkarsvedtak(
+        private fun updateVedtak(
             simulering: Simulering,
             vedtak: VilkarsVedtak,
             persongrunnlag: Persongrunnlag,
@@ -542,7 +548,7 @@ class Pre2025OffentligAfpBeregner(
         private fun simulering(spec: SimuleringSpec, persongrunnlagListe: MutableList<Persongrunnlag>) =
             Simulering().apply {
                 simuleringType = SimuleringTypeCti(SimuleringTypeEnum.AFP.name) // getAfpSimuleringsType
-                uttaksdato = spec.foersteUttakDato?.toDate()?.noon()
+                uttaksdato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
                 this.persongrunnlagListe = persongrunnlagListe
             }
@@ -574,11 +580,11 @@ class Pre2025OffentligAfpBeregner(
             val soekerGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
 
-            val soekerFoedselDato = Calendar.getInstance().apply { time = soekerGrunnlag!!.fodselsdato }
-            val uttakDato = Calendar.getInstance().apply { time = simulering.uttaksdato }
-            val foedselMaaned = soekerFoedselDato[Calendar.MONTH]
+            val soekerFoedselsdato: Calendar = NorwegianCalendar.forNoon(soekerGrunnlag!!.fodselsdato!!)
+            val uttakDato: Calendar = NorwegianCalendar.forNoon(simulering.uttaksdato!!)
+            val foedselMaaned = soekerFoedselsdato[Calendar.MONTH]
             val uttakMaaned = uttakDato[Calendar.MONTH]
-            val alder = uttakDato[Calendar.YEAR] - soekerFoedselDato[Calendar.YEAR]
+            val alder = uttakDato[Calendar.YEAR] - soekerFoedselsdato[Calendar.YEAR]
 
             if (SimuleringTypeEnum.ALDER.name == simuleringTypeKode) {
                 if (alder < normAlder.aar || alder == normAlder.aar && uttakMaaned <= foedselMaaned) {
@@ -674,10 +680,9 @@ class Pre2025OffentligAfpBeregner(
         }
 
         // Extracted from SimulerPensjonsberegningCommand.createVilkarsvedtakList
-        private fun virkningFom(uttakDato: Date?): Date =
-            Calendar.getInstance().apply {
-                time = uttakDato
-                this[Calendar.DATE] = 1
+        private fun virkningFom(uttakDato: Date): Date =
+            NorwegianCalendar.forDate(uttakDato).apply {
+                this[Calendar.DAY_OF_MONTH] = 1
             }.time
 
         // Extracted from SimulerPensjonsberegningCommand.updateVilkarsvedtak

@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYesterday
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
@@ -14,9 +13,10 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterToday
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeToday
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.setTimeToZero
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.time.LocalDate
 import java.util.*
 
@@ -57,7 +57,7 @@ object TrygdetidSetter {
         return TrygdetidUtil.antallAarMedOpptjening(
             opptjeningAarSet = aarMedOpptjeningSet,
             aarSoekerFikkMinstealderForTrygdetid = yearUserTurnsGivenAge(foedselDato!!, NEDRE_ALDERSGRENSE),
-            dagensDato = fromLocalDate(LocalDate.now())!!
+            dagensDato = LocalDate.now().toNorwegianDateAtNoon()
         )
     }
 
@@ -69,7 +69,7 @@ object TrygdetidSetter {
         foersteUttakDato: LocalDate?
     ) {
         val datoSokerFikkMinstealderForTrygdetid: LocalDate =
-            getRelativeDateByYear(persongrunnlag.fodselsdato!!, NEDRE_ALDERSGRENSE).toLocalDate()!!
+            getRelativeDateByYear(persongrunnlag.fodselsdato!!, NEDRE_ALDERSGRENSE).toNorwegianLocalDate()
 
         addKapittel19TrygdetidPerioder(
             persongrunnlag,
@@ -87,8 +87,8 @@ object TrygdetidSetter {
         conditionallyAdjustLastTrygdetidPeriode(persongrunnlag.trygdetidPerioder, tom)
         conditionallyAdjustLastTrygdetidPeriode(persongrunnlag.trygdetidPerioderKapittel20, tom)
 
-        if (tom == null || isAfterToday(fromLocalDate(tom))) {
-            val trygdetidPeriode = newNorskTrygdetidPeriode(LocalDate.now(), tom, true)
+        if (tom == null || isAfterToday(tom.toNorwegianDateAtNoon())) {
+            val trygdetidPeriode = newNorskTrygdetidPeriode(fom = LocalDate.now(), tom, ikkeProRata = true)
             persongrunnlag.trygdetidPerioder.add(trygdetidPeriode)
             persongrunnlag.trygdetidPerioderKapittel20.add(TTPeriode(trygdetidPeriode).also { it.finishInit() })
         }
@@ -102,10 +102,12 @@ object TrygdetidSetter {
         datoSoekerFikkMinstealderForTrygdetid: LocalDate,
         foersteUttakDato: LocalDate?
     ) {
-        val aarMedOpptjening = antallAarMedOpptjening(persongrunnlag.opptjeningsgrunnlagListe, persongrunnlag.fodselsdato)
+        val aarMedOpptjening =
+            antallAarMedOpptjening(persongrunnlag.opptjeningsgrunnlagListe, persongrunnlag.fodselsdato)
         val alderVedUttak = calculateAgeInYears(persongrunnlag.fodselsdato!!, foersteUttakDato!!)
         val maxAntallAarUtland = alderVedUttak - NEDRE_ALDERSGRENSE - aarMedOpptjening
-        val kapittel19UtlandAntallAar = if (utlandAntallAar > maxAntallAarUtland) maxAntallAarUtland else utlandAntallAar
+        val kapittel19UtlandAntallAar =
+            if (utlandAntallAar > maxAntallAarUtland) maxAntallAarUtland else utlandAntallAar
         val fom = getRelativeDateByYear(datoSoekerFikkMinstealderForTrygdetid, kapittel19UtlandAntallAar)
 
         if (isBeforeByDay(fom, tom ?: LOCAL_ETERNITY, false)) {
@@ -129,26 +131,30 @@ object TrygdetidSetter {
 
     // SettTrygdetidHelper.conditionallyAdjustLastTrygdetidsgrunnlag
     private fun conditionallyAdjustLastTrygdetidPeriode(periodeListe: List<TTPeriode>, tom: LocalDate?) {
-        val twoYearsBeforeToday = getRelativeDateByYear(fromLocalDate(LocalDate.now())!!, -2)
+        val twoYearsBeforeToday = getRelativeDateByYear(LocalDate.now().toNorwegianDateAtNoon(), -2) //TODO magic value
+
         val relevantePerioder = periodeListe.filter {
-            isDateInPeriod(twoYearsBeforeToday, it.fom, it.tom) || isAfterByDay(
-                it.fom,
-                twoYearsBeforeToday,
-                false
-            )
+            isDateInPeriod(twoYearsBeforeToday, it.fom, it.tom) ||
+                    isAfterByDay(
+                        thisDate = it.fom,
+                        thatDate = twoYearsBeforeToday,
+                        allowSameDay = false
+                    )
         }
+
         if (relevantePerioder.isEmpty()) return
 
         findLatest(periodeListe)?.apply {
-            this.tom = finalTom(fromLocalDate(tom))
+            this.tom = finalTom(tom?.toNorwegianDateAtNoon())
             this.poengIUtAr = false
         }
     }
 
     // Extracted from SettTrygdetidHelper.conditionallyAdjustLastTrygdetidsgrunnlag
     private fun finalTom(tom: Date?): Date {
-        val validTom = if (tom == null || !isBeforeToday(tom)) getYesterday() else tom
-        return setTimeToZero(validTom)
+        // isBeforeToday applies noon before comparing
+        val validTom: Date = if (tom == null || !isBeforeToday(tom)) getYesterday() else tom
+        return validTom.toNorwegianNoon()
     }
 
     // PeriodisertInformasjonListeUtils.findLatest
@@ -175,8 +181,8 @@ object TrygdetidSetter {
     // SettTrygdetidHelper.createTrygdetidsgrunnlagNorge
     private fun newNorskTrygdetidPeriode(fom: LocalDate, tom: LocalDate?, ikkeProRata: Boolean) =
         TrygdetidGrunnlagFactory.trygdetidPeriode(
-            fom = fromLocalDate(fom)!!, // set to noon in trygdetidPeriode -> finishInit
-            tom = fromLocalDate(tom),
+            fom = fom.toNorwegianDateAtNoon(), // set to noon in trygdetidPeriode -> finishInit
+            tom = tom?.toNorwegianDateAtNoon(),
             land = LandkodeEnum.NOR,
             ikkeProRata = ikkeProRata,
             bruk = null // bruk is not set in SettTrygdetidHelper.createTrygdetidsgrunnlagNorge in PEN

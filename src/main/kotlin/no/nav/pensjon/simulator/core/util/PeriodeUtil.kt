@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregni
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
@@ -57,7 +56,7 @@ object PeriodeUtil {
         list.firstOrNull { isValidForDate(it, date) }
 
     fun findValidForDate(list: List<AbstraktBeregningsResultat>, date: LocalDate): AbstraktBeregningsResultat? =
-        list.firstOrNull { isValidForDate(it, fromLocalDate(date)!!) }
+        list.firstOrNull { isValidForDate(it, date.toNorwegianDateAtNoon()) }
 
     // PeriodisertInformasjonListeUtils.findValidForDate
     fun findValidForDate(list: List<Pensjonsbeholdning>, date: Date): Pensjonsbeholdning? =
@@ -153,7 +152,7 @@ object PeriodeUtil {
         list.forEach {
             if (isBeforeByDay(it.fom, earliestFom, false)) {
                 result = it
-                earliestFom = fromLocalDate(it.fom)!!
+                earliestFom = it.fom.toNorwegianDateAtNoon()
             }
         }
 
@@ -183,7 +182,7 @@ object PeriodeUtil {
         list.forEach {
             if (isAfterByDay(it.fom, latestFom, false)) {
                 result = it
-                latestFom = fromLocalDate(it.fom)
+                latestFom = it.fom.toNorwegianDateAtNoon()
             }
         }
 
@@ -198,7 +197,7 @@ object PeriodeUtil {
         list.forEach {
             if (isAfterByDay(it.fom, latestFom, false)) {
                 result = it
-                latestFom = fromLocalDate(it.fom)
+                latestFom = it.fom.toNorwegianDateAtNoon()
             }
         }
 

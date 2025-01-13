@@ -7,9 +7,9 @@ import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -28,10 +28,10 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                 fodselsar = 1963,
                 forventetInntekt = 250000,
                 antArInntektOverG = 0, // used for anonym only
-                forsteUttakDato = fromLocalDate(LocalDate.of(2029, 1, 1)),
+                forsteUttakDato = LocalDate.of(2029, 1, 1).toNorwegianDateAtNoon(),
                 utg = UttakGradKode.P_50,
                 inntektUnderGradertUttak = 125000,
-                heltUttakDato = fromLocalDate(LocalDate.of(2032, 6, 1)),
+                heltUttakDato = LocalDate.of(2032, 6, 1).toNorwegianDateAtNoon(),
                 inntektEtterHeltUttak = 67500,
                 antallArInntektEtterHeltUttak = 5,
                 utenlandsopphold = 3,
@@ -39,7 +39,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                 sivilstatus = NavSivilstandSpecV2.UGIF,
                 epsPensjon = false,
                 eps2G = true,
-                dodsdato = fromLocalDate(LocalDate.of(2020, 11, 11)),
+                dodsdato = LocalDate.of(2020, 11, 11).toNorwegianDateAtNoon(),
                 avdodAntallArIUtlandet = 1,
                 avdodInntektForDod = 50000,
                 inntektAvdodOver1G = false,

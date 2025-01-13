@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 
 object TpoSimuleringResultMapperV3 {
 
@@ -59,8 +59,8 @@ object TpoSimuleringResultMapperV3 {
     private fun uttaksgrad(source: Uttaksgrad) =
         TpoUttakGradV3(
             uttaksgrad = source.uttaksgrad,
-            fomDato = source.fomDato.toLocalDate(),
-            tomDato = source.tomDato.toLocalDate()
+            fomDato = source.fomDato?.toNorwegianLocalDate(),
+            tomDato = source.tomDato?.toNorwegianLocalDate()
         )
 
     private fun beregningInformasjon(source: SimulertBeregningInformasjon) =

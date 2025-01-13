@@ -9,8 +9,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.result.*
-import no.nav.pensjon.simulator.core.util.toLocalDate
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.util.concurrent.atomic.AtomicLong
 
 object NavSimuleringResultMapperV2 {
@@ -126,8 +126,8 @@ object NavSimuleringResultMapperV2 {
     private fun beregning(source: Beregning) =
         NavBeregningResultV2(
             merknadliste = source.merknadListe.map(::merknad),
-            virkDatoFom = source.virkFom.toLocalDate(),
-            virkDatoTom = source.virkTom.toLocalDate(),
+            virkDatoFom = source.virkFom?.toNorwegianLocalDate(),
+            virkDatoTom = source.virkTom?.toNorwegianLocalDate(),
             brutto = source.brutto,
             netto = source.netto,
             g = source.g,

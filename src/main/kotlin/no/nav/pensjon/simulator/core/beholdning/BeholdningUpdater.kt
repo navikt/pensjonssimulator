@@ -51,13 +51,13 @@ import no.nav.pensjon.simulator.core.domain.regler.to.SatsResponse
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.fromLocalDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
-import no.nav.pensjon.simulator.core.util.toLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
@@ -198,7 +198,7 @@ class BeholdningUpdater(
         }
 
         val sisteGyldigeOpptjeningAar =
-            kravhode.onsketVirkningsdato.toLocalDate()?.minusYears(
+            kravhode.onsketVirkningsdato?.toNorwegianLocalDate()?.minusYears(
                 OPPTJENING_ETTERSLEP_ANTALL_AAR.toLong()
             )?.year.toString()
 
@@ -220,9 +220,9 @@ class BeholdningUpdater(
     private fun oppdaterPensjonsbeholdninger(spec: BeholdningUpdateSpec): BeholdningUpdateResult {
         //helper.validateInput(request) TODO
         val personBeholdningListe: MutableList<PersonBeholdning> = mutableListOf()
-        val fnrIkkeFunnetListe: MutableList<Pid> = mutableListOf()
-        oppdaterBeholdning(spec, personBeholdningListe, fnrIkkeFunnetListe)
-        return BeholdningUpdateResult(personBeholdningListe, fnrIkkeFunnetListe)
+        val ikkeFunnetPidListe: MutableList<Pid> = mutableListOf()
+        oppdaterBeholdning(spec, personBeholdningListe, ikkeFunnetPidListe)
+        return BeholdningUpdateResult(personBeholdningListe, ikkeFunnetPidListe)
     }
 
     // OppdaterPensjonsbeholdningerCommand.oppdaterBeholdning
@@ -405,12 +405,12 @@ class BeholdningUpdater(
                 // Senario 2: PREG return empty sats, and it is the last beholdning which shall be calculated. If bruker has AP2016/2025,
                 // firstVirkFom will not be null and the last pensjonsbeholdning must get a tomDate the day before firstVirkFom.
                 pensjonsbeholdning.tom =
-                    fromLocalDate(foersteVirkningFom?.let { getRelativeDateByDays(date = it, days = -1) })
+                    foersteVirkningFom?.let { getRelativeDateByDays(date = it, days = -1) }?.toNorwegianDateAtNoon()
                 beholdningerEtter2010.add(pensjonsbeholdning)
             } else if (!ingenReguleringDatoer) {
                 // Senario 3: PREG return sats
                 if (foersteVirkningFom?.let { isBeforeByDay(it, forsteReguleringDato, allowSameDay = true) } == true) {
-                    pensjonsbeholdning.tom = fromLocalDate(getRelativeDateByDays(date = foersteVirkningFom, days = -1))
+                    pensjonsbeholdning.tom = getRelativeDateByDays(date = foersteVirkningFom, days = -1).toNorwegianDateAtNoon()
                     beholdningerEtter2010.add(pensjonsbeholdning)
                 } else {
                     pensjonsbeholdning.tom = getRelativeDateByDays(date = forsteReguleringDato!!, days = -1)
@@ -425,7 +425,7 @@ class BeholdningUpdater(
                             personPensjonsbeholdning,
                             beregnTomAar = beregnTomAar,
                             aar = aar,
-                            foersteVirkningFom = fromLocalDate(foersteVirkningFom)
+                            foersteVirkningFom = foersteVirkningFom?.toNorwegianDateAtNoon()
                         )
 
                     forrigeBeholdning = findLatest(regulerteBeholdninger)
@@ -542,12 +542,15 @@ class BeholdningUpdater(
 
     // BeholdningSwitcherHelper.switchBeholdningOnVirk
     private fun switchBeholdningOnVirk(persongrunnlag: Persongrunnlag, kravhode: Kravhode) {
-        val dayBefore = kravhode.onsketVirkningsdato.toLocalDate()?.minusDays(1)
-        val beholdning: Pensjonsbeholdning? = pensjonsbeholdningForDato(persongrunnlag.beholdninger, dayBefore!!)
+        val virkningDato = kravhode.onsketVirkningsdato
+        val dayBefore: LocalDate? = virkningDato?.toNorwegianLocalDate()?.minusDays(1)
 
-        if (isFirstDayOfYear(kravhode.onsketVirkningsdato)) {
+        val beholdning: Pensjonsbeholdning? =
+            dayBefore?.let { pensjonsbeholdningForDato(persongrunnlag.beholdninger, it) }
+
+        if (virkningDato?.let(::isFirstDayOfYear) == true) {
             updateBeholdningOnVirkWithTilvekstBeholdning(persongrunnlag, kravhode, beholdning)
-        } else if (isFirstDayOfMay(kravhode.onsketVirkningsdato)) {
+        } else if (virkningDato?.let(::isFirstDayOfMay) == true) {
             updateBeholdningOnVirkWithRegulertBeholdning(persongrunnlag, kravhode, beholdning)
         }
     }
@@ -597,11 +600,14 @@ class BeholdningUpdater(
     // BeholdningSwitcherCommand.updateBeholdning
     private fun updateBeholdning(nyttKravhode: Kravhode, persongrunnlag: Persongrunnlag) {
         if (beholdningShouldBeSwitched(nyttKravhode, persongrunnlag)) {
-            val dayBefore = nyttKravhode.onsketVirkningsdato.toLocalDate()?.minusDays(1)
+            val dayBefore = nyttKravhode.onsketVirkningsdato?.toNorwegianLocalDate()?.minusDays(1)
             removeAllBeholdningAfter(persongrunnlag.beholdninger, dayBefore)
             switchBeholdningOnVirk(persongrunnlag, nyttKravhode)
         } else {
-            removeAllBeholdningAfter(persongrunnlag.beholdninger, nyttKravhode.onsketVirkningsdato.toLocalDate())
+            removeAllBeholdningAfter(
+                persongrunnlag.beholdninger,
+                nyttKravhode.onsketVirkningsdato?.toNorwegianLocalDate()
+            )
         }
     }
 
@@ -615,15 +621,15 @@ class BeholdningUpdater(
 
     // BeholdningSwitchDecider.canProduceValidDataForSwitching
     private fun canProduceValidDataForSwitching(kravhode: Kravhode, persongrunnlag: Persongrunnlag): Boolean {
-        val oensketVirkningDato = kravhode.onsketVirkningsdato
-        val virkningAar = oensketVirkningDato?.let(::getYear)
+        val virkningDato = kravhode.onsketVirkningsdato
+        val virkningAar = virkningDato?.let(::getYear)
 
-        if (isFirstDayOfYear(oensketVirkningDato)) {
+        if (virkningDato?.let(::isFirstDayOfYear) == true) {
             return virkningAar!! - persongrunnlag.sisteGyldigeOpptjeningsAr <= OPPTJENING_ETTERSLEP_ANTALL_AAR
         }
 
-        if (isFirstDayOfMay(oensketVirkningDato)) {
-            val response: SatsResponse = context.fetchGyldigSats(satsRequest(oensketVirkningDato))
+        if (virkningDato?.let(::isFirstDayOfMay) == true) {
+            val response: SatsResponse = context.fetchGyldigSats(satsRequest(virkningDato))
             val sisteGyldigeGrunnbeloepAar: Int? = response.satsResultater.iterator().next().fom?.let(::getYear)
             return virkningAar!! - sisteGyldigeGrunnbeloepAar!! <= MAX_DIFFERENCE_IN_YEARS_SISTEGYLDIGEGRUNNBELOP
         }

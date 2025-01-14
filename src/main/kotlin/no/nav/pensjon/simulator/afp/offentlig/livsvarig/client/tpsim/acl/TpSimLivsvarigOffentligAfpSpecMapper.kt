@@ -8,7 +8,7 @@ object TpSimLivsvarigOffentligAfpSpecMapper {
     fun toDto(source: LivsvarigOffentligAfpSpec) =
         TpSimLivsvarigOffentligAfpSpec(
             pid = source.pid.value,
-            foedselDato = source.foedselDato,
+            foedselDato = source.foedselsdato,
             fom = source.fom,
             fremtidigInntektListe = source.fremtidigInntektListe.map(::inntekt)
         )

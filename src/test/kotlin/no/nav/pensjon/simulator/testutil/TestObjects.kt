@@ -67,6 +67,7 @@ object TestObjects {
         afpOrdning = null,
         afpInntektMaanedFoerUttak = null,
         erAnonym = false,
+        ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
     )

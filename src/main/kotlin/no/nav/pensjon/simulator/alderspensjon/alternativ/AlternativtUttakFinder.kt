@@ -1,13 +1,12 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
-import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
-import no.nav.pensjon.simulator.core.SimulatorFlags
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
+import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.search.SmallestValueSearch
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
@@ -22,23 +21,22 @@ import java.time.Period
 class AlternativtUttakFinder(
     private val discriminator: UttakAlderDiscriminator,
     private val simuleringSpec: SimuleringSpec,
-    private val flags: SimulatorFlags,
     private val normAlderService: NormAlderService,
     private val heltUttakInntektTomAlderAar: Int? // behøves bare ved helt uttak når fom/tom angis i form av alder
 ) {
-    private val foedselDato: LocalDate by lazy {
-        simuleringSpec.pid?.let(discriminator::fetchFoedselDato) ?: throw InvalidArgumentException("Udefinert PID")
+    private val foedselsdato: LocalDate by lazy {
+        simuleringSpec.pid?.let(discriminator::fetchFoedselsdato) ?: throw InvalidArgumentException("Udefinert PID")
     }
 
-    private val normAlder: Alder by lazy { normAlderService.normAlder(foedselDato) }
+    private val normAlder: Alder by lazy { normAlderService.normAlder(foedselsdato) }
 
     fun findAlternativtUttak(
         foersteUttakMinAlder: Alder,
         foersteUttakMaxAlder: Alder,
         andreUttakMinAlder: Alder?,
         andreUttakMaxAlder: Alder?,
-        maxUttakGrad: UttakGradKode,
-        keepUttakGradConstant: Boolean
+        maxUttaksgrad: UttakGradKode,
+        keepUttaksgradConstant: Boolean
     ): SimulertPensjonEllerAlternativ {
         val foersteUttakAlderValueCount: Int = foersteUttakMaxAlder.antallMaanederEtter(foersteUttakMinAlder) + 1
         val andreUttakAlderValueCount: Int? =
@@ -47,12 +45,11 @@ class AlternativtUttakFinder(
         val simulering = IndexBasedSimulering(
             discriminator,
             simuleringSpec,
-            flags,
-            foedselDato,
+            foedselsdato,
             foersteUttakAlderValueCount,
             andreUttakAlderValueCount = andreUttakAlderValueCount?.let { if (it < 1) 1 else it },
-            maxUttakGrad,
-            keepUttakGradConstant,
+            maxUttaksgrad,
+            keepUttaksgradConstant,
             foersteUttakMinAlder,
             andreUttakMinAlder,
             heltUttakInntektTomAlderAar
@@ -76,8 +73,8 @@ class AlternativtUttakFinder(
         pensjon: SimulatorOutput?,
         resultStatus: SimulatorResultStatus
     ): SimulertPensjonEllerAlternativ {
-        val gradertPeriode = usedParameters.gradertUttakFom?.let { periodBetweenFirstDayOfMonth(foedselDato, it) }
-        val helPeriode = periodBetweenFirstDayOfMonth(foedselDato, usedParameters.heltUttakFom)
+        val gradertPeriode = usedParameters.gradertUttakFom?.let { periodBetweenFirstDayOfMonth(foedselsdato, it) }
+        val helPeriode = periodBetweenFirstDayOfMonth(foedselsdato, usedParameters.heltUttakFom)
         val gradertAlder = gradertPeriode?.let(::alder)
         val helAlder = alder(helPeriode)
 
@@ -112,10 +109,10 @@ class AlternativtUttakFinder(
      */
     private fun defaultParameters() =
         AlternativSimuleringSpec(
-            gradertUttakFom = uttakDato(foedselDato, normAlder.minusMaaneder(1)),
+            gradertUttakFom = uttakDato(foedselsdato, normAlder.minusMaaneder(1)),
             gradertUttakAlderIndex = null,
             uttakGrad = UttakGradKode.P_20,
-            heltUttakFom = uttakDato(foedselDato, normAlder),
+            heltUttakFom = uttakDato(foedselsdato, normAlder),
             heltUttakAlderIndex = 0
         )
 

@@ -6,7 +6,7 @@ import java.time.LocalDate
 
 data class LivsvarigOffentligAfpSpec(
     val pid: Pid,
-    val foedselDato: LocalDate,
+    val foedselsdato: LocalDate,
     val fom: LocalDate,
     val fremtidigInntektListe: List<Inntekt>
 )

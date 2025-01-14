@@ -12,10 +12,7 @@ interface UttakAlderDiscriminator {
         ForKortTrygdetidException::class,
         ForLavtTidligUttakException::class
     )
-    fun simuler(
-        spec: SimuleringSpec,
-        flags: SimulatorFlags
-    ): SimulatorOutput
+    fun simuler(spec: SimuleringSpec): SimulatorOutput
 
-    fun fetchFoedselDato(pid: Pid): LocalDate
+    fun fetchFoedselsdato(pid: Pid): LocalDate
 }

@@ -22,9 +22,10 @@ object AnonymSimuleringSpecMapperV1 {
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             sivilstatus = AnonymSivilstandSpecV1.fromExternalValue(source.sivilstatus).internalValue,
-            epsHarPensjon = source.epsPensjon ?: false,
-            epsHarInntektOver2G = source.eps2G ?: false,
+            epsHarPensjon = source.epsPensjon == true,
+            epsHarInntektOver2G = source.eps2G == true,
             erAnonym = true,
+            ignoreAvslag = false,
             // Resten er irrelevante for anonym simulering:
             pid = null,
             foedselDato = null,

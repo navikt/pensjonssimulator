@@ -41,17 +41,18 @@ data class SimuleringSpec(
     val afpOrdning: AfpOrdningType? = null, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
     val afpInntektMaanedFoerUttak: Int? = null, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
     val erAnonym: Boolean,
+    val ignoreAvslag: Boolean, //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
     val isHentPensjonsbeholdninger: Boolean = false,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean = false
 ) {
 
     fun isGradert() = isGradert(uttakGrad)
 
-    fun gradertUttak(foedselDato: LocalDate): GradertUttakSimuleringSpec? =
+    fun gradertUttak(foedselsdato: LocalDate): GradertUttakSimuleringSpec? =
         if (isGradert())
             GradertUttakSimuleringSpec(
                 grad = uttakGrad,
-                uttakFom = foersteUttakDato?.let { PensjonAlderDato(it, foedselDato) }
+                uttakFom = foersteUttakDato?.let { PensjonAlderDato(it, foedselsdato) }
                     ?: throw IllegalArgumentException("gradertUttak.uttakFomAlder undefined"),
                 aarligInntektBeloep = inntektUnderGradertUttakBeloep
             )
@@ -60,36 +61,36 @@ data class SimuleringSpec(
 
     fun gradertUttak(
         foersteUttakFom: PensjonAlderDato,
-        uttakGrad: UttakGradKode
+        uttaksgrad: UttakGradKode
     ): GradertUttakSimuleringSpec? =
-        if (isGradert(uttakGrad))
+        if (isGradert(uttaksgrad))
             GradertUttakSimuleringSpec(
-                grad = uttakGrad,
+                grad = uttaksgrad,
                 uttakFom = foersteUttakFom,
                 aarligInntektBeloep = inntektUnderGradertUttakBeloep
             )
         else
             null
 
-    fun heltUttak(foedselDato: LocalDate): HeltUttakSimuleringSpec {
+    fun heltUttak(foedselsdato: LocalDate): HeltUttakSimuleringSpec {
         val uttakDato: LocalDate =
             heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
-            uttakFom = PensjonAlderDato(uttakDato, foedselDato),
+            uttakFom = PensjonAlderDato(uttakDato, foedselsdato),
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(uttakDato.plusYears(inntektAntallAar), foedselDato)
+            inntektTom = PensjonAlderDato(uttakDato.plusYears(inntektAntallAar), foedselsdato)
         )
     }
 
-    fun heltUttak(foedselDato: LocalDate, heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
+    fun heltUttak(foedselsdato: LocalDate, heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
             uttakFom = heltUttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(heltUttakFom.dato.plusYears(inntektAntallAar), foedselDato)
+            inntektTom = PensjonAlderDato(heltUttakFom.dato.plusYears(inntektAntallAar), foedselsdato)
         )
     }
 

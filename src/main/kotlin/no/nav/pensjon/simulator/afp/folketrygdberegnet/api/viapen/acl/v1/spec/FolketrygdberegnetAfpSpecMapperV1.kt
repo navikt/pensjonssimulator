@@ -45,6 +45,7 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             afpOrdning = source.afpOrdning?.let(AfpOrdningType::valueOf), // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
             afpInntektMaanedFoerUttak = source.afpInntektMndForUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             erAnonym = false, //TODO verify
+            ignoreAvslag = false,
             isHentPensjonsbeholdninger = false, //TODO verify
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false //TODO verify
         )

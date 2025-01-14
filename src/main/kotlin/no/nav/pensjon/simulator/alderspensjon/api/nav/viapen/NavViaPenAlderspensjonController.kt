@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimu
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecV2
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.SimulatorFlags
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -70,7 +69,7 @@ class NavViaPenAlderspensjonController(
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
             )
 
-            val output: SimulatorOutput = simulator.simuler(spec, simulatorFlags)
+            val output: SimulatorOutput = simulator.simuler(spec)
 
             NavSimuleringSpecAndResultV2(
                 simulering = specV2,
@@ -124,7 +123,7 @@ class NavViaPenAlderspensjonController(
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
             )
 
-            val output: SimulatorOutput = simulator.simuler(spec, tpSimulatorFlags)
+            val output: SimulatorOutput = simulator.simuler(spec)
             toApForTpResultV2(output)
         } catch (e: EgressException) {
             handle(e)!!
@@ -142,17 +141,5 @@ class NavViaPenAlderspensjonController(
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon V2 for Nav-klient"
         private const val FUNCTION_ID = "nav-ap-v2"
-
-        private val simulatorFlags =
-            SimulatorFlags(
-                inkluderLivsvarigOffentligAfp = false,
-                ignoreAvslag = false
-            )
-
-        private val tpSimulatorFlags =
-            SimulatorFlags(
-                inkluderLivsvarigOffentligAfp = false,
-                ignoreAvslag = false
-            )
     }
 }

@@ -19,7 +19,6 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimulerin
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.SimulatorFlags
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -73,7 +72,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV1.fromDto(specV1)
-            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags())
+            val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV1.toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
@@ -114,7 +113,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV2.fromDto(specV2)
-            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags())
+            val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV2.toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
@@ -155,7 +154,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV3.fromDto(specV3)
-            val result: SimulatorOutput = simulatorCore.simuler(spec, simulatorFlags())
+            val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV3.toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
@@ -173,12 +172,5 @@ class TpoViaPenAlderspensjonController(
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for TPO via PEN"
         private const val FUNCTION_ID = "ap-tpo-pen"
-
-        //TODO these flags are included in SimuleringSpec, hence redundant?
-        private fun simulatorFlags() =
-            SimulatorFlags(
-                inkluderLivsvarigOffentligAfp = false,
-                ignoreAvslag = false
-            )
     }
 }

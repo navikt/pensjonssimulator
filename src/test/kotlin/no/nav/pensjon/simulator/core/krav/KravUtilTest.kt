@@ -79,5 +79,6 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         flyktning = null,
         epsHarInntektOver2G = false,
         rettTilOffentligAfpFom = null,
-        erAnonym = false
+        erAnonym = false,
+        ignoreAvslag = false
     )

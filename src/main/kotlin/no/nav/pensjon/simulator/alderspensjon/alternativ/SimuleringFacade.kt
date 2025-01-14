@@ -2,15 +2,13 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.SimulatorFlags
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
 import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -27,7 +25,7 @@ class SimuleringFacade(
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ {
         try {
-            val result: SimulatorOutput = simulator.simuler(spec, simulatorFlags(spec, ignoreAvslag = false))
+            val result: SimulatorOutput = simulator.simuler(spec)
 
             return SimulertPensjonEllerAlternativ(
                 pensjon = pensjon(result),
@@ -36,7 +34,7 @@ class SimuleringFacade(
         } catch (_: ForLavtTidligUttakException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isGradertAndReducible(spec))
-                alternativSimuleringService.simulerMedNesteLavereUttakGrad(
+                alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
                     foedselDato!!,
                     inkluderPensjonHvisUbetinget
@@ -48,7 +46,7 @@ class SimuleringFacade(
                 )
         } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
             return if (isGradertAndReducible(spec))
-                alternativSimuleringService.simulerMedNesteLavereUttakGrad(
+                alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
                     foedselDato!!,
                     inkluderPensjonHvisUbetinget
@@ -68,12 +66,6 @@ class SimuleringFacade(
     }
 
     private companion object {
-        //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
-        private fun simulatorFlags(spec: SimuleringSpec, ignoreAvslag: Boolean) =
-            SimulatorFlags(
-                inkluderLivsvarigOffentligAfp = spec.type === SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
-                ignoreAvslag
-            )
 
         private fun isGradertAndReducible(spec: SimuleringSpec): Boolean =
             spec.isGradert() && isReducible(spec.uttakGrad)

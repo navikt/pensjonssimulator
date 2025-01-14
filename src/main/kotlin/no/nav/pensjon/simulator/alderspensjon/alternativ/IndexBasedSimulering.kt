@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.core.SimulatorFlags
 import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
 import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
 import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForLavtTidligUttakException
@@ -23,20 +22,19 @@ import kotlin.math.floor
 class IndexBasedSimulering(
     private val discriminator: UttakAlderDiscriminator,
     private val simuleringSpec: SimuleringSpec,
-    private val flags: SimulatorFlags,
-    private val foedselDato: LocalDate,
+    private val foedselsdato: LocalDate,
     foersteUttakAlderValueCount: Int,
     andreUttakAlderValueCount: Int?,
-    maxUttakGrad: UttakGradKode, // høyeste uttaksgrad å ta i betraktning
-    keepUttakGradConstant: Boolean,
+    maxUttaksgrad: UttakGradKode, // høyeste uttaksgrad å ta i betraktning
+    keepUttaksgradConstant: Boolean,
     private val foersteUttakMinAlder: Alder,
     private val andreUttakMinAlder: Alder?,
     private val heltUttakInntektTomAlderAar: Int? // behøves bare ved helt uttak når fom/tom angis i form av alder
 ) {
     private val log = LoggerFactory.getLogger(IndexBasedSimulering::class.java)
     private val gradert = andreUttakAlderValueCount != null
-    private val indexedRelevantUttakGrader = indexRelevantUttakGrader(maxUttakGrad, keepUttakGradConstant)
-    private val uttakGradValueCount = indexedRelevantUttakGrader.size
+    private val indexedRelevantUttaksgrader = indexRelevantUttakGrader(maxUttaksgrad, keepUttaksgradConstant)
+    private val uttaksgradValueCount = indexedRelevantUttaksgrader.size
 
     // Spread factor = Factor for 'spreading' a set of integers so that each value is mapped the same number of times to integers in a larger set.
     // E.g. if the task is to map the set [0, 1, 2] to the set [0, 1, 2, 3, 4, 5, 6, 7, 8], then the mapping can be:
@@ -51,8 +49,8 @@ class IndexBasedSimulering(
             1.0
 
     private val uttakGradSpreadFactor: Double =
-        if (gradert && uttakGradValueCount < foersteUttakAlderValueCount)
-            uttakGradValueCount.toDouble() / foersteUttakAlderValueCount // M/N
+        if (gradert && uttaksgradValueCount < foersteUttakAlderValueCount)
+            uttaksgradValueCount.toDouble() / foersteUttakAlderValueCount // M/N
         else
             1.0
 
@@ -61,11 +59,11 @@ class IndexBasedSimulering(
      * Laveste uttaksalder = Ønsket (men avslått) uttaksalder + 1 måned
      */
     fun tryIndex(foersteUttakAlderIndex: Int): AlternativSimuleringResult {
-        val uttakGradIndex: Int = if (gradert) floor(foersteUttakAlderIndex * uttakGradSpreadFactor).toInt() else 0
+        val uttaksgradIndex: Int = if (gradert) floor(foersteUttakAlderIndex * uttakGradSpreadFactor).toInt() else 0
 
         val parameters =
             if (gradert)
-                gradertUttakSimuleringSpec(foersteUttakAlderIndex, uttakGradIndex)
+                gradertUttakSimuleringSpec(foersteUttakAlderIndex, uttaksgradIndex)
             else
                 heltUttakSimuleringSpec(foersteUttakAlderIndex)
 
@@ -77,15 +75,15 @@ class IndexBasedSimulering(
                 inntektEtterHeltUttakAntallAar = parameters.inntektEtterHeltUttakAntallAar
             )
 
-            val simulertPensjon: SimulatorOutput = discriminator.simuler(indexSimulatorSpec, flags)
+            val simulertPensjon: SimulatorOutput = discriminator.simuler(indexSimulatorSpec)
             log.info("Gyldig første uttaksdato - antall måneder: {}", foersteUttakAlderIndex)
             val uttakGradTransition: Boolean =
-                gradert && previousUttakGradIndex(foersteUttakAlderIndex) < uttakGradIndex
+                gradert && previousUttakGradIndex(foersteUttakAlderIndex) < uttaksgradIndex
             AlternativSimuleringResult(valueIsGood = true, simulertPensjon, parameters, uttakGradTransition)
-        } catch (e: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
             log.info("Ugyldig første uttaksdato (for kort trygdetid) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
-        } catch (e: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (_: AvslagVilkaarsproevingForLavtTidligUttakException) {
             log.info("Ugyldig første uttaksdato (for lavt tidlig uttak) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
             //} catch (e: FunctionalRecoverableException) {
@@ -107,36 +105,38 @@ class IndexBasedSimulering(
 
     private fun gradertUttakSimuleringSpec(
         gradertUttakAlderIndex: Int,
-        uttakGradIndex: Int
+        uttaksgradIndex: Int
     ): AlternativSimuleringSpec {
         val heltUttakAlderIndex: Int = andreUttakAlderIndex(gradertUttakAlderIndex)
-        val gradertUttakFom: LocalDate = uttakDatoKandidat(foedselDato, foersteUttakMinAlder, gradertUttakAlderIndex)
-        val heltUttakFom: LocalDate = uttakDatoKandidat(foedselDato, andreUttakMinAlder!!, heltUttakAlderIndex)
-        val uttakGgrad: UttakGradKode = indexedRelevantUttakGrader[uttakGradIndex] ?: UttakGradKode.P_0
+        val gradertUttakFom: LocalDate = uttakDatoKandidat(foedselsdato, foersteUttakMinAlder, gradertUttakAlderIndex)
+        val heltUttakFom: LocalDate = uttakDatoKandidat(foedselsdato, andreUttakMinAlder!!, heltUttakAlderIndex)
+        val uttaksgrad: UttakGradKode = indexedRelevantUttaksgrader[uttaksgradIndex] ?: UttakGradKode.P_0
+
         return AlternativSimuleringSpec(
             gradertUttakFom,
             gradertUttakAlderIndex,
-            uttakGgrad,
+            uttaksgrad,
             heltUttakFom,
             heltUttakAlderIndex
         )
     }
 
     private fun heltUttakSimuleringSpec(heltUttakAlderIndex: Int): AlternativSimuleringSpec {
-        val heltUttakFom: LocalDate = uttakDatoKandidat(foedselDato, foersteUttakMinAlder, heltUttakAlderIndex)
-        val uttakGrad = UttakGradKode.P_100
+        val heltUttakFom: LocalDate = uttakDatoKandidat(foedselsdato, foersteUttakMinAlder, heltUttakAlderIndex)
+        val uttaksgrad = UttakGradKode.P_100
+
         val inntektEtterHeltUttakAntallAar =
             if (simuleringSpec.inntektEtterHeltUttakAntallAar == null && heltUttakInntektTomAlderAar != null)
             // antallArInntektEtterHeltUttak avhenger her av heltUttakFom (som har vært ukjent inntil nå)
             // Nå er heltUttakFom kjent, så antallArInntektEtterHeltUttak kan utledes:
                 heltUttakInntektTomAlderAar - heltUttakFom.year + 1 // +1 p.g.a. fra/til OG MED
             else
-                foedselDato.year + (simuleringSpec.inntektEtterHeltUttakAntallAar?: 0) - heltUttakFom.year + 1 // +1, siden fra/til OG MED
+                foedselsdato.year + (simuleringSpec.inntektEtterHeltUttakAntallAar?: 0) - heltUttakFom.year + 1 // +1, siden fra/til OG MED
 
         return AlternativSimuleringSpec(
             gradertUttakFom = null,
             gradertUttakAlderIndex = null,
-            uttakGrad,
+            uttaksgrad,
             heltUttakFom,
             heltUttakAlderIndex,
             inntektEtterHeltUttakAntallAar

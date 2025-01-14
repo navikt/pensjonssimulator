@@ -113,6 +113,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     afpOrdning = null, // kun for simulering av pre-2025 offentlig AFP
                     afpInntektMaanedFoerUttak = null, // kun for simulering av pre-2025 offentlig AFP
                     erAnonym = false,
+                    ignoreAvslag = false,
                     isHentPensjonsbeholdninger = true,
                     isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
                 )

@@ -38,6 +38,7 @@ object TpoSimuleringSpecMapperV2 {
             afpOrdning = null, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
             afpInntektMaanedFoerUttak = null, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             erAnonym = false,
+            ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true // true for TPO
         )

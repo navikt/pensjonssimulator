@@ -46,6 +46,7 @@ object NavSimuleringSpecMapperV2 {
             afpOrdning = source.afpOrdning, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
             afpInntektMaanedFoerUttak = source.afpInntektMndForUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             erAnonym = false,
+            ignoreAvslag = false,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
         )

@@ -43,9 +43,10 @@ object NavSimuleringSpecMapperV3 {
             inntektEtterHeltUttakAntallAar = heltUttak.antallArInntektEtterHeltUttak,
             utlandAntallAar = 0, // only for anonym
             sivilstatus = NavSivilstandSpecV3.fromExternalValue(source.sivilstand.name).internalValue,
-            epsHarPensjon = source.epsHarPensjon ?: false,
-            epsHarInntektOver2G = source.epsHarInntektOver2G ?: false,
+            epsHarPensjon = source.epsHarPensjon == true,
+            epsHarInntektOver2G = source.epsHarInntektOver2G == true,
             erAnonym = false,
+            ignoreAvslag = false,
             // Resten er kun for ikke-anonym simulering:
             pid = Pid(source.pid),
             foedselDato = foedselsdato,

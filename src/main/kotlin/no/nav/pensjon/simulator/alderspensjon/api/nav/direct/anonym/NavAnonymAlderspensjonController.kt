@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.SimulatorFlags
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -58,11 +57,7 @@ class NavAnonymAlderspensjonController(
 
         return try {
             val spec = fromAnonymSimuleringSpecV1(specV1)
-            val flags = SimulatorFlags(
-                inkluderLivsvarigOffentligAfp = false,
-                ignoreAvslag = false
-            )
-            val result = service.simuler(spec, flags)
+            val result = service.simuler(spec)
             mapSimuleringResult(result)
         } catch (e: EgressException) {
             handle(e)!!

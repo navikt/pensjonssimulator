@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 object SimuleringSpecUtil {
 
-    private val utkantUttakGrad = UttakGradKode.P_20 // kun hvis gradert uttak
+    private val utkantUttaksgrad = UttakGradKode.P_20 // kun hvis gradert uttak
 
     /**
      * Spesifikasjon for å simulere for ubetinget uttaksalder (normalder, dvs. alderen der enhver kan ta ut pensjon).
@@ -15,16 +15,16 @@ object SimuleringSpecUtil {
     fun ubetingetSimuleringSpec(
         source: SimuleringSpec,
         normAlder: Alder,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): SimuleringSpec {
-        val uttakFomAlder = PensjonAlderDato(foedselDato, alderSpec(normAlder))
+        val uttakFomAlder = PensjonAlderDato(foedselsdato, alderSpec(normAlder))
 
         return newSimuleringSpec(
             source,
             foersteUttakFom = uttakFomAlder,
-            uttakGrad = UttakGradKode.P_100,
+            uttaksgrad = UttakGradKode.P_100,
             heltUttakFom = uttakFomAlder,
-            foedselDato
+            foedselsdato
         )
     }
 
@@ -34,7 +34,7 @@ object SimuleringSpecUtil {
     fun utkantSimuleringSpec(
         source: SimuleringSpec,
         normAlder: Alder,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): SimuleringSpec {
         val gradert = source.isGradert()
         val utkantFoersteUttakAlder: Alder = normAlder.minusMaaneder(1)
@@ -44,10 +44,10 @@ object SimuleringSpecUtil {
 
         return newSimuleringSpec(
             source,
-            foersteUttakFom = PensjonAlderDato(foedselDato, utkantFoersteUttakFomAlderSpec),
-            uttakGrad = if (gradert) utkantUttakGrad else UttakGradKode.P_100,
-            heltUttakFom = PensjonAlderDato(foedselDato, heltUttakFomAlderDto),
-            foedselDato
+            foersteUttakFom = PensjonAlderDato(foedselsdato, utkantFoersteUttakFomAlderSpec),
+            uttaksgrad = if (gradert) utkantUttaksgrad else UttakGradKode.P_100,
+            heltUttakFom = PensjonAlderDato(foedselsdato, heltUttakFomAlderDto),
+            foedselsdato
         )
     }
 
@@ -60,24 +60,24 @@ object SimuleringSpecUtil {
     private fun newSimuleringSpec(
         source: SimuleringSpec,
         foersteUttakFom: PensjonAlderDato,
-        uttakGrad: UttakGradKode,
+        uttaksgrad: UttakGradKode,
         heltUttakFom: PensjonAlderDato,
-        foedselDato: LocalDate
+        foedselsdato: LocalDate
     ): SimuleringSpec {
-        val heltUttakDato: LocalDate = source.heltUttak(foedselDato, heltUttakFom).uttakFom.dato
+        val heltUttakDato: LocalDate = source.heltUttak(foedselsdato, heltUttakFom).uttakFom.dato
 
         return SimuleringSpec(
             type = source.type,
             sivilstatus = source.sivilstatus,
             epsHarPensjon = source.epsHarPensjon,
-            foersteUttakDato = source.gradertUttak(foersteUttakFom, uttakGrad)?.uttakFom?.dato ?: heltUttakDato,
+            foersteUttakDato = source.gradertUttak(foersteUttakFom, uttaksgrad)?.uttakFom?.dato ?: heltUttakDato,
             heltUttakDato = heltUttakDato,
             pid = source.pid,
             foedselDato = source.foedselDato,
             avdoed = source.avdoed,
             isTpOrigSimulering = source.isTpOrigSimulering,
             simulerForTp = source.simulerForTp,
-            uttakGrad = uttakGrad,
+            uttakGrad = uttaksgrad,
             forventetInntektBeloep = source.forventetInntektBeloep,
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttakBeloep,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttakBeloep,
@@ -94,6 +94,7 @@ object SimuleringSpecUtil {
             afpOrdning = source.afpOrdning,
             afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak,
             erAnonym = source.erAnonym,
+            ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
         )
@@ -128,6 +129,7 @@ object SimuleringSpecUtil {
             afpOrdning = source.afpOrdning,
             afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak,
             erAnonym = source.erAnonym,
+            ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
         )

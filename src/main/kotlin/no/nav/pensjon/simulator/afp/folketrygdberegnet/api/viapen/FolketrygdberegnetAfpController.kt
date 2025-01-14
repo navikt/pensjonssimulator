@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.Fo
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.SimulatorFlags
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -63,7 +62,7 @@ class FolketrygdberegnetAfpController(
 
         return try {
             val spec: SimuleringSpec = fromSimuleringSpecV1(specV1)
-            val output: SimulatorOutput = simulator.simuler(spec, simulatorFlags) //TODO check
+            val output: SimulatorOutput = simulator.simuler(spec)
             toResultV1(output)
         } catch (e: EgressException) {
             handle(e)!!
@@ -81,11 +80,5 @@ class FolketrygdberegnetAfpController(
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av folketrygdberegnet AFP V1"
         private const val FUNCTION_ID = "ftb-afp-v1"
-
-        private val simulatorFlags =
-            SimulatorFlags(
-                inkluderLivsvarigOffentligAfp = false,
-                ignoreAvslag = false
-            )
     }
 }

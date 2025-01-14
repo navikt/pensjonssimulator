@@ -1,28 +1,24 @@
 package no.nav.pensjon.simulator.core
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpBeregner
-import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpResult
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
-import no.nav.pensjon.simulator.core.beregn.AlderspensjonBeregnerResult
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
+import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.endring.EndringValidator
 import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
-import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktSpec
 import no.nav.pensjon.simulator.core.krav.*
@@ -31,26 +27,19 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.YtelseService
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.lang.System.currentTimeMillis
 import java.time.LocalDate
-import java.time.Period
-import java.util.*
-import java.util.stream.Stream
 
 /**
  * Corresponds to AbstraktSimulerAPFra2011Command, SimulerFleksibelAPCommand, SimulerAFPogAPCommand, SimulerEndringAvAPCommand
@@ -73,7 +62,7 @@ class SimulatorCore(
     private val normAlderService: NormAlderService
 ) : UttakAlderDiscriminator {
 
-    private val logger = LoggerFactory.getLogger(SimulatorCore::class.java)
+    private val log = KotlinLogging.logger {}
 
     // AbstraktSimulerAPFra2011Command.execute + overrides in SimulerFleksibelAPCommand & SimulerAFPogAPCommand & SimulerEndringAvAPCommand
     @Throws(
@@ -81,7 +70,7 @@ class SimulatorCore(
         ForKortTrygdetidException::class,
         ForLavtTidligUttakException::class
     )
-    override fun simuler(initialSpec: SimuleringSpec, flags: SimulatorFlags): SimulatorOutput {
+    override fun simuler(initialSpec: SimuleringSpec): SimulatorOutput {
         val gjelderEndring = initialSpec.gjelderEndring()
 
         if (gjelderEndring) {
@@ -90,7 +79,7 @@ class SimulatorCore(
 
         val grunnbeloep: Int = fetchGrunnbeloep()
 
-        logger.info("Simulator steg 1 - Hent løpende ytelser")
+        log.info { "Simulator steg 1 - Hent løpende ytelser" }
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
@@ -102,7 +91,7 @@ class SimulatorCore(
             if (initialSpec.gjelderPre2025OffentligAfp())
             // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
                 initialSpec.withHeltUttakDato(foedselsdato?.let {
-                    uttakDato(it, normAlderService.normAlder(it))
+                    uttakDato(foedselDato = it, uttakAlder = normAlderService.normAlder(it))
                 })
             else
                 initialSpec
@@ -112,30 +101,30 @@ class SimulatorCore(
             EndringValidator.validateRequestBasedOnLoependeYtelser(spec, ytelser.forrigeAlderspensjonBeregningResultat)
         }
 
-        logger.info("Simulator steg 2 - Opprett kravhode")
+        log.info { "Simulator steg 2 - Opprett kravhode" }
 
-        var kravhode: Kravhode = opprettKravhode(
-            spec = KravhodeSpec(
+        var kravhode: Kravhode = kravhodeCreator.opprettKravhode(
+            kravhodeSpec = KravhodeSpec(
                 simulatorInput = spec,
                 forrigeAlderspensjonBeregningResult = ytelser.forrigeAlderspensjonBeregningResultat,
-                grunnbeloep = grunnbeloep
+                grunnbeloep
             ),
-            person = person,
+            person,
             virkningDatoGrunnlagListe = personVirkningDatoCombo?.foersteVirkningDatoGrunnlagListe.orEmpty()
         )
 
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
 
-        logger.info("Simulator steg 3 - Beregn AFP Privat")
+        log.info { "Simulator steg 3 - Beregn AFP Privat" }
 
         var privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf()
         var gjeldendePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat? = null
 
         if (ytelser.privatAfpVirkningFom != null) {
-            val response = beregnPrivatAfp(
+            val response = privatAfpBeregner.beregnPrivatAfp(
                 PrivatAfpSpec(
                     simulering = spec,
-                    kravhode = kravhode,
+                    kravhode,
                     virkningFom = ytelser.privatAfpVirkningFom,
                     forrigePrivatAfpBeregningResult = null, // forrigeAfpPrivatBeregningsresultat is null for SimulerFleksibelAPCommand & SimulerAFPogAPCommand (ref. line 129 in SimulerAFPogAPCommand)
                     gjelderOmsorg = kravhode.hentPersongrunnlagForSoker().gjelderOmsorg,
@@ -147,21 +136,21 @@ class SimulatorCore(
             privatAfpBeregningResultatListe = response.afpPrivatBeregningsresultatListe
         }
 
-        logger.info("Simulator steg 4 - Oppdater kravhode før første knekkpunkt")
+        log.info { "Simulator steg 4 - Oppdater kravhode før første knekkpunkt" }
 
-        kravhode = oppdaterKravhodeForFoersteKnekkpunkt(
+        kravhode = kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(
             KravhodeUpdateSpec(
-                kravhode = kravhode,
+                kravhode,
                 simulering = spec,
                 forrigeAlderspensjonBeregningResult = ytelser.forrigeAlderspensjonBeregningResultat
             )
         )
 
-        logger.info("Simulator steg 5 - Finn knekkpunkter")
+        log.info { "Simulator steg 5 - Finn knekkpunkter" }
 
-        val knekkpunktMap = finnKnekkpunkter(
+        val knekkpunktMap = knekkpunktFinder.finnKnekkpunkter(
             KnekkpunktSpec(
-                kravhode = kravhode,
+                kravhode,
                 simulering = spec,
                 soekerVirkningFom = ytelser.soekerVirkningFom,
                 avdoedVirkningFom = ytelser.avdoedVirkningFom,
@@ -171,7 +160,7 @@ class SimulatorCore(
             )
         )
 
-        logger.info("Simulator steg 6 - Beregn AFP i offentlig sektor")
+        log.info { "Simulator steg 6 - Beregn AFP i offentlig sektor" }
 
         val pre2025OffentligAfpResult: Pre2025OffentligAfpResult?
         val livsvarigOffentligAfpResult: LivsvarigOffentligAfpResult?
@@ -192,47 +181,48 @@ class SimulatorCore(
         } else {
             pre2025OffentligAfpResult = null
             livsvarigOffentligAfpResult =
-                if (flags.inkluderLivsvarigOffentligAfp) //TODO fremtidige inntekter
+                if (spec.type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG)
                     foedselsdato?.let {
-                        beregnLivsvarigOffentligAfp(
+                        livsvarigOffentligAfpService.beregnAfp(
                             pid = person.pid!!,
-                            foedselDato = it,
+                            foedselsdato = it,
                             forventetAarligInntektBeloep = spec.forventetInntektBeloep,
-                            virkningDato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato
-                            ?: throw RuntimeException("Ingen virkningsdato angitt for livsvarig offentlig AFP")
+                            fremtidigeInntekter = spec.fremtidigInntektListe,
+                            virkningDato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato!!
                         )
                     }
                 else
                     null
         }
 
-        logger.info("Simulator steg 7 - Vilkårsprøv og beregn alderspensjon")
+        log.info { "Simulator steg 7 - Vilkårsprøv og beregn alderspensjon" }
 
-        val vilkaarsproevOgBeregnAlderspensjonResult = vilkaarsproevOgBeregnAlderspensjon(
-            AlderspensjonVilkaarsproeverBeregnerSpec(
-                kravhode = kravhode,
-                knekkpunkter = knekkpunktMap,
-                simulering = spec,
-                sokerForsteVirk = ytelser.soekerVirkningFom,
-                avdodForsteVirk = ytelser.avdoedVirkningFom,
-                forrigeVilkarsvedtakListe = ytelser.forrigeVedtakListe,
-                forrigeAlderBeregningsresultat = ytelser.forrigeAlderspensjonBeregningResultat,
-                sisteBeregning = ytelser.sisteBeregning,
-                afpPrivatBeregningsresultater = privatAfpBeregningResultatListe,
-                gjeldendeAfpPrivatBeregningsresultat = gjeldendePrivatAfpBeregningResultat,
-                forsteVirkAfpPrivat = ytelser.privatAfpVirkningFom,
-                afpOffentligLivsvarigBeregningsresultat = livsvarigOffentligAfpResult,
-                isHentPensjonsbeholdninger = spec.isHentPensjonsbeholdninger,
-                kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
-                sakId = kravhode.sakId,
-                sakType = kravhode.sakType,
-                ignoreAvslag = flags.ignoreAvslag
+        val vilkaarsproevOgBeregnAlderspensjonResult =
+            alderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder(
+                AlderspensjonVilkaarsproeverBeregnerSpec(
+                    kravhode = kravhode,
+                    knekkpunkter = knekkpunktMap,
+                    simulering = spec,
+                    sokerForsteVirk = ytelser.soekerVirkningFom,
+                    avdodForsteVirk = ytelser.avdoedVirkningFom,
+                    forrigeVilkarsvedtakListe = ytelser.forrigeVedtakListe,
+                    forrigeAlderBeregningsresultat = ytelser.forrigeAlderspensjonBeregningResultat,
+                    sisteBeregning = ytelser.sisteBeregning,
+                    afpPrivatBeregningsresultater = privatAfpBeregningResultatListe,
+                    gjeldendeAfpPrivatBeregningsresultat = gjeldendePrivatAfpBeregningResultat,
+                    forsteVirkAfpPrivat = ytelser.privatAfpVirkningFom,
+                    afpOffentligLivsvarigBeregningsresultat = livsvarigOffentligAfpResult,
+                    isHentPensjonsbeholdninger = spec.isHentPensjonsbeholdninger,
+                    kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
+                    sakId = kravhode.sakId,
+                    sakType = kravhode.sakType,
+                    ignoreAvslag = spec.ignoreAvslag
+                )
             )
-        )
 
-        logger.info("Simulator steg 8 - Opprett output")
+        log.info { "Simulator steg 8 - Opprett output" }
 
-        val output: SimulatorOutput = opprettOutput(
+        val output: SimulatorOutput = SimuleringResultPreparer.opprettOutput(
             ResultPreparerSpec(
                 simuleringSpec = spec,
                 kravhode = kravhode,
@@ -245,7 +235,7 @@ class SimulatorCore(
                     LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
                         result = livsvarigOffentligAfpResult,
                         foedselMaaned = foedselsdato?.monthValue
-                ),
+                    ),
                 grunnbeloep = grunnbeloep,
                 pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
                 outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
@@ -262,106 +252,9 @@ class SimulatorCore(
             }
     }
 
-    //TODO change according to PEN fix in PEK-782
-    private fun beregnLivsvarigOffentligAfp(
-        pid: Pid,
-        foedselDato: LocalDate,
-        forventetAarligInntektBeloep: Int,
-        virkningDato: LocalDate,
-    ): LivsvarigOffentligAfpResult {
-        val fom: LocalDate = foersteAarMedUregistrertInntekt()
-        val til: LocalDate = sisteAarMedAfpOpptjeningInntekt(foedselDato)
-
-        val fremtidigInntektListe: List<Inntekt> =
-            if (fom.isBefore(til))
-                aarligInntektListe(fom, til, forventetAarligInntektBeloep)
-            else
-                emptyList()
-
-        return livsvarigOffentligAfpService.simuler(
-            LivsvarigOffentligAfpSpec(
-                pid,
-                foedselDato,
-                fom = virkningDato,
-                fremtidigInntektListe
-            )
-        )
-    }
-
-    override fun fetchFoedselDato(pid: Pid): LocalDate =
+    override fun fetchFoedselsdato(pid: Pid): LocalDate =
         generelleDataHolder.getPerson(pid).foedselDato
 
-    private fun fetchGrunnbeloep(): Int {
-        val grunnbeloepListe: List<SatsResultat> = context.fetchGrunnbeloepListe(LocalDate.now()).satsResultater
-        return grunnbeloepListe.firstOrNull()?.verdi?.toInt() ?: 0
-    }
-
-    private fun opprettKravhode(
-        spec: KravhodeSpec,
-        person: PenPerson?,
-        virkningDatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
-    ): Kravhode {
-        val start = currentTimeMillis()
-        val kravhode = kravhodeCreator.opprettKravhode(spec, person, virkningDatoGrunnlagListe)
-        logger.info("opprettKravhode tok {} ms", currentTimeMillis() - start)
-        return kravhode
-    }
-
-    private fun oppdaterKravhodeForFoersteKnekkpunkt(spec: KravhodeUpdateSpec): Kravhode {
-        val start = currentTimeMillis()
-        val response = kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(spec)
-        logger.info("oppdaterKravhodeForForsteKnekkpunkt tok {} ms", currentTimeMillis() - start)
-        return response
-    }
-
-    private fun finnKnekkpunkter(spec: KnekkpunktSpec): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
-        val start = currentTimeMillis()
-        val response = knekkpunktFinder.finnKnekkpunkter(spec)
-        logger.info("finnKnekkpunkter tok {} ms", currentTimeMillis() - start)
-        return response
-    }
-
-    private fun beregnPrivatAfp(spec: PrivatAfpSpec): PrivatAfpResult {
-        val start = currentTimeMillis()
-        val response = privatAfpBeregner.beregnPrivatAfp(spec)
-        logger.info("beregnAfpPrivat tok {} ms", currentTimeMillis() - start)
-        return response
-    }
-
-    private fun vilkaarsproevOgBeregnAlderspensjon(request: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
-        val start = currentTimeMillis()
-        val response = alderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder(request)
-        logger.info("vilkarsprovOgBeregnAlder tok {} ms", currentTimeMillis() - start)
-        return response
-    }
-
-    private fun opprettOutput(request: ResultPreparerSpec): SimulatorOutput {
-        val start = currentTimeMillis()
-        val response = SimuleringResultPreparer.opprettOutput(request)
-        logger.info("opprettOutput tok {} ms", currentTimeMillis() - start)
-        return response
-    }
-
-    private companion object {
-
-        private fun foersteAarMedUregistrertInntekt(): LocalDate =
-            LocalDate.now().minusYears(1)
-
-        private fun sisteAarMedAfpOpptjeningInntekt(foedselDato: LocalDate): LocalDate =
-            foedselDato.plusYears(LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR)
-
-        private fun aarligInntektListe(fom: LocalDate, til: LocalDate, aarligBeloep: Int): List<Inntekt> =
-            aarligeDatoer(fom, til)
-                .map { inntektVedAaretsStart(it, aarligBeloep) }
-                .toList()
-
-        private fun aarligeDatoer(fom: LocalDate, til: LocalDate): Stream<LocalDate> =
-            fom.datesUntil(til, Period.ofYears(1))
-
-        private fun inntektVedAaretsStart(dato: LocalDate, aarligBeloep: Int) =
-            Inntekt(
-                aarligBeloep,
-                fom = dato.withMonth(1).withDayOfMonth(1)
-            )
-    }
+    private fun fetchGrunnbeloep(): Int =
+        context.fetchGrunnbeloepListe(LocalDate.now()).satsResultater.firstOrNull()?.verdi?.toInt() ?: 0
 }

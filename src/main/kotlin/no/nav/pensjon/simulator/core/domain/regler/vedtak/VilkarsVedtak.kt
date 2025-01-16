@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.VilkarVurderingEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarsvedtakResultatCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findEarliestDateByDay
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
@@ -109,8 +109,6 @@ class VilkarsVedtak : Serializable {
     var avslattKapittel19 = false
     var avslattGarantipensjon = false
     var vurderSkattefritakET = false
-
-    // CR170026
     var unntakHalvMinstepensjon = false
     var epsRettEgenPensjon = false
 
@@ -128,72 +126,45 @@ class VilkarsVedtak : Serializable {
     // SIMDOM-ADD
     // kjerne.Vilkarsvedtak.setKravlinjeForsteVirk
     fun fastsettForstevirkKravlinje(
-        vilkarsvedtak: MutableList<VilkarsVedtak>,
-        kravhodeSakForsteVirkningsdatoer: List<FoersteVirkningDato>
+        vedtakListe: MutableList<VilkarsVedtak>,
+        virkningListe: List<FoersteVirkningDato>
     ) {
-        val forsteVirkForKravlinjeOnVedtak: Date? = findFirstInnvilgetDateForKravlinjeOnVedtak(vilkarsvedtak)
-
-        val forsteVirkForKravlinjeOnSak: LocalDate? =
-            findFirstInnvilgetDateForKravlinjeOnSakForKravlinjePerson(kravhodeSakForsteVirkningsdatoer)
-
-        kravlinjeForsteVirk = DateUtil.findEarliestDateByDay(
-            forsteVirkForKravlinjeOnSak?.toNorwegianDateAtNoon(),
-            forsteVirkForKravlinjeOnVedtak
+        kravlinjeForsteVirk = findEarliestDateByDay(
+            foersteVirkningDatoForDetteVedtak(virkningListe)?.toNorwegianDateAtNoon(),
+            foersteVirkningFomBlantInnvilgedeVedtakAvRelevantType(vedtakListe)
         ) // NB: legacy constructs new Date
     }
 
     // kjerne.Vilkarsvedtak.findFirstInnvilgetDateForKravlinjeOnVedtak
-    private fun findFirstInnvilgetDateForKravlinjeOnVedtak(vedtakList: List<VilkarsVedtak>): Date? {
-        return vedtakList
+    private fun foersteVirkningFomBlantInnvilgedeVedtakAvRelevantType(vedtakListe: List<VilkarsVedtak>): Date? =
+         vedtakListe
             .filter { it.kravlinjeTypeEnum == kravlinjeTypeEnum && VedtakResultatEnum.INNV == it.vilkarsvedtakResultatEnum }
             .mapNotNull { it.virkFom }
             .minByOrNull { it.time } // legacy uses 'nullsLast' i.e. nulls > non-nulls. Hence, mapNotNull + minByOrNull ought to be equivalent
-    }
-
-    /* Code from legacy (assumed to be irrelevant):
-    // kjerne.Vilkarsvedtak.setKravlinjeForsteVirk
-    private fun setKravlinjeForsteVirk(date: Date?) {
-        this.kravlinjeForsteVirk = date?.let { Date(it.time) }
-    }
-
-    var vedtak: Vedtak? = null // Not in simdom
-
-    private fun findFirstInnvilgetDateForKravlinjeOnSakForKravlinjePerson(kravhodeSakForsteVirkningsdatoList: List<Date>): Date? {
-        return Optional.ofNullable<Vedtak>(vedtak).map { v: Vedtak ->
-            v.kravhode.sak.forsteVirkningsdatoListe
-                .filter { hasSamePersonAndKravlinjetypeAsVilkarsvedtak(it) }
-                .map { it.virkningsdato }.firstOrNull()
-        }
-            .orElse(null)
-    }
-    */
 
     // kjerne.Vilkarsvedtak.findFirstInnvilgetDateForKravlinjeOnSakForKravlinjePerson
     // NB: kjerne.Vilkarsvedtak gets kravhodeSakForsteVirkningsdatoer from vedtak field (not present in simdom.VilkarsVedtak)
-    private fun findFirstInnvilgetDateForKravlinjeOnSakForKravlinjePerson(kravhodeSakForsteVirkningsdatoer: List<FoersteVirkningDato>): LocalDate? {
-        return kravhodeSakForsteVirkningsdatoer
-            .filter(::hasSamePersonAndKravlinjetypeAsVilkarsvedtak)
+    private fun foersteVirkningDatoForDetteVedtak(virkningListe: List<FoersteVirkningDato>): LocalDate? =
+        virkningListe
+            .filter(::virkerForDetteVedtak)
             .map { it.virkningDato }
             .firstOrNull()
-    }
 
     // kjerne.Vilkarsvedtak.hasSamePersonAndKravlinjetypeAsVilkarsvedtak
-    private fun hasSamePersonAndKravlinjetypeAsVilkarsvedtak(forsteVirkningsdato: FoersteVirkningDato): Boolean =
-        (!isEktefelleOrBarnetillegg() || isEktefelleOrBarnetilleggAndCorrectPerson(forsteVirkningsdato))
-                && forsteVirkningsdato.kravlinjeType == kravlinjeTypeEnum
+    private fun virkerForDetteVedtak(virkning: FoersteVirkningDato): Boolean =
+        (erTillegg().not() || erTilleggOgRiktigPerson(virkning)) //TODO simplify
+                && virkning.kravlinjeType == kravlinjeTypeEnum
 
     @JsonIgnore
     var gjelderPerson: PenPerson? = null
 
     // kjerne.Vilkarsvedtak.isEtOrBtAndCorrectPerson
-    private fun isEktefelleOrBarnetilleggAndCorrectPerson(forsteVirkningsdato: FoersteVirkningDato): Boolean {
-        return isEktefelleOrBarnetillegg() && gjelderPerson == forsteVirkningsdato.annenPerson
-    }
+    private fun erTilleggOgRiktigPerson(virkning: FoersteVirkningDato): Boolean =
+        erTillegg() && gjelderPerson == virkning.annenPerson
 
     // kjerne.Vilkarsvedtak.isEktefelleOrBarnetillegg
-    private fun isEktefelleOrBarnetillegg(): Boolean {
-        return listOf(KravlinjeTypeEnum.BT, KravlinjeTypeEnum.ET).contains(kravlinjeTypeEnum)
-    }
+    private fun erTillegg(): Boolean =
+        listOf(KravlinjeTypeEnum.BT, KravlinjeTypeEnum.ET).contains(kravlinjeTypeEnum)
 
     @JsonIgnore
     var rawForsteVirk: Date? = null

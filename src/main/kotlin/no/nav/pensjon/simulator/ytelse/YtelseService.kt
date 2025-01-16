@@ -1,8 +1,6 @@
 package no.nav.pensjon.simulator.ytelse
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SimuleringType
-import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.ytelse.client.YtelseClient
@@ -10,7 +8,9 @@ import org.springframework.stereotype.Service
 
 /**
  * Corresponds to those parts of AbstraktSimulerAPFra2011Command, SimulerFleksibelAPCommand, SimulerAFPogAPCommand
- * and SimulerEndringAvAPCommand that handle 'løpende ytelser'
+ * and SimulerEndringAvAPCommand that handle 'løpende ytelser'.
+ * NB: It is assumed that forrigeVilkarsvedtakListe only contains 'norske vedtak'
+ *     (ref. ReglerLoependeYtelserMapper in PEN).
  */
 @Service
 class YtelseService(private val client: YtelseClient) {
@@ -39,7 +39,7 @@ class YtelseService(private val client: YtelseClient) {
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
                 forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
-                forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
+                forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList()
             )
         }
 
@@ -65,7 +65,7 @@ class YtelseService(private val client: YtelseClient) {
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
                 forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
-                forrigeVedtakListe = norskeVedtak(ytelser.alderspensjon.forrigeVilkarsvedtakListe)
+                forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList()
             )
         }
 
@@ -92,11 +92,5 @@ class YtelseService(private val client: YtelseClient) {
             forrigePrivatAfpBeregningResultat = null,
             forrigeVedtakListe = mutableListOf() //TODO use value in ytelser?
         )
-    }
-
-    private companion object {
-        // AbstraktSimulerAPFra2011Command.filterVilkarsVedtakListOnNOR
-        private fun norskeVedtak(vedtakListe: List<VilkarsVedtak>): MutableList<VilkarsVedtak> =
-            vedtakListe.filter { Land.NOR == it.kravlinje?.land }.toMutableList()
     }
 }

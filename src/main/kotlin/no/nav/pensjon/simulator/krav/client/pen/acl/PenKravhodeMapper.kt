@@ -1,11 +1,14 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 
 /**
  * Maps kravhode from DTO (data transfer object) to pensjonssimulator domain.
@@ -23,7 +26,7 @@ object PenKravhodeMapper {
             sakId = source.sakId
             sakType = source.sakType
             sakPenPersonFnr = source.sakPenPersonFnr
-            sakForsteVirkningsdatoListe = source.sakForsteVirkningsdatoListe
+            sakForsteVirkningsdatoListe = source.sakForsteVirkningsdatoListe.map(::virkningDato)
             boddEllerArbeidetIUtlandet = source.boddEllerArbeidetIUtlandet
             kravlinjeListe = source.kravlinjeListe.map(::kravlinje).toMutableList()
             persongrunnlagListe = source.persongrunnlagListe.map(::persongrunnlag).toMutableList()
@@ -49,7 +52,15 @@ object PenKravhodeMapper {
             // borFomDato/borTomDato settes ikke, da PEN BarnDetalj ikke har disse verdiene
         }
 
-    private fun foersteVirkningsdatoGrunnlag(source: PenFoersteVirkningDatoGrunnlag) =
+    private fun virkningDato(source: PenFoersteVirkningDato) =
+        FoersteVirkningDato(
+            sakType = source.sakType?.let(SakType::valueOf),
+            kravlinjeType = source.kravlinjeType?.let(KravlinjeTypeEnum::valueOf),
+            virkningDato = source.virkningsdato?.toNorwegianLocalDate(),
+            annenPerson = source.annenPerson?.let(::penPerson)
+        )
+
+    private fun virkningDatoGrunnlag(source: PenFoersteVirkningDatoGrunnlag) =
         ForsteVirkningsdatoGrunnlag().apply {
             bruker = source.bruker?.let(::penPerson)
             annenPerson = source.annenPerson?.let(::penPerson)
@@ -150,7 +161,7 @@ object PenKravhodeMapper {
             vernepliktAr = source.vernepliktAr
             barnetilleggVurderingsperiode = source.barnetilleggVurderingsperiode
             forsteVirkningsdatoGrunnlagListe =
-                source.forsteVirkningsdatoGrunnlagListe.map(::foersteVirkningsdatoGrunnlag).toMutableList()
+                source.forsteVirkningsdatoGrunnlagListe.map(::virkningDatoGrunnlag).toMutableList()
             trygdeavtaledetaljer = source.trygdeavtaledetaljer
             inngangOgEksportGrunnlag = source.inngangOgEksportGrunnlag
             inntektsgrunnlagListe = source.inntektsgrunnlagListe

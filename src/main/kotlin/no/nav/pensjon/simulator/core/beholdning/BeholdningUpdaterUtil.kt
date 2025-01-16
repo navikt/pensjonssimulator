@@ -375,7 +375,7 @@ object BeholdningUpdaterUtil {
     // RevurderingHelper.isRevurderingBackToFirstUttaksdatoOrForstegangsbehandling
     fun isRevurderingBackToFirstUttaksdatoOrForstegangsbehandling(kravhode: Kravhode): Boolean =
         with(kravhode.sakForsteVirkningsdato()) {
-            this == null || isSameDay(this, kravhode.onsketVirkningsdato)
+            this == null || this == kravhode.onsketVirkningsdato?.toNorwegianLocalDate()
         }
 
     // RevurderingHelper.isFirstDayOfYear

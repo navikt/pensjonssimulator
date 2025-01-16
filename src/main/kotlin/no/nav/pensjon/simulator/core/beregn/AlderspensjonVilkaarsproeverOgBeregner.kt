@@ -36,7 +36,6 @@ import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDa
 import no.nav.pensjon.simulator.core.util.isBeforeOrOn
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -149,16 +148,18 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             if (!simuleringSpec.isTpOrigSimulering) {
                 forrigeAlderspensjonBeregningResultat?.let {
                     if (it.epsMottarPensjon) {
-                        simuleringSpec.epsHarPensjon = true
+                        simuleringSpec.epsHarPensjon = true //TODO make simuleringSpec immutable?
                     }
                 }
             }
 
-            val kravhodeSakFoersteVirkningDatoListe: List<FoersteVirkningDato> = listOf() //TODO
-
             for (vedtak in vedtakListeAllePerioder) {
-                //TODO: Check if this is necessary:
-                vedtak.fastsettForstevirkKravlinje(vedtakListeAllePerioder, kravhodeSakFoersteVirkningDatoListe)
+                if (vedtak.kravlinjeForsteVirk == null) { // ref. github.com/navikt/pensjon-pen/pull/11703
+                    vedtak.fastsettForstevirkKravlinje(
+                        vedtakListe = vedtakListeAllePerioder,
+                        virkningListe = kravhode.sakForsteVirkningsdatoListe
+                    )
+                }
             }
 
             // Corresponds to part 6
@@ -218,14 +219,16 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             if (shouldAddPensjonBeholdningPerioder(spec.isHentPensjonsbeholdninger, kravhode.regelverkTypeEnum)) {
                 val beholdningListe: MutableList<Pensjonsbeholdning> =
                     context.beregnOpptjening(
-                        knekkpunktDato,
-                        soekerGrunnlag
+                        beholdningTom = knekkpunktDato,
+                        persongrunnlag = soekerGrunnlag
                     ) // NB: modified in VilkarsprovOgBeregnAlderHelper 2024-08-14
+
                 val folketrygdBeholdningKravhode: Kravhode =
                     periodiserGrunnlagAndModifyKravhode(knekkpunktDato, kravhode, beholdningListe, spec.sakType)
+
                 val vilkarsvedtak: VilkarsVedtak = opprettInnvilgetVedtak(
-                    folketrygdBeholdningKravhode.findHovedKravlinje(spec.kravGjelder),
-                    knekkpunktDato
+                    kravlinje = folketrygdBeholdningKravhode.findHovedKravlinje(spec.kravGjelder),
+                    virkFom = knekkpunktDato
                 )
 
                 val beregningResultat = beregnAlderspensjon(
@@ -245,7 +248,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
                 if (beregningResultat is BeregningsResultatAlderspensjon2016) {
                     val beholdninger =
-                        beregningResultat.beregningsResultat2025?.beregningKapittel20?.beholdningerForForsteuttak!!
+                        beregningResultat.beregningsResultat2025!!.beregningKapittel20!!.beholdningerForForsteuttak!!
                     pensjonBeholdningPeriodeListe.add(
                         beholdningPeriode(
                             virkningFom = beregningResultat.virkFom!!.toNorwegianLocalDate(),
@@ -254,7 +257,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                         )
                     )
                 } else if (beregningResultat is BeregningsResultatAlderspensjon2025) {
-                    val beholdninger = beregningResultat.beregningKapittel20?.beholdningerForForsteuttak!!
+                    val beholdninger = beregningResultat.beregningKapittel20!!.beholdningerForForsteuttak!!
                     pensjonBeholdningPeriodeListe.add(
                         beholdningPeriode(
                             virkningFom = beregningResultat.virkFom!!.toNorwegianLocalDate(),
@@ -598,6 +601,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 ignoreAvslag
             )
 
+        // PEN: VilkarsprovOgBeregnAlderHelper.createInfoPavirkendeYtelse
         private fun paavirkendeYtelseInfo(virkningDato: LocalDate, kravhode: Kravhode): InfoPavirkendeYtelse {
             var epsGrunnlag = kravhode.findPersongrunnlag(PenPerson(EPS_PEN_PERSON_ID))
             val grunnlagRoller =
@@ -954,6 +958,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 afpOffentligLivsvarigGrunnlag = spec.afpOffentligLivsvarig
             }
 
+        // PEN: VilkarsprovOgBeregnAlderHelper.buildBeregnApRequest
         private fun beregningCommonSpec(
             kravhode: Kravhode,
             vedtakListe: MutableList<VilkarsVedtak>,

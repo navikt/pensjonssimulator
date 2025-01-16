@@ -9,7 +9,9 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.krav.KravGjelder
+import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.person.Pid
+import java.time.LocalDate
 import java.util.*
 
 /**
@@ -121,15 +123,16 @@ open class Kravhode {
     var sakPenPersonFnr: Pid? = null // sak.penPerson.fnr
 
     @JsonIgnore
-    var sakForsteVirkningsdatoListe: List<Date> = emptyList() // sak.forsteVirkningsdatoList
+    var sakForsteVirkningsdatoListe: List<FoersteVirkningDato> = emptyList() // PEN: sak.forsteVirkningsdatoList
 
-    fun sakForsteVirkningsdato(): Date? = sakForsteVirkningsdatoListe.minOfOrNull { it }
+    fun sakForsteVirkningsdato(): LocalDate? =
+        sakForsteVirkningsdatoListe.mapNotNull { it.virkningDato }.minOfOrNull { it }
 
     fun hentPersongrunnlagForRolle(rolle: GrunnlagsrolleEnum, checkBruk: Boolean): Persongrunnlag? {
-        for (persongrunnlag in persongrunnlagListe) {
-            for (detalj in persongrunnlag.personDetaljListe) {
+        persongrunnlagListe.forEach {
+            for (detalj in it.personDetaljListe) {
                 if ((!checkBruk || detalj.bruk == true) && rolle == detalj.grunnlagsrolleEnum) {
-                    return persongrunnlag
+                    return it
                 }
             }
         }

@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.SakTypeCti
 import no.nav.pensjon.simulator.core.krav.KravGjelder
 import no.nav.pensjon.simulator.person.Pid
-import java.util.Date
+import java.util.*
 
 /**
  * Kravhode DTO (data transfer object) received from PEN.
@@ -22,7 +22,7 @@ class PenKravhode {
     var sakId: Long? = null
     var sakType: SakType? = null // PEN: SakTypeCode
     var sakPenPersonFnr: Pid? = null
-    var sakForsteVirkningsdatoListe: List<Date> = emptyList()
+    var sakForsteVirkningsdatoListe: List<PenFoersteVirkningDato> = emptyList()
     var persongrunnlagListe: MutableList<PenPersongrunnlag> = mutableListOf()
     var kravlinjeListe: MutableList<PenKravlinje> = mutableListOf()
     var afpOrdning: AfpOrdningTypeCti? = null

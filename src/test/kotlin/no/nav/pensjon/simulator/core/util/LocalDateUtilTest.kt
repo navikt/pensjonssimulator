@@ -12,8 +12,8 @@ class LocalDateUtilTest : FunSpec({
         TimeZone.setDefault(defaultTimeZone)
     }
 
-    test("norwegianDate should have 1 as hour-of-day in timezone EET") {
-        TimeZone.setDefault(TimeZone.getTimeZone("EET"))
+    test("norwegianDate should have 1 as hour-of-day in Helsinki") {
+        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"))
         val date = LocalDateUtil.norwegianDate(LocalDate.of(2024, 5, 6))
         Calendar.getInstance().apply { time = date }.get(Calendar.HOUR_OF_DAY) shouldBe 1
     }

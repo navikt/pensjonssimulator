@@ -14,7 +14,7 @@ object TestDateUtil {
         dateAt(year, zeroBasedMonth, day, 12)
 
     private fun dateAt(year: Int, zeroBasedMonth: Int, day: Int, hourOfDay: Int): Date =
-        Calendar.getInstance(TimeZone.getTimeZone("CET"), Locale.ENGLISH).apply {
+        Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo"),  Locale.of("nb", "NO")).apply {
             this.clear()
             this[year, zeroBasedMonth] = day
             this[Calendar.HOUR_OF_DAY] = hourOfDay

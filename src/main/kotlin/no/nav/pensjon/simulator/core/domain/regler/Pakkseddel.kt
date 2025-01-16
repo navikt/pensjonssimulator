@@ -34,6 +34,6 @@ class Pakkseddel(
 
     // SIMDOM-ADD
     fun merknaderAsString(): String =
-        merknadListe.joinToString { it.tekst }
+        merknadListe.joinToString { it.asString() }
     // end SIMDOM-ADD
 }

@@ -5,9 +5,6 @@ import java.io.Serializable
 
 class Merknad(var kode: String = "", var argumentListe: MutableList<String> = mutableListOf()) : Serializable {
 
-    /**
-     * Copy Constructor
-     */
     constructor(merknad: Merknad) : this() {
         this.kode = merknad.kode
         this.argumentListe = ArrayList(merknad.argumentListe)
@@ -23,6 +20,8 @@ class Merknad(var kode: String = "", var argumentListe: MutableList<String> = mu
         }
     }
 
+    fun asString(): String = "$kode:${argumentListe.joinToString(separator = ",")}"
+
     @JsonIgnore
-    val tekst = "$kode:${argumentListe.joinToString(separator = ",")}"
+    val tekst = asString()
 }

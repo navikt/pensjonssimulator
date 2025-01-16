@@ -82,8 +82,10 @@ object SimulatorContextUtil {
     fun validerOgFerdigstillResponse(result: TrygdetidResponse, kravGjelderUfoeretrygd: Boolean) {
         validerResponse(result.pakkseddel)
 
-        if (kravGjelderUfoeretrygd) {
-            result.trygdetid?.apply {
+        result.trygdetid?.apply {
+            tt_67_75 = 0 // since this value is not mapped to PEN domain in original PEN code
+
+            if (kravGjelderUfoeretrygd) {
                 virkFom = null
                 virkTom = null
             }
@@ -123,7 +125,7 @@ object SimulatorContextUtil {
         val annenTjenesteOk = pakkseddel.annenTjenesteOk
         if (kontrollTjenesteOk && annenTjenesteOk) return
 
-        val message = pakkseddel.merknadListe.joinToString { it.kode }
+        val message = pakkseddel.merknaderAsString()
 
         if (kontrollTjenesteOk) {
             log.error { "regler validering andre merknader - $message" }

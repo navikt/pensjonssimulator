@@ -16,12 +16,15 @@ object AnonymSimuleringResultMapperV1 {
      * Maps simulator output to format suitable for uinnlogget/anonym kalkulator
      */
     fun mapSimuleringResult(source: SimulatorOutput) =
+        AnonymSimuleringResultEnvelopeV1(result = result(source))
+
+    private fun result(source: SimulatorOutput) =
         AnonymSimuleringResultV1(
             alderspensjonAndelKapittel19 = source.alderspensjon?.kapittel19Andel ?: 0.0,
             alderspensjonAndelKapittel20 = source.alderspensjon?.kapittel20Andel ?: 0.0,
-            alderspensjonPerioder = source.alderspensjon?.pensjonPeriodeListe.orEmpty().map(AnonymSimuleringResultMapperV1::pensjonPeriode),
-            afpPrivatPerioder = source.privatAfpPeriodeListe.map(AnonymSimuleringResultMapperV1::privatAfpPeriode),
-            afpOffentligPerioder = source.livsvarigOffentligAfp.orEmpty().map(AnonymSimuleringResultMapperV1::livsvarigOffentligAfp)
+            alderspensjonPerioder = source.alderspensjon?.pensjonPeriodeListe.orEmpty().map(::pensjonPeriode),
+            afpPrivatPerioder = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
+            afpOffentligPerioder = source.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp)
         )
 
     private fun pensjonPeriode(source: PensjonPeriode) =
@@ -29,7 +32,7 @@ object AnonymSimuleringResultMapperV1 {
             belop = source.beloep,
             alder = source.alderAar,
             simulertBeregningsinformasjon = source.simulertBeregningInformasjonListe.firstOrNull()
-                ?.let(AnonymSimuleringResultMapperV1::beregningInformasjon)
+                ?.let(::beregningInformasjon)
         )
 
     //private fun beregningInformasjon(source: LegacySimulertBeregningInformasjon) =

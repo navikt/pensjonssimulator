@@ -66,45 +66,56 @@ class NavAnonymAlderspensjonController(
             val result = service.simuler(fromAnonymSimuleringSpecV1(spec))
             ResponseEntity(mapSimuleringResult(result), HttpStatus.OK)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            domainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict
+            handleDomainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict
         } catch (e: UtilstrekkeligTrygdetidException) {
-            domainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict
+            handleDomainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict
         } catch (e: PersonForGammelException) {
-            badRequest(e)!! // PEN: RestResponseEntityExceptionHandler.handleBadRequestWithMerknad
+            handleBadRequest(e) // PEN: RestResponseEntityExceptionHandler.handleBadRequestWithMerknad
         } catch (e: RegelmotorValideringException) {
-            badRequest(e)!! // PEN: RestResponseEntityExceptionHandler.handleBadRequestWithMerknad
+            handleBadRequest(e) // PEN: RestResponseEntityExceptionHandler.handleBadRequestWithMerknad
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
-            badRequest(e)!!
+            handleBadRequest(e)
         } catch (e: InvalidEnumValueException) {
-            badRequest(e)!!
+            handleBadRequest(e)
         } finally {
             traceAid.end()
         }
     }
-
-    /**
-     * Domain errors are violations of pension rules, not technical errors.
-     * The response is '200 OK' with a description of the error.
-     */
-    private fun domainError(e: RuntimeException): ResponseEntity<Any> =
-        HttpStatus.OK.let {
-            ResponseEntity(
-                AnonymSimuleringResultEnvelopeV1(
-                    error = AnonymSimuleringErrorV1(
-                        status = it.reasonPhrase,
-                        message = e.message ?: e.javaClass.simpleName
-                    )
-                ),
-                it
-            )
-        }
 
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved anonym simulering av alderspensjon"
         private const val FUNCTION_ID = "ap"
+
+        /**
+         * Domain errors are violations of pension rules, not technical errors.
+         * The response is '200 OK' with a description of the error.
+         */
+        private fun handleDomainError(e: RuntimeException): ResponseEntity<Any> =
+            response(HttpStatus.OK, e)
+
+        private fun handleBadRequest(e: RuntimeException): ResponseEntity<Any> =
+            response(HttpStatus.BAD_REQUEST, e)
+
+        private fun response(status: HttpStatus, e: RuntimeException): ResponseEntity<Any> =
+            ResponseEntity(
+                AnonymSimuleringResultEnvelopeV1(
+                    error = AnonymSimuleringErrorV1(
+                        status = status.reasonPhrase,
+                        message = extractMessages(e) ?: e.javaClass.simpleName
+                    )
+                ),
+                status
+            )
+
+        private fun extractMessages(e: Throwable): String? {
+            val builder = StringBuilder()
+            e.message?.let(builder::append)
+            e.cause?.let(::extractMessages)?.let { builder.append(" | Cause: ").append(it) }
+            return if (builder.isEmpty()) null else builder.toString()
+        }
     }
 }

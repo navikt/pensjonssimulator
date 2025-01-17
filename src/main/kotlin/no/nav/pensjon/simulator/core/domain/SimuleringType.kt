@@ -44,6 +44,11 @@ enum class SimuleringType {
     ENDR_AP_M_AFP_PRIVAT,
 
     /**
+     * Endring av alderspensjon med AFP i offentlig sektor
+     */
+    ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
+
+    /**
      * Endring av alderspensjon med gjenlevenderettigheter
      * TODO: Check if relevant for 1963+
      */

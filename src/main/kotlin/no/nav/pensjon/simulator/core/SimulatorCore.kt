@@ -174,7 +174,7 @@ class SimulatorCore(
             )
             kravhode = pre2025OffentligAfpResult.kravhode
             livsvarigOffentligAfpResult = null
-        } else if (gjelderEndring) {
+        } else if (gjelderEndring && spec.type != SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) {
             pre2025OffentligAfpResult =
                 spec.foersteUttakDato?.let { pre2025OffentligAfpEndringBeregner.beregnAfp(kravhode, it) }
             livsvarigOffentligAfpResult = null

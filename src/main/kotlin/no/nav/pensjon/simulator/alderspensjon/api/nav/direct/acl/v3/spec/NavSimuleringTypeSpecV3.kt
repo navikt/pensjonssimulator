@@ -59,7 +59,9 @@ enum class NavSimuleringTypeSpecV3(val externalValue: String, val internalValue:
     /**
      * Endring av alderspensjon med AFP i privat sektor
      */
-    ENDR_AP_M_AFP_PRIVAT("ENDR_AP_M_AFP_PRIVAT", SimuleringType.ENDR_AP_M_AFP_PRIVAT);
+    ENDR_AP_M_AFP_PRIVAT("ENDR_AP_M_AFP_PRIVAT", SimuleringType.ENDR_AP_M_AFP_PRIVAT),
+
+    ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG("ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG", SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG);
 
     /**
      * Gjenlevendepensjon

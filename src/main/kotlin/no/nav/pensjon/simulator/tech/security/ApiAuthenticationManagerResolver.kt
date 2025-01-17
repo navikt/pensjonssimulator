@@ -13,6 +13,7 @@ class ApiAuthenticationManagerResolver(
 ) : AuthenticationManagerResolver<HttpServletRequest> {
     private val managerMap: Map<RequestMatcher, AuthenticationManager> =
         mapOf(
+            AntPathRequestMatcher("/api/anonym/**") to entraProvider,
             AntPathRequestMatcher("/api/nav/**") to entraProvider,
             AntPathRequestMatcher("/api/tpo/**") to entraProvider,
             AntPathRequestMatcher("/api/v4/simuler-alderspensjon") to maskinportenProvider,

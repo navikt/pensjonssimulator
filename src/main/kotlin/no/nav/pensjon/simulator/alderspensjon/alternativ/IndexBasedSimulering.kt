@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForLavtTidligUttakException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -80,10 +80,10 @@ class IndexBasedSimulering(
             val uttakGradTransition: Boolean =
                 gradert && previousUttakGradIndex(foersteUttakAlderIndex) < uttaksgradIndex
             AlternativSimuleringResult(valueIsGood = true, simulertPensjon, parameters, uttakGradTransition)
-        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: UtilstrekkeligTrygdetidException) {
             log.info("Ugyldig første uttaksdato (for kort trygdetid) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
-        } catch (_: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (_: UtilstrekkeligOpptjeningException) {
             log.info("Ugyldig første uttaksdato (for lavt tidlig uttak) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
             //} catch (e: FunctionalRecoverableException) {

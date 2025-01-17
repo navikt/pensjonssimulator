@@ -3,8 +3,8 @@ package no.nav.pensjon.simulator.core.knekkpunkt
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
-import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
+import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 
@@ -61,9 +61,9 @@ class TrygdetidCache(val context: SimulatorContext) {
             context.refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
                 .let { TrygdetidCombo(it.trygdetid, it.trygdetidKapittel20) }
         } catch (e: KanIkkeBeregnesException) {
-            throw BeregningstjenesteFeiletException(e)
-        } catch (e: BeregningsmotorValidereException) {
-            throw BeregningstjenesteFeiletException(e)
+            throw RegelmotorFeilException(e)
+        } catch (e: RegelmotorValideringException) {
+            throw RegelmotorFeilException(e)
         }
 
     //@Throws(BeregningstjenesteFeiletException::class)

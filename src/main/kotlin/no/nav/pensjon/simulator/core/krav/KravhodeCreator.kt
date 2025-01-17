@@ -23,7 +23,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
-import no.nav.pensjon.simulator.core.exception.BrukerFoedtFoer1943Exception
+import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
@@ -603,7 +603,7 @@ class KravhodeCreator(
 
         private fun regelverkType(foedselAar: Int): RegelverkTypeEnum =
             when {
-                foedselAar < 1943 -> throw BrukerFoedtFoer1943Exception("Kan ikke sette regelverktype - fødselsår < 1943")
+                foedselAar < 1943 -> throw PersonForGammelException("Kan ikke sette regelverktype - fødselsår < 1943")
                 foedselAar <= 1953 -> RegelverkTypeEnum.N_REG_G_OPPTJ
                 foedselAar <= 1962 -> RegelverkTypeEnum.N_REG_G_N_OPPTJ
                 else -> RegelverkTypeEnum.N_REG_N_OPPTJ

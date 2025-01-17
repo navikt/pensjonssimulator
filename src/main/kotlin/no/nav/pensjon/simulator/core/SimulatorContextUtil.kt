@@ -17,8 +17,8 @@ import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2011Request
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2016Request
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2025Request
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
@@ -132,7 +132,7 @@ object SimulatorContextUtil {
             throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
         } else {
             log.error { "regler validering kontroll merknader - $message" }
-            throw BeregningsmotorValidereException(message, pakkseddel.merknadListe)
+            throw RegelmotorValideringException(message, pakkseddel.merknadListe)
         }
     }
 
@@ -149,7 +149,7 @@ object SimulatorContextUtil {
             throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
         } else {
             log.error { "regler validering kontroll merknader - $message" }
-            throw BeregningsmotorValidereException(message, pakkseddel.merknadListe)
+            throw RegelmotorValideringException(message, pakkseddel.merknadListe)
         }
     }
 

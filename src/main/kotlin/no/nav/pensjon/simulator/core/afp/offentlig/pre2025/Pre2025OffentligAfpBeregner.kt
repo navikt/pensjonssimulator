@@ -21,8 +21,8 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
-import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
+import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
@@ -116,11 +116,11 @@ class Pre2025OffentligAfpBeregner(
         try {
             simulerPensjonsberegning(simulering(spec, persongrunnlagListe), normAlder)
         } catch (e: ForUngForSimuleringException) {
-            throw BeregningstjenesteFeiletException(e.message)
+            throw RegelmotorFeilException(e.message)
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            throw BeregningstjenesteFeiletException(e.message)
+            throw RegelmotorFeilException(e.message)
         } catch (e: FeilISimuleringsgrunnlagetException) {
-            throw BeregningstjenesteFeiletException(e.message)
+            throw RegelmotorFeilException(e.message)
         }
 
     // SimpleSimuleringService.simulerPensjonsberegning
@@ -168,7 +168,7 @@ class Pre2025OffentligAfpBeregner(
             context.simulerVilkarsprovPre2025OffentligAfp(SimuleringRequest(simulering, simulering.uttaksdato))
         } catch (e: KanIkkeBeregnesException) {
             throw FeilISimuleringsgrunnlagetException(e)
-        } catch (e: BeregningsmotorValidereException) {
+        } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }
 
@@ -323,7 +323,7 @@ class Pre2025OffentligAfpBeregner(
             }
         } catch (e: KanIkkeBeregnesException) {
             throw FeilISimuleringsgrunnlagetException(e)
-        } catch (e: BeregningsmotorValidereException) {
+        } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }
     }

@@ -6,8 +6,8 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForLavtTidligUttakException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
@@ -44,10 +44,10 @@ class AlternativSimuleringService(
             val result: SimulatorOutput = simulator.simuler(lavereGradSpec)
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(lavereGradSpec, foedselsdato, pensjon(result))
-        } catch (_: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (_: UtilstrekkeligOpptjeningException) {
             // Lavere grad ga "avslått" resultat; prøv utkanttilfellet og ev. alternative parametre:
             simulerAlternativHvisUtkanttilfelletInnvilges(spec, foedselsdato, inkluderPensjonHvisUbetinget)
-        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: UtilstrekkeligTrygdetidException) {
             simulerAlternativHvisUtkanttilfelletInnvilges(spec, foedselsdato, inkluderPensjonHvisUbetinget)
         }
     }
@@ -77,13 +77,13 @@ class AlternativSimuleringService(
 
             // Ingen exception => utkanttilfellet innvilget => prøv alternative parametre:
             findAlternativtUttak(spec, foedselsdato, spec.gradertUttak(foedselsdato), spec.heltUttak(foedselsdato))
-        } catch (_: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (_: UtilstrekkeligOpptjeningException) {
             // Utkanttilfellet avslått (intet gradert uttak mulig); returner alternativ for ubetinget uttak:
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder, foedselsdato)
             else
                 ubetingetUttakResponseUtenSimulertPensjon(foedselsdato, normAlder)
-        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: UtilstrekkeligTrygdetidException) {
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder, foedselsdato)
             else
@@ -100,10 +100,10 @@ class AlternativSimuleringService(
             val ubetingetSpec: SimuleringSpec = SimuleringSpecUtil.ubetingetSimuleringSpec(spec, normAlder, foedselsdato)
             val result: SimulatorOutput = simulator.simuler(ubetingetSpec)
             alternativResponse(ubetingetSpec, foedselsdato, pensjon(result))
-        } catch (e: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (e: UtilstrekkeligOpptjeningException) {
             // Skal ikke kunne skje
             throw RuntimeException("Simulering for ubetinget alder feilet", e)
-        } catch (e: AvslagVilkaarsproevingForLavtTidligUttakException) {
+        } catch (e: UtilstrekkeligTrygdetidException) {
             // Skal ikke kunne skje
             throw RuntimeException("Simulering for ubetinget alder feilet", e)
         }

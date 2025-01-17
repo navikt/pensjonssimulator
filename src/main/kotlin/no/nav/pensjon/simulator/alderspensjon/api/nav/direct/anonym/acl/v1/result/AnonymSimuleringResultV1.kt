@@ -2,6 +2,11 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.resu
 
 import com.fasterxml.jackson.annotation.JsonInclude
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class AnonymSimuleringResultEnvelopeV1(
+    val result: AnonymSimuleringResultV1? = null,
+    val error: AnonymSimuleringErrorV1? = null
+)
 // no.nav.domain.pensjon.kjerne.simulering.forenklet.ForenkletSimuleringResultat
 data class AnonymSimuleringResultV1(
     val alderspensjonAndelKapittel19: Double,

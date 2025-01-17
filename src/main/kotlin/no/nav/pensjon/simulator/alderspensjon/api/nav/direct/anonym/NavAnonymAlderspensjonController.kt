@@ -5,16 +5,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringErrorV1
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringResultEnvelopeV1
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringResultMapperV1.mapSimuleringResult
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringResultV1
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecMapperV1.fromAnonymSimuleringSpecV1
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymSimuleringSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.PersonForGammelException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -50,15 +57,22 @@ class NavAnonymAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(@RequestBody specV1: AnonymSimuleringSpecV1): AnonymSimuleringResultV1 {
+    fun simulerAlderspensjon(@RequestBody spec: AnonymSimuleringSpecV1): ResponseEntity<Any> {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV1" }
+        log.debug { "$FUNCTION_ID request: $spec" }
         countCall(FUNCTION_ID)
 
         return try {
-            val spec = fromAnonymSimuleringSpecV1(specV1)
-            val result = service.simuler(spec)
-            mapSimuleringResult(result)
+            val result = service.simuler(fromAnonymSimuleringSpecV1(spec))
+            ResponseEntity(mapSimuleringResult(result), HttpStatus.OK)
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            domainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            domainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict
+        } catch (e: PersonForGammelException) {
+            badRequest(e)!! // PEN: RestResponseEntityExceptionHandler.handleBadRequestWithMerknad
+        } catch (e: RegelmotorValideringException) {
+            badRequest(e)!! // PEN: RestResponseEntityExceptionHandler.handleBadRequestWithMerknad
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -69,6 +83,23 @@ class NavAnonymAlderspensjonController(
             traceAid.end()
         }
     }
+
+    /**
+     * Domain errors are violations of pension rules, not technical errors.
+     * The response is '200 OK' with a description of the error.
+     */
+    private fun domainError(e: RuntimeException): ResponseEntity<Any> =
+        HttpStatus.OK.let {
+            ResponseEntity(
+                AnonymSimuleringResultEnvelopeV1(
+                    error = AnonymSimuleringErrorV1(
+                        status = it.reasonPhrase,
+                        message = e.message ?: e.javaClass.simpleName
+                    )
+                ),
+                it
+            )
+        }
 
     override fun errorMessage() = ERROR_MESSAGE
 

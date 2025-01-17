@@ -2,10 +2,10 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
-import no.nav.pensjon.simulator.core.exception.BeregningstjenesteFeiletException
-import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
+import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -31,7 +31,7 @@ class SimuleringFacade(
                 pensjon = pensjon(result),
                 alternativ = null
             )
-        } catch (_: ForLavtTidligUttakException) {
+        } catch (_: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
@@ -44,7 +44,7 @@ class SimuleringFacade(
                     foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 )
-        } catch (_: AvslagVilkaarsproevingForKortTrygdetidException) {
+        } catch (_: UtilstrekkeligTrygdetidException) {
             return if (isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
@@ -56,10 +56,10 @@ class SimuleringFacade(
                     foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 )
-        } catch (e: BeregningsmotorValidereException) {
+        } catch (e: RegelmotorValideringException) {
             //throw SimuleringException("simuler alderspensjon 1963+ feilet", e)
             throw RuntimeException("simuler alderspensjon 1963+ feilet", e)
-        } catch (e: BeregningstjenesteFeiletException) {
+        } catch (e: RegelmotorFeilException) {
             //throw SimuleringException("simuler alderspensjon 1963+ feilet", e)
             throw RuntimeException("simuler alderspensjon 1963+ feilet", e)
         }

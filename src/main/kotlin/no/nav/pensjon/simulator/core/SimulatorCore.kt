@@ -17,8 +17,9 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.endring.EndringValidator
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
-import no.nav.pensjon.simulator.core.exception.ForLavtTidligUttakException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktSpec
 import no.nav.pensjon.simulator.core.krav.*
@@ -26,7 +27,6 @@ import no.nav.pensjon.simulator.core.result.ResultPreparerSpec
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.ForKortTrygdetidException
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
@@ -66,9 +66,9 @@ class SimulatorCore(
 
     // AbstraktSimulerAPFra2011Command.execute + overrides in SimulerFleksibelAPCommand & SimulerAFPogAPCommand & SimulerEndringAvAPCommand
     @Throws(
-        BeregningsmotorValidereException::class,
-        ForKortTrygdetidException::class,
-        ForLavtTidligUttakException::class
+        RegelmotorValideringException::class,
+        UtilstrekkeligOpptjeningException::class,
+        UtilstrekkeligTrygdetidException::class
     )
     override fun simuler(initialSpec: SimuleringSpec): SimulatorOutput {
         val gjelderEndring = initialSpec.gjelderEndring()
@@ -126,7 +126,7 @@ class SimulatorCore(
                     simulering = spec,
                     kravhode,
                     virkningFom = ytelser.privatAfpVirkningFom,
-                    forrigePrivatAfpBeregningResult = null, // forrigeAfpPrivatBeregningsresultat is null for SimulerFleksibelAPCommand & SimulerAFPogAPCommand (ref. line 129 in SimulerAFPogAPCommand)
+                    forrigePrivatAfpBeregningResult = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
                     gjelderOmsorg = kravhode.hentPersongrunnlagForSoker().gjelderOmsorg,
                     sakId = kravhode.sakId
                 )
@@ -229,7 +229,7 @@ class SimulatorCore(
                 alderspensjonBeregningResultatListe = vilkaarsproevOgBeregnAlderspensjonResult.beregningsresultater,
                 privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                 forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
-                forrigePrivatAfpBeregningResultat = null, // forrigeAfpPrivatBeregningsresultat is null for SimulerFleksibelAPCommand & SimulerAFPogAPCommand
+                forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
                 pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResult?.simuleringResult,
                 livsvarigOffentligAfpBeregningResultatListe =
                     LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(

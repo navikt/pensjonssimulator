@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -128,7 +128,7 @@ object NavSimuleringSpecMapperV3 {
 
     private fun validated(uttakFom: LocalDate): LocalDate =
         if (uttakFom < LocalDate.now())
-            throw BeregningsmotorValidereException("Uttaksdato ($uttakFom) kan ikke være i fortid")
+            throw RegelmotorValideringException("Uttaksdato ($uttakFom) kan ikke være i fortid")
         else
             uttakFom
 

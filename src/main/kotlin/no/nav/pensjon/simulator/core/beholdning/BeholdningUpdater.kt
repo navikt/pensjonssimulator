@@ -48,8 +48,8 @@ import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.SatsResponse
-import no.nav.pensjon.simulator.core.exception.BeregningsmotorValidereException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
@@ -123,7 +123,7 @@ class BeholdningUpdater(
                 "The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId,
                 e
             )
-        } catch (e: BeregningsmotorValidereException) {
+        } catch (e: RegelmotorValideringException) {
             //throw ImplementationUnrecoverableException(("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId), e)
             throw RuntimeException(
                 ("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId),
@@ -505,7 +505,7 @@ class BeholdningUpdater(
                 "The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning,
                 e
             )
-        } catch (e: BeregningsmotorValidereException) {
+        } catch (e: RegelmotorValideringException) {
             //throw ImplementationUnrecoverableException("The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning, e)
             throw RuntimeException(
                 "The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning,
@@ -579,7 +579,7 @@ class BeholdningUpdater(
         } catch (e: KanIkkeBeregnesException) {
             //throw ImplementationUnrecoverableException(CALL_TO_PREG_FAILED, e)
             throw RuntimeException(CALL_TO_PREG_FAILED, e)
-        } catch (e: BeregningsmotorValidereException) {
+        } catch (e: RegelmotorValideringException) {
             //throw ImplementationUnrecoverableException(CALL_TO_PREG_FAILED, e)
             throw RuntimeException(CALL_TO_PREG_FAILED, e)
         }

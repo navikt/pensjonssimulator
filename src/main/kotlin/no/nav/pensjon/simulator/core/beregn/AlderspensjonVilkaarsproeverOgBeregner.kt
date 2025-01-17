@@ -19,9 +19,9 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensjonResultat
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForKortTrygdetidException
-import no.nav.pensjon.simulator.core.exception.AvslagVilkaarsproevingForLavtTidligUttakException
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
@@ -898,11 +898,9 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
         private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
             when (begrunnelse) {
-                BegrunnelseTypeEnum.UNDER_3_AR_TT ->
-                    throw AvslagVilkaarsproevingForKortTrygdetidException()
+                BegrunnelseTypeEnum.UNDER_3_AR_TT -> throw UtilstrekkeligTrygdetidException()
 
-                BegrunnelseTypeEnum.LAVT_TIDLIG_UTTAK ->
-                    throw AvslagVilkaarsproevingForLavtTidligUttakException()
+                BegrunnelseTypeEnum.LAVT_TIDLIG_UTTAK -> throw UtilstrekkeligOpptjeningException()
 
                 BegrunnelseTypeEnum.UTG_MINDRE_ETT_AR ->
                     throw InvalidArgumentException("Mindre enn ett år fra gradsendring")

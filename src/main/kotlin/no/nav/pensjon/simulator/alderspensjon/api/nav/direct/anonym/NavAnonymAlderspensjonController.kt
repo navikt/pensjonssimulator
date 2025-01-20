@@ -92,10 +92,10 @@ class NavAnonymAlderspensjonController(
 
         /**
          * Domain errors are violations of pension rules, not technical errors.
-         * The response is '409 Conflict' with a description of the error.
+         * The response is '200 OK' with a description of the error.
          */
         private fun handleDomainError(e: RuntimeException): ResponseEntity<Any> =
-            response(HttpStatus.CONFLICT, e)
+            response(HttpStatus.OK, e)
 
         private fun handleBadRequest(e: RuntimeException): ResponseEntity<Any> =
             response(HttpStatus.BAD_REQUEST, e)

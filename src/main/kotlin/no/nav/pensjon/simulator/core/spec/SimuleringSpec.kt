@@ -145,6 +145,7 @@ data class SimuleringSpec(
     fun gjelderEndring() =
         type == SimuleringType.ENDR_ALDER ||
                 type == SimuleringType.ENDR_AP_M_AFP_PRIVAT ||
+                type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG ||
                 type == SimuleringType.ENDR_ALDER_M_GJEN
 
     private companion object {

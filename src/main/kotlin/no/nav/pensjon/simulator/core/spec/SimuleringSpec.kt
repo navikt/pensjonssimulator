@@ -48,11 +48,11 @@ data class SimuleringSpec(
 
     fun isGradert() = isGradert(uttakGrad)
 
-    fun gradertUttak(foedselsdato: LocalDate): GradertUttakSimuleringSpec? =
+    fun gradertUttak(): GradertUttakSimuleringSpec? =
         if (isGradert())
             GradertUttakSimuleringSpec(
                 grad = uttakGrad,
-                uttakFom = foersteUttakDato?.let { PensjonAlderDato(it, foedselsdato) }
+                uttakFom = foersteUttakDato?.let { PensjonAlderDato(foedselDato!!, dato = it) }
                     ?: throw IllegalArgumentException("gradertUttak.uttakFomAlder undefined"),
                 aarligInntektBeloep = inntektUnderGradertUttakBeloep
             )
@@ -72,25 +72,25 @@ data class SimuleringSpec(
         else
             null
 
-    fun heltUttak(foedselsdato: LocalDate): HeltUttakSimuleringSpec {
+    fun heltUttak(): HeltUttakSimuleringSpec {
         val uttakDato: LocalDate =
             heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
-            uttakFom = PensjonAlderDato(uttakDato, foedselsdato),
+            uttakFom = PensjonAlderDato(foedselDato!!, uttakDato),
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(uttakDato.plusYears(inntektAntallAar), foedselsdato)
+            inntektTom = PensjonAlderDato(foedselDato, uttakDato.plusYears(inntektAntallAar)),
         )
     }
 
-    fun heltUttak(foedselsdato: LocalDate, heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
+    fun heltUttak(heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
             uttakFom = heltUttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(heltUttakFom.dato.plusYears(inntektAntallAar), foedselsdato)
+            inntektTom = PensjonAlderDato(foedselDato!!, heltUttakFom.dato.plusYears(inntektAntallAar))
         )
     }
 

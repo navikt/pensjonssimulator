@@ -6,13 +6,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonService
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultV4
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecMapperV4.fromSpecV4
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecMapperV4
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecV4
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 /**
  * REST-controller for simulering av alderspensjon.
@@ -33,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController
 @SecurityRequirement(name = "BearerAuthentication")
 class TpoAlderspensjonController(
     private val service: AlderspensjonService,
+    private val generelleDataHolder: GenerelleDataHolder,
     private val traceAid: TraceAid,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
@@ -69,9 +74,10 @@ class TpoAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            val spec = fromSpecV4(specV4)
+            val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV4.personId!!)).foedselDato
+            val spec: SimuleringSpec = AlderspensjonSpecMapperV4.fromSpecV4(specV4, foedselsdato)
             request.setAttribute("pid", spec.pid)
-            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
+            spec.pid?.let(::verifiserAtBrukerTilknyttetTpLeverandoer)
 
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
                 .also { log.debug { "$FUNCTION_ID response: $it" } }

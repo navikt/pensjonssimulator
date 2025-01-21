@@ -14,17 +14,15 @@ object SimuleringSpecUtil {
      */
     fun ubetingetSimuleringSpec(
         source: SimuleringSpec,
-        normAlder: Alder,
-        foedselsdato: LocalDate
+        normAlder: Alder
     ): SimuleringSpec {
-        val uttakFomAlder = PensjonAlderDato(foedselsdato, alderSpec(normAlder))
+        val uttakFomAlder = PensjonAlderDato(source.foedselDato!!, alderSpec(normAlder))
 
         return newSimuleringSpec(
             source,
             foersteUttakFom = uttakFomAlder,
             uttaksgrad = UttakGradKode.P_100,
-            heltUttakFom = uttakFomAlder,
-            foedselsdato
+            heltUttakFom = uttakFomAlder
         )
     }
 
@@ -46,8 +44,7 @@ object SimuleringSpecUtil {
             source,
             foersteUttakFom = PensjonAlderDato(foedselsdato, utkantFoersteUttakFomAlderSpec),
             uttaksgrad = if (gradert) utkantUttaksgrad else UttakGradKode.P_100,
-            heltUttakFom = PensjonAlderDato(foedselsdato, heltUttakFomAlderDto),
-            foedselsdato
+            heltUttakFom = PensjonAlderDato(foedselsdato, heltUttakFomAlderDto)
         )
     }
 
@@ -61,10 +58,9 @@ object SimuleringSpecUtil {
         source: SimuleringSpec,
         foersteUttakFom: PensjonAlderDato,
         uttaksgrad: UttakGradKode,
-        heltUttakFom: PensjonAlderDato,
-        foedselsdato: LocalDate
+        heltUttakFom: PensjonAlderDato
     ): SimuleringSpec {
-        val heltUttakDato: LocalDate = source.heltUttak(foedselsdato, heltUttakFom).uttakFom.dato
+        val heltUttakDato: LocalDate = source.heltUttak(heltUttakFom).uttakFom.dato
 
         return SimuleringSpec(
             type = source.type,

@@ -2,8 +2,16 @@ package no.nav.pensjon.simulator.alderspensjon.api.acl
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonFraFolketrygden
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
+import no.nav.pensjon.simulator.alderspensjon.ForslagVedForLavOpptjening
+import no.nav.pensjon.simulator.alderspensjon.GradertUttak
+import no.nav.pensjon.simulator.alderspensjon.PensjonDelytelse
+import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatus
+import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatusKode
+import no.nav.pensjon.simulator.alderspensjon.PensjonType
+import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.*
 import java.time.LocalDate
 
 class AlderspensjonResultMapperV4Test : FunSpec({

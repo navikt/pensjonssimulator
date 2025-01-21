@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
@@ -19,7 +20,9 @@ object TestObjects {
 
     val pid = Pid("12345678910")
 
-    val simuleringSpec = SimuleringSpec(
+    val simuleringSpec = simuleringSpec()
+
+    fun simuleringSpec(inntektSpecListe: List<FremtidigInntekt> = emptyList()) = SimuleringSpec(
         type = SimuleringType.ALDER_M_AFP_PRIVAT,
         sivilstatus = SivilstatusType.UGIF,
         epsHarPensjon = false,
@@ -59,7 +62,7 @@ object TestObjects {
                 arbeidet = true
             )
         ),
-        fremtidigInntektListe = mutableListOf(),
+        fremtidigInntektListe = inntektSpecListe.toMutableList(),
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = true,

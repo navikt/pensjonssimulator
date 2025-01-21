@@ -7,6 +7,7 @@ import java.time.Period
  * Inneholder pensjonsrelatart alder og den datoen som alderen representerer relativt til fødselsdato.
  * "Pensjonsrelatert" vil si at det er første dag i måneden som brukes.
  */
+// PEN: SimuleringSpecAlderDato
 data class PensjonAlderDato(
     val alder: Alder,
     val dato: LocalDate

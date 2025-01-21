@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen
+package no.nav.pensjon.simulator.alderspensjon
 
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import java.time.LocalDate

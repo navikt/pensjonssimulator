@@ -49,5 +49,6 @@ enum class SimuleringTypeEnum {
     /**
      * Gjenlevendepensjon
      */
-    GJENLEVENDE
+    GJENLEVENDE,
+    ALDER_MED_AFP_OFFENTLIG_LIVSVARIG
 }

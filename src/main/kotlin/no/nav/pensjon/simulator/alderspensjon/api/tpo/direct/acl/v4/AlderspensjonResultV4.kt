@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
 
 import com.fasterxml.jackson.annotation.JsonFormat
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.PensjonSimuleringStatusKode
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.PensjonType
+import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatusKode
+import no.nav.pensjon.simulator.alderspensjon.PensjonType
 import java.time.LocalDate
 
 /**

@@ -50,7 +50,8 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                                     beloep = 1234
                                 )
                             ),
-                            uttakGrad = 50
+                            uttakGrad = 50,
+                            maanedligBeloep = 500
                         )
                     ),
                     privatAfp = listOf(

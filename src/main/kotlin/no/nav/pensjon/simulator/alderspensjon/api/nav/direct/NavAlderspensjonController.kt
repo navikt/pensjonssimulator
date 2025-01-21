@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3.mapNavSimuleringResultV3
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3.toDto
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3.fromNavSimuleringSpecV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecV3
@@ -71,7 +71,7 @@ class NavAlderspensjonController(
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
 
-            mapNavSimuleringResultV3(result)
+            toDto(result)
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {

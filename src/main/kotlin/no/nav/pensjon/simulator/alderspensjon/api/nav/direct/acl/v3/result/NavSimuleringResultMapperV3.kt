@@ -9,20 +9,21 @@ import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
  */
 object NavSimuleringResultMapperV3 {
 
-    fun mapNavSimuleringResultV3(source: SimulertPensjonEllerAlternativ?) =
+    fun toDto(source: SimulertPensjonEllerAlternativ?) =
         NavSimuleringResultV3(
-            alderspensjon = source?.pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
-            afpPrivat = source?.pensjon?.privatAfp.orEmpty().map(::privatAfp),
-            afpOffentliglivsvarig = source?.pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
+            alderspensjonListe = source?.pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
+            alderspensjonMaanedsbeloep = maanedsbeloep(source?.pensjon?.alderspensjonFraFolketrygden.orEmpty()),
+            privatAfpListe = source?.pensjon?.privatAfp.orEmpty().map(::privatAfp),
+            livsvarigOffentligAfpListe = source?.pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             vilkaarsproeving = vilkaarsproevingResultat(source?.alternativ),
-            harNokTrygdetidForGarantipensjon = source?.pensjon?.harNokTrygdetidForGarantipensjon,
+            tilstrekkeligTrygdetidForGarantipensjon = source?.pensjon?.harNokTrygdetidForGarantipensjon,
             trygdetid = source?.pensjon?.trygdetid ?: 0,
             opptjeningGrunnlagListe = source?.pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag)
         )
 
     private fun alderspensjon(source: SimulertAarligAlderspensjon) =
-        SimulertAlderspensjonV3(
-            alder = source.alderAar,
+        NavAlderspensjonV3(
+            alderAar = source.alderAar,
             beloep = source.beloep,
             inntektspensjon = source.inntektspensjon,
             garantipensjon = source.garantipensjon,
@@ -30,39 +31,45 @@ object NavSimuleringResultMapperV3 {
             pensjonBeholdningFoerUttak = source.pensjonBeholdningFoerUttak
         )
 
+    private fun maanedsbeloep(source: List<SimulertAlderspensjonFraFolketrygden>) =
+        NavMaanedsbeloepV3(
+            gradertUttakBeloep = source.firstOrNull { it.uttakGrad != 100 }?.maanedligBeloep,
+            heltUttakBeloep = source.firstOrNull { it.uttakGrad == 100 }?.maanedligBeloep ?: 0
+        )
+
     private fun privatAfp(source: SimulertPrivatAfp) =
-        SimulertPrivatAfpV3(
-            alder = source.alderAar,
+        NavPrivatAfpV3(
+            alderAar = source.alderAar,
             beloep = source.beloep
         )
 
     private fun livsvarigOffentligAfp(source: SimulertLivsvarigOffentligAfp) =
-        SimulertLivsvarigOffentligAfpV3(
-            alder = source.alderAar,
+        NavLivsvarigOffentligAfpV3(
+            alderAar = source.alderAar,
             beloep = source.beloep
         )
 
     private fun vilkaarsproevingResultat(source: SimulertAlternativ?) =
-        VilkaarsproevingResultatV3(
+        NavVilkaarsproevingResultatV3(
             vilkaarErOppfylt = source == null,
             alternativ = source?.let(::alternativ)
         )
 
     private fun opptjeningGrunnlag(source: OpptjeningGrunnlag) =
-        SimulatorOpptjeningGrunnlagV3(
+        NavOpptjeningGrunnlagV3(
             aar = source.aar,
-            pensjonsgivendeInntekt = source.pensjonsgivendeInntekt
+            pensjonsgivendeInntektBeloep = source.pensjonsgivendeInntekt
         )
 
     private fun alternativ(source: SimulertAlternativ) =
-        AlternativtResultatV3(
-            gradertUttaksalder = source.gradertUttakAlder?.let(::alder),
+        NavAlternativtResultatV3(
+            gradertUttakAlder = source.gradertUttakAlder?.let(::alder),
             uttaksgrad = source.uttakGrad.value.toInt(),
-            heltUttaksalder = alder(source.heltUttakAlder)
+            heltUttakAlder = alder(source.heltUttakAlder)
         )
 
     private fun alder(source: SimulertUttakAlder) =
-        AlderV3(
+        NavAlderV3(
             aar = source.alder.aar,
             maaneder = source.alder.maaneder
         )

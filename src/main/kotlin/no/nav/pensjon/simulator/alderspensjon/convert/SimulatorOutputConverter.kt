@@ -84,7 +84,8 @@ object SimulatorOutputConverter {
         SimulertAlderspensjonFraFolketrygden(
             datoFom = source.datoFom ?: LocalDate.MIN,
             delytelseListe = delytelser(source),
-            uttakGrad = source.uttakGrad?.toInt() ?: 0
+            uttakGrad = source.uttakGrad?.toInt() ?: 0,
+            maanedligBeloep = source.maanedligBeloep ?: 0
         )
 
     // SimulerAlderspensjonResponseV3Converter.getDelytelserFromSimulertBeregningsinformasjon

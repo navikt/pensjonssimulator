@@ -1,6 +1,12 @@
 package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
 
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.*
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonFraFolketrygden
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
+import no.nav.pensjon.simulator.alderspensjon.ForslagVedForLavOpptjening
+import no.nav.pensjon.simulator.alderspensjon.GradertUttak
+import no.nav.pensjon.simulator.alderspensjon.PensjonDelytelse
+import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatus
+import no.nav.pensjon.simulator.alderspensjon.PensjonType
 
 object AlderspensjonResultMapperV4 {
 
@@ -16,7 +22,7 @@ object AlderspensjonResultMapperV4 {
     private fun alderspensjon(source: AlderspensjonFraFolketrygden) =
         AlderspensjonFraFolketrygdenV4(
             fraOgMedDato = source.fom,
-            delytelseListe = source.delytelseListe.map(::delytelse),
+            delytelseListe = source.delytelseListe.filter { it.pensjonType != PensjonType.NONE }.map(::delytelse),
             uttaksgrad = source.uttaksgrad.prosentsats
         )
 

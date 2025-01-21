@@ -10,7 +10,6 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 
 // PEN: SimpleSimuleringService
 // Vil brukes av Nav-klienter og tjenestepensjonsordninger
@@ -21,7 +20,6 @@ class SimuleringFacade(
 ) {
     fun simulerAlderspensjon(
         spec: SimuleringSpec,
-        foedselDato: LocalDate?,
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ {
         try {
@@ -36,24 +34,20 @@ class SimuleringFacade(
             return if (isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
-                    foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 ) else
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
                     spec,
-                    foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 )
         } catch (_: UtilstrekkeligTrygdetidException) {
             return if (isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
-                    foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 ) else
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
                     spec,
-                    foedselDato!!,
                     inkluderPensjonHvisUbetinget
                 )
         } catch (e: RegelmotorValideringException) {

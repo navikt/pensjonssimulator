@@ -4,14 +4,13 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3.fromNavSimuleringSpecV3
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecV3
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3.mapNavSimuleringResultV3
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultV3
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3.mapNavSimuleringResultV3
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultV3
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3.fromNavSimuleringSpecV3
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
@@ -60,20 +59,17 @@ class NavAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(
-        @RequestBody specV3: NavSimuleringSpecV3,
-        request: HttpServletRequest
-    ): NavSimuleringResultV3 {
+    fun simulerAlderspensjon(@RequestBody specV3: NavSimuleringSpecV3): NavSimuleringResultV3 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV3" }
         countCall(FUNCTION_ID)
 
         return try {
-            val foedselDato: LocalDate = generelleDataHolder.getPerson(Pid(specV3.pid)).foedselDato
-            val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselDato)
+            val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV3.pid)).foedselDato
+            val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselsdato)
 
             val result: SimulertPensjonEllerAlternativ =
-                service.simulerAlderspensjon(spec, foedselDato, inkluderPensjonHvisUbetinget = false)
+                service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
 
             mapNavSimuleringResultV3(result)
         } catch (e: EgressException) {

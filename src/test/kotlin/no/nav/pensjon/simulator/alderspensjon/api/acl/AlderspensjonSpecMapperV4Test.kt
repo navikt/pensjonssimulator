@@ -2,20 +2,23 @@ package no.nav.pensjon.simulator.alderspensjon.api.acl
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.AlderspensjonSpec
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.InntektSpec
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecMapperV4
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecV4
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.PensjonInntektSpecV4
-import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.core.domain.SimuleringType
+import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
+import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
 class AlderspensjonSpecMapperV4Test : FunSpec({
 
     test("fromSpecV4 maps from DTO version 4 to domain") {
         AlderspensjonSpecMapperV4.fromSpecV4(
-            AlderspensjonSpecV4(
-                personId = "00000011111",
+            source = AlderspensjonSpecV4(
+                personId = pid.value,
                 gradertUttak = null,
                 heltUttakFraOgMedDato = "2031-02-03",
                 epsPensjon = true,
@@ -28,22 +31,45 @@ class AlderspensjonSpecMapperV4Test : FunSpec({
                     )
                 ),
                 rettTilAfpOffentligDato = "2032-03-04"
-            )
+            ),
+            foedselsdato = LocalDate.of(1964, 1, 1)
         ) shouldBe
-                AlderspensjonSpec(
-                    pid = Pid("00000011111"),
-                    gradertUttak = null,
-                    heltUttakFom = LocalDate.of(2031, 2, 3),
-                    antallAarUtenlandsEtter16Aar = 5,
+                SimuleringSpec(
+                    type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+                    sivilstatus = SivilstatusType.GIFT,
                     epsHarPensjon = true,
-                    epsHarInntektOver2G = false,
-                    fremtidigInntektListe = listOf(
-                        InntektSpec(
-                            aarligBeloep = 123000,
+                    foersteUttakDato = LocalDate.of(2031, 2, 3),
+                    heltUttakDato = null,
+                    pid = pid,
+                    foedselDato = LocalDate.of(1964, 1, 1),
+                    avdoed = null,
+                    isTpOrigSimulering = true,
+                    simulerForTp = false,
+                    uttakGrad = UttakGradKode.P_100,
+                    forventetInntektBeloep = 0,
+                    inntektUnderGradertUttakBeloep = 0,
+                    inntektEtterHeltUttakBeloep = 0,
+                    inntektEtterHeltUttakAntallAar = null,
+                    foedselAar = 1964,
+                    boddUtenlands = false,
+                    utlandAntallAar = 5,
+                    utlandPeriodeListe = mutableListOf(),
+                    fremtidigInntektListe = mutableListOf(
+                        FremtidigInntekt(
+                            aarligInntektBeloep = 123000,
                             fom = LocalDate.of(2029, 5, 6)
                         )
                     ),
-                    rettTilAfpOffentligDato = LocalDate.of(2032, 3, 4)
+                    inntektOver1GAntallAar = 0,
+                    flyktning = false,
+                    epsHarInntektOver2G = false,
+                    rettTilOffentligAfpFom = LocalDate.of(2032, 3, 4),
+                    afpOrdning = null,
+                    afpInntektMaanedFoerUttak = null,
+                    erAnonym = false,
+                    ignoreAvslag = false,
+                    isHentPensjonsbeholdninger = true,
+                    isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
                 )
     }
 })

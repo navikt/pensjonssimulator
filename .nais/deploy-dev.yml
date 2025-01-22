@@ -105,6 +105,8 @@ spec:
       value: https://tp-api-q2.dev-fss-pub.nais.io
     - name: TP_SIMULERING_SERVICE_ID
       value: dev-gcp:pensjonskalkulator:tjenestepensjon-simulering
+    - name: TP_SIMULERING_URL
+      value: http://tjenestepensjon-simulering
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

@@ -8,17 +8,17 @@ object TpSimLivsvarigOffentligAfpResultMapper {
 
     fun fromDto(source: TpSimLivsvarigOffentligAfpResult) =
         LivsvarigOffentligAfpResult(
-            pid = source.pid,
-            afpYtelseListe = source.afpYtelseListe.map(::ytelse)
+            pid = source.fnr,
+            afpYtelseListe = source.afpYtelser.map(::ytelse)
         )
 
-    private fun ytelse(source: TpSimLivsvarigOffentligAfpYtelseMedDelingstall) =
+    private fun ytelse(source: TpSimAfpOffentligLivsvarigYtelseMedDelingstall) =
         LivsvarigOffentligAfpYtelseMedDelingstall(
-            pensjonBeholdning = source.pensjonBeholdning,
+            pensjonBeholdning = source.pensjonsbeholdning,
             afpYtelsePerAar = source.afpYtelsePerAar,
             delingstall = source.delingstall,
-            gjelderFom = source.gjelderFom,
-            gjelderFomAlder = alder(source.gjelderFomAlder)
+            gjelderFom = source.gjelderFraOgMed,
+            gjelderFomAlder = alder(source.gjelderFraOgMedAlder)
         )
 
     private fun alder(source: TpSimAlder) =

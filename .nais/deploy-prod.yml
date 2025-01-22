@@ -70,6 +70,7 @@ spec:
         - application: tp
           namespace: pensjonsamhandling
           cluster: prod-fss
+        - application: tjenestepensjon-simulering
       external:
         - host: pensjon-pen.prod-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io

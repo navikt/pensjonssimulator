@@ -85,6 +85,7 @@ spec:
         - application: tp-q2
           namespace: pensjonsamhandling
           cluster: dev-fss
+        - application: tjenestepensjon-simulering
       external:
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io

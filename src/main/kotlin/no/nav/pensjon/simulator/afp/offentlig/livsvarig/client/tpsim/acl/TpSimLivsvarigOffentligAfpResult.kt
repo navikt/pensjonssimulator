@@ -1,18 +1,19 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.acl
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 data class TpSimLivsvarigOffentligAfpResult(
     val fnr: String,
-    val afpYtelser: List<TpSimAfpOffentligLivsvarigYtelseMedDelingstall>
+    val afpYtelser: List<TpSimAfpYtelse>
 )
 
-data class TpSimAfpOffentligLivsvarigYtelseMedDelingstall(
+data class TpSimAfpYtelse(
     val pensjonsbeholdning: Int,
     val afpYtelsePerAar: Double,
     val delingstall: Double,
-    val gjelderFraOgMed: LocalDate,
-    val gjelderFraOgMedAlder: TpSimAlder,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val gjelderFraOgMed: LocalDate,
+    val gjelderFraOgMedAlder: TpSimAlder
 )
 
 data class TpSimAlder(

@@ -14,7 +14,7 @@ object TpSimLivsvarigOffentligAfpSpecMapper {
         )
 
     private fun inntekt(source: Inntekt) =
-        TpSimInntekt(
+        TpSimInntektSpec(
             belop = source.aarligBeloep,
             fraOgMed = source.fom
         )

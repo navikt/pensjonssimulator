@@ -12,7 +12,7 @@ object TpSimLivsvarigOffentligAfpResultMapper {
             afpYtelseListe = source.afpYtelser.map(::ytelse)
         )
 
-    private fun ytelse(source: TpSimAfpOffentligLivsvarigYtelseMedDelingstall) =
+    private fun ytelse(source: TpSimAfpYtelse) =
         LivsvarigOffentligAfpYtelseMedDelingstall(
             pensjonBeholdning = source.pensjonsbeholdning,
             afpYtelsePerAar = source.afpYtelsePerAar,

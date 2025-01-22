@@ -87,7 +87,7 @@ object TpoAlderspensjonResultMapper {
         fom: LocalDate
     ): SimulertAlderspensjonFraFolketrygden =
         liste.firstOrNull { it.datoFom == fom }
-            ?: throw RuntimeException("Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato $fom")
+            ?: throw RuntimeException("Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato $fom blant $liste")
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun alderspensjon(source: SimulertAlderspensjonFraFolketrygden) =

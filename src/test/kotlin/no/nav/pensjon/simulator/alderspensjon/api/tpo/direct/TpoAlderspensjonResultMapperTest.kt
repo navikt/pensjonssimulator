@@ -24,7 +24,43 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
             )
         }
 
-        exception.message shouldBe "Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato 2030-01-02"
+        exception.message shouldBe "Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato 2030-01-02 blant []"
+    }
+
+    test("mapPensjonEllerAlternativ for null should throw exception that describes simulert alderspensjon entries") {
+        val exception = shouldThrow<RuntimeException> {
+            TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+                source = SimulertPensjonEllerAlternativ(
+                    SimulertPensjon(
+                        alderspensjon = emptyList(),
+                        alderspensjonFraFolketrygden = listOf(
+                            SimulertAlderspensjonFraFolketrygden(
+                                datoFom = LocalDate.of(2030, 1, 2),
+                                delytelseListe = listOf(
+                                    SimulertDelytelse(type = YtelseskomponentTypeEnum.GAP, beloep = 1234)
+                                ),
+                                uttakGrad = 50
+                            )
+                        ),
+                        privatAfp = emptyList(),
+                        pre2025OffentligAfp = null,
+                        livsvarigOffentligAfp = emptyList(),
+                        pensjonBeholdningPeriodeListe = emptyList(),
+                        harUttak = true,
+                        harNokTrygdetidForGarantipensjon = true,
+                        trygdetid = 40,
+                        opptjeningGrunnlagListe = emptyList()
+                    ),
+                    alternativ = null
+                ),
+                angittFoersteUttakFom = LocalDate.of(2030, 2, 1),
+                angittAndreUttakFom = null
+            )
+        }
+
+        exception.message shouldBe "Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato 2030-02-01 blant" +
+                " [SimulertAlderspensjonFraFolketrygden(datoFom=2030-01-02," +
+                " delytelseListe=[SimulertDelytelse(type=GAP, beloep=1234)], uttakGrad=50)]"
     }
 
     test("mapPensjonEllerAlternativ for innvilget should return alderspensjon result") {
@@ -45,28 +81,15 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                         SimulertAlderspensjonFraFolketrygden(
                             datoFom = LocalDate.of(2030, 1, 2),
                             delytelseListe = listOf(
-                                SimulertDelytelse(
-                                    type = YtelseskomponentTypeEnum.GAP,
-                                    beloep = 1234
-                                )
+                                SimulertDelytelse(type = YtelseskomponentTypeEnum.GAP, beloep = 1234)
                             ),
                             uttakGrad = 50,
                             maanedligBeloep = 500
                         )
                     ),
-                    privatAfp = listOf(
-                        SimulertPrivatAfp(
-                            alderAar = 63,
-                            beloep = 5000
-                        )
-                    ),
+                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 63, beloep = 5000)),
                     pre2025OffentligAfp = null,
-                    livsvarigOffentligAfp = listOf(
-                        SimulertLivsvarigOffentligAfp(
-                            alderAar = 66,
-                            beloep = 6000
-                        )
-                    ),
+                    livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 66, beloep = 6000)),
                     pensjonBeholdningPeriodeListe = listOf(
                         SimulertPensjonBeholdningPeriode(
                             pensjonBeholdning = 100.2,
@@ -85,10 +108,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                     harNokTrygdetidForGarantipensjon = true,
                     trygdetid = 40,
                     opptjeningGrunnlagListe = listOf(
-                        OpptjeningGrunnlag(
-                            aar = 2024,
-                            pensjonsgivendeInntekt = 50000
-                        )
+                        OpptjeningGrunnlag(aar = 2024, pensjonsgivendeInntekt = 50000)
                     )
                 ),
                 alternativ = null

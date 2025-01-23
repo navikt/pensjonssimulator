@@ -7,15 +7,15 @@ object TpSimLivsvarigOffentligAfpSpecMapper {
 
     fun toDto(source: LivsvarigOffentligAfpSpec) =
         TpSimLivsvarigOffentligAfpSpec(
-            pid = source.pid.value,
-            foedselDato = source.foedselsdato,
+            fnr = source.pid.value,
+            fodselsdato = source.foedselsdato,
             fom = source.fom,
-            fremtidigInntektListe = source.fremtidigInntektListe.map(::inntekt)
+            fremtidigeInntekter = source.fremtidigInntektListe.map(::inntekt)
         )
 
     private fun inntekt(source: Inntekt) =
-        TpSimInntekt(
-            aarligBeloep = source.aarligBeloep,
-            fom = source.fom
+        TpSimInntektSpec(
+            belop = source.aarligBeloep,
+            fraOgMed = source.fom
         )
 }

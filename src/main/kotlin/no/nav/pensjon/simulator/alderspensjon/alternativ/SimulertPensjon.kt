@@ -27,7 +27,7 @@ data class SimulertAarligAlderspensjon(
     val pensjonBeholdningFoerUttak: Int?
 )
 
-class SimulertAlderspensjonFraFolketrygden(
+data class SimulertAlderspensjonFraFolketrygden(
     val datoFom: LocalDate,
     val delytelseListe: List<SimulertDelytelse>,
     val uttakGrad: Int,

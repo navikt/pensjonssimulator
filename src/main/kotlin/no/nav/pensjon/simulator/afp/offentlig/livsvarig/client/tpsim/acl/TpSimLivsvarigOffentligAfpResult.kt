@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 data class TpSimLivsvarigOffentligAfpResult(
-    val pid: String,
-    val afpYtelseListe: List<TpSimLivsvarigOffentligAfpYtelseMedDelingstall>
+    val fnr: String,
+    val afpYtelser: List<TpSimAfpYtelse>
 )
 
-data class TpSimLivsvarigOffentligAfpYtelseMedDelingstall(
-    val pensjonBeholdning: Int,
+data class TpSimAfpYtelse(
+    val pensjonsbeholdning: Int,
     val afpYtelsePerAar: Double,
     val delingstall: Double,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val gjelderFom: LocalDate,
-    val gjelderFomAlder: TpSimAlder
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val gjelderFraOgMed: LocalDate,
+    val gjelderFraOgMedAlder: TpSimAlder
 )
 
 data class TpSimAlder(

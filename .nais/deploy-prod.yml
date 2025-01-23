@@ -70,6 +70,7 @@ spec:
         - application: tp
           namespace: pensjonsamhandling
           cluster: prod-fss
+        - application: tjenestepensjon-simulering
       external:
         - host: pensjon-pen.prod-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
@@ -89,6 +90,8 @@ spec:
       value: https://tp-api.prod-fss-pub.nais.io
     - name: TP_SIMULERING_SERVICE_ID
       value: prod-gcp:pensjonskalkulator:tjenestepensjon-simulering
+    - name: TP_SIMULERING_URL
+      value: http://tjenestepensjon-simulering
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

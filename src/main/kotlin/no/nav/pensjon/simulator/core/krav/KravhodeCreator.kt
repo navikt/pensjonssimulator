@@ -23,6 +23,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
+import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
@@ -628,7 +629,14 @@ class KravhodeCreator(
                 uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (erGradertUttak(spec)) {
-                    val dayBeforeHeltUttak: LocalDate = getRelativeDateByDays(spec.heltUttakDato!!, -1)
+                    if (spec.foersteUttakDato!!.isBefore(spec.heltUttakDato!!).not()) {
+                        throw FeilISimuleringsgrunnlagetException(
+                            "dato for første uttak (${spec.foersteUttakDato}) er ikke før" +
+                                    " dato for helt uttak (${spec.heltUttakDato})"
+                        )
+                    }
+
+                    val dayBeforeHeltUttak: LocalDate = getRelativeDateByDays(spec.heltUttakDato, -1)
                     tomDato = dayBeforeHeltUttak.toNorwegianDateAtNoon()
                 }
             }.also { it.finishInit() }

@@ -72,22 +72,34 @@ object TpoAlderspensjonResultMapper {
         }
     }
 
+    /**
+     * Velger ut elementene i listen som har datoer som matcher foersteUttakFom/andreUttakFom.
+     * Det returneres en tom liste hvis uttakFom-datoene ikke finnes i listen.
+     * NB: Dette er forskjellig fra den opprinnelige logikken i PEN:
+     * I SimulerAlderspensjonResponseV3Converter.getSimulertBeregningsinformasjonForDatoFom
+     * inkluderes et tomt object i listen hvis uttakFom-datoene ikke finnes i listen:
+     * ".orElse(new SimulertBeregningsinformasjon())"
+     */
     private fun pickEntriesForFomDatoer(
         pensjonListe: List<SimulertAlderspensjonFraFolketrygden>,
         foersteUttakFom: LocalDate,
         andreUttakFom: LocalDate?
-    ): List<SimulertAlderspensjonFraFolketrygden> =
-        mutableListOf<SimulertAlderspensjonFraFolketrygden>().apply {
-            add(pickForDatoFom(pensjonListe, foersteUttakFom))
-            andreUttakFom?.let { add(pickForDatoFom(pensjonListe, it)) }
+    ): List<SimulertAlderspensjonFraFolketrygden> {
+        val utvalgListe = mutableListOf<SimulertAlderspensjonFraFolketrygden>()
+
+        pensjonListe.forEach {
+            pickForDatoFom(pensjonListe, foersteUttakFom)?.let(utvalgListe::add)
+            andreUttakFom?.let { pickForDatoFom(pensjonListe, it) }?.let(utvalgListe::add)
         }
+
+        return utvalgListe
+    }
 
     private fun pickForDatoFom(
         liste: List<SimulertAlderspensjonFraFolketrygden>,
         fom: LocalDate
-    ): SimulertAlderspensjonFraFolketrygden =
+    ): SimulertAlderspensjonFraFolketrygden? =
         liste.firstOrNull { it.datoFom == fom }
-            ?: throw RuntimeException("Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato $fom blant $liste")
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun alderspensjon(source: SimulertAlderspensjonFraFolketrygden) =

@@ -887,15 +887,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         // VilkarsprovOgBeregnAlderHelper.createFunctionalExceptionsFromVilkarsprovingIfNecesseary
         //@Throws(PEN224AvslagVilkarsprovingForKortTrygdetidException::class, PEN225AvslagVilkarsprovingForLavtTidligUttakException::class)
         private fun handleAvslag(vedtakListe: List<VilkarsVedtak>) {
-            vedtakListe.firstOrNull(::avslag)?.let { handleAvslag(it.begrunnelseEnum ?: defaultBegrunnelse()) }
+            vedtakListe.firstOrNull(::avslag)?.let { it.begrunnelseEnum?.let(::handleAvslag) }
         }
-
-        //SIMDOM-ADD for NullPointer protection
-        private fun defaultBegrunnelse() = BegrunnelseTypeEnum.ANNET
 
         private fun avslag(vedtak: VilkarsVedtak): Boolean =
             vedtak.anbefaltResultatEnum?.let { it == VedtakResultatEnum.AVSL } == true
 
+        // Extract from VilkarsprovOgBeregnAlderHelper.createFunctionalExceptionsFromVilkarsprovingIfNecesseary
         private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
             when (begrunnelse) {
                 BegrunnelseTypeEnum.UNDER_3_AR_TT -> throw UtilstrekkeligTrygdetidException()
@@ -905,7 +903,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 BegrunnelseTypeEnum.UTG_MINDRE_ETT_AR ->
                     throw InvalidArgumentException("Mindre enn ett år fra gradsendring")
 
-                else -> throw InvalidArgumentException("Unexpected begrunnelsetype - $begrunnelse")
+                else -> log.info { "vilkårsprøving ga avslag grunnet $begrunnelse" }
             }
         }
 

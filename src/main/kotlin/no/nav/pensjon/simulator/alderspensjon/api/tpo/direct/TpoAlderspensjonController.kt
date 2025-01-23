@@ -6,12 +6,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultV4
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecMapperV4
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecV4
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
+import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
@@ -70,7 +69,6 @@ class TpoAlderspensjonController(
         request: HttpServletRequest
     ): AlderspensjonResultV4 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV4" }
         countCall(FUNCTION_ID)
 
         return try {
@@ -78,9 +76,10 @@ class TpoAlderspensjonController(
             val spec: SimuleringSpec = AlderspensjonSpecMapperV4.fromSpecV4(specV4, foedselsdato)
             request.setAttribute("pid", spec.pid)
             spec.pid?.let(::verifiserAtBrukerTilknyttetTpLeverandoer)
-
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
-                .also { log.debug { "$FUNCTION_ID response: $it" } }
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            log.warn { "feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
+            feilSimuleringGrunnlag(e)
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -97,5 +96,19 @@ class TpoAlderspensjonController(
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
         private const val FUNCTION_ID = "ap"
+
+        private fun feilSimuleringGrunnlag(e: FeilISimuleringsgrunnlagetException) =
+            AlderspensjonResultV4(
+                simuleringSuksess = false,
+                aarsakListeIkkeSuksess = listOf(
+                    PensjonSimuleringStatusV4(
+                        statusKode = PensjonSimuleringStatusKodeV4.ANNET.externalValue,
+                        statusBeskrivelse = e.message ?: "feil i simuleringsgrunnlaget"
+                    )
+                ),
+                alderspensjon = emptyList(),
+                forslagVedForLavOpptjening = null,
+                harUttak = false
+            )
     }
 }

@@ -39,7 +39,8 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                                 delytelseListe = listOf(
                                     SimulertDelytelse(type = YtelseskomponentTypeEnum.GAP, beloep = 1234)
                                 ),
-                                uttakGrad = 50
+                                uttakGrad = 50,
+                                maanedligBeloep = 321
                             )
                         ),
                         privatAfp = emptyList(),
@@ -60,7 +61,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
 
         exception.message shouldBe "Ingen alderspensjon fra folketrygden funnet for f.o.m.-dato 2030-02-01 blant" +
                 " [SimulertAlderspensjonFraFolketrygden(datoFom=2030-01-02," +
-                " delytelseListe=[SimulertDelytelse(type=GAP, beloep=1234)], uttakGrad=50)]"
+                " delytelseListe=[SimulertDelytelse(type=GAP, beloep=1234)], uttakGrad=50, maanedligBeloep=321)]"
     }
 
     test("mapPensjonEllerAlternativ for innvilget should return alderspensjon result") {

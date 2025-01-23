@@ -27,7 +27,21 @@ data class TpoSimuleringSpecV3(
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val heltUttakDato: LocalDate? = null
-)
+) {
+    /**
+     * toString excluding personId
+     */
+    override fun toString(): String =
+        "sivilstatus: $sivilstatus\n" +
+                "epsPensjon: $epsPensjon\n" +
+                "eps2G: $eps2G\n" +
+                "utenlandsopphold: $utenlandsopphold\n" +
+                "simuleringType: $simuleringType\n" +
+                "fremtidigInntektList: $fremtidigInntektList,\n" +
+                "foersteUttakDato: $foersteUttakDato,\n" +
+                "uttakGrad: $uttakGrad,\n" +
+                "heltUttakDato: $heltUttakDato"
+}
 
 // Corresponds to no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.FremtidigInntekt
 data class InntektSpecLegacyV3(

@@ -13,7 +13,19 @@ data class AlderspensjonSpecV4(
     val eps2G: Boolean? = null,
     val fremtidigInntektListe: List<PensjonInntektSpecV4>? = null,
     val rettTilAfpOffentligDato: String? = null
-)
+) {
+    /**
+     * toString excluding personId
+     */
+    override fun toString(): String =
+        "gradertUttak: $gradertUttak\n" +
+                "heltUttakFraOgMedDato: $heltUttakFraOgMedDato\n" +
+                "aarIUtlandetEtter16: $aarIUtlandetEtter16\n" +
+                "epsPensjon: $epsPensjon\n" +
+                "eps2G: $eps2G\n" +
+                "fremtidigInntektListe: $fremtidigInntektListe,\n" +
+                "rettTilAfpOffentligDato: $rettTilAfpOffentligDato"
+}
 
 data class GradertUttakSpecV4(
     val fraOgMedDato: String? = null,

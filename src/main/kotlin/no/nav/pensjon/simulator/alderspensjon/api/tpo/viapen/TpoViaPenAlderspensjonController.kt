@@ -14,17 +14,21 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimulerin
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecMapperV2
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecV2
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringResultMapperV3
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
+import no.nav.pensjon.simulator.core.exception.PersonForGammelException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -147,7 +151,7 @@ class TpoViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): TpoSimuleringResultV3 {
+    fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): ResponseEntity<Any> {
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV3" }
         countCall(FUNCTION_ID)
@@ -155,7 +159,31 @@ class TpoViaPenAlderspensjonController(
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV3.fromDto(specV3)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
-            TpoSimuleringResultMapperV3.toDto(result)
+            ResponseEntity.ok(TpoSimuleringResultMapperV3.toDto(result))
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            handleExceptionV3(e)
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            handleExceptionV3(e)
+        } catch (e: PersonForGammelException) {
+            handleExceptionV3(e)
+        } catch (e: InvalidArgumentException) {
+            handleExceptionV3(e)
+            /* TODO ref. PEN SimulerAlderspensjonController.simuler
+        } catch (e: BrukerHarIkkeLopendeAlderspensjonException) {
+            handleExceptionV3(e)
+        } catch (e: BrukerHarLopendeAPPaGammeltRegelverkException) {
+            handleExceptionV3(e)
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            handleExceptionV3(e)
+            */
+            /* TODO ref. PEN ThrowableExceptionMapper.handleException
+        } catch (e: IllegalArgumentException) {
+            handleExceptionV3(e)
+        } catch (e: PidValidationException) {
+            handleExceptionV3(e)
+        } catch (e: PersonIkkeFunnetLokaltException) {
+            handleExceptionV3(e)
+            */
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -169,8 +197,16 @@ class TpoViaPenAlderspensjonController(
 
     override fun errorMessage() = ERROR_MESSAGE
 
+    /**
+     * Ref. PEN JsonErrorEntityBuilder.createErrorEntity
+     */
+    private data class ErrorResultV3(val feil: String)
+
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for TPO via PEN"
         private const val FUNCTION_ID = "ap-tpo-pen"
+
+        private fun <T : RuntimeException> handleExceptionV3(e: T): ResponseEntity<in Any> =
+            ResponseEntity.badRequest().body(ErrorResultV3(e.message ?: e.javaClass.simpleName))
     }
 }

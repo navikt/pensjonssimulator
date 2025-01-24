@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
@@ -79,7 +80,10 @@ class TpoAlderspensjonController(
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn { "feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
-            feilSimuleringGrunnlag(e)
+            feilInfoResultV4(e)
+        } catch (e: RegelmotorValideringException) {
+            log.warn { "feil i regelmotorvalidering - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -97,13 +101,13 @@ class TpoAlderspensjonController(
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
         private const val FUNCTION_ID = "ap"
 
-        private fun feilSimuleringGrunnlag(e: FeilISimuleringsgrunnlagetException) =
+        private fun feilInfoResultV4(e: RuntimeException) =
             AlderspensjonResultV4(
                 simuleringSuksess = false,
                 aarsakListeIkkeSuksess = listOf(
                     PensjonSimuleringStatusV4(
                         statusKode = PensjonSimuleringStatusKodeV4.ANNET.externalValue,
-                        statusBeskrivelse = e.message ?: "feil i simuleringsgrunnlaget"
+                        statusBeskrivelse = e.message ?: e.javaClass.simpleName
                     )
                 ),
                 alderspensjon = emptyList(),

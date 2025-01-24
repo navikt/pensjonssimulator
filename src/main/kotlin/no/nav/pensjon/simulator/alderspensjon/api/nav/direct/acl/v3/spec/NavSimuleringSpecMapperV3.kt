@@ -58,7 +58,11 @@ object NavSimuleringSpecMapperV3 {
             utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty()
                 .map(::fremtidigInntekt).toMutableList(),
-            rettTilOffentligAfpFom = null
+            rettTilOffentligAfpFom = null,
+            afpOrdning = null,
+            afpInntektMaanedFoerUttak = null,
+            isHentPensjonsbeholdninger = false,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
         )
     }
 

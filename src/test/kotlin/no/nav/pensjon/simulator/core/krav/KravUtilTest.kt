@@ -80,5 +80,9 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         epsHarInntektOver2G = false,
         rettTilOffentligAfpFom = null,
         erAnonym = false,
-        ignoreAvslag = false
+        ignoreAvslag = false,
+        afpOrdning = null,
+        afpInntektMaanedFoerUttak = null,
+        isHentPensjonsbeholdninger = false,
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
     )

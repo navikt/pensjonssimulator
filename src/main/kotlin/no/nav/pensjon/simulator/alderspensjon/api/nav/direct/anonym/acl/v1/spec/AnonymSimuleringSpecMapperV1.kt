@@ -36,6 +36,10 @@ object AnonymSimuleringSpecMapperV1 {
             flyktning = false,
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = mutableListOf(),
-            rettTilOffentligAfpFom = null
+            rettTilOffentligAfpFom = null,
+            afpOrdning = null,
+            afpInntektMaanedFoerUttak = null,
+            isHentPensjonsbeholdninger = false,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
         )
 }

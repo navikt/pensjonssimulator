@@ -38,12 +38,12 @@ data class SimuleringSpec(
     val flyktning: Boolean?,
     val epsHarInntektOver2G: Boolean,
     val rettTilOffentligAfpFom: LocalDate?,
-    val afpOrdning: AfpOrdningType? = null, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
-    val afpInntektMaanedFoerUttak: Int? = null, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
+    val afpOrdning: AfpOrdningType?, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
+    val afpInntektMaanedFoerUttak: Int?, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
     val erAnonym: Boolean,
     val ignoreAvslag: Boolean, //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
-    val isHentPensjonsbeholdninger: Boolean = false,
-    val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean = false
+    val isHentPensjonsbeholdninger: Boolean,
+    val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
 ) {
 
     fun isGradert() = isGradert(uttakGrad)
@@ -101,35 +101,36 @@ data class SimuleringSpec(
         inntektEtterHeltUttakAntallAar: Int?
     ) =
         SimuleringSpec(
-            type,
-            sivilstatus,
-            epsHarPensjon,
+            type = type,
+            sivilstatus = sivilstatus,
+            epsHarPensjon = epsHarPensjon,
             foersteUttakDato = foersteUttakDato,
             heltUttakDato = heltUttakDato,
-            pid,
-            foedselDato,
-            avdoed,
-            isTpOrigSimulering,
-            simulerForTp,
+            pid = pid,
+            foedselDato = foedselDato,
+            avdoed = avdoed,
+            isTpOrigSimulering = isTpOrigSimulering,
+            simulerForTp = simulerForTp,
             uttakGrad = uttaksgrad,
-            forventetInntektBeloep,
-            inntektUnderGradertUttakBeloep,
-            inntektEtterHeltUttakBeloep,
+            forventetInntektBeloep = forventetInntektBeloep,
+            inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
+            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
             inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
-            foedselAar,
-            boddUtenlands,
-            utlandAntallAar,
-            utlandPeriodeListe,
-            fremtidigInntektListe,
-            inntektOver1GAntallAar,
-            flyktning,
-            epsHarInntektOver2G,
-            rettTilOffentligAfpFom,
-            afpOrdning,
-            afpInntektMaanedFoerUttak,
-            erAnonym,
-            isHentPensjonsbeholdninger,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+            foedselAar = foedselAar,
+            boddUtenlands = boddUtenlands,
+            utlandAntallAar = utlandAntallAar,
+            utlandPeriodeListe = utlandPeriodeListe,
+            fremtidigInntektListe = fremtidigInntektListe,
+            inntektOver1GAntallAar = inntektOver1GAntallAar,
+            flyktning = flyktning,
+            epsHarInntektOver2G = epsHarInntektOver2G,
+            rettTilOffentligAfpFom = rettTilOffentligAfpFom,
+            afpOrdning = afpOrdning,
+            afpInntektMaanedFoerUttak = afpInntektMaanedFoerUttak,
+            erAnonym = erAnonym,
+            ignoreAvslag = ignoreAvslag,
+            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
         )
 
     fun withHeltUttakDato(dato: LocalDate?) =

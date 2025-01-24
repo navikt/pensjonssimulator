@@ -79,7 +79,6 @@ class NavAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            throw ImplementationUnrecoverableException("outer", IllegalArgumentException("inner"))
             val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV3.pid)).foedselDato
             val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselsdato)
 

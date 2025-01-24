@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.regel.client.pensjonregler
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import java.util.Objects.requireNonNull
 
-// PensjonReglerRestConsumerService
+// PEN: PensjonReglerRestConsumerService
 @Component
 class PensjonReglerGenericRegelClient(
     @Value("\${ps.fss-gw.url}") baseUrl: String,
@@ -38,8 +39,7 @@ class PensjonReglerGenericRegelClient(
         return try {
             callPensjonRegler(serviceName, request, responseClass, map, sakId)
         } catch (e: Exception) {
-            //throw ImplementationUnrecoverableException("Request failed to pensjon-regler", e)
-            throw RuntimeException("$serviceName request failed to pensjon-regler", e)
+            throw ImplementationUnrecoverableException("Request failed to pensjon-regler", e)
         }
     }
 

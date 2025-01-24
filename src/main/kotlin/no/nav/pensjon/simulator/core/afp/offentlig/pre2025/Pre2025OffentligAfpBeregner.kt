@@ -22,10 +22,12 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.PersonForUngException
 import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -100,8 +102,6 @@ class Pre2025OffentligAfpBeregner(
             // For this reason the Exception is packaged in a RuntimeException, which will be explicitly catch by the service
             // using this command. This service will unpack the original exception and throw it, accordingly to the intended
             // design.
-            //val cause = PEN240VilkarsprovingAvAFPOffentligErAvslattException(simuleringsresultat.merknadListe.map(SimulatorContext.Companion::mapMerknadToPen))
-            //throw InternalSimuleringVilkarsprovingAvAFPOffentligErAvslattException(cause)
             throw Pre2025OffentligAfpAvslaattException(simuleringResultat.merknadListe.joinToString(", "))
         }
 
@@ -116,7 +116,7 @@ class Pre2025OffentligAfpBeregner(
     ): Simuleringsresultat =
         try {
             simulerPensjonsberegning(simulering(spec, persongrunnlagListe), normAlder)
-        } catch (e: ForUngForSimuleringException) {
+        } catch (e: PersonForUngException) {
             throw RegelmotorFeilException(e.message)
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             throw RegelmotorFeilException(e.message)
@@ -589,13 +589,13 @@ class Pre2025OffentligAfpBeregner(
 
             if (SimuleringTypeEnum.ALDER.name == simuleringTypeKode) {
                 if (alder < normAlder.aar || alder == normAlder.aar && uttakMaaned <= foedselMaaned) {
-                    throw ForUngForSimuleringException("Alderspensjon;${normAlder.aar};0")
+                    throw PersonForUngException("Alderspensjon;${normAlder.aar};0")
                 }
             }
 
             if (SimuleringTypeEnum.AFP.name == simuleringTypeKode) {
                 if (alder < AFP_MIN_AGE || alder == AFP_MIN_AGE && uttakMaaned <= foedselMaaned) {
-                    throw ForUngForSimuleringException("AFP;$AFP_MIN_AGE;0")
+                    throw PersonForUngException("AFP;$AFP_MIN_AGE;0")
                 }
             }
         }

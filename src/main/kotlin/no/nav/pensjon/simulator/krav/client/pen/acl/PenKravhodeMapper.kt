@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -73,7 +72,7 @@ object PenKravhodeMapper {
         Kravlinje().apply {
             kravlinjeStatus = source.kravlinjeStatus
             kravlinjeType = source.kravlinjeType
-            land = source.land?.let { Land.valueOf(it.name) } //TODO use LandkodeEnum instead of Land?
+            land = source.land?.let { LandkodeEnum.valueOf(it.name) }
             relatertPerson = source.relatertPerson?.let(::penPerson)
         }
 

@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.InntektType
 import no.nav.pensjon.simulator.core.domain.GrunnlagKilde
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -26,8 +25,8 @@ import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
+import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederFraAarStartTilFoersteUttakDato
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
-import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforRestenAvAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
@@ -581,16 +580,12 @@ class KravhodeCreator(
         return 0
     }
 
-    //TODO change this according to change in PEN
     private fun forventetInntektAntallMaaneder(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
 
         return when {
             aar < foersteUttakAar -> MAANEDER_PER_AAR - utlandMaanederInnenforAaret(spec, aar)
-            aar == foersteUttakAar -> monthOfYearRange1To12(spec.foersteUttakDato!!) - 1 - utlandMaanederInnenforRestenAvAaret(
-                spec
-            )
-
+            aar == foersteUttakAar -> monthOfYearRange1To12(spec.foersteUttakDato!!) - 1 - utlandMaanederFraAarStartTilFoersteUttakDato(spec)
             else -> 0
         }
     }
@@ -840,7 +835,7 @@ class KravhodeCreator(
         private fun norskKravlinje(kravlinjeType: KravlinjeTypeEnum, person: PenPerson) =
             Kravlinje(kravlinjeTypeEnum = kravlinjeType, relatertPerson = person).apply {
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                land = Land.NOR
+                land = LandkodeEnum.NOR
             }
 
         private fun opptjeningsgrunnlag(inntekt: Inntekt) =
@@ -870,7 +865,7 @@ class KravhodeCreator(
                 antallAarUtenlands > 0
 
         private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
-            trygdetidPeriodeListe.any { it.land!!.kode != Land.NOR.name }
+            trygdetidPeriodeListe.any { it.land!!.kode != LandkodeEnum.NOR.name }
 
         private fun erGradertUttak(spec: SimuleringSpec) = spec.uttakGrad != UttakGradKode.P_100
 

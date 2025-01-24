@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import java.util.*
 
-// SimuleringSpecDtoAlderspensjon1963Plus
+// PEN: SimuleringSpecDtoAlderspensjon1963Plus
 /**
  * Data transfer object som representerer inn-data (spesifikasjon) for
  * simulering av alderspensjon for brukere født 1963 eller senere.
@@ -28,7 +28,25 @@ data class NavSimuleringSpecV3(
     val epsHarInntektOver2G: Boolean? = null,
     val fremtidigInntektListe: List<NavSimuleringInntektSpecV3>? = null,
     val utenlandsperiodeListe: List<NavSimuleringUtlandSpecV3>? = null
-)
+) {
+    /**
+     * toString with redacted person ID
+     */
+    override fun toString() =
+        "pid: ${redact(pid)}, " +
+                "sivilstand: $sivilstand, " +
+                "harEps: $harEps, " +
+                "uttaksar: $uttaksar, " +
+                "sisteInntekt: $sisteInntekt, " +
+                "simuleringstype: $simuleringstype, " +
+                "gradertUttak: $gradertUttak, " +
+                "heltUttak: $heltUttak, " +
+                "aarUtenlandsEtter16Aar: $aarUtenlandsEtter16Aar, " +
+                "epsHarPensjon: $epsHarPensjon, " +
+                "epsHarInntektOver2G: $epsHarInntektOver2G, " +
+                "fremtidigInntektListe: $fremtidigInntektListe, " +
+                "utenlandsperiodeListe: $utenlandsperiodeListe"
+}
 
 @JsonInclude(NON_NULL)
 data class NavSimuleringGradertUttakSpecV3(

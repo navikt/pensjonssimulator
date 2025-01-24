@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
@@ -46,11 +46,11 @@ object TrygdetidTrimmer {
             .map { it.periode }
 
     private fun isOppholdINorge(grunnlag: TrygdetidOpphold) =
-        Land.NOR.name == grunnlag.periode.land?.kode
+        LandkodeEnum.NOR.name == grunnlag.periode.land?.kode
 
     private fun isOpptjeningIUtland(grunnlag: TrygdetidOpphold) =
         TrygdetidOpptjeningRettLand.rettTilOpptjeningAvTrygdetid(
-            land = grunnlag.periode.land?.kode?.let(Land::valueOf),
+            land = grunnlag.periode.land?.kode?.let(LandkodeEnum::valueOf),
             harArbeidet = grunnlag.arbeidet
         )
 

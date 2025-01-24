@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -174,7 +174,7 @@ class SisteBeregningCreator(
 
         // FiltrerVilkarsvedtakCommand.isKravlinjeNor
         private fun isNorsk(kravlinje: Kravlinje?): Boolean =
-            Land.NOR == kravlinje?.land
+            LandkodeEnum.NOR == kravlinje?.land
 
         // FiltrerVilkarsvedtakCommand.isVirkFomBeforeFomDate
         private fun isVirkFomBeforeDate(virkFom: Date?, date: Date): Boolean =

@@ -109,18 +109,6 @@ abstract class ControllerBase(
         log.error { "$category ${errorMessage()} : ${extractMessageRecursively(e)}" }
     }
 
-    private fun extractMessageRecursively(ex: Throwable): String {
-        val builder = StringBuilder()
-        builder.append(ex.message)
-
-        if (ex.cause == null) {
-            return builder.toString()
-        }
-
-        builder.append(" | Cause: ").append(extractMessageRecursively(ex.cause!!))
-        return builder.toString()
-    }
-
     protected companion object {
         val NAV_ORG_NUMMER = Organisasjonsnummer("889640782")
 
@@ -132,5 +120,17 @@ abstract class ControllerBase(
     "message": "En feil inntraff",
     "path": "/api/ressurs"
 }"""
+
+        fun extractMessageRecursively(ex: Throwable): String {
+            val builder = StringBuilder()
+            builder.append(ex.message)
+
+            if (ex.cause == null) {
+                return builder.toString()
+            }
+
+            builder.append(" | Cause: ").append(extractMessageRecursively(ex.cause!!))
+            return builder.toString()
+        }
     }
 }

@@ -48,6 +48,7 @@ import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.SatsResponse
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
@@ -118,17 +119,9 @@ class BeholdningUpdater(
         try {
             persongrunnlag?.let { context.beregnOpptjening(beholdningTom, it, forrigeBeholdning) } ?: mutableListOf()
         } catch (e: KanIkkeBeregnesException) {
-            //throw ImplementationUnrecoverableException("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId, e)
-            throw RuntimeException(
-                "The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId,
-                e
-            )
+            throw ImplementationUnrecoverableException("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId, e)
         } catch (e: RegelmotorValideringException) {
-            //throw ImplementationUnrecoverableException(("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId), e)
-            throw RuntimeException(
-                ("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId),
-                e
-            )
+            throw ImplementationUnrecoverableException(("The rules engine cannot calculate input for personId:" + persongrunnlag?.penPerson?.penPersonId), e)
         }
 
     // OppdaterPensjonsbeholdningerHelper.hentGyldigSats
@@ -143,8 +136,7 @@ class BeholdningUpdater(
         sisteGyldigeOpptjeningAar: String
     ): Persongrunnlag {
         if (opptjeningModus != INITIERING_OPPTJENINGMODUS && beregningGrunnlag.ufoerFoer2009) {
-            //throw ImplementationUnrecoverableException(
-            throw RuntimeException(
+            throw ImplementationUnrecoverableException(
                 "Invalid combination with opptjeningModus: $opptjeningModus with UforFoer2009 is TRUE."
             )
         }
@@ -255,8 +247,7 @@ class BeholdningUpdater(
                 val beholdning = beregningsgrunnlag.beholdning
 
                 if (beholdning?.ar?.let { it < OPPTJENING_MINIMUM_AAR } == true) {
-                    //throw ImplementationUnrecoverableException("berGrForPensjonsbeholdning.beholdning.ar er FØR 2010")
-                    throw RuntimeException("berGrForPensjonsbeholdning.beholdning.ar er FØR 2010")
+                    throw ImplementationUnrecoverableException("berGrForPensjonsbeholdning.beholdning.ar er FØR 2010")
                 } else if (verifyEmptyBeholdningAndGrunnlag(beholdning, persongrunnlag)) {
                     personBeholdning = newPersonbeholdning(beregningsgrunnlag.pid, sisteGyldigeOpptjeningAar)
 
@@ -284,8 +275,7 @@ class BeholdningUpdater(
 
                 // Sjekk at beholdning er oppdatert for bruker
                 if (personBeholdning == null) {
-                    //throw ImplementationUnrecoverableException("The user exists but the pensjonsbeholdning has not been updated.")
-                    throw RuntimeException("The user exists but the pensjonsbeholdning has not been updated.")
+                    throw ImplementationUnrecoverableException("The user exists but the pensjonsbeholdning has not been updated.")
                 }
 
                 personBeholdningListe.add(personBeholdning)
@@ -500,17 +490,9 @@ class BeholdningUpdater(
             // DefaultBeregningConsumerService.regulerPensjonsbeholdning -> RegulerPensjonsbeholdningConsumerCommand.execute
             return context.regulerPensjonsbeholdning(request).regulertBeregningsgrunnlagForPensjonsbeholdning.toList()
         } catch (e: KanIkkeBeregnesException) {
-            //throw ImplementationUnrecoverableException("The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning, e)
-            throw RuntimeException(
-                "The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning,
-                e
-            )
+            throw ImplementationUnrecoverableException("The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning, e)
         } catch (e: RegelmotorValideringException) {
-            //throw ImplementationUnrecoverableException("The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning, e)
-            throw RuntimeException(
-                "The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning,
-                e
-            )
+            throw ImplementationUnrecoverableException("The rules engine cannot calculate input for beholdning: " + personPensjonsbeholdning?.pensjonsbeholdning, e)
         }
     }
 
@@ -577,11 +559,9 @@ class BeholdningUpdater(
                 context.regulerPensjonsbeholdning(regulerPensjonsbeholdningConsumerRequest).regulertBeregningsgrunnlagForPensjonsbeholdning
             if (regulertBeholdningListe.isEmpty()) null else regulertBeholdningListe[0].pensjonsbeholdning
         } catch (e: KanIkkeBeregnesException) {
-            //throw ImplementationUnrecoverableException(CALL_TO_PREG_FAILED, e)
-            throw RuntimeException(CALL_TO_PREG_FAILED, e)
+            throw ImplementationUnrecoverableException(CALL_TO_PREG_FAILED, e)
         } catch (e: RegelmotorValideringException) {
-            //throw ImplementationUnrecoverableException(CALL_TO_PREG_FAILED, e)
-            throw RuntimeException(CALL_TO_PREG_FAILED, e)
+            throw ImplementationUnrecoverableException(CALL_TO_PREG_FAILED, e)
         }
 
         regulertBeholdning?.fom = kravhode.onsketVirkningsdato

@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -44,6 +44,6 @@ object InngangOgEksportGrunnlagFactory {
 
     private fun trygetidMillisekunder(periodeListe: List<TTPeriode>) =
         periodeListe
-            .filter { it.land!!.kode == Land.NOR.name }
+            .filter { it.land!!.kode == LandkodeEnum.NOR.name }
             .sumOf { it.tom!!.time - it.fom!!.time }
 }

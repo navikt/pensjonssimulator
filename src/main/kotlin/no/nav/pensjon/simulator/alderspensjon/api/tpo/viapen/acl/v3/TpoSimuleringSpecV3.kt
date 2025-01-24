@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import java.time.LocalDate
 
 /**
@@ -29,17 +30,18 @@ data class TpoSimuleringSpecV3(
     val heltUttakDato: LocalDate? = null
 ) {
     /**
-     * toString excluding personId
+     * toString with redacted person ID
      */
-    override fun toString(): String =
-        "sivilstatus: $sivilstatus\n" +
-                "epsPensjon: $epsPensjon\n" +
-                "eps2G: $eps2G\n" +
-                "utenlandsopphold: $utenlandsopphold\n" +
-                "simuleringType: $simuleringType\n" +
-                "fremtidigInntektList: $fremtidigInntektList,\n" +
-                "foersteUttakDato: $foersteUttakDato,\n" +
-                "uttakGrad: $uttakGrad,\n" +
+    override fun toString() =
+        "pid: ${redact(pid)}, " +
+                "sivilstatus: $sivilstatus, " +
+                "epsPensjon: $epsPensjon, " +
+                "eps2G: $eps2G, " +
+                "utenlandsopphold: $utenlandsopphold, " +
+                "simuleringType: $simuleringType, " +
+                "fremtidigInntektList: $fremtidigInntektList, " +
+                "foersteUttakDato: $foersteUttakDato, " +
+                "uttakGrad: $uttakGrad, " +
                 "heltUttakDato: $heltUttakDato"
 }
 

@@ -7,11 +7,25 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringErrorV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3.toDto
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultV3
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavVilkaarsproevingResultatV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3.fromNavSimuleringSpecV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
+import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
+import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
+import no.nav.pensjon.simulator.core.exception.PersonForGammelException
+import no.nav.pensjon.simulator.core.exception.PersonForUngException
+import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
@@ -65,6 +79,7 @@ class NavAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
+            throw ImplementationUnrecoverableException("outer", IllegalArgumentException("inner"))
             val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV3.pid)).foedselDato
             val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselsdato)
 
@@ -72,6 +87,30 @@ class NavAlderspensjonController(
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
 
             toDto(result)
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            resultWithErrorInfo("simuleringsgrunnlaget", e, specV3)
+        } catch (e: ImplementationUnrecoverableException) {
+            resultWithErrorInfo("systemet", e, specV3)
+        } catch (e: InvalidArgumentException) {
+            resultWithErrorInfo("argument", e, specV3)
+        } catch (e: KanIkkeBeregnesException) {
+            resultWithErrorInfo("beregningsgrunnlaget", e, specV3)
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            resultWithErrorInfo("grunnlagskonsistens", e, specV3)
+        } catch (e: PersonForGammelException) {
+            resultWithErrorInfo("personalder (for høy)", e, specV3)
+        } catch (e: PersonForUngException) {
+            resultWithErrorInfo("personalder (for lav)", e, specV3)
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            resultWithErrorInfo("pre-2025 offentlig AFP grunnlag (avslått)", e, specV3)
+        } catch (e: RegelmotorFeilException) {
+            resultWithErrorInfo("regelmotor", e, specV3)
+        } catch (e: RegelmotorValideringException) {
+            resultWithErrorInfo("regelmotorvalidering", e, specV3)
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            resultWithErrorInfo("opptjening (utilstrekkelig)", e, specV3)
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            resultWithErrorInfo("trygdetid (utilstrekkelig)", e, specV3)
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -83,10 +122,38 @@ class NavAlderspensjonController(
         }
     }
 
+    private fun resultWithErrorInfo(
+        subject: String,
+        e: RuntimeException,
+        specV3: NavSimuleringSpecV3
+    ): NavSimuleringResultV3 {
+        log.warn(e) { "feil i $subject - ${e.message} - request: $specV3" }
+        return resultWithErrorInfo(e)
+    }
+
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for Nav-klient"
         private const val FUNCTION_ID = "nav-ap"
+
+        private fun resultWithErrorInfo(e: RuntimeException) =
+            NavSimuleringResultV3(
+                alderspensjonListe = emptyList(),
+                alderspensjonMaanedsbeloep = null,
+                privatAfpListe = emptyList(),
+                livsvarigOffentligAfpListe = emptyList(),
+                vilkaarsproeving = NavVilkaarsproevingResultatV3(
+                    vilkaarErOppfylt = false,
+                    alternativ = null
+                ),
+                tilstrekkeligTrygdetidForGarantipensjon = null,
+                trygdetid = 0,
+                opptjeningGrunnlagListe = emptyList(),
+                error = NavSimuleringErrorV3(
+                    exception = e.javaClass.simpleName,
+                    message = extractMessageRecursively(e)
+                )
+            )
     }
 }

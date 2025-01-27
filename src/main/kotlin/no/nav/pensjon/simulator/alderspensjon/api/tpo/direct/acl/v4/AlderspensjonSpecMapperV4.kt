@@ -26,7 +26,8 @@ object AlderspensjonSpecMapperV4 {
             foersteUttakDato = (source.gradertUttak?.fraOgMedDato ?: source.heltUttakFraOgMedDato)
                 ?.let(LocalDate::parse) ?: missing("heltUttakFraOgMedDato"),
             heltUttakDato = if (source.gradertUttak == null) null else
-                source.heltUttakFraOgMedDato?.let(LocalDate::parse) ?: missing("heltUttakFraOgMedDato"),
+                source.heltUttakFraOgMedDato?.let(LocalDate::parse).also { validate(source.gradertUttak) }
+                    ?: missing("heltUttakFraOgMedDato"),
             pid = source.personId?.let(::Pid),
             foedselDato = foedselsdato,
             avdoed = null,
@@ -55,13 +56,18 @@ object AlderspensjonSpecMapperV4 {
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
         )
 
+    private fun validate(uttak: GradertUttakSpecV4) {
+        if (uttak.fraOgMedDato == null) missing("gradertUttak.fraOgMedDato")
+        if (uttak.uttaksgrad == null) missing("gradertUttak.uttaksgrad")
+    }
+
     private fun fremtidigInntekt(source: PensjonInntektSpecV4) =
         FremtidigInntekt(
             aarligInntektBeloep = source.aarligInntekt ?: 0,
             fom = source.fraOgMedDato?.let(LocalDate::parse) ?: missing("fremtidigInntekt.fraOgMedDato")
         )
 
-    private fun <T> missing(valueName: String): T {
+    private fun missing(valueName: String): Nothing {
         throw BadRequestException("$valueName missing")
     }
 }

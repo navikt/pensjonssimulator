@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.trygd
 
+import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -10,16 +11,26 @@ import java.time.LocalDate
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdetidsgrunnlagForUtenlandsperioderMapper
 object UtlandPeriodeTrygdetidMapper {
 
-    fun utlandTrygdetidGrunnlag(utlandPeriodeListe: MutableList<UtlandPeriode>) =
-        utlandPeriodeListe.map(::trygdetidGrunnlag)
+    fun utlandTrygdetidGrunnlag(periodeListe: MutableList<UtlandPeriode>): List<TrygdetidOpphold> {
+        val oppholdListe = mutableListOf<TrygdetidOpphold>()
+        val sortedList = periodeListe.sortedBy { it.fom }
+
+        sortedList.forEachIndexed { index, periode ->
+            if (index + 1 < periodeListe.size)
+                oppholdListe.add(trygdetidGrunnlag(periode, sortedList[index + 1]))
+            else
+                oppholdListe.add(trygdetidGrunnlag(periode))
+        }
+
+        return oppholdListe
+    }
 
     fun utlandTrygdetidGrunnlag(
         inputUtlandPeriodeListe: MutableList<UtlandPeriode>,
         trygdetidGrunnlagMedPensjonspoengListe: List<TrygdetidOpphold>
     ): List<TrygdetidOpphold> {
         val resultList: MutableList<TrygdetidOpphold> = mutableListOf()
-        val utlandPeriodeListe =
-            utlandTrygdetidGrunnlag(inputUtlandPeriodeListe).sortedBy { it.periode.fom }
+        val utlandPeriodeListe = inputUtlandPeriodeListe.map(::trygdetidGrunnlag).sortedBy { it.periode.fom }
         val pensjonspoengListe = trygdetidGrunnlagMedPensjonspoengListe.sortedBy { it.periode.fom }
         var poengPeriode: TrygdetidOpphold?
         var utlandPeriode: TrygdetidOpphold?
@@ -69,6 +80,18 @@ object UtlandPeriodeTrygdetidMapper {
         )
 
         return TrygdetidOpphold(trygdetidPeriode, utlandPeriode.arbeidet)
+    }
+
+    private fun trygdetidGrunnlag(periode: UtlandPeriode, nestePeriode: UtlandPeriode): TrygdetidOpphold {
+        val trygdetidPeriode: TTPeriode = TrygdetidGrunnlagFactory.trygdetidPeriode(
+            fom = periode.fom,
+            tom = periode.tom?.let { if (periode.tom == nestePeriode.fom) nestePeriode.fom.minusDays(1L) else periode.tom },
+            land = periode.land,
+            ikkeProRata = false,
+            bruk = true
+        )
+
+        return TrygdetidOpphold(trygdetidPeriode, periode.arbeidet)
     }
 
     private fun trygdetidGrunnlag(utlandPeriode: UtlandPeriode): TrygdetidOpphold {

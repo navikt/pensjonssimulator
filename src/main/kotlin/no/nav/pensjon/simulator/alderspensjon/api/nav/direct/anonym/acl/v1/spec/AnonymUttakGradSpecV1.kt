@@ -1,45 +1,22 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec.AnonymUttakGradSpecV1.entries
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import org.springframework.util.StringUtils
+import org.springframework.util.StringUtils.hasLength
 
-// no.nav.domain.pensjon.kjerne.kodetabeller.UttaksgradCode
+/**
+ * Corresponds to SimulatorUttaksgrad in pensjonskalkulator-backend.
+ */
 enum class AnonymUttakGradSpecV1(val externalValue: String, val internalValue: UttakGradKode) {
-    /**
-     * 0 %
-     */
-    P_0("0", UttakGradKode.P_0),
 
-    /**
-     * 100 %
-     */
-    P_100("100", UttakGradKode.P_100),
-
-    /**
-     * 20 %
-     */
-    P_20("20", UttakGradKode.P_20),
-
-    /**
-     * 40 %
-     */
-    P_40("40", UttakGradKode.P_40),
-
-    /**
-     * 50 %
-     */
-    P_50("50", UttakGradKode.P_50),
-
-    /**
-     * 60 %
-     */
-    P_60("60", UttakGradKode.P_60),
-
-    /**
-     * 80 %
-     */
-    P_80("80", UttakGradKode.P_80);
+    NULL(externalValue = "P_0", internalValue = UttakGradKode.P_0),
+    TJUE_PROSENT(externalValue = "P_20", internalValue = UttakGradKode.P_20),
+    FOERTI_PROSENT(externalValue = "P_40", internalValue = UttakGradKode.P_40),
+    FEMTI_PROSENT(externalValue = "P_50", internalValue = UttakGradKode.P_50),
+    SEKSTI_PROSENT(externalValue = "P_60", internalValue = UttakGradKode.P_60),
+    AATTI_PROSENT(externalValue = "P_80", internalValue = UttakGradKode.P_80),
+    HUNDRE_PROSENT(externalValue = "P_100", internalValue = UttakGradKode.P_100);
 
     companion object {
         private val log = KotlinLogging.logger {}
@@ -49,9 +26,9 @@ enum class AnonymUttakGradSpecV1(val externalValue: String, val internalValue: U
             entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
 
         private fun default(externalValue: String?): AnonymUttakGradSpecV1 =
-            if (StringUtils.hasLength(externalValue))
-                P_100.also { log.warn { "Unknown AnonymUttakGradSpec: '$externalValue'" } }
+            if (hasLength(externalValue))
+                HUNDRE_PROSENT.also { log.warn { "Unknown AnonymUttakGradSpec: '$externalValue'" } }
             else
-                P_100
+                HUNDRE_PROSENT
     }
 }

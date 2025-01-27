@@ -4,6 +4,9 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import org.springframework.util.StringUtils.hasLength
 
+/**
+ * Corresponds to SimulatorSimuleringType in pensjonskalkulator-backend.
+ */
 // no.nav.domain.pensjon.kjerne.kodetabeller.SimuleringTypeCode
 enum class NavSimuleringTypeSpecV3(val externalValue: String, val internalValue: SimuleringType) {
     /**
@@ -35,6 +38,8 @@ enum class NavSimuleringTypeSpecV3(val externalValue: String, val internalValue:
      * Alderspensjon med AFP i privat sektor
      */
     ALDER_M_AFP_PRIVAT("ALDER_M_AFP_PRIVAT", SimuleringType.ALDER_M_AFP_PRIVAT),
+
+    ALDERSPENSJON_MED_LIVSVARIG_OFFENTLIG_AFP("ALDERSPENSJON_MED_LIVSVARIG_OFFENTLIG_AFP", SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG),
 
     /**
      * Alderspensjon med gjenlevenderettigheter

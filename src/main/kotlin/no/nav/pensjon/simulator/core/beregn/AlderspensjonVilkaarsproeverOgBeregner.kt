@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -543,7 +542,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) {
             vedtakListe.forEach {
                 it.kravlinje!!.kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                it.kravlinje!!.land = Land.NOR
+                it.kravlinje!!.land = LandkodeEnum.NOR
                 it.vilkarsvedtakResultatEnum = it.anbefaltResultatEnum
 
                 val localFoersteVirk: LocalDate =
@@ -561,7 +560,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             kravhode.kravlinjeListe.forEach {
                 it.kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                it.land = Land.NOR
+                it.land = LandkodeEnum.NOR
             }
         }
 

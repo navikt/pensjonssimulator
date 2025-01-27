@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
@@ -51,11 +52,9 @@ class SimuleringFacade(
                     inkluderPensjonHvisUbetinget
                 )
         } catch (e: RegelmotorValideringException) {
-            //throw SimuleringException("simuler alderspensjon 1963+ feilet", e)
-            throw RuntimeException("simuler alderspensjon 1963+ feilet", e)
+            throw ImplementationUnrecoverableException("simuler alderspensjon 1963+ feilet", e)
         } catch (e: RegelmotorFeilException) {
-            //throw SimuleringException("simuler alderspensjon 1963+ feilet", e)
-            throw RuntimeException("simuler alderspensjon 1963+ feilet", e)
+            throw ImplementationUnrecoverableException("simuler alderspensjon 1963+ feilet", e)
         }
     }
 

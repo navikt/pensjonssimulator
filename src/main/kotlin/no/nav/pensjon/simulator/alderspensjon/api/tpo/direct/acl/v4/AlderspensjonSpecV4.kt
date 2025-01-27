@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
 
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
+
 /**
  * Version 4 of specification for 'simuler alderspensjon'.
  * NB: Versions 1 to 3 are services offered by PEN.
@@ -15,15 +17,16 @@ data class AlderspensjonSpecV4(
     val rettTilAfpOffentligDato: String? = null
 ) {
     /**
-     * toString excluding personId
+     * toString with redacted person ID
      */
-    override fun toString(): String =
-        "gradertUttak: $gradertUttak\n" +
-                "heltUttakFraOgMedDato: $heltUttakFraOgMedDato\n" +
-                "aarIUtlandetEtter16: $aarIUtlandetEtter16\n" +
-                "epsPensjon: $epsPensjon\n" +
-                "eps2G: $eps2G\n" +
-                "fremtidigInntektListe: $fremtidigInntektListe,\n" +
+    override fun toString() =
+        "personId: ${redact(personId)}, " +
+                "gradertUttak: $gradertUttak, " +
+                "heltUttakFraOgMedDato: $heltUttakFraOgMedDato, " +
+                "aarIUtlandetEtter16: $aarIUtlandetEtter16, " +
+                "epsPensjon: $epsPensjon, " +
+                "eps2G: $eps2G, " +
+                "fremtidigInntektListe: $fremtidigInntektListe, " +
                 "rettTilAfpOffentligDato: $rettTilAfpOffentligDato"
 }
 

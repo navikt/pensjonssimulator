@@ -30,7 +30,8 @@ data class SimulertAarligAlderspensjon(
 data class SimulertAlderspensjonFraFolketrygden(
     val datoFom: LocalDate,
     val delytelseListe: List<SimulertDelytelse>,
-    val uttakGrad: Int
+    val uttakGrad: Int,
+    val maanedligBeloep: Int
 )
 
 data class SimulertPrivatAfp(

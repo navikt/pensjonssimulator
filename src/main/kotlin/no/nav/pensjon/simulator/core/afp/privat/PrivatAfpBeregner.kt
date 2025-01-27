@@ -2,12 +2,12 @@ package no.nav.pensjon.simulator.core.afp.privat
 
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
@@ -235,7 +235,7 @@ class PrivatAfpBeregner(
                 kravlinjeTypeEnum = KravlinjeTypeEnum.AFP_PRIVAT
                 relatertPerson = person
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                land = Land.NOR
+                land = LandkodeEnum.NOR
             }
 
         /**

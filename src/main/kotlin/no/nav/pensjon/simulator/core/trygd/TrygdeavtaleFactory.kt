@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtale
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtaledetaljer
 import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleDatoCti
@@ -19,7 +19,7 @@ object TrygdeavtaleFactory {
             avtaledato = latestAvtaleDato()?.let { AvtaleDatoCti(it.name) }
             avtaleKriterie = AvtaleKritCti(AvtaleKrit.YRK_TRYGD.name)
             avtaleType = AvtaleTypeCti(AvtaleType.EOS_NOR.name)
-            bostedsland = LandCti(Land.NOR.name)
+            bostedsland = LandCti(LandkodeEnum.NOR.name)
             kravDatoIAvtaleland = Date()
             omfattesavAvtalensPersonkrets = true
             //TODO minst12MndMedlemskapFolketrygden = true

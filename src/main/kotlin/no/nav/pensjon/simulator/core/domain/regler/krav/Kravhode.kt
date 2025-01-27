@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.krav
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -187,7 +186,7 @@ open class Kravhode {
         var hovedKravlinje: Kravlinje? = null
 
         for (linje in kravlinjeListe) {
-            val erNorge = linje.land == Land.NOR
+            val erNorge = linje.land == LandkodeEnum.NOR
 
             if (linje.erHovedkravlinje() && (erNorge || kunUtland(kravGjelder))) {
                 if (hovedKravlinje == null || !linje.isKravlinjeAvbrutt()) {

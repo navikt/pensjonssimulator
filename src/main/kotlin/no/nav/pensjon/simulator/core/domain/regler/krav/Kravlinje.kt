@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.krav
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.core.domain.Land
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import java.io.Serializable
@@ -48,7 +48,7 @@ open class Kravlinje : Serializable {
     var kravlinjeStatus: KravlinjeStatus? = null
 
     @JsonIgnore
-    var land: Land? = null
+    var land: LandkodeEnum? = null
 
     constructor(kravlinje: Kravlinje) {
         kravlinje.kravlinjeTypeEnum?.let { kravlinjeTypeEnum = it }

@@ -44,7 +44,8 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                             delytelseListe = listOf(
                                 SimulertDelytelse(type = YtelseskomponentTypeEnum.GAP, beloep = 1234)
                             ),
-                            uttakGrad = 50
+                            uttakGrad = 50,
+                            maanedligBeloep = 500
                         )
                     ),
                     privatAfp = listOf(SimulertPrivatAfp(alderAar = 63, beloep = 5000)),

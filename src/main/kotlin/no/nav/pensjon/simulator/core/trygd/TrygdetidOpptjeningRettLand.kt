@@ -1,59 +1,56 @@
 package no.nav.pensjon.simulator.core.trygd
 
-import no.nav.pensjon.simulator.core.domain.Land
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import java.util.*
 
-// no.nav.service.pensjon.simulering.support.command.LandMedRettTilOpptjeningAvTrygdetidCode
-enum class TrygdetidOpptjeningRettLand(val land: Land, val kravOmArbeid: Boolean) {
-    /* TODO
+// PEN: no.nav.service.pensjon.simulering.support.command.LandMedRettTilOpptjeningAvTrygdetidCode
+enum class TrygdetidOpptjeningRettLand(val land: LandkodeEnum, val kravOmArbeid: Boolean) {
     // Nederland + nordisk konvensjon
-    NLD(Land.NLD, false),
-    SWE(Land.SWE, false),
-    DNK(Land.DNK, false),
-    FIN(Land.FIN, false),
-    FRO(Land.FRO, false),
-    GRL(Land.GRL, false),
-    ISL(Land.ISL, false),
+    NLD(land = LandkodeEnum.NLD, kravOmArbeid = false),
+    SWE(land = LandkodeEnum.SWE, kravOmArbeid = false),
+    DNK(land = LandkodeEnum.DNK, kravOmArbeid = false),
+    FIN(land = LandkodeEnum.FIN, kravOmArbeid = false),
+    FRO(land = LandkodeEnum.FRO, kravOmArbeid = false),
+    GRL(land = LandkodeEnum.GRL, kravOmArbeid = false),
+    ISL(land = LandkodeEnum.ISL, kravOmArbeid = false),
 
     // EØS-land
-    BEL(Land.BEL, true),
-    BGR(Land.BGR, true),
-    EST(Land.EST, true),
-    FRA(Land.FRA, true),
-    GRC(Land.GRC, true),
-    IRL(Land.IRL, true),
-    ITA(Land.ITA, true),
-    CYP(Land.CYP, true),
-    HRV(Land.HRV, true),
-    LVA(Land.LVA, true),
-    LTU(Land.LTU, true),
-    LUX(Land.LUX, true),
-    MLT(Land.MLT, true),
-    POL(Land.POL, true),
-    PRT(Land.PRT, true),
-    ROU(Land.ROU, true),
-    SVK(Land.SVK, true),
-    SVN(Land.SVN, true),
-    ESP(Land.ESP, true),
-    GBR(Land.GBR, true),
-    CZE(Land.CZE, true),
-    DEU(Land.DEU, true),
-    HUN(Land.HUN, true),
-    AUT(Land.AUT, true),
+    BEL(land = LandkodeEnum.BEL, kravOmArbeid = true),
+    BGR(land = LandkodeEnum.BGR, kravOmArbeid = true),
+    EST(land = LandkodeEnum.EST, kravOmArbeid = true),
+    FRA(land = LandkodeEnum.FRA, kravOmArbeid = true),
+    GRC(land = LandkodeEnum.GRC, kravOmArbeid = true),
+    IRL(land = LandkodeEnum.IRL, kravOmArbeid = true),
+    ITA(land = LandkodeEnum.ITA, kravOmArbeid = true),
+    CYP(land = LandkodeEnum.CYP, kravOmArbeid = true),
+    HRV(land = LandkodeEnum.HRV, kravOmArbeid = true),
+    LVA(land = LandkodeEnum.LVA, kravOmArbeid = true),
+    LTU(land = LandkodeEnum.LTU, kravOmArbeid = true),
+    LUX(land = LandkodeEnum.LUX, kravOmArbeid = true),
+    MLT(land = LandkodeEnum.MLT, kravOmArbeid = true),
+    POL(land = LandkodeEnum.POL, kravOmArbeid = true),
+    PRT(land = LandkodeEnum.PRT, kravOmArbeid = true),
+    ROU(land = LandkodeEnum.ROU, kravOmArbeid = true),
+    SVK(land = LandkodeEnum.SVK, kravOmArbeid = true),
+    SVN(land = LandkodeEnum.SVN, kravOmArbeid = true),
+    ESP(land = LandkodeEnum.ESP, kravOmArbeid = true),
+    GBR(land = LandkodeEnum.GBR, kravOmArbeid = true),
+    CZE(land = LandkodeEnum.CZE, kravOmArbeid = true),
+    DEU(land = LandkodeEnum.DEU, kravOmArbeid = true),
+    HUN(land = LandkodeEnum.HUN, kravOmArbeid = true),
+    AUT(land = LandkodeEnum.AUT, kravOmArbeid = true),
 
     // Øvrige
-    USA(Land.USA, true),
-    CHL(Land.CHL, true),
-    ISR(Land.ISR, true),
-    AUS(Land.AUS, true),
-    CAN(Land.CAN, true),
-    CHE(Land.CHE, true),
-    IND(Land.IND, true)
-    */
-    NOR(Land.NOR, true);
+    USA(land = LandkodeEnum.USA, kravOmArbeid = true),
+    CHL(land = LandkodeEnum.CHL, kravOmArbeid = true),
+    ISR(land = LandkodeEnum.ISR, kravOmArbeid = true),
+    AUS(land = LandkodeEnum.AUS, kravOmArbeid = true),
+    CAN(land = LandkodeEnum.CAN, kravOmArbeid = true),
+    CHE(land = LandkodeEnum.CHE, kravOmArbeid = true),
+    IND(land = LandkodeEnum.IND, kravOmArbeid = true);
 
     companion object {
-        fun rettTilOpptjeningAvTrygdetid(land: Land?, harArbeidet: Boolean): Boolean {
+        fun rettTilOpptjeningAvTrygdetid(land: LandkodeEnum?, harArbeidet: Boolean): Boolean {
             if (mapper == null) {
                 initMapper()
             }
@@ -61,13 +58,13 @@ enum class TrygdetidOpptjeningRettLand(val land: Land, val kravOmArbeid: Boolean
             return mapper!!.containsKey(land) && (harArbeidet || !mapper!![land]?.kravOmArbeid!!)
         }
 
-        private var mapper: MutableMap<Land, TrygdetidOpptjeningRettLand>? = null
+        private var mapper: MutableMap<LandkodeEnum, TrygdetidOpptjeningRettLand>? = null
 
         private fun initMapper() {
-            mapper = EnumMap(Land::class.java)
+            mapper = EnumMap(LandkodeEnum::class.java)
 
             @OptIn(ExperimentalStdlibApi::class)
-            for (entry in TrygdetidOpptjeningRettLand.entries) {
+            for (entry in entries) {
                 mapper!![entry.land] = entry
             }
         }

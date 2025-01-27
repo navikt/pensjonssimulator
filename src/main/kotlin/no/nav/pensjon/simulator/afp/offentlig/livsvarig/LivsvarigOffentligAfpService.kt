@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
@@ -17,6 +18,8 @@ class LivsvarigOffentligAfpService(
     private val client: LivsvarigOffentligAfpClient,
     private val time: Time
 ) {
+    val log = KotlinLogging.logger {}
+
     fun beregnAfp(
         pid: Pid,
         foedselsdato: LocalDate,
@@ -24,6 +27,8 @@ class LivsvarigOffentligAfpService(
         fremtidigeInntekter: List<FremtidigInntekt>,
         virkningDato: LocalDate,
     ): LivsvarigOffentligAfpResult? {
+        if (valid(foedselsdato.year, virkningDato.year).not()) return null
+
         val fom: LocalDate = foersteAarMedUregistrertInntekt()
         val til: LocalDate = sisteAarMedAfpOpptjeningInntekt(foedselsdato)
 
@@ -47,17 +52,33 @@ class LivsvarigOffentligAfpService(
         )
     }
 
+    private fun valid(foedselAar: Int, virkningFomAar: Int): Boolean =
+        when {
+            foedselAar < MINIMUM_FOEDSEL_AAR -> {
+                log.warn { "LvOfAFP - fødselsår $foedselAar er for tidlig - minimum er $MINIMUM_FOEDSEL_AAR" }
+                false
+            }
+
+            virkningFomAar < foedselAar + LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR -> {
+                log.warn { "LvOfAFP - virkningsår $virkningFomAar er for tidlig - minimum er ${foedselAar + LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR}" }
+                false
+            }
+
+            else -> true
+        }
+
     private fun foersteAarMedUregistrertInntekt(): LocalDate =
         time.today().minusYears(1)
 
     private companion object {
+        private const val MINIMUM_FOEDSEL_AAR = 1963
 
         private fun sisteAarMedAfpOpptjeningInntekt(foedselsdato: LocalDate): LocalDate =
             foedselsdato.plusYears(LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR)
 
         private fun aarligInntektListe(fom: LocalDate, til: LocalDate, aarligBeloep: Int): List<Inntekt> =
             aarligeDatoer(fom, til)
-                .map { inntektVedAaretsStart(it, aarligBeloep) }
+                .map { inntektVedAaretsStart(dato = it, aarligBeloep) }
                 .toList()
 
         private fun aarligeDatoer(fom: LocalDate, til: LocalDate): Stream<LocalDate> =

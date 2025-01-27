@@ -1,12 +1,15 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.times
+import org.mockito.kotlin.any
+import org.mockito.kotlin.never
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import java.time.LocalDate
 
@@ -16,6 +19,30 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
     val foedselsdato = LocalDate.of(1964, 1, 2)
     val virkningDato = LocalDate.of(2026, 1, 1)
     val today = LocalDate.of(2025, 1, 15)
+
+    test("beregnAfp med for ung person => resultat er 'null'") {
+        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+            pid,
+            foedselsdato = LocalDate.of(1962, 12, 31),
+            forventetAarligInntektBeloep = 0,
+            fremtidigeInntekter = emptyList(),
+            virkningDato
+        ) shouldBe null
+
+        verify(client, never()).simuler(any())
+    }
+
+    test("beregnAfp med for tidlig virkning => resultat er 'null'") {
+        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+            pid,
+            foedselsdato = LocalDate.of(1970, 1, 1),
+            forventetAarligInntektBeloep = 0,
+            fremtidigeInntekter = emptyList(),
+            virkningDato = LocalDate.of(2031, 12, 31)
+        ) shouldBe null
+
+        verify(client, never()).simuler(any())
+    }
 
     test("beregnAfp uten inntektliste => simuler med inntekter basert på forventet inntekt og alder") {
         LivsvarigOffentligAfpService(client) { today }.beregnAfp(

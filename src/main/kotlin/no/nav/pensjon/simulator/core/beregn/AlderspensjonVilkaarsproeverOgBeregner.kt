@@ -895,14 +895,17 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         // Extract from VilkarsprovOgBeregnAlderHelper.createFunctionalExceptionsFromVilkarsprovingIfNecesseary
         private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
             when (begrunnelse) {
+                BegrunnelseTypeEnum.UNDER_1_AR_TT -> throw UtilstrekkeligTrygdetidException()
                 BegrunnelseTypeEnum.UNDER_3_AR_TT -> throw UtilstrekkeligTrygdetidException()
-
+                BegrunnelseTypeEnum.UNDER_5_AR_TT -> throw UtilstrekkeligTrygdetidException()
+                BegrunnelseTypeEnum.UNDER_20_AR_TT_2025 -> throw UtilstrekkeligTrygdetidException()
                 BegrunnelseTypeEnum.LAVT_TIDLIG_UTTAK -> throw UtilstrekkeligOpptjeningException()
 
                 BegrunnelseTypeEnum.UTG_MINDRE_ETT_AR ->
                     throw InvalidArgumentException("Mindre enn ett år fra gradsendring")
 
-                else -> log.info { "vilkårsprøving ga avslag grunnet $begrunnelse" }
+                else -> log.warn { "vilkårsprøving ga avslag grunnet $begrunnelse" }
+                //TODO throw exception?
             }
         }
 

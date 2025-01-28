@@ -57,32 +57,6 @@ class PenBeholdningClient(
         }
     }
 
-    override fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
-        val uri = "$LEGACY_BASE_PATH/$FOLKETRYGDBEHOLDNING_PATH"
-        val dto = PenFolketrygdBeholdningSpecMapper.toDto(spec)
-        log.debug { "POST to URI: '$uri' with body '$dto'" }
-
-        return try {
-            webClient
-                .post()
-                .uri(uri)
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .headers(::setHeaders)
-                .bodyValue(dto)
-                .retrieve()
-                .bodyToMono(PenFolketrygdBeholdningResult::class.java)
-                .retryWhen(retryBackoffSpec(uri))
-                .block()
-                ?.let(PenFolketrygdBeholdningResultMapper::fromDto)
-                ?: emptyFolketrygdBeholdning()
-        } catch (e: WebClientRequestException) {
-            throw EgressException("Failed calling $uri", e)
-        } catch (e: WebClientResponseException) {
-            throw EgressException(e.responseBodyAsString, e)
-        }
-    }
-
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
@@ -92,16 +66,9 @@ class PenBeholdningClient(
 
     private companion object {
         private const val BASE_PATH = "pen/api"
-        private const val LEGACY_BASE_PATH = "pen/springapi"
         private const val BEHOLDNINGER_MED_GRUNNLAG_PATH = "beholdning/v1/beholdninger-med-grunnlag"
-        private const val FOLKETRYGDBEHOLDNING_PATH = "simulering/v1/simuler-folketrygdbeholdning"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
-
-        private fun emptyFolketrygdBeholdning() =
-            FolketrygdBeholdning(
-                pensjonBeholdningPeriodeListe = emptyList()
-            )
 
         private fun emptyBeholdningerMedGrunnlagResult() =
             BeholdningerMedGrunnlagResult(

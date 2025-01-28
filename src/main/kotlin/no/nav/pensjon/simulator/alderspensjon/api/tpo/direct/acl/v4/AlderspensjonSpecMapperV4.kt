@@ -40,7 +40,6 @@ object AlderspensjonSpecMapperV4 {
             inntektEtterHeltUttakBeloep = 0, // fremtidigInntektListe is used instead
             inntektEtterHeltUttakAntallAar = null, // fremtidigInntektListe is used instead
             foedselAar = foedselsdato.year,
-            boddUtenlands = false,
             utlandAntallAar = source.aarIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(), // utenlandsopphold is in V4 specified by utlandAntallAar
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty().map(::fremtidigInntekt).toMutableList(),

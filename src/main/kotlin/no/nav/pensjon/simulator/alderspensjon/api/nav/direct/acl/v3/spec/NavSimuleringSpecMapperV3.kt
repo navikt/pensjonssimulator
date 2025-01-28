@@ -53,7 +53,6 @@ object NavSimuleringSpecMapperV3 {
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,
-            boddUtenlands = utlandPeriodeListe.isNotEmpty(),
             flyktning = false,
             utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty()

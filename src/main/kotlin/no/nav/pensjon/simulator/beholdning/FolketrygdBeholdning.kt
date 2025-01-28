@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.beholdning
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
 import java.time.LocalDate
 
 data class FolketrygdBeholdning(
@@ -19,7 +20,7 @@ data class BeholdningPeriode(
 // with Int instead of Double
 data class GarantipensjonNivaa(
     val beloep: Int = 0,
-    val satsType: SatsType = SatsType.ORDINAER,
+    val satsType: GarantiPensjonsnivaSatsEnum = GarantiPensjonsnivaSatsEnum.ORDINAER,
     val sats: Int = 0,
     val anvendtTrygdetid: Int = 0
 )

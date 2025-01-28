@@ -51,7 +51,6 @@ class AlderspensjonSpecMapperV4Test : FunSpec({
                     inntektEtterHeltUttakBeloep = 0,
                     inntektEtterHeltUttakAntallAar = null,
                     foedselAar = 1964,
-                    boddUtenlands = false,
                     utlandAntallAar = 5,
                     utlandPeriodeListe = mutableListOf(),
                     fremtidigInntektListe = mutableListOf(

@@ -30,8 +30,7 @@ data class SimuleringSpec(
     val inntektEtterHeltUttakBeloep: Int,
     val inntektEtterHeltUttakAntallAar: Int?,
     val foedselAar: Int,
-    val boddUtenlands: Boolean,
-    val utlandAntallAar: Int,
+    val utlandAntallAar: Int, // PEN: SimuleringEtter2011.utenlandsopphold
     val utlandPeriodeListe: MutableList<UtlandPeriode>,
     val fremtidigInntektListe: MutableList<FremtidigInntekt>,
     val inntektOver1GAntallAar: Int,
@@ -45,6 +44,8 @@ data class SimuleringSpec(
     val isHentPensjonsbeholdninger: Boolean,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
 ) {
+    // PEN: SimuleringEtter2011.isBoddIUtlandet()
+    val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
 
     fun isGradert() = isGradert(uttakGrad)
 
@@ -117,7 +118,6 @@ data class SimuleringSpec(
             inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
             inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
             foedselAar = foedselAar,
-            boddUtenlands = boddUtenlands,
             utlandAntallAar = utlandAntallAar,
             utlandPeriodeListe = utlandPeriodeListe,
             fremtidigInntektListe = fremtidigInntektListe,

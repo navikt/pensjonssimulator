@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
 
 /**
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/ResultattypeEnum.kt
+ * 2025-01-29
  */
 enum class ResultattypeEnum {
     AP,
@@ -13,6 +14,9 @@ enum class ResultattypeEnum {
     UT,
     UT_GJT,
     GJR,
+    KP,
+    GAM_YRK,
+    KONV_GJENL,
     AP_GJP,
     AP_GJP_UP,
     AP_GJP_UP_YP,

@@ -1,5 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+/**
+ * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/RegelendringTypeEnum.kt
+ * 2025-01-29
+ */
 enum class RegelendringTypeEnum {
     ALLE,
     AFP_PRIVAT,

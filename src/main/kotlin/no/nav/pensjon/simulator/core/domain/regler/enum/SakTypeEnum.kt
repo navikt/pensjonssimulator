@@ -1,5 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+/**
+ * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/SakTypeEnum.kt
+ * 2025-01-29
+ */
 enum class SakTypeEnum {
     ALDER,
     BARNEP,
@@ -10,5 +14,7 @@ enum class SakTypeEnum {
     UFOREP,
     GENRL,
     GRBL,
-    GAM_YRK
+    GAM_YRK,
+    AFP,
+    AFP_PRIVAT
 }

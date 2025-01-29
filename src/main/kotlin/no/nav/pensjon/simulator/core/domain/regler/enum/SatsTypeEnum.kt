@@ -1,5 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+/**
+ * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/SatsTypeEnum.kt
+ * 2025-01-29
+ */
 enum class SatsTypeEnum {
     LONNSVEKST,
     GRUNNBELOP,
@@ -15,5 +19,11 @@ enum class SatsTypeEnum {
     RETTSGEBYR,
     TOL_GR_EO_ETTERBET,
     TOL_GR_EO_TILBAKEKR,
-    TERSKEL_FEILUTBET
+    TERSKEL_FEILUTBET,
+
+    /**
+     * Fra PEN
+     */
+    REGULERINGSFAKTOR,
+    SKJERMINGSGRAD
 }

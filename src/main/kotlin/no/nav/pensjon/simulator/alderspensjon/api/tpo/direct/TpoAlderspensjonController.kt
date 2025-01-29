@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
@@ -83,11 +84,14 @@ class TpoAlderspensjonController(
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn { "feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
+        } catch (e: InvalidArgumentException) {
+            log.warn { "invalid argument - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
         } catch (e: RegelmotorValideringException) {
             log.warn { "feil i regelmotorvalidering - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn { "utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            log.warn { "utilstrekkelig opptjening - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
             log.warn { "utilstrekkelig trygdetid - ${e.message} - request: $specV4" }

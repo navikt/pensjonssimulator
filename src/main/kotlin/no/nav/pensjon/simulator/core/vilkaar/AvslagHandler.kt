@@ -24,7 +24,7 @@ object AvslagHandler {
         }
     }
 
-    private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum?) {
+    private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
         when (begrunnelse) {
             BegrunnelseTypeEnum.UNDER_1_AR_TT -> throw UtilstrekkeligTrygdetidException()
             BegrunnelseTypeEnum.UNDER_3_AR_TT -> throw UtilstrekkeligTrygdetidException()

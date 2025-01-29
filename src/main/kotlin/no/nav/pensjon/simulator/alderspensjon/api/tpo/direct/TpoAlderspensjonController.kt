@@ -12,6 +12,8 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.Alderspensjo
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
@@ -84,6 +86,12 @@ class TpoAlderspensjonController(
         } catch (e: RegelmotorValideringException) {
             log.warn { "feil i regelmotorvalidering - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn { "utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn { "utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -101,12 +109,15 @@ class TpoAlderspensjonController(
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
         private const val FUNCTION_ID = "ap"
 
-        private fun feilInfoResultV4(e: RuntimeException) =
+        private fun feilInfoResultV4(
+            e: RuntimeException,
+            status: PensjonSimuleringStatusKodeV4 = PensjonSimuleringStatusKodeV4.ANNET
+        ) =
             AlderspensjonResultV4(
                 simuleringSuksess = false,
                 aarsakListeIkkeSuksess = listOf(
                     PensjonSimuleringStatusV4(
-                        statusKode = PensjonSimuleringStatusKodeV4.ANNET.externalValue,
+                        statusKode = status.externalValue,
                         statusBeskrivelse = e.message ?: e.javaClass.simpleName
                     )
                 ),

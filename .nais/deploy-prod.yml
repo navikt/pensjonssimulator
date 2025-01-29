@@ -72,6 +72,7 @@ spec:
           cluster: prod-fss
         - application: tjenestepensjon-simulering
       external:
+        - host: maskinporten.no
         - host: pensjon-pen.prod-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
         - host: tp-api.prod-fss-pub.nais.io

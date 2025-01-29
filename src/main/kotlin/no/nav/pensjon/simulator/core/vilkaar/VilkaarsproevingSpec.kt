@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.beregn
+package no.nav.pensjon.simulator.core.vilkaar
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
@@ -10,20 +10,20 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
 
-// no.nav.service.pensjon.simulering.abstractsimulerapfra2011.FPEN028VilkarsprovKravRequest
+// PEN: no.nav.service.pensjon.simulering.abstractsimulerapfra2011.FPEN028VilkarsprovKravRequest
 data class VilkaarsproevingSpec(
-    val afpOffentligLivsvarig: AfpOffentligLivsvarigGrunnlag?,
-    val afpLivsvarig: AfpLivsvarig?,
-    val virkFom: LocalDate,
+    val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
+    val privatAfp: AfpLivsvarig?,
+    val virkningFom: LocalDate,
     val kravhode: Kravhode,
-    val afpForsteVirk: LocalDate?,
+    val afpFoersteVirkning: LocalDate?,
     val forholdstallUtvalg: ForholdstallUtvalg,
     val delingstallUtvalg: DelingstallUtvalg,
     val sisteBeregning: SisteBeregning?,
-    val forrigeVilkarsvedtakList: List<VilkarsVedtak>,
-    val garantitilleggsbeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag,
-    val sokerForsteVirk: LocalDate,
-    val avdodForsteVirk: LocalDate?,
+    val forrigeVedtakListe: List<VilkarsVedtak>,
+    val garantitilleggBeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag,
+    val soekerFoersteVirkning: LocalDate,
+    val avdoedFoersteVirkning: LocalDate?,
     val sakId: Long?,
-    val ignoreAvslag: Boolean = false
+    val ignoreAvslag: Boolean
 )

@@ -86,10 +86,10 @@ object TpoAlderspensjonResultMapper {
         andreUttakFom: LocalDate?
     ): List<SimulertAlderspensjonFraFolketrygden> {
         val utvalgListe = mutableListOf<SimulertAlderspensjonFraFolketrygden>()
+        val datoListe = andreUttakFom?.let { listOf(foersteUttakFom, it) } ?: listOf(foersteUttakFom)
 
-        pensjonListe.forEach {
-            pickForDatoFom(pensjonListe, foersteUttakFom)?.let(utvalgListe::add)
-            andreUttakFom?.let { pickForDatoFom(pensjonListe, it) }?.let(utvalgListe::add)
+        datoListe.forEach {
+            pickForDatoFom(liste = pensjonListe, fom = it)?.let(utvalgListe::add)
         }
 
         return utvalgListe

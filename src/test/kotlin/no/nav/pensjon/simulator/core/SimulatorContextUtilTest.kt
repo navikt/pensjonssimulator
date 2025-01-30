@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
@@ -33,10 +34,13 @@ class SimulatorContextUtilTest : FunSpec({
                 virkTom = dateAtNoon(2030, 1, 2)
             }
         }
-        
+
         SimulatorContextUtil.validerOgFerdigstillResponse(
             result = response,
-            kravGjelderUfoeretrygd = false
+            kravGjelderUfoeretrygd = false,
+            spec = "",
+            objectMapper = ObjectMapper(),
+            call = ""
         )
 
         with(response.trygdetid!!) {
@@ -58,7 +62,10 @@ class SimulatorContextUtilTest : FunSpec({
 
         SimulatorContextUtil.validerOgFerdigstillResponse(
             result = response,
-            kravGjelderUfoeretrygd = true
+            kravGjelderUfoeretrygd = true,
+            spec = "",
+            objectMapper = ObjectMapper(),
+            call = ""
         )
 
         with(response.trygdetid!!) {

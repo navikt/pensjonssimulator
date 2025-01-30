@@ -3,9 +3,6 @@ package no.nav.pensjon.simulator.core.knekkpunkt
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 
 // Corresponds to FastsettTrygdetidCache
@@ -20,7 +17,6 @@ class TrygdetidCache(val context: SimulatorContext) {
         }
     }
 
-    //@Throws(BeregningstjenesteFeiletException::class)
     fun fastsettTrygdetid(
         parameters: TrygdetidRequest,
         grunnlagsrolle: GrunnlagsrolleEnum,
@@ -51,22 +47,14 @@ class TrygdetidCache(val context: SimulatorContext) {
             null
 
     // FastsettTrygdetidCache.fastsettTrygdetidInPreg
-    //@Throws(BeregningstjenesteFeiletException::class)
     private fun refreshFastsettTrygdetid(
         parameters: TrygdetidRequest,
         gjelderUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo =
-        try {
-            context.refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
-                .let { TrygdetidCombo(it.trygdetid, it.trygdetidKapittel20) }
-        } catch (e: KanIkkeBeregnesException) {
-            throw RegelmotorFeilException(e)
-        } catch (e: RegelmotorValideringException) {
-            throw RegelmotorFeilException(e)
-        }
+        context.refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
+            .let { TrygdetidCombo(it.trygdetid, it.trygdetidKapittel20) }
 
-    //@Throws(BeregningstjenesteFeiletException::class)
     private fun fastsettTrygdetidWithCache(
         cache: TrygdetidInternalCache,
         parameters: TrygdetidRequest,

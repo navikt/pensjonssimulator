@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
@@ -81,16 +82,19 @@ class TpoAlderspensjonController(
             spec.pid?.let(::verifiserAtBrukerTilknyttetTpLeverandoer)
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
         } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn { "feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
+        } catch (e: InvalidArgumentException) {
+            log.warn { "$FUNCTION_ID invalid argument - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: RegelmotorValideringException) {
-            log.warn { "feil i regelmotorvalidering - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID feil i regelmotorvalidering - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn { "utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID utilstrekkelig opptjening - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn { "utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!
@@ -107,10 +111,10 @@ class TpoAlderspensjonController(
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
-        private const val FUNCTION_ID = "ap"
+        private const val FUNCTION_ID = "apv4"
 
         private fun feilInfoResultV4(
-            e: RuntimeException,
+            e: Exception,
             status: PensjonSimuleringStatusKodeV4 = PensjonSimuleringStatusKodeV4.ANNET
         ) =
             AlderspensjonResultV4(

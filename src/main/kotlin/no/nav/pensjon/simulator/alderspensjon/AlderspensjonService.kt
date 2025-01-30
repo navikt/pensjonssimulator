@@ -5,11 +5,10 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlt
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.TpoAlderspensjonResultMapper
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecSanitiser
-import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator
+import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -23,8 +22,7 @@ class AlderspensjonService(
 ) {
     fun simulerAlderspensjon(simuleringSpec: SimuleringSpec): AlderspensjonResult {
         val spec = SimuleringSpecSanitiser.sanitise(simuleringSpec)
-        SimuleringSpecValidator.validate(spec)
-
+        validate(spec)
         val simuleringResultat = simulerMedMuligAlternativ(spec)
 
         return TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
@@ -55,10 +53,18 @@ class AlderspensjonService(
                     spec,
                     inkluderPensjonHvisUbetinget = true
                 )
-        } catch (e: RegelmotorValideringException) {
-            throw e //  SimuleringException("simuler alderspensjon 1963+ feilet", e)
-        } catch (e: RegelmotorFeilException) {
-            throw e // SimuleringException("simuler alderspensjon 1963+ feilet", e)
+        } catch (_: UtilstrekkeligTrygdetidException) {
+            // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
+            return if (isReducible(spec.uttakGrad))
+                alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
+                    spec,
+                    inkluderPensjonHvisUbetinget = true
+                )
+            else
+                alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
+                    spec,
+                    inkluderPensjonHvisUbetinget = true
+                )
         }
     }
 

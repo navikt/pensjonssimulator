@@ -312,7 +312,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerOgFerdigstillResponse(response, kravIsUfoeretrygd)
+        validerOgFerdigstillResponse(response, kravIsUfoeretrygd, spec, objectMapper, "fastsettTrygdetid")
         return response
     }
 

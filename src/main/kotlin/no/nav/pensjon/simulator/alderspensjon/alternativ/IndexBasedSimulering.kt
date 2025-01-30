@@ -80,14 +80,12 @@ class IndexBasedSimulering(
             val uttakGradTransition: Boolean =
                 gradert && previousUttakGradIndex(foersteUttakAlderIndex) < uttaksgradIndex
             AlternativSimuleringResult(valueIsGood = true, simulertPensjon, parameters, uttakGradTransition)
-        } catch (_: UtilstrekkeligTrygdetidException) {
-            log.info("Ugyldig første uttaksdato (for kort trygdetid) - antall måneder: $foersteUttakAlderIndex")
-            AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
         } catch (_: UtilstrekkeligOpptjeningException) {
             log.info("Ugyldig første uttaksdato (for lavt tidlig uttak) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
-            //} catch (e: FunctionalRecoverableException) {
-            //    throw SimuleringException("Søk etter første uttaksdato feilet - antall måneder: $forsteUttakAlderIndex", e)
+        } catch (_: UtilstrekkeligTrygdetidException) {
+            log.info("Ugyldig første uttaksdato (for kort trygdetid) - antall måneder: $foersteUttakAlderIndex")
+            AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
         }
     }
 

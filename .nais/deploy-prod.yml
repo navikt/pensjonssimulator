@@ -50,6 +50,7 @@ spec:
           product: "pensjonssimulator"
           consumers:
             - orgno: "938708606" # KLP
+            - orgno: "982759412" # Oslo Pensjonsforsikring
             - orgno: "982583462" # SPK
             - orgno: "931936492" # Storebrand Pensjonstjenester
   accessPolicy:

@@ -2,9 +2,6 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -46,15 +43,12 @@ class SimuleringFacade(
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
                     inkluderPensjonHvisUbetinget
-                ) else
+                )
+            else
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
                     spec,
                     inkluderPensjonHvisUbetinget
                 )
-        } catch (e: RegelmotorValideringException) {
-            throw ImplementationUnrecoverableException("simuler alderspensjon 1963+ feilet", e)
-        } catch (e: RegelmotorFeilException) {
-            throw ImplementationUnrecoverableException("simuler alderspensjon 1963+ feilet", e)
         }
     }
 

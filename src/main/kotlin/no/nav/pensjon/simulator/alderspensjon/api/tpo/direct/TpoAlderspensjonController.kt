@@ -73,7 +73,6 @@ class TpoAlderspensjonController(
         request: HttpServletRequest
     ): AlderspensjonResultV4 {
         traceAid.begin()
-        log.warn { "$FUNCTION_ID - received request: $specV4" }
         countCall(FUNCTION_ID)
 
         return try {
@@ -81,10 +80,7 @@ class TpoAlderspensjonController(
             val spec: SimuleringSpec = AlderspensjonSpecMapperV4.fromSpecV4(specV4, foedselsdato)
             request.setAttribute("pid", spec.pid)
             spec.pid?.let(::verifiserAtBrukerTilknyttetTpLeverandoer)
-            log.warn { "$FUNCTION_ID - simulerer for $foedselsdato" }
-            val resultV4 = resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
-            log.warn { "$FUNCTION_ID - response for $foedselsdato - $resultV4" }
-            resultV4
+            resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn { "$FUNCTION_ID feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
@@ -101,17 +97,11 @@ class TpoAlderspensjonController(
             log.warn { "$FUNCTION_ID utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
         } catch (e: EgressException) {
-            log.warn { "$FUNCTION_ID EgressException - ${e.message} - request: $specV4" }
             handle(e)!!
         } catch (e: BadRequestException) {
-            log.warn { "$FUNCTION_ID badRequest - ${e.message} - request: $specV4" }
             badRequest(e)!!
         } catch (e: InvalidEnumValueException) {
-            log.warn { "$FUNCTION_ID InvalidEnumValue - ${e.message} - request: $specV4" }
             badRequest(e)!!
-        } catch (e: Exception) {
-            log.warn { "$FUNCTION_ID UNHANDLED Exception - ${e.message} - request: $specV4" }
-            throw e
         } finally {
             traceAid.end()
         }

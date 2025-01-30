@@ -79,7 +79,7 @@ class SimulatorCore(
 
         val grunnbeloep: Int = fetchGrunnbeloep()
 
-        log.info { "Simulator steg 1 - Hent løpende ytelser" }
+        log.debug { "Simulator steg 1 - Hent løpende ytelser" }
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
@@ -101,7 +101,7 @@ class SimulatorCore(
             EndringValidator.validateRequestBasedOnLoependeYtelser(spec, ytelser.forrigeAlderspensjonBeregningResultat)
         }
 
-        log.info { "Simulator steg 2 - Opprett kravhode" }
+        log.debug { "Simulator steg 2 - Opprett kravhode" }
 
         var kravhode: Kravhode = kravhodeCreator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(
@@ -115,7 +115,7 @@ class SimulatorCore(
 
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
 
-        log.info { "Simulator steg 3 - Beregn AFP Privat" }
+        log.debug { "Simulator steg 3 - Beregn AFP Privat" }
 
         var privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf()
         var gjeldendePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat? = null
@@ -136,7 +136,7 @@ class SimulatorCore(
             privatAfpBeregningResultatListe = response.afpPrivatBeregningsresultatListe
         }
 
-        log.info { "Simulator steg 4 - Oppdater kravhode før første knekkpunkt" }
+        log.debug { "Simulator steg 4 - Oppdater kravhode før første knekkpunkt" }
 
         kravhode = kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(
             KravhodeUpdateSpec(
@@ -146,7 +146,7 @@ class SimulatorCore(
             )
         )
 
-        log.info { "Simulator steg 5 - Finn knekkpunkter" }
+        log.debug { "Simulator steg 5 - Finn knekkpunkter" }
 
         val knekkpunktMap = knekkpunktFinder.finnKnekkpunkter(
             KnekkpunktSpec(
@@ -160,7 +160,7 @@ class SimulatorCore(
             )
         )
 
-        log.info { "Simulator steg 6 - Beregn AFP i offentlig sektor" }
+        log.debug { "Simulator steg 6 - Beregn AFP i offentlig sektor" }
 
         val pre2025OffentligAfpResult: Pre2025OffentligAfpResult?
         val livsvarigOffentligAfpResult: LivsvarigOffentligAfpResult?
@@ -195,7 +195,7 @@ class SimulatorCore(
                     null
         }
 
-        log.info { "Simulator steg 7 - Vilkårsprøv og beregn alderspensjon" }
+        log.debug { "Simulator steg 7 - Vilkårsprøv og beregn alderspensjon" }
 
         val vilkaarsproevOgBeregnAlderspensjonResult =
             alderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder(
@@ -220,7 +220,7 @@ class SimulatorCore(
                 )
             )
 
-        log.info { "Simulator steg 8 - Opprett output" }
+        log.debug { "Simulator steg 8 - Opprett output" }
 
         val output: SimulatorOutput = SimuleringResultPreparer.opprettOutput(
             ResultPreparerSpec(

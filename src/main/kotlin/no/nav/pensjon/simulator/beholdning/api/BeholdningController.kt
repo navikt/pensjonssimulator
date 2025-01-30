@@ -62,43 +62,40 @@ class BeholdningController(
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV1(timed(service::simulerFolketrygdBeholdning, spec, FUNCTION_ID))
         } catch (e: BadRequestException) {
-            log.warn(e) { "Bad request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID bad request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "Feil i simuleringsgrunnlaget - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "Unrecoverable error - request - $specV1" }
+            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: InvalidArgumentException) {
-            log.warn(e) { "Invalid argument - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "Kan ikke beregnes - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID kan ikke beregnes - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "Inkonsistent grunnlag - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: PersonForGammelException) {
-            log.warn(e) { "Person for gammel - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: PersonForUngException) {
-            log.warn(e) { "Person for ung - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID person for ung - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "Pre-2025 offentlig AFP avslått - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: RegelmotorFeilException) {
-            log.error(e) { "Regelmotorfeil - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: RegelmotorValideringException) {
-            log.warn(e) { "Regelmotorvalideringsfeil - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "Utilstrekkelig opptjening - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "Utilstrekkelig trygdetid - request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
             handle(e)!!
@@ -106,7 +103,6 @@ class BeholdningController(
             traceAid.end()
         }
     }
-    //TODO PEN226BrukerHarLopendeAPPaGammeltRegelverkException::class, PEN223BrukerHarIkkeLopendeAlderspensjonException::class
 
     @ExceptionHandler(
         value = [
@@ -128,8 +124,7 @@ class BeholdningController(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class,
-            RegelmotorFeilException::class
+            ImplementationUnrecoverableException::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =

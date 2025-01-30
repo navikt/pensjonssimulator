@@ -32,6 +32,8 @@ class PenYtelseClient(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
+    //TODO Handle PEN226BrukerHarLopendeAPPaGammeltRegelverkException, PEN223BrukerHarIkkeLopendeAlderspensjonException
+    // in PEN EndringApLoependeYtelserService and propagate error info to response received here
     override fun fetchLoependeYtelser(spec: LoependeYtelserSpec): LoependeYtelserResult {
         val uri = "$BASE_PATH/$PATH"
 

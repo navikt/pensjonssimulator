@@ -24,7 +24,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v4/simuler-alderspensjon
-      timeout: 10s
+      timeout: 15s
     - path: /pensjonssimulator/v1/simuler-folketrygdbeholdning
       method: POST
       forwardHeaders:
@@ -42,7 +42,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v1/tidligst-mulig-uttak
-      timeout: 10s
+      timeout: 15s
   openEndpoints:
     - path: /pensjonssimulator/v1/status
       method: GET

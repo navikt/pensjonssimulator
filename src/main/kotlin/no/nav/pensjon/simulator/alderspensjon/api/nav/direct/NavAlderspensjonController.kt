@@ -22,7 +22,6 @@ import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
@@ -102,8 +101,6 @@ class NavAlderspensjonController(
             resultWithErrorInfo("personalder (for lav)", e, specV3)
         } catch (e: Pre2025OffentligAfpAvslaattException) {
             resultWithErrorInfo("pre-2025 offentlig AFP grunnlag (avslått)", e, specV3)
-        } catch (e: RegelmotorFeilException) {
-            resultWithErrorInfo("regelmotor", e, specV3)
         } catch (e: RegelmotorValideringException) {
             resultWithErrorInfo("regelmotorvalidering", e, specV3)
         } catch (e: UtilstrekkeligOpptjeningException) {

@@ -7,11 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsInformasjon
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.kode.*
@@ -21,13 +17,7 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.exception.RegelmotorFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
+import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -114,19 +104,10 @@ class Pre2025OffentligAfpBeregner(
         persongrunnlagListe: MutableList<Persongrunnlag>,
         normAlder: Alder
     ): Simuleringsresultat =
-        try {
-            simulerPensjonsberegning(simulering(spec, persongrunnlagListe), normAlder)
-        } catch (e: PersonForUngException) {
-            throw RegelmotorFeilException(e.message)
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            throw RegelmotorFeilException(e.message)
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            throw RegelmotorFeilException(e.message)
-        }
+        simulerPensjonsberegning(simulering(spec, persongrunnlagListe), normAlder)
 
     // SimpleSimuleringService.simulerPensjonsberegning
     // -> SimulerPensjonsberegningCommand.execute
-    //@Throws(PEN070KonsistensenIGrunnlagetErFeilException::class, PEN071FeilISimuleringsgrunnlagetException::class, PEN019ForUngForSimuleringException::class)
     private fun simulerPensjonsberegning(simulering: Simulering, normAlder: Alder): Simuleringsresultat {
         validateInput(simulering, normAlder)
         var simuleringAvslag: Boolean = simulerTrygdetid(simulering)

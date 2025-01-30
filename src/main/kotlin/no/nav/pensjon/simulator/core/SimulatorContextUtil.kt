@@ -79,8 +79,14 @@ object SimulatorContextUtil {
         result.afpPrivatBeregning?.afpLivsvarig?.let(::roundNettoPerAar)
     }
 
-    fun validerOgFerdigstillResponse(result: TrygdetidResponse, kravGjelderUfoeretrygd: Boolean) {
-        validerResponse(result.pakkseddel)
+    fun validerOgFerdigstillResponse(
+        result: TrygdetidResponse,
+        kravGjelderUfoeretrygd: Boolean,
+        spec: Any,
+        objectMapper: ObjectMapper,
+        call: String
+    ) {
+        validerResponse(result.pakkseddel, spec, objectMapper, call)
 
         result.trygdetid?.apply {
             tt_67_75 = 0 // since this value is not mapped to PEN domain in original PEN code
@@ -142,13 +148,13 @@ object SimulatorContextUtil {
         if (kontrollTjenesteOk && annenTjenesteOk) return
 
         val message = pakkseddel.merknaderAsString()
-        log.error { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
+        log.warn { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
 
         if (kontrollTjenesteOk) {
-            log.error { "regler validering andre merknader - $message" }
+            log.error { "$call - regler validering andre merknader - $message => KanIkkeBeregnesException" }
             throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
         } else {
-            log.error { "regler validering kontroll merknader - $message" }
+            log.error { "$call - regler validering kontroll merknader - $message => RegelmotorValideringException" }
             throw RegelmotorValideringException(message, pakkseddel.merknadListe)
         }
     }

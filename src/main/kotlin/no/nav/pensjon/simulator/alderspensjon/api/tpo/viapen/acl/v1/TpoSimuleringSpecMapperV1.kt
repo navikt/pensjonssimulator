@@ -26,7 +26,6 @@ object TpoSimuleringSpecMapperV1 {
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0, // V1 only
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak, // V1, V2 only
             foedselAar = 0,
-            boddUtenlands = false,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = mutableListOf(), // V2, V3 only

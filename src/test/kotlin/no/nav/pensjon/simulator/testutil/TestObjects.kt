@@ -46,7 +46,6 @@ object TestObjects {
         inntektEtterHeltUttakBeloep = 67500,
         inntektEtterHeltUttakAntallAar = 5,
         foedselAar = 1963,
-        boddUtenlands = false,
         utlandAntallAar = 3,
         utlandPeriodeListe = mutableListOf(
             UtlandPeriode(

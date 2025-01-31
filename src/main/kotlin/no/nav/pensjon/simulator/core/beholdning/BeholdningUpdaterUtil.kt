@@ -364,7 +364,7 @@ object BeholdningUpdaterUtil {
     // BeholdningSwitchDecider.isSokersPersongrunnlag
     fun isSokersPersongrunnlag(kravhode: Kravhode, persongrunnlag: Persongrunnlag): Boolean =
         // persongrunnlag.gjeldendeFodselsnummer == kravHode.sak.penPerson.fnr
-        persongrunnlag.penPerson?.pid == kravhode.sakPenPersonFnr //TODO where is sakPenPersonFnr assigned?
+        persongrunnlag.penPerson?.pid == kravhode.sakPenPersonFnr
 
     // BeholdningSwitchDecider.kravIsAp2016OrAp2025
     fun kravIsAp2016OrAp2025(kravhode: Kravhode): Boolean {

@@ -11,4 +11,13 @@ class VedtakService(private val client: VedtakClient) {
 
     fun tidligsteKapittel20VedtakGjelderFom(pid: Pid, sakType: SakTypeEnum): LocalDate? =
         client.tidligsteKapittel20VedtakGjelderFom(pid, sakType)
+
+    // PEN: fetchGjeldendeAlderspensjonVedtakListe
+    fun vedtakStatus(pid: Pid, uttakFom: LocalDate?): VedtakStatus =
+        client.fetchVedtakStatus(pid, uttakFom)
 }
+
+data class VedtakStatus(
+    val harGjeldendeVedtak: Boolean,
+    val harGjenlevenderettighet: Boolean
+)

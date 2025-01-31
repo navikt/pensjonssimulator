@@ -13,15 +13,16 @@ import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecMapperV1.fromSpecV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("api")
@@ -47,31 +48,98 @@ class BeholdningController(
             )
         ]
     )
+    // PEN: SimuleringController.simulerFolketrygdbeholdningV1
     fun simulerFolketrygdbeholdning(
         @RequestBody specV1: FolketrygdBeholdningSpecV1,
         request: HttpServletRequest
     ): FolketrygdBeholdningResultV1 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
 
         return try {
             val spec: FolketrygdBeholdningSpec = fromSpecV1(specV1)
             request.setAttribute("pid", spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
-
             resultV1(timed(service::simulerFolketrygdBeholdning, spec, FUNCTION_ID))
-                .also { log.debug { "$FUNCTION_ID response: $it" } }
+        } catch (e: BadRequestException) {
+            log.warn(e) { "$FUNCTION_ID bad request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: ImplementationUnrecoverableException) {
+            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InvalidArgumentException) {
+            log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KanIkkeBeregnesException) {
+            log.warn(e) { "$FUNCTION_ID kan ikke beregnes - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForGammelException) {
+            log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForUngException) {
+            log.warn(e) { "$FUNCTION_ID person for ung - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: RegelmotorValideringException) {
+            log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
     }
 
+    @ExceptionHandler(
+        value = [
+            BadRequestException::class,
+            FeilISimuleringsgrunnlagetException::class,
+            InvalidArgumentException::class,
+            KanIkkeBeregnesException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            PersonForGammelException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            RegelmotorValideringException::class,
+            UtilstrekkeligOpptjeningException::class,
+            UtilstrekkeligTrygdetidException::class
+        ]
+    )
+    fun handleBadRequest(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorV1(e))
+
+    @ExceptionHandler(
+        value = [
+            ImplementationUnrecoverableException::class
+        ]
+    )
+    fun handleInternalServerError(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorV1(e))
+
+    fun errorV1(e: RuntimeException) =
+        FolketrygdBeholdningErrorV1(
+            beskrivelse = extractMessageRecursively(e)
+        )
+
     override fun errorMessage() = ERROR_MESSAGE
+
+    data class FolketrygdBeholdningErrorV1(
+        val beskrivelse: String
+    )
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering folketrygdbeholdning"

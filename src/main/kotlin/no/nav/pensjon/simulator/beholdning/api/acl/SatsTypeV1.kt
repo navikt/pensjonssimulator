@@ -1,16 +1,17 @@
 package no.nav.pensjon.simulator.beholdning.api.acl
 
-import no.nav.pensjon.simulator.beholdning.SatsType
+import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
 
-enum class SatsTypeV1(val externalValue: String, val internalValue: SatsType) {
+enum class SatsTypeV1(val externalValue: String, val internalValue: GarantiPensjonsnivaSatsEnum) {
 
-    NONE("", SatsType.NONE),
-    UNKNOWN("?", SatsType.UNKNOWN),
-    ORDINAER("ORDINAER", SatsType.ORDINAER),
-    HOEY("HOY", SatsType.HOEY);
+    NONE(externalValue = "", internalValue = GarantiPensjonsnivaSatsEnum.ORDINAER),
+    UNKNOWN(externalValue = "?", internalValue = GarantiPensjonsnivaSatsEnum.ORDINAER),
+    ORDINAER(externalValue = "ORDINAER", internalValue = GarantiPensjonsnivaSatsEnum.ORDINAER),
+    HOEY(externalValue = "HOY", internalValue = GarantiPensjonsnivaSatsEnum.HOY);
 
     companion object {
         @OptIn(ExperimentalStdlibApi::class)
-        fun fromInternalValue(value: SatsType): SatsTypeV1 = entries.single { it.internalValue == value }
+        fun fromInternalValue(value: GarantiPensjonsnivaSatsEnum): SatsTypeV1 =
+            entries.single { it.internalValue == value }
     }
 }

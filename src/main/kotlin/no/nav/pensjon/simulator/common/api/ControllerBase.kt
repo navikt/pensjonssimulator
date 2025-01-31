@@ -70,7 +70,9 @@ abstract class ControllerBase(
         organisasjonsnummerProvider?.let {
             val organisasjonsnummer: Organisasjonsnummer = it.provideOrganisasjonsnummer()
 
-            if (organisasjonsnummer != NAV_ORG_NUMMER && tilknytningService?.erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) == false) {
+            if (organisasjonsnummer != NAV_ORG_NUMMER &&
+                tilknytningService?.erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) == false
+            ) {
                 log.warn { "Brukeren er ikke tilknyttet angitt TP-leverandør $organisasjonsnummer" }
                 throw ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -121,16 +123,9 @@ abstract class ControllerBase(
     "path": "/api/ressurs"
 }"""
 
-        fun extractMessageRecursively(ex: Throwable): String {
-            val builder = StringBuilder()
-            builder.append(ex.message)
-
-            if (ex.cause == null) {
-                return builder.toString()
-            }
-
-            builder.append(" | Cause: ").append(extractMessageRecursively(ex.cause!!))
-            return builder.toString()
-        }
+        fun extractMessageRecursively(e: Throwable): String =
+            StringBuilder(e.message ?: e.javaClass.simpleName).apply {
+                e.cause?.let { append(" | Cause: ").append(extractMessageRecursively(it)) }
+            }.toString()
     }
 }

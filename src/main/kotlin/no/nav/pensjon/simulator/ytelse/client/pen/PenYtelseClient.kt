@@ -37,6 +37,8 @@ class PenYtelseClient(
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
     private val cache: Cache<LoependeYtelserSpec, LoependeYtelserResult> = createCache("loependeYtelser", cacheManager)
 
+    //TODO Handle PEN226BrukerHarLopendeAPPaGammeltRegelverkException, PEN223BrukerHarIkkeLopendeAlderspensjonException
+    // in PEN EndringApLoependeYtelserService and propagate error info to response received here
     override fun fetchLoependeYtelser(spec: LoependeYtelserSpec): LoependeYtelserResult =
         cache.getIfPresent(spec) ?: fetchFreshLoependeYtelser(spec).also { cache.put(spec, it) }
 

@@ -79,7 +79,6 @@ object SimuleringSpecUtil {
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttakBeloep,
             inntektEtterHeltUttakAntallAar = source.inntektEtterHeltUttakAntallAar, // assuming this is independent of heltUttakFom
             foedselAar = source.foedselAar,
-            boddUtenlands = source.boddUtenlands,
             utlandAntallAar = source.utlandAntallAar,
             utlandPeriodeListe = source.utlandPeriodeListe,
             fremtidigInntektListe = source.fremtidigInntektListe,
@@ -114,7 +113,6 @@ object SimuleringSpecUtil {
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttakBeloep,
             inntektEtterHeltUttakAntallAar = source.inntektEtterHeltUttakAntallAar,
             foedselAar = source.foedselAar,
-            boddUtenlands = source.boddUtenlands,
             utlandAntallAar = source.utlandAntallAar,
             utlandPeriodeListe = source.utlandPeriodeListe,
             fremtidigInntektListe = source.fremtidigInntektListe,

@@ -53,6 +53,15 @@ spec:
             - orgno: "982759412" # Oslo Pensjonsforsikring
             - orgno: "982583462" # SPK
             - orgno: "931936492" # Storebrand Pensjonstjenester
+        - name: simulering.read
+          enabled: true
+          product: pensjon
+          separator: "/"
+          delegationSource: altinn
+          consumers:
+            - orgno: "927613298" # Aksio
+            - orgno: "940380014" # Arendal kommunale pensjonskasse
+            - orgno: "980650383" # Drammen kommunale pensjonskasse
   accessPolicy:
     inbound:
       rules:

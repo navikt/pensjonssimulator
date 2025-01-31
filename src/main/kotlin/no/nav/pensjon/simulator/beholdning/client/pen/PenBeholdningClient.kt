@@ -4,13 +4,8 @@ import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
-import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdning
-import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningSpec
 import no.nav.pensjon.simulator.beholdning.client.BeholdningClient
 import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenBeholdningerMedGrunnlagSpecMapper
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningResult
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningResultMapper
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenFolketrygdBeholdningSpecMapper
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess

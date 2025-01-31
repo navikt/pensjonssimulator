@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.generelt.client.pen
 
+import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
@@ -13,12 +14,14 @@ import no.nav.pensjon.simulator.generelt.client.GenerelleDataClient
 import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataResult
 import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataResultMapper
 import no.nav.pensjon.simulator.generelt.client.pen.acl.PenGenerelleDataSpecMapper
+import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -32,15 +35,20 @@ class PenGenerelleDataClient(
     @Value("\${ps.pen.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
+    cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), GenerelleDataClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val cache: Cache<GenerelleDataSpec, GenerelleData> = createCache("generelleData", cacheManager)
 
     override fun service() = service
 
-    override fun fetchGenerelleData(spec: GenerelleDataSpec): GenerelleData {
+    override fun fetchGenerelleData(spec: GenerelleDataSpec): GenerelleData =
+        cache.getIfPresent(spec) ?: fetchFreshData(spec).also { cache.put(spec, it) }
+
+    private fun fetchFreshData(spec: GenerelleDataSpec): GenerelleData {
         val uri = "$BASE_PATH/$PATH"
         val dto = PenGenerelleDataSpecMapper.toDto(spec)
         log.debug { "POST to URI: '$uri' with body '$dto'" }

@@ -1,18 +1,21 @@
 package no.nav.pensjon.simulator.krav.client.pen
 
+import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.krav.client.KravClient
+import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravSpec
 import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravhode
 import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravhodeMapper
-import no.nav.pensjon.simulator.krav.client.pen.acl.PenKravSpec
+import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -25,13 +28,18 @@ class PenKravClient(
     @Value("\${ps.pen.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
+    cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), KravClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val cache: Cache<Long, Kravhode> = createCache("kravhode", cacheManager)
 
-    override fun fetchKravhode(kravhodeId: Long): Kravhode {
+    override fun fetchKravhode(kravhodeId: Long): Kravhode =
+        cache.getIfPresent(kravhodeId) ?: fetchFreshData(kravhodeId).also { cache.put(kravhodeId, it) }
+
+    private fun fetchFreshData(kravhodeId: Long): Kravhode {
         val uri = "$BASE_PATH/$PATH"
 
         return try {

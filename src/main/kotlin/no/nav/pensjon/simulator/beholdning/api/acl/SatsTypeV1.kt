@@ -12,6 +12,9 @@ enum class SatsTypeV1(val externalValue: String, val internalValue: GarantiPensj
     companion object {
         @OptIn(ExperimentalStdlibApi::class)
         fun fromInternalValue(value: GarantiPensjonsnivaSatsEnum): SatsTypeV1 =
-            entries.single { it.internalValue == value }
+            when (value) {
+                GarantiPensjonsnivaSatsEnum.ORDINAER -> ORDINAER // ambiguous UNKNOWN/ORDINAER
+                else -> entries.firstOrNull { it.internalValue == value } ?: ORDINAER
+            }
     }
 }

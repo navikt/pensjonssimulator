@@ -16,6 +16,7 @@ import org.mockito.Mockito.mock
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -58,7 +59,7 @@ class PenPersonClientTest : FunSpec({
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = PenPersonClient(
-                baseUrl!!, retryAttempts = "0", webClientBuilder, mock(TraceAid::class.java)
+                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mock(TraceAid::class.java)
             )
 
             val result: Map<Pid, PenPerson> = client.fetchPersonerVedPid(listOf(Pid("22426305678")))

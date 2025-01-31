@@ -13,9 +13,10 @@ import org.springframework.stereotype.Service
  *     (ref. ReglerLoependeYtelserMapper in PEN).
  */
 @Service
-class YtelseService(private val client: YtelseClient) {
+open class YtelseService(private val client: YtelseClient) {
 
-    fun getLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
+    //@Cacheable(value = ["loependeYtelser"])
+    open fun getLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
         if (spec.gjelderPre2025OffentligAfp()) {
             // SimulerAFPogAPCommand
             val ytelser: LoependeYtelserResult = client.fetchLoependeYtelser(

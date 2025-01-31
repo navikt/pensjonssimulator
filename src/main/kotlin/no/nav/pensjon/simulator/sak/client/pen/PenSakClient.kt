@@ -1,20 +1,23 @@
 package no.nav.pensjon.simulator.sak.client.pen
 
+import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
-import no.nav.pensjon.simulator.sak.client.SakClient
-import no.nav.pensjon.simulator.sak.client.pen.acl.PenSakSpec
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.sak.client.SakClient
 import no.nav.pensjon.simulator.sak.client.pen.acl.PenPersonVirkningDatoResult
 import no.nav.pensjon.simulator.sak.client.pen.acl.PenPersonVirkningDatoResultMapper
+import no.nav.pensjon.simulator.sak.client.pen.acl.PenSakSpec
+import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -27,13 +30,18 @@ class PenSakClient(
     @Value("\${ps.pen.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
+    cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), SakClient {
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val cache: Cache<Pid, FoersteVirkningDatoCombo> = createCache("personVirkningDato", cacheManager)
 
-    override fun fetchPersonVirkningDato(pid: Pid): FoersteVirkningDatoCombo {
+    override fun fetchPersonVirkningDato(pid: Pid): FoersteVirkningDatoCombo =
+        cache.getIfPresent(pid) ?: fetchFreshData(pid).also { cache.put(pid, it) }
+
+    private fun fetchFreshData(pid: Pid): FoersteVirkningDatoCombo {
         val uri = "$BASE_PATH/$PATH"
 
         return try {

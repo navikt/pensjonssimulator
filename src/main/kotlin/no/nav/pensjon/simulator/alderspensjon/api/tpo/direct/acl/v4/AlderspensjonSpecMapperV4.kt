@@ -53,6 +53,7 @@ object AlderspensjonSpecMapperV4 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
+            onlyVilkaarsproeving = false
         )
 
     private fun validate(uttak: GradertUttakSpecV4) {

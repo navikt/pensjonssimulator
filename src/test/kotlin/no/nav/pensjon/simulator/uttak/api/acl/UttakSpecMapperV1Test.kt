@@ -1,50 +1,69 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.uttak.GradertUttakSpec
-import no.nav.pensjon.simulator.uttak.InntektSpec
-import no.nav.pensjon.simulator.uttak.TidligstMuligUttakSpec
-import no.nav.pensjon.simulator.uttak.UttakGrad
-import org.junit.jupiter.api.Test
-
+import no.nav.pensjon.simulator.core.domain.SimuleringType
+import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
+import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class UttakSpecMapperV1Test {
+class UttakSpecMapperV1Test : FunSpec({
 
-    @Test
-    fun `fromSpecV1 maps from data transfer object to domain object`() {
-        val dto = TidligstMuligUttakSpecV1(
-            personId = "12906498357",
-            fodselsdato = LocalDate.of(1964, 5, 6),
-            uttaksgrad = 50,
-            heltUttakFraOgMedDato = LocalDate.of(2030, 1, 1),
-            rettTilAfpOffentligDato = LocalDate.of(2028, 9, 10),
-            fremtidigInntektListe = listOf(
-                UttakInntektSpecV1(arligInntekt = 123000, fraOgMedDato = LocalDate.of(2026, 7, 8)),
-                UttakInntektSpecV1(arligInntekt = 0, fraOgMedDato = LocalDate.of(2032, 3, 4))
-            )
-        )
-
-        val domainObject: TidligstMuligUttakSpec = UttakSpecMapperV1.fromSpecV1(dto)
-
-        val expected = TidligstMuligUttakSpec(
-            pid = Pid("12906498357"),
-            foedselDato = LocalDate.of(1964, 5, 6),
-            gradertUttak = GradertUttakSpec(
-                grad = UttakGrad.FEMTI_PROSENT,
-                heltUttakFom = LocalDate.of(2030, 1, 1)
+    test("fromSpecV1 maps DTO to domain object representing simulering specification") {
+        UttakSpecMapperV1.fromSpecV1(
+            source = TidligstMuligUttakSpecV1(
+                personId = pid.value,
+                fodselsdato = LocalDate.of(1964, 5, 6),
+                uttaksgrad = 20,
+                heltUttakFraOgMedDato = LocalDate.of(2030, 1, 1),
+                rettTilAfpOffentligDato = LocalDate.of(2027, 8, 1),
+                fremtidigInntektListe = listOf(
+                    UttakInntektSpecV1(
+                        arligInntekt = 123000,
+                        fraOgMedDato = LocalDate.of(2029, 2, 1)
+                    )
+                ),
             ),
-            rettTilOffentligAfpFom = LocalDate.of(2028, 9, 10),
-            antallAarUtenlandsEtter16Aar = 0,
-            fremtidigInntektListe = listOf(
-                InntektSpec(fom = LocalDate.of(2026, 7, 8), aarligBeloep = 123000),
-                InntektSpec(fom = LocalDate.of(2032, 3, 4), aarligBeloep = 0)
-            ),
+            foedselsdato = LocalDate.of(1964, 5, 6)
+        ) shouldBe SimuleringSpec(
+            type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+            sivilstatus = SivilstatusType.UGIF,
             epsHarPensjon = false,
-            epsHarInntektOver2G = false
+            foersteUttakDato = null,
+            heltUttakDato = LocalDate.of(2030, 1, 1),
+            pid = pid,
+            foedselDato = LocalDate.of(1964, 5, 6),
+            avdoed = null,
+            isTpOrigSimulering = true,
+            simulerForTp = false,
+            uttakGrad = UttakGradKode.P_20,
+            forventetInntektBeloep = 0,
+            inntektUnderGradertUttakBeloep = 0,
+            inntektEtterHeltUttakBeloep = 0,
+            inntektEtterHeltUttakAntallAar = null,
+            foedselAar = 1964,
+            utlandAntallAar = 0,
+            utlandPeriodeListe = mutableListOf(),
+            fremtidigInntektListe = mutableListOf(
+                FremtidigInntekt(
+                    aarligInntektBeloep = 123000,
+                    fom = LocalDate.of(2029, 2, 1)
+                )
+            ),
+            inntektOver1GAntallAar = 0,
+            flyktning = false,
+            epsHarInntektOver2G = false,
+            rettTilOffentligAfpFom = LocalDate.of(2027, 8, 1),
+            afpOrdning = null,
+            afpInntektMaanedFoerUttak = null,
+            erAnonym = false,
+            ignoreAvslag = false,
+            isHentPensjonsbeholdninger = true,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
+            onlyVilkaarsproeving = true // true for 'tidligst mulig uttak'
         )
-
-        domainObject shouldBe expected
     }
-}
+})

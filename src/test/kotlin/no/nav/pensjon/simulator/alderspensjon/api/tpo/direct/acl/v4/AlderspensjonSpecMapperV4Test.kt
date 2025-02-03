@@ -68,7 +68,8 @@ class AlderspensjonSpecMapperV4Test : FunSpec({
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
+            onlyVilkaarsproeving = false
         )
     }
 

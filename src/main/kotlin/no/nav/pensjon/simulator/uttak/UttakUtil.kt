@@ -1,9 +1,11 @@
 package no.nav.pensjon.simulator.uttak
 
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alder.PensjonAlderDato
+import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.search.IntegerDiscriminator
-import no.nav.pensjon.simulator.search.SearchForMinimum
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.isBeforeOrOn
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
 
@@ -35,43 +37,46 @@ object UttakUtil {
      * Uttaksdato er første dag i måneden etter "aldersdato".
      * "aldersdato" er datoen da aldersinnehaveren har en gitt alder (aldersdato = fødselsdato + alder)
      */
-    fun uttakDato(foedselDato: LocalDate, uttakAlder: Alder): LocalDate =
-        foedselDato.plusYears(uttakAlder.aar.toLong())
+    fun uttakDato(foedselsdato: LocalDate, uttakAlder: Alder): LocalDate =
+        foedselsdato.plusYears(uttakAlder.aar.toLong())
             .plusMonths((uttakAlder.maaneder + 1).toLong())
             .withDayOfMonth(1)
 
-    // In PEN used by SimulatorLavesteUttaksalderFinder (TMU)
-    fun forsteUttakDato(
-        foedselDato: LocalDate,
-        tidligstUttakAlder: Alder,
-        maxAlder: Alder,
-        discriminator: IntegerDiscriminator
-    ): LocalDate {
-        val antallKandidatMaaneder = maxAlder.antallMaanederEtter(tidligstUttakAlder)
-        val antallMaaneder = SearchForMinimum(discriminator).search(antallKandidatMaaneder)
-        val tilleggMaaneder = if (antallMaaneder < 0) ANTALL_KANDIDAT_MAANEDER else antallMaaneder
-        return uttakDato(foedselDato, tidligstUttakAlder).plusMonths(tilleggMaaneder.toLong())
+    fun fremtidigPensjonAlderDato(foedselsdato: LocalDate, alder: Alder): PensjonAlderDato {
+        val alderDato = PensjonAlderDato(foedselsdato, alder)
+
+        // Sjekk at dato er i fremtid:
+        return LocalDate.now().let {
+            if (alderDato.dato.isBeforeOrOn(it))
+                PensjonAlderDato(foedselsdato, dato = it.withDayOfMonth(1).plusMonths(1))
+            else
+                alderDato
+        }
     }
 
     fun uttakDatoKandidat(foedselDato: LocalDate, lavesteUttakAlder: Alder, antallMaaneder: Int): LocalDate =
         uttakDato(foedselDato, lavesteUttakAlder).plusMonths(antallMaaneder.toLong())
 
-    //fun alderForrigeMaaned(alder: UttaksalderAlderDto) = Alder(alder.aar, alder.maaneder).minusMaaneder(1)
-
-    /*V4 *
+    /**
      * Finner høyeste sluttalder (til og med) for gradert uttak.
      * Det er alderen man har måneden før startalder for helt uttak.
-     * /
-    fun gradertUttakMaxTomAlder(spec: DatobasertUttakSpec, alderIfNotGradert: Alder): Alder {
-        val alder: UttaksalderAlderDto = heltUttakFomAlder(spec, alderIfNotGradert)
+     */
+    fun gradertUttakMaxTomAlder(spec: SimuleringSpec, alderIfNotGradert: Alder): Alder {
+        val alder: Alder = heltUttakFomAlder(spec, alderIfNotGradert)
 
         if (alder.aar < 0) {
-            throw InvalidArgumentException("Ugyldig alder for helt uttak (f.o.m. = ${spec.gradertUttak?.heltUttakFom}) => år = ${alder.aar}")
+            throw InvalidArgumentException("Ugyldig alder for helt uttak (f.o.m. = ${spec.heltUttakDato}) => år = ${alder.aar}")
         }
 
-        return alderForrigeMaaned(alder)
+        return alder.minusMaaneder(1)
     }
-*/
+
+    private fun heltUttakFomAlder(spec: SimuleringSpec, alderIfNotGradert: Alder): Alder =
+        if (spec.isGradert())
+            Alder.from(spec.foedselDato!!, spec.heltUttakDato!!)
+        else
+            alderIfNotGradert
+
     /**
      * Gets a map of indexed uttaksgrader, excluding uttaksgrader greater than the given maxUttakGrad.
      * The index starts at zero.
@@ -86,12 +91,4 @@ object UttakUtil {
             .map { (grad, index) -> index - indexShift to grad }
             .toMap()
     }
-    /*V4
-        private fun heltUttakFomAlder(spec: DatobasertUttakSpec, alderIfNotGradert: Alder): UttaksalderAlderDto =
-            spec.gradertUttak?.let {
-                with(alderDato(spec.foedselDato, it.heltUttakFom).alder) {
-                    UttaksalderAlderDto(aar = this.aar, maaneder = this.maaneder)
-                }
-            } ?: dto(alderIfNotGradert)
-    */
 }

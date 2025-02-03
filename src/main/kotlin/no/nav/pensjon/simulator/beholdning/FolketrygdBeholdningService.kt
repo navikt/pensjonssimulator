@@ -127,7 +127,8 @@ class FolketrygdBeholdningService(
                 erAnonym = false,
                 ignoreAvslag = true, // true for folketrygdbeholdning
                 isHentPensjonsbeholdninger = true, // true for TPO
-                isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true // true for TPO
+                isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for TPO
+                onlyVilkaarsproeving = false
             )
 
         private fun fremtidigInntekt(source: InntektSpec) =

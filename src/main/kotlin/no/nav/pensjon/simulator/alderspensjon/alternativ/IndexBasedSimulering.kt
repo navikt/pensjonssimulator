@@ -127,7 +127,7 @@ class IndexBasedSimulering(
             if (simuleringSpec.inntektEtterHeltUttakAntallAar == null && heltUttakInntektTomAlderAar != null)
             // antallArInntektEtterHeltUttak avhenger her av heltUttakFom (som har vært ukjent inntil nå)
             // Nå er heltUttakFom kjent, så antallArInntektEtterHeltUttak kan utledes:
-                heltUttakInntektTomAlderAar - heltUttakFom.year + 1 // +1 p.g.a. fra/til OG MED
+                foedselsdato.year + heltUttakInntektTomAlderAar - heltUttakFom.year + 1 // +1 p.g.a. fra/til OG MED
             else
                 foedselsdato.year + (simuleringSpec.inntektEtterHeltUttakAntallAar?: 0) - heltUttakFom.year + 1 // +1, siden fra/til OG MED
 

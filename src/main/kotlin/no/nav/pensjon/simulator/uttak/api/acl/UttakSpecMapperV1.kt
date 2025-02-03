@@ -1,44 +1,56 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
+import no.nav.pensjon.simulator.core.domain.SimuleringType
+import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
+import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.web.BadRequestException
-import no.nav.pensjon.simulator.uttak.GradertUttakSpec
-import no.nav.pensjon.simulator.uttak.InntektSpec
-import no.nav.pensjon.simulator.uttak.TidligstMuligUttakSpec
-import no.nav.pensjon.simulator.uttak.UttakGrad
-import org.springframework.util.StringUtils.hasLength
+import java.time.LocalDate
 
 object UttakSpecMapperV1 {
-    fun fromSpecV1(dto: TidligstMuligUttakSpecV1) =
-        TidligstMuligUttakSpec(
-            pid = dto.personId.let { if (hasLength(it)) Pid(it) else missing("personId") },
-            foedselDato = dto.fodselsdato,
-            gradertUttak = gradertUttakSpec(dto),
-            rettTilOffentligAfpFom = dto.rettTilAfpOffentligDato,
-            antallAarUtenlandsEtter16Aar = 0,
-            fremtidigInntektListe = dto.fremtidigInntektListe.orEmpty().map(::inntektSpec),
+
+    // PEN: SimuleringUttaksalderSpecToInputMapper.mapSpecToInput
+    @OptIn(ExperimentalStdlibApi::class)
+    fun fromSpecV1(source: TidligstMuligUttakSpecV1, foedselsdato: LocalDate) =
+        SimuleringSpec(
+            type = source.rettTilAfpOffentligDato?.let { SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG }
+                ?: SimuleringType.ALDER,
+            sivilstatus = SivilstatusType.UGIF,
             epsHarPensjon = false,
-            epsHarInntektOver2G = false
+            foersteUttakDato = null, // ukjent; det er verdien vi ønsker å finne
+            heltUttakDato = source.heltUttakFraOgMedDato,
+            pid = Pid(source.personId),
+            foedselDato = foedselsdato,
+            avdoed = null,
+            isTpOrigSimulering = true,
+            simulerForTp = false, // since not set in SimulerAlderspensjonRequestV3Converter in PEN
+            uttakGrad = UttakGradKode.entries.firstOrNull { it.value.toInt() == source.uttaksgrad }
+                ?: UttakGradKode.P_100,
+            forventetInntektBeloep = 0, // fremtidigInntektListe is used instead
+            inntektUnderGradertUttakBeloep = 0, // fremtidigInntektListe is used instead
+            inntektEtterHeltUttakBeloep = 0, // fremtidigInntektListe is used instead
+            inntektEtterHeltUttakAntallAar = null, // fremtidigInntektListe is used instead
+            foedselAar = foedselsdato.year,
+            utlandAntallAar = 0, // not taken into account
+            utlandPeriodeListe = mutableListOf(), // not taken into account
+            fremtidigInntektListe = source.fremtidigInntektListe.orEmpty().map(::inntekt).toMutableList(),
+            inntektOver1GAntallAar = 0,
+            flyktning = false,
+            epsHarInntektOver2G = false,
+            rettTilOffentligAfpFom = source.rettTilAfpOffentligDato,
+            afpOrdning = null,
+            afpInntektMaanedFoerUttak = null,
+            erAnonym = false,
+            ignoreAvslag = false,
+            isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
+            onlyVilkaarsproeving = true
         )
 
-    private fun gradertUttakSpec(dto: TidligstMuligUttakSpecV1): GradertUttakSpec? =
-        uttakGrad(dto.uttaksgrad).let {
-            if (it == UttakGrad.HUNDRE_PROSENT)
-                null // not gradert uttak
-            else
-                GradertUttakSpec(grad = it, heltUttakFom = dto.heltUttakFraOgMedDato)
-        }
-
-    private fun uttakGrad(prosentsats: Int?): UttakGrad =
-        prosentsats?.let(UttakGrad::from) ?: UttakGrad.HUNDRE_PROSENT
-
-    private fun inntektSpec(dto: UttakInntektSpecV1) =
-        InntektSpec(
-            fom = dto.fraOgMedDato,
-            aarligBeloep = dto.arligInntekt ?: 0
+    private fun inntekt(source: UttakInntektSpecV1) =
+        FremtidigInntekt(
+            aarligInntektBeloep = source.arligInntekt ?: 0,
+            fom = source.fraOgMedDato
         )
-
-    private fun <T> missing(valueName: String): T {
-        throw BadRequestException("$valueName missing")
-    }
 }

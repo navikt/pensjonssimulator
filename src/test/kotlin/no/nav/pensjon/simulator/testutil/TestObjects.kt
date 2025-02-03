@@ -71,6 +71,7 @@ object TestObjects {
         erAnonym = false,
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,
-        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
+        onlyVilkaarsproeving = false
     )
 }

@@ -91,7 +91,7 @@ class SimulatorCore(
             if (initialSpec.gjelderPre2025OffentligAfp())
             // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
                 initialSpec.withHeltUttakDato(foedselsdato?.let {
-                    uttakDato(foedselDato = it, uttakAlder = normAlderService.normAlder(it))
+                    uttakDato(foedselsdato = it, uttakAlder = normAlderService.normAlder(it))
                 })
             else
                 initialSpec
@@ -216,7 +216,8 @@ class SimulatorCore(
                     kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
                     sakId = kravhode.sakId,
                     sakType = kravhode.sakType,
-                    ignoreAvslag = spec.ignoreAvslag
+                    ignoreAvslag = spec.ignoreAvslag,
+                    onlyVilkaarsproeving = spec.onlyVilkaarsproeving
                 )
             )
 

@@ -24,22 +24,15 @@ class SimuleringFacade(
             val result: SimulatorOutput = simulator.simuler(spec)
 
             return SimulertPensjonEllerAlternativ(
-                pensjon = pensjon(result),
+                pensjon = if (spec.onlyVilkaarsproeving)
+                    null // irrelevant when finding uttak only
+                else
+                    pensjon(result),
                 alternativ = null
             )
-        } catch (_: UtilstrekkeligOpptjeningException) {
+        } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
-            return if (isGradertAndReducible(spec))
-                alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
-                    spec,
-                    inkluderPensjonHvisUbetinget
-                ) else
-                alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
-                    spec,
-                    inkluderPensjonHvisUbetinget
-                )
-        } catch (_: UtilstrekkeligTrygdetidException) {
-            return if (isGradertAndReducible(spec))
+            return if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
                     spec,
                     inkluderPensjonHvisUbetinget
@@ -48,7 +41,18 @@ class SimuleringFacade(
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
                     spec,
                     inkluderPensjonHvisUbetinget
+                ) ?: throw e
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            return if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
+                alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
+                    spec,
+                    inkluderPensjonHvisUbetinget
                 )
+            else
+                alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
+                    spec,
+                    inkluderPensjonHvisUbetinget
+                ) ?: throw e
         }
     }
 

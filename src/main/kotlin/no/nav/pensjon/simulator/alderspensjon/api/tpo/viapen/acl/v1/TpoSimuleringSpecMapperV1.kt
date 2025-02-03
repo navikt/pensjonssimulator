@@ -38,6 +38,7 @@ object TpoSimuleringSpecMapperV1 {
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true // true for TPO
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for TPO
+            onlyVilkaarsproeving = false
         )
 }

@@ -32,7 +32,7 @@ class Pre2025OffentligAfpEndringBeregner(private val normAlderService: NormAlder
         }
 
         val normAlderDato: LocalDate = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate().let {
-            uttakDato(foedselDato = it, uttakAlder = normAlderService.normAlder(it))
+            uttakDato(foedselsdato = it, uttakAlder = normAlderService.normAlder(it))
         }
 
         //TODO support LocalDate in findEarliestDateByDay:

@@ -46,6 +46,7 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             erAnonym = false, //TODO verify
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false, //TODO verify
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false //TODO verify
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false, //TODO verify
+            onlyVilkaarsproeving = false
         )
 }

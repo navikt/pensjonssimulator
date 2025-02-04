@@ -114,7 +114,8 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     erAnonym = false,
                     ignoreAvslag = false,
                     isHentPensjonsbeholdninger = true,
-                    isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
+                    isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
+                    onlyVilkaarsproeving = false
                 )
     }
 })

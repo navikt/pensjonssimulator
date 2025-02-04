@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.alder
 
 import java.time.LocalDate
-import java.time.Period
 
 /**
  * Inneholder pensjonsrelatart alder og den datoen som alderen representerer relativt til fødselsdato.
@@ -30,9 +29,6 @@ data class PensjonAlderDato(
 
         // TODO compare this with SimuleringRequestConverter.convertDatoFomToAlder
         private fun alderVedDato(foedselDato: LocalDate, dato: LocalDate): Alder =
-            Period.between(
-                foedselDato.withDayOfMonth(1),
-                dato.withDayOfMonth(1)
-            ).let { Alder(it.years, it.months) }
+            Alder.from(foedselDato, dato)
     }
 }

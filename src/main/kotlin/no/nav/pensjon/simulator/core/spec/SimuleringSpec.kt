@@ -42,7 +42,8 @@ data class SimuleringSpec(
     val erAnonym: Boolean,
     val ignoreAvslag: Boolean, //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
     val isHentPensjonsbeholdninger: Boolean,
-    val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
+    val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
+    val onlyVilkaarsproeving: Boolean
 ) {
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
     val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
@@ -75,7 +76,14 @@ data class SimuleringSpec(
 
     fun heltUttak(): HeltUttakSimuleringSpec {
         val uttakDato: LocalDate =
-            heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
+            if (uttakGrad == UttakGradKode.P_100)
+            // Kun helt uttak: Bare foersteUttakDato bør være definert
+                foersteUttakDato ?: heltUttakDato
+                ?: throw IllegalArgumentException("Ingen uttaksdato definert for ugradert uttak")
+            else
+            // Gradert uttak fulgt av helt uttak: heltUttakDato brukes for 100%-uttaket
+                heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
+
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
@@ -130,8 +138,12 @@ data class SimuleringSpec(
             erAnonym = erAnonym,
             ignoreAvslag = ignoreAvslag,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+            onlyVilkaarsproeving = onlyVilkaarsproeving
         )
+
+    fun withFoersteUttakDato(dato: LocalDate?) =
+        withUttak(foersteUttakDato = dato, uttakGrad, heltUttakDato, inntektEtterHeltUttakAntallAar)
 
     fun withHeltUttakDato(dato: LocalDate?) =
         withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
@@ -148,6 +160,11 @@ data class SimuleringSpec(
                 type == SimuleringType.ENDR_AP_M_AFP_PRIVAT ||
                 type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG ||
                 type == SimuleringType.ENDR_ALDER_M_GJEN
+
+    fun hasSameUttakAs(other: SimuleringSpec) =
+        uttakGrad == other.uttakGrad &&
+                foersteUttakDato == other.foersteUttakDato &&
+                heltUttakDato == other.heltUttakDato
 
     private companion object {
         //TODO move to UttakGradKode?

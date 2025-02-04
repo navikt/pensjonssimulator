@@ -32,5 +32,6 @@ data class AlderspensjonVilkaarsproeverBeregnerSpec(
     val sakId: Long?,
     val sakType: SakType?,
     val afpOffentligLivsvarigBeregningsresultat: LivsvarigOffentligAfpResult?,
-    val ignoreAvslag: Boolean = false
+    val ignoreAvslag: Boolean,
+    val onlyVilkaarsproeving: Boolean
 )

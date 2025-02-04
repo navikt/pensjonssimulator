@@ -41,7 +41,7 @@ class AlderspensjonService(
                 pensjon = SimulatorOutputConverter.pensjon(result), // SimulatorOutput -> SimulertPensjon
                 alternativ = null
             )
-        } catch (_: UtilstrekkeligOpptjeningException) {
+        } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isReducible(spec.uttakGrad))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
@@ -52,8 +52,8 @@ class AlderspensjonService(
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
                     spec,
                     inkluderPensjonHvisUbetinget = true
-                )
-        } catch (_: UtilstrekkeligTrygdetidException) {
+                ) ?: throw e
+        } catch (e: UtilstrekkeligTrygdetidException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isReducible(spec.uttakGrad))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
@@ -64,7 +64,7 @@ class AlderspensjonService(
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
                     spec,
                     inkluderPensjonHvisUbetinget = true
-                )
+                ) ?: throw e
         }
     }
 

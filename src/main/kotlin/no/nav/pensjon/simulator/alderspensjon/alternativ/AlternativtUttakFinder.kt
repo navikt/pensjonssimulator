@@ -79,7 +79,8 @@ class AlternativtUttakFinder(
         val helAlder = alder(helPeriode)
 
         return SimulertPensjonEllerAlternativ(
-            pensjon = pensjon?.let(::pensjon),
+            pensjon = if (simuleringSpec.onlyVilkaarsproeving) null else pensjon?.let(::pensjon),
+            // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             alternativ = SimulertAlternativ(
                 uttakGrad = usedParameters.uttakGrad,
                 gradertUttakAlder = usedParameters.gradertUttakFom?.let {

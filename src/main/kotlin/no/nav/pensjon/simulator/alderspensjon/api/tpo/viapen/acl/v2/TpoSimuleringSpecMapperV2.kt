@@ -29,7 +29,8 @@ object TpoSimuleringSpecMapperV2 {
             foedselAar = 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = mutableListOf(),
-            fremtidigInntektListe = source.fremtidigInntektList.orEmpty().map(TpoSimuleringSpecMapperV2::inntekt).toMutableList(), // V2, V3 only
+            fremtidigInntektListe = source.fremtidigInntektList.orEmpty()
+                .map(TpoSimuleringSpecMapperV2::inntekt).toMutableList(), // V2, V3 only
             inntektOver1GAntallAar = 0,
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
@@ -39,7 +40,8 @@ object TpoSimuleringSpecMapperV2 {
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true // true for TPO
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for TPO
+            onlyVilkaarsproeving = false
         )
 
     private fun inntekt(source: InntektSpecLegacyV2) =

@@ -16,7 +16,7 @@ object SimuleringSpecUtil {
         source: SimuleringSpec,
         normAlder: Alder
     ): SimuleringSpec {
-        val uttakFomAlder = PensjonAlderDato(source.foedselDato!!, alderSpec(normAlder))
+        val uttakFomAlder = PensjonAlderDato(source.foedselDato!!, normAlder)
 
         return newSimuleringSpec(
             source,
@@ -35,16 +35,26 @@ object SimuleringSpecUtil {
         foedselsdato: LocalDate
     ): SimuleringSpec {
         val gradert = source.isGradert()
-        val utkantFoersteUttakAlder: Alder = normAlder.minusMaaneder(1)
-        val utkantFoersteUttakFomAlderSpec: Alder = alderSpec(utkantFoersteUttakAlder)
-        val heltUttakFomAlderDto: Alder =
-            if (gradert) alderSpec(normAlder) else utkantFoersteUttakFomAlderSpec
+
+        val maxAlder = if (source.onlyVilkaarsproeving && gradert)
+            PensjonAlderDato(foedselsdato, source.heltUttakDato!!)
+        else
+            PensjonAlderDato(foedselsdato, normAlder)
+
+        val utkantFoersteUttakAlder: Alder = maxAlder.alder.minusMaaneder(1)
+
+        val heltUttakFomAlder: Alder =
+            if (gradert) maxAlder.alder else utkantFoersteUttakAlder
 
         return newSimuleringSpec(
             source,
-            foersteUttakFom = PensjonAlderDato(foedselsdato, utkantFoersteUttakFomAlderSpec),
-            uttaksgrad = if (gradert) utkantUttaksgrad else UttakGradKode.P_100,
-            heltUttakFom = PensjonAlderDato(foedselsdato, heltUttakFomAlderDto)
+            foersteUttakFom = PensjonAlderDato(foedselsdato, utkantFoersteUttakAlder),
+            uttaksgrad =
+                if (gradert)
+                    if (source.onlyVilkaarsproeving) source.uttakGrad else utkantUttaksgrad
+                else
+                    UttakGradKode.P_100,
+            heltUttakFom = PensjonAlderDato(foedselsdato, heltUttakFomAlder)
         )
     }
 
@@ -91,7 +101,8 @@ object SimuleringSpecUtil {
             erAnonym = source.erAnonym,
             ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+            onlyVilkaarsproeving = source.onlyVilkaarsproeving
         )
     }
 
@@ -125,7 +136,8 @@ object SimuleringSpecUtil {
             erAnonym = source.erAnonym,
             ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+            onlyVilkaarsproeving = source.onlyVilkaarsproeving
         )
 
     private fun naermesteLavereUttakGrad(grad: UttakGradKode) =
@@ -138,6 +150,4 @@ object SimuleringSpecUtil {
             UttakGradKode.P_80 -> UttakGradKode.P_60
             UttakGradKode.P_100 -> UttakGradKode.P_80
         }
-
-    private fun alderSpec(source: Alder) = Alder(source.aar, source.maaneder)
 }

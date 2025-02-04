@@ -109,7 +109,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             val gjeldendeLivsvarigAfp = gjeldendePrivatAfp ?: gjeldendeLivsvarigOffentligAfp?.toAfpLivsvarig()
 
             // Corresponds to part 5
-            if (aarsaker.contains(KnekkpunktAarsak.UTG)) {
+            if (aarsaker.contains(KnekkpunktAarsak.UTG)) { // UTG = 'Endring av uttaksgrad'
                 // CR195877 21.03.2011 OJB2812: When simulation is called from eksterne ordninger for a 2025-bruker, then we
                 // should force a Kap 19 simulation even for pure Kap 20 brukere (2025) since eksterne ordninger currently
                 // aren't able to parse a Kap 20 result. But - the vilkårsprøving must be done with a 2025-beregning. This
@@ -134,6 +134,10 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 )
 
                 val vilkaarsproevingResult = vilkaarsproever.vilkaarsproevKrav(vilkaarsproevingSpec)
+
+                if (spec.onlyVilkaarsproeving)
+                    return AlderspensjonBeregnerResult(beregningResultatListe, pensjonBeholdningPeriodeListe)
+
                 vedtakListe = vilkaarsproevingResult.first
                 kravhode = vilkaarsproevingResult.second
                 forrigeVedtakListe = vedtakListe

@@ -39,6 +39,7 @@ object AnonymSimuleringSpecMapperV1 {
             afpOrdning = null,
             afpInntektMaanedFoerUttak = null,
             isHentPensjonsbeholdninger = false,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
+            onlyVilkaarsproeving = false
         )
 }

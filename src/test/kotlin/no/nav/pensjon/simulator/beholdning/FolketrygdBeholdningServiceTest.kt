@@ -151,7 +151,8 @@ private fun simuleringSpec() =
         erAnonym = false,
         ignoreAvslag = true, // true for folketrygdbeholdning
         isHentPensjonsbeholdninger = true,
-        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
+        onlyVilkaarsproeving = false
     )
 
 

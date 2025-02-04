@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtb
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.to.RevurderingAlderspensjon2025Request
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2011Request
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2016Request
@@ -148,6 +149,13 @@ object SimulatorContextUtil {
         if (kontrollTjenesteOk && annenTjenesteOk) return
 
         val message = pakkseddel.merknaderAsString()
+
+        (spec as? RevurderingAlderspensjon2025Request)?.let {
+            log.warn {
+                "RevurderingAlderspensjon2025Request: virkFom ${it.virkFom} vs uttaksgrader ${uttaksgraderString(it)}"
+            }
+        }
+
         log.warn { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
 
         if (kontrollTjenesteOk) {
@@ -199,4 +207,8 @@ object SimulatorContextUtil {
         key.append(":").append(grunnlag.opptjening?.ar)
         return key.toString()
     }
+
+    private fun uttaksgraderString(request: RevurderingAlderspensjon2025Request): String =
+        request.kravhode?.uttaksgradListe
+            ?.map { "${it.uttaksgrad} fom ${it.fomDato} tom ${it.tomDato}" }.orEmpty().joinToString("; ")
 }

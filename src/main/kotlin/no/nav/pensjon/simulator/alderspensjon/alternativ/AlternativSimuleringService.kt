@@ -45,7 +45,7 @@ class AlternativSimuleringService(
             alternativResponse(
                 spec = lavereGradSpec,
                 alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result)
-                // for 'onlyVilkaarsproeving' er bereegnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
+                // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Lavere grad ga "avslått" resultat; prøv utkanttilfellet og ev. alternative parametre:

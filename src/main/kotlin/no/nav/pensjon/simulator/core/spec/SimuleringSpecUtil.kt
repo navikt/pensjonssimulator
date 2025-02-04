@@ -37,7 +37,7 @@ object SimuleringSpecUtil {
         val gradert = source.isGradert()
 
         val maxAlder = if (source.onlyVilkaarsproeving && gradert)
-            PensjonAlderDato(foedselsdato, source.heltUttakDato!!) //.minusMonths(1))
+            PensjonAlderDato(foedselsdato, source.heltUttakDato!!)
         else
             PensjonAlderDato(foedselsdato, normAlder)
 

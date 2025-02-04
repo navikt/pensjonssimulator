@@ -87,7 +87,7 @@ data class SimuleringSpec(
         val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
 
         return HeltUttakSimuleringSpec(
-            uttakFom = PensjonAlderDato(foedselDato!!, uttakDato), //.minusMonths(1)),
+            uttakFom = PensjonAlderDato(foedselDato!!, uttakDato),
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
             inntektTom = PensjonAlderDato(foedselDato, uttakDato.plusYears(inntektAntallAar)),
         )

@@ -8,8 +8,8 @@ import no.nav.pensjon.simulator.core.beregn.Tuple2
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
+import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -63,27 +63,27 @@ class FolketrygdBeholdningService(
 
         private fun verifyDateIsFirstInMonth(date: LocalDate) {
             if (date.dayOfMonth != 1) {
-                throw InvalidArgumentException("Inntekt in fremtidigInntektListe must have a 'inntektFom' date that is the first day of a month")
+                throw BadSpecException("Inntekt in fremtidigInntektListe must have a 'inntektFom' date that is the first day of a month")
             }
         }
 
         private fun verifyUttakFom(uttakFom: LocalDate, foedselsdato: LocalDate) {
             if (uttakFom.dayOfMonth != 1) {
-                throw InvalidArgumentException("uttakFom must be the first day in a month")
+                throw BadSpecException("uttakFom must be the first day in a month")
             }
 
             val alder = convertDatoFomToAlderTuple(uttakFom, foedselsdato)
 
             if (alder.first < MIN_ALDER_AAR) {
-                throw InvalidArgumentException("uttakFom cannot be earlier than first month after user turns $MIN_ALDER_AAR")
+                throw BadSpecException("uttakFom cannot be earlier than first month after user turns $MIN_ALDER_AAR")
             }
 
             if (alder.first > MAX_ALDER_AAR || (alder.first == MAX_ALDER_AAR && alder.second > 1)) {
-                throw InvalidArgumentException("uttakFom cannot be later than first month after user turns $MAX_ALDER_AAR")
+                throw BadSpecException("uttakFom cannot be later than first month after user turns $MAX_ALDER_AAR")
             }
 
             if (isBeforeByDay(uttakFom, LocalDate.now(), false)) {
-                throw InvalidArgumentException("uttakFom must be after today")
+                throw BadSpecException("uttakFom must be after today")
             }
         }
 

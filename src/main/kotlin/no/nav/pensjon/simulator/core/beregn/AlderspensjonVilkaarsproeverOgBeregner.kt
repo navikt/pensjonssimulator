@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.beregn
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
@@ -48,6 +49,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val sisteBeregningCreator: SisteBeregningCreator,
     private val generelleDataHolder: GenerelleDataHolder
 ) {
+    private val log = KotlinLogging.logger { }
+
     fun vilkaarsproevOgBeregnAlder(spec: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
         val beregningResultatListe: MutableList<AbstraktBeregningsResultat> = mutableListOf()
         val knekkpunkter = spec.knekkpunkter
@@ -70,6 +73,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         val vedtakListeAllePerioder: MutableList<VilkarsVedtak> = mutableListOf()
 
         vedtakListeAllePerioder.addAll(forrigeVedtakListe)
+        log.warn { "knekkpunkter $knekkpunkter" }
 
         for (knekkpunktEntry: Map.Entry<LocalDate, List<KnekkpunktAarsak>> in knekkpunkter) {
             val knekkpunktDato = knekkpunktEntry.key

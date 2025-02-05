@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.generelt.client.pen.acl
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
+import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
@@ -33,7 +34,7 @@ class PenGenerelleDataResultMapperTest : FunSpec({
                     ft67virkning = 5.6,
                     reguleringFaktor = 7.8
                 ),
-                satsResultatListe = listOf()
+                satsResultatListe = emptyList()
             )
         ) shouldBeEqualToComparingFields
                 GenerelleData(
@@ -60,8 +61,72 @@ class PenGenerelleDataResultMapperTest : FunSpec({
                         ft67virk = 0.0 // not mapped, so not 5.6
                         reguleringsfaktor = 0.0 // not mapped, so not 7.8
                     },
-                    satsResultatListe = listOf()
+                    satsResultatListe = emptyList()
                 )
+    }
+
+    test("fromDto lists") {
+        val result = PenGenerelleDataResultMapper.fromDto(
+            PenGenerelleDataResult(
+                person = PenPersonData(
+                    foedselDato = LocalDate.of(1964, 5, 6),
+                    statsborgerskap = "ABW"
+                ),
+                privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
+                delingstallUtvalg = PenDelingstallUtvalg(
+                    dt = 1.2,
+                    dt67soker = 3.4,
+                    dt67virk = 5.6,
+                    delingstallListe = mutableListOf(
+                        PenAarskullTall(
+                            aarskull = 1970L,
+                            alderAar = 55,
+                            maaneder = 9,
+                            tall = 6.71
+                        )
+                    )
+                ),
+                forholdstallUtvalg = PenForholdstallUtvalg(
+                    ft = 1.2,
+                    forholdstallListe = mutableListOf(
+                        PenAarskullTall(
+                            aarskull = 1960L,
+                            alderAar = 65,
+                            maaneder = 11,
+                            tall = 6.7
+                        )
+                    ),
+                    ft67soeker = 3.4,
+                    ft67virkning = 5.6,
+                    reguleringFaktor = 7.8
+                ),
+                satsResultatListe = listOf(
+                    PenVeietSatsResultat(
+                        aar = 2025,
+                        verdi = 8.9
+                    )
+                )
+            )
+        )
+
+        with(result.delingstallUtvalg.delingstallListe[0]) {
+            arskull shouldBe 1970
+            alder shouldBe 55
+            maned shouldBe 9
+            delingstall shouldBe 6.71
+        }
+
+        with(result.forholdstallUtvalg.forholdstallListe[0]) {
+            arskull shouldBe 1960
+            alder shouldBe 65
+            maned shouldBe 11
+            forholdstall shouldBe 6.7
+        }
+
+        with(result.satsResultatListe[0]) {
+            ar shouldBe 2025
+            verdi shouldBe 8.9
+        }
     }
 
     /* TODO does currently not work with filled lists

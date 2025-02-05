@@ -52,7 +52,10 @@ object PenGenerelleDataResultMapper {
         )
 
     private fun veietSatsResultat(source: PenVeietSatsResultat) =
-        VeietSatsResultat(ar = source.aar)
+        VeietSatsResultat(
+            ar = source.aar,
+            verdi = source.verdi
+        )
 
     private fun delingstall(source: PenAarskullTall) =
         Delingstall(

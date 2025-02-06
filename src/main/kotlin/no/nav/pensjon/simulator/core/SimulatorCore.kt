@@ -181,7 +181,8 @@ class SimulatorCore(
         } else {
             pre2025OffentligAfpResult = null
             livsvarigOffentligAfpResult =
-                if (spec.type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG)
+                if (spec.type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
+                    spec.type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) // github.com/navikt/pensjon-pen/pull/14792
                     foedselsdato?.let {
                         livsvarigOffentligAfpService.beregnAfp(
                             pid = person.pid!!,

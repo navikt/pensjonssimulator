@@ -230,7 +230,7 @@ object SimuleringResultPreparer {
                 SimulatorOutputMapper.mapToSimulertAfpPrivatPeriode(
                     aarligBeloep = it.pensjonUnderUtbetaling?.totalbelopNettoAr?.toInt() ?: 0,
                     resultat = it,
-                    alder = null
+                    alder = 0 // github.com/navikt/pensjon-pen/pull/14903
                 )
             )
         }

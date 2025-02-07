@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import java.time.LocalDate
 
 /**
@@ -11,7 +12,7 @@ import java.time.LocalDate
  * It maps 1-to-1 with SimuleringSpecLegacyV1 in PEN
  * (except that dates are represented by java.time.LocalDate here and by java.util.Date in PEN).
  */
-data class TpoSimuleringSpecV1  (
+data class TpoSimuleringSpecV1(
     val pid: String? = null,
     val sivilstatus: SivilstatusType? = null,
     val epsPensjon: Boolean? = false,
@@ -32,4 +33,19 @@ data class TpoSimuleringSpecV1  (
     val inntektUnderGradertUttak: Int? = null, // V1 only
     val inntektEtterHeltUttak: Int? = null // V1 only
     // fremtidigInntektList: V2, V3 only
-)
+) {
+    override fun toString(): String =
+        "{ \"pid\": \"${redact(pid)}\", " +
+                "\"sivilstatus\": \"$sivilstatus\", " +
+                "\"epsPensjon\": $epsPensjon, " +
+                "\"eps2G\": $eps2G, " +
+                "\"utenlandsopphold\": $utenlandsopphold, " +
+                "\"simuleringType\": \"$simuleringType\", " +
+                "\"foersteUttakDato\": \"$foersteUttakDato\", " +
+                "\"uttakGrad\": \"$uttakGrad\", " +
+                "\"heltUttakDato\": \"$heltUttakDato\", " +
+                "\"antallArInntektEtterHeltUttak\": $antallArInntektEtterHeltUttak, " +
+                "\"forventetInntekt\": $forventetInntekt, " +
+                "\"inntektUnderGradertUttak\": $inntektUnderGradertUttak, " +
+                "\"inntektEtterHeltUttak\": $inntektEtterHeltUttak }"
+}

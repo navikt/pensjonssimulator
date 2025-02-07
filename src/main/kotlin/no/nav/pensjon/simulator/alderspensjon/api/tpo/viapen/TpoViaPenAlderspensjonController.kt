@@ -19,22 +19,17 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimulerin
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
-import no.nav.pensjon.simulator.core.exception.PersonForGammelException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 /**
  * REST-controller for simulering av alderspensjon.
@@ -73,13 +68,65 @@ class TpoViaPenAlderspensjonController(
     )
     fun simulerAlderspensjonV1(@RequestBody specV1: TpoSimuleringSpecV1): TpoSimuleringResultV1 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV1" }
-        countCall(FUNCTION_ID)
+        countCall(FUNCTION_ID_V1)
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV1.fromDto(specV1)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV1.toDto(result)
+        } catch (e: BadRequestException) {
+            log.warn(e) { "$FUNCTION_ID_V1 bad request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: BadSpecException) {
+            log.warn { "$FUNCTION_ID_V1 bad spec - $specV1" } // not log.warn(e)
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            log.warn(e) { "$FUNCTION_ID_V1 feil i simuleringsgrunnlaget - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: ImplementationUnrecoverableException) {
+            log.error(e) { "$FUNCTION_ID_V1 unrecoverable error - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InvalidArgumentException) {
+            log.warn(e) { "$FUNCTION_ID_V1 invalid argument - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KanIkkeBeregnesException) {
+            log.warn(e) { "$FUNCTION_ID_V1 kan ikke beregnes - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            log.warn(e) { "$FUNCTION_ID_V1 inkonsistent grunnlag - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForGammelException) {
+            log.warn(e) { "$FUNCTION_ID_V1 person for gammel - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForUngException) {
+            log.warn(e) { "$FUNCTION_ID_V1 person for ung - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID_V1 pre-2025 offentlig AFP avslått - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: RegelmotorValideringException) {
+            log.warn(e) { "$FUNCTION_ID_V1 regelmotorvalideringsfeil - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn(e) { "$FUNCTION_ID_V1 utilstrekkelig opptjening - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn(e) { "$FUNCTION_ID_V1 utilstrekkelig trygdetid - request - $specV1" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+            /* TODO ref. PEN SimulerAlderspensjonController.simuler
+        } catch (e: BrukerHarIkkeLopendeAlderspensjonException) {
+            handleExceptionV1(e)
+        } catch (e: BrukerHarLopendeAPPaGammeltRegelverkException) {
+            handleExceptionV1(e)
+            */
+            /* TODO ref. PEN ThrowableExceptionMapper.handleException
+        } catch (e: IllegalArgumentException) {
+            handleExceptionV1(e)
+        } catch (e: PidValidationException) {
+            handleExceptionV1(e)
+        } catch (e: PersonIkkeFunnetLokaltException) {
+            handleExceptionV1(e)
+            */
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
@@ -114,17 +161,54 @@ class TpoViaPenAlderspensjonController(
     )
     fun simulerAlderspensjonV2(@RequestBody specV2: TpoSimuleringSpecV2): TpoSimuleringResultV2 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV2" }
-        countCall(FUNCTION_ID)
+        log.debug { "$FUNCTION_ID_V2 request: $specV2" }
+        countCall(FUNCTION_ID_V2)
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV2.fromDto(specV2)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV2.toDto(result)
+        } catch (e: BadRequestException) {
+            log.warn(e) { "$FUNCTION_ID_V2 bad request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: BadSpecException) {
+            log.warn { "$FUNCTION_ID_V2 bad spec - $specV2" } // not log.warn(e)
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            log.warn(e) { "$FUNCTION_ID_V2 feil i simuleringsgrunnlaget - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: ImplementationUnrecoverableException) {
+            log.error(e) { "$FUNCTION_ID_V2 unrecoverable error - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InvalidArgumentException) {
+            log.warn(e) { "$FUNCTION_ID_V2 invalid argument - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KanIkkeBeregnesException) {
+            log.warn(e) { "$FUNCTION_ID_V2 kan ikke beregnes - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            log.warn(e) { "$FUNCTION_ID_V2 inkonsistent grunnlag - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForGammelException) {
+            log.warn(e) { "$FUNCTION_ID_V2 person for gammel - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForUngException) {
+            log.warn(e) { "$FUNCTION_ID_V2 person for ung - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID_V2 pre-2025 offentlig AFP avslått - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: RegelmotorValideringException) {
+            log.warn(e) { "$FUNCTION_ID_V2 regelmotorvalideringsfeil - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn(e) { "$FUNCTION_ID_V2 utilstrekkelig opptjening - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn(e) { "$FUNCTION_ID_V2 utilstrekkelig trygdetid - request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
         } catch (e: InvalidEnumValueException) {
             badRequest(e)!!
         } finally {
@@ -153,33 +237,55 @@ class TpoViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): ResponseEntity<TpoResultEnvelopeV3> {
+    fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): TpoSimuleringResultV3 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV3" }
-        countCall(FUNCTION_ID)
+        log.debug { "$FUNCTION_ID_V3 request: $specV3" }
+        countCall(FUNCTION_ID_V3)
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV3.fromDto(specV3)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
-
-            ResponseEntity.ok(
-                TpoResultEnvelopeV3(
-                    result = TpoSimuleringResultMapperV3.toDto(result),
-                    error = null
-                )
-            )
-        } catch (e: UtilstrekkeligOpptjeningException) {
-            handleExceptionV3(e)
-        } catch (e: UtilstrekkeligTrygdetidException) {
-            handleExceptionV3(e)
-        } catch (e: PersonForGammelException) {
-            handleExceptionV3(e)
+            TpoSimuleringResultMapperV3.toDto(result)
+        } catch (e: BadRequestException) {
+            log.warn(e) { "$FUNCTION_ID_V3 bad request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: BadSpecException) {
+            log.warn { "$FUNCTION_ID_V3 bad spec - $specV3" } // not log.warn(e)
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn { "feil i simuleringsgrunnlaget - ${e.message} - request: $specV3" }
-            handleExceptionV3(e)
+            log.warn(e) { "$FUNCTION_ID_V3 feil i simuleringsgrunnlaget - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: ImplementationUnrecoverableException) {
+            log.error(e) { "$FUNCTION_ID_V3 unrecoverable error - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: InvalidArgumentException) {
-            handleExceptionV3(e)
-            /* TODO ref. PEN SimulerAlderspensjonController.simuler
+            log.warn(e) { "$FUNCTION_ID_V3 invalid argument - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KanIkkeBeregnesException) {
+            log.warn(e) { "$FUNCTION_ID_V3 kan ikke beregnes - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            log.warn(e) { "$FUNCTION_ID_V3 inkonsistent grunnlag - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForGammelException) {
+            log.warn(e) { "$FUNCTION_ID_V3 person for gammel - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: PersonForUngException) {
+            log.warn(e) { "$FUNCTION_ID_V3 person for ung - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID_V3 pre-2025 offentlig AFP avslått - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: RegelmotorValideringException) {
+            log.warn(e) { "$FUNCTION_ID_V3 regelmotorvalideringsfeil - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig opptjening - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+            /* TODO ref. PEN DefaultSimulerePensjonProvider.simulerFleksibelAp
         } catch (e: BrukerHarIkkeLopendeAlderspensjonException) {
             handleExceptionV3(e)
         } catch (e: BrukerHarLopendeAPPaGammeltRegelverkException) {
@@ -204,28 +310,49 @@ class TpoViaPenAlderspensjonController(
         }
     }
 
-    override fun errorMessage() = ERROR_MESSAGE
-
-    data class TpoResultEnvelopeV3(
-        val result: TpoSimuleringResultV3? = null,
-        val error: TpoSimuleringErrorV3? = null
+    @ExceptionHandler(
+        value = [
+            BadRequestException::class,
+            BadSpecException::class,
+            FeilISimuleringsgrunnlagetException::class,
+            InvalidArgumentException::class,
+            KanIkkeBeregnesException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            PersonForGammelException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            RegelmotorValideringException::class,
+            UtilstrekkeligOpptjeningException::class,
+            UtilstrekkeligTrygdetidException::class
+        ]
     )
+    private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e))
+
+    @ExceptionHandler(
+        value = [
+            ImplementationUnrecoverableException::class
+        ]
+    )
+    fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto(e))
+
+    override fun errorMessage() = ERROR_MESSAGE
 
     /**
      * Ref. PEN JsonErrorEntityBuilder.createErrorEntity
      */
-    data class TpoSimuleringErrorV3(val feil: String)
+    data class TpoSimuleringErrorDto(val feil: String)
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for TPO via PEN"
-        private const val FUNCTION_ID = "ap-tpo-pen"
+        private const val FUNCTION_ID_V1 = "tpo-ap-v1"
+        private const val FUNCTION_ID_V2 = "tpo-ap-v2"
+        private const val FUNCTION_ID_V3 = "tpo-ap-v3"
 
-        private fun <T : RuntimeException> handleExceptionV3(e: T): ResponseEntity<TpoResultEnvelopeV3> =
-            ResponseEntity.badRequest().body(
-                TpoResultEnvelopeV3(
-                    result = null,
-                    error = TpoSimuleringErrorV3(e.message ?: e.javaClass.simpleName)
-                )
+        private fun errorDto(e: RuntimeException) =
+            TpoSimuleringErrorDto(
+                feil = e.javaClass.simpleName
             )
     }
 }

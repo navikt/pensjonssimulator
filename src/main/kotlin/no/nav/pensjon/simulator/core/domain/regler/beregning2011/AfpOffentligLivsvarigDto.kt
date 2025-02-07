@@ -1,11 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import java.time.LocalDate
 
 class AfpOffentligLivsvarigDto(bruttoPerAr: Double) : AfpLivsvarig(
-    //ytelsekomponentType = YtelseskomponentTypeEnum.AFP_OFFENTLIG_LIVSVARIG,
     formelKode = FormelKodeEnum.AFPx,
     bruttoPerAr
 ) {
@@ -15,13 +13,12 @@ class AfpOffentligLivsvarigDto(bruttoPerAr: Double) : AfpLivsvarig(
         this.sistRegulert = sistRegulert
     }
 
-    //fun toVilkarsprovDto() = AfpOffentligLivsvarig(sistRegulert, bruttoPerAr)
     //TODO sistRegulertG
     fun toVilkarsprovDto() = AfpOffentligLivsvarigGrunnlag(sistRegulertG = 0, bruttoPerAr)
 
     //Kan sendes uten kovertering til foreldreklassen, naar pensjon-regler publserer et nytt API med stotte til AfpOffentligLivsvarig : AfpLivsvarig
     fun toAfpLivsvarig() =
-        AfpLivsvarig().apply {
-            this.bruttoPerAr = bruttoPerAr
+        AfpLivsvarig().also {
+            it.bruttoPerAr = bruttoPerAr
         }
 }

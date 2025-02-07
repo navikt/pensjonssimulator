@@ -35,10 +35,36 @@ class PenPersonClient(
 
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
-    private val cache: Cache<List<Pid>, Map<Pid, PenPerson>> = createCache("loependeYtelser", cacheManager)
+    private val cache: Cache<Pid, PenPerson> = createCache("person", cacheManager)
 
-    override fun fetchPersonerVedPid(pidListe: List<Pid>): Map<Pid, PenPerson> =
-        cache.getIfPresent(pidListe) ?: fetchFreshPersoner(pidListe).also { cache.put(pidListe, it) }
+    override fun fetchPersonerVedPid(pidListe: List<Pid>): Map<Pid, PenPerson> {
+        val cacheState = analyseCache(pidListe)
+        val hits: List<PenPerson> = cacheState.hits
+        val misses: List<Pid> = cacheState.misses
+
+        if (misses.isEmpty())
+            return hits.associateBy { it.pid!! }
+
+        val personerVedPid: MutableMap<Pid, PenPerson> =
+            fetchFreshPersoner(misses).apply {
+                forEach { cache.put(it.key, it.value) }
+            }.toMutableMap()
+
+        hits.forEach { personerVedPid.put(it.pid!!, it) }
+        return personerVedPid
+    }
+
+    private fun analyseCache(pidListe: List<Pid>): CacheState {
+        val hits: MutableList<PenPerson> = mutableListOf()
+        val misses: MutableList<Pid> = mutableListOf()
+
+        pidListe.forEach {
+            val person: PenPerson? = cache.getIfPresent(it)
+            if (person == null) misses.add(it) else hits.add(person)
+        }
+
+        return CacheState(hits, misses)
+    }
 
     private fun fetchFreshPersoner(pidListe: List<Pid>): Map<Pid, PenPerson> {
         val uri = "$BASE_PATH/$PATH"
@@ -76,7 +102,12 @@ class PenPersonClient(
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 
-    companion object {
+    private data class CacheState(
+        val hits: List<PenPerson>,
+        val misses: List<Pid>
+    )
+
+    private companion object {
         private const val BASE_PATH = "api/persondata"
         private const val PATH = "v1/historikk"
         private val service = EgressService.PENSJONSFAGLIG_KJERNE

@@ -26,8 +26,7 @@ import no.nav.pensjon.simulator.core.util.NorwegianCalendar
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormAlderService
-import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.sak.SakService
+import no.nav.pensjon.simulator.person.PersonService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -37,7 +36,7 @@ import java.util.*
 class Pre2025OffentligAfpBeregner(
     private val context: SimulatorContext,
     private val normAlderService: NormAlderService,
-    private val sakService: SakService
+    private val personService: PersonService
 ) {
 
     private var beregnInstopphold = false // TODO this seems to be always false
@@ -243,7 +242,7 @@ class Pre2025OffentligAfpBeregner(
 
     // SimulerPensjonsberegningCommand.getUforehistorikkForPenPerson
     private fun fetchUforehistorikk(penPerson: PenPerson?, virkningsdato: Date?): Uforehistorikk? {
-        val soeker = penPerson?.pid?.let(::fetchPerson)
+        val soeker = penPerson?.pid?.let(personService::person)
         val ufoereHistorikk: Uforehistorikk = soeker?.uforehistorikk ?: return null
 
         // Creating copy to prevent hibernate from updating the actual object.
@@ -280,10 +279,6 @@ class Pre2025OffentligAfpBeregner(
 
     private fun fetchGrunnbeloep(date: LocalDate): Double =
         context.fetchGrunnbeloepListe(date).satsResultater.firstOrNull()?.verdi ?: 0.0
-
-    //TODO use a dedicated person service?
-    private fun fetchPerson(pid: Pid): PenPerson =
-        sakService.personVirkningDato(pid).person
 
     // SimulerPensjonsberegningCommand.simulate
     // -> SimulerPensjonsberegningCommand.simulateCorrectTypeOfPensjon

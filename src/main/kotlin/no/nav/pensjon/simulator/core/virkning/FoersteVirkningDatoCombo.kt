@@ -6,9 +6,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import java.time.LocalDate
 
+// Corresponds to VirkningsdatoDtoForSimulator in PEN
 data class FoersteVirkningDatoCombo(
-    val person: PenPerson,
-    val foersteVirkningDatoListe: List<FoersteVirkningDato>,
     val foersteVirkningDatoGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
 )
 

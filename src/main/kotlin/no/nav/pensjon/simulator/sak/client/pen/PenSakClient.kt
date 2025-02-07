@@ -3,13 +3,12 @@ package no.nav.pensjon.simulator.sak.client.pen
 import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.client.SakClient
-import no.nav.pensjon.simulator.sak.client.pen.acl.PenPersonVirkningDatoResult
-import no.nav.pensjon.simulator.sak.client.pen.acl.PenPersonVirkningDatoResultMapper
+import no.nav.pensjon.simulator.sak.client.pen.acl.PenVirkningsdatoResultMapper
 import no.nav.pensjon.simulator.sak.client.pen.acl.PenSakSpec
+import no.nav.pensjon.simulator.sak.client.pen.acl.PenVirkningsdatoResult
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -53,10 +52,10 @@ class PenSakClient(
                 .headers(::setHeaders)
                 .bodyValue(PenSakSpec(pid.value))
                 .retrieve()
-                .bodyToMono(PenPersonVirkningDatoResult::class.java)
+                .bodyToMono(PenVirkningsdatoResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let(PenPersonVirkningDatoResultMapper::fromDto)
+                ?.let(PenVirkningsdatoResultMapper::fromDto)
                 ?: emptyFoersteVirkningDatoCombo()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
@@ -85,8 +84,6 @@ class PenSakClient(
 
         private fun emptyFoersteVirkningDatoCombo() =
             FoersteVirkningDatoCombo(
-                person = PenPerson(),
-                foersteVirkningDatoListe = emptyList(),
                 foersteVirkningDatoGrunnlagListe = emptyList()
             )
     }

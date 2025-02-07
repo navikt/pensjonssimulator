@@ -2,10 +2,12 @@ package no.nav.pensjon.simulator.sak.client.pen
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.jwt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import okhttp3.mockwebserver.MockResponse
@@ -22,8 +24,7 @@ import org.springframework.http.MediaType
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.reactive.function.client.WebClient
-import java.time.LocalDate
-import java.util.TimeZone
+import java.util.*
 
 class PenSakClientTest : FunSpec({
     var server: MockWebServer? = null
@@ -56,7 +57,7 @@ class PenSakClientTest : FunSpec({
         server?.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setResponseCode(HttpStatus.OK.value()).setBody(PenPersonVirkningDatoResponse.BODY)
+                .setResponseCode(HttpStatus.OK.value()).setBody(PenPersonVirkningDatoResponse.RESPONSE_BODY)
         )
 
         contextRunner.run {
@@ -68,10 +69,17 @@ class PenSakClientTest : FunSpec({
             val result: FoersteVirkningDatoCombo = client.fetchPersonVirkningDato(pid)
 
             with(result) {
-                person.penPersonId shouldBe 123456L
-                foersteVirkningDatoListe.size shouldBe 2
-                foersteVirkningDatoListe[0].virkningDato shouldBe LocalDate.of(2020, 2, 1)
                 foersteVirkningDatoGrunnlagListe.size shouldBe 2
+
+                with(foersteVirkningDatoGrunnlagListe[0]) {
+                    virkningsdato shouldBe dateAtNoon(2020, Calendar.FEBRUARY, 1)
+                    kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.UT
+                }
+
+                with(foersteVirkningDatoGrunnlagListe[1]) {
+                    kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
+                    kravFremsattDato shouldBe dateAtNoon(2024, Calendar.OCTOBER, 17)
+                }
             }
         }
     }
@@ -80,59 +88,111 @@ class PenSakClientTest : FunSpec({
 object PenPersonVirkningDatoResponse {
 
     @Language("json")
-    const val BODY = """{
-    "person": {
-        "penPersonId": 123456
+    const val RESPONSE_BODY = """{
+  "forsteVirkningsdatoGrunnlagListe" : [ {
+    "virkningsdato" : "2020-02-01",
+    "kravFremsattDato" : "2019-11-14",
+    "bruker" : {
+      "penPersonId" : 30970916,
+      "pid" : "22426305678",
+      "fodselsdato" : "1963-02-22",
+      "afpHistorikkListe" : [ ],
+      "uforehistorikk" : {
+        "uforeperiodeListe" : [ {
+          "ufg" : 50,
+          "uft" : "2018-04-04",
+          "uforeType" : "UFORE",
+          "fppGaranti" : 0.0,
+          "redusertAntFppAr" : 0,
+          "redusertAntFppAr_proRata" : 0,
+          "virk" : "2020-02-01",
+          "ufgFom" : "2018-04-04",
+          "fodselsArYngsteBarn" : 0,
+          "spt" : 0.0,
+          "spt_proRata" : 0.0,
+          "opt" : 0.0,
+          "ypt" : 0.0,
+          "spt_pa_f92" : 0,
+          "spt_pa_e91" : 0,
+          "proRata_teller" : 0,
+          "proRata_nevner" : 0,
+          "opt_pa_f92" : 0,
+          "opt_pa_e91" : 0,
+          "ypt_pa_f92" : 0,
+          "ypt_pa_e91" : 0,
+          "paa" : 0.0,
+          "fpp" : 0.0,
+          "fpp_omregnet" : 0.0,
+          "spt_eos" : 0.0,
+          "spt_pa_e91_eos" : 0,
+          "spt_pa_f92_eos" : 0,
+          "beregningsgrunnlag" : 204097,
+          "angittUforetidspunkt" : "2018-04-04",
+          "antattInntektFaktorKap19" : 0.7205968498778741,
+          "antattInntektFaktorKap20" : 1.720596849877874
+        } ],
+        "garantigrad" : 0,
+        "garantigradYrke" : 0
+      },
+      "generellHistorikk" : {
+        "generellHistorikkId" : 54836715,
+        "fpp_eos" : 0.0,
+        "giftFor2011" : false
+      }
     },
-    "forsteVirkningsdatoListe": [
-        {
-            "sakType": "UFOREP",
-            "kravlinjeType": "UT",
-            "virkningsdato": "2020-02-01T12:00:00+0100",
-            "annenPerson": null
-        },
-        {
-            "sakType": "ALDER",
-            "kravlinjeType": "AP",
-            "virkningsdato": "2025-03-01T12:00:00+0100",
-            "annenPerson": null
-        }
-    ],
-    "forsteVirkningsdatoGrunnlagListe": [
-        {
-            "virkningsdato": "2020-02-01T00:00:00+0100",
-            "kravFremsattDato": "2019-11-14T12:00:00+0100",
-            "bruker": {
-                "penPersonId": 123456
-            },
-            "annenPerson": null,
-            "kravlinjeType": {
-                "kode": "UT",
-                "dekode": null,
-                "dato_fom": null,
-                "dato_tom": null,
-                "er_gyldig": true,
-                "kommentar": null,
-                "hovedKravlinje": true
-            }
-        },
-        {
-            "virkningsdato": "2025-03-01T12:00:00+0100",
-            "kravFremsattDato": "2024-10-17T12:00:00+0200",
-            "bruker": {
-                "penPersonId": 123456
-            },
-            "annenPerson": null,
-            "kravlinjeType": {
-                "kode": "AP",
-                "dekode": null,
-                "dato_fom": null,
-                "dato_tom": null,
-                "er_gyldig": true,
-                "kommentar": null,
-                "hovedKravlinje": true
-            }
-        }
-    ]
+    "kravlinjeType" : "UT"
+  }, {
+    "virkningsdato" : "2025-03-01",
+    "kravFremsattDato" : "2024-10-17",
+    "bruker" : {
+      "penPersonId" : 30970916,
+      "pid" : "22426305678",
+      "fodselsdato" : "1963-02-22",
+      "afpHistorikkListe" : [ ],
+      "uforehistorikk" : {
+        "uforeperiodeListe" : [ {
+          "ufg" : 50,
+          "uft" : "2018-04-04",
+          "uforeType" : "UFORE",
+          "fppGaranti" : 0.0,
+          "redusertAntFppAr" : 0,
+          "redusertAntFppAr_proRata" : 0,
+          "virk" : "2020-02-01",
+          "ufgFom" : "2018-04-04",
+          "fodselsArYngsteBarn" : 0,
+          "spt" : 0.0,
+          "spt_proRata" : 0.0,
+          "opt" : 0.0,
+          "ypt" : 0.0,
+          "spt_pa_f92" : 0,
+          "spt_pa_e91" : 0,
+          "proRata_teller" : 0,
+          "proRata_nevner" : 0,
+          "opt_pa_f92" : 0,
+          "opt_pa_e91" : 0,
+          "ypt_pa_f92" : 0,
+          "ypt_pa_e91" : 0,
+          "paa" : 0.0,
+          "fpp" : 0.0,
+          "fpp_omregnet" : 0.0,
+          "spt_eos" : 0.0,
+          "spt_pa_e91_eos" : 0,
+          "spt_pa_f92_eos" : 0,
+          "beregningsgrunnlag" : 204097,
+          "angittUforetidspunkt" : "2018-04-04",
+          "antattInntektFaktorKap19" : 0.7205968498778741,
+          "antattInntektFaktorKap20" : 1.720596849877874
+        } ],
+        "garantigrad" : 0,
+        "garantigradYrke" : 0
+      },
+      "generellHistorikk" : {
+        "generellHistorikkId" : 54836715,
+        "fpp_eos" : 0.0,
+        "giftFor2011" : false
+      }
+    },
+    "kravlinjeType" : "AP"
+  } ]
 }"""
 }

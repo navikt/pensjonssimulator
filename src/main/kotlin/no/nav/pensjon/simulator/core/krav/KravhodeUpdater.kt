@@ -55,7 +55,7 @@ class KravhodeUpdater(
             ), kravhode
         )
 
-        logger.info("STEP 4.2 - Sett pensjonsbeholdning for bruker")
+        logger.debug("STEP 4.2 - Sett pensjonsbeholdning for bruker")
         when {
             simuleringSpec.gjelderPre2025OffentligAfp() -> pre2025OffentligAfpBeholdning.setPensjonsbeholdning(
                 soekerGrunnlag,
@@ -71,12 +71,12 @@ class KravhodeUpdater(
             )
         }
 
-        logger.info("STEP 4.3 - Sett uførehistorikk")
+        logger.debug("STEP 4.3 - Sett uførehistorikk")
         val ufoerePeriodeTom = ufoerePeriodeTom(simuleringSpec, soekerGrunnlag)
         setUfoereHistorikk(soekerGrunnlag, ufoerePeriodeTom)
 
         if (avdoedGrunnlag != null) {
-            logger.info("STEP 4.4 - Sett trygdetidsgrunnlag for avdød")
+            logger.debug("STEP 4.4 - Sett trygdetidsgrunnlag for avdød")
             // Dodsdato set to Dec 31 the previous year
             val lastDayOfYearBeforeDoedDato = getLastDateInYear(getRelativeDateByYear(avdoedGrunnlag.dodsdato!!, -1))
 
@@ -91,7 +91,7 @@ class KravhodeUpdater(
                 kravhode
             )
 
-            logger.info("STEP 4.5 - Sett uførehistorikk for avdød")
+            logger.debug("STEP 4.5 - Sett uførehistorikk for avdød")
             setUfoereHistorikk(avdoedGrunnlag)
         }
 

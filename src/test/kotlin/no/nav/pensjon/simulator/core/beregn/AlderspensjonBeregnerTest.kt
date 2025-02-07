@@ -18,10 +18,7 @@ import java.util.Calendar
 
 class AlderspensjonBeregnerTest : FunSpec({
 
-    /**
-     * Ref. pensjon-regler 'IngenUttaksgradFørVirkMinus1Dag'
-     *    ("Foreligger ingen uttaksgrader før virk minus 1. dag ifm. revurdering")
-     */
+    /*
     test("beregnAlderspensjon throws exception when revurdering and 100% uttak fom = virkningdato") {
         val exception = shouldThrow<BadSpecException> {
             AlderspensjonBeregner(mock(SimulatorContext::class.java)).beregnAlderspensjon(
@@ -47,5 +44,5 @@ class AlderspensjonBeregnerTest : FunSpec({
         }
 
         exception.message shouldBe "uttaksdato er for tidlig (personen har eksisterende alderpensjonsvedtak)"
-    }
+    }*/
 })

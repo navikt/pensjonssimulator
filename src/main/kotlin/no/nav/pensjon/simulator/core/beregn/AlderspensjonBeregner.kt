@@ -15,11 +15,9 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensjonResultat
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -52,17 +50,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
 
             beregnFoersteUttak(request, sakId, ignoreAvslag)
         } else { // revurdering av alderspensjon
-            // Ref. regel 'IngenUttaksgradFørVirkMinus1Dag'
-            //      ("Foreligger ingen uttaksgrader før virk minus 1. dag ifm. revurdering")
-            // Forenklet pseudokode:
-            //    Hvis ingen: uttaksgrad.fom <= virk - 1dag <= uttaksgrad.tom
-            //            så: IngenUttaksgradDagenFørVirk
-            // -------------------------------------------------------------------------
-            // Følgende if-setning dekker observerte feilsituasjoner for 'simuler folketrygdbeholdning'
-            // (kun 100 % uttak, og uttaksgrad-f.o.m.-dato = virkning-/knekkpunktdato)
-            if (kravhode.uttaksgradListe.firstOrNull { it.uttaksgrad == 100 }?.fomDato?.toNorwegianLocalDate() == virkningDato)
-                throw BadSpecException("uttaksdato er for tidlig (personen har eksisterende alderpensjonsvedtak)")
-
             val request = revurderingCommonSpec(
                 kravhode, vedtakListe, virkningDato, forholdstallUtvalg, delingstallUtvalg,
                 sisteAldersberegning2011!!, privatAfp, garantitilleggBeholdningGrunnlag, simuleringSpec

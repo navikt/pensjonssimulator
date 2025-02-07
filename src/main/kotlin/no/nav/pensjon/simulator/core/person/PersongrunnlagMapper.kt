@@ -11,13 +11,17 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.util.EnumSet
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.PersongrunnlagMapper
 @Component
-class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder) {
-
+class PersongrunnlagMapper(
+    private val generelleDataHolder: GenerelleDataHolder,
+    private val time: Time
+) {
     fun mapToPersongrunnlag(person: PenPerson, spec: SimuleringSpec) =
         createPersongrunnlag(
             person = person,
@@ -35,7 +39,7 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
             gjelderOmsorg = false
             gjelderUforetrygd = false
             penPerson = PenPerson(EPS_PERSON_ID)
-            this.fodselsdato = foedselsdato.toNorwegianDateAtNoon()
+            fodselsdato = foedselsdato.toNorwegianDateAtNoon()
             antallArUtland = 0
             dodsdato = null
             statsborgerskapEnum = norge
@@ -46,6 +50,18 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
             generellHistorikk = null
             personDetaljListe.add(mapToEpsPersonDetalj(sivilstatus, foedselsdato))
         }.also { it.finishInit() }
+
+    // PersongrunnlagMapper.createPersonDetalj
+    private fun createPersonDetalj(spec: SimuleringSpec) =
+        PersonDetalj().apply {
+            grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
+            rolleFomDato = rolleFom(spec)?.toNorwegianDateAtNoon()
+            sivilstandTypeEnum = mapToSivilstand(spec)
+            bruk = true
+            grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+        }.also {
+            it.finishInit()
+        }
 
     private fun createPersongrunnlag(
         person: PenPerson,
@@ -67,29 +83,25 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
             medlemIFolketrygdenSiste3Ar = true
             antallArUtland = utlandAntallAar
             flyktning = erFlyktning
-        }.also { it.finishInit() }
+        }.also {
+            it.finishInit()
+        }
+
+    private fun rolleFom(spec: SimuleringSpec): LocalDate? =
+        when (spec.type) {
+            SimuleringType.AFP_FPP -> spec.foersteUttakDato?.let(::sisteDagForrigeMaaned)
+            else -> time.today()
+        }
 
     private companion object {
         private const val EPS_PERSON_ID = -2L
         private val norge = LandkodeEnum.NOR
 
-        private fun createPersonDetalj(spec: SimuleringSpec) =
-            PersonDetalj().apply {
-                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                /* AFP_FPP is irrelevant for pensjonskalkulator
-                if (SimuleringTypeCode.AFP_FPP.equals(simulering.type)) {
-                    rolleFomDato = DateUtils.getLastDateOfPreviousMonth(simulering.forsteUttakDato)
-                } else {
-                    rolleFomDato = DateProvider.getToday()
-                }*/
-                rolleFomDato = LocalDate.now().toNorwegianDateAtNoon()
-                sivilstandTypeEnum = mapToSivilstand(spec)
-                bruk = true
-                grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-            }.also { it.finishInit() }
+        private val simuleringTyperForGjenlevende =
+            EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN)
 
         private fun mapToSivilstand(spec: SimuleringSpec): SivilstandEnum {
-            if (spec.type == SimuleringType.ALDER_M_GJEN || spec.type == SimuleringType.ENDR_ALDER_M_GJEN) {
+            if (simuleringTyperForGjenlevende.contains(spec.type)) {
                 return SivilstandEnum.ENKE
             }
 
@@ -130,5 +142,8 @@ class PersongrunnlagMapper(private val generelleDataHolder: GenerelleDataHolder)
                 SivilstatusType.REPA -> BorMedTypeEnum.J_PARTNER
                 else -> null
             }
+
+        private fun sisteDagForrigeMaaned(dato: LocalDate): LocalDate =
+            dato.withDayOfMonth(1).minusDays(1)
     }
 }

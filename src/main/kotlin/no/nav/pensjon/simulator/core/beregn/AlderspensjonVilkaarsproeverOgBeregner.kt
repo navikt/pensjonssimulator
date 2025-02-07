@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
+import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
@@ -51,9 +52,17 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val log = KotlinLogging.logger { }
 
     fun vilkaarsproevOgBeregnAlder(spec: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
+        val simuleringSpec = spec.simulering
+
+        if (simuleringSpec.type == SimuleringType.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.vilkarsprovOgBeregnAlder
+            return AlderspensjonBeregnerResult(
+                beregningsresultater = mutableListOf(),
+                pensjonsbeholdningPerioder = mutableListOf()
+            )
+        }
+
         val beregningResultatListe: MutableList<AbstraktBeregningsResultat> = mutableListOf()
         val knekkpunkter = spec.knekkpunkter
-        val simuleringSpec = spec.simulering
         val soekerFoersteVirkning = spec.sokerForsteVirk
         val avdoedFoersteVirkning = spec.avdodForsteVirk
         var forrigeVedtakListe = spec.forrigeVilkarsvedtakListe

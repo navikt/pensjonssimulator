@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.ytelse.client.YtelseClient
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 /**
  * Corresponds to those parts of AbstraktSimulerAPFra2011Command, SimulerFleksibelAPCommand, SimulerAFPogAPCommand
@@ -67,6 +68,18 @@ open class YtelseService(private val client: YtelseClient) {
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
                 forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
                 forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList()
+            )
+        }
+
+        if (spec.type == SimuleringType.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.hentLopendeYtelser line 103
+            return LoependeYtelser(
+                soekerVirkningFom = LocalDate.MIN,
+                avdoedVirkningFom = null,
+                privatAfpVirkningFom = null,
+                sisteBeregning = null,
+                forrigeAlderspensjonBeregningResultat = null,
+                forrigePrivatAfpBeregningResultat = null,
+                forrigeVedtakListe = mutableListOf()
             )
         }
 

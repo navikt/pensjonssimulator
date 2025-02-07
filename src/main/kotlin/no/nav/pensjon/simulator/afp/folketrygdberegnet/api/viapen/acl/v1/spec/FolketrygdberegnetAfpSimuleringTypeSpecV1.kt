@@ -19,7 +19,7 @@ enum class FolketrygdberegnetAfpSimuleringTypeSpecV1(val externalValue: String, 
     /**
      * AFP - vedtak om fremtidig pensjonspoeng
      */
-    //AFP_FPP("AFP_FPP", SimuleringType.AFP_FPP),
+    AFP_FPP("AFP_FPP", SimuleringType.AFP_FPP),
 
     /**
      * Alderspensjon
@@ -75,8 +75,8 @@ enum class FolketrygdberegnetAfpSimuleringTypeSpecV1(val externalValue: String, 
 
         private fun default(externalValue: String?): FolketrygdberegnetAfpSimuleringTypeSpecV1 =
             if (hasLength(externalValue))
-                ALDER.also { log.warn { "Unknown FolketrygdberegnetAfpSimuleringTypeSpecV1: '$externalValue'" } }
+                AFP_FPP.also { log.warn { "Unknown FolketrygdberegnetAfpSimuleringTypeSpecV1: '$externalValue'" } }
             else
-                ALDER
+                AFP_FPP
     }
 }

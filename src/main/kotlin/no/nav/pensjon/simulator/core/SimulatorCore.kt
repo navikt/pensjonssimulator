@@ -17,9 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.endring.EndringValidator
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktSpec
 import no.nav.pensjon.simulator.core.krav.*
@@ -65,11 +62,6 @@ class SimulatorCore(
     private val log = KotlinLogging.logger {}
 
     // AbstraktSimulerAPFra2011Command.execute + overrides in SimulerFleksibelAPCommand & SimulerAFPogAPCommand & SimulerEndringAvAPCommand
-    @Throws(
-        RegelmotorValideringException::class,
-        UtilstrekkeligOpptjeningException::class,
-        UtilstrekkeligTrygdetidException::class
-    )
     override fun simuler(initialSpec: SimuleringSpec): SimulatorOutput {
         val gjelderEndring = initialSpec.gjelderEndring()
 
@@ -224,26 +216,32 @@ class SimulatorCore(
 
         log.debug { "Simulator steg 8 - Opprett output" }
 
-        val output: SimulatorOutput = SimuleringResultPreparer.opprettOutput(
-            ResultPreparerSpec(
-                simuleringSpec = spec,
-                kravhode = kravhode,
-                alderspensjonBeregningResultatListe = vilkaarsproevOgBeregnAlderspensjonResult.beregningsresultater,
-                privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
-                forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
-                forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
-                pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResult?.simuleringResult,
-                livsvarigOffentligAfpBeregningResultatListe =
-                    LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
-                        result = livsvarigOffentligAfpResult,
-                        foedselMaaned = foedselsdato?.monthValue
-                    ),
-                grunnbeloep = grunnbeloep,
-                pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
-                outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-                sisteGyldigeOpptjeningAar = SISTE_GYLDIGE_OPPTJENING_AAR
-            )
-        )
+        val output: SimulatorOutput =
+            if (spec.type == SimuleringType.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
+                SimulatorOutput().apply {
+                    pre2025OffentligAfp = pre2025OffentligAfpResult?.simuleringResult
+                }
+            else
+                SimuleringResultPreparer.opprettOutput(
+                    ResultPreparerSpec(
+                        simuleringSpec = spec,
+                        kravhode = kravhode,
+                        alderspensjonBeregningResultatListe = vilkaarsproevOgBeregnAlderspensjonResult.beregningsresultater,
+                        privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
+                        forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
+                        forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
+                        pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResult?.simuleringResult,
+                        livsvarigOffentligAfpBeregningResultatListe =
+                            LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
+                                result = livsvarigOffentligAfpResult,
+                                foedselMaaned = foedselsdato?.monthValue
+                            ),
+                        grunnbeloep = grunnbeloep,
+                        pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
+                        outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+                        sisteGyldigeOpptjeningAar = SISTE_GYLDIGE_OPPTJENING_AAR
+                    )
+                )
 
         return if (spec.erAnonym)
             output

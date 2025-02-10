@@ -15,9 +15,10 @@ class Skjermingstillegg : Ytelseskomponent {
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.SKJERMT
 
     // SIMDOM-ADD
-    constructor() : super()
+    constructor() : super(typeEnum = YtelseskomponentTypeEnum.SKJERMT)
 
-    constructor(source: Skjermingstillegg) : super() {
+    constructor(source: Skjermingstillegg) : super(source) {
+        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.SKJERMT
         ft67Soker = source.ft67Soker
         skjermingsgrad = source.skjermingsgrad
         ufg = source.ufg
@@ -25,5 +26,5 @@ class Skjermingstillegg : Ytelseskomponent {
         basTp_bruttoPerAr = source.basTp_bruttoPerAr
         basPenT_bruttoPerAr = source.basPenT_bruttoPerAr
     }
-    // end SIMDOM-MOD
+    // end SIMDOM-ADD
 }

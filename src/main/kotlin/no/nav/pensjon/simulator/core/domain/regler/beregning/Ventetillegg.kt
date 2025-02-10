@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 /**
  * Ventetillegg. netto=brutto=venteTillegg_GP+venteTillegg_TP
  */
-class Ventetillegg : Ytelseskomponent() {
+class Ventetillegg : Ytelseskomponent {
 
     /**
      * Ventetillegget for GP
@@ -23,4 +23,18 @@ class Ventetillegg : Ytelseskomponent() {
     var venteTilleggProsent = 0.0
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.VT
+
+    // SIMDOM-ADD
+    constructor() : super(typeEnum = YtelseskomponentTypeEnum.VT)
+
+    /**
+     * Used via reflection in PensjonUnderUtbetaling: constructor.newInstance(komponent)
+     */
+    constructor(source: Ventetillegg) : super(source) {
+        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.VT
+        venteTillegg_GP = source.venteTillegg_GP
+        venteTillegg_TP = source.venteTillegg_TP
+        venteTilleggProsent = source.venteTilleggProsent
+    }
+    // end SIMDOM-ADD
 }

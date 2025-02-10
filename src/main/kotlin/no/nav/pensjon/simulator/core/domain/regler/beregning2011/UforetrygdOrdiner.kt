@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
-class UforetrygdOrdiner : Ytelseskomponent(), UforetrygdYtelseskomponent {
+class UforetrygdOrdiner : Ytelseskomponent, UforetrygdYtelseskomponent {
 
     /**
      * Brukers minsteytelse.
@@ -57,4 +57,25 @@ class UforetrygdOrdiner : Ytelseskomponent(), UforetrygdYtelseskomponent {
     override var tidligereBelopAr = 0
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.UT_ORDINER
+
+    // SIMDOM-ADD
+    constructor() : super(typeEnum = YtelseskomponentTypeEnum.UT_ORDINER)
+
+    /**
+     * Used via reflection in PensjonUnderUtbetaling: constructor.newInstance(komponent)
+     */
+    constructor(source: UforetrygdOrdiner) : super(source) {
+        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.UT_ORDINER
+        minsteytelse = source.minsteytelse?.let(::Minsteytelse)
+        egenopptjentUforetrygd = source.egenopptjentUforetrygd?.let(::EgenopptjentUforetrygd)
+        egenopptjentUforetrygdBest = source.egenopptjentUforetrygdBest
+        avkortingsinformasjon = source.avkortingsinformasjon?.let(::AvkortingsinformasjonUT)
+        nettoAkk = source.nettoAkk
+        nettoRestAr = source.nettoRestAr
+        avkortningsbelopPerAr = source.avkortningsbelopPerAr
+        periodisertAvvikEtteroppgjor = source.periodisertAvvikEtteroppgjor
+        fradragPerArUtenArbeidsforsok = source.fradragPerArUtenArbeidsforsok
+        tidligereBelopAr = source.tidligereBelopAr
+    }
+    // end SIMDOM-ADD
 }

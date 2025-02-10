@@ -1,10 +1,9 @@
-package no.nav.pensjon.simulator.alderspensjon.api.acl
+package no.nav.pensjon.simulator.alderspensjon
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecMapperV4
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonSpecV4
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.PensjonInntektSpecV4
+import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
@@ -13,26 +12,27 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class AlderspensjonSpecMapperV4Test : FunSpec({
+class AlderspensjonSpecMapperTest : FunSpec({
 
-    test("fromSpecV4 maps from DTO version 4 to domain") {
-        AlderspensjonSpecMapperV4.fromSpecV4(
-            source = AlderspensjonSpecV4(
-                personId = pid.value,
+    test("simuleringSpec maps from particular specification to general specification") {
+        AlderspensjonSpecMapper.simuleringSpec(
+            source = AlderspensjonSpec(
+                pid,
                 gradertUttak = null,
-                heltUttakFraOgMedDato = "2031-02-03",
-                epsPensjon = true,
-                eps2G = false,
-                aarIUtlandetEtter16 = 5,
+                heltUttakFom = LocalDate.of(2031, 2, 3),
+                antallAarUtenlandsEtter16 = 5,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = false,
                 fremtidigInntektListe = listOf(
-                    PensjonInntektSpecV4(
-                        aarligInntekt = 123000,
-                        fraOgMedDato = "2029-05-06"
+                    PensjonInntektSpec(
+                        aarligBeloep = 123000,
+                        fom = LocalDate.of(2029, 5, 6)
                     )
                 ),
-                rettTilAfpOffentligDato = "2032-03-04"
+                livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)
             ),
-            foedselsdato = LocalDate.of(1964, 1, 1)
+            foedselsdato = LocalDate.of(1964, 1, 1),
+            erFoerstegangsuttak = false
         ) shouldBe
                 SimuleringSpec(
                     type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,

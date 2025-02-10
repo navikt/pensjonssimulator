@@ -3,19 +3,53 @@ package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
-import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
+import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.spec.GradertUttakSpec
+import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
 class AlderspensjonSpecMapperV4Test : FunSpec({
 
-    test("fromSpecV4 maps relevant values") {
-        AlderspensjonSpecMapperV4.fromSpecV4(
+    test("fromDto maps from DTO version 4 to domain - helt uttak") {
+        AlderspensjonSpecMapperV4.fromDto(
+            source = AlderspensjonSpecV4(
+                personId = pid.value,
+                gradertUttak = null,
+                heltUttakFraOgMedDato = "2031-02-03",
+                epsPensjon = true,
+                eps2G = false,
+                aarIUtlandetEtter16 = 5,
+                fremtidigInntektListe = listOf(
+                    PensjonInntektSpecV4(
+                        aarligInntekt = 123000,
+                        fraOgMedDato = "2029-05-06"
+                    )
+                ),
+                rettTilAfpOffentligDato = "2032-03-04"
+            )
+        ) shouldBe
+                AlderspensjonSpec(
+                    pid,
+                    gradertUttak = null,
+                    heltUttakFom = LocalDate.of(2031, 2, 3),
+                    antallAarUtenlandsEtter16 = 5,
+                    epsHarPensjon = true,
+                    epsHarInntektOver2G = false,
+                    fremtidigInntektListe = listOf(
+                        PensjonInntektSpec(
+                            aarligBeloep = 123000,
+                            fom = LocalDate.of(2029, 5, 6)
+                        )
+                    ),
+                    livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)
+                )
+    }
+
+    test("fromDto maps from DTO version 4 to domain - gradertUttak, 2 inntekter") {
+        AlderspensjonSpecMapperV4.fromDto(
             AlderspensjonSpecV4(
                 personId = pid.value,
                 gradertUttak = GradertUttakSpecV4(
@@ -30,53 +64,40 @@ class AlderspensjonSpecMapperV4Test : FunSpec({
                     PensjonInntektSpecV4(
                         aarligInntekt = 123000,
                         fraOgMedDato = "2029-02-01"
+                    ), PensjonInntektSpecV4(
+                        aarligInntekt = 234000,
+                        fraOgMedDato = "2030-03-01"
                     )
                 ),
-                rettTilAfpOffentligDato = "2027-08-01"
-            ), LocalDate.of(1964, 5, 6)
-        ) shouldBe SimuleringSpec(
-            type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
-            sivilstatus = SivilstatusType.GIFT,
+                rettTilAfpOffentligDato = null
+            )
+        ) shouldBe AlderspensjonSpec(
+            pid,
+            gradertUttak = GradertUttakSpec(
+                uttaksgrad = UttakGradKode.P_20,
+                fom = LocalDate.of(2028, 11, 1),
+            ),
+            heltUttakFom = LocalDate.of(2030, 1, 1),
+            antallAarUtenlandsEtter16 = 3,
             epsHarPensjon = true,
-            foersteUttakDato = LocalDate.of(2028, 11, 1),
-            heltUttakDato = LocalDate.of(2030, 1, 1),
-            pid = pid,
-            foedselDato = LocalDate.of(1964, 5, 6),
-            avdoed = null,
-            isTpOrigSimulering = true,
-            simulerForTp = false,
-            uttakGrad = UttakGradKode.P_20,
-            forventetInntektBeloep = 0,
-            inntektUnderGradertUttakBeloep = 0,
-            inntektEtterHeltUttakBeloep = 0,
-            inntektEtterHeltUttakAntallAar = null,
-            foedselAar = 1964,
-            utlandAntallAar = 3,
-            utlandPeriodeListe = mutableListOf(),
-            fremtidigInntektListe = mutableListOf(
-                FremtidigInntekt(
-                    aarligInntektBeloep = 123000,
+            epsHarInntektOver2G = false,
+            fremtidigInntektListe = listOf(
+                PensjonInntektSpec(
+                    aarligBeloep = 123000,
                     fom = LocalDate.of(2029, 2, 1)
+                ), PensjonInntektSpec(
+                    aarligBeloep = 234000,
+                    fom = LocalDate.of(2030, 3, 1)
                 )
             ),
-            inntektOver1GAntallAar = 0,
-            flyktning = false,
-            epsHarInntektOver2G = false,
-            rettTilOffentligAfpFom = LocalDate.of(2027, 8, 1),
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
-            erAnonym = false,
-            ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-            onlyVilkaarsproeving = false
+            livsvarigOffentligAfpRettFom = null
         )
     }
 
-    test("fromSpecV4 throws 'Bad Request' exception if gradertUttak lacks fraOgMedDato") {
+    test("fromDto throws 'Bad Request' exception if gradertUttak lacks fraOgMedDato") {
         val exception =
             shouldThrow<BadRequestException> {
-                AlderspensjonSpecMapperV4.fromSpecV4(
+                AlderspensjonSpecMapperV4.fromDto(
                     AlderspensjonSpecV4(
                         personId = pid.value,
                         gradertUttak = GradertUttakSpecV4(
@@ -89,7 +110,7 @@ class AlderspensjonSpecMapperV4Test : FunSpec({
                         eps2G = false,
                         fremtidigInntektListe = emptyList(),
                         rettTilAfpOffentligDato = null
-                    ), LocalDate.of(1964, 5, 6)
+                    )
                 )
             }
 

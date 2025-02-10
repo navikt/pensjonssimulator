@@ -14,62 +14,80 @@ import java.time.LocalDate
 
 class AlderspensjonSpecMapperTest : FunSpec({
 
-    test("simuleringSpec maps from particular specification to general specification") {
+    test("simuleringSpec maps from particular to general specification - 1. gangsuttak + offentlig AFP") {
         AlderspensjonSpecMapper.simuleringSpec(
-            source = AlderspensjonSpec(
-                pid,
-                gradertUttak = null,
-                heltUttakFom = LocalDate.of(2031, 2, 3),
-                antallAarUtenlandsEtter16 = 5,
-                epsHarPensjon = true,
-                epsHarInntektOver2G = false,
-                fremtidigInntektListe = listOf(
-                    PensjonInntektSpec(
-                        aarligBeloep = 123000,
-                        fom = LocalDate.of(2029, 5, 6)
-                    )
-                ),
-                livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)
-            ),
+            source = alderspensjonSpec(livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)),
             foedselsdato = LocalDate.of(1964, 1, 1),
-            erFoerstegangsuttak = false
+            erFoerstegangsuttak = true
         ) shouldBe
-                SimuleringSpec(
+                simuleringSpec(
                     type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
-                    sivilstatus = SivilstatusType.GIFT,
-                    epsHarPensjon = true,
-                    foersteUttakDato = LocalDate.of(2031, 2, 3),
-                    heltUttakDato = null,
-                    pid = pid,
-                    foedselDato = LocalDate.of(1964, 1, 1),
-                    avdoed = null,
-                    isTpOrigSimulering = true,
-                    simulerForTp = false,
-                    uttakGrad = UttakGradKode.P_100,
-                    forventetInntektBeloep = 0,
-                    inntektUnderGradertUttakBeloep = 0,
-                    inntektEtterHeltUttakBeloep = 0,
-                    inntektEtterHeltUttakAntallAar = null,
-                    foedselAar = 1964,
-                    utlandAntallAar = 5,
-                    utlandPeriodeListe = mutableListOf(),
-                    fremtidigInntektListe = mutableListOf(
-                        FremtidigInntekt(
-                            aarligInntektBeloep = 123000,
-                            fom = LocalDate.of(2029, 5, 6)
-                        )
-                    ),
-                    inntektOver1GAntallAar = 0,
-                    flyktning = false,
-                    epsHarInntektOver2G = false,
-                    rettTilOffentligAfpFom = LocalDate.of(2032, 3, 4),
-                    afpOrdning = null,
-                    afpInntektMaanedFoerUttak = null,
-                    erAnonym = false,
-                    ignoreAvslag = false,
-                    isHentPensjonsbeholdninger = true,
-                    isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-                    onlyVilkaarsproeving = false
+                    livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)
                 )
     }
+
+    test("simuleringSpec maps from particular to general specification - endring av pensjon uten AFP") {
+        AlderspensjonSpecMapper.simuleringSpec(
+            source = alderspensjonSpec(livsvarigOffentligAfpRettFom = null), // => uten AFP
+            foedselsdato = LocalDate.of(1964, 1, 1),
+            erFoerstegangsuttak = false // => endring
+        ) shouldBe
+                simuleringSpec(type = SimuleringType.ENDR_ALDER, livsvarigOffentligAfpRettFom = null)
+    }
 })
+
+private fun alderspensjonSpec(livsvarigOffentligAfpRettFom: LocalDate?) =
+    AlderspensjonSpec(
+        pid,
+        gradertUttak = null,
+        heltUttakFom = LocalDate.of(2031, 2, 3),
+        antallAarUtenlandsEtter16 = 5,
+        epsHarPensjon = true,
+        epsHarInntektOver2G = false,
+        fremtidigInntektListe = listOf(
+            PensjonInntektSpec(
+                aarligBeloep = 123000,
+                fom = LocalDate.of(2029, 5, 6)
+            )
+        ),
+        livsvarigOffentligAfpRettFom
+    )
+
+private fun simuleringSpec(type: SimuleringType, livsvarigOffentligAfpRettFom: LocalDate?) =
+    SimuleringSpec(
+        type,
+        sivilstatus = SivilstatusType.GIFT,
+        epsHarPensjon = true,
+        foersteUttakDato = LocalDate.of(2031, 2, 3),
+        heltUttakDato = null,
+        pid = pid,
+        foedselDato = LocalDate.of(1964, 1, 1),
+        avdoed = null,
+        isTpOrigSimulering = true,
+        simulerForTp = false,
+        uttakGrad = UttakGradKode.P_100,
+        forventetInntektBeloep = 0,
+        inntektUnderGradertUttakBeloep = 0,
+        inntektEtterHeltUttakBeloep = 0,
+        inntektEtterHeltUttakAntallAar = null,
+        foedselAar = 1964,
+        utlandAntallAar = 5,
+        utlandPeriodeListe = mutableListOf(),
+        fremtidigInntektListe = mutableListOf(
+            FremtidigInntekt(
+                aarligInntektBeloep = 123000,
+                fom = LocalDate.of(2029, 5, 6)
+            )
+        ),
+        inntektOver1GAntallAar = 0,
+        flyktning = false,
+        epsHarInntektOver2G = false,
+        rettTilOffentligAfpFom = livsvarigOffentligAfpRettFom,
+        afpOrdning = null,
+        afpInntektMaanedFoerUttak = null,
+        erAnonym = false,
+        ignoreAvslag = false,
+        isHentPensjonsbeholdninger = true,
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
+        onlyVilkaarsproeving = false
+    )

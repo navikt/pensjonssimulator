@@ -22,11 +22,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.format.DateTimeParseException
 
 /**
  * REST-controller for simulering av alderspensjon.
  * Tjenestene er ment å brukes av tjenestepensjonsordninger (TPO).
- * TPO gjør kall til pensjonssimulator "direkte" (via API-gateway).
+ * TPO gjør kall til pensjonssimulator "direkte", dvs. ikke via PEN (men via API-gateway).
  */
 @RestController
 @RequestMapping("api")
@@ -72,11 +73,17 @@ class TpoAlderspensjonController(
             request.setAttribute("pid", spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
+        } catch (e: DateTimeParseException) {
+            log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn { "$FUNCTION_ID feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: InvalidArgumentException) {
             log.warn { "$FUNCTION_ID invalid argument - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
+        } catch (e: InvalidEnumValueException) {
+            log.warn { "$FUNCTION_ID invalid enum value - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: RegelmotorValideringException) {
             log.warn { "$FUNCTION_ID feil i regelmotorvalidering - ${e.message} - request: $specV4" }
@@ -90,8 +97,6 @@ class TpoAlderspensjonController(
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
-            badRequest(e)!!
-        } catch (e: InvalidEnumValueException) {
             badRequest(e)!!
         } finally {
             traceAid.end()

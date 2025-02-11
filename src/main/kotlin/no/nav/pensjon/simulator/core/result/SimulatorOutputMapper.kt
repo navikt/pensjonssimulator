@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.result
 
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
@@ -18,6 +17,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
@@ -67,7 +67,7 @@ object SimulatorOutputMapper {
         kravhode: Kravhode,
         beregningResultat: AbstraktBeregningsResultat,
         simulertAlderspensjon: SimulertAlderspensjon,
-        foedselDato: LocalDate,
+        foedselsdato: LocalDate,
         knekkpunkt: LocalDate
     ) =
         SimulertBeregningInformasjon().apply {
@@ -109,6 +109,12 @@ object SimulatorOutputMapper {
                 this.vektetKapittel20Pensjon = (pensjonKapittel20 * simulertAlderspensjon.kapittel20Andel).toInt()
                 this.pensjonBeholdningEtterUttak =
                     firstPensjonsbeholdning(beregningKapittel20?.beholdninger?.beholdninger.orEmpty())?.totalbelop?.toInt()
+            }
+
+            if (beregningsresultatKapittel19 != null) { // ref. jira.adeo.no/browse/PEB-442
+                pensjon?.gjenlevendetilleggAPKap19?.let {
+                    this.gjtAPKap19 = it.bruttoPerAr.toInt()
+                }
             }
 
             beregningsinfoKapittel19?.let {
@@ -157,7 +163,7 @@ object SimulatorOutputMapper {
             }
 
             this.datoFom = knekkpunkt
-            this.startMaaned = getMonthsBetweenInRange1To12(foedselDato, knekkpunkt)
+            this.startMaaned = getMonthsBetweenInRange1To12(foedselsdato, knekkpunkt)
             this.aarligBeloep = pensjon?.totalbelopNettoAr?.toInt() ?: 0
             this.maanedligBeloep = pensjon?.totalbelopNetto
             this.inntektspensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.IP)

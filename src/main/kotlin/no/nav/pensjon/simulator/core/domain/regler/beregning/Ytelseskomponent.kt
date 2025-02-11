@@ -33,6 +33,7 @@ import java.math.RoundingMode
     JsonSubTypes.Type(value = Garantitillegg_Art_50::class),
     JsonSubTypes.Type(value = Gjenlevendetillegg::class),
     JsonSubTypes.Type(value = GjenlevendetilleggAP::class),
+    JsonSubTypes.Type(value = GjenlevendetilleggAPKap19::class),
     JsonSubTypes.Type(value = Grunnpensjon::class),
     JsonSubTypes.Type(value = Hjelpeloshetsbidrag::class),
     JsonSubTypes.Type(value = Inntektspensjon::class),

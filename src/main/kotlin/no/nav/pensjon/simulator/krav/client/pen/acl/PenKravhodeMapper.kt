@@ -171,7 +171,7 @@ object PenKravhodeMapper {
             trygdetidPerioderKapittel20 = source.trygdetidPerioderKapittel20
             afpHistorikkListe = source.afpHistorikkListe
             bosattLandEnum = source.bosattLand?.let { LandkodeEnum.valueOf(it.kode) }
-            statsborgerskap = source.statsborgerskap
+            statsborgerskapEnum = source.statsborgerskap?.let { LandkodeEnum.valueOf(it.kode) }
             trygdetid = source.trygdetid
             trygdetidKapittel20 = source.trygdetidKapittel20
             trygdetidAlternativ = source.trygdetidAlternativ

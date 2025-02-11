@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
@@ -39,15 +38,7 @@ class Persongrunnlag() {
     /**
      * Personens statsborgerskap.
      */
-    var statsborgerskap: LandCti? = null
     var statsborgerskapEnum: LandkodeEnum? = null
-        get() {
-            return field ?: statsborgerskap?.let { LandkodeEnum.valueOf(it.kode) }
-        }
-        set(value) {
-            field = value
-            statsborgerskap = value?.let { LandCti(it.name) }
-        }
 
     /**
      * Angir om personen er flyktning.
@@ -327,6 +318,14 @@ class Persongrunnlag() {
     @JsonIgnore
     var forsteVirk: Date? = null
 
+    /**
+     * Representerer grunnlaget for normert pensjonsalder
+     *
+     * Dette feltet inneholder normert, øvre og nedre pensjonsalder (i år og måneder)
+     * som benyttes i saksbehandlingen.
+     */
+    var normertPensjonsalderGrunnlag: NormertPensjonsalderGrunnlag? = null
+
     // SIMDOM-ADD
     @JsonIgnore
     var gjelderOmsorg: Boolean = false
@@ -378,7 +377,6 @@ class Persongrunnlag() {
         source.penPerson?.let { penPerson = PenPerson(it) }
         source.fodselsdato?.let { fodselsdato = it.clone() as Date }
         source.dodsdato?.let { dodsdato = it.clone() as Date }
-        source.statsborgerskap?.let { statsborgerskap = it }
         source.statsborgerskapEnum?.let { statsborgerskapEnum = it }
         source.flyktning?.let { flyktning = it }
         source.personDetaljListe.forEach { personDetaljListe.add(PersonDetalj(it)) }
@@ -393,24 +391,11 @@ class Persongrunnlag() {
         source.inntektsgrunnlagListe.forEach { inntektsgrunnlagListe.add(Inntektsgrunnlag(it)) }
         source.trygdetidPerioder.forEach { trygdetidPerioder.add(TTPeriode(it)) }
         source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(TTPeriode(it)) }
-
-        if (source.trygdetid != null) {
-            this.trygdetid = Trygdetid(source.trygdetid!!)
-        }
-
-        if (source.uforegrunnlag != null) {
-            this.uforegrunnlag = Uforegrunnlag(source.uforegrunnlag!!)
-        }
-
-        if (source.uforeHistorikk != null) {
-            this.uforeHistorikk = Uforehistorikk(source.uforeHistorikk!!)
-        }
-
-        if (source.yrkesskadegrunnlag != null) {
-            this.yrkesskadegrunnlag = Yrkesskadegrunnlag(source.yrkesskadegrunnlag!!)
-        }
-
-        this.dodAvYrkesskade = source.dodAvYrkesskade
+        source.trygdetid?.let { trygdetid = Trygdetid(it) }
+        source.uforegrunnlag?.let { uforegrunnlag = Uforegrunnlag(it) }
+        source.uforeHistorikk?.let { uforeHistorikk = Uforehistorikk(it) }
+        source.yrkesskadegrunnlag?.let { yrkesskadegrunnlag = Yrkesskadegrunnlag(it) }
+        dodAvYrkesskade = source.dodAvYrkesskade
 
         if (source.generellHistorikk != null) {
             this.generellHistorikk = GenerellHistorikk(source.generellHistorikk!!)
@@ -539,6 +524,17 @@ class Persongrunnlag() {
         rawFodselsdato = source.rawFodselsdato?.clone() as? Date
         rawDodsdato = source.rawDodsdato?.clone() as? Date
         rawSistMedlITrygden = source.rawSistMedlITrygden?.clone() as? Date
+        normertPensjonsalderGrunnlag = source.normertPensjonsalderGrunnlag?.let {
+            NormertPensjonsalderGrunnlag(
+                ovreAr = it.ovreAr,
+                ovreMnd = it.ovreMnd,
+                normertAr = it.normertAr,
+                normertMnd = it.normertMnd,
+                nedreAr = it.nedreAr,
+                nedreMnd = it.nedreMnd,
+                erPrognose = it.erPrognose
+            )
+        }
         // end SIMDOM-ADD
     }
 

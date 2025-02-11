@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -70,7 +71,7 @@ class TpoAlderspensjonController(
 
         return try {
             val spec: AlderspensjonSpec = AlderspensjonSpecMapperV4.fromDto(specV4)
-            request.setAttribute("pid", spec.pid)
+            request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
         } catch (e: DateTimeParseException) {

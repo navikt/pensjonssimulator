@@ -19,7 +19,7 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
         handler: Any,
         ex: Exception?
     ) {
-        val pid: Pid? = request.getAttribute("pid") as? Pid
+        val pid = request.getAttribute(PID_ATTRIBUTE_NAME) as? Pid
 
         pid?.let {
             when {
@@ -32,7 +32,7 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
                 response is ResettableStreamHttpServletResponse -> sendResponseToSporingslogg(it, response)
                 else -> log.warn { "No ResettableStream" }
             }
-        } ?: log.warn { "ingen sporingslogging siden PID er udefinert" }
+        } ?: log.warn { "ingen sporingslogging siden PID er udefinert - ${request.requestURI}" }
     }
 
     private fun sendRequestAndResponseToSporingslogg(
@@ -71,5 +71,9 @@ class SporingInterceptor(private val service: SporingsloggService) : HandlerInte
         if (data.isNotEmpty()) {
             service.log(pid, dataForespoersel = "(no data)", leverteData = String(data))
         }
+    }
+
+    companion object {
+        const val PID_ATTRIBUTE_NAME = "pid"
     }
 }

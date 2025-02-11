@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.person
 
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
+import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -9,12 +9,14 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.EnumSet
+import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.PersongrunnlagMapper
 @Component
@@ -27,6 +29,7 @@ class PersongrunnlagMapper(
             person = person,
             personDetalj = createPersonDetalj(spec),
             utlandAntallAar = spec.utlandAntallAar,
+            erFolketrygdMedlem = true,
             erFlyktning = spec.flyktning
         ).also {
             it.over60ArKanIkkeForsorgesSelv = false
@@ -51,6 +54,32 @@ class PersongrunnlagMapper(
             personDetaljListe.add(mapToEpsPersonDetalj(sivilstatus, foedselsdato))
         }.also { it.finishInit() }
 
+    // PersongrunnlagMapper.mapToPersongrunnlagAvdod
+    fun avdoedPersongrunnlag(avdoed: Avdoed, avdoedPerson: PenPerson, soekerPid: Pid?): Persongrunnlag =
+        createPersongrunnlag(
+            person = avdoedPerson,
+            personDetalj = avdoedPersonDetalj(soekerPid),
+            utlandAntallAar = avdoed.antallAarUtenlands,
+            erFolketrygdMedlem = avdoed.erMedlemAvFolketrygden,
+            erFlyktning = false
+        ).apply {
+            dodsdato = avdoed.doedDato.toNorwegianDateAtNoon()
+            dodAvYrkesskade = false
+            arligPGIMinst1G = avdoed.harInntektOver1G
+        }
+
+    // PersongrunnlagMapper.createPersonDetaljAvdod
+    private fun avdoedPersonDetalj(soekerPid: Pid?) =
+        PersonDetalj().apply {
+            grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
+            grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+            rolleFomDato = soekerPid?.let {
+                generelleDataHolder.getPerson(it).foedselDato.toNorwegianDateAtNoon()
+            }
+            borMedEnum = null
+            bruk = true
+        }
+
     // PersongrunnlagMapper.createPersonDetalj
     private fun createPersonDetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
@@ -67,6 +96,7 @@ class PersongrunnlagMapper(
         person: PenPerson,
         personDetalj: PersonDetalj,
         utlandAntallAar: Int,
+        erFolketrygdMedlem: Boolean?,
         erFlyktning: Boolean?
     ) =
         Persongrunnlag().apply {
@@ -80,7 +110,7 @@ class PersongrunnlagMapper(
             uforeHistorikk = person.uforehistorikk
             generellHistorikk = person.generellHistorikk
             personDetaljListe.add(personDetalj)
-            medlemIFolketrygdenSiste3Ar = true
+            medlemIFolketrygdenSiste3Ar = erFolketrygdMedlem
             antallArUtland = utlandAntallAar
             flyktning = erFlyktning
         }.also {

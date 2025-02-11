@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.krav
 
-import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
@@ -17,7 +16,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
@@ -25,6 +23,7 @@ import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
+import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederFraAarStartTilFoersteUttakDato
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
@@ -37,7 +36,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.monthOfYearRange1To12
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
-import no.nav.pensjon.simulator.core.result.OpptjeningType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
@@ -61,10 +59,10 @@ import kotlin.streams.toList
  */
 @Component
 class KravhodeCreator(
-    private val context: SimulatorContext,
     private val beholdningUpdater: BeholdningUpdater,
     private val epsService: EpsService,
     private val persongrunnlagService: PersongrunnlagService,
+    private val opptjeningUpdater: OpptjeningUpdater,
     private val generelleDataHolder: GenerelleDataHolder,
     private val kravService: KravService,
     private val ufoereService: UfoeretrygdUtbetalingService,
@@ -232,51 +230,6 @@ class KravhodeCreator(
     private fun kravTilsierBoddEllerArbeidetUtenlands(beregningResultat: AbstraktBeregningsResultat?): Boolean =
         beregningResultat?.kravId?.let(kravService::fetchKravhode)?.boddEllerArbeidetIUtlandet == true
 
-    /* Simulering type ALDER_M_GJEN not yet supported
-    private fun createPersongrunnlagInCaseOfGjenlevenderett(simulering: SimuleringSpec, kravhode: Kravhode) {
-        val lastYear = LocalDate.now().year - 1
-
-        // Del 1
-        val persongrunnlag = persongrunnlagMapper.mapToPersongrunnlagAvdod(context.hentPenPerson(simulering.avdodPid), simulering)
-        // Will later be retrieved thus: kravhode.hentPersongrunnlagForRolle(GrunnlagRolle.AVDOD, false)
-
-        kravhode.persongrunnlagListe.add(persongrunnlag)
-        persongrunnlag.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-
-        // Del 2
-        oppdaterGrunnlagMedBeholdninger(persongrunnlag, kravhode, simulering.avdodPid, true)
-        filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlag)
-
-        // Del 3.1
-        val inntekt = Inntekt2().apply {
-            inntektAr = lastYear
-            belop = simulering.avdodInntektForDod.toLong()
-        }
-        val inntektListeEPS = mutableListOf(inntekt)
-
-        // Del 3.2
-        val oppdaterOpptjeningsgrunnlagFraInntektListeResponse: OppdaterOpptjeningsgrunnlagFraInntektListeResponse = caller.oppdaterOpptjeningsgrunnlagFraInntektListe(
-            OppdaterOpptjeningsgrunnlagFraInntektListeRequest(inntektListeEPS, persongrunnlag.opptjeningsgrunnlagListe, persongrunnlag.fodselsdato)
-        )
-        persongrunnlag.opptjeningsgrunnlagListe = oppdaterOpptjeningsgrunnlagFraInntektListeResponse.opptjeningsgrunnlagListe
-    }
-
-    private fun filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlagToUpdate: Persongrunnlag) {
-        val filteredList: MutableList<Inntektsgrunnlag> = mutableListOf()
-
-        for (inntektsgrunnlag in persongrunnlagToUpdate.inntektsgrunnlagListe) {
-            if (inntektsgrunnlag.bruk) {
-                // PENPORT-161 (21.11.2011) remove all inntektsgrunnlag where inntektType equal FPI
-                if (inntektsgrunnlag.inntektType.kode != InntektType.FPI.name) {
-                    filteredList.add(inntektsgrunnlag)
-                }
-            }
-        }
-
-        persongrunnlagToUpdate.inntektsgrunnlagListe = filteredList
-    }
-    */
-
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBruker
     private fun addPersongrunnlagForSoekerToKravhode(
         spec: SimuleringSpec,
@@ -391,10 +344,10 @@ class KravhodeCreator(
         }
 
         persongrunnlag.opptjeningsgrunnlagListe =
-            oppdaterOpptjeningsgrunnlagFraInntekter(
+            opptjeningUpdater.oppdaterOpptjeningsgrunnlagFraInntekter(
+                originalGrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
                 inntektListe,
-                persongrunnlag.opptjeningsgrunnlagListe,
-                persongrunnlag.fodselsdato!!.toNorwegianLocalDate()
+                foedselsdato = persongrunnlag.fodselsdato?.toNorwegianLocalDate()
             )
     }
 
@@ -449,33 +402,6 @@ class KravhodeCreator(
 
             else -> epsService.addPersongrunnlagForEpsToKravhode(spec, kravhode, grunnbeloep)
         }
-    }
-
-    // PEN: AbstraktSimulerAPFra2011Command.oppdaterOpptjeningsgrunnlagFraInntektListe
-    // -> OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
-    private fun oppdaterOpptjeningsgrunnlagFraInntekter(
-        inntektListe: List<Inntekt>,
-        opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
-        foedselsdato: LocalDate?
-    ): MutableList<Opptjeningsgrunnlag> {
-        var grunnlagListe: MutableList<Opptjeningsgrunnlag> = mutableListOf()
-
-        for (inntekt in inntektListe) {
-            if (inntekt.beloep > 0L) {
-                grunnlagListe.add(opptjeningsgrunnlag(inntekt))
-            }
-        }
-
-        grunnlagListe = context.beregnPoengtallBatch(grunnlagListe, foedselsdato)
-        val opptjeningsgrunnlagListToReturn: MutableList<Opptjeningsgrunnlag> = ArrayList(opptjeningsgrunnlagListe)
-
-        for (opptjeningsgrunnlag in grunnlagListe) {
-            opptjeningsgrunnlag.bruk = true
-            opptjeningsgrunnlag.grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
-            opptjeningsgrunnlagListToReturn.add(opptjeningsgrunnlag)
-        }
-
-        return opptjeningsgrunnlagListToReturn
     }
 
     // PEN: OpprettKravHodeHelper.finnListeOverInntektPerArFraDagensDato
@@ -836,14 +762,6 @@ class KravhodeCreator(
             Kravlinje(kravlinjeTypeEnum = kravlinjeType, relatertPerson = person).apply {
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 land = LandkodeEnum.NOR
-            }
-
-        private fun opptjeningsgrunnlag(inntekt: Inntekt) =
-            Opptjeningsgrunnlag().apply {
-                ar = inntekt.inntektAar
-                pi = inntekt.beloep.toInt()
-                opptjeningType = OpptjeningTypeCti(OpptjeningType.PPI.name)
-                bruk = true
             }
 
         private fun uttaksgradForHeltUttak(fom: LocalDate?) =

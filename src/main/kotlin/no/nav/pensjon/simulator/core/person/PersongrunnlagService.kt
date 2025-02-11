@@ -30,7 +30,7 @@ class PersongrunnlagService(
     }
 
     // OpprettKravHodeHelper.oppdaterGrunnlagMedBeholdninger
-    private fun addBeholdningerMedGrunnlagToPersongrunnlag(
+    fun addBeholdningerMedGrunnlagToPersongrunnlag(
         persongrunnlag: Persongrunnlag,
         kravhode: Kravhode,
         pid: Pid,

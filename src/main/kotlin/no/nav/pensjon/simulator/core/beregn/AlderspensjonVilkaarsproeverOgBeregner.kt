@@ -81,7 +81,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         val vedtakListeAllePerioder: MutableList<VilkarsVedtak> = mutableListOf()
 
         vedtakListeAllePerioder.addAll(forrigeVedtakListe)
-        log.warn { "knekkpunkter $knekkpunkter" }
+        log.debug { "knekkpunkter $knekkpunkter" }
 
         for (knekkpunktEntry: Map.Entry<LocalDate, List<KnekkpunktAarsak>> in knekkpunkter) {
             val knekkpunktDato = knekkpunktEntry.key

@@ -76,15 +76,15 @@ class IndexBasedSimulering(
             )
 
             val simulertPensjon: SimulatorOutput = discriminator.simuler(indexSimulatorSpec)
-            log.info("Gyldig første uttaksdato - antall måneder: {}", foersteUttakAlderIndex)
+            log.debug("Gyldig første uttaksdato - antall måneder: {}", foersteUttakAlderIndex)
             val uttakGradTransition: Boolean =
                 gradert && previousUttakGradIndex(foersteUttakAlderIndex) < uttaksgradIndex
             AlternativSimuleringResult(valueIsGood = true, simulertPensjon, parameters, uttakGradTransition)
         } catch (_: UtilstrekkeligOpptjeningException) {
-            log.info("Ugyldig første uttaksdato (for lavt tidlig uttak) - antall måneder: $foersteUttakAlderIndex")
+            log.debug("Ugyldig første uttaksdato (for lavt tidlig uttak) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
         } catch (_: UtilstrekkeligTrygdetidException) {
-            log.info("Ugyldig første uttaksdato (for kort trygdetid) - antall måneder: $foersteUttakAlderIndex")
+            log.debug("Ugyldig første uttaksdato (for kort trygdetid) - antall måneder: $foersteUttakAlderIndex")
             AlternativSimuleringResult(valueIsGood = false, simulertPensjon = null, parameters)
         }
     }

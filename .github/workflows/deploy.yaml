@@ -11,6 +11,10 @@ on:
       - 'README.md'
   workflow_dispatch:
     inputs:
+      q1:
+        description: Deploy to Q1
+        type: boolean
+        required: false
       prod:
         description: Deploy to production
         type: boolean
@@ -52,7 +56,7 @@ jobs:
     needs: [ build ]
     if: |
       github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.prod != 'true')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.q1 != 'true' && github.event.inputs.prod != 'true')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -69,7 +73,7 @@ jobs:
     name: Deploy KrakenD config to dev
     if: |
       github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.prod != 'true')
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.q1 != 'true' && github.event.inputs.prod != 'true')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -86,6 +90,25 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/apiendpoints.yaml
+  deploy-q1:
+    name: Deploy to dev-gcp q1
+    needs: [ build ]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.q1 == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          IMAGE: ${{ needs.build.outputs.image }}
+          RESOURCE: .nais/deploy-q1.yml
   deploy-prod:
     name: Deploy to prod-gcp
     needs: [ build ]

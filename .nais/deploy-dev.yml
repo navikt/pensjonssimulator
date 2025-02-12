@@ -67,6 +67,9 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: pensjon-pen-q1
+          namespace: pensjon-q1
+          cluster: dev-fss
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss

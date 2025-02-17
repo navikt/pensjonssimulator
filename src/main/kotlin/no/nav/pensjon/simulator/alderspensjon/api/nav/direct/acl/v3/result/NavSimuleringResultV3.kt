@@ -15,7 +15,7 @@ data class NavSimuleringResultV3(
     val tilstrekkeligTrygdetidForGarantipensjon: Boolean?,
     val trygdetid: Int,
     val opptjeningGrunnlagListe: List<NavOpptjeningGrunnlagV3>,
-    val error: NavSimuleringErrorV3? = null
+    val error: NavSimuleringErrorV3? = null,
 )
 
 // no.nav.pensjon.pen.domain.api.simulering.dto.SimulertAlderspensjon
@@ -26,7 +26,19 @@ data class NavAlderspensjonV3(
     val inntektspensjon: Int?,
     val garantipensjon: Int?,
     val delingstall: Double?,
-    val pensjonBeholdningFoerUttak: Int?
+    val pensjonBeholdningFoerUttak: Int?,
+    val andelsbroekKap19: Double?,
+    val andelsbroekKap20: Double?,
+    val sluttpoengtall: Double?,
+    val trygdetidKap19: Int?,
+    val trygdetidKap20: Int?,
+    val poengaarFoer92: Int?,
+    val poengaarEtter91: Int?,
+    val forholdstall: Double?,
+    val grunnpensjon: Int?,
+    val tilleggspensjon: Int?,
+    val pensjonstillegg: Int?,
+    val skjermingstillegg: Int?,
 )
 
 @JsonInclude(NON_NULL)
@@ -74,3 +86,42 @@ data class NavAlderV3(
     val aar: Int,
     val maaneder: Int
 )
+
+//@JsonInclude(NON_NULL)
+//data class NavBeregningsdetaljerV3(
+//    val uttaksgrad: Double?,
+//    val belopMnd: Int?,
+//    val startMnd: Int?,
+//    val spt: Double?,
+//    val gp: Int?,
+//    val tp: Int?,
+//    val pt: Int?,
+//    val ttAnvKap19: Int?,
+//    val ttAnvKap20: Int?,
+//    val paE91: Int?,
+//    val paF92: Int?,
+//    val forholdstall: Double?,
+//    val delingstall: Double?,
+//    val pensjonsbeholdningForUttak: Int?,
+//    val pensjonsbeholdningEtterUttak: Int?,
+//    val basispensjon: Int?,
+//    val restbasispensjon: Int?,
+//    val inntektspensjon: Int?,
+//    val garantipensjon: Int?,
+//    val garantitillegg: Int?,
+//    val apKap19medGJR: Int?,
+//    val apKap19utenGJR: Int?,
+//    val pensjonKap19: Int?,
+//    val pensjonKap20: Int?,
+//    val pensjonKap19Vektet: Int?,
+//    val pensjonKap20Vektet: Int?,
+//    val noKap19: Int?,
+//    val noKap20: Int?,
+//    val gjtAP: Int?,
+//    val gjtAPKap19: Int?,
+//    val minstenivaTilleggIndividuelt: Int?,
+//    val minstenivaTilleggPensjonistpar: Int?,
+//    val minstePensjonsnivaSats: Double?,
+//    val skjermingstillegg: Int?
+//)
+

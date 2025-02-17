@@ -28,7 +28,19 @@ object NavSimuleringResultMapperV3 {
             inntektspensjon = source.inntektspensjon,
             garantipensjon = source.garantipensjon,
             delingstall = source.delingstall,
-            pensjonBeholdningFoerUttak = source.pensjonBeholdningFoerUttak
+            pensjonBeholdningFoerUttak = source.pensjonBeholdningFoerUttak,
+            andelsbroekKap19 = source.andelsbroekKap19,
+            andelsbroekKap20 = source.andelsbroekKap20,
+            sluttpoengtall = source.sluttpoengtall,
+            trygdetidKap19 = source.trygdetidKap19,
+            trygdetidKap20 = source.trygdetidKap20,
+            poengaarFoer92 = source.poengaarFoer92,
+            poengaarEtter91 = source.poengaarEtter91,
+            forholdstall = source.forholdstall,
+            grunnpensjon = source.grunnpensjon,
+            tilleggspensjon = source.tilleggspensjon,
+            pensjonstillegg = source.pensjonstillegg,
+            skjermingstillegg = source.skjermingstillegg,
         )
 
     private fun maanedsbeloep(source: List<SimulertAlderspensjonFraFolketrygden>) =

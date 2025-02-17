@@ -372,7 +372,8 @@ class Persongrunnlag() {
     // SIMDOM-ADD excludeTrygdetidPerioder, excludeForsteVirkningsdatoGrunnlag
     constructor(
         source: Persongrunnlag,
-        excludeForsteVirkningsdatoGrunnlag: Boolean = false
+        excludeForsteVirkningsdatoGrunnlag: Boolean = false,
+        excludeTrygdetidPerioder: Boolean = false
     ) : this() {
         source.penPerson?.let { penPerson = PenPerson(it) }
         source.fodselsdato?.let { fodselsdato = it.clone() as Date }
@@ -389,29 +390,23 @@ class Persongrunnlag() {
         source.overkompUtl?.let { overkompUtl = it }
         source.opptjeningsgrunnlagListe.forEach { opptjeningsgrunnlagListe.add(Opptjeningsgrunnlag(it)) }
         source.inntektsgrunnlagListe.forEach { inntektsgrunnlagListe.add(Inntektsgrunnlag(it)) }
-        source.trygdetidPerioder.forEach { trygdetidPerioder.add(TTPeriode(it)) }
-        source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(TTPeriode(it)) }
+
+        if (excludeTrygdetidPerioder.not()) {
+            source.trygdetidPerioder.forEach { trygdetidPerioder.add(TTPeriode(it)) }
+            source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(TTPeriode(it)) }
+        }
+
         source.trygdetid?.let { trygdetid = Trygdetid(it) }
         source.uforegrunnlag?.let { uforegrunnlag = Uforegrunnlag(it) }
         source.uforeHistorikk?.let { uforeHistorikk = Uforehistorikk(it) }
         source.yrkesskadegrunnlag?.let { yrkesskadegrunnlag = Yrkesskadegrunnlag(it) }
         dodAvYrkesskade = source.dodAvYrkesskade
-
-        if (source.generellHistorikk != null) {
-            this.generellHistorikk = GenerellHistorikk(source.generellHistorikk!!)
-        }
-
-        for (afpHistorikk in source.afpHistorikkListe) {
-            this.afpHistorikkListe.add(AfpHistorikk(afpHistorikk))
-        }
-
-        if (source.barnekull != null) {
-            this.barnekull = Barnekull(source.barnekull!!)
-        }
-
-        this.antallArUtland = source.antallArUtland
-        this.medlemIFolketrygdenSiste3Ar = source.medlemIFolketrygdenSiste3Ar
-        this.over60ArKanIkkeForsorgesSelv = source.over60ArKanIkkeForsorgesSelv
+        source.generellHistorikk?.let { generellHistorikk = GenerellHistorikk(it) }
+        source.afpHistorikkListe.forEach { afpHistorikkListe.add(AfpHistorikk(it)) }
+        source.barnekull?.let { barnekull = Barnekull(it) }
+        antallArUtland = source.antallArUtland
+        medlemIFolketrygdenSiste3Ar = source.medlemIFolketrygdenSiste3Ar
+        over60ArKanIkkeForsorgesSelv = source.over60ArKanIkkeForsorgesSelv
 
         for (utenlandsopphold in source.utenlandsoppholdListe) {
             this.utenlandsoppholdListe.add(Utenlandsopphold(utenlandsopphold))

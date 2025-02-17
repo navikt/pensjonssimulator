@@ -1,25 +1,32 @@
 package no.nav.pensjon.simulator.core.person.eps
 
-import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.InntektType
+import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.GrunnlagKilde
-import no.nav.pensjon.simulator.core.domain.SimuleringType
-import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.exception.BadSpecException
+import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
+import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
+import no.nav.pensjon.simulator.core.person.PersongrunnlagService
+import no.nav.pensjon.simulator.core.person.eps.EpsUtil.erEps
+import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.PersonService
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.util.*
 
 /**
  * Functionality related to 'ektefelle/partner/samboer' (EPS).
@@ -27,18 +34,15 @@ import java.util.*
 @Service
 class EpsService(
     private val personService: PersonService,
-    private val persongrunnlagMapper: PersongrunnlagMapper
+    private val persongrunnlagService: PersongrunnlagService,
+    private val persongrunnlagMapper: PersongrunnlagMapper,
+    private val opptjeningUpdater: OpptjeningUpdater,
+    private val time: Time
 ) {
-    private val log = KotlinLogging.logger {}
-
     // OpprettKravHodeHelper.opprettPersongrunnlagForEPS
     fun addPersongrunnlagForEpsToKravhode(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
-        if (EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN).contains(spec.type)) {
-            //TODO createPersongrunnlagInCaseOfGjenlevenderett(simulering, kravhode)
-            with("Simulering for gjenlevende is not supported") {
-                log.error { this }
-                throw RuntimeException(this)
-            }
+        if (gjelderGjenlevenderett(spec.type)) {
+            kravhode.persongrunnlagListe.add(gjenlevenderettPersongrunnlag(spec.avdoed, spec.pid, kravhode))
         } else if (erEps(spec.sivilstatus)) {
             kravhode.persongrunnlagListe.add(persongrunnlagBasedOnSivilstatus(spec, grunnbeloep))
         }
@@ -52,7 +56,7 @@ class EpsService(
         )
 
         if (spec.epsHarInntektOver2G) {
-            val today = LocalDate.now()
+            val today: LocalDate = time.today()
 
             val foersteUttakDato: LocalDate =
                 spec.foersteUttakDato?.let { if (isBeforeDay(it, today)) it else today } ?: today
@@ -63,6 +67,57 @@ class EpsService(
         }
 
         return grunnlag
+    }
+
+    // OpprettKravHodeHelper.createPersongrunnlagInCaseOfGjenlevenderett
+    private fun gjenlevenderettPersongrunnlag(avdoed: Avdoed?, soekerPid: Pid?, kravhode: Kravhode): Persongrunnlag {
+        // Del 1
+        val avdoedPerson = avdoed?.pid?.let(personService::person)
+            ?: throw BadSpecException("Gjenlevenderett: Avdød person med PID ${avdoed?.pid} ikke funnet")
+
+        val persongrunnlag: Persongrunnlag = persongrunnlagMapper.avdoedPersongrunnlag(
+            avdoed,
+            avdoedPerson,
+            soekerPid
+        ).apply {
+            sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+        }
+
+        // Del 2
+        persongrunnlagService.addBeholdningerMedGrunnlagToPersongrunnlag(
+            persongrunnlag,
+            kravhode,
+            pid = avdoed.pid,
+            hentBeholdninger = true
+        )
+
+        filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlag)
+
+        // Del 3.1
+        val inntekt = Inntekt(
+            inntektAar = time.today().year - 1,
+            beloep = avdoed.inntektFoerDoed.toLong(),
+            inntektType = null
+        )
+
+        val epsInntektListe: MutableList<Inntekt> = mutableListOf(inntekt)
+
+        // Del 3.2
+        persongrunnlag.opptjeningsgrunnlagListe =
+            opptjeningUpdater.oppdaterOpptjeningsgrunnlagFraInntekter(
+                originalGrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
+                inntektListe = epsInntektListe,
+                foedselsdato = persongrunnlag.fodselsdato?.toNorwegianLocalDate()
+            )
+
+        return persongrunnlag
+    }
+
+    // OpprettKravHodeHelper.filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag
+    private fun filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlag: Persongrunnlag) {
+        persongrunnlag.inntektsgrunnlagListe = persongrunnlag.inntektsgrunnlagListe.filter {
+            it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum // FPI: Forventet pensjongivende inntekt
+        }.toMutableList()
     }
 
     private fun foedselsdato(spec: SimuleringSpec): LocalDate =
@@ -82,8 +137,5 @@ class EpsService(
                 inntektType = InntektTypeCti(InntektType.FPI.name)
                 bruk = true
             }
-
-        private fun erEps(sivilstatus: SivilstatusType) =
-            EnumSet.of(SivilstatusType.GIFT, SivilstatusType.REPA, SivilstatusType.SAMB).contains(sivilstatus)
     }
 }

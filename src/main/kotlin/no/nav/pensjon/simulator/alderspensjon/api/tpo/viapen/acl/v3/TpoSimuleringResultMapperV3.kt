@@ -31,7 +31,7 @@ object TpoSimuleringResultMapperV3 {
         TpoPrivatAfpPeriodeV3(
             afpOpptjening = source.afpOpptjening,
             // The remaining values are strictly not returned to TPO, but included for comparison purposes:
-            alderAar = source.alderAar,
+            alderAar = if (source.alderAar == 0) null else source.alderAar, // legacy simulering in PEN uses null when 0
             aarligBeloep = source.aarligBeloep,
             maanedligBeloep = source.maanedligBeloep,
             livsvarig = source.livsvarig,

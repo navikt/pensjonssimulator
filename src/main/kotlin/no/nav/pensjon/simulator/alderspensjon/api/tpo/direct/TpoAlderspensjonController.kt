@@ -9,16 +9,11 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
+import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
-import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -28,19 +23,18 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 /**
  * REST-controller for simulering av alderspensjon.
  * Tjenestene er ment å brukes av tjenestepensjonsordninger (TPO).
- * TPO gjør kall til pensjonssimulator "direkte" (via API-gateway).
+ * TPO gjør kall til pensjonssimulator "direkte", dvs. ikke via PEN (men via API-gateway).
  */
 @RestController
 @RequestMapping("api")
 @SecurityRequirement(name = "BearerAuthentication")
 class TpoAlderspensjonController(
     private val service: AlderspensjonService,
-    private val generelleDataHolder: GenerelleDataHolder,
     private val traceAid: TraceAid,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
@@ -76,16 +70,21 @@ class TpoAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV4.personId!!)).foedselDato
-            val spec: SimuleringSpec = AlderspensjonSpecMapperV4.fromSpecV4(specV4, foedselsdato)
-            request.setAttribute("pid", spec.pid)
-            spec.pid?.let(::verifiserAtBrukerTilknyttetTpLeverandoer)
+            val spec: AlderspensjonSpec = AlderspensjonSpecMapperV4.fromDto(specV4)
+            request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
+            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
+        } catch (e: DateTimeParseException) {
+            log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn { "$FUNCTION_ID feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: InvalidArgumentException) {
             log.warn { "$FUNCTION_ID invalid argument - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
+        } catch (e: InvalidEnumValueException) {
+            log.warn { "$FUNCTION_ID invalid enum value - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: RegelmotorValideringException) {
             log.warn { "$FUNCTION_ID feil i regelmotorvalidering - ${e.message} - request: $specV4" }
@@ -99,8 +98,6 @@ class TpoAlderspensjonController(
         } catch (e: EgressException) {
             handle(e)!!
         } catch (e: BadRequestException) {
-            badRequest(e)!!
-        } catch (e: InvalidEnumValueException) {
             badRequest(e)!!
         } finally {
             traceAid.end()

@@ -58,12 +58,13 @@ abstract class AbstraktBarnetilleggUT : AbstraktBarnetillegg, UforetrygdYtelsesk
     constructor()
 
     constructor(source: AbstraktBarnetilleggUT) : super(source) {
+        avkortingsinformasjon = source.avkortingsinformasjon?.let(::AvkortingsinformasjonBT)
+        avkortningsbelopPerAr = source.avkortningsbelopPerAr
         inntektstak = source.inntektstak
         nettoAkk = source.nettoAkk
         nettoRestAr = source.nettoRestAr
-        reduksjonsinformasjon = source.reduksjonsinformasjon
-        avkortingsinformasjon = source.avkortingsinformasjon
         periodisertAvvikEtteroppgjor = source.periodisertAvvikEtteroppgjor
+        reduksjonsinformasjon = source.reduksjonsinformasjon?.let(::Reduksjonsinformasjon)
         tidligereBelopAr = source.tidligereBelopAr
         brukersUforetrygdForJustering = source.brukersUforetrygdForJustering
     }

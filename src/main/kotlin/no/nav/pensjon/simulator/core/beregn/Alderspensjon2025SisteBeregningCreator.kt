@@ -17,47 +17,46 @@ class Alderspensjon2025SisteBeregningCreator(kravService: KravService) : SisteBe
         }
 
     // OpprettSisteAldersberegning2011Regelverk2025.createAndInitSisteBeregning
-    private fun newSisteAldersberegning2011(spec: SisteBeregningSpec): SisteAldersberegning2011 {
-        val sisteBeregning = SisteAldersberegning2011().apply {
+    private fun newSisteAldersberegning2011(spec: SisteBeregningSpec) =
+        SisteAldersberegning2011().apply {
             regelverkTypeEnum = spec.regelverkKodePaNyttKrav
+            alderspensjonBeregningResultat(spec)?.let { populateAldersberegning(source = it, sink = this) }
         }
-
-        populateSisteBeregningFromBeregningsresultat2025(
-            beregning = sisteBeregning,
-            beregningResultat = spec.beregningsresultat as? BeregningsResultatAlderspensjon2025
-        )
-
-        return sisteBeregning
-    }
 
     // OpprettSisteAldersberegning2011Regelverk2025.populateSisteBeregningFromBeregningsresultat2025
-    private fun populateSisteBeregningFromBeregningsresultat2025(
-        beregning: SisteAldersberegning2011,
-        beregningResultat: BeregningsResultatAlderspensjon2025?
+    private fun populateAldersberegning(
+        source: BeregningsResultatAlderspensjon2025,
+        sink: SisteAldersberegning2011
     ) {
-        val aldersberegningKapittel20 = beregningResultat?.beregningKapittel20
+        source.virkFom?.let { sink.virkDato = it }
+        source.benyttetSivilstandEnum?.let { sink.benyttetSivilstandEnum = it }
+        source.pensjonUnderUtbetaling?.let { sink.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(it) }
 
-        aldersberegningKapittel20?.let {
-            setAlternativKonvensjonData(beregning, aldersberegningKapittel20, it.beregningsMetodeEnum!!)
-            beregning.beregningsMetodeEnum = it.beregningsMetodeEnum
-            beregning.prorataBrok_kap_20 = it.prorataBrok
-            beregning.tt_anv_kap_20 = it.tt_anv
-            beregning.resultatTypeEnum = it.resultatTypeEnum
-            beregning.beholdninger = it.beholdninger
+        source.beregningKapittel20?.let {
+            setAlternativKonvensjonData(
+                sink,
+                beregningKapittel20 = it,
+                vinnendeMetode = it.beregningsMetodeEnum
+            )
+            sink.beregningsMetodeEnum = it.beregningsMetodeEnum
+            sink.prorataBrok_kap_20 = it.prorataBrok
+            sink.tt_anv_kap_20 = it.tt_anv
+            sink.resultatTypeEnum = it.resultatTypeEnum
+            sink.beholdninger = it.beholdninger
         }
 
-        beregning.virkDato = beregningResultat?.virkFom
-        beregning.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(beregningResultat?.pensjonUnderUtbetaling)
-        beregningResultat?.benyttetSivilstandEnum?.let { beregning.benyttetSivilstandEnum = it }
-        val beregningsinformasjon = beregningResultat?.beregningsInformasjonKapittel20
-
-        beregningsinformasjon?.let {
-            beregning.epsMottarPensjon = it.epsMottarPensjon
-            beregning.gjenlevenderettAnvendt = it.gjenlevenderettAnvendt
+        source.beregningsInformasjonKapittel20?.let {
+            sink.epsMottarPensjon = it.epsMottarPensjon
+            sink.gjenlevenderettAnvendt = it.gjenlevenderettAnvendt
         }
     }
 
-    /* Assumed to be irrelevant when entities not used
+    private companion object {
+
+        private fun alderspensjonBeregningResultat(spec: SisteBeregningSpec): BeregningsResultatAlderspensjon2025? =
+            spec.beregningsresultat as? BeregningsResultatAlderspensjon2025
+
+        /* Assumed to be irrelevant when entities not used
     private fun fixUpPeriodisertPersongrunnlag(persongrunnlag: Persongrunnlag) {
         // To avoid optimistic locking error.
         persongrunnlag.trygdetidList.forEach(::fixUpPeriodisertTrygdetid)
@@ -78,4 +77,5 @@ class Alderspensjon2025SisteBeregningCreator(kravService: KravService) : SisteBe
         trygdetid.ttUtlandTrygdeavtaler?.let { avtaler -> avtaler.forEach { it.ttUtlandTrygdeavtaleId = null } }
     }
     */
+    }
 }

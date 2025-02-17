@@ -11,19 +11,21 @@ import java.util.EnumSet
 object EpsUtil {
     // VilkarsprovOgBeregnAlderHelper.isEktefelleMottarPensjon
     fun epsMottarPensjon(spec: SimuleringSpec): Boolean {
-        if (isAlderWithGjenlevende(spec)) {
+        if (gjelderGjenlevenderett(spec.type)) {
             return false
         }
 
-        // The sivilstandsjekk is needed because ESB default sets epsPensjon to true when a samhandler is calling the simulering service.
-        return if (EnumSet.of(SivilstatusType.SAMB, SivilstatusType.GIFT, SivilstatusType.REPA)
-                .contains(spec.sivilstatus)
-        )
+        //TODO check this statement:
+        // "The sivilstandsjekk is needed because ESB default sets epsPensjon to true when a samhandler is calling the simulering service"
+        return if (erEps(spec.sivilstatus))
             spec.epsHarPensjon
         else
             false
     }
 
-    private fun isAlderWithGjenlevende(spec: SimuleringSpec): Boolean =
-        EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN).contains(spec.type)
+    fun erEps(sivilstatus: SivilstatusType) =
+        EnumSet.of(SivilstatusType.GIFT, SivilstatusType.REPA, SivilstatusType.SAMB).contains(sivilstatus)
+
+    fun gjelderGjenlevenderett(simuleringType: SimuleringType) =
+        EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN).contains(simuleringType)
 }

@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.Formel
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.IFormelProvider
 
-class GjenlevendetilleggAP : Ytelseskomponent(), IFormelProvider {
+class GjenlevendetilleggAP : Ytelseskomponent, IFormelProvider {
 
     /**
      * Sum av GP, TP og PenT for AP2011 medregnet GJR.
@@ -44,4 +44,22 @@ class GjenlevendetilleggAP : Ytelseskomponent(), IFormelProvider {
     override var formelMap: HashMap<String, Formel> = HashMap()
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.AP_GJT
+
+    // SIMDOM-ADD
+    constructor() : super(typeEnum = YtelseskomponentTypeEnum.AP_GJT)
+
+    /**
+     * Used via reflection in PensjonUnderUtbetaling: constructor.newInstance(komponent)
+     */
+    constructor(source: GjenlevendetilleggAP) : super(source) {
+        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.AP_GJT
+        apKap19MedGJR = source.apKap19MedGJR
+        apKap19UtenGJR = source.apKap19UtenGJR
+        referansebelop = source.referansebelop
+        sumReguleringsfradrag = source.sumReguleringsfradrag
+        anvendtUttaksgrad = source.anvendtUttaksgrad
+        metode = source.metode
+        source.formelMap.forEach { (key, value) -> formelMap[key] = Formel(value) }
+    }
+    // end SIMDOM-ADD
 }

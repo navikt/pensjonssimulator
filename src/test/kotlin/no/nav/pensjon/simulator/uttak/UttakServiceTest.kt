@@ -71,6 +71,6 @@ private fun finnTidligstMuligUttak(inntektSpecListe: List<FremtidigInntekt>): Ti
         simuleringFacade = mock(SimuleringFacade::class.java),
         normAlderService = mock(NormAlderService::class.java)
     ).finnTidligstMuligUttak(
-        simuleringSpec(inntektSpecListe)
+        simuleringSpec(inntektSpecListe = inntektSpecListe)
     )
 }

@@ -51,8 +51,9 @@ abstract class SisteBeregningCreatorBase(private val kravService: KravService) {
         val tapendeDelberegning = findTapendeDelberegning(beregningKapittel20, vinnendeMetode) ?: return
 
         with(sink) {
-            pensjonUnderUtbetaling2025AltKonv =
-                utenIrrelevanteYtelseskomponenter(tapendeDelberegning.pensjonUnderUtbetaling)
+            tapendeDelberegning.pensjonUnderUtbetaling?.let {
+                pensjonUnderUtbetaling2025AltKonv = utenIrrelevanteYtelseskomponenter(it)
+            }
             beholdningerAltKonv = tapendeDelberegning.beholdninger
             prorataBrok_kap_20AltKonv = tapendeDelberegning.prorataBrok
             tt_anv_kap_20AltKonv = tapendeDelberegning.tt_anv
@@ -61,13 +62,11 @@ abstract class SisteBeregningCreatorBase(private val kravService: KravService) {
 
     // OpprettSisteAldersberegningCommon.fetchFilteredPensjonUnderUtbetaling (2 variants)
     // OpprettSisteAldersberegningCommon.getFilterPensjonUnderUtbetaling
-    protected fun utenIrrelevanteYtelseskomponenter(pensjon: PensjonUnderUtbetaling?) =
-        pensjon?.let {
-            PensjonUnderUtbetaling(
-                source = it,
-                excludeBrutto = true
-            ).also(::removeIrrelevanteYtelseskomponenter)
-        }
+    protected fun utenIrrelevanteYtelseskomponenter(pensjon: PensjonUnderUtbetaling) =
+        PensjonUnderUtbetaling(
+            source = pensjon,
+            excludeBrutto = true
+        ).also(::removeIrrelevanteYtelseskomponenter)
 
     private fun removeIrrelevanteYtelseskomponenter(pensjon: PensjonUnderUtbetaling) {
         pensjon.removeYtelseskomponent { it.brukt.not() || it.opphort }

@@ -614,5 +614,14 @@ class Persongrunnlag() {
         personDetaljListe.any {
             it.bruk == true && it.isGrunnlagsrolleSamboer() && it.is3_2Samboer()
         }
+
+    /**
+     * Finner nyeste trygdetid, hvis ingen finnes returneres null
+     */
+    // Persongrunnlag.findLatestTrygdetid + Trygdetid.compareTo
+    fun latestTrygdetid(): Trygdetid? =
+        trygdetider.filter { it.virkFom != null }.maxByOrNull { it.virkFom!! }
+            ?: trygdetider.firstOrNull()
+
     // end SIMDOM-ADD
 }

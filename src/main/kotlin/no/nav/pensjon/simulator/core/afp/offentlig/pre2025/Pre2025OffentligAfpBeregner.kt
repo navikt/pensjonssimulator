@@ -170,6 +170,8 @@ class Pre2025OffentligAfpBeregner(
             }
 
             persongrunnlag.trygdetider.add(trygdetid)
+            // Ref. PEN PersonGrunnlagToReglerMapper.mapPersongrunnlagToRegler:
+            persongrunnlag.trygdetid = persongrunnlag.latestTrygdetid()
 
             // Validate trygdetid to see if the simulation should be rejected:
             if (SimuleringTypeEnum.ALDER.name == simulering.simuleringType?.kode) {

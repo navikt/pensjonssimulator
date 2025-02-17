@@ -30,6 +30,7 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.format.DateTimeParseException
 
 /**
  * REST-controller for simulering av alderspensjon.
@@ -80,6 +81,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: BadSpecException) {
             log.warn { "$FUNCTION_ID_V1 bad spec - $specV1" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: DateTimeParseException) {
+            log.warn { "$FUNCTION_ID_V1 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV1" }
+            throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID_V1 feil i simuleringsgrunnlaget - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -89,6 +93,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID_V1 invalid argument - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InvalidEnumValueException) {
+            log.warn(e) { "$FUNCTION_ID_V1 invalid enum value - request - $specV1" }
+            throw e
         } catch (e: KanIkkeBeregnesException) {
             log.warn(e) { "$FUNCTION_ID_V1 kan ikke beregnes - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -129,10 +136,6 @@ class TpoViaPenAlderspensjonController(
             */
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
-        } catch (e: InvalidEnumValueException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
@@ -174,6 +177,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: BadSpecException) {
             log.warn { "$FUNCTION_ID_V2 bad spec - $specV2" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: DateTimeParseException) {
+            log.warn { "$FUNCTION_ID_V2 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV2" }
+            throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID_V2 feil i simuleringsgrunnlaget - request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -183,6 +189,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID_V2 invalid argument - request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InvalidEnumValueException) {
+            log.warn(e) { "$FUNCTION_ID_V2 invalid enum value - request - $specV2" }
+            throw e
         } catch (e: KanIkkeBeregnesException) {
             log.warn(e) { "$FUNCTION_ID_V2 kan ikke beregnes - request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -209,8 +218,6 @@ class TpoViaPenAlderspensjonController(
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: InvalidEnumValueException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
@@ -252,6 +259,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: BadSpecException) {
             log.warn { "$FUNCTION_ID_V3 bad spec - $specV3" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: DateTimeParseException) {
+            log.warn { "$FUNCTION_ID_V3 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV3" }
+            throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID_V3 feil i simuleringsgrunnlaget - request - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -261,6 +271,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID_V3 invalid argument - request - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InvalidEnumValueException) {
+            log.warn(e) { "$FUNCTION_ID_V3 invalid enum value - request - $specV3" }
+            throw e
         } catch (e: KanIkkeBeregnesException) {
             log.warn(e) { "$FUNCTION_ID_V3 kan ikke beregnes - request - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -301,10 +314,6 @@ class TpoViaPenAlderspensjonController(
             */
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
-        } catch (e: InvalidEnumValueException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
@@ -314,8 +323,10 @@ class TpoViaPenAlderspensjonController(
         value = [
             BadRequestException::class,
             BadSpecException::class,
+            DateTimeParseException::class,
             FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
+            InvalidEnumValueException::class,
             KanIkkeBeregnesException::class,
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,

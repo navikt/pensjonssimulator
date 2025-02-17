@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 
 /**
@@ -21,9 +22,9 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             sivilstatus = source.sivilstatus?.let { FolketrygdberegnetAfpSivilstandSpecV1.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
-            foersteUttakDato = source.forsteUttakDato,
+            foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = null, //TODO verify
-            pid = source.fnr?.let(::Pid),
+            pid = source.fnr?.pid?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = null,
             isTpOrigSimulering = false,

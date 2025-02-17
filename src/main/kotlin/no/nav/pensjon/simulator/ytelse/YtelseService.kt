@@ -73,7 +73,7 @@ open class YtelseService(private val client: YtelseClient) {
 
         if (spec.type == SimuleringType.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.hentLopendeYtelser line 103
             return LoependeYtelser(
-                soekerVirkningFom = LocalDate.MIN,
+                soekerVirkningFom = LocalDate.of(1901, 1, 1),
                 avdoedVirkningFom = null,
                 privatAfpVirkningFom = null,
                 sisteBeregning = null,

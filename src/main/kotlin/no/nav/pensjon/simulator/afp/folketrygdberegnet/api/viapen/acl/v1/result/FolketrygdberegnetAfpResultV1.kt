@@ -1,8 +1,6 @@
 package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
-import java.time.LocalDate
+import java.util.Date
 
 /**
  * Folketrygdberegnet avtalefestet pensjon i offentlig sektor.
@@ -10,7 +8,7 @@ import java.time.LocalDate
  */
 data class FolketrygdberegnetAfpResultV1(
     val totalbelopAfp: Int? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val virkFom: LocalDate? = null,
+    val virkFom: Date? = null,
     val tidligereArbeidsinntekt: Int? = null,
     val grunnbelop: Int? = null,
     val sluttpoengtall: Double? = null,

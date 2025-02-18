@@ -35,7 +35,19 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                             inntektspensjon = 500,
                             garantipensjon = 400,
                             delingstall = 1.2,
-                            pensjonBeholdningFoerUttak = 1000000
+                            pensjonBeholdningFoerUttak = 1000000,
+                            andelsbroekKap19 = 0.3,
+                            andelsbroekKap20 = 0.7,
+                            sluttpoengtall = 5.6,
+                            trygdetidKap19 = 30,
+                            trygdetidKap20 = 40,
+                            poengaarFoer92 = 10,
+                            poengaarEtter91 = 20,
+                            forholdstall = 0.8,
+                            grunnpensjon = 567,
+                            tilleggspensjon = 678,
+                            pensjonstillegg = 789,
+                            skjermingstillegg = 890
                         )
                     ),
                     alderspensjonFraFolketrygden = listOf(

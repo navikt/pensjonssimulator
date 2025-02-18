@@ -15,7 +15,7 @@ data class NavSimuleringResultV3(
     val tilstrekkeligTrygdetidForGarantipensjon: Boolean?,
     val trygdetid: Int,
     val opptjeningGrunnlagListe: List<NavOpptjeningGrunnlagV3>,
-    val error: NavSimuleringErrorV3? = null
+    val error: NavSimuleringErrorV3? = null,
 )
 
 // no.nav.pensjon.pen.domain.api.simulering.dto.SimulertAlderspensjon
@@ -26,7 +26,19 @@ data class NavAlderspensjonV3(
     val inntektspensjon: Int?,
     val garantipensjon: Int?,
     val delingstall: Double?,
-    val pensjonBeholdningFoerUttak: Int?
+    val pensjonBeholdningFoerUttak: Int?,
+    val andelsbroekKap19: Double?,
+    val andelsbroekKap20: Double?,
+    val sluttpoengtall: Double?,
+    val trygdetidKap19: Int?,
+    val trygdetidKap20: Int?,
+    val poengaarFoer92: Int?,
+    val poengaarEtter91: Int?,
+    val forholdstall: Double?,
+    val grunnpensjon: Int?,
+    val tilleggspensjon: Int?,
+    val pensjonstillegg: Int?,
+    val skjermingstillegg: Int?,
 )
 
 @JsonInclude(NON_NULL)

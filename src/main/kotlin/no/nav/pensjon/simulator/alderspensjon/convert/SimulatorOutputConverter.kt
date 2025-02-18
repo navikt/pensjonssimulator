@@ -42,7 +42,7 @@ object SimulatorOutputConverter {
         val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
 
         return SimulertPensjon(
-            alderspensjon = pensjonsperioder.map(SimulatorOutputConverter::alderspensjon),
+            alderspensjon = pensjonsperioder.map { alderspensjon(it, alderspensjon) },
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
                 .map(SimulatorOutputConverter::alderspensjonFraFolketrygden),
             privatAfp = source.privatAfpPeriodeListe.map(SimulatorOutputConverter::privatAfp),
@@ -63,16 +63,28 @@ object SimulatorOutputConverter {
     private fun anvendtKapittel20Trygdetid(perioder: List<PensjonPeriode>): Int =
         perioder.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()?.tt_anv_kap20 ?: 0
 
-    private fun alderspensjon(source: PensjonPeriode): SimulertAarligAlderspensjon {
+    private fun alderspensjon(source: PensjonPeriode, simulertAlderspensjon: SimulertAlderspensjon?): SimulertAarligAlderspensjon {
         val info = source.simulertBeregningInformasjonListe.firstOrNull()
 
-        return SimulertAarligAlderspensjon(
+         return SimulertAarligAlderspensjon(
             alderAar = source.alderAar ?: ALDER_REPRESENTING_LOPENDE_YTELSER,
             beloep = source.beloep ?: 0,
             inntektspensjon = info?.inntektspensjon,
             garantipensjon = info?.garantipensjon,
             delingstall = info?.delingstall,
-            pensjonBeholdningFoerUttak = beholdningFoerUttak(source.simulertBeregningInformasjonListe)
+            pensjonBeholdningFoerUttak = beholdningFoerUttak(source.simulertBeregningInformasjonListe),
+            andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,
+            andelsbroekKap20 = simulertAlderspensjon?.kapittel20Andel ?: 0.0,
+            sluttpoengtall = info?.spt,
+            trygdetidKap19 = info?.tt_anv_kap19,
+            trygdetidKap20 = info?.tt_anv_kap20,
+            poengaarFoer92 = info?.pa_f92,
+            poengaarEtter91 = info?.pa_e91,
+            forholdstall = info?.forholdstall,
+            grunnpensjon = info?.grunnpensjon,
+            tilleggspensjon = info?.tilleggspensjon,
+            pensjonstillegg = info?.pensjonstillegg,
+            skjermingstillegg = info?.skjermingstillegg,
         )
     }
 

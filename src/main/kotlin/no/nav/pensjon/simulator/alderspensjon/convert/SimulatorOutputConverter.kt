@@ -42,7 +42,7 @@ object SimulatorOutputConverter {
         val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
 
         return SimulertPensjon(
-            alderspensjon = pensjonsperioder.map { alderspensjon(it, alderspensjon) }, //pensjonsperioder.map(SimulatorOutputConverter::alderspensjon),
+            alderspensjon = pensjonsperioder.map { alderspensjon(it, alderspensjon) },
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
                 .map(SimulatorOutputConverter::alderspensjonFraFolketrygden),
             privatAfp = source.privatAfpPeriodeListe.map(SimulatorOutputConverter::privatAfp),
@@ -66,10 +66,6 @@ object SimulatorOutputConverter {
     private fun alderspensjon(source: PensjonPeriode, simulertAlderspensjon: SimulertAlderspensjon?): SimulertAarligAlderspensjon {
         val info = source.simulertBeregningInformasjonListe.firstOrNull()
 
-        println("DEBUG: simulertAlderspensjon = $simulertAlderspensjon")
-        println("DEBUG: kapittel19Andel = ${simulertAlderspensjon?.kapittel19Andel}")
-        println("DEBUG: kapittel20Andel = ${simulertAlderspensjon?.kapittel20Andel}")
-
          return SimulertAarligAlderspensjon(
             alderAar = source.alderAar ?: ALDER_REPRESENTING_LOPENDE_YTELSER,
             beloep = source.beloep ?: 0,
@@ -77,8 +73,8 @@ object SimulatorOutputConverter {
             garantipensjon = info?.garantipensjon,
             delingstall = info?.delingstall,
             pensjonBeholdningFoerUttak = beholdningFoerUttak(source.simulertBeregningInformasjonListe),
-            andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,//info?.vektetKapittel19Pensjon,
-            andelsbroekKap20 = simulertAlderspensjon?.kapittel20Andel ?: 0.0, //info?.vektetKapittel20Pensjon,
+            andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,
+            andelsbroekKap20 = simulertAlderspensjon?.kapittel20Andel ?: 0.0,
             sluttpoengtall = info?.spt,
             trygdetidKap19 = info?.tt_anv_kap19,
             trygdetidKap20 = info?.tt_anv_kap20,

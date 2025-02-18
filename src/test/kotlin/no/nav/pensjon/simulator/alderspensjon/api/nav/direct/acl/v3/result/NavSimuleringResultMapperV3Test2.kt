@@ -84,6 +84,18 @@ class NavSimuleringResultMapperV3Test2 {
                 garantipensjon shouldBe 4
                 delingstall shouldBe 5.0
                 pensjonBeholdningFoerUttak shouldBe 6
+                andelsbroekKap19 shouldBe 0.3
+                andelsbroekKap20 shouldBe 0.7
+                sluttpoengtall shouldBe 9.0
+                trygdetidKap19 shouldBe 10
+                trygdetidKap20 shouldBe 11
+                poengaarFoer92 shouldBe 12
+                poengaarEtter91 shouldBe 13
+                forholdstall shouldBe 14.0
+                grunnpensjon shouldBe 15
+                tilleggspensjon shouldBe 16
+                pensjonstillegg shouldBe 17
+                skjermingstillegg shouldBe 18
             }
 
             result.privatAfpListe.size shouldBe 1
@@ -120,7 +132,19 @@ class NavSimuleringResultMapperV3Test2 {
                             inntektspensjon = 3,
                             garantipensjon = 4,
                             delingstall = 5.0,
-                            pensjonBeholdningFoerUttak = 6
+                            pensjonBeholdningFoerUttak = 6,
+                            andelsbroekKap19 = 0.3,
+                            andelsbroekKap20 = 0.7,
+                            sluttpoengtall = 9.0,
+                            trygdetidKap19 = 10,
+                            trygdetidKap20 = 11,
+                            poengaarFoer92 = 12,
+                            poengaarEtter91 = 13,
+                            forholdstall = 14.0,
+                            grunnpensjon = 15,
+                            tilleggspensjon = 16,
+                            pensjonstillegg = 17,
+                            skjermingstillegg = 18
                         )
                     ),
                     alderspensjonFraFolketrygden,

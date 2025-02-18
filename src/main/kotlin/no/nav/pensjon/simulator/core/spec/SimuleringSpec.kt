@@ -10,6 +10,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
+import java.util.EnumSet
 
 // no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011 &
 // SimuleringSpecAlderspensjon1963Plus
@@ -149,7 +150,7 @@ data class SimuleringSpec(
         withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
 
     fun gjelderPre2025OffentligAfp() =
-        type == SimuleringType.AFP_ETTERF_ALDER
+        EnumSet.of(SimuleringType.AFP_ETTERF_ALDER, SimuleringType.AFP_FPP).contains(type)
 
     fun gjelderPrivatAfpFoersteUttak() =
         type == SimuleringType.ALDER_M_AFP_PRIVAT

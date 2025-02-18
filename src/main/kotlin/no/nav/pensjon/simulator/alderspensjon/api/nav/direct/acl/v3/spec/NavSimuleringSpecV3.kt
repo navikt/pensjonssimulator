@@ -17,8 +17,7 @@ import java.util.*
 data class NavSimuleringSpecV3(
     val pid: String,
     val sivilstand: NavSivilstandSpecV3,
-    val harEps: Boolean? = false, // TODO remove (unused)
-    val uttaksar: Int,
+    val uttaksar: Int? = null,
     val sisteInntekt: Int,
     val simuleringstype: NavSimuleringTypeSpecV3,
     val gradertUttak: NavSimuleringGradertUttakSpecV3? = null,
@@ -33,19 +32,18 @@ data class NavSimuleringSpecV3(
      * toString with redacted person ID
      */
     override fun toString() =
-        "pid: ${redact(pid)}, " +
-                "sivilstand: $sivilstand, " +
-                "harEps: $harEps, " +
-                "uttaksar: $uttaksar, " +
-                "sisteInntekt: $sisteInntekt, " +
-                "simuleringstype: $simuleringstype, " +
-                "gradertUttak: $gradertUttak, " +
-                "heltUttak: $heltUttak, " +
-                "aarUtenlandsEtter16Aar: $aarUtenlandsEtter16Aar, " +
-                "epsHarPensjon: $epsHarPensjon, " +
-                "epsHarInntektOver2G: $epsHarInntektOver2G, " +
-                "fremtidigInntektListe: $fremtidigInntektListe, " +
-                "utenlandsperiodeListe: $utenlandsperiodeListe"
+        "\"pid\": \"${redact(pid)}\", " +
+                "\"sivilstand\": \"$sivilstand\", " +
+                "\"uttaksar\": $uttaksar, " +
+                "\"sisteInntekt\": $sisteInntekt, " +
+                "\"simuleringstype\": \"$simuleringstype\", " +
+                "\"gradertUttak\": { $gradertUttak }, " +
+                "\"heltUttak\": { $heltUttak }, " +
+                "\"aarUtenlandsEtter16Aar\": $aarUtenlandsEtter16Aar, " +
+                "\"epsHarPensjon\": $epsHarPensjon, " +
+                "\"epsHarInntektOver2G\": $epsHarInntektOver2G, " +
+                "\"fremtidigInntektListe\": [ $fremtidigInntektListe ], " +
+                "\"utenlandsperiodeListe\": [ $utenlandsperiodeListe ]"
 }
 
 @JsonInclude(NON_NULL)

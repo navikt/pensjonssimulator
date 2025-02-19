@@ -61,7 +61,7 @@ object NavSimuleringSpecMapperV3 {
             afpOrdning = null,
             afpInntektMaanedFoerUttak = null,
             isHentPensjonsbeholdninger = false,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false
         )
     }

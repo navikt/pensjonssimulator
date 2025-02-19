@@ -74,6 +74,9 @@ class TpoAlderspensjonController(
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
+        } catch (e: BadSpecException) {
+            log.warn { "$FUNCTION_ID feil i spesifikasjonen - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)

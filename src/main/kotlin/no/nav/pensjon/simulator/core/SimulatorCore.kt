@@ -24,6 +24,7 @@ import no.nav.pensjon.simulator.core.result.ResultPreparerSpec
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.ufoere.UfoereUtil.validateUfoeregrad
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
@@ -75,7 +76,11 @@ class SimulatorCore(
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
-        val person: PenPerson? = initialSpec.pid?.let(personService::person)
+
+        val person: PenPerson? = initialSpec.pid
+            ?.let(personService::person)
+            ?.also { validateUfoeregrad(it, initialSpec) }
+
         val foedselsdato: LocalDate? = person?.fodselsdato?.toNorwegianLocalDate()
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 

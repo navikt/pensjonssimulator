@@ -1,10 +1,10 @@
 # pensjonssimulator
 
-Backend-applikasjon for simulering av alderspensjon.
+Backend-applikasjon for simulering av alderspensjon og AFP (avtalefestet pensjon).
 
 Simulering innebærer å beregne en prognose for pensjonsutbetaling.
 
-Appen er pr. august 2024 kun et mellomledd mellom tjenestepensjonsleverandører og NAVs pensjonsfaglige kjerne.
+Applikasjonen eksponerer API-er som brukes av Nav internt og av tjenestepensjonsordninger. 
 
 ## Teknologi
 
@@ -15,6 +15,8 @@ Appen er pr. august 2024 kun et mellomledd mellom tjenestepensjonsleverandører 
 * [NAIS](https://nais.io/) (med oppsett for [Maskinporten](https://www.digdir.no/felleslosninger/maskinporten/869))
 
 ## Dokumentasjon
+
+* [Eksterne API-er](https://navikt.github.io/pensjon-ekstern-api/api/alderspensjon/simulering2025/simulering2025.html)
 
 * [Nav-intern dokumentasjon](https://confluence.adeo.no/display/PEN/Pensjonssimulator-app)
 

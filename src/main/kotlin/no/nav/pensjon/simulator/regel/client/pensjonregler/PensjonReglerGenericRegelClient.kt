@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.regel.client.pensjonregler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
@@ -27,6 +28,8 @@ class PensjonReglerGenericRegelClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), GenericRegelClient {
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val isDev: Boolean = System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp"
+    private val log = KotlinLogging.logger {}
 
     // regelServiceApi
     override fun <K, T : Any> makeRegelCall(
@@ -36,6 +39,12 @@ class PensjonReglerGenericRegelClient(
         map: Map<String, Any>?,
         sakId: String?
     ): K {
+        try {
+            if (isDev) log.info { "regler call $serviceName ${objectMapper.writeValueAsString(request)}" }
+        } catch (e: Exception) {
+            log.info { "regler call log failed - ${e.message}" }
+        }
+
         return try {
             callPensjonRegler(serviceName, request, responseClass, map, sakId)
         } catch (e: Exception) {

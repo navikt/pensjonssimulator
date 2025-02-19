@@ -246,7 +246,7 @@ class TpoViaPenAlderspensjonController(
     )
     fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): TpoSimuleringResultV3 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID_V3 request: $specV3" }
+        log.info { "TpoV3 request $specV3" }
         countCall(FUNCTION_ID_V3)
 
         return try {

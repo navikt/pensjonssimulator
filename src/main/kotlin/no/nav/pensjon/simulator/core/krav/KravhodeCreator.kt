@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.krav
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
@@ -8,9 +9,7 @@ import no.nav.pensjon.simulator.core.beregn.InntektType
 import no.nav.pensjon.simulator.core.domain.GrunnlagKilde
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
-import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
+import no.nav.pensjon.simulator.core.domain.regler.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -42,6 +41,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
@@ -71,6 +71,8 @@ class KravhodeCreator(
     private val pre2025OffentligAfpPersongrunnlag: Pre2025OffentligAfpPersongrunnlag,
     private val pre2025OffentligAfpUttaksgrad: Pre2025OffentligAfpUttaksgrad
 ) {
+    private val log = KotlinLogging.logger {}
+
     // OpprettKravhodeHelper.opprettKravhode
     // Personer will be undefined in forenklet simulering (anonymous)
     fun opprettKravhode(
@@ -314,6 +316,14 @@ class KravhodeCreator(
         }
 
         val persongrunnlag = kravhode.hentPersongrunnlagForSoker()
+
+        if (isDev) {
+            log.info(
+                "opprettPersongrunnlag fnr {} personID {}",
+                redact(spec.pid?.value), persongrunnlag.penPerson?.penPersonId ?: "null"
+            )
+        }
+
         val brukFremtidigInntekt = spec.fremtidigInntektListe.isNotEmpty()
         val inntektListe: MutableList<Inntekt>
 
@@ -522,6 +532,7 @@ class KravhodeCreator(
         private const val MAX_UTTAKSGRAD = 100
         private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
+        private val isDev: Boolean = System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp"
 
         private fun regelverkType(foedselAar: Int): RegelverkTypeEnum =
             when {

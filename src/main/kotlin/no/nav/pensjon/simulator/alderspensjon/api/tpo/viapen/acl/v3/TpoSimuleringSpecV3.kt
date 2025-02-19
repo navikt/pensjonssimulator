@@ -33,16 +33,24 @@ data class TpoSimuleringSpecV3(
      * toString with redacted person ID
      */
     override fun toString() =
-        "pid: ${redact(pid)}, " +
-                "sivilstatus: $sivilstatus, " +
-                "epsPensjon: $epsPensjon, " +
-                "eps2G: $eps2G, " +
-                "utenlandsopphold: $utenlandsopphold, " +
-                "simuleringType: $simuleringType, " +
-                "fremtidigInntektList: $fremtidigInntektList, " +
-                "foersteUttakDato: $foersteUttakDato, " +
-                "uttakGrad: $uttakGrad, " +
-                "heltUttakDato: $heltUttakDato"
+        "{ \"pid\": \"${redact(pid)}\", " +
+                "\"sivilstatus\": \"$sivilstatus\", " +
+                "\"epsPensjon\": $epsPensjon, " +
+                "\"eps2G\": $eps2G, " +
+                "\"utenlandsopphold\": $utenlandsopphold, " +
+                "\"simuleringType\": \"$simuleringType\", " +
+                "\"fremtidigInntektList\": ${inntekterToString(fremtidigInntektList)}, " +
+                "\"foersteUttakDato\": \"${foersteUttakDato}\", " +
+                "\"uttakGrad\": $uttakGrad, " +
+                "\"heltUttakDato\": \"$heltUttakDato\" }"
+
+    private fun inntekterToString(list: List<InntektSpecLegacyV3>?) =
+        list?.let {
+            "[ ${list.joinToString(", ", transform = ::inntektToString)} ]"
+        } ?: "null"
+
+    private fun inntektToString(inntekt: InntektSpecLegacyV3?) =
+        inntekt?.toString() ?: "null"
 }
 
 // Corresponds to no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.FremtidigInntekt
@@ -51,4 +59,8 @@ data class InntektSpecLegacyV3(
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val fomDato: LocalDate
-)
+) {
+    override fun toString() =
+        "{ \"arligInntekt\": $arligInntekt, " +
+                "\"fomDato\": \"$fomDato\" }"
+}

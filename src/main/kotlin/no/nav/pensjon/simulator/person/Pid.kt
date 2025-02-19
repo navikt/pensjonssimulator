@@ -23,7 +23,7 @@ class Pid(argument: String) {
         fun redact(pid: String?): String =
             pid?.let {
                 if (it.length == FOEDSELSNUMMER_LENGTH)
-                    it.substring(0, PERSONNUMMER_START_INDEX) + "*****"
+                    it.substring(0, 8) + "***"
                 else
                     "?(${it.length})?"
             } ?: "<null>"

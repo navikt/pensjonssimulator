@@ -20,7 +20,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
@@ -37,6 +36,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.UttakValidator.validateGradertUttak
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -534,13 +534,13 @@ class KravhodeCreator(
         // OpprettKravHodeHelper.finnUttaksgradListe
         // -> SimulerFleksibelAPCommand.finnUttaksgradListe
         private fun alderspensjonUttakGradListe(spec: SimuleringSpec): MutableList<Uttaksgrad> {
-            val uttakGradListe = mutableListOf(angittUttaksgrad(spec))
+            val uttaksgradListe = mutableListOf(angittUttaksgrad(spec))
 
             if (erGradertUttak(spec)) {
-                uttakGradListe.add(uttaksgradForHeltUttak(spec.heltUttakDato))
+                uttaksgradListe.add(uttaksgradForHeltUttak(spec.heltUttakDato))
             }
 
-            return uttakGradListe
+            return uttaksgradListe
         }
 
         // SimulerFleksibelAPCommand.createUttaksgradChosenByUser
@@ -550,17 +550,12 @@ class KravhodeCreator(
                 uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (erGradertUttak(spec)) {
-                    if (spec.foersteUttakDato!!.isBefore(spec.heltUttakDato!!).not()) {
-                        throw FeilISimuleringsgrunnlagetException(
-                            "dato for første uttak (${spec.foersteUttakDato}) er ikke før" +
-                                    " dato for helt uttak (${spec.heltUttakDato})"
-                        )
-                    }
-
-                    val dayBeforeHeltUttak: LocalDate = getRelativeDateByDays(spec.heltUttakDato, -1)
-                    tomDato = dayBeforeHeltUttak.toNorwegianDateAtNoon()
+                    validateGradertUttak(spec)
+                    tomDato = spec.heltUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
                 }
-            }.also { it.finishInit() }
+            }.also {
+                it.finishInit()
+            }
 
         private fun addFremtidigInntektVedStartAvHvertAar(
             sortertInntektListe: MutableList<FremtidigInntekt>,

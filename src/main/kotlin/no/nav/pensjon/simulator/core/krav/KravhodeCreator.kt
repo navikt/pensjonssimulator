@@ -314,7 +314,7 @@ class KravhodeCreator(
         }
 
         val persongrunnlag = kravhode.hentPersongrunnlagForSoker()
-        val brukFremtidigInntekt = spec.fremtidigInntektListe.isNotEmpty()
+        val brukFremtidigInntekt = spec.fremtidigInntektListe != null // NB: true if empty list
         val inntektListe: MutableList<Inntekt>
 
         if (brukFremtidigInntekt) {
@@ -705,19 +705,25 @@ class KravhodeCreator(
                 )
             }.toMutableList()
 
+        // PEN: OpprettKravHodeHelper.createInntektsgrunnlagFromFremtidigInntektList
         private fun inntektsgrunnlagListeFraFremtidigeInntekter(
             spec: SimuleringSpec,
             gjeldendeAar: Int,
             sisteOpptjeningAar: Int,
             fom: LocalDate
         ): List<Inntektsgrunnlag> {
-            val fremtidigInntektListe = spec.fremtidigInntektListe
+            val fremtidigInntektListe = spec.fremtidigInntektListe ?: mutableListOf()
 
+            // NB: The original fremtidigInntektListe is here modified (as is done in PEN):
             if (fremtidigInntektListe.isEmpty() || doesNotHaveFremtidigInntektBeforeFom(spec, fom)) {
                 fremtidigInntektListe.add(FremtidigInntekt(aarligInntektBeloep = 0, fom))
             }
 
+            // NB: In PEN OpprettKravHodeHelper.sortFremtidigInntektList a new list is created
+            // We achieve the same here by using toMutableList() on the original list
+            // TODO check if toMutableList creates a new list
             val sortertInntektListe = fremtidigInntektListe.toMutableList().apply { this.sortBy { it.fom } }
+
             validateSortedFremtidigeInntekter(sortertInntektListe)
             addFremtidigInntektVedStartAvHvertAar(sortertInntektListe, sisteOpptjeningAar)
 
@@ -766,7 +772,7 @@ class KravhodeCreator(
             }
 
         private fun doesNotHaveFremtidigInntektBeforeFom(spec: SimuleringSpec, fom: LocalDate) =
-            spec.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }
+            spec.fremtidigInntektListe.orEmpty().none { isBeforeByDay(it.fom, fom, true) }
 
         private fun foedselsdato(person: PenPerson?, spec: SimuleringSpec): LocalDate =
             person?.fodselsdato?.toNorwegianLocalDate() ?: spec.foedselDato ?: foersteDag(spec.foedselAar)
@@ -780,7 +786,8 @@ class KravhodeCreator(
         private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
             trygdetidPeriodeListe.any { it.land!!.kode != LandkodeEnum.NOR.name }
 
-        private fun erGradertUttak(spec: SimuleringSpec) = spec.uttakGrad != UttakGradKode.P_100
+        private fun erGradertUttak(spec: SimuleringSpec) =
+            spec.uttakGrad != UttakGradKode.P_100
 
         private fun sammeAar(a: FremtidigInntekt, b: FremtidigInntekt) =
             a.fom.year == b.fom.year

@@ -25,7 +25,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             pid,
             foedselsdato = LocalDate.of(1962, 12, 31),
             forventetAarligInntektBeloep = 0,
-            fremtidigeInntekter = emptyList(),
+            fremtidigeInntekter = null,
             virkningDato
         ) shouldBe null
 
@@ -37,7 +37,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             pid,
             foedselsdato = LocalDate.of(1970, 1, 1),
             forventetAarligInntektBeloep = 0,
-            fremtidigeInntekter = emptyList(),
+            fremtidigeInntekter = null,
             virkningDato = LocalDate.of(2031, 12, 31)
         ) shouldBe null
 
@@ -45,6 +45,28 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
     }
 
     test("beregnAfp uten inntektliste => simuler med inntekter basert på forventet inntekt og alder") {
+        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+            pid,
+            foedselsdato,
+            forventetAarligInntektBeloep = 123000,
+            fremtidigeInntekter = null,
+            virkningDato
+        )
+
+        verify(client, times(1)).simuler(
+            LivsvarigOffentligAfpSpec(
+                pid,
+                foedselsdato,
+                fom = virkningDato,
+                fremtidigInntektListe = listOf(
+                    Inntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
+                    Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
+                )
+            )
+        )
+    }
+
+    test("beregnAfp med tom inntektliste => simuler uten inntekter") {
         LivsvarigOffentligAfpService(client) { today }.beregnAfp(
             pid,
             foedselsdato,
@@ -58,10 +80,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
                 pid,
                 foedselsdato,
                 fom = virkningDato,
-                fremtidigInntektListe = listOf(
-                    Inntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
-                    Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
-                )
+                fremtidigInntektListe = emptyList()
             )
         )
     }

@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.tech.web.BadRequestException
 object SimuleringSpecValidator {
 
     fun validate(spec: SimuleringSpec){
-        validateInntekt(spec.fremtidigInntektListe)
+        spec.fremtidigInntektListe?.let(::validateInntekt)
         validateUttak(spec)
     }
 

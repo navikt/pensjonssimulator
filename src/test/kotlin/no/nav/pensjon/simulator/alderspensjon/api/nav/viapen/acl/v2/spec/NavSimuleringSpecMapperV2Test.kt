@@ -104,7 +104,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                             arbeidet = true
                         )
                     ),
-                    fremtidigInntektListe = mutableListOf(), // ikke brukt i PSELV
+                    fremtidigInntektListe = null, // ikke brukt i PSELV
                     inntektOver1GAntallAar = 0, // kun for anonym simulering
                     flyktning = false,
                     epsHarInntektOver2G = true,

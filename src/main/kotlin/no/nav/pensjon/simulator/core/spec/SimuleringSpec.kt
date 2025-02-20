@@ -33,7 +33,7 @@ data class SimuleringSpec(
     val foedselAar: Int,
     val utlandAntallAar: Int, // PEN: SimuleringEtter2011.utenlandsopphold
     val utlandPeriodeListe: MutableList<UtlandPeriode>,
-    val fremtidigInntektListe: MutableList<FremtidigInntekt>,
+    val fremtidigInntektListe: MutableList<FremtidigInntekt>?, // must be nullable
     val inntektOver1GAntallAar: Int,
     val flyktning: Boolean?,
     val epsHarInntektOver2G: Boolean,

@@ -63,7 +63,8 @@ class UttakSpecMapperV1Test : FunSpec({
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-            onlyVilkaarsproeving = true // true for 'tidligst mulig uttak'
+            onlyVilkaarsproeving = true, // true for 'tidligst mulig uttak'
+            epsKanOverskrives = false
         )
     }
 })

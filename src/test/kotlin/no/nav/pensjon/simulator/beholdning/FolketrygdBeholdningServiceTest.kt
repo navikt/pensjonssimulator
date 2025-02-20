@@ -152,7 +152,8 @@ private fun simuleringSpec() =
         ignoreAvslag = true, // true for folketrygdbeholdning
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-        onlyVilkaarsproeving = false
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false
     )
 
 

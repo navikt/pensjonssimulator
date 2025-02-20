@@ -45,7 +45,8 @@ object UttakSpecMapperV1 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
-            onlyVilkaarsproeving = true
+            onlyVilkaarsproeving = true,
+            epsKanOverskrives = false
         )
 
     private fun inntekt(source: UttakInntektSpecV1) =

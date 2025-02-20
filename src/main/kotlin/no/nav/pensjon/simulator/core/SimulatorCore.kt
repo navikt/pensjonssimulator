@@ -75,7 +75,11 @@ class SimulatorCore(
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
-        val person: PenPerson? = initialSpec.pid?.let(personService::person)
+
+        val person: PenPerson? = initialSpec.pid
+            ?.let(personService::person)
+          //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
+
         val foedselsdato: LocalDate? = person?.fodselsdato?.toNorwegianLocalDate()
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 

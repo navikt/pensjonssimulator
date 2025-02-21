@@ -13,7 +13,7 @@ object PenBeholdningerMedGrunnlagSpecMapper {
         PenBeholdningerMedGrunnlagSpec(
             pid = source.pid.value,
             hentPensjonspoeng = source.hentPensjonspoeng,
-            hentGrunnlagForOpptjeninger = source.hentGrunnlagForOpptjeninger,
+            hentOpptjeningGrunnlag = source.hentGrunnlagForOpptjeninger,
             hentBeholdninger = source.hentBeholdninger,
             harUfoeretrygdKravlinje = source.harUfoeretrygdKravlinje,
             regelverkType = source.regelverkType,

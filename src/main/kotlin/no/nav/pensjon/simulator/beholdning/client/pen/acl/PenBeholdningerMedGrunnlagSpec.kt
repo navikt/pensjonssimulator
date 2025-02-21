@@ -10,7 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 data class PenBeholdningerMedGrunnlagSpec(
     val pid: String,
     val hentPensjonspoeng: Boolean,
-    val hentGrunnlagForOpptjeninger: Boolean,
+    val hentOpptjeningGrunnlag: Boolean,
     val hentBeholdninger: Boolean,
     val harUfoeretrygdKravlinje: Boolean,
     val regelverkType: RegelverkTypeEnum?,

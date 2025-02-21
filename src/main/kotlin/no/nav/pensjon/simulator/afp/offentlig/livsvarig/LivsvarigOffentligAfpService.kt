@@ -24,7 +24,7 @@ class LivsvarigOffentligAfpService(
         pid: Pid,
         foedselsdato: LocalDate,
         forventetAarligInntektBeloep: Int,
-        fremtidigeInntekter: List<FremtidigInntekt>,
+        fremtidigeInntekter: List<FremtidigInntekt>?,
         virkningDato: LocalDate,
     ): LivsvarigOffentligAfpResult? {
         if (valid(foedselsdato.year, virkningDato.year).not()) return null
@@ -33,14 +33,8 @@ class LivsvarigOffentligAfpService(
         val til: LocalDate = sisteAarMedAfpOpptjeningInntekt(foedselsdato)
 
         val fremtidigInntektListe: List<Inntekt> =
-            if (fremtidigeInntekter.isEmpty()) {
-                if (fom.isBefore(til))
-                    aarligInntektListe(fom, til, aarligBeloep = forventetAarligInntektBeloep)
-                else
-                    emptyList()
-            } else {
-                fremtidigeInntekter.map { Inntekt(it.aarligInntektBeloep, it.fom) }
-            }
+            fremtidigeInntekter?.map { Inntekt(it.aarligInntektBeloep, it.fom) }
+                ?: forventedeInntekter(fom, til, forventetAarligInntektBeloep)
 
         return client.simuler(
             LivsvarigOffentligAfpSpec(
@@ -51,6 +45,12 @@ class LivsvarigOffentligAfpService(
             )
         )
     }
+
+    private fun forventedeInntekter(fom: LocalDate, til: LocalDate, forventetAarligBeloep: Int): List<Inntekt> =
+        if (fom.isBefore(til))
+            aarligInntektListe(fom, til, aarligBeloep = forventetAarligBeloep)
+        else
+            emptyList()
 
     private fun valid(foedselAar: Int, virkningFomAar: Int): Boolean =
         when {

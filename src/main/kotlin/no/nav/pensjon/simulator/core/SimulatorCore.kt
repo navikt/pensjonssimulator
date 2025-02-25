@@ -78,7 +78,12 @@ class SimulatorCore(
 
         val person: PenPerson? = initialSpec.pid
             ?.let(personService::person)
-          //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
+            ?.also {
+                if (initialSpec.gjelderAfp()) {
+                    it.uforehistorikk = null // bruker kan ikke kombinere AFP og uføretrygd
+                }
+            }
+        //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
 
         val foedselsdato: LocalDate? = person?.fodselsdato?.toNorwegianLocalDate()
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)

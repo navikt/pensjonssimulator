@@ -155,6 +155,15 @@ data class SimuleringSpec(
     fun gjelderPrivatAfpFoersteUttak() =
         type == SimuleringType.ALDER_M_AFP_PRIVAT
 
+    fun gjelderAfp() = type in listOf(
+        SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+        SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
+        SimuleringType.ALDER_M_AFP_PRIVAT,
+        SimuleringType.ENDR_AP_M_AFP_PRIVAT,
+        SimuleringType.AFP_ETTERF_ALDER,
+        SimuleringType.AFP_FPP,
+    )
+
     //TODO move to SimuleringType?
     fun gjelderEndring() =
         type == SimuleringType.ENDR_ALDER ||

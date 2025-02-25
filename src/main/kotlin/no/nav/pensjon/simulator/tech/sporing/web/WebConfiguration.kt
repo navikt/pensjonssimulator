@@ -13,6 +13,7 @@ open class WebConfiguration(val sporingsloggService: SporingsloggService) : WebM
             .addPathPatterns(
                 "/api/v4/simuler-alderspensjon",
                 "/api/v1/simuler-folketrygdbeholdning",
+                "/api/v0/simuler-folketrygdberegnet-afp",
                 "/api/v1/tidligst-mulig-uttak"
             )
     }

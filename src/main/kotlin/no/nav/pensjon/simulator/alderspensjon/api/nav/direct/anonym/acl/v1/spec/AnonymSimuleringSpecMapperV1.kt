@@ -34,7 +34,7 @@ object AnonymSimuleringSpecMapperV1 {
             simulerForTp = false,
             flyktning = false,
             utlandPeriodeListe = mutableListOf(),
-            fremtidigInntektListe = mutableListOf(),
+            fremtidigInntektListe = null, // NB: not mutableListOf()
             rettTilOffentligAfpFom = null,
             afpOrdning = null,
             afpInntektMaanedFoerUttak = null,

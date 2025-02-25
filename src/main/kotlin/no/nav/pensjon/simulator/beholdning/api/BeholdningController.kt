@@ -49,7 +49,6 @@ class BeholdningController(
             )
         ]
     )
-    // PEN: SimuleringController.simulerFolketrygdbeholdningV1
     fun simulerFolketrygdbeholdning(
         @RequestBody specV1: FolketrygdBeholdningSpecV1,
         request: HttpServletRequest
@@ -63,10 +62,10 @@ class BeholdningController(
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV1(timed(service::simulerFolketrygdBeholdning, spec, FUNCTION_ID))
         } catch (e: BadRequestException) {
-            log.warn(e) { "$FUNCTION_ID bad request - $specV1" }
+            log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID bad spec - $specV1" } // not log.warn(e)
+            log.warn { "$FUNCTION_ID bad spec - ${e.message} - $specV1" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV1" }

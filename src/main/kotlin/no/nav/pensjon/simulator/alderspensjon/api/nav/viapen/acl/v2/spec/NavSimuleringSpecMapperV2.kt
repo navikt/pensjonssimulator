@@ -37,7 +37,7 @@ object NavSimuleringSpecMapperV2 {
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map(::utlandPeriode).toMutableList(),
-            fremtidigInntektListe = mutableListOf(), // not used in PSELV
+            fremtidigInntektListe = null, // not used in PSELV; NB: not mutableListOf()
             inntektOver1GAntallAar = 0, // used for anonym only
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec
+package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec
 
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
@@ -10,16 +10,16 @@ import no.nav.pensjon.simulator.person.Pid
 
 /**
  * Maps from received DTO to domain object for specification of 'simulering av folketrygdberegnet AFP'.
- * V1 = Versipn 1 of the API (application programming interface) and DTO (data transfer object)
+ * V0 = Versipn 0 of the API (application programming interface) and DTO (data transfer object)
  * AFP = Avtalefestet pensjon
  */
-object FolketrygdberegnetAfpSpecMapperV1 {
+object TpoFolketrygdberegnetAfpSpecMapperV0 {
 
-    fun fromSimuleringSpecV1(source: FolketrygdberegnetAfpSpecV1) =
+    fun fromSimuleringSpecV0(source: TpoFolketrygdberegnetAfpSpecV0) =
         SimuleringSpec(
-            type = source.simuleringType?.let { FolketrygdberegnetAfpSimuleringTypeSpecV1.fromExternalValue(it.name).internalValue }
+            type = source.simuleringType?.let { TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.fromExternalValue(it.name).internalValue }
                 ?: SimuleringType.ALDER,
-            sivilstatus = source.sivilstatus?.let { FolketrygdberegnetAfpSivilstandSpecV1.fromExternalValue(it.name).internalValue }
+            sivilstatus = source.sivilstatus?.let { TpoFolketrygdberegnetAfpSivilstandSpecV0.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
@@ -48,7 +48,6 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false, //TODO verify
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false, //TODO verify
-            onlyVilkaarsproeving = false,
-            epsKanOverskrives = false
+            onlyVilkaarsproeving = false
         )
 }

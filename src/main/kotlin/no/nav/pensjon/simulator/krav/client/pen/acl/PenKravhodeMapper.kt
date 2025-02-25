@@ -87,7 +87,7 @@ object PenKravhodeMapper {
     private fun penPerson(source: PenPenPerson) =
         PenPerson(source.penPersonId).apply {
             pid = source.pid
-            fodselsdato = source.fodselsdato
+            foedselsdato = source.fodselsdato?.toNorwegianLocalDate()
             afpHistorikkListe = source.afpHistorikkListe
             uforehistorikk = source.uforehistorikk
             generellHistorikk = source.generellHistorikk

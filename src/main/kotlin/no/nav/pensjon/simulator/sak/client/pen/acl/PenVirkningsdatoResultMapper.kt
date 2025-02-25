@@ -91,7 +91,7 @@ object PenVirkningsdatoResultMapper {
     private fun penPerson(source: PenPenPerson) =
         PenPerson(penPersonId = source.penPersonId).apply {
             pid = source.pid
-            fodselsdato = source.fodselsdato?.toNorwegianDateAtNoon()
+            foedselsdato = source.fodselsdato
             afpHistorikkListe = source.afpHistorikkListe?.map(::afpHistorikk).orEmpty().toMutableList()
             uforehistorikk = source.uforehistorikk?.let(::ufoerehistorikk)
             generellHistorikk = source.generellHistorikk?.let(::generellHistorikk)

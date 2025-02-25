@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.person.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 
 object PenPersonHistorikkMapper {
@@ -15,7 +16,7 @@ object PenPersonHistorikkMapper {
     fun person(source: PenPersonHistorikk) =
         PenPerson(source.penPersonId).apply {
             pid = source.pid?.let(::Pid)
-            fodselsdato = source.fodselsdato
+            foedselsdato = source.fodselsdato?.toNorwegianLocalDate()
             afpHistorikkListe = source.afpHistorikkListe.toMutableList()
             uforehistorikk = source.uforehistorikk
             generellHistorikk = source.generellHistorikk

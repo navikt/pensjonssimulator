@@ -179,9 +179,8 @@ class EndringPersongrunnlag(
         person: PenPerson
     ): MutableList<Opptjeningsgrunnlag> {
         val pid = spec.pid
-        val foedselDato = person.fodselsdato?.toNorwegianLocalDate()
 
-        if (pid == null || foedselDato == null)
+        if (pid == null || person.foedselsdato == null)
             return mutableListOf()
 
         val persongrunnlag: Persongrunnlag = persongrunnlagMapper.mapToPersongrunnlag(person, spec)

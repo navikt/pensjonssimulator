@@ -6,12 +6,12 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GenerellHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.person.Pid
 import java.io.Serializable
-import java.util.*
+import java.time.LocalDate
 
 class PenPerson(var penPersonId: Long = 0) : Serializable {
 
     @JsonIgnore var pid: Pid? = null
-    @JsonIgnore var fodselsdato: Date? = null
+    @JsonIgnore var foedselsdato: LocalDate? = null
     @JsonIgnore var afpHistorikkListe: MutableList<AfpHistorikk>? = null
     @JsonIgnore var uforehistorikk: Uforehistorikk? = null
     @JsonIgnore var generellHistorikk: GenerellHistorikk? = null

@@ -34,6 +34,15 @@ spec:
       backendHost: http://pensjonssimulator
       backendPath: /api/v1/simuler-folketrygdbeholdning
       timeout: 20s
+    - path: /pensjonssimulator/v0/simuler-folketrygdberegnet-afp
+      method: POST
+      forwardHeaders:
+        - Authorization
+        - Content-Type
+        - X-Request-Id
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v0/simuler-folketrygdberegnet-afp
+      timeout: 20s
     - path: /pensjonssimulator/v1/tidligst-mulig-uttak
       method: POST
       forwardHeaders:

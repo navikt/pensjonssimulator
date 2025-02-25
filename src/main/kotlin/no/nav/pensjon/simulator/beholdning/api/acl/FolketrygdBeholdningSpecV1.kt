@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.beholdning.api.acl
 
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
+import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
+import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
 
 /**
  * Version 1 of specification for 'simuler folketrygdbeholdning'.
@@ -14,15 +16,19 @@ data class FolketrygdBeholdningSpecV1(
     val eps2G: Boolean? = null
 ) {
     override fun toString(): String =
-        "personId: ${redact(personId)}, " +
-                "uttaksdato: $uttaksdato, " +
-                "fremtidigInntektListe: $fremtidigInntektListe, " +
-                "arIUtlandetEtter16: $arIUtlandetEtter16, " +
-                "epsPensjon: $epsPensjon, " +
-                "eps2G: $eps2G"
+        "{ \"personId\": \"${redact(personId)}\", " +
+                "\"uttaksdato\": ${textAsString(uttaksdato)}, " +
+                "\"fremtidigInntektListe\": ${listAsString(fremtidigInntektListe)}, " +
+                "\"arIUtlandetEtter16\": $arIUtlandetEtter16, " +
+                "\"epsPensjon\": $epsPensjon, " +
+                "\"eps2G\": $eps2G }"
 }
 
 data class BeholdningInntektSpecV1(
     val arligInntekt: Int? = null,
     val fraOgMedDato: String = ""
-)
+) {
+    override fun toString(): String =
+        "{ \"arligInntekt\": $arligInntekt, " +
+                "\"fraOgMedDato\": ${textAsString(fraOgMedDato)} }"
+}

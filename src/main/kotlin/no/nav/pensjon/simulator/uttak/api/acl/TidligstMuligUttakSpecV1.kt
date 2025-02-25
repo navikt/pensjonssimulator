@@ -15,7 +15,8 @@ data class TidligstMuligUttakSpecV1(
     val uttaksgrad: Int? = null,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val heltUttakFraOgMedDato: LocalDate? = null,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val rettTilAfpOffentligDato: LocalDate? = null,
-    val fremtidigInntektListe: List<UttakInntektSpecV1>? = null
+    val fremtidigInntektListe: List<UttakInntektSpecV1>? = null,
+    val arIUtlandetEtter16: Int? = null
 )
 
 data class UttakInntektSpecV1(

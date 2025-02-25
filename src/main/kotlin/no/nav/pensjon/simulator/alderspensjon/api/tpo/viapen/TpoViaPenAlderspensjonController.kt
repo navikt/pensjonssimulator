@@ -254,10 +254,10 @@ class TpoViaPenAlderspensjonController(
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV3.toDto(result)
         } catch (e: BadRequestException) {
-            log.warn(e) { "$FUNCTION_ID_V3 bad request - $specV3" }
+            log.warn(e) { "$FUNCTION_ID_V3 bad request - ${e.message} - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID_V3 bad spec - $specV3" } // not log.warn(e)
+            log.warn { "$FUNCTION_ID_V3 bad spec - ${e.message} - $specV3" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID_V3 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV3" }

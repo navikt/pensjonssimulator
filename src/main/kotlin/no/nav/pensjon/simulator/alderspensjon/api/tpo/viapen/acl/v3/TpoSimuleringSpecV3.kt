@@ -5,6 +5,8 @@ import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
+import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
+import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
 import java.time.LocalDate
 
 /**
@@ -33,24 +35,16 @@ data class TpoSimuleringSpecV3(
      * toString with redacted person ID
      */
     override fun toString() =
-        "{ \"pid\": \"${redact(pid)}\", " +
-                "\"sivilstatus\": \"$sivilstatus\", " +
+        "{ \"pid\": ${textAsString(redact(pid))}, " +
+                "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
                 "\"epsPensjon\": $epsPensjon, " +
                 "\"eps2G\": $eps2G, " +
                 "\"utenlandsopphold\": $utenlandsopphold, " +
-                "\"simuleringType\": \"$simuleringType\", " +
-                "\"fremtidigInntektList\": ${inntekterToString(fremtidigInntektList)}, " +
-                "\"foersteUttakDato\": \"${foersteUttakDato}\", " +
-                "\"uttakGrad\": $uttakGrad, " +
-                "\"heltUttakDato\": \"$heltUttakDato\" }"
-
-    private fun inntekterToString(list: List<InntektSpecLegacyV3>?) =
-        list?.let {
-            "[ ${list.joinToString(", ", transform = ::inntektToString)} ]"
-        } ?: "null"
-
-    private fun inntektToString(inntekt: InntektSpecLegacyV3?) =
-        inntekt?.toString() ?: "null"
+                "\"simuleringType\": ${textAsString(simuleringType)}, " +
+                "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
+                "\"foersteUttakDato\": ${textAsString(foersteUttakDato)}, " +
+                "\"uttakGrad\": ${textAsString(uttakGrad)}, " +
+                "\"heltUttakDato\": ${textAsString(heltUttakDato)} }"
 }
 
 // Corresponds to no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.FremtidigInntekt
@@ -60,7 +54,8 @@ data class InntektSpecLegacyV3(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET")
     val fomDato: LocalDate
 ) {
-    override fun toString() =
+    override fun toString(): String =
         "{ \"arligInntekt\": $arligInntekt, " +
-                "\"fomDato\": \"$fomDato\" }"
+                "\"fomDato\": ${textAsString(fomDato)} }"
 }
+

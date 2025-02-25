@@ -194,7 +194,7 @@ class KravhodeUpdater(
 
         val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe,
-            foedselsdato = persongrunnlag.penPerson!!.fodselsdato!!.toNorwegianLocalDate(),
+            foedselsdato = persongrunnlag.penPerson!!.foedselsdato!!,
             spec.foersteUttakDato
         )
 
@@ -208,7 +208,7 @@ class KravhodeUpdater(
 
         val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe,
-            foedselsdato = persongrunnlag.penPerson!!.fodselsdato!!.toNorwegianLocalDate(),
+            foedselsdato = persongrunnlag.penPerson!!.foedselsdato!!,
             spec.foersteUttakDato
         )
 

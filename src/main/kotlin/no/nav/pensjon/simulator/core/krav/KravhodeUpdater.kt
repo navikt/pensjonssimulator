@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.krav
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
 import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
@@ -14,26 +14,26 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurns67
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.*
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
+// PEN:
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OppdaterKravhodeForForsteKnekkpunktHelper
 @Component
 class KravhodeUpdater(
     private val context: SimulatorContext,
     private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning
 ) {
-    private val logger = LoggerFactory.getLogger(KravhodeUpdater::class.java)
+    private val log = KotlinLogging.logger {}
 
     // OppdaterKravhodeForForsteKnekkpunktHelper.oppdaterKravHodeForForsteKnekkpunkt
     fun updateKravhodeForFoersteKnekkpunkt(spec: KravhodeUpdateSpec): Kravhode {
@@ -44,7 +44,7 @@ class KravhodeUpdater(
         var avdoedGrunnlag =
             kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
-        logger.info("STEP 4.1 - Sett trygdetidsgrunnlag")
+        log.debug { "STEP 4.1 - Sett trygdetidsgrunnlag" }
         soekerGrunnlag = setTrygdetid(
             TrygdetidGrunnlagSpec(
                 soekerGrunnlag,
@@ -55,7 +55,7 @@ class KravhodeUpdater(
             ), kravhode
         )
 
-        logger.debug("STEP 4.2 - Sett pensjonsbeholdning for bruker")
+        log.debug { "STEP 4.2 - Sett pensjonsbeholdning for bruker" }
         when {
             simuleringSpec.gjelderPre2025OffentligAfp() -> pre2025OffentligAfpBeholdning.setPensjonsbeholdning(
                 soekerGrunnlag,
@@ -71,12 +71,12 @@ class KravhodeUpdater(
             )
         }
 
-        logger.debug("STEP 4.3 - Sett uførehistorikk")
+        log.debug { "STEP 4.3 - Sett uførehistorikk" }
         val ufoerePeriodeTom = ufoerePeriodeTom(simuleringSpec, soekerGrunnlag)
         setUfoereHistorikk(soekerGrunnlag, ufoerePeriodeTom)
 
         if (avdoedGrunnlag != null) {
-            logger.debug("STEP 4.4 - Sett trygdetidsgrunnlag for avdød")
+            log.debug { "STEP 4.4 - Sett trygdetidsgrunnlag for avdød" }
             // Dodsdato set to Dec 31 the previous year
             val lastDayOfYearBeforeDoedDato = getLastDateInYear(getRelativeDateByYear(avdoedGrunnlag.dodsdato!!, -1))
 
@@ -91,7 +91,7 @@ class KravhodeUpdater(
                 kravhode
             )
 
-            logger.debug("STEP 4.5 - Sett uførehistorikk for avdød")
+            log.debug { "STEP 4.5 - Sett uførehistorikk for avdød" }
             setUfoereHistorikk(avdoedGrunnlag)
         }
 
@@ -100,20 +100,19 @@ class KravhodeUpdater(
 
     // SimulerFleksibelAPCommand.settPensjonsbeholdning (part of)
     private fun fetchBeholdninger(grunnlag: Persongrunnlag, foersteUttakDato: LocalDate?) =
-        //context.beregnOpptjening(forsteUttakDato?.noon(), grunnlag)
         context.beregnOpptjening(foersteUttakDato, grunnlag)
             .filter { BeholdningType.PEN_B.name == it.beholdningsType?.kode }
 
     private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag) {
-        setUfoereHistorikk(persongrunnlag, persongrunnlag.dodsdato)
+        setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdato)
     }
 
-    // From SettUforehistorikkHelper
+    // PEN: SettUforehistorikkHelper.settUforehistorikk
     private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag, tom: Date?) {
-        val ufoereHistorikk = persongrunnlag.uforeHistorikk
-        if (ufoereHistorikk?.uforeperiodeListe == null) return
+        val historikk = persongrunnlag.uforeHistorikk
+        if (historikk?.uforeperiodeListe == null) return
 
-        val historikkCopy = Uforehistorikk(ufoereHistorikk)
+        val historikkCopy = Uforehistorikk(historikk)
 
         historikkCopy.uforeperiodeListe.forEach {
             if (it.ufgTom == null) {
@@ -134,7 +133,7 @@ class KravhodeUpdater(
                 allowSameDay = false
             )
         )
-            getRelativeDateByDays(spec.foersteUttakDato!!.toNorwegianDateAtNoon(), -1)
+            spec.foersteUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
         else
             sisteDagIManedenSokerBlir67
     }

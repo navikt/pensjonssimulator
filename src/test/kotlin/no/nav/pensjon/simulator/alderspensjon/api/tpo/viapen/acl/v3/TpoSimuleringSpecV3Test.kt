@@ -23,7 +23,7 @@ class TpoSimuleringSpecV3Test : FunSpec({
             foersteUttakDato = LocalDate.of(2022, 2, 2),
             uttakGrad = UttakGradKode.P_50,
             heltUttakDato = LocalDate.of(2023, 3, 3)
-        ).toString() shouldBe """{ "pid": "123456*****", "sivilstatus": "SAMB", "epsPensjon": true, "eps2G": false, "utenlandsopphold": 1, "simuleringType": "ALDER", "fremtidigInntektList": [{ "arligInntekt": 2, "fomDato": "2021-01-01" }], "foersteUttakDato": "2022-02-02", "uttakGrad": "P_50", "heltUttakDato": "2023-03-03" }"""
+        ).toString() shouldBe """{ "pid": "12345678***", "sivilstatus": "SAMB", "epsPensjon": true, "eps2G": false, "utenlandsopphold": 1, "simuleringType": "ALDER", "fremtidigInntektList": [{ "arligInntekt": 2, "fomDato": "2021-01-01" }], "foersteUttakDato": "2022-02-02", "uttakGrad": "P_50", "heltUttakDato": "2023-03-03" }"""
     }
 
     test("toString with nulls") {

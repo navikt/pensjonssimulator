@@ -256,7 +256,7 @@ class SimulatorCore(
             output
         else
             output.apply {
-                this.foedselDato = foedselDato
+                this.foedselDato = foedselsdato
                 this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
             }
     }

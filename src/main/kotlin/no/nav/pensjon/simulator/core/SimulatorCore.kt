@@ -80,7 +80,7 @@ class SimulatorCore(
             ?.let(personService::person)
           //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
 
-        val foedselsdato: LocalDate? = person?.fodselsdato?.toNorwegianLocalDate()
+        val foedselsdato: LocalDate? = person?.foedselsdato
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 
         val spec: SimuleringSpec =

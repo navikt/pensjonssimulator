@@ -18,7 +18,7 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.*
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
@@ -38,7 +38,6 @@ class Pre2025OffentligAfpBeregner(
     private val normAlderService: NormAlderService,
     private val personService: PersonService
 ) {
-
     private var beregnInstopphold = false // TODO this seems to be always false
     private var beregnForsorgingstillegg = false // TODO pass as parameter instead?
     private var ektefelleMottarPensjon = false // TODO pass as parameter instead?
@@ -361,8 +360,8 @@ class Pre2025OffentligAfpBeregner(
                 afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                virkTom = persongrunnlag.penPerson?.fodselsdato?.let {
-                    DateUtil.firstDayOfMonthAfterUserTurnsGivenAge(it, AFP_VIRKNING_TOM_ALDER_AAR)
+                virkTom = persongrunnlag.penPerson?.foedselsdato?.let {
+                    firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
                 }
             })
         }

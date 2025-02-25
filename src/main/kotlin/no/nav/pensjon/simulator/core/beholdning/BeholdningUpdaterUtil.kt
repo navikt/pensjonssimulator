@@ -151,7 +151,7 @@ object BeholdningUpdaterUtil {
     // OppdaterPensjonsbeholdningerCommand.createPersongrunnlagFromPerson
     fun newPersongrunnlag(person: PenPerson): Persongrunnlag =
         Persongrunnlag().apply {
-            fodselsdato = person.fodselsdato
+            fodselsdato = person.foedselsdato?.toNorwegianDateAtNoon()
             penPerson = person
 
             person.uforehistorikk?.let {
@@ -313,7 +313,7 @@ object BeholdningUpdaterUtil {
                 }
 
                 val foersteMuligeOpptjeningAar: Int =
-                    foersteMuligeOpptjeningAar(persongrunnlag.penPerson?.fodselsdato)
+                    foersteMuligeOpptjeningAar(persongrunnlag.penPerson?.foedselsdato)
 
                 if (tidligsteOpptjeningAar < foersteMuligeOpptjeningAar) {
                     tidligsteOpptjeningAar = foersteMuligeOpptjeningAar
@@ -398,17 +398,18 @@ object BeholdningUpdaterUtil {
         }
 
     // OppdaterPensjonsbeholdningerHelper.calculateFirstPossibleOpptjeningsar
-    private fun foersteMuligeOpptjeningAar(foedselsdato: Date?): Int {
+    private fun foersteMuligeOpptjeningAar(foedselsdato: LocalDate?): Int {
         val calendar = NorwegianCalendar.instance().apply {
             this[OPPTJENING_MINIMUM_FOEDSEL_AAR, 0] = 0
         }
 
         val minimumDato = calendar.time
+        val legacyFoedselsdato: Date? = foedselsdato?.toNorwegianDateAtNoon()
 
-        return if (isBeforeDay(foedselsdato, minimumDato)) {
+        return if (isBeforeDay(legacyFoedselsdato, minimumDato)) {
             OPPTJENING_MINIMUM_AAR
         } else {
-            calendar.time = foedselsdato
+            calendar.time = legacyFoedselsdato
             calendar.add(Calendar.YEAR, OPPTJENING_MINIMUM_ALDER)
             calendar[Calendar.YEAR]
         }
@@ -431,10 +432,12 @@ object BeholdningUpdaterUtil {
     private fun createPersonDetalj(person: PenPerson) =
         PersonDetalj().apply {
             bruk = true
-            rolleFomDato = person.fodselsdato
+            rolleFomDato = person.foedselsdato?.toNorwegianDateAtNoon()
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
             grunnlagKildeEnum = GrunnlagkildeEnum.PEN
-        }.also { it.finishInit() } //NB: Assuming finishInit is appropriate here
+        }.also {
+            it.finishInit() // NB: Assuming finishInit is appropriate here
+        }
 
     // BeholdningHelper.deleteBeholdningerFromPenPersongrunnlagObject
     private fun removeBeholdninger(persongrunnlag: Persongrunnlag) {

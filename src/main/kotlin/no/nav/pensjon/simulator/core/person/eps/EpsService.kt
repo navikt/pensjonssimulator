@@ -121,7 +121,7 @@ class EpsService(
     }
 
     private fun foedselsdato(spec: SimuleringSpec): LocalDate =
-        spec.pid?.let(personService::person)?.fodselsdato?.toNorwegianLocalDate() ?: foersteDag(spec.foedselAar)
+        spec.pid?.let(personService::person)?.foedselsdato ?: foersteDag(spec.foedselAar)
     // NB: Not using spec.foedselDato here (for unknown reasons)
 
     companion object {

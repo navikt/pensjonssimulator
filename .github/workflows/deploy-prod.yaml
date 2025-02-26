@@ -1,4 +1,4 @@
-name: Build, push, deploy
+name: Build and deploy to Prod
 
 on:
   push:
@@ -9,16 +9,6 @@ on:
       - 'CODEOWNERS'
       - 'LICENSE'
       - 'README.md'
-  workflow_dispatch:
-    inputs:
-      q1:
-        description: Deploy to Q1
-        type: boolean
-        required: false
-      prod:
-        description: Deploy to production
-        type: boolean
-        required: false
 
 jobs:
   build:
@@ -33,6 +23,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
       - name: Setup java
         uses: actions/setup-java@v4
         with:
@@ -41,6 +35,10 @@ jobs:
           distribution: temurin
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java"
       - name: Create Docker image
         id: image-creation
         uses: nais/docker-build-push@v0
@@ -51,70 +49,10 @@ jobs:
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
     outputs:
       image: ${{ steps.image-creation.outputs.image }}
-  deploy-dev:
-    name: Deploy to dev-gcp
-    needs: [ build ]
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.q1 != 'true' && github.event.inputs.prod != 'true')
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-gcp
-          IMAGE: ${{ needs.build.outputs.image }}
-          RESOURCE: .nais/deploy-dev.yml
-  deploy-krakend-config-dev:
-    name: Deploy KrakenD config to dev
-    if: |
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.q1 != 'true' && github.event.inputs.prod != 'true')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy KrakenD config
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-gcp
-          RESOURCE: .nais/api/krakend-dev.yaml
-      - name: Deploy API endpoints config
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-gcp
-          RESOURCE: .nais/api/apiendpoints.yaml
-  deploy-q1:
-    name: Deploy to dev-gcp q1
-    needs: [ build ]
-    if: |
-      github.event_name == 'workflow_dispatch' &&
-      github.event.inputs.q1 == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Deploy
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-gcp
-          IMAGE: ${{ needs.build.outputs.image }}
-          RESOURCE: .nais/deploy-q1.yml
+
   deploy-prod:
     name: Deploy to prod-gcp
     needs: [ build ]
-    if: |
-      github.ref == 'refs/heads/main' &&
-      github.event_name == 'workflow_dispatch' &&
-      github.event.inputs.prod == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -127,12 +65,9 @@ jobs:
           CLUSTER: prod-gcp
           IMAGE: ${{ needs.build.outputs.image }}
           RESOURCE: .nais/deploy-prod.yml
+
   deploy-krakend-config-prod:
     name: Deploy KrakenD config to prod
-    if: |
-      github.ref == 'refs/heads/main' &&
-      github.event_name == 'workflow_dispatch' &&
-      github.event.inputs.prod == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -149,13 +84,12 @@ jobs:
         env:
           CLUSTER: prod-gcp
           RESOURCE: .nais/api/apiendpoints.yaml
+
   trivy-imagescan:
     name: Scan Docker image
     needs: [ build ]
-    if: |
-      github.ref == 'refs/heads/main' &&
-      github.event_name == 'workflow_dispatch' &&
-      github.event.inputs.prod == 'true'
+    env:
+      TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db
     runs-on: ubuntu-latest
     permissions:
       actions: read

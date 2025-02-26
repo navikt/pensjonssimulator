@@ -1,0 +1,72 @@
+name: Build and deploy to dev
+
+on:
+  push:
+    branches:
+      - sandbox
+    paths-ignore:
+      - '.gitignore'
+      - 'CODEOWNERS'
+      - 'LICENSE'
+      - 'README.md'
+  workflow_call:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+      packages: write
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: 'sandbox'
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          cache: maven
+          java-version: 21
+          distribution: temurin
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java"
+      - name: Create Docker image
+        id: image-creation
+        uses: nais/docker-build-push@v0
+        with:
+          dockerfile: .docker/Dockerfile
+          team: pensjonskalkulator
+          identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+          image_suffix: sandbox
+    outputs:
+      image: ${{ steps.image-creation.outputs.image }}
+
+  deploy-sandbox:
+    name: Deploy to sandbox
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          IMAGE: ${{ needs.build.outputs.image }}
+          RESOURCE: .nais/deploy-dev.yml,.nais/deploy-q1.yml
+

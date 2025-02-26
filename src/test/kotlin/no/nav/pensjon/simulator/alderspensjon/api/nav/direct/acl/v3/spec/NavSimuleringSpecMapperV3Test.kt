@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
@@ -79,9 +78,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
                     arbeidet = true
                 )
             ),
-            fremtidigInntektListe = mutableListOf(
-                FremtidigInntekt(aarligInntektBeloep = 6000, fom = LocalDate.of(2021, 1, 1))
-            ),
+            fremtidigInntektListe = null, // null in this context
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,

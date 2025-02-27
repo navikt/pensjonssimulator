@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'main'
+      - 'sandbox'
     paths:
       - '.nais/alerts.yml'
 
@@ -13,6 +14,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    if: github.ref == 'refs/heads/sandbox'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,25 +22,13 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: .nais/alerts.yml
-  deploy-alerts-q1:
-    name: Deploy q1 alerts
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy alerts
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: dev-gcp
-          RESOURCE: .nais/alerts-q1.yml
+          RESOURCE: .nais/alerts.yml,.nais/alerts-q1.yml
   deploy-alerts-prod:
     name: Deploy prod alerts
     permissions:
       contents: read
       id-token: write
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

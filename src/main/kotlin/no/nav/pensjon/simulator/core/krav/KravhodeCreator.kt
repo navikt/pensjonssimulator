@@ -139,7 +139,7 @@ class KravhodeCreator(
     }
 
     private fun foedselAar(person: PenPerson?, spec: SimuleringSpec): Int =
-        person?.fodselsdato?.toNorwegianLocalDate()?.year ?: spec.foedselAar
+        person?.foedselsdato?.year ?: spec.foedselAar
 
     private fun updateOensketVirkningAndUtbetalingsgrad(spec: SimuleringSpec, kravhode: Kravhode) {
         if (spec.erAnonym) return
@@ -338,7 +338,7 @@ class KravhodeCreator(
             persongrunnlag.inntektsgrunnlagListe = inntektsgrunnlagList
             inntektListe = inntektListe(inntektsgrunnlagList)
         } else {
-            inntektListe = aarligeInntekterFraDagensDato(spec, grunnbeloep, person?.fodselsdato)
+            inntektListe = aarligeInntekterFraDagensDato(spec, grunnbeloep, person?.foedselsdato)
             persongrunnlag.inntektsgrunnlagListe =
                 opprettInntektGrunnlagForSoeker(spec, persongrunnlag.inntektsgrunnlagListe)
         }
@@ -408,7 +408,7 @@ class KravhodeCreator(
     private fun aarligeInntekterFraDagensDato(
         spec: SimuleringSpec,
         grunnbeloep: Int,
-        foedselsdato: Date? // null if anonym
+        foedselsdato: LocalDate? // null if anonym
     ): MutableList<Inntekt> {
         var veietGrunnbeloepListe: List<VeietSatsResultat> = emptyList()
         val innevaerendeAar = LocalDate.now().year
@@ -775,7 +775,7 @@ class KravhodeCreator(
             spec.fremtidigInntektListe.orEmpty().none { isBeforeByDay(it.fom, fom, true) }
 
         private fun foedselsdato(person: PenPerson?, spec: SimuleringSpec): LocalDate =
-            person?.fodselsdato?.toNorwegianLocalDate() ?: spec.foedselDato ?: foersteDag(spec.foedselAar)
+            person?.foedselsdato ?: spec.foedselDato ?: foersteDag(spec.foedselAar)
 
         private fun harUtenlandsopphold(antallAarUtenlands: Int?, trygdetidPeriodeListe: List<TTPeriode>) =
             if (antallAarUtenlands == null)

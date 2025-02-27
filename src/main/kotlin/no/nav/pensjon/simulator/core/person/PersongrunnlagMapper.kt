@@ -103,7 +103,7 @@ class PersongrunnlagMapper(
             gjelderOmsorg = false
             gjelderUforetrygd = false
             penPerson = person
-            fodselsdato = person.fodselsdato
+            fodselsdato = person.foedselsdato?.toNorwegianDateAtNoon()
             statsborgerskapEnum = person.pid?.let { generelleDataHolder.getPerson(it).statsborgerskap }
             bosattLandEnum = norge
             afpHistorikkListe = person.afpHistorikkListe ?: mutableListOf()

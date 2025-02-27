@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
@@ -15,8 +14,8 @@ import java.time.LocalDate
 import java.util.*
 
 /**
- * Maps between data transfer objects (DTOs) and domain objects related to 'anonym simulering'.
- * The DTOs are specified by version 1 of the API offered to clients.
+ * Maps between data transfer objects (DTOs) and domain objects related to 'simulering for Nav'.
+ * The DTOs are specified by version 3 of the API offered to clients.
  */
 object NavSimuleringSpecMapperV3 {
 
@@ -55,8 +54,8 @@ object NavSimuleringSpecMapperV3 {
             simulerForTp = false,
             flyktning = false,
             utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
-            fremtidigInntektListe = source.fremtidigInntektListe.orEmpty()
-                .map(::fremtidigInntekt).toMutableList(),
+            // Inntekt angis før/etter gradert/helt uttak istedenfor via liste:
+            fremtidigInntektListe = null, // NB: Must be null (not empty list)
             rettTilOffentligAfpFom = null,
             afpOrdning = null,
             afpInntektMaanedFoerUttak = null,
@@ -114,12 +113,6 @@ object NavSimuleringSpecMapperV3 {
             antallArInntektEtterHeltUttak = inntektTomAlderSpec.aar - uttakFomAlderSpec.aar + 1 // +1, siden fra/til OG MED
         )
     }
-
-    private fun fremtidigInntekt(source: NavSimuleringInntektSpecV3) =
-        FremtidigInntekt(
-            aarligInntektBeloep = source.aarligInntekt ?: 0,
-            fom = source.fom!!.toNorwegianLocalDate()
-        )
 
     private fun utlandPeriode(source: NavSimuleringUtlandSpecV3) =
         UtlandPeriode(

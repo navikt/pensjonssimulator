@@ -9,7 +9,7 @@ import java.time.LocalDate
  * (except that dates are represented by java.time.LocalDate here and by java.util.Date in PEN).
  */
 data class TpoSimuleringResultV2(
-    val ap: TpoAlderspensjonV2? = null
+    val alderspensjon: TpoAlderspensjonV2? = null
     // afpPrivat: V1, V3 only
     // sisteGyldigeOpptjeningsAr: V3 only
 )
@@ -23,9 +23,9 @@ data class TpoAlderspensjonV2(
 
 // PensjonsperiodeV2 in PEN
 data class TpoPensjonPeriodeV2(
-    val alder: Int? = null,
-    val belop: Int? = null,
-    val simulertBeregningsinformasjonListe: List<TpoBeregningInformasjonV2> // V1, V2 only
+    val alderAar: Int? = null,
+    val aarligBeloep: Int? = null,
+    val beregningInformasjonListe: List<TpoBeregningInformasjonV2> // V1, V2 only
 )
 
 // PensjonsbeholdningPeriodeV2 in PEN
@@ -41,7 +41,23 @@ data class TpoPensjonBeholdningPeriodeV2(
 
 // SimulertBeregningsinformasjonV2 in PEN
 data class TpoBeregningInformasjonV2(
-    val startMnd: Int? = null, // V1, V2 only
+    // Values mapped in PEN HentBeregningsinformasjonForTPCommand.createSimuleringsdata:
+    val poengAarFoer1992: Int? = null,
+    val poengAarEtter1991: Int? = null,
+    val sluttpoengtall: Double? = null,
+    val kapittel19AnvendtTrygdetid: Int? = null,
+    val basisGrunnpensjon: Double? = null,
+    val basisTilleggspensjon: Double? = null,
+    val basisPensjonstillegg: Double? = null,
+    val forholdstall: Double? = null,
+    val skjermingstillegg: Int? = null,
+    val ufoeregrad: Int? = null,
+    val inntektspensjon: Int? = null,
+    val garantipensjon: Int? = null,
+    val garantitillegg: Int? = null,
+    val delingstall: Double? = null,
+    // Values mapped in PEN SimulerAlderspensjonResponseV2Converter.createPensjonsperiodeList:
+    val startMaaned: Int? = null, // V1, V2 only
     val uttaksgrad: Double? = null
     // datoFom, delytelser, simuleringsdata: V3 only
 )

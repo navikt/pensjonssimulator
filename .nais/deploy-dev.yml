@@ -75,9 +75,9 @@ spec:
           cluster: dev-fss
         - application: pensjonskalkulator-backend
         - application: azure-token-generator # dev only
-          namespace: aura
+          namespace: nais
         - application: tokenx-token-generator # dev only
-          namespace: aura
+          namespace: nais
     outbound:
       rules:
         - application: pensjon-pen-q2

@@ -10,23 +10,23 @@ object TpoSimuleringResultMapperV2 {
 
     fun toDto(source: SimulatorOutput) =
         TpoSimuleringResultV2(
-            ap = source.alderspensjon?.let(TpoSimuleringResultMapperV2::alderspensjon)
+            alderspensjon = source.alderspensjon?.let(::alderspensjon)
             // afpPrivat: V1, V3 only
             // sisteGyldigeOpptjeningsAr: V3 only
         )
 
     private fun alderspensjon(source: SimulertAlderspensjon) =
         TpoAlderspensjonV2(
-            pensjonsperiodeListe = source.pensjonPeriodeListe.map(TpoSimuleringResultMapperV2::pensjonPeriode),
-            pensjonsbeholdningListe = source.pensjonBeholdningListe.map(TpoSimuleringResultMapperV2::beholdningPeriode)
+            pensjonsperiodeListe = source.pensjonPeriodeListe.map(::pensjonPeriode),
+            pensjonsbeholdningListe = source.pensjonBeholdningListe.map(::beholdningPeriode)
             // uttaksgradListe & simulertBeregningsinformasjonListe: V3 only
         )
 
     private fun pensjonPeriode(source: PensjonPeriode) =
         TpoPensjonPeriodeV2(
-            alder = source.alderAar,
-            belop = source.beloep,
-            simulertBeregningsinformasjonListe = source.simulertBeregningInformasjonListe.map(TpoSimuleringResultMapperV2::beregningInformasjon)
+            alderAar = source.alderAar,
+            aarligBeloep = source.beloep,
+            beregningInformasjonListe = source.simulertBeregningInformasjonListe.map(::beregningInformasjon)
         )
 
     private fun beholdningPeriode(source: BeholdningPeriode) =
@@ -40,7 +40,21 @@ object TpoSimuleringResultMapperV2 {
 
     private fun beregningInformasjon(source: SimulertBeregningInformasjon) =
         TpoBeregningInformasjonV2(
-            startMnd = source.startMaaned, // V1, V2 only
+            poengAarFoer1992 = source.pa_f92,
+            poengAarEtter1991 = source.pa_e91,
+            sluttpoengtall = source.spt,
+            kapittel19AnvendtTrygdetid = source.tt_anv_kap19,
+            basisGrunnpensjon = source.basisGrunnpensjon,
+            basisTilleggspensjon = source.basisTilleggspensjon,
+            basisPensjonstillegg = source.basisPensjonstillegg,
+            forholdstall = source.forholdstall,
+            skjermingstillegg = source.skjermingstillegg,
+            ufoeregrad = source.ufoereGrad,
+            inntektspensjon = source.inntektspensjon,
+            garantipensjon = source.garantipensjon,
+            garantitillegg = source.garantitillegg,
+            delingstall = source.delingstall,
+            startMaaned = source.startMaaned, // V1, V2 only
             uttaksgrad = source.uttakGrad
             // datoFom, delytelser, simuleringsdata: V3 only
         )

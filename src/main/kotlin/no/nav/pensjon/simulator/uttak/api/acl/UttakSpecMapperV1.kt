@@ -35,6 +35,7 @@ object UttakSpecMapperV1 {
             utlandAntallAar = 0, // not taken into account
             utlandPeriodeListe = mutableListOf(), // not taken into account
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty().map(::inntekt).toMutableList(),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,

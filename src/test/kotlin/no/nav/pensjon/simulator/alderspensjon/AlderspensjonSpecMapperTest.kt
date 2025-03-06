@@ -79,6 +79,7 @@ private fun simuleringSpec(type: SimuleringType, livsvarigOffentligAfpRettFom: L
                 fom = LocalDate.of(2029, 5, 6)
             )
         ),
+        brukFremtidigInntekt = true,
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = false,

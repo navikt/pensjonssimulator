@@ -108,6 +108,7 @@ class FolketrygdBeholdningService(
                 epsHarPensjon = beholdningSpec.epsHarPensjon,
                 epsHarInntektOver2G = beholdningSpec.epsHarInntektOver2G,
                 fremtidigInntektListe = beholdningSpec.fremtidigInntektListe.map(::fremtidigInntekt).toMutableList(),
+                brukFremtidigInntekt = true,
                 type = if (erFoerstegangsuttak) SimuleringType.ALDER else SimuleringType.ENDR_ALDER, // inkluderAfpPrivat = false
                 foedselAar = 0, // only for anonym
                 forventetInntektBeloep = 0, // inntekt instead given by fremtidigInntektListe

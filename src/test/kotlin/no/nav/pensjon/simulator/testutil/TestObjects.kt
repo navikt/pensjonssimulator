@@ -67,6 +67,7 @@ object TestObjects {
             )
         ),
         fremtidigInntektListe = inntektSpecListe.toMutableList(),
+        brukFremtidigInntekt = true,
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = true,

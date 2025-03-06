@@ -41,6 +41,7 @@ object AlderspensjonSpecMapper {
             utlandAntallAar = source.antallAarUtenlandsEtter16,
             utlandPeriodeListe = mutableListOf(), // utenlandsopphold is in V4 specified by utlandAntallAar
             fremtidigInntektListe = source.fremtidigInntektListe.map(::fremtidigInntekt).toMutableList(),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = source.epsHarInntektOver2G,

@@ -59,7 +59,7 @@ class UttakController(
         @RequestBody specV1: TidligstMuligUttakSpecV1,
         request: HttpServletRequest
     ): TidligstMuligUttakResultV1 {
-        traceAid.begin()
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
 

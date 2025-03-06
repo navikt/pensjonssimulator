@@ -13,6 +13,10 @@ class OAuth2TokenDto {
     @JsonProperty("expires_in")
     private var expiresIn: Int? = null
 
+    // ext_expires_in must be declared to avoid "unknown property" deserialization error
+    @JsonProperty("ext_expires_in")
+    private var extExpiresIn: Int? = null
+
     @JsonProperty("access_token")
     private var accessToken: String? = null
 

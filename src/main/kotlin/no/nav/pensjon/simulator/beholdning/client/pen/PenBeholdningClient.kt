@@ -88,7 +88,7 @@ class PenBeholdningClient(
                 inntektGrunnlagListe = emptyList(),
                 dagpengerGrunnlagListe = emptyList(),
                 omsorgGrunnlagListe = emptyList(),
-                foerstegangstjeneste = null
+                forstegangstjeneste = null
             )
     }
 }

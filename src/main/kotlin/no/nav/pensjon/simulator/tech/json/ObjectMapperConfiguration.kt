@@ -22,7 +22,6 @@ open class ObjectMapperConfiguration {
         jacksonObjectMapper().apply {
             registerModule(JavaTimeModule())
             enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) // for Date in call to PEN
-            disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             setSerializationInclusion(Include.NON_NULL)
             // INDENT_OUTPUT must be disabled to avoid error 413 Request Too Large
         }

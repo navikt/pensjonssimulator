@@ -1,57 +1,66 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleDatoEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleKritEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleDatoCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleKritCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
-import java.io.Serializable
 import java.util.*
 
-class Trygdeavtale(
+// Checked 2025-02-28
+class Trygdeavtale {
     /**
      * Hvilket land personen bor i. Se /2/, arkfane K_AVTALELAND_T
      */
-    var bostedsland: LandCti? = null,
+    var bostedsland: LandCti? = null
+    var bostedslandEnum: LandkodeEnum? = null
+
     /**
      * Hva slags type avtale som er inngått. Se /2/, arkfane K_AVTALE_T.
      */
-    var avtaleType: AvtaleTypeCti? = null,
+    var avtaleType: AvtaleTypeCti? = null
+    var avtaleTypeEnum: AvtaletypeEnum? = null
+
     /**
      * Felt for å registrere når avtalen tro i kraft, hvis avtaletypen tilsier at
      * landet har flere mulige avtaler med Norge. Se /2/, arkfane K_AVTALE_DATO.
      */
-    var avtaledato: AvtaleDatoCti? = null,
+    var avtaledato: AvtaleDatoCti? = null
+    var avtaledatoEnum: AvtaleDatoEnum? = null
+
     /**
      * Felt for å registrere kriterier som er oppfylt for å omfattes av trygdeavtalen.
      * Se /2/, arkfane K_AVTALE_KRIT_T.
      */
-    var avtaleKriterie: AvtaleKritCti? = null,
+    var avtaleKriterie: AvtaleKritCti? = null
+    var avtaleKriterieEnum: AvtaleKritEnum? = null
+
     /**
      * Angir om personen omfattes av avtalens personkrets
      */
-    var omfattesavAvtalensPersonkrets: Boolean = false,
+    var omfattesavAvtalensPersonkrets = false
+
     /**
      * Dato for kravdato i avtale
      */
     var kravDatoIAvtaleland: Date? = null
-) : Serializable {
-    constructor(trygdeavtale: Trygdeavtale) : this() {
-        if (trygdeavtale.bostedsland != null) {
-            this.bostedsland = LandCti(trygdeavtale.bostedsland)
-        }
-        if (trygdeavtale.avtaleType != null) {
-            this.avtaleType = AvtaleTypeCti(trygdeavtale.avtaleType)
-        }
-        if (trygdeavtale.avtaledato != null) {
-            this.avtaledato = AvtaleDatoCti(trygdeavtale.avtaledato)
-        }
-        if (trygdeavtale.avtaleKriterie != null) {
-            this.avtaleKriterie = AvtaleKritCti(trygdeavtale.avtaleKriterie)
-        }
-        omfattesavAvtalensPersonkrets = trygdeavtale.omfattesavAvtalensPersonkrets
-        if (trygdeavtale.kravDatoIAvtaleland != null) {
-            this.kravDatoIAvtaleland = trygdeavtale.kravDatoIAvtaleland!!.clone() as Date
-        }
+
+    constructor()
+
+    constructor(source: Trygdeavtale) : this() {
+        bostedsland = source.bostedsland?.let(::LandCti)
+        bostedslandEnum = source.bostedslandEnum
+        avtaleType = source.avtaleType?.let(::AvtaleTypeCti)
+        avtaleTypeEnum = source.avtaleTypeEnum
+        avtaledato = source.avtaledato?.let(::AvtaleDatoCti)
+        avtaledatoEnum = source.avtaledatoEnum
+        avtaleKriterie = source.avtaleKriterie?.let(::AvtaleKritCti)
+        avtaleKriterieEnum = source.avtaleKriterieEnum
+        omfattesavAvtalensPersonkrets = source.omfattesavAvtalensPersonkrets
+        kravDatoIAvtaleland = source.kravDatoIAvtaleland?.clone() as? Date
     }
 
     override fun toString(): String {

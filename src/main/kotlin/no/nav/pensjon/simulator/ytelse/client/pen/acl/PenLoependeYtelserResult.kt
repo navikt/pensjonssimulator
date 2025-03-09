@@ -6,12 +6,15 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.util.*
 
 data class PenLoependeYtelserResultV1(
-    val ytelser: PenLoependeYtelserResult,
-    val extraAlderspensjonInfo: PenYtelserExtraInfo,
-    val extraKapittel19Alderspensjon2011Info: PenYtelserExtraInfo,
-    val extraKapittel19Alderspensjon2016Info: PenYtelserExtraInfo,
-    val extraKapittel20AlderspensjonInfo: PenYtelserExtraInfo,
-    val extraPrivatAfpInfo: PenYtelserExtraInfo
+    val alderspensjon: PenAlderspensjonYtelser?,
+    val afpPrivat: PenPrivatAfpYtelser?,
+    //TODO remove the rest:
+    val ytelser: PenLoependeYtelserResult?,
+    val extraAlderspensjonInfo: PenYtelserExtraInfo?,
+    val extraKapittel19Alderspensjon2011Info: PenYtelserExtraInfo?,
+    val extraKapittel19Alderspensjon2016Info: PenYtelserExtraInfo?,
+    val extraKapittel20AlderspensjonInfo: PenYtelserExtraInfo?,
+    val extraPrivatAfpInfo: PenYtelserExtraInfo?
 )
 
 /**

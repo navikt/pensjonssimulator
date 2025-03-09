@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import java.util.*
 
@@ -22,6 +23,9 @@ class ForsteVirkningsdatoGrunnlag {
             kravlinjeType = value?.let { KravlinjeTypeCti(it.name).apply { hovedKravlinje = it.erHovedkravlinje } }
         }
 
+    //--- Extra:
+    var sakType: SakTypeEnum? = null
+
     constructor()
 
     constructor(source: ForsteVirkningsdatoGrunnlag) {
@@ -31,5 +35,6 @@ class ForsteVirkningsdatoGrunnlag {
         annenPerson = source.annenPerson
         kravlinjeTypeEnum = source.kravlinjeTypeEnum
         kravlinjeType = source.kravlinjeType
+        sakType = source.sakType
     }
 }

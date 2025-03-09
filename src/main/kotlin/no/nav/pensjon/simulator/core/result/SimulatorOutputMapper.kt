@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -279,11 +280,11 @@ object SimulatorOutputMapper {
         var priority = Int.MAX_VALUE
 
         val omsorgTypes = arrayOf(
-            OpptjeningType.OSFE.toString(),
-            OpptjeningType.OBO7H.toString(),
-            OpptjeningType.OBU7.toString(),
-            OpptjeningType.OBO6H.toString(),
-            OpptjeningType.OBU6.toString()
+            OpptjeningtypeEnum.OSFE,
+            OpptjeningtypeEnum.OBO7H,
+            OpptjeningtypeEnum.OBU7,
+            OpptjeningtypeEnum.OBO6H,
+            OpptjeningtypeEnum.OBU6
         )
 
         val prioritisedOmsorgTypeList = ArrayList(listOf(*omsorgTypes))
@@ -291,7 +292,7 @@ object SimulatorOutputMapper {
 
         for (grunnlag in opptjeningGrunnlagListe) {
             if (grunnlag.ar == kalenderAar) {
-                tempPriority = prioritisedOmsorgTypeList.indexOf(grunnlag.opptjeningType?.kode)
+                tempPriority = prioritisedOmsorgTypeList.indexOf(grunnlag.opptjeningTypeEnum)
 
                 if (tempPriority != -1 && tempPriority < priority) {
                     priority = tempPriority
@@ -330,7 +331,7 @@ object SimulatorOutputMapper {
 
     // Specific variant of TypedInformationListeUtils.subsetOfTypes
     private fun extractPensjonsgivendeInntekter(list: List<Opptjeningsgrunnlag>): List<Opptjeningsgrunnlag> =
-        list.filter { it.opptjeningType?.kode == OpptjeningType.PPI.name }
+        list.filter { it.opptjeningTypeEnum == OpptjeningtypeEnum.PPI }
 
     // ArligInformasjonListeUtils.sortedSubset + ArligInformasjonAscendingComparator
     // Duplicate in RegdomOpprettOutputHelper

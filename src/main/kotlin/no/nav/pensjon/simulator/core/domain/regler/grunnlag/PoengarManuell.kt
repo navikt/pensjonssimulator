@@ -1,64 +1,48 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.AvtalelandCti
-import no.nav.pensjon.simulator.core.domain.regler.util.DateCompareUtil
-import java.io.Serializable
 import java.util.*
 
 /**
  * Klassen beskriver et poengår opptjent i utlandet. Settes av saksbehandler.
  */
-class PoengarManuell(
+// Checked 2025-02-28
+class PoengarManuell {
     /**
      * Poengåret fra og med dato.
      */
-    var fom: Date? = null,
+    var fom: Date? = null
 
     /**
      * Poengåret til og med dato.
      */
-    var tom: Date? = null,
+    var tom: Date? = null
 
     /**
      * Angir om poengåret skal brukes i pro rata beregning.
      */
-    var ikkeProrata: Boolean = false,
+    var ikkeProrata = false
 
     /**
      * Angir om poengåret skal brukes i alternativ pro rata beregning.
      */
-    var ikkeAlternativProrata: Boolean = false,
+    var ikkeAlternativProrata = false
 
     /**
      * Avtaleland som poengår ble opptjent i.
      */
     var avtaleland: AvtalelandCti? = null
-) : Comparable<PoengarManuell>, Serializable {
+    var avtalelandEnum: AvtaleLandEnum? = null
 
-    constructor(poengarManuell: PoengarManuell) : this() {
-        if (poengarManuell.fom != null) {
-            fom = poengarManuell.fom!!.clone() as Date
-        }
-        if (poengarManuell.tom != null) {
-            tom = poengarManuell.tom!!.clone() as Date
-        }
-        this.ikkeProrata = poengarManuell.ikkeProrata
-        this.ikkeAlternativProrata = poengarManuell.ikkeAlternativProrata
-        avtaleland = poengarManuell.avtaleland
-    }
+    constructor()
 
-    constructor(fom: Date, tom: Date, ikkeProrata: Boolean, ikkeAlternativProrata: Boolean) : this() {
-        this.fom = fom
-        this.tom = tom
-        this.ikkeProrata = ikkeProrata
-        this.ikkeAlternativProrata = ikkeAlternativProrata
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    override fun compareTo(other: PoengarManuell): Int {
-        return DateCompareUtil.compareTo(fom, other.fom)
+    constructor(source: PoengarManuell) : this() {
+        fom = source.fom?.clone() as? Date
+        tom = source.tom?.clone() as? Date
+        ikkeProrata = source.ikkeProrata
+        ikkeAlternativProrata = source.ikkeAlternativProrata
+        avtaleland = source.avtaleland?.let(::AvtalelandCti)
+        avtalelandEnum = source.avtalelandEnum
     }
 }

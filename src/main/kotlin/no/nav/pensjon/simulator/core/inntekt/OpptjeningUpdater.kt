@@ -1,12 +1,10 @@
 package no.nav.pensjon.simulator.core.inntekt
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.GrunnlagKilde
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
 import no.nav.pensjon.simulator.core.krav.Inntekt
-import no.nav.pensjon.simulator.core.result.OpptjeningType
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -38,7 +36,7 @@ class OpptjeningUpdater(private val context: SimulatorContext) {
 
         inntektbasertGrunnlagListe.forEach {
             it.bruk = true
-            it.grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
+            it.grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             resultGrunnlagListe.add(it)
         }
 
@@ -50,7 +48,7 @@ class OpptjeningUpdater(private val context: SimulatorContext) {
             Opptjeningsgrunnlag().apply {
                 ar = inntekt.inntektAar
                 pi = inntekt.beloep.toInt()
-                opptjeningType = OpptjeningTypeCti(OpptjeningType.PPI.name)
+                opptjeningTypeEnum = OpptjeningtypeEnum.PPI
                 bruk = true
             }
     }

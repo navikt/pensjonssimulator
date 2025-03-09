@@ -2,10 +2,12 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.MinstepensjonstypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultatKildeEnum
+import no.nav.pensjon.simulator.core.domain.regler.kode.MinstepensjonTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.kode.ResultatKildeCti
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
 
+// Checked 2025-02-28
 class OvergangsinfoUPtilUT {
-
     /**
      * Konvertert beregningsgrunnlag for Ordinår beregning
      */
@@ -49,11 +51,13 @@ class OvergangsinfoUPtilUT {
     /**
      * Hvorvidt utbetalt uførepensjonen per 31.12.2014 ble definert som minstepensjon.
      */
+    var minstepensjonType: MinstepensjonTypeCti? = null
     var minstepensjontypeEnum: MinstepensjonstypeEnum? = null
 
     /**
      * Hvorvidt utbetalt uførepensjonen per 31.12.2014 ble manuelt overstyrt eller ikke.
      */
+    var resultatKilde: ResultatKildeCti? = null
     var resultatKildeEnum: ResultatKildeEnum? = null
 
     /**

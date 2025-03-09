@@ -403,16 +403,16 @@ class Pre2025OffentligAfpBeregner(
             val epsGrunnlag = persongrunnlagListe.firstOrNull { p -> p.personDetaljListe.any { it.isEps() } }
 
             return epsGrunnlag?.inntektsgrunnlagListe.orEmpty()
-                .any { it.inntektType?.kode == InntekttypeEnum.PENF.name && it.belop > 0 }
+                .any { it.inntektTypeEnum == InntekttypeEnum.PENF && it.belop > 0 }
         }
 
         // SimulerAFPogAPCommand.createInntektsgrunnlag
         private fun inntektsgrunnlag(fom: Date?, type: InntekttypeEnum, beloep: Int) =
             Inntektsgrunnlag().apply {
-                inntektType = InntektTypeCti(type.name)
+                inntektTypeEnum = type
                 this.fom = fom
                 this.belop = beloep
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.SIMULERING.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
                 bruk = true
                 //kopiertFraGammeltKrav = Boolean.FALSE
             }
@@ -421,10 +421,10 @@ class Pre2025OffentligAfpBeregner(
         private fun inntektsgrunnlagOneManedBeforeUttak(spec: SimuleringSpec) =
             Inntektsgrunnlag().apply {
                 bruk = true
-                inntektType = InntektTypeCti(InntekttypeEnum.IMFU.name) // IMFU = Inntekt måneden før uttak
+                inntektTypeEnum = InntekttypeEnum.IMFU // IMFU = Inntekt måneden før uttak
                 fom = spec.foersteUttakDato?.toNorwegianDateAtNoon()?.let { getRelativeDateByMonth(it, -1) }
                 belop = spec.afpInntektMaanedFoerUttak ?: 0
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.SIMULERING.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
             }
 
         // SimulerPensjonsberegningCommand.opprettEktefelleTillegg
@@ -442,11 +442,11 @@ class Pre2025OffentligAfpBeregner(
             var forventetPensjongivendeInntekt = 0
 
             for (inntektsgrunnlag in epsGrunnlag.inntektsgrunnlagListe) {
-                val inntektType = inntektsgrunnlag.inntektType?.kode
+                val inntektType = inntektsgrunnlag.inntektTypeEnum
 
-                if (InntekttypeEnum.PENF.name == inntektType) {
+                if (InntekttypeEnum.PENF == inntektType) {
                     pensjonsinntektFraFolketrygden = inntektsgrunnlag.belop
-                } else if (InntekttypeEnum.FPI.name == inntektType) {
+                } else if (InntekttypeEnum.FPI == inntektType) {
                     forventetPensjongivendeInntekt = inntektsgrunnlag.belop
                 }
             }
@@ -653,7 +653,7 @@ class Pre2025OffentligAfpBeregner(
         // SimulerAFPogAPCommand.removeInntektsgrunnlagForventetArbeidsinntektFromList
         private fun removeInntektsgrunnlagForventetArbeidsinntekt(inntektGrunnlagListe: MutableList<Inntektsgrunnlag>) {
             inntektGrunnlagListe.removeIf {
-                it.inntektType?.kode == InntekttypeEnum.FPI.name
+                it.inntektTypeEnum == InntekttypeEnum.FPI
             }
         }
 

@@ -4,8 +4,6 @@ import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPe
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
-import no.nav.pensjon.simulator.core.beregn.InntektType
-import no.nav.pensjon.simulator.core.domain.GrunnlagKilde
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -14,8 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
@@ -627,7 +623,7 @@ class KravhodeCreator(
         }
 
         private fun fjernForventetArbeidsinntektFraInntektGrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
-            grunnlagListe.filter { it.bruk == true && InntektType.FPI.name != it.inntektType?.kode }
+            grunnlagListe.filter { it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum }
 
         private fun opprettInntektGrunnlagForSoeker(
             spec: SimuleringSpec,
@@ -675,7 +671,7 @@ class KravhodeCreator(
         }
 
         private fun isForventetPensjongivendeInntekt(grunnlag: Inntektsgrunnlag): Boolean =
-            grunnlag.inntektType?.let { it.kode == InntektType.FPI.name } == true
+            grunnlag.inntektTypeEnum == InntekttypeEnum.FPI
 
         private fun calculateGrunnbeloepForhold(
             aar: Int,
@@ -744,8 +740,8 @@ class KravhodeCreator(
                 tom = sisteDag(aar).toNorwegianDateAtNoon()
                 belop = faktiskAarligInntekt(aaretsInntektListe).toInt()
                 bruk = true
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
-                inntektType = InntektTypeCti(InntektType.FPI.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+                inntektTypeEnum = InntekttypeEnum.FPI
             }
 
         // OpprettKravHodeHelper.createInntektsgrunnlagForBrukerOrEps
@@ -754,8 +750,8 @@ class KravhodeCreator(
                 this.belop = beloep
                 this.bruk = true
                 this.fom = fom?.toNorwegianDateAtNoon()
-                this.grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
-                this.inntektType = InntektTypeCti(InntektType.FPI.name)
+                this.grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+                this.inntektTypeEnum = InntekttypeEnum.FPI
                 this.tom = tom?.toNorwegianDateAtNoon()
             }
 
@@ -784,7 +780,7 @@ class KravhodeCreator(
                 antallAarUtenlands > 0
 
         private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
-            trygdetidPeriodeListe.any { it.land!!.kode != LandkodeEnum.NOR.name }
+            trygdetidPeriodeListe.any { it.landEnum != LandkodeEnum.NOR }
 
         private fun erGradertUttak(spec: SimuleringSpec) =
             spec.uttakGrad != UttakGradKode.P_100

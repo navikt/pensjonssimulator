@@ -30,12 +30,12 @@ object PenKravhodeMapper {
             kravlinjeListe = source.kravlinjeListe.map(::kravlinje).toMutableList()
             persongrunnlagListe = source.persongrunnlagListe.map(::persongrunnlag).toMutableList()
             uttaksgradListe = source.uttaksgradListe
-            regelverkTypeEnum = source.regelverkTypeCti?.let { RegelverkTypeEnum.valueOf(it.kode) }
-            sisteSakstypeForAPEnum = source.sisteSakstypeForAP?.let { SakTypeEnum.valueOf(it.kode) }
-            afpOrdningEnum = source.afpOrdning?.let { AFPtypeEnum.valueOf(it.kode) }
+            regelverkTypeEnum = source.regelverkTypeEnum ?: source.regelverkTypeCti?.let { RegelverkTypeEnum.valueOf(it.kode) }
+            sisteSakstypeForAPEnum = source.sisteSakstypeForAPEnum ?: source.sisteSakstypeForAP?.let { SakTypeEnum.valueOf(it.kode) }
+            afpOrdningEnum = source.afpOrdningEnum ?: source.afpOrdning?.let { AFPtypeEnum.valueOf(it.kode) }
             afptillegg = source.afptillegg
             brukOpptjeningFra65I66Aret = source.brukOpptjeningFra65I66Aret
-            kravVelgTypeEnum = source.kravVelgType?.let { KravVelgtypeEnum.valueOf(it.kode) }
+            kravVelgTypeEnum = source.kravVelgTypeEnum ?: source.kravVelgType?.let { KravVelgtypeEnum.valueOf(it.kode) }
             boddArbeidUtlandFar = source.boddArbeidUtlandFar
             boddArbeidUtlandMor = source.boddArbeidUtlandMor
             boddArbeidUtlandAvdod = source.boddArbeidUtlandAvdod
@@ -54,7 +54,7 @@ object PenKravhodeMapper {
     private fun virkningDato(source: PenFoersteVirkningDato) =
         FoersteVirkningDato(
             sakType = source.sakType?.let(SakType::valueOf),
-            kravlinjeType = source.kravlinjeType?.let(KravlinjeTypeEnum::valueOf),
+            kravlinjeType = source.kravlinjeTypeEnum?.let(KravlinjeTypeEnum::valueOf),
             virkningDato = source.virkningsdato?.toNorwegianLocalDate(),
             annenPerson = source.annenPerson?.let(::penPerson)
         )
@@ -85,12 +85,8 @@ object PenKravhodeMapper {
         }
 
     private fun penPerson(source: PenPenPerson) =
-        PenPerson(source.penPersonId).apply {
-            pid = source.pid
-            foedselsdato = source.fodselsdato?.toNorwegianLocalDate()
-            afpHistorikkListe = source.afpHistorikkListe
-            uforehistorikk = source.uforehistorikk
-            generellHistorikk = source.generellHistorikk
+        PenPerson().apply {
+            penPersonId = source.penPersonId ?: 0L
         }
 
     private fun pensjonsbeholdning(source: PenPensjonsbeholdning) =
@@ -103,18 +99,21 @@ object PenKravhodeMapper {
             lonnsvekstInformasjon = source.lonnsvekstInformasjon
             reguleringsInformasjon = source.reguleringsInformasjon
             formelkode = source.formelkode
-            beholdningsType = source.beholdningsType
+            source.beholdningsType?.let { beholdningsType = it }
+            source.beholdningsTypeEnum?.let { beholdningsTypeEnum = it }
             merknadListe = source.merknadListe
         }
 
     private fun personDetalj(source: PenPersonDetalj) =
         PersonDetalj().apply {
             barnDetalj = source.barnDetalj?.let(::barnDetalj)
-            borMedEnum = source.borMed?.let { BorMedTypeEnum.valueOf(it.kode) }
+            borMedEnum = source.borMedTypeEnum ?: source.borMed?.let { BorMedTypeEnum.valueOf(it.kode) }
             bruk = source.bruk
-            grunnlagKildeEnum = source.grunnlagKilde?.let { GrunnlagkildeEnum.valueOf(it.kode) }
+            grunnlagKildeEnum =
+                source.grunnlagKildeEnum ?: source.grunnlagKilde?.let { GrunnlagkildeEnum.valueOf(it.kode) }
             epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
-            grunnlagsrolleEnum = source.grunnlagsrolle?.let { GrunnlagsrolleEnum.valueOf(it.kode) }
+            grunnlagsrolleEnum =
+                source.grunnlagsrolleEnum ?: source.grunnlagsrolle?.let { GrunnlagsrolleEnum.valueOf(it.kode) }
             tillegg = source.tillegg
 
             rolleFomDato = source.rolleFomDato
@@ -128,7 +127,8 @@ object PenKravhodeMapper {
 
             serskiltSatsUtenET = source.serskiltSatsUtenET
             sivilstandRelatertPerson = source.sivilstandRelatertPerson?.let(::penPerson)
-            sivilstandTypeEnum = source.sivilstandType?.let { SivilstandEnum.valueOf(it.kode) }
+            sivilstandTypeEnum =
+                source.sivilstandTypeEnum ?: source.sivilstandType?.let { SivilstandEnum.valueOf(it.kode) }
         }.also {
             it.finishInit()
             //TODO

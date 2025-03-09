@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.JusteringsTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.JusteringsTypeCti
 import java.io.Serializable
 import java.lang.reflect.InvocationTargetException
@@ -7,6 +8,7 @@ import java.lang.reflect.InvocationTargetException
 class JusteringsInformasjon : Serializable {
     var totalJusteringsfaktor: Double = 0.0
     var justeringsTypeCti: JusteringsTypeCti? = null
+    var justeringsTypeEnum: JusteringsTypeEnum? = null
     var elementer: MutableList<IJustering> = mutableListOf()
 
     constructor()
@@ -15,6 +17,9 @@ class JusteringsInformasjon : Serializable {
         totalJusteringsfaktor = ji.totalJusteringsfaktor
         if (ji.justeringsTypeCti != null) {
             justeringsTypeCti = JusteringsTypeCti(ji.justeringsTypeCti)
+        }
+        if (ji.justeringsTypeEnum != null) {
+            justeringsTypeEnum = ji.justeringsTypeEnum
         }
         for (ij in ji.elementer) {
             val clazz = ij.javaClass
@@ -38,12 +43,14 @@ class JusteringsInformasjon : Serializable {
     }
 
     constructor(
-            totalJusteringsfaktor: Double = 0.0,
-            justeringsTypeCti: JusteringsTypeCti? = null,
-            elementer: MutableList<IJustering> = mutableListOf()
+        totalJusteringsfaktor: Double = 0.0,
+        justeringsTypeCti: JusteringsTypeCti? = null,
+        justeringsTypeEnum: JusteringsTypeEnum? = null,
+        elementer: MutableList<IJustering> = mutableListOf()
     ) {
         this.totalJusteringsfaktor = totalJusteringsfaktor
         this.justeringsTypeCti = justeringsTypeCti
+        this.justeringsTypeEnum = justeringsTypeEnum
         this.elementer = elementer
     }
 }

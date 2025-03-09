@@ -34,11 +34,18 @@ abstract class AbstraktBeregningsResultat {
     var gjennomsnittligUttaksgradSisteAr = 0.0
 
     // SIMDOM-ADD:
+    /*
     @JsonIgnore var kravId: Long? = null
     @JsonIgnore var virkTom: Date? = null
     @JsonIgnore var epsMottarPensjon: Boolean = false // false in old PREG class
     @JsonIgnore var epsPaavirkerBeregning: Boolean = false
     @JsonIgnore var harGjenlevenderett: Boolean = false
+    */
+    var kravId: Long? = null
+    var virkTom: Date? = null
+    var epsMottarPensjon: Boolean = false // false in old PREG class
+    var epsPaavirkerBeregning: Boolean = false
+    var harGjenlevenderett: Boolean = false
 
     protected constructor() : super()
 

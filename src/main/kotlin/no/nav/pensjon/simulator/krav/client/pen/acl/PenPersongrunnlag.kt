@@ -12,7 +12,7 @@ import java.util.*
 
 /**
  * Persongrunnlag DTO (data transfer object) received from PEN.
- * Corresponds to PersongrunnlagDtoForSimulator in PEN.
+ * Corresponds to no.nav.pensjon.pen.domain.api.simulator.grunnlag.Persongrunnlag in PEN.
  */
 class PenPersongrunnlag(
     var penPerson: PenPenPerson? = null,

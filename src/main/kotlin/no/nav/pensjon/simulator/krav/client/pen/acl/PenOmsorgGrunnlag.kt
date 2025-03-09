@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.OmsorgTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.kode.OmsorgTypeCti
 
 /**
@@ -9,6 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.kode.OmsorgTypeCti
 class PenOmsorgGrunnlag(
     var ar: Int = 0,
     var omsorgType: OmsorgTypeCti? = null,
+    var omsorgTypeEnum: OmsorgTypeEnum? = null,
     var personOmsorgFor: PenPenPerson? = null,
     var bruk: Boolean = false
 )

@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.core.domain.regler
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AntallArMndDag
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtalelandCti
 
 /**
  * Trygdetid for land med bilaterale avtaler.
@@ -46,7 +45,6 @@ class TTUtlandTrygdeavtale {
     /**
      * Avtaleland som trygdetid er opptjent i.
      */
-    var avtaleland: AvtalelandCti? = null
     var avtalelandEnum: AvtaleLandEnum? = null
 
     /**

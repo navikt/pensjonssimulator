@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.JustertGarantipensjonsniva
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.BeholdningsTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.GarantipenNivaCti
 
 // Checked 2025-02-28
 class Garantipensjonsbeholdning() : Beholdning() {
@@ -16,7 +14,6 @@ class Garantipensjonsbeholdning() : Beholdning() {
     /**
      * Satstype brukt i garantipensjonsnivå.
      */
-    var satsType: GarantipenNivaCti? = null
     var satsTypeEnum: GarantiPensjonsnivaSatsEnum? = null
 
     /**
@@ -34,7 +31,6 @@ class Garantipensjonsbeholdning() : Beholdning() {
      */
     var garPN_justert = 0.0
 
-    override var beholdningsType: BeholdningsTypeCti = BeholdningsTypeCti("GAR_PEN_B")
     override var beholdningsTypeEnum: BeholdningtypeEnum = BeholdningtypeEnum.GAR_PEN_B
 
     // SIMDOM-ADD

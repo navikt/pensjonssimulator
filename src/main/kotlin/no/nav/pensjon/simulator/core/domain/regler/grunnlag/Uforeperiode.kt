@@ -3,10 +3,6 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ProRataBeregningTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.FppGarantiKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.ProRataBeregningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.UforeTypeCti
-import no.nav.pensjon.simulator.core.result.UfoereType
 import java.util.*
 
 // Checked 2025-02-28
@@ -24,7 +20,6 @@ class Uforeperiode {
     /**
      * Angir om Uføregraden er ren Uføre,inneholder delvis yrke eller bare yrke.
      */
-    var uforeType: UforeTypeCti? = null
     var uforeTypeEnum: UforetypeEnum? = null
 
     /**
@@ -40,7 +35,6 @@ class Uforeperiode {
      * `D = Ung ufør med rett til 3.3 poeng fra mai 1992`<br></br>
      * `E = unge uføre før 1967`
      */
-    var fppGarantiKode: FppGarantiKodeCti? = null
     var fppGarantiKodeEnum: FppGarantiKodeEnum? = null
 
     /**
@@ -56,7 +50,6 @@ class Uforeperiode {
     /**
      * Angir hva utfallet av pro-rata beregningen var. Hvis satt er EØS eneste alternativ eller bedre enn alternativet (Folketrygd).
      */
-    var proRataBeregningType: ProRataBeregningTypeCti? = null
     var proRataBeregningTypeEnum: ProRataBeregningTypeEnum? = null
 
     /**
@@ -201,10 +194,8 @@ class Uforeperiode {
     constructor(source: Uforeperiode) : this() {
         ufg = source.ufg
         uft = source.uft?.clone() as? Date
-        uforeType = source.uforeType?.let(::UforeTypeCti)
         uforeTypeEnum = source.uforeTypeEnum
         fppGaranti = source.fppGaranti
-        fppGarantiKode = source.fppGarantiKode?.let(::FppGarantiKodeCti)
         fppGarantiKodeEnum = source.fppGarantiKodeEnum
         redusertAntFppAr = source.redusertAntFppAr
         virk = source.virk?.clone() as? Date
@@ -228,7 +219,6 @@ class Uforeperiode {
         spt_pa_e91_eos = source.spt_pa_e91_eos
         spt_pa_f92_eos = source.spt_pa_f92_eos
         redusertAntFppAr_proRata = source.redusertAntFppAr_proRata
-        proRataBeregningType = source.proRataBeregningType?.let(::ProRataBeregningTypeCti)
         proRataBeregningTypeEnum = source.proRataBeregningTypeEnum
         proRata_teller = source.proRata_teller
         proRata_nevner = source.proRata_nevner
@@ -241,10 +231,10 @@ class Uforeperiode {
 
     //SIMDOM-ADD:
     fun isRealUforeperiode(): Boolean {
-        val kode = uforeType?.kode ?: return false
+        val kode = uforeTypeEnum ?: return false
 
-        return (kode == UfoereType.UF_M_YRKE.name
-                || kode == UfoereType.UFORE.name
-                || kode == UfoereType.YRKE.name)
+        return kode == UforetypeEnum.UF_M_YRKE
+                || kode == UforetypeEnum.UFORE
+                || kode == UforetypeEnum.YRKE
     }
 }

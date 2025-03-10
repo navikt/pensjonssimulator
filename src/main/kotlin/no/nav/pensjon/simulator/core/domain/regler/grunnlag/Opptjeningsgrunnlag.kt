@@ -2,8 +2,6 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
 
 // Checked 2025-02-28
 class Opptjeningsgrunnlag {
@@ -38,7 +36,6 @@ class Opptjeningsgrunnlag {
      * PPI Pensjonsgivende inntekt
      */
     var opptjeningTypeEnum: OpptjeningtypeEnum? = null
-    var opptjeningType: OpptjeningTypeCti? = null
 
     /**
      * Maks uføregrad for dette året
@@ -54,7 +51,6 @@ class Opptjeningsgrunnlag {
      * Kilden til opptjeningsgrunnlaget.
      */
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
-    var grunnlagKilde: GrunnlagKildeCti? = null
 
     /**
      * Inneholder alle inntektstyper for dette året
@@ -68,17 +64,10 @@ class Opptjeningsgrunnlag {
         pi = source.pi
         pia = source.pia
         pp = source.pp
-        opptjeningType = source.opptjeningType
         opptjeningTypeEnum = source.opptjeningTypeEnum
         maksUforegrad = source.maksUforegrad
         bruk = source.bruk
-        grunnlagKilde = source.grunnlagKilde
         grunnlagKildeEnum = source.grunnlagKildeEnum
-        source.opptjeningTypeListe.forEach {
-            opptjeningTypeListe.add(OpptjeningTypeMapping().apply {
-                opptjeningPOPPTypeCti = it.opptjeningPOPPTypeCti
-                opptjeningPOPPTypeEnum = it.opptjeningPOPPTypeEnum
-            })
-        }
+        opptjeningTypeListe = source.opptjeningTypeListe.map(::OpptjeningTypeMapping).toMutableList()
     }
 }

@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtalelandCti
 import java.util.*
 
 /**
@@ -32,7 +31,6 @@ class PoengarManuell {
     /**
      * Avtaleland som poengår ble opptjent i.
      */
-    var avtaleland: AvtalelandCti? = null
     var avtalelandEnum: AvtaleLandEnum? = null
 
     constructor()
@@ -42,7 +40,6 @@ class PoengarManuell {
         tom = source.tom?.clone() as? Date
         ikkeProrata = source.ikkeProrata
         ikkeAlternativProrata = source.ikkeAlternativProrata
-        avtaleland = source.avtaleland?.let(::AvtalelandCti)
         avtalelandEnum = source.avtalelandEnum
     }
 }

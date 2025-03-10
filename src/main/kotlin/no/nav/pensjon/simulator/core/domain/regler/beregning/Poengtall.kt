@@ -3,14 +3,14 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.Omsorgsopptjening
 import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtalltypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.PoengtallTypeCti
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
+// 2025-03-10
 class Poengtall : Omsorgsopptjening {
     /**
      * Pensjonspoeng,
      */
-    @JvmField
-    var pp = 0.0
+    var pp: Double = 0.0
 
     /**
      * Anvendt pensjonsgivende inntekt.
@@ -23,7 +23,7 @@ class Poengtall : Omsorgsopptjening {
     var pi = 0
 
     /**
-     * Året for dette poengtallet
+     * året for dette poengtallet
      */
     var ar = 0
 
@@ -40,7 +40,6 @@ class Poengtall : Omsorgsopptjening {
     /**
      * Poengtalltype.
      */
-    var poengtallType: PoengtallTypeCti? = null
     var poengtallTypeEnum: PoengtalltypeEnum? = null
 
     /**
@@ -68,6 +67,7 @@ class Poengtall : Omsorgsopptjening {
      * Angir om poengtallet er i et omsorgsår
      */
     override var omsorg: Boolean = false
+
     /**
      * Trengs for å implementere Omsorgsopptjening
      */
@@ -81,24 +81,17 @@ class Poengtall : Omsorgsopptjening {
         get() = ar
 
     constructor()
-    constructor(poengtall: Poengtall) {
-        pp = poengtall.pp
-        pia = poengtall.pia
-        pi = poengtall.pi
-        ar = poengtall.ar
-        bruktIBeregning = poengtall.bruktIBeregning
-        gv = poengtall.gv
-        if (poengtall.poengtallType != null) {
-            poengtallType = PoengtallTypeCti(poengtall.poengtallType!!)
-        }
-        if (poengtall.poengtallTypeEnum != null) {
-            poengtallTypeEnum = poengtall.poengtallTypeEnum
-        }
-        maksUforegrad = poengtall.maksUforegrad
-        uforear = poengtall.uforear
-        merknadListe = ArrayList()
-        for (merknad in poengtall.merknadListe) {
-            merknadListe.add(Merknad(merknad))
-        }
+
+    constructor(source: Poengtall) {
+        pp = source.pp
+        pia = source.pia
+        pi = source.pi
+        ar = source.ar
+        bruktIBeregning = source.bruktIBeregning
+        gv = source.gv
+        poengtallTypeEnum = source.poengtallTypeEnum
+        maksUforegrad = source.maksUforegrad
+        uforear = source.uforear
+        merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
     }
 }

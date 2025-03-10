@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import java.util.*
 
 // Checked 2025-02-28
@@ -19,7 +18,6 @@ class Utenlandsopphold {
     /**
      * Landet hvor oppholdet har funnet sted
      */
-    var land: LandCti? = null
     var landEnum: LandkodeEnum? = null
 
     /**
@@ -42,7 +40,6 @@ class Utenlandsopphold {
     constructor(source: Utenlandsopphold) : this() {
         fom = source.fom?.clone() as? Date
         tom = source.tom?.clone() as? Date
-        land = source.land?.let(::LandCti)
         landEnum = source.landEnum
         pensjonsordning = source.pensjonsordning
         bodd = source.bodd

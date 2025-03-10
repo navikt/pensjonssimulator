@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.BarnepensjonEosKapEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.BarnepensjonEOSKapittelCti
 
 // Checked 2025-02-28
 class Trygdeavtaledetaljer {
@@ -58,7 +57,6 @@ class Trygdeavtaledetaljer {
     /**
      * Angir hvilket kapittel (3 eller 8) i forordning 1408/71 barnepensjon skal beregnes etter ved EØS-saker.
      */
-    var barnepensjonForordning1408_71: BarnepensjonEOSKapittelCti? = null
     var barnepensjonForordning1408_71Enum: BarnepensjonEosKapEnum? = null
 
     constructor()
@@ -74,7 +72,6 @@ class Trygdeavtaledetaljer {
         erArt10BruktGP = source.erArt10BruktGP
         erArt10BruktTP = source.erArt10BruktTP
         fpa_nordisk = source.fpa_nordisk
-        barnepensjonForordning1408_71 = source.barnepensjonForordning1408_71?.let(::BarnepensjonEOSKapittelCti)
         barnepensjonForordning1408_71Enum = source.barnepensjonForordning1408_71Enum
     }
 }

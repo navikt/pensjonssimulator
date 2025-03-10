@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.SakType
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
@@ -123,7 +123,7 @@ object BehandlingPeriodeUtil {
 
                 newPersongrunnlag.beholdninger
                     .removeIf {
-                        it.beholdningsType?.kode == BeholdningType.PEN_B.name &&
+                        it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B &&
                                 !dateValidator.areValid(it.fom!!, it.tom)
                     }
 

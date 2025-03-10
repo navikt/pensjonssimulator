@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.vedtak
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarOppfyltUTCti
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.ForutgaendeMedlemskap
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 
@@ -15,6 +14,5 @@ fun ForutgaendeMedlemskap.copy() =
         it.unntakHalvminsteytelseFolketrygd = this.unntakHalvminsteytelseFolketrygd
         it.unntakHalvminsteytelseUtland = this.unntakHalvminsteytelseUtland
         // Super:
-        it.resultat = this.resultat?.let(::VilkarOppfyltUTCti)
         it.resultatEnum = this.resultatEnum
     }

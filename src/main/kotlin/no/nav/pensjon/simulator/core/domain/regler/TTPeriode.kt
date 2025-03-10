@@ -3,8 +3,6 @@ package no.nav.pensjon.simulator.core.domain.regler
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import java.util.*
 
@@ -33,7 +31,6 @@ class TTPeriode {
     /**
      * Hvilket land perioden er opptjent i.
      */
-    var land: LandCti? = null
     var landEnum: LandkodeEnum? = null
 
     /**
@@ -49,7 +46,6 @@ class TTPeriode {
     /**
      * Kilden til trygdetidsperioden.
      */
-    var grunnlagKilde: GrunnlagKildeCti? = null
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
 
     // SIMDOM-ADD:
@@ -78,7 +74,6 @@ class TTPeriode {
         landEnum = source.landEnum
         ikkeProRata = source.ikkeProRata
         bruk = source.bruk
-        grunnlagKilde = source.grunnlagKilde
         grunnlagKildeEnum = source.grunnlagKildeEnum
     }
 

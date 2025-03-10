@@ -2,19 +2,14 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.GarantipenNivaCti
-import java.io.Serializable
 
 // Checked 2025-02-28
-class Garantipensjonsniva : Serializable {
+class Garantipensjonsniva {
     var ektefelleInntektOver2G = false
     var belop = 0.0
     var belopIkkeProratisert = 0.0
     var sats = 0.0
-    var satsType: GarantipenNivaCti? = null
     var satsTypeEnum: GarantiPensjonsnivaSatsEnum? = null
-    var formelkode: FormelKodeCti? = null
     var formelkodeEnum: FormelKodeEnum? = null
     var pro_rata_teller_mnd = 0
     var pro_rata_nevner_mnd = 0
@@ -30,9 +25,7 @@ class Garantipensjonsniva : Serializable {
         belop = source.belop
         belopIkkeProratisert = source.belopIkkeProratisert
         sats = source.sats
-        source.satsType?.let { satsType = GarantipenNivaCti(it) }
         satsTypeEnum = source.satsTypeEnum
-        source.formelkode?.let { formelkode = FormelKodeCti(it) }
         formelkodeEnum = source.formelkodeEnum
         pro_rata_teller_mnd = source.pro_rata_teller_mnd
         pro_rata_nevner_mnd = source.pro_rata_nevner_mnd

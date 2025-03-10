@@ -12,11 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbehol
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantitilleggsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Unntak
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.BeholdningsTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.EksportUnntakCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InngangUnntakCti
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.util.*
 
@@ -26,7 +21,6 @@ fun AfpHistorikk.copy() =
         it.virkFom = this.virkFom?.clone() as? Date
         it.virkTom = this.virkTom?.clone() as? Date
         it.afpPensjonsgrad = this.afpPensjonsgrad
-        it.afpOrdning = this.afpOrdning?.let(::AfpOrdningTypeCti)
         it.afpOrdningEnum = this.afpOrdningEnum
     }
 
@@ -44,7 +38,6 @@ fun AntallArMndDag.copy() =
 
 fun BarnetilleggVilkar.copy() =
     BarnetilleggVilkar().also {
-        it.btVilkarType = this.btVilkarType
         it.btVilkarTypeEnum = this.btVilkarTypeEnum
         it.vurdertTil = this.vurdertTil
     }
@@ -71,9 +64,7 @@ fun Pensjonsbeholdning.copy() =
 fun Unntak.copy() =
     Unntak().also {
         it.unntak = this.unntak
-        it.unntakType = this.unntakType?.let(::InngangUnntakCti)
         it.unntakTypeEnum = this.unntakTypeEnum
-        it.eksportUnntak = this.eksportUnntak?.let(::EksportUnntakCti)
         it.eksportUnntakEnum = this.eksportUnntakEnum
     }
 
@@ -82,9 +73,7 @@ fun copyBeholdning(source: Beholdning, target: Beholdning) {
     target.totalbelop = source.totalbelop
     target.reguleringsInformasjon = source.reguleringsInformasjon?.let(::ReguleringsInformasjon)
     target.opptjening = source.opptjening?.let(::Opptjening)
-    target.beholdningsType = BeholdningsTypeCti(source.beholdningsType)
     target.beholdningsTypeEnum = source.beholdningsTypeEnum
-    target.formelkode = source.formelkode?.let(::FormelKodeCti)
     target.formelKodeEnum = source.formelKodeEnum
     target.merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
     target.lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)

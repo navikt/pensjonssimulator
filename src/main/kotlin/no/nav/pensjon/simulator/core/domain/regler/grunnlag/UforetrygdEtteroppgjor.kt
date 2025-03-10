@@ -2,60 +2,43 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import java.util.*
 
-class UforetrygdEtteroppgjor(
-
+// 2025-03-10
+class UforetrygdEtteroppgjor {
     /**
      * Angir om det har vært arbeidsforsøk i etteroppgjørsåret.
      */
-    var arbeidsforsok: Boolean = false,
+    var arbeidsforsok = false
 
     /**
      * Angir start av arbeidsforsøk.
      */
-    var arbeidsforsokFom: Date? = null,
+    var arbeidsforsokFom: Date? = null
 
     /**
      * Angir slutt av arbeidsforsøk.
      */
-    var arbeidsforsokTom: Date? = null,
+    var arbeidsforsokTom: Date? = null
 
-    var detaljer: MutableList<UforetrygdEtteroppgjorDetalj> = mutableListOf(),
+    var detaljer: List<UforetrygdEtteroppgjorDetalj> = mutableListOf()
 
     /**
      * Angir start av uføretrygd i etteroppgjørsåret.
      */
-    var periodeFom: Date? = null,
+    var periodeFom: Date? = null
 
     /**
      * Angir slutt av uføretrygd i etteroppgjørsåret.
      */
     var periodeTom: Date? = null
-) {
 
-    constructor(uforetrygdEtteroppgjor: UforetrygdEtteroppgjor) : this() {
-        this.arbeidsforsok = uforetrygdEtteroppgjor.arbeidsforsok
-        this.detaljer = uforetrygdEtteroppgjor.detaljer.map { UforetrygdEtteroppgjorDetalj(it) }.toMutableList()
+    constructor()
 
-        if (uforetrygdEtteroppgjor.periodeFom != null) {
-            this.periodeFom = Date(uforetrygdEtteroppgjor.periodeFom!!.time)
-        }
-        if (uforetrygdEtteroppgjor.periodeTom != null) {
-            this.periodeTom = Date(uforetrygdEtteroppgjor.periodeTom!!.time)
-        }
-        if (uforetrygdEtteroppgjor.arbeidsforsokFom != null) {
-            this.arbeidsforsokFom = Date(uforetrygdEtteroppgjor.arbeidsforsokFom!!.time)
-        }
-        if (uforetrygdEtteroppgjor.arbeidsforsokTom != null) {
-            this.arbeidsforsokTom = Date(uforetrygdEtteroppgjor.arbeidsforsokTom!!.time)
-        }
-    }
-
-    fun getUforetrygdEtteroppgjorDetalj(grunnlagsrolle: String): UforetrygdEtteroppgjorDetalj? {
-        for (ued in detaljer) {
-            if (ued.grunnlagsrolle!!.kode == grunnlagsrolle) {
-                return ued
-            }
-        }
-        return null
+    constructor(source: UforetrygdEtteroppgjor) : this() {
+        arbeidsforsok = source.arbeidsforsok
+        arbeidsforsokFom = source.arbeidsforsokFom?.time?.let(::Date)
+        arbeidsforsokTom = source.arbeidsforsokTom?.time?.let(::Date)
+        detaljer = source.detaljer.map(::UforetrygdEtteroppgjorDetalj)
+        periodeFom = source.periodeFom?.time?.let(::Date)
+        periodeTom = source.periodeTom?.time?.let(::Date)
     }
 }

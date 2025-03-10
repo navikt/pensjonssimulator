@@ -1,31 +1,26 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.JusteringsTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.JusteringsTypeCti
 import java.io.Serializable
 import java.lang.reflect.InvocationTargetException
 
+// 2025-03-10
 class JusteringsInformasjon : Serializable {
     var totalJusteringsfaktor: Double = 0.0
-    var justeringsTypeCti: JusteringsTypeCti? = null
     var justeringsTypeEnum: JusteringsTypeEnum? = null
     var elementer: MutableList<IJustering> = mutableListOf()
 
     constructor()
 
-    constructor(ji: JusteringsInformasjon) : this() {
-        totalJusteringsfaktor = ji.totalJusteringsfaktor
-        if (ji.justeringsTypeCti != null) {
-            justeringsTypeCti = JusteringsTypeCti(ji.justeringsTypeCti)
-        }
-        if (ji.justeringsTypeEnum != null) {
-            justeringsTypeEnum = ji.justeringsTypeEnum
-        }
-        for (ij in ji.elementer) {
-            val clazz = ij.javaClass
+    constructor(source: JusteringsInformasjon) : this() {
+        totalJusteringsfaktor = source.totalJusteringsfaktor
+            justeringsTypeEnum = source.justeringsTypeEnum
+
+        for (element in source.elementer) {
+            val clazz = element.javaClass
             try {
                 val constructor = clazz.getConstructor(clazz)
-                elementer.add(constructor.newInstance(ij) as IJustering)
+                elementer.add(constructor.newInstance(element) as IJustering)
             } catch (e: InvocationTargetException) {
                 //Vil kastes hvis copy constructor f.eks. ledet til nullpointerexception.
                 val cause = e.cause
@@ -38,19 +33,6 @@ class JusteringsInformasjon : Serializable {
                 //Vil kastes hvis f.eks. copy constructor ikke finnes for komponenten.
                 throw RuntimeException(e)
             }
-
         }
-    }
-
-    constructor(
-        totalJusteringsfaktor: Double = 0.0,
-        justeringsTypeCti: JusteringsTypeCti? = null,
-        justeringsTypeEnum: JusteringsTypeEnum? = null,
-        elementer: MutableList<IJustering> = mutableListOf()
-    ) {
-        this.totalJusteringsfaktor = totalJusteringsfaktor
-        this.justeringsTypeCti = justeringsTypeCti
-        this.justeringsTypeEnum = justeringsTypeEnum
-        this.elementer = elementer
     }
 }

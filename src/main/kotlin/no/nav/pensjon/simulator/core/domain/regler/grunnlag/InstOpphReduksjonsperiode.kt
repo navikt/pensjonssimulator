@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.JustertPeriodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.JustertPeriodeCti
 import java.util.*
 
 /**
@@ -32,7 +31,6 @@ class InstOpphReduksjonsperiode {
     /**
      * Angir om institusjonsoppholdsperioden medfører en økning eller reduksjon av pensjonsytelsen.
      */
-    var justertPeriodeType: JustertPeriodeCti? = null
     var justertPeriodeTypeEnum: JustertPeriodeEnum? = null
 
     /**
@@ -47,7 +45,6 @@ class InstOpphReduksjonsperiode {
         fom = source.fom?.clone() as? Date
         tom = source.tom?.clone() as? Date
         reduksjonGrunnetVarighet = source.reduksjonGrunnetVarighet
-        justertPeriodeType =source.justertPeriodeType?.let(::JustertPeriodeCti)
         justertPeriodeTypeEnum =source.justertPeriodeTypeEnum
         forsorgeransvar = source.forsorgeransvar
     }
@@ -58,8 +55,8 @@ class InstOpphReduksjonsperiode {
         var retValue =
             ("InstOpphReduksjonsperiode ( " + super.toString() + TAB + "instOpphReduksjonsperiodeId = " + instOpphReduksjonsperiodeId + TAB + "fom = " + fom + TAB + "tom = "
                     + tom + TAB + "reduksjonGrunnetVarighet = " + reduksjonGrunnetVarighet + TAB)
-        if (justertPeriodeType != null) {
-            retValue += "justertPeriodeType = " + justertPeriodeType!!.kode + TAB
+        if (justertPeriodeTypeEnum != null) {
+            retValue += "justertPeriodeType = " + justertPeriodeTypeEnum + TAB
         }
         retValue += " )"
 

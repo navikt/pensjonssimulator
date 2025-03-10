@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Unntak
-import no.nav.pensjon.simulator.core.domain.reglerextend.vedtak.copy
 
+// 2025-03-10
 class ForutgaendeMedlemskap : AbstraktVilkar() {
     /**
      * Minst tre års forutgående medlemskap i Norge med uføretidspunkt FOM 01.01.1994
@@ -43,7 +43,4 @@ class ForutgaendeMedlemskap : AbstraktVilkar() {
      * §12-2 Unntak halv minsteytelse i trygdeavtaleberegningen
      */
     var unntakHalvminsteytelseUtland: Boolean = false
-
-    override fun dypKopi(source: AbstraktVilkar): AbstraktVilkar? =
-        (source as? ForutgaendeMedlemskap)?.copy()
 }

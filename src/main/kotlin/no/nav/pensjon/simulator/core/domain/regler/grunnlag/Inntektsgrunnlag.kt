@@ -3,8 +3,6 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.util.*
 
@@ -40,7 +38,6 @@ class Inntektsgrunnlag {
      * PENSKD Pensjonsinntekt (ikke folketrygd)
      * KAP Kapitalinntekt
      */
-    var inntektType: InntektTypeCti? = null
     var inntektTypeEnum: InntekttypeEnum? = null
 
     /**
@@ -69,7 +66,6 @@ class Inntektsgrunnlag {
     /**
      * Kilden til inntektsgrunnlaget.
      */
-    var grunnlagKilde: GrunnlagKildeCti? = null
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
 
     @JsonIgnore
@@ -83,12 +79,10 @@ class Inntektsgrunnlag {
     constructor(source: Inntektsgrunnlag) {
         inntektsgrunnlagId = source.inntektsgrunnlagId
         belop = source.belop
-        inntektType = source.inntektType
         inntektTypeEnum = source.inntektTypeEnum
         fom = source.fom?.clone() as? Date
         tom = source.tom?.clone() as? Date
         bruk = source.bruk
-        grunnlagKilde = source.grunnlagKilde
         grunnlagKildeEnum = source.grunnlagKildeEnum
     }
 }

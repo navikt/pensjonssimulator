@@ -3,9 +3,6 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sertillegg
 import no.nav.pensjon.simulator.core.domain.regler.enum.Fravik_19_3_Enum
 import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtilleggEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.Fravik_19_3Cti
-import no.nav.pensjon.simulator.core.domain.regler.kode.PoengtilleggCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.UforeTypeCti
 
 /**
  * Generell historisk info for en bruker
@@ -22,7 +19,6 @@ class GenerellHistorikk {
      * Koder som sier hvilken trygdetid som skal brukes i beregning når Første virk er før 1991.
      * Brukes i utenlandssaker der pensjonisten kan få godskrevet trygdetid opptjent i utlandet før 1967.
      */
-    var fravik_19_3: Fravik_19_3Cti? = null
     var fravik_19_3Enum: Fravik_19_3_Enum? = null
 
     /**
@@ -35,7 +31,6 @@ class GenerellHistorikk {
      */
     var ventetilleggsgrunnlag: Ventetilleggsgrunnlag? = null
 
-    var poengtillegg: PoengtilleggCti? = null
     var poengtilleggEnum: PoengtilleggEnum? = null
 
     /**
@@ -63,11 +58,9 @@ class GenerellHistorikk {
 
     constructor(source: GenerellHistorikk) : this() {
         generellHistorikkId = source.generellHistorikkId
-        fravik_19_3 = source.fravik_19_3?.let(::Fravik_19_3Cti)
         fravik_19_3Enum = source.fravik_19_3Enum
         fpp_eos = source.fpp_eos
         ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.let(::Ventetilleggsgrunnlag)
-        poengtillegg = source.poengtillegg?.let(::PoengtilleggCti)
         poengtilleggEnum = source.poengtilleggEnum
         eosEkstra = source.eosEkstra?.let(::EosEkstra)
         garantiTrygdetid = source.garantiTrygdetid?.let(::GarantiTrygdetid)

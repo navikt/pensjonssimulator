@@ -22,13 +22,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GenerellHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Ventetilleggsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.FppGarantiKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.Fravik_19_3Cti
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.PoengtilleggCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.ProRataBeregningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.UforeTypeCti
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.person.Pid
@@ -48,13 +41,11 @@ object PenVirkningsdatoResultMapper {
             virkFom = source.virkFom?.toNorwegianDateAtNoon()
             virkTom = source.virkTom?.toNorwegianDateAtNoon()
             afpPensjonsgrad = source.afpPensjonsgrad
-            afpOrdning = source.afpOrdning?.let(::AfpOrdningTypeCti)
             afpOrdningEnum = source.afpOrdning?.let(AFPtypeEnum::valueOf)
         }
 
     private fun eoesEkstra(source: PenEosEkstra) =
         EosEkstra().apply {
-            proRataBeregningType = source.proRataBeregningType?.let(::ProRataBeregningTypeCti)
             proRataBeregningTypeEnum = source.proRataBeregningType?.let(ProRataBeregningTypeEnum::valueOf)
             redusertAntFppAr = source.redusertAntFppAr
             spt_eos = source.spt_eos
@@ -69,7 +60,6 @@ object PenVirkningsdatoResultMapper {
             kravFremsattDato = source.kravFremsattDato?.toNorwegianDateAtNoon()
             bruker = source.bruker?.let(::penPerson)
             annenPerson = source.annenPerson?.let(::penPerson)
-            kravlinjeType = source.kravlinjeType?.let(::KravlinjeTypeCti)
             kravlinjeTypeEnum = source.kravlinjeType?.let(KravlinjeTypeEnum::valueOf)
         }
 
@@ -83,11 +73,9 @@ object PenVirkningsdatoResultMapper {
     private fun generellHistorikk(source: PenGenerellHistorikk) =
         GenerellHistorikk().apply {
             generellHistorikkId = source.generellHistorikkId
-            fravik_19_3 = source.fravik_19_3?.let(::Fravik_19_3Cti)
             fravik_19_3Enum = source.fravik_19_3?.let(Fravik_19_3_Enum::valueOf)
             fpp_eos = source.fpp_eos
             ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.let(::ventetilleggGrunnlag)
-            poengtillegg = source.poengtillegg?.let(::PoengtilleggCti)
             poengtilleggEnum = source.poengtillegg?.let(PoengtilleggEnum::valueOf)
             eosEkstra = source.eosEkstra?.let(::eoesEkstra)
             garantiTrygdetid = source.garantiTrygdetid?.let(::garantiTrygdetid)
@@ -183,11 +171,8 @@ object PenVirkningsdatoResultMapper {
             antattInntektFaktorKap19 = source.antattInntektFaktorKap19
             antattInntektFaktorKap20 = source.antattInntektFaktorKap20
             fppGaranti = source.fppGaranti
-            uforeType = source.uforeType?.let(::UforeTypeCti)
             uforeTypeEnum = source.uforeType?.let(UforetypeEnum::valueOf)
-            fppGarantiKode = source.fppGarantiKode?.let(::FppGarantiKodeCti)
             fppGarantiKodeEnum = source.fppGarantiKode?.let(FppGarantiKodeEnum::valueOf)
-            proRataBeregningType = source.proRataBeregningType?.let(::ProRataBeregningTypeCti)
             proRataBeregningTypeEnum = source.proRataBeregningType?.let(ProRataBeregningTypeEnum::valueOf)
         }
 

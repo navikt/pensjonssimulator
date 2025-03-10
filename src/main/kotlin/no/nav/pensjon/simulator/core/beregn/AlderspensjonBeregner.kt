@@ -247,6 +247,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         private fun alderspensjonKravlinje(gjelderPerson: PenPerson) =
             Kravlinje().apply {
                 kravlinjeTypeEnum = KravlinjeTypeEnum.AP
+                hovedKravlinje = KravlinjeTypeEnum.AP.erHovedkravlinje
                 relatertPerson = gjelderPerson
                 // NB apparently not used (no kravlinjeStatus field): setKravlinjeStatus(KravlinjeStatus.FERDIG)
             }

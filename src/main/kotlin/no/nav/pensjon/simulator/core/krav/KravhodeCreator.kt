@@ -756,7 +756,11 @@ class KravhodeCreator(
             }
 
         private fun norskKravlinje(kravlinjeType: KravlinjeTypeEnum, person: PenPerson) =
-            Kravlinje(kravlinjeTypeEnum = kravlinjeType, relatertPerson = person).apply {
+            Kravlinje().apply {
+                kravlinjeTypeEnum = kravlinjeType
+                hovedKravlinje = kravlinjeType.erHovedkravlinje
+                relatertPerson = person
+                hovedKravlinje = kravlinjeType.erHovedkravlinje
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 land = LandkodeEnum.NOR
             }

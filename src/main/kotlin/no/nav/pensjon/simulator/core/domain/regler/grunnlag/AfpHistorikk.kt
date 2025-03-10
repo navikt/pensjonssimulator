@@ -1,8 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
-import java.util.*
+import java.util.Date
 
 // Checked 2025-02-28
 class AfpHistorikk {
@@ -13,7 +12,6 @@ class AfpHistorikk {
     var virkFom: Date? = null
     var virkTom: Date? = null
     var afpPensjonsgrad = 0
-    var afpOrdning: AfpOrdningTypeCti? = null
     var afpOrdningEnum: AFPtypeEnum? = null
 /*
     constructor()

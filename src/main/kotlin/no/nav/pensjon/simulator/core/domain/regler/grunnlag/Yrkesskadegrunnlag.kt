@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YrkeYrkesskadeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.YrkeYrkesskadeCti
 import java.util.*
 
 /**
@@ -33,7 +32,6 @@ class Yrkesskadegrunnlag {
      * yrkesgrupper, f.eks fiskere,fangstmenn, militære,ungdom under utdanning
      * osv.
      */
-    var yrke: YrkeYrkesskadeCti? = null
     var yrkeEnum: YrkeYrkesskadeEnum? = null
 
     /**
@@ -57,7 +55,7 @@ class Yrkesskadegrunnlag {
         yst = source.yst?.clone() as? Date
         yug = source.yug
         yrkessykdom = source.yrkessykdom
-        yrke = source.yrke?.let(::YrkeYrkesskadeCti)
+        yrkeEnum = source.yrkeEnum
         brukerForsorgetAvAnnen = source.brukerForsorgetAvAnnen
         antattArligInntekt = source.antattArligInntekt
         bruk = source.bruk

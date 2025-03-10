@@ -1,10 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
 
+// 2025-03-10
 class GarantitilleggInformasjon {
-    var anvendtSivilstand: BorMedTypeCti? = null
     var anvendtSivilstandEnum: BorMedTypeEnum? = null
     var pensjonsbeholdningBelopVed67 = 0.0
     var garantipensjonsbeholdningBelopVed67 = 0.0

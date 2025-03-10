@@ -8,9 +8,9 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInfor
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.BeholdningsTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
+// 2025-03-10
 @JsonSubTypes(
     JsonSubTypes.Type(value = Garantitilleggsbeholdning::class),
     JsonSubTypes.Type(value = AfpOpptjening::class),
@@ -24,9 +24,7 @@ abstract class Beholdning protected constructor() {
     var opptjening: Opptjening? = null
     var lonnsvekstInformasjon: LonnsvekstInformasjon? = null
     var reguleringsInformasjon: ReguleringsInformasjon? = null
-    var formelkode: FormelKodeCti? = null
     var formelKodeEnum: FormelKodeEnum? = null
-    abstract var beholdningsType: BeholdningsTypeCti
     abstract var beholdningsTypeEnum: BeholdningtypeEnum
     var merknadListe: MutableList<Merknad> = mutableListOf() // SIMDOM-EDIT: List -> MutableList
 
@@ -35,11 +33,9 @@ abstract class Beholdning protected constructor() {
         totalbelop = source.totalbelop
         reguleringsInformasjon = source.reguleringsInformasjon?.let(::ReguleringsInformasjon)
         opptjening = source.opptjening?.let(::Opptjening)
-        beholdningsType = BeholdningsTypeCti(source.beholdningsType)
         beholdningsTypeEnum = source.beholdningsTypeEnum
-        formelkode = source.formelkode?.let(::FormelKodeCti)
         formelKodeEnum = source.formelKodeEnum
-        source.merknadListe.forEach { merknadListe.add(Merknad(it)) }
+        merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
         lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
     }
 }

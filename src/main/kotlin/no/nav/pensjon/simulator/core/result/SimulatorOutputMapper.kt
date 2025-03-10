@@ -1,13 +1,15 @@
 package no.nav.pensjon.simulator.core.result
 
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.DagpengetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -197,12 +199,12 @@ object SimulatorOutputMapper {
             omsorg = containsValidOmsorgsgrunnlagForAr(soekerGrunnlag.omsorgsgrunnlagListe, kalenderAar),
             dagpenger = dagpengegrunnlagAvTypeEksistererForAar(
                 dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe,
-                type = DagpengeType.DP,
+                type = DagpengetypeEnum.DP,
                 kalenderAar = kalenderAar
             ),
             dagpengerFiskere = dagpengegrunnlagAvTypeEksistererForAar(
                 dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe,
-                type = DagpengeType.DP_FF,
+                type = DagpengetypeEnum.DP_FF,
                 kalenderAar = kalenderAar
             ),
             foerstegangstjeneste = soekerGrunnlag.forstegangstjenestegrunnlag?.let {
@@ -306,13 +308,13 @@ object SimulatorOutputMapper {
 
     private fun dagpengegrunnlagAvTypeEksistererForAar(
         dagpengegrunnlagListe: List<Dagpengegrunnlag>,
-        type: DagpengeType,
+        type: DagpengetypeEnum,
         kalenderAar: Int
     ) =
         sortedDagpengegrunnlagSubset(subsetOfTypes(dagpengegrunnlagListe, type), kalenderAar).isNotEmpty()
 
     private fun filterUforeperioder(perioder: MutableList<Uforeperiode>): MutableList<Uforeperiode> =
-        perioder.filter { it.uforeType?.kode != UfoereType.VIRK_IKKE_UFOR.name }.toMutableList()
+        perioder.filter { it.uforeTypeEnum != UforetypeEnum.VIRK_IKKE_UFOR }.toMutableList()
 
     private fun isIntersectingWithYear(element: AfpHistorikk?, year: Int): Boolean {
         if (element == null) return false
@@ -322,12 +324,12 @@ object SimulatorOutputMapper {
     }
 
     // Specific variant of TypedInformationListeUtils.subsetOfTypes
-    private fun subsetOfTypes(list: List<Dagpengegrunnlag>, type: DagpengeType): List<Dagpengegrunnlag> =
-        list.filter { it.dagpengeType?.kode == type.name }
+    private fun subsetOfTypes(list: List<Dagpengegrunnlag>, type: DagpengetypeEnum): List<Dagpengegrunnlag> =
+        list.filter { it.dagpengetypeEnum == type }
 
     // Specific variant of TypedInformationListeUtils.subsetOfTypes
     private fun extractPensjonsbeholdninger(list: List<Beholdning>): List<Pensjonsbeholdning> =
-        list.filter { it.beholdningsType?.kode == BeholdningType.PEN_B.name }.map { it as Pensjonsbeholdning }
+        list.filter { it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B }.map { it as Pensjonsbeholdning }
 
     // Specific variant of TypedInformationListeUtils.subsetOfTypes
     private fun extractPensjonsgivendeInntekter(list: List<Opptjeningsgrunnlag>): List<Opptjeningsgrunnlag> =
@@ -414,7 +416,7 @@ object SimulatorOutputMapper {
     // Specific variant of ArligInformasjonListeUtils.findElementOfType
     // Duplicate in RegdomOpprettOutputHelper
     private fun firstPensjonsbeholdning(list: List<Beholdning>): Pensjonsbeholdning? =
-        list.firstOrNull { BeholdningType.PEN_B.name == it.beholdningsType?.kode } as? Pensjonsbeholdning
+        list.firstOrNull { BeholdningtypeEnum.PEN_B == it.beholdningsTypeEnum } as? Pensjonsbeholdning
 
     // Specific variant of ArligInformasjonListeUtils.findElementOfType
     private fun firstYtelseOfType(list: List<Ytelseskomponent>, type: YtelseskomponentTypeEnum): Ytelseskomponent? =

@@ -4,9 +4,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ProRataBeregningTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
-import no.nav.pensjon.simulator.core.domain.regler.kode.FppGarantiKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.ProRataBeregningTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.UforeTypeCti
 import java.util.*
 
 // Checked 2025-02-28
@@ -24,8 +21,6 @@ class BeregningUforeperiode {
     /**
      * Angir om uføregraden er ren uføre,inneholder delvis yrke eller bare yrke.
      */
-    var uforeType: UforeTypeCti? = null
-
     var uforeTypeEnum: UforetypeEnum? = null
 
     /**
@@ -41,8 +36,6 @@ class BeregningUforeperiode {
      * `D = Ung ufør med rett til 3.3 poeng fra mai 1992`<br></br>
      * `E = unge uføre før 1967`
      */
-    var fppGarantiKode: FppGarantiKodeCti? = null
-
     var fppGarantiKodeEnum: FppGarantiKodeEnum? = null
 
     /**
@@ -58,8 +51,6 @@ class BeregningUforeperiode {
     /**
      * Angir hva utfallet av pro-rata beregningen var. Hvis satt er EØS eneste alternativ eller bedre enn alternativet (Folketrygd).
      */
-    var proRataBeregningType: ProRataBeregningTypeCti? = null
-
     var proRataBeregningTypeEnum: ProRataBeregningTypeEnum? = null
 
     /**
@@ -206,7 +197,6 @@ class BeregningUforeperiode {
         fpp = source.fpp
         fpp_omregnet = source.fpp_omregnet
         fppGaranti = source.fppGaranti
-        fppGarantiKode = source.fppGarantiKode?.let(::FppGarantiKodeCti)
         fppGarantiKodeEnum = source.fppGarantiKodeEnum
         opt = source.opt
         opt_pa_e91 = source.opt_pa_e91
@@ -214,7 +204,6 @@ class BeregningUforeperiode {
         paa = source.paa
         proRata_nevner = source.proRata_nevner
         proRata_teller = source.proRata_teller
-        proRataBeregningType = source.proRataBeregningType?.let(::ProRataBeregningTypeCti)
         proRataBeregningTypeEnum = source.proRataBeregningTypeEnum
         redusertAntFppAr = source.redusertAntFppAr
         redusertAntFppAr_proRata = source.redusertAntFppAr_proRata
@@ -225,38 +214,34 @@ class BeregningUforeperiode {
         spt_pa_f92_eos = source.spt_pa_f92_eos
         spt_proRata = source.spt_proRata
         ufg = source.ufg
-        ufgFom = source.ufgFom?.clone() as Date?
-        ufgTom = source.ufgTom?.clone() as Date?
-        uforeType = source.uforeType?.let(::UforeTypeCti)
+        ufgFom = source.ufgFom?.clone() as? Date
+        ufgTom = source.ufgTom?.clone() as? Date
         uforeTypeEnum = source.uforeTypeEnum
-        uft = source.uft?.clone() as Date?
-        uftTom = source.uftTom?.clone() as Date?
-        virk = source.virk?.clone() as Date?
+        uft = source.uft?.clone() as? Date
+        uftTom = source.uftTom?.clone() as? Date
+        virk = source.virk?.clone() as? Date
         ypt = source.ypt
         ypt_pa_e91 = source.ypt_pa_e91
         ypt_pa_f92 = source.ypt_pa_f92
         beregningsgrunnlag = source.beregningsgrunnlag
-        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as Date?
+        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as? Date
         antattInntektFaktorKap19 = source.antattInntektFaktorKap19
         antattInntektFaktorKap20 = source.antattInntektFaktorKap20
     }
 
     constructor(source: Uforeperiode) : super() {
         ufg = source.ufg
-        uft = source.uft?.clone() as Date?
-        uforeType = source.uforeType?.let(::UforeTypeCti)
+        uft = source.uft?.clone() as? Date
         uforeTypeEnum = source.uforeTypeEnum
         fppGaranti = source.fppGaranti
-        fppGarantiKode = source.fppGarantiKode?.let(::FppGarantiKodeCti)
         fppGarantiKodeEnum = source.fppGarantiKodeEnum
         redusertAntFppAr = source.redusertAntFppAr
         redusertAntFppAr_proRata = source.redusertAntFppAr_proRata
-        proRataBeregningType = source.proRataBeregningType?.let(::ProRataBeregningTypeCti)
         proRataBeregningTypeEnum = source.proRataBeregningTypeEnum
-        virk = source.virk?.clone() as Date?
-        uftTom = source.uftTom?.clone() as Date?
-        ufgFom = source.ufgFom?.clone() as Date?
-        ufgTom = source.ufgTom?.clone() as Date?
+        virk = source.virk?.clone() as? Date
+        uftTom = source.uftTom?.clone() as? Date
+        ufgFom = source.ufgFom?.clone() as? Date
+        ufgTom = source.ufgTom?.clone() as? Date
         fodselsArYngsteBarn = source.fodselsArYngsteBarn
         spt = source.spt
         spt_proRata = source.spt_proRata
@@ -277,7 +262,7 @@ class BeregningUforeperiode {
         spt_pa_e91_eos = source.spt_pa_e91_eos
         spt_pa_f92_eos = source.spt_pa_f92_eos
         beregningsgrunnlag = source.beregningsgrunnlag
-        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as Date?
+        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as? Date
         antattInntektFaktorKap19 = source.antattInntektFaktorKap19
         antattInntektFaktorKap20 = source.antattInntektFaktorKap20
     }

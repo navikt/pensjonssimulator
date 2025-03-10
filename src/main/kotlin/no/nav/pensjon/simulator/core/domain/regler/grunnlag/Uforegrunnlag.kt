@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YrkeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.YrkeCti
 import java.util.*
 
 // Checked 2025-02-28
@@ -78,7 +77,6 @@ class Uforegrunnlag {
      * Denne koden brukes til statstikk og for å beregne lovlig inntekt § 12-12
      * for kombinert yrkesaktiv/husmor, kode = 11,12,13 og 18.
      */
-    var yrke: YrkeCti? = null
     var yrkeEnum: YrkeEnum? = null
 
     /**
@@ -116,7 +114,6 @@ class Uforegrunnlag {
         ungUfor = source.ungUfor
         arligInntektMinst1g = source.arligInntektMinst1g
         unntakVentetid12_12 = source.unntakVentetid12_12
-        yrke = source.yrke?.let(::YrkeCti)
         yrkeEnum = source.yrkeEnum
         garantertTPUngUfor = source.garantertTPUngUfor
         altUftUngUfor = source.altUftUngUfor?.clone() as? Date
@@ -126,7 +123,6 @@ class Uforegrunnlag {
 
     override fun toString(): String {
         val TAB = "    "
-
         val retValue = StringBuilder()
 
         retValue.append("Uforegrunnlag ( ").append(super.toString()).append(TAB).append("ufg = ").append(ufg)
@@ -138,11 +134,10 @@ class Uforegrunnlag {
             .append(forhoyelseUtenNyttUft).append(TAB).append("ungUfor = ").append(ungUfor).append(TAB)
             .append("arligInntektMinst1g = ").append(arligInntektMinst1g)
             .append(TAB).append("unntakVentetid12_12 = ").append(unntakVentetid12_12).append(TAB).append("yrke = ")
-            .append(yrke).append(TAB).append("garantertTPUngUfor = ")
+            .append(yrkeEnum).append(TAB).append("garantertTPUngUfor = ")
             .append(garantertTPUngUfor).append(TAB).append("altUftUngUfor = ").append(altUftUngUfor).append(TAB)
             .append("uforhetSkyldesYrkesskade = ")
             .append(uforhetSkyldesYrkesskade).append(TAB).append("bruk = ").append(bruk).append(TAB)
-
             .append(" )")
 
         return retValue.toString()

@@ -1,10 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend
 
 import no.nav.pensjon.simulator.core.domain.regler.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtalelandCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.RegelverkTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.TrygdetidGarantiTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.UtfallTypeCti
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import java.util.*
 
@@ -19,7 +15,6 @@ fun Merknad.copy() =
 fun Trygdetid.copy() =
     Trygdetid().also {
         it.trygdetidId = this.trygdetidId
-        it.regelverkType = this.regelverkType?.let(::RegelverkTypeCti)
         it.regelverkTypeEnum = this.regelverkTypeEnum
         it.tt = this.tt
         it.ftt = this.ftt
@@ -37,14 +32,12 @@ fun Trygdetid.copy() =
         it.ttUtlandKonvensjon = this.ttUtlandKonvensjon?.let(::TTUtlandKonvensjon)
         it.ttUtlandTrygdeavtaler = this.ttUtlandTrygdeavtaler.map { it.copy() }
         it.merknadListe = this.merknadListe.map { it.copy() }
-        it.garantiType = this.garantiType?.let(::TrygdetidGarantiTypeCti)
         it.garantiTypeEnum = this.garantiTypeEnum
         it.prorataNevnerVKAP = this.prorataNevnerVKAP
         it.prorataTellerVKAP = this.prorataTellerVKAP
         it.tt_fa = this.tt_fa?.copy()
         it.virkFom = this.virkFom?.clone() as? Date
         it.virkTom = this.virkTom?.clone() as? Date
-        it.anvendtFlyktning = this.anvendtFlyktning?.let(::UtfallTypeCti)
         it.anvendtFlyktningEnum = this.anvendtFlyktningEnum
     }
 
@@ -73,7 +66,6 @@ fun TTUtlandTrygdeavtale.copy() =
         it.tt_anv_mnd = this.tt_anv_mnd
         it.pro_rata_teller = this.pro_rata_teller
         it.pro_rata_nevner = this.pro_rata_nevner
-        it.avtaleland = this.avtaleland?.let(::AvtalelandCti)
         it.avtalelandEnum = this.avtalelandEnum
         it.tt_fa = this.tt_fa
         it.merknadListe = this.merknadListe.map { it.copy() }

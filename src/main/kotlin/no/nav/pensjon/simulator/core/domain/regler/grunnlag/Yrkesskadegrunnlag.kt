@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.YrkeYrkesskadeCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.YrkeYrkesskadeEnum
 import java.util.*
 
 /**
@@ -10,75 +9,55 @@ import java.util.*
  * objektet er null og Uforegrunnlaget != null betyr det at personen ikke har
  * yrkesskade.
  */
-class Yrkesskadegrunnlag(
-
+// Checked 2025-02-28
+class Yrkesskadegrunnlag {
     /**
      * Dato for skadetidspunkt.
      */
-    var yst: Date? = null,
+    var yst: Date? = null
 
     /**
      * Uføregrad ved yrkesskade, heltall 0-100.Kan ikke være større enn
      * uføregraden(ufg).For avdød pga yrkesskade settes yug til 100.
      */
-    var yug: Int = 0,
+    var yug = 0
 
     /**
      * Angir om yrkesskaden skyldes yrkessykdom.
      */
-    var yrkessykdom: Boolean = false,
+    var yrkessykdom = false
 
     /**
      * Det er en minimumsgaranti mht poengtall for som gjelder for spesielle
      * yrkesgrupper, f.eks fiskere,fangstmenn, militære,ungdom under utdanning
      * osv.
      */
-    var yrke: YrkeYrkesskadeCti? = null,
+    var yrkeEnum: YrkeYrkesskadeEnum? = null
 
     /**
      * Bruker forsørget av avdød iht paragraf 17-12.2
      */
-    var brukerForsorgetAvAvdod: Boolean = false,
+    var brukerForsorgetAvAnnen = false
 
     /**
      * Antatt årlig inntekt på skadetidspunktet.
      */
-    var antattArligInntekt: Int = 0,
+    var antattArligInntekt = 0
 
     /**
      * Angir om yrkesskadegrunnlaget brukes som grunnlag på kravet.
      */
-    var bruk: Boolean = false
-) : Serializable {
+    var bruk: Boolean = true
 
-    constructor(yrkesskadegrunnlag: Yrkesskadegrunnlag) : this() {
-        if (yrkesskadegrunnlag.yst != null) {
-            this.yst = yrkesskadegrunnlag.yst!!.clone() as Date
-        }
-        this.yug = yrkesskadegrunnlag.yug
-        this.yrkessykdom = yrkesskadegrunnlag.yrkessykdom
-        if (yrkesskadegrunnlag.yrke != null) {
-            this.yrke = YrkeYrkesskadeCti(yrkesskadegrunnlag.yrke)
-        }
-        this.brukerForsorgetAvAvdod = yrkesskadegrunnlag.brukerForsorgetAvAvdod
-        this.antattArligInntekt = yrkesskadegrunnlag.antattArligInntekt
-        this.bruk = yrkesskadegrunnlag.bruk
-    }
+    constructor()
 
-    constructor(
-        yst: Date,
-        yug: Int,
-        yrkessykdom: Boolean,
-        yrke: YrkeYrkesskadeCti,
-        brukerForsorgetAvAvdod: Boolean,
-        antattArligInntekt: Int
-    ) : this() {
-        this.yst = yst
-        this.yug = yug
-        this.yrkessykdom = yrkessykdom
-        this.yrke = yrke
-        this.brukerForsorgetAvAvdod = brukerForsorgetAvAvdod
-        this.antattArligInntekt = antattArligInntekt
-        this.bruk = true
+    constructor(source: Yrkesskadegrunnlag) : this() {
+        yst = source.yst?.clone() as? Date
+        yug = source.yug
+        yrkessykdom = source.yrkessykdom
+        yrkeEnum = source.yrkeEnum
+        brukerForsorgetAvAnnen = source.brukerForsorgetAvAnnen
+        antattArligInntekt = source.antattArligInntekt
+        bruk = source.bruk
     }
 }

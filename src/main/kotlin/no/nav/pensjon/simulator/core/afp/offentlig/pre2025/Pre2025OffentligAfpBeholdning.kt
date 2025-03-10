@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
@@ -51,7 +51,7 @@ class Pre2025OffentligAfpBeholdning(val context: SimulatorContext) {
                     for (persongrunnlagBeholdning in persongrunnlag.beholdninger) {
                         val isSameDay = isSameDay(persongrunnlagBeholdning.fom, (it as Pensjonsbeholdning).fom)
 
-                        if (isSameDay && persongrunnlagBeholdning.beholdningsType == it.beholdningsType) {
+                        if (isSameDay && persongrunnlagBeholdning.beholdningsTypeEnum == it.beholdningsTypeEnum) {
                             match = true
                         }
                     }
@@ -67,6 +67,6 @@ class Pre2025OffentligAfpBeholdning(val context: SimulatorContext) {
         }
 
         private fun isPensjonsbeholdning(beholdning: Beholdning) =
-            BeholdningType.PEN_B.name == beholdning.beholdningsType?.kode
+            BeholdningtypeEnum.PEN_B == beholdning.beholdningsTypeEnum
     }
 }

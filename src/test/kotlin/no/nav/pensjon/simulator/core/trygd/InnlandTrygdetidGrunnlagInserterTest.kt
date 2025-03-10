@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core.trygd
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.trygd.DateUtil.atNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
@@ -15,19 +15,19 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
             InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
                 trygdetidGrunnlagListe = listOf(
                     TrygdetidOpphold(
-                        periode = TTPeriode(
-                            land = LandCti("FRA"),
-                            fom = atNoon(2024, 9, 4),
+                        periode = TTPeriode().apply {
+                            landEnum = LandkodeEnum.FRA
+                            fom = atNoon(2024, 9, 4)
                             tom = null // endless
-                        ),
+                        },
                         arbeidet = false
                     ),
                     TrygdetidOpphold(
-                        periode = TTPeriode(
-                            land = LandCti("FRA"),
-                            fom = atNoon(2024, 6, 4), // before item above => unsorted
+                        periode = TTPeriode().apply {
+                            landEnum = LandkodeEnum.FRA
+                            fom = atNoon(2024, 6, 4) // before item above => unsorted
                             tom = null // endless
-                        ),
+                        },
                         arbeidet = true
                     )
                 ),
@@ -36,19 +36,19 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
 
         grunnlagListe.size shouldBe 3
         with(grunnlagListe[0]) {
-            periode.land?.kode shouldBe "NOR"
+            periode.landEnum shouldBe LandkodeEnum.NOR
             periode.fom shouldBe atNoon(1963, 2, 15)
             periode.tom shouldBe atNoon(2024, 6, 3)
             arbeidet shouldBe true
         }
         with(grunnlagListe[1]) {
-            periode.land?.kode shouldBe "FRA"
+            periode.landEnum shouldBe LandkodeEnum.FRA
             periode.fom shouldBe atNoon(2024, 6, 4)
             periode.tom shouldBe null
             arbeidet shouldBe true
         }
         with(grunnlagListe[2]) {
-            periode.land?.kode shouldBe "FRA"
+            periode.landEnum shouldBe LandkodeEnum.FRA
             periode.fom shouldBe atNoon(2024, 9, 4)
             periode.tom shouldBe null
             arbeidet shouldBe false
@@ -60,20 +60,20 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
             InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
                 trygdetidGrunnlagListe = listOf(
                     TrygdetidOpphold(
-                        periode = TTPeriode(
-                            land = LandCti("FRA"),
-                            fom = atNoon(2024, 6, 4),
+                        periode = TTPeriode().apply {
+                            landEnum = LandkodeEnum.FRA
+                            fom = atNoon(2024, 6, 4)
                             tom = atNoon(2024, 6, 30)
-                        ),
+                        },
                         arbeidet = true
                     ),
                     // missing periode 2024-07-01 to 2024-09-03
                     TrygdetidOpphold(
-                        periode = TTPeriode(
-                            land = LandCti("FRA"),
-                            fom = atNoon(2024, 9, 4),
+                        periode = TTPeriode().apply {
+                            landEnum = LandkodeEnum.FRA
+                            fom = atNoon(2024, 9, 4)
                             tom = null
-                        ),
+                        },
                         arbeidet = false
                     )
                 ),
@@ -82,25 +82,25 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
 
         grunnlagListe.size shouldBe 4
         with(grunnlagListe[0]) {
-            periode.land?.kode shouldBe "NOR"
+            periode.landEnum shouldBe LandkodeEnum.NOR
             periode.fom shouldBe atNoon(1963, 2, 15)
             periode.tom shouldBe atNoon(2024, 6, 3)
             arbeidet shouldBe true
         }
         with(grunnlagListe[1]) {
-            periode.land?.kode shouldBe "FRA"
+            periode.landEnum shouldBe LandkodeEnum.FRA
             periode.fom shouldBe atNoon(2024, 6, 4)
             periode.tom shouldBe atNoon(2024, 6, 30)
             arbeidet shouldBe true
         }
         with(grunnlagListe[2]) {
-            periode.land?.kode shouldBe "NOR"
+            periode.landEnum shouldBe LandkodeEnum.NOR
             periode.fom shouldBe atNoon(2024, 7, 1)
             periode.tom shouldBe atNoon(2024, 9, 3)
             arbeidet shouldBe true
         }
         with(grunnlagListe[3]) {
-            periode.land?.kode shouldBe "FRA"
+            periode.landEnum shouldBe LandkodeEnum.FRA
             periode.fom shouldBe atNoon(2024, 9, 4)
             periode.tom shouldBe null
             arbeidet shouldBe false

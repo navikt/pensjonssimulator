@@ -1,17 +1,14 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.EosEkstra
-import no.nav.pensjon.simulator.core.domain.regler.kode.FppGarantiKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektKode1Cti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektKode2Cti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.InntektKode1Enum
+import no.nav.pensjon.simulator.core.domain.regler.enum.InntektKode2Enum
 
 /**
  * Denne klassen inneholder spesielle data fra en beregning av uførepensjon.
  */
-class UforeEkstra : Serializable {
-
+// 2025-03-10
+class UforeEkstra {
     /**
      * Beskriver hvordan inntektstaket (tak) er beregnet. Se K_INNTEKT1_T
      * LONN_TILSK
@@ -26,7 +23,7 @@ class UforeEkstra : Serializable {
      * UFGRAD_50_REAK
      * YRKODE_18_HJEMMV
      */
-    var inntektkode1: InntektKode1Cti? = InntektKode1Cti("INT_NIV_UF")
+    var inntektkode1Enum: InntektKode1Enum = InntektKode1Enum.INT_NIV_UF
 
     /**
      * Beskriver om inntektstaket (tak) inneholder et fribeløp eller ikke.
@@ -38,44 +35,44 @@ class UforeEkstra : Serializable {
      * INT_U_FRI_GML_REGL
      * INT_M_FRI_GML_REGL
      */
-    var inntektkode2: InntektKode2Cti? = InntektKode2Cti("INT_IKKE_BER")
+    var inntektkode2Enum: InntektKode2Enum = InntektKode2Enum.INT_IKKE_BER
 
     /**
-     * Inntektstak ved uførepensjon.Angir den høyeste pensjonsgivende inntekt uførepensjonisten
+     * Inntektstak ved uførepensjon.Angir den Høyeste pensjonsgivende inntekt uførepensjonisten
      * kan ha uten at uføregraden skal revurderes.
      */
-    var tak: Int = 0
+    var tak = 0
 
     /**
      * Inntektsgrense før friinntektsdato ved uførepensjon.
-     * Angir den høyeste pensjonsgivende inntekt uførepensjonisten kan ha før friinntektsdato uten at uføregraden skal revurderes.
+     * Angir den Høyeste pensjonsgivende inntekt uførepensjonisten kan ha før friinntektsdato uten at uføregraden skal revurderes.
      */
-    var inntektsgrenseForFriinntektsdato: Int = 0
+    var inntektsgrenseForFriinntektsdato = 0
 
     /**
      * Fremtidig pensjonspoengtall.
      */
-    var fpp: Double = 0.0
+    var fpp = 0.0
 
     /**
      * Framtidige pensjonspoengtall garanti, f.eks ung ufør har i dag en garanti på 3.3. i FPP.
      */
-    var fppGaranti: Double = 0.0
+    var fppGaranti = 0.0
 
     /**
      * Kode for fpp_garanti.<br></br>
-     * `UNG_UF_VEN_R_T_33_PP = UNG UFØR SOM VENTER PÅ RETT TIL 3.3 PENSJONSPOENG`<br></br>
-     * `UNG_UF_MR_33_PO = UNG UFØR MED RETT TIL 3.3 PENSJONSPOENG`<br></br>
+     * `UNG_UF_VEN_R_T_33_PP = UNG Ufør SOM VENTER på RETT TIL 3.3 PENSJONSPOENG`<br></br>
+     * `UNG_UF_MR_33_PO = UNG Ufør MED RETT TIL 3.3 PENSJONSPOENG`<br></br>
      * `UNG_UF_VEN = ung ufør som venter, og som ble ufør 20 år gammel`<br></br>
      * `UNG_UF_MR_33_FR_92 = Ung ufør med rett til 3.3 poeng fra 0592`<br></br>
      * `UNG_UF_FOR_67 = unge uføre før 1967`
      */
-    var fppGarantiKode: FppGarantiKodeCti? = null
+    var fppGarantiKodeEnum: FppGarantiKodeEnum? = null
 
     /**
      * Antall godskrevet framtidig poengtall, ikke full framtidig godskriving.
      */
-    var redusertAntFppAr: Int = 0
+    var redusertAntFppAr = 0
 
     /**
      * Uforeperioden som skal benyttes i historikken hvis/når Uføregrunnlaget blir historisk.
@@ -87,91 +84,29 @@ class UforeEkstra : Serializable {
      */
     var uforeperiodeYSK: BeregningUforeperiode? = null
 
-    /**
-     * Informasjon ang EØS beregning. Objektet sparer på data for bruk ved konvertering til AP.
-     * På UforeEkstra benyttes feltet kun som transport til toppnoden.
-     */
-    @JsonIgnore
-    var eosEkstra: EosEkstra? = null
+    constructor()
 
-    /**
-     * Angir om bruker fyller vilkårende for å kunne få ung ufør garanti.
-     * Brukes i BeregningsInformasjon.
-     * Settes av "Ung Ufør Ruleset Template".OpprettUforeEkstra.
-     */
-    @JsonIgnore
-    var vurdertUngUfor: Boolean = false
-
-    constructor(uforeEkstra: UforeEkstra) {
-        if (uforeEkstra.inntektkode1 != null) {
-            inntektkode1 = InntektKode1Cti(uforeEkstra.inntektkode1)
-        }
-        if (uforeEkstra.inntektkode2 != null) {
-            inntektkode2 = InntektKode2Cti(uforeEkstra.inntektkode2)
-        }
-        tak = uforeEkstra.tak
-        inntektsgrenseForFriinntektsdato = uforeEkstra.inntektsgrenseForFriinntektsdato
-        fpp = uforeEkstra.fpp
-        fppGaranti = uforeEkstra.fppGaranti
-        if (uforeEkstra.fppGarantiKode != null) {
-            fppGarantiKode = FppGarantiKodeCti(uforeEkstra.fppGarantiKode)
-        }
-        redusertAntFppAr = uforeEkstra.redusertAntFppAr
-        if (uforeEkstra.uforeperiode != null) {
-            uforeperiode = BeregningUforeperiode(uforeEkstra.uforeperiode!!)
-        }
-        if (uforeEkstra.uforeperiodeYSK != null) {
-            uforeperiodeYSK = BeregningUforeperiode(uforeEkstra.uforeperiodeYSK!!)
-        }
-        if (uforeEkstra.eosEkstra != null) {
-            eosEkstra = EosEkstra(uforeEkstra.eosEkstra!!)
-        }
-        vurdertUngUfor = uforeEkstra.vurdertUngUfor
+    constructor(source: UforeEkstra) {
+        inntektkode1Enum = source.inntektkode1Enum
+        inntektkode2Enum = source.inntektkode2Enum
+        tak = source.tak
+        inntektsgrenseForFriinntektsdato = source.inntektsgrenseForFriinntektsdato
+        fpp = source.fpp
+        fppGaranti = source.fppGaranti
+        fppGarantiKodeEnum = source.fppGarantiKodeEnum
+        redusertAntFppAr = source.redusertAntFppAr
+        uforeperiode = BeregningUforeperiode(source.uforeperiode!!)
+        uforeperiodeYSK = BeregningUforeperiode(source.uforeperiodeYSK!!)
     }
 
-    @JvmOverloads
-    constructor(
-            inntektkode1: InntektKode1Cti? = null,
-            inntektkode2: InntektKode2Cti? = null,
-            tak: Int = 0,
-            inntektsgrenseForFriinntektsdato: Int = 0,
-            fpp: Double = 0.0,
-            fppGaranti: Double = 0.0,
-            fppGarantiKode: FppGarantiKodeCti? = null,
-            redusertAntFppAr: Int = 0,
-            uforeperiode: BeregningUforeperiode? = null,
-            uforeperiodeYSK: BeregningUforeperiode? = null,
-            eosEkstra: EosEkstra? = null,
-            vurdertUngUfor: Boolean = false
-    ) : super() {
-        this.inntektkode1 = inntektkode1
-        this.inntektkode2 = inntektkode2
-        this.tak = tak
-        this.inntektsgrenseForFriinntektsdato = inntektsgrenseForFriinntektsdato
-        this.fpp = fpp
-        this.fppGaranti = fppGaranti
-        this.fppGarantiKode = fppGarantiKode
-        this.redusertAntFppAr = redusertAntFppAr
-        this.uforeperiode = uforeperiode
-        this.uforeperiodeYSK = uforeperiodeYSK
-        this.eosEkstra = eosEkstra
-        this.vurdertUngUfor = vurdertUngUfor
-    }
-
-    /**
-     * Constructs a `String` with all attributes
-     * in name = value format.
-     *
-     * @return a `String` representation
-     * of this object.
-     */
     override fun toString(): String {
         val TAB = "    "
 
         val retValue = StringBuilder()
 
-        retValue.append("UforeEkstra ( ").append(super.toString()).append(TAB).append("inntektkode1 = ").append(inntektkode1).append(TAB).append("inntektkode2 = ")
-                .append(inntektkode2).append(TAB).append("tak = ").append(tak).append(TAB).append(" )")
+        retValue.append("UforeEkstra ( ").append(super.toString()).append(TAB).append("inntektkode1 = ")
+            .append(inntektkode1Enum).append(TAB).append("inntektkode2 = ")
+            .append(inntektkode2Enum).append(TAB).append("tak = ").append(tak).append(TAB).append(" )")
 
         return retValue.toString()
     }

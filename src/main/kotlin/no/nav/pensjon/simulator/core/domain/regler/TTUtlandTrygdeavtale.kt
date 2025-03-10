@@ -1,69 +1,62 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtalelandCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AntallArMndDag
 
 /**
  * Trygdetid for land med bilaterale avtaler.
  */
-class TTUtlandTrygdeavtale(
+class TTUtlandTrygdeavtale {
     /**
      * Framtidig trygdetid i avtaleland i antall måneder.
      */
-    var ftt: Int = 0,
+    var ftt = 0
 
     /**
      * Om framtidig trygdetid er redusert etter 4/5-dels regel.
      */
-    var ftt_redusert: Boolean = false,
+    var ftt_redusert = false
 
     /**
      * Faktisk trygdetid i avtaleland i antall måneder.
      */
-    var tt_fa_mnd: Int = 0,
+    var tt_fa_mnd = 0
 
     /**
      * Anvendt trygdetid i avtaleland i antall år.
      */
-    var tt_anv_ar: Int = 0,
+    var tt_anv_ar = 0
 
     /**
      * Anvendt trygdetid i avtaleland i antall måneder.
      */
-    var tt_anv_mnd: Int = 0,
+    var tt_anv_mnd = 0
 
     /**
      * Teller i pro-rata brøk.
      */
-    var pro_rata_teller: Int = 0,
+    var pro_rata_teller = 0
 
     /**
      * Nevner i pro-rata brøk.
      */
-    var pro_rata_nevner: Int = 0,
+    var pro_rata_nevner = 0
 
     /**
      * Avtaleland som trygdetid er opptjent i.
      */
-    var avtaleland: AvtalelandCti? = null,
+    var avtalelandEnum: AvtaleLandEnum? = null
 
-    var merknadListe: MutableList<Merknad> = mutableListOf()
-) : Serializable {
+    /**
+     * PL-7390: Støtte trygdeavtaler ifbm halvminsteytelse uføretrygd
+     * Felt som blir brukt for å holde orden på nøyaktig antall år, måneder og dager trygdetid
+     * for å unngå avrundingsfeil på grunn av dobbel avrunding.
+     * Benyttes i sammenheng med halv minstepensjon/minsteytelse.
+     */
+    var tt_fa: AntallArMndDag = AntallArMndDag()
 
-    constructor(tTUtlandTrygdeavtale: TTUtlandTrygdeavtale) : this() {
-        this.ftt = tTUtlandTrygdeavtale.ftt
-        this.ftt_redusert = tTUtlandTrygdeavtale.ftt_redusert
-        this.tt_fa_mnd = tTUtlandTrygdeavtale.tt_fa_mnd
-        this.tt_anv_ar = tTUtlandTrygdeavtale.tt_anv_ar
-        this.tt_anv_mnd = tTUtlandTrygdeavtale.tt_anv_mnd
-        this.pro_rata_teller = tTUtlandTrygdeavtale.pro_rata_teller
-        this.pro_rata_nevner = tTUtlandTrygdeavtale.pro_rata_nevner
-        if (tTUtlandTrygdeavtale.avtaleland != null) {
-            this.avtaleland = AvtalelandCti(tTUtlandTrygdeavtale.avtaleland)
-        }
-        this.merknadListe = mutableListOf()
-        for (merknad in tTUtlandTrygdeavtale.merknadListe) {
-            this.merknadListe.add(Merknad(merknad))
-        }
-    }
+    /**
+     * Liste av merknader.
+     */
+    var merknadListe: List<Merknad> = mutableListOf()
 }

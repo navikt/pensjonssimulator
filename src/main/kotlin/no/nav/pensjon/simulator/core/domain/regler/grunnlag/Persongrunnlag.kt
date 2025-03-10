@@ -8,6 +8,8 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
@@ -396,13 +398,13 @@ class Persongrunnlag() {
             source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(TTPeriode(it)) }
         }
 
-        source.trygdetid?.let { trygdetid = Trygdetid(it) }
+        trygdetid = source.trygdetid?.copy()
         source.uforegrunnlag?.let { uforegrunnlag = Uforegrunnlag(it) }
         source.uforeHistorikk?.let { uforeHistorikk = Uforehistorikk(it) }
         source.yrkesskadegrunnlag?.let { yrkesskadegrunnlag = Yrkesskadegrunnlag(it) }
         dodAvYrkesskade = source.dodAvYrkesskade
         source.generellHistorikk?.let { generellHistorikk = GenerellHistorikk(it) }
-        source.afpHistorikkListe.forEach { afpHistorikkListe.add(AfpHistorikk(it)) }
+        afpHistorikkListe = source.afpHistorikkListe.map { it.copy() }.toMutableList()
         source.barnekull?.let { barnekull = Barnekull(it) }
         antallArUtland = source.antallArUtland
         medlemIFolketrygdenSiste3Ar = source.medlemIFolketrygdenSiste3Ar
@@ -451,9 +453,7 @@ class Persongrunnlag() {
             }
         }
 
-        if (source.trygdetidKapittel20 != null) {
-            this.trygdetidKapittel20 = Trygdetid(source.trygdetidKapittel20!!)
-        }
+        trygdetidKapittel20 = source.trygdetidKapittel20?.copy()
 
         if (source.pensjonsbeholdning != null) {
             this.pensjonsbeholdning = Pensjonsbeholdning(source.pensjonsbeholdning!!)
@@ -491,9 +491,7 @@ class Persongrunnlag() {
             this.utbetalingsgradUTListe.add(UtbetalingsgradUT(utbetalingsgradUT))
         }
 
-        if (source.trygdetidAlternativ != null) {
-            this.trygdetidAlternativ = Trygdetid(source.trygdetidAlternativ!!)
-        }
+        trygdetidAlternativ = source.trygdetidAlternativ?.copy()
 
         this.sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
         this.barnetilleggVurderingsperiode = source.barnetilleggVurderingsperiode
@@ -513,7 +511,7 @@ class Persongrunnlag() {
         }
 
         source.beholdninger.forEach { beholdninger.add(Pensjonsbeholdning(it)) }
-        source.trygdetider.forEach { trygdetider.add(Trygdetid(it)) }
+        trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
         source.uforegrunnlagList.forEach { uforegrunnlagList.add(Uforegrunnlag(it)) }
         source.yrkesskadegrunnlagList.forEach { yrkesskadegrunnlagList.add(Yrkesskadegrunnlag(it)) }
         rawFodselsdato = source.rawFodselsdato?.clone() as? Date

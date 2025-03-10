@@ -1,27 +1,22 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import java.io.Serializable
+class Merknad {
+    /**
+     * Identifiserer merknaden. Navnekonvensjonen er:
+     * Regelsettnavn.regelnavn.index, der ".index" er en opsjon.
+     */
+    var kode: String? = null
 
-class Merknad(var kode: String = "", var argumentListe: MutableList<String> = mutableListOf()) : Serializable {
+    /**
+     * Beskrivende
+     */
+    var argumentListe: List<String> = mutableListOf()
 
-    constructor(merknad: Merknad) : this() {
-        this.kode = merknad.kode
-        this.argumentListe = ArrayList(merknad.argumentListe)
-    }
-
-    init {
-        this.kode = kode.replace("__", ".")
-    }
-
-    fun addArgument(arg: String?) {
-        if (arg != null) {
-            argumentListe.add(arg)
-        }
+    constructor()
+    constructor(merknad: Merknad) {
+        kode = merknad.kode
+        argumentListe = ArrayList(merknad.argumentListe)
     }
 
     fun asString(): String = "$kode:${argumentListe.joinToString(separator = ",")}"
-
-    @JsonIgnore
-    val tekst = asString()
 }

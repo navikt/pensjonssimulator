@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
 @JsonSubTypes(
     JsonSubTypes.Type(value = BarnetilleggFellesbarnUT::class),
@@ -58,7 +59,7 @@ abstract class AbstraktBarnetilleggUT : AbstraktBarnetillegg, UforetrygdYtelsesk
     constructor()
 
     constructor(source: AbstraktBarnetilleggUT) : super(source) {
-        avkortingsinformasjon = source.avkortingsinformasjon?.let(::AvkortingsinformasjonBT)
+        avkortingsinformasjon = source.avkortingsinformasjon?.copy()
         avkortningsbelopPerAr = source.avkortningsbelopPerAr
         inntektstak = source.inntektstak
         nettoAkk = source.nettoAkk

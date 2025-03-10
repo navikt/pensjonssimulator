@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
+// 2025-03-10
 // pensjon-regler-api: no/nav/pensjon/regler/domain/beregning2011/AfpLivsvarig.kt
 @JsonSubTypes(
     JsonSubTypes.Type(value = FremskrevetAfpLivsvarig::class)
@@ -16,12 +17,16 @@ open class AfpLivsvarig : Ytelseskomponent {
     var afpProsentgrad = 0.0
     var afpForholdstall = 0.0
 
-    //override var ytelsekomponentType: YtelsekomponentTypeCti = YtelsekomponentTypeCti("AFP_LIVSVARIG") // SIMDOM-EDIT
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.AFP_LIVSVARIG
 
     constructor() {
-        //formelKode = FormelKodeCti("AFPx") // SIMDOM-EDIT
         formelKodeEnum = FormelKodeEnum.AFPx
+    }
+
+    constructor(source: AfpLivsvarig) : super(source) {
+        afpForholdstall = source.afpForholdstall
+        afpProsentgrad = source.afpProsentgrad
+        justeringsbelop = source.justeringsbelop
     }
 
     // SIMDOM-ADD:
@@ -33,10 +38,4 @@ open class AfpLivsvarig : Ytelseskomponent {
         this.bruttoPerAr = bruttoPerAr
     }
     // end SIMDOM-ADD
-
-    constructor(source: AfpLivsvarig) : super(source) {
-        afpForholdstall = source.afpForholdstall
-        afpProsentgrad = source.afpProsentgrad
-        justeringsbelop = source.justeringsbelop
-    }
 }

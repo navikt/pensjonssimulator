@@ -1,48 +1,48 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import java.util.*
 
-class Utenlandsopphold(
+// Checked 2025-02-28
+class Utenlandsopphold {
     /**
      * Fra og med dato
      */
-    var fom: Date? = null,
+    var fom: Date? = null
+
     /**
      * Til og med dato
      */
-    var tom: Date? = null,
+    var tom: Date? = null
+
     /**
      * Landet hvor oppholdet har funnet sted
      */
-    var land: LandCti? = null,
+    var landEnum: LandkodeEnum? = null
+
     /**
      * Hvilken pensjonsordning som skal brukes
      */
-    var pensjonsordning: String? = null,
+    var pensjonsordning: String? = null
+
     /**
      * Har personen bodd i utlandet
      */
-    var bodd: Boolean = false,
+    var bodd = false
+
     /**
      * Har personen arbeidet i utlandet
      */
-    var arbeidet: Boolean = false
-) : Serializable {
+    var arbeidet = false
 
-    constructor(utenlandsopphold: Utenlandsopphold) : this() {
-        if (utenlandsopphold.fom != null) {
-            this.fom = utenlandsopphold.fom!!.clone() as Date
-        }
-        if (utenlandsopphold.tom != null) {
-            this.tom = utenlandsopphold.tom!!.clone() as Date
-        }
-        if (utenlandsopphold.land != null) {
-            this.land = LandCti(utenlandsopphold.land)
-        }
-        this.pensjonsordning = utenlandsopphold.pensjonsordning
-        this.bodd = utenlandsopphold.bodd
-        this.arbeidet = utenlandsopphold.arbeidet
+    constructor()
+
+    constructor(source: Utenlandsopphold) : this() {
+        fom = source.fom?.clone() as? Date
+        tom = source.tom?.clone() as? Date
+        landEnum = source.landEnum
+        pensjonsordning = source.pensjonsordning
+        bodd = source.bodd
+        arbeidet = source.arbeidet
     }
 }

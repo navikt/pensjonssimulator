@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Eksportrett
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarOppfyltUTCti
 
-class RettTilEksportEtterTrygdeavtaler : AbstraktVilkar {
+// 2025-03-10
+class RettTilEksportEtterTrygdeavtaler : AbstraktVilkar() {
     /**
      * Eksportrett etter EØS forordning
      */
@@ -18,7 +18,7 @@ class RettTilEksportEtterTrygdeavtaler : AbstraktVilkar {
      * Eksportrett etter andre trygdeavtaler.
      */
     var eksportrettEtterAndreTrygdeavtaler: Eksportrett? = null
-
+/*
     constructor() : super()
 
     constructor(rettTilEksportEtterTrygdeavtaler: RettTilEksportEtterTrygdeavtaler?) : super(
@@ -37,34 +37,5 @@ class RettTilEksportEtterTrygdeavtaler : AbstraktVilkar {
                 Eksportrett(rettTilEksportEtterTrygdeavtaler.eksportrettEtterAndreTrygdeavtaler!!)
         }
     }
-
-    constructor(
-        eksportrettEtterEOSForordning: Eksportrett?,
-        eksportrettEtterTrygdeavtalerEOS: Eksportrett?,
-        eksportrettEtterAndreTrygdeavtaler: Eksportrett?
-    ) {
-        this.eksportrettEtterEOSForordning = eksportrettEtterEOSForordning
-        this.eksportrettEtterTrygdeavtalerEOS = eksportrettEtterTrygdeavtalerEOS
-        this.eksportrettEtterAndreTrygdeavtaler = eksportrettEtterAndreTrygdeavtaler
-    }
-
-    constructor(
-        resultat: VilkarOppfyltUTCti? = null,
-        /** Interne felt */
-        eksportrettEtterEOSForordning: Eksportrett? = null,
-        eksportrettEtterTrygdeavtalerEOS: Eksportrett? = null,
-        eksportrettEtterAndreTrygdeavtaler: Eksportrett? = null
-    ) : super(resultat) {
-        this.eksportrettEtterEOSForordning = eksportrettEtterEOSForordning
-        this.eksportrettEtterTrygdeavtalerEOS = eksportrettEtterTrygdeavtalerEOS
-        this.eksportrettEtterAndreTrygdeavtaler = eksportrettEtterAndreTrygdeavtaler
-    }
-
-    override fun dypKopi(abstraktVilkar: AbstraktVilkar): AbstraktVilkar? {
-        var rte: RettTilEksportEtterTrygdeavtaler? = null
-        if (abstraktVilkar.javaClass == RettTilEksportEtterTrygdeavtaler::class.java) {
-            rte = RettTilEksportEtterTrygdeavtaler(abstraktVilkar as RettTilEksportEtterTrygdeavtaler?)
-        }
-        return rte
-    }
+*/
 }

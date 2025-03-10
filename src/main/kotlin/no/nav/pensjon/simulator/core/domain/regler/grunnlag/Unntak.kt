@@ -1,40 +1,30 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.EksportUnntakCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InngangUnntakCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.EksportUnntakEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.InngangUnntakEnum
 
-class Unntak(
+// Checked 2025-02-28
+class Unntak {
     /**
      * Angir om personen har unntak eller ikke.
      */
-    var unntak: Boolean = false,
+    var unntak = false
 
     /**
      * Angir type unntak.
      */
-    var unntakType: InngangUnntakCti? = null,
+    var unntakTypeEnum: InngangUnntakEnum? = null
 
     /**
      * Unntak fra eksportforbud.
      */
-    var eksportUnntak: EksportUnntakCti? = null
-) : Serializable {
+    var eksportUnntakEnum: EksportUnntakEnum? = null
 
-    constructor(unntak: Unntak) : this() {
-        this.unntak = unntak.unntak
-        if (unntak.unntakType != null) {
-            this.unntakType = unntak.unntakType
-        }
-        if (unntak.eksportUnntak != null) {
-            this.eksportUnntak = unntak.eksportUnntak
-        }
-    }
+    constructor()
 
-    constructor(unntak: Boolean, unntakType: InngangUnntakCti?) : this() {
-        this.unntak = unntak
-        if (unntakType != null) {
-            this.unntakType = unntakType
-        }
+    constructor(source: Unntak) : this() {
+        unntak = source.unntak
+        unntakTypeEnum = source.unntakTypeEnum
+        eksportUnntakEnum = source.eksportUnntakEnum
     }
 }

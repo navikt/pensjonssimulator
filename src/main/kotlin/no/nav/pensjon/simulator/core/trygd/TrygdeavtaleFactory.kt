@@ -1,12 +1,11 @@
 package no.nav.pensjon.simulator.core.trygd
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleDatoEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleKritEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtale
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtaledetaljer
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleDatoCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleKritCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.AvtaleTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdeavtaleFactory
@@ -16,10 +15,10 @@ object TrygdeavtaleFactory {
 
     fun newTrygdeavtaleForSimuleringUtland() =
         Trygdeavtale().apply {
-            avtaledato = latestAvtaleDato()?.let { AvtaleDatoCti(it.name) }
-            avtaleKriterie = AvtaleKritCti(AvtaleKrit.YRK_TRYGD.name)
-            avtaleType = AvtaleTypeCti(AvtaleType.EOS_NOR.name)
-            bostedsland = LandCti(LandkodeEnum.NOR.name)
+            avtaledatoEnum = latestAvtaleDato()?.name?.let(AvtaleDatoEnum::valueOf)
+            avtaleKriterieEnum = AvtaleKritEnum.YRK_TRYGD
+            avtaleTypeEnum = AvtaletypeEnum.EOS_NOR
+            bostedslandEnum = LandkodeEnum.NOR
             kravDatoIAvtaleland = Date()
             omfattesavAvtalensPersonkrets = true
             //TODO minst12MndMedlemskapFolketrygden = true

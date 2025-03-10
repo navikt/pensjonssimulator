@@ -1,40 +1,29 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.util.DateCompareUtil
-import no.nav.pensjon.simulator.core.domain.regler.kode.AfpOrdningTypeCti
-import java.io.Serializable
-import java.util.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
+import java.util.Date
 
-class AfpHistorikk(
+// Checked 2025-02-28
+class AfpHistorikk {
     /**
      * Fremtidig pensjonspoeng
      */
-    var afpFpp: Double = 0.0,
+    var afpFpp = 0.0
+    var virkFom: Date? = null
+    var virkTom: Date? = null
+    var afpPensjonsgrad = 0
+    var afpOrdningEnum: AFPtypeEnum? = null
+/*
+    constructor()
 
-    var virkFom: Date? = null,
-
-    var virkTom: Date? = null,
-
-    var afpPensjonsgrad: Int = 0,
-
-    var afpOrdning: AfpOrdningTypeCti? = null
-) : Comparable<AfpHistorikk>, Serializable {
-
-    constructor(afpHistorikk: AfpHistorikk) : this() {
-        this.afpFpp = afpHistorikk.afpFpp
-        if (afpHistorikk.virkFom != null) {
-            this.virkFom = afpHistorikk.virkFom!!.clone() as Date
-        }
-        if (afpHistorikk.virkTom != null) {
-            this.virkTom = afpHistorikk.virkTom!!.clone() as Date
-        }
-        this.afpPensjonsgrad = afpHistorikk.afpPensjonsgrad
-        if (afpHistorikk.afpOrdning != null) {
-            this.afpOrdning = AfpOrdningTypeCti(afpHistorikk.afpOrdning)
-        }
-    }
-
-    override fun compareTo(other: AfpHistorikk): Int {
-        return DateCompareUtil.compareTo(virkFom, other.virkFom)
-    }
+    constructor(source: AfpHistorikk) : this() {
+        afpFpp = source.afpFpp
+        virkFom = source.virkFom?.clone() as? Date
+        virkTom = source.virkTom?.clone() as? Date
+        afpPensjonsgrad = source.afpPensjonsgrad
+        source.afpOrdning?.let { afpOrdning = AfpOrdningTypeCti(it) }
+        afpOrdning = source.afpOrdning?.let(::AfpOrdningTypeCti)
+            ?: source.afpOrdningEnum?.let { AfpOrdningTypeCti(it.name) }
+        afpOrdningEnum = source.afpOrdningEnum ?: source.afpOrdning?.let { AFPtypeEnum.valueOf(it.kode) }
+    }*/
 }

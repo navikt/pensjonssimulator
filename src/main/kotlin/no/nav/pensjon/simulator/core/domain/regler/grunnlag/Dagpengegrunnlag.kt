@@ -1,26 +1,24 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.DagpengeTypeCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.DagpengetypeEnum
 
-class Dagpengegrunnlag(
+// Checked 2025-02-28
+class Dagpengegrunnlag {
+    var ar = 0
+    var dagpengetypeEnum: DagpengetypeEnum? = null
+    var uavkortetDagpengegrunnlag = 0
+    var utbetalteDagpenger = 0
+    var ferietillegg = 0
+    var barnetillegg = 0
 
-    var ar: Int = 0,
-    var dagpengeType: DagpengeTypeCti? = null,
-    var uavkortetDagpengegrunnlag: Int = 0,
-    var utbetalteDagpenger: Int = 0,
-    var ferietillegg: Int = 0,
-    var barnetillegg: Int = 0
-) : Serializable {
+    constructor()
 
-    constructor(d: Dagpengegrunnlag) : this() {
-        this.ar = d.ar
-        if (d.dagpengeType != null) {
-            this.dagpengeType = DagpengeTypeCti(d.dagpengeType)
-        }
-        this.uavkortetDagpengegrunnlag = d.uavkortetDagpengegrunnlag
-        this.utbetalteDagpenger = d.utbetalteDagpenger
-        this.ferietillegg = d.ferietillegg
-        this.barnetillegg = d.barnetillegg
+    constructor(source: Dagpengegrunnlag) : this() {
+        ar = source.ar
+        dagpengetypeEnum = source.dagpengetypeEnum
+        uavkortetDagpengegrunnlag = source.uavkortetDagpengegrunnlag
+        utbetalteDagpenger = source.utbetalteDagpenger
+        ferietillegg = source.ferietillegg
+        barnetillegg = source.barnetillegg
     }
 }

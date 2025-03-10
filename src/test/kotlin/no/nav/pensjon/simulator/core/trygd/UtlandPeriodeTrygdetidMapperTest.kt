@@ -30,12 +30,12 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
         with(result[0].periode) {
             fom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.JANUARY, 1)
             tom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.JANUARY, 31) // overlap removed
-            land shouldBe LandkodeEnum.DNK
+            landEnum shouldBe LandkodeEnum.DNK
         }
         with(result[1].periode) {
             fom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.FEBRUARY, 1)
             tom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.MARCH, 31)
-            land shouldBe LandkodeEnum.SWE
+            landEnum shouldBe LandkodeEnum.SWE
         }
     }
 
@@ -61,12 +61,12 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
         with(result[0].periode) {
             fom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.JANUARY, 1)
             tom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.JANUARY, 31)
-            land shouldBe LandkodeEnum.DNK
+            landEnum shouldBe LandkodeEnum.DNK
         }
         with(result[1].periode) {
             fom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.FEBRUARY, 1)
             tom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.MARCH, 31)
-            land shouldBe LandkodeEnum.SWE
+            landEnum shouldBe LandkodeEnum.SWE
         }
     }
 
@@ -86,7 +86,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
         with(result[0].periode) {
             fom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.JANUARY, 1)
             tom shouldBe TestDateUtil.dateAtNoon(2024, Calendar.FEBRUARY, 1)
-            land shouldBe LandkodeEnum.DNK
+            landEnum shouldBe LandkodeEnum.DNK
         }
     }
 

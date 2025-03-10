@@ -1,78 +1,39 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.MinstepenNivaCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.MinstePensjonsnivaSatsEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
-class MinstePensjonsniva : Serializable {
-    var belop: Double = 0.0
-    var sats: Double = 0.0
-    var benyttetYug: Int? = null
-    var pro_rata_teller_mnd: Int = 0
-    var pro_rata_nevner_mnd: Int = 0
-    var pro_rata_brok: Double = 0.0
-    var formelKode: FormelKodeCti? = null
+// 2025-03-10
+class MinstePensjonsniva {
+    var belop = 0.0
+    var sats = 0.0
+    var benyttetYug = 0
+    var pro_rata_teller_mnd = 0
+    var pro_rata_nevner_mnd = 0
+    var pro_rata_brok = 0.0
+    var formelKodeEnum: FormelKodeEnum = FormelKodeEnum.MPNx
 
     /**
      * Minstepensjonsnivå. Kan være lav, ordinær og forhøyet. Benytter tabellen
      */
-    var satsType: MinstepenNivaCti? = null
+    var satsTypeEnum: MinstePensjonsnivaSatsEnum? = null
     var merknadListe: MutableList<Merknad> = mutableListOf()
-    var faktisk_tt_avtaleland_mnd: Int = 0
+    var faktisk_tt_avtaleland_mnd = 0
 
-    @JsonIgnore
-    var belopIkkeProratisert: Double = 0.0
+    constructor()
 
-    constructor() : super() {
-        formelKode = FormelKodeCti("MPNx")
-    }
-
-    constructor(mpn: MinstePensjonsniva) : super() {
-        belop = mpn.belop
-        sats = mpn.sats
-        benyttetYug = mpn.benyttetYug
-        pro_rata_teller_mnd = mpn.pro_rata_teller_mnd
-        pro_rata_nevner_mnd = mpn.pro_rata_nevner_mnd
-        pro_rata_brok = mpn.pro_rata_brok
-        if (mpn.satsType != null) {
-            satsType = MinstepenNivaCti(mpn.satsType)
-        }
-        if (mpn.formelKode != null) {
-            formelKode = FormelKodeCti(mpn.formelKode!!)
-        }
-        for (merknad in mpn.merknadListe) {
-            merknadListe.add(Merknad(merknad))
-        }
-        belopIkkeProratisert = mpn.belopIkkeProratisert
-        faktisk_tt_avtaleland_mnd = mpn.faktisk_tt_avtaleland_mnd
-    }
-
-    constructor(
-        belop: Double = 0.0,
-        sats: Double = 0.0,
-        benyttetYug: Int = 0,
-        pro_rata_teller_mnd: Int = 0,
-        pro_rata_nevner_mnd: Int = 0,
-        pro_rata_brok: Double = 0.0,
-        formelKode: FormelKodeCti? = null,
-        satsType: MinstepenNivaCti? = null,
-        merknadListe: MutableList<Merknad> = mutableListOf(),
-        faktisk_tt_avtaleland_mnd: Int = 0,
-        belopIkkeProratisert: Double = 0.0
-    ) {
-        this.belop = belop
-        this.sats = sats
-        this.benyttetYug = benyttetYug
-        this.pro_rata_teller_mnd = pro_rata_teller_mnd
-        this.pro_rata_nevner_mnd = pro_rata_nevner_mnd
-        this.pro_rata_brok = pro_rata_brok
-        this.formelKode = formelKode
-        this.satsType = satsType
-        this.merknadListe = merknadListe
-        this.faktisk_tt_avtaleland_mnd = faktisk_tt_avtaleland_mnd
-        this.belopIkkeProratisert = belopIkkeProratisert
+    constructor(source: MinstePensjonsniva) : super() {
+        belop = source.belop
+        sats = source.sats
+        benyttetYug = source.benyttetYug
+        pro_rata_teller_mnd = source.pro_rata_teller_mnd
+        pro_rata_nevner_mnd = source.pro_rata_nevner_mnd
+        pro_rata_brok = source.pro_rata_brok
+        satsTypeEnum = source.satsTypeEnum
+        formelKodeEnum = source.formelKodeEnum
+        merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
+        faktisk_tt_avtaleland_mnd = source.faktisk_tt_avtaleland_mnd
     }
 }

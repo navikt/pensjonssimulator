@@ -193,9 +193,9 @@ object SimulatorContextUtil {
         target.pi = source.pi
         target.pia = source.pia
         target.ar = source.ar
-        target.opptjeningType = source.opptjeningType
+        target.opptjeningTypeEnum = source.opptjeningTypeEnum
         target.bruk = source.bruk
-        target.grunnlagKilde = source.grunnlagKilde
+        target.grunnlagKildeEnum = source.grunnlagKildeEnum
     }
 
     /**

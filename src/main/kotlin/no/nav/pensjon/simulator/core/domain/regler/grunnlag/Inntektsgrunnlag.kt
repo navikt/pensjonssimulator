@@ -3,13 +3,12 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
-import java.io.Serializable
 import java.util.*
 
-class Inntektsgrunnlag : Serializable {
+// Checked 2025-02-28
+class Inntektsgrunnlag {
+
     /**
      * Unik identifikator for Inntektsgrunnlag. Endres ikke av regelmotoren,
      * men Inntektsgrunnlag med null id kan opprettes av batchtjenestene,
@@ -39,20 +38,13 @@ class Inntektsgrunnlag : Serializable {
      * PENSKD Pensjonsinntekt (ikke folketrygd)
      * KAP Kapitalinntekt
      */
-    var inntektType: InntektTypeCti? = null
     var inntektTypeEnum: InntekttypeEnum? = null
-
-    @JsonIgnore
-    var rawFom: Date? = null // SIMDOM-ADD
-
-    @JsonIgnore
-    var rawTom: Date? = null // SIMDOM-ADD
 
     /**
      * fra-og-med dato for gyldigheten av inntektsgrunnlaget.
      */
     var fom: Date? = null
-        set(value) {
+        set(value) { // SIMDOM-ADD
             rawFom = value
             field = value?.toNorwegianNoon()
         }
@@ -61,7 +53,7 @@ class Inntektsgrunnlag : Serializable {
      * til-og-med dato for gyldigheten av inntektsgrunnlaget.
      */
     var tom: Date? = null
-        set(value) {
+        set(value) { // SIMDOM-ADD
             rawTom = value
             field = value?.toNorwegianNoon()
         }
@@ -74,20 +66,23 @@ class Inntektsgrunnlag : Serializable {
     /**
      * Kilden til inntektsgrunnlaget.
      */
-    var grunnlagKilde: GrunnlagKildeCti? = null
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
+
+    @JsonIgnore
+    var rawFom: Date? = null // SIMDOM-ADD
+
+    @JsonIgnore
+    var rawTom: Date? = null // SIMDOM-ADD
 
     constructor()
 
     constructor(source: Inntektsgrunnlag) {
         inntektsgrunnlagId = source.inntektsgrunnlagId
         belop = source.belop
-        source.inntektType?.let { inntektType = InntektTypeCti(it) }
         inntektTypeEnum = source.inntektTypeEnum
         fom = source.fom?.clone() as? Date
         tom = source.tom?.clone() as? Date
         bruk = source.bruk
-        source.grunnlagKilde?.let { grunnlagKilde = GrunnlagKildeCti(it) }
         grunnlagKildeEnum = source.grunnlagKildeEnum
     }
 }

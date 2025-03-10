@@ -4,8 +4,8 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
-import no.nav.pensjon.simulator.core.domain.regler.kode.BeholdningsTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.FormelKodeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import java.util.Date
 
 /**
@@ -21,7 +21,7 @@ class PenPensjonsbeholdning {
     var opptjening: Opptjening? = null
     var lonnsvekstInformasjon: LonnsvekstInformasjon? = null
     var reguleringsInformasjon: ReguleringsInformasjon? = null
-    var formelkode: FormelKodeCti? = null
-    var beholdningsType: BeholdningsTypeCti? = null
+    var formelkodeEnum: FormelKodeEnum? = null
+    var beholdningsTypeEnum: BeholdningtypeEnum? = null
     var merknadListe: MutableList<Merknad> = mutableListOf()
 }

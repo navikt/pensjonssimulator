@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
+// 2025-03-10
 class FremskrevetAfpLivsvarig : AfpLivsvarig, Regulering {
 
     override var reguleringsfaktor = 0.0

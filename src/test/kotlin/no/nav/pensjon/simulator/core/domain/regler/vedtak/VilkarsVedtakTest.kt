@@ -14,13 +14,13 @@ import java.util.*
 class VilkarsVedtakTest : FunSpec({
 
     test("fastsettForstevirkKravlinje for innvilget vedtak-liste med kravlinjeType-match => finner tidligste virkningsdato") {
-        val vedtak = VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.ANKE }
+        val vedtak = VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.KLAGE }
 
         vedtak.fastsettForstevirkKravlinje(
             vedtakListe = mutableListOf(
-                vedtak(KravlinjeTypeEnum.ANKE, VedtakResultatEnum.INNV, 2026),
-                vedtak(KravlinjeTypeEnum.ANKE, VedtakResultatEnum.INNV, 2024), // tidligste
-                vedtak(KravlinjeTypeEnum.ANKE, VedtakResultatEnum.INNV, 2025)
+                vedtak(KravlinjeTypeEnum.KLAGE, VedtakResultatEnum.INNV, 2026),
+                vedtak(KravlinjeTypeEnum.KLAGE, VedtakResultatEnum.INNV, 2024), // tidligste
+                vedtak(KravlinjeTypeEnum.KLAGE, VedtakResultatEnum.INNV, 2025)
             ),
             virkningListe = emptyList()
         )
@@ -115,16 +115,16 @@ class VilkarsVedtakTest : FunSpec({
 
 
     test("fastsettForstevirkKravlinje finner dato fra vedtak hvis tidligere enn virkning-datoer") {
-        val vedtak = VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.ERSTATNING }
+        val vedtak = VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.AFP }
 
         vedtak.fastsettForstevirkKravlinje(
             vedtakListe = mutableListOf(
-                vedtak(KravlinjeTypeEnum.ERSTATNING, VedtakResultatEnum.INNV, 2024), // tidligere enn i virkning-liste
+                vedtak(KravlinjeTypeEnum.AFP, VedtakResultatEnum.INNV, 2024), // tidligere enn i virkning-liste
             ),
             virkningListe = listOf(
                 FoersteVirkningDato(
                     sakType = null,
-                    kravlinjeType = KravlinjeTypeEnum.ERSTATNING,
+                    kravlinjeType = KravlinjeTypeEnum.AFP,
                     virkningDato = LocalDate.of(2025, 1, 1),
                     annenPerson = null
                 )

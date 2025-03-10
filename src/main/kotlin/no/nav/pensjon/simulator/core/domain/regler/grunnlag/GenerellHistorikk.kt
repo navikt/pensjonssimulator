@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtilleggEnum
 /**
  * Generell historisk info for en bruker
  */
+// Checked 2025-02-28
 class GenerellHistorikk {
 
     /**
@@ -56,36 +57,14 @@ class GenerellHistorikk {
     constructor()
 
     constructor(source: GenerellHistorikk) : this() {
-        this.generellHistorikkId = source.generellHistorikkId
-
-        if (source.fravik_19_3Enum != null) {
-            this.fravik_19_3Enum = source.fravik_19_3Enum
-        }
-
-        this.fpp_eos = source.fpp_eos
-
-        if (source.ventetilleggsgrunnlag != null) {
-            this.ventetilleggsgrunnlag = Ventetilleggsgrunnlag(source.ventetilleggsgrunnlag!!)
-        }
-
-        if (source.poengtilleggEnum != null) {
-            this.poengtilleggEnum = source.poengtilleggEnum
-        }
-
-        if (source.eosEkstra != null) {
-            this.eosEkstra = EosEkstra(source.eosEkstra!!)
-        }
-
-        if (source.garantiTrygdetid != null) {
-            this.garantiTrygdetid = GarantiTrygdetid(source.garantiTrygdetid!!)
-        }
-
-        if (source.sertillegg1943kull != null) {
-            this.sertillegg1943kull = Sertillegg(source.sertillegg1943kull!!)
-        }
-
-        if (source.giftFor2011) {
-            this.giftFor2011 = true
-        }
+        generellHistorikkId = source.generellHistorikkId
+        fravik_19_3Enum = source.fravik_19_3Enum
+        fpp_eos = source.fpp_eos
+        ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.let(::Ventetilleggsgrunnlag)
+        poengtilleggEnum = source.poengtilleggEnum
+        eosEkstra = source.eosEkstra?.let(::EosEkstra)
+        garantiTrygdetid = source.garantiTrygdetid?.let(::GarantiTrygdetid)
+        sertillegg1943kull = source.sertillegg1943kull?.let(::Sertillegg)
+        giftFor2011 = source.giftFor2011
     }
 }

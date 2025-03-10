@@ -8,8 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BegrunnelseTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VilkarVurderingEnum
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarsvedtakResultatCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findEarliestDateByDay
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
@@ -25,44 +23,20 @@ class VilkarsVedtak : Serializable {
      * K_VILKAR_RESUL_T for gyldige typer. Kun satt hvis pensjon-regler utfører
      * vilkårsprøving.
      */
-    var anbefaltResultat: VilkarsvedtakResultatCti? = null //TODO remove
     var anbefaltResultatEnum: VedtakResultatEnum? = null
-        get() {
-            return field ?: anbefaltResultat?.let { VedtakResultatEnum.valueOf(it.kode) }
-        }
-        set(value) {
-            field = value
-            anbefaltResultat = value?.let { VilkarsvedtakResultatCti(it.name) }
-        }
 
     /**
      * Kode som angir det resultatet til vilkårsvedtaket. Settes av konsumenten
      * av tjenesten, eventuelt basert på anbefaltResultat. Se K_VILKAR_RESUL_T
      * for gyldige typer.
      */
-    var vilkarsvedtakResultat: VilkarsvedtakResultatCti? = null //TODO remove
     var vilkarsvedtakResultatEnum: VedtakResultatEnum? = null
-        get() {
-            return field ?: vilkarsvedtakResultat?.let { VedtakResultatEnum.valueOf(it.kode) }
-        }
-        set(value) {
-            field = value
-            vilkarsvedtakResultat = value?.let { VilkarsvedtakResultatCti(it.name) }
-        }
 
     /**
      * Kode som angir hvilken type kravlinje vilkårsvedtaket relaterer seg til.
      * K_KRAVLINJE_T for gyldige typer.
      */
-    var kravlinjeType: KravlinjeTypeCti? = null //TODO remove
     var kravlinjeTypeEnum: KravlinjeTypeEnum? = null
-        get() {
-            return field ?: kravlinjeType?.let { KravlinjeTypeEnum.valueOf(it.kode) }
-        }
-        set(value) {
-            field = value
-            kravlinjeType = value?.let { KravlinjeTypeCti(it.name).apply { hovedKravlinje = it.erHovedkravlinje } }
-        }
 
     /**
      * Beskriver hvilken vurdering saksbehandler har lagt til grunn for
@@ -104,11 +78,13 @@ class VilkarsVedtak : Serializable {
      * Id for personen
      */
     var penPerson: PenPerson? = null
+
     var vilkarsprovresultat: AbstraktVilkarsprovResultat? = null
     var begrunnelseEnum: BegrunnelseTypeEnum? = null
     var avslattKapittel19 = false
     var avslattGarantipensjon = false
     var vurderSkattefritakET = false
+
     var unntakHalvMinstepensjon = false
     var epsRettEgenPensjon = false
 

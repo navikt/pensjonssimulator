@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
+// Checked 2025-02-28
 class Sertillegg : Ytelseskomponent {
     /**
      * Prosentsatsen

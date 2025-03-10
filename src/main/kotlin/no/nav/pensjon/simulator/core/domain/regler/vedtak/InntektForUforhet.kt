@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
-import no.nav.pensjon.simulator.core.domain.regler.kode.MinimumIfuTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.MinimumIfuTypeEnum
 import java.util.*
 
+// 2025-03-10
 /**
  * Angir inntekt før uførhet (IFU) og hvorvidt inntekten er minimumsgrense eller ikke.
  * Inneholder ulike varianter av inntekt før uførhet som resulterer fra ulike måter å beregne denne inntekten,
@@ -13,7 +13,7 @@ class InntektForUforhet : AbstraktBeregningsvilkar {
     /**
      * Angir om bruker kvalifiserer til Minste-IFU sats som ung ufør, enslig eller gift.
      */
-    var minimumIfuType: MinimumIfuTypeCti? = null
+    var minimumIfuTypeEnum: MinimumIfuTypeEnum? = null
 
     /**
      * Den endelige inntekten før uførhet som brukes.
@@ -37,33 +37,12 @@ class InntektForUforhet : AbstraktBeregningsvilkar {
 
     constructor() : super()
 
-    constructor(inntektForUforhet: InntektForUforhet) : super(inntektForUforhet) {
-        this.inntekt = inntektForUforhet.inntekt
-        this.erMinimumsIfu = inntektForUforhet.erMinimumsIfu
-        this.angittInntekt = inntektForUforhet.angittInntekt
-        if (inntektForUforhet.minimumIfuType != null) {
-            this.minimumIfuType = MinimumIfuTypeCti(inntektForUforhet.minimumIfuType)
-        }
-        if (inntektForUforhet.ifuDato != null) {
-            this.ifuDato = inntektForUforhet.ifuDato!!.clone() as Date
-        }
-    }
-
-    constructor(
-        merknadListe: MutableList<Merknad> = mutableListOf(),
-
-        /** Interne felt */
-        minimumIfuType: MinimumIfuTypeCti? = null,
-        inntekt: Int = 0,
-        erMinimumsIfu: Boolean = false,
-        ifuDato: Date? = null,
-        angittInntekt: Int = 0
-    ) : super(merknadListe) {
-        this.minimumIfuType = minimumIfuType
-        this.inntekt = inntekt
-        this.erMinimumsIfu = erMinimumsIfu
-        this.ifuDato = ifuDato
-        this.angittInntekt = angittInntekt
+    constructor(source: InntektForUforhet) : super(source) {
+        inntekt = source.inntekt
+        erMinimumsIfu = source.erMinimumsIfu
+        angittInntekt = source.angittInntekt
+        minimumIfuTypeEnum = source.minimumIfuTypeEnum
+        ifuDato = source.ifuDato?.clone() as? Date
     }
 
     override fun dypKopi(abstraktBeregningsvilkar: AbstraktBeregningsvilkar): AbstraktBeregningsvilkar? {

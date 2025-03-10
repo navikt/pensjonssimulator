@@ -229,6 +229,7 @@ class PrivatAfpBeregner(
         private fun newKravlinje(person: PenPerson) =
             Kravlinje().apply {
                 kravlinjeTypeEnum = KravlinjeTypeEnum.AFP_PRIVAT
+                hovedKravlinje = KravlinjeTypeEnum.AFP_PRIVAT.erHovedkravlinje
                 relatertPerson = person
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 land = LandkodeEnum.NOR

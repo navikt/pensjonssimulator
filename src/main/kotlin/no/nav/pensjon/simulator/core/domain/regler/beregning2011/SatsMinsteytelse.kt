@@ -1,51 +1,29 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.MinsteytelseNivaCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.MinsteytelseNivaEnum
 
-/**
- * @author Steinar Hjellvik (Decisive) - PK-11391
- */
+// 2025-03-10
 class SatsMinsteytelse {
-    var sats: Double = 0.0
-    var satsType: MinsteytelseNivaCti? = null
-    var benyttetSivilstand: BorMedTypeCti? = null
-    var benyttetUngUfor: Boolean = false
-    var oppfyltUngUfor: Boolean = false
+    var sats = 0.0
+    var satsTypeEnum: MinsteytelseNivaEnum? = null
+    var benyttetSivilstandEnum: BorMedTypeEnum? = null
+    var benyttetUngUfor = false
+    var oppfyltUngUfor = false
 
     /**
-     * Angir om ung uføregaranti ikke er benyttet pga eksportforbud.
+     * Angir om ung Uføregaranti ikke er benyttet pga eksportforbud.
      */
-    var eksportForbudUngUfor: Boolean = false
+    var eksportForbudUngUfor = false
 
     constructor()
 
-    constructor(satsMinsteytelse: SatsMinsteytelse) {
-        sats = satsMinsteytelse.sats
-        if (satsMinsteytelse.satsType != null) {
-            satsType = MinsteytelseNivaCti(satsMinsteytelse.satsType)
-        }
-        if (satsMinsteytelse.benyttetSivilstand != null) {
-            benyttetSivilstand = BorMedTypeCti(satsMinsteytelse.benyttetSivilstand)
-        }
-        benyttetUngUfor = satsMinsteytelse.benyttetUngUfor
-        oppfyltUngUfor = satsMinsteytelse.oppfyltUngUfor
-        eksportForbudUngUfor = satsMinsteytelse.eksportForbudUngUfor
-    }
-
-    constructor(
-        sats: Double = 0.0,
-        satsType: MinsteytelseNivaCti? = null,
-        benyttetSivilstand: BorMedTypeCti? = null,
-        benyttetUngUfor: Boolean = false,
-        oppfyltUngUfor: Boolean = false,
-        eksportForbudUngUfor: Boolean = false
-    ) {
-        this.sats = sats
-        this.satsType = satsType
-        this.benyttetSivilstand = benyttetSivilstand
-        this.benyttetUngUfor = benyttetUngUfor
-        this.oppfyltUngUfor = oppfyltUngUfor
-        this.eksportForbudUngUfor = eksportForbudUngUfor
+    constructor(source: SatsMinsteytelse) {
+        sats = source.sats
+        satsTypeEnum = source.satsTypeEnum
+        benyttetSivilstandEnum = source.benyttetSivilstandEnum
+        benyttetUngUfor = source.benyttetUngUfor
+        oppfyltUngUfor = source.oppfyltUngUfor
+        eksportForbudUngUfor = source.eksportForbudUngUfor
     }
 }

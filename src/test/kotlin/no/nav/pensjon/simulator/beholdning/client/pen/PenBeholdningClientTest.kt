@@ -91,7 +91,7 @@ class PenBeholdningClientTest : FunSpec({
                 inntektGrunnlagListe.size shouldBe 0
                 dagpengerGrunnlagListe.size shouldBe 0
                 omsorgGrunnlagListe.size shouldBe 0
-                foerstegangstjeneste shouldBe null
+                forstegangstjeneste shouldBe null
             }
         }
     }

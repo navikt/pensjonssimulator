@@ -53,8 +53,8 @@ class PenGenerelleDataClient(
         val dto = PenGenerelleDataSpecMapper.toDto(spec)
         log.debug { "POST to URI: '$uri' with body '$dto'" }
 
-        return try {
-            webClient
+         try {
+             val x = webClient
                 .post()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -67,6 +67,9 @@ class PenGenerelleDataClient(
                 .block()
                 ?.let(PenGenerelleDataResultMapper::fromDto)
                 ?: nullResult()
+
+             log.info { "GenerelleData $x" }
+             return x
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {

@@ -53,7 +53,17 @@ data class SimulertPrivatAfp(
 
 data class SimulertPre2025OffentligAfp(
     val alderAar: Int,
-    val beloep: Int
+    val totalbelopAfp: Int,
+    val tidligereArbeidsinntekt: Int,
+    val grunnbelop: Int,
+    val sluttpoengtall: Double,
+    val trygdetid: Int,
+    val poeangar_f92: Int,
+    val poeangar_e91: Int,
+    val grunnpensjon: Int,
+    val tilleggspensjon: Int,
+    val afpTillegg: Int,
+    val sertillegg: Int
 )
 
 data class SimulertLivsvarigOffentligAfp(

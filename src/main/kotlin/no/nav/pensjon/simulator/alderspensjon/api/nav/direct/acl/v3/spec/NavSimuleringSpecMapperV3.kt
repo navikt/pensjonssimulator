@@ -57,8 +57,8 @@ object NavSimuleringSpecMapperV3 {
             // Inntekt angis før/etter gradert/helt uttak istedenfor via liste:
             fremtidigInntektListe = null, // NB: Must be null (not empty list)
             rettTilOffentligAfpFom = null,
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
+            afpOrdning = source.afpOrdning,
+            afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false

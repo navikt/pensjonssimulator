@@ -3,15 +3,8 @@ package no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpOpptjening
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AntallArMndDag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.BarnetilleggVilkar
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantitilleggsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Unntak
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.util.*
 
@@ -42,15 +35,27 @@ fun BarnetilleggVilkar.copy() =
         it.vurdertTil = this.vurdertTil
     }
 
+fun Beholdninger.copy() =
+    Beholdninger().also {
+        it.beholdninger = this.beholdninger.map(::copyBeholdning)
+    }
+
 fun Garantipensjonsbeholdning.copy() =
     Garantipensjonsbeholdning().also {
-        //TODO delingstall67 etc
+        it.justertGarantipensjonsniva = this.justertGarantipensjonsniva?.copy()
+        it.pensjonsbeholdning = this.pensjonsbeholdning
+        it.delingstall67 = this.delingstall67
+        it.satsTypeEnum = this.satsTypeEnum
+        it.sats = this.sats
+        it.garPN_tt_anv = this.garPN_tt_anv
+        it.garPN_justert = this.garPN_justert
+        // beholdningsTypeEnum is set in constructor
         copyBeholdning(source = this, target = it)
     }
 
 fun Garantitilleggsbeholdning.copy() =
     Garantitilleggsbeholdning().also {
-        //TODO garantitilleggInformasjon
+        it.garantitilleggInformasjon = this.garantitilleggInformasjon?.copy()
         copyBeholdning(source = this, target = it)
     }
 
@@ -68,7 +73,16 @@ fun Unntak.copy() =
         it.eksportUnntakEnum = this.eksportUnntakEnum
     }
 
-fun copyBeholdning(source: Beholdning, target: Beholdning) {
+private fun copyBeholdning(source: Beholdning): Beholdning =
+    when (source) {
+        is AfpOpptjening -> source.copy()
+        is Garantitilleggsbeholdning -> source.copy()
+        is Garantipensjonsbeholdning -> source.copy()
+        is Pensjonsbeholdning -> source.copy()
+        else -> throw RuntimeException("Unsupported Beholdning type: ${source.javaClass.name}")
+    }
+
+private fun copyBeholdning(source: Beholdning, target: Beholdning) {
     target.ar = source.ar
     target.totalbelop = source.totalbelop
     target.reguleringsInformasjon = source.reguleringsInformasjon?.let(::ReguleringsInformasjon)

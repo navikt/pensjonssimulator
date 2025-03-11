@@ -1,7 +1,5 @@
 package no.nav.pensjon.simulator.core.result
 
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.findElementOfType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.sortedSubset
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
@@ -9,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
@@ -31,6 +30,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossibly
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.PeriodeUtil
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
@@ -674,7 +674,7 @@ object SimuleringResultPreparer {
     private fun pensjonsbeholdning(beregningResultat: BeregningsResultatAlderspensjon2025?): Int =
         findElementOfType(
             list = beregningResultat?.beregningKapittel20?.beholdninger?.beholdninger.orEmpty(),
-            type = BeholdningType.PEN_B
+            type = BeholdningtypeEnum.PEN_B
         )?.totalbelop?.toInt() ?: 0
 
     private fun findPensjonsbeholdningFoerUttak(
@@ -729,12 +729,12 @@ object SimuleringResultPreparer {
         when (regelverkType) {
             RegelverkTypeEnum.N_REG_G_N_OPPTJ -> findElementOfType(
                 (beregningsresultat as? BeregningsResultatAlderspensjon2016)?.beregningsResultat2025?.beregningKapittel20?.beholdninger?.beholdninger.orEmpty(),
-                BeholdningType.PEN_B
+                BeholdningtypeEnum.PEN_B
             )
 
             RegelverkTypeEnum.N_REG_N_OPPTJ -> findElementOfType(
                 (beregningsresultat as? BeregningsResultatAlderspensjon2025)?.beregningKapittel20?.beholdninger?.beholdninger.orEmpty(),
-                BeholdningType.PEN_B
+                BeholdningtypeEnum.PEN_B
             )
 
             else -> null

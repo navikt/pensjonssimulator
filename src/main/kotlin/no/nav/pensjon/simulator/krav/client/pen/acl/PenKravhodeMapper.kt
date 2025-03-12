@@ -106,26 +106,25 @@ object PenKravhodeMapper {
 
     private fun personDetalj(source: PenPersonDetalj) =
         PersonDetalj().apply {
-            barnDetalj = source.barnDetalj?.let(::barnDetalj)
-            borMedEnum = source.borMedTypeEnum
-            bruk = source.bruk
-            grunnlagKildeEnum = source.grunnlagKildeEnum
-            epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
             grunnlagsrolleEnum = source.grunnlagsrolleEnum
-            tillegg = source.tillegg
-
-            rolleFomDato = source.rolleFomDato
-            rolleTomDato = source.rolleTomDato
-            virkFom = source.virkFom
-            virkTom = source.virkTom
             /* TODO: PEN to regler mapping:
             rolleFomDato = source.virkFom
             rolleTomDato = source.virkTom
             */
-
-            serskiltSatsUtenET = source.serskiltSatsUtenET
-            sivilstandRelatertPerson = source.sivilstandRelatertPerson?.let(::penPerson)
+            rolleFomDato = source.rolleFomDato
+            rolleTomDato = source.rolleTomDato
             sivilstandTypeEnum = source.sivilstandTypeEnum
+            sivilstandRelatertPerson = source.sivilstandRelatertPerson?.let(::penPerson)
+            borMedEnum = source.borMedEnum
+            barnDetalj = source.barnDetalj?.let(::barnDetalj)
+            tillegg = source.tillegg
+            bruk = source.bruk
+            grunnlagKildeEnum = source.grunnlagKildeEnum
+            serskiltSatsUtenET = source.serskiltSatsUtenET
+            epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
+            //--- Extra:
+            virkFom = source.virkFom
+            virkTom = source.virkTom
         }.also {
             it.finishInit()
             //TODO

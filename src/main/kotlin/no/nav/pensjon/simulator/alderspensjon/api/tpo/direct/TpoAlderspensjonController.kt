@@ -66,7 +66,7 @@ class TpoAlderspensjonController(
         @RequestBody specV4: AlderspensjonSpecV4,
         request: HttpServletRequest
     ): AlderspensjonResultV4 {
-        traceAid.begin()
+        traceAid.begin(request)
         countCall(FUNCTION_ID)
 
         return try {

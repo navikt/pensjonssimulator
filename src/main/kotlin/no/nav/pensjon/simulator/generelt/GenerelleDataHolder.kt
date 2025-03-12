@@ -32,7 +32,7 @@ class GenerelleDataHolder(val client: GenerelleDataClient) {
             ?: client.fetchGenerelleData(
                 GenerelleDataSpec.forDelingstall(virkningFom, foedselDato)
             ).delingstallUtvalg.also {
-                delingstallCache[key] = it
+                //delingstallCache[key] = it
             }
     }
 
@@ -43,7 +43,7 @@ class GenerelleDataHolder(val client: GenerelleDataClient) {
             ?: client.fetchGenerelleData(
                 GenerelleDataSpec.forForholdstall(virkningFom, foedselDato)
             ).forholdstallUtvalg.also {
-                forholdstallCache[key] = it
+                //forholdstallCache[key] = it
             }
     }
 

@@ -41,7 +41,7 @@ class PersongrunnlagService(
             persongrunnlag.omsorgsgrunnlagListe = omsorgGrunnlagListe.toMutableList()
             persongrunnlag.inntektsgrunnlagListe = inntektGrunnlagListe.toMutableList()
             persongrunnlag.dagpengegrunnlagListe = dagpengerGrunnlagListe.toMutableList()
-            persongrunnlag.forstegangstjenestegrunnlag = foerstegangstjeneste
+            persongrunnlag.forstegangstjenestegrunnlag = forstegangstjeneste
 
             if (hentBeholdninger) {
                 beholdningListe.filterIsInstance<Pensjonsbeholdning>().forEach(persongrunnlag.beholdninger::add)

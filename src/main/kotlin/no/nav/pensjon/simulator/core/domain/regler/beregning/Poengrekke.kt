@@ -315,16 +315,4 @@ class Poengrekke : Serializable {
         this.AfpTpoUpGrunnlagOppjustert = afpTpoUpGrunnlagOppjustert
         this.tpiEtterHovedregel = tpiEtterHovedregel
     }
-
-    fun sortertPoengtallListe(): MutableList<Poengtall> {
-        val sortedPt = ArrayList(poengtallListe)
-        Collections.sort(sortedPt, Collections.reverseOrder())
-        return sortedPt
-    }
-
-    fun sortertPoengtallListeByBRPFA(): MutableList<Poengtall> {
-        val poengtallList = ArrayList(poengtallListe)
-        poengtallList.sortWith(comparing(Poengtall::brp_fa, reverseOrder()))
-        return poengtallList
-    }
 }

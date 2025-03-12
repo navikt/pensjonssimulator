@@ -10,6 +10,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.util.*
 
+// PEN:
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.AdjustPeriodsAtTheEndOfTrygdetidsgrunnlagList
 // + AdjustPeriodsAtTheStartOfTrygdetidsgrunnlagList + RemoveTrygdetidsgrunnlagFromIkkeAvtaleland
 object TrygdetidTrimmer {
@@ -46,19 +47,19 @@ object TrygdetidTrimmer {
             .map { it.periode }
 
     private fun isOppholdINorge(grunnlag: TrygdetidOpphold) =
-        LandkodeEnum.NOR.name == grunnlag.periode.land?.kode
+        LandkodeEnum.NOR == grunnlag.periode.landEnum
 
     private fun isOpptjeningIUtland(grunnlag: TrygdetidOpphold) =
         TrygdetidOpptjeningRettLand.rettTilOpptjeningAvTrygdetid(
-            land = grunnlag.periode.land?.kode?.let(LandkodeEnum::valueOf),
+            land = grunnlag.periode.landEnum,
             harArbeidet = grunnlag.arbeidet
         )
 
-    private fun isBeforeNedreDatogrense(dato: LocalDate?, foedselDato: LocalDate): Boolean =
-        dato?.isBefore(nedreDatogrense(foedselDato)) == true
+    private fun isBeforeNedreDatogrense(dato: LocalDate?, foedselsdato: LocalDate): Boolean =
+        dato?.isBefore(nedreDatogrense(foedselsdato)) == true
 
-    private fun sisteMuligeTrygdetidDato(foedselDato: LocalDate, foersteUttakDato: LocalDate): LocalDate {
-        val sisteDatoIAaretForOevreDatogrense: LocalDate = getLastDateInYear(oevreDatogrense(foedselDato))
+    private fun sisteMuligeTrygdetidDato(foedselsdato: LocalDate, foersteUttakDato: LocalDate): LocalDate {
+        val sisteDatoIAaretForOevreDatogrense: LocalDate = getLastDateInYear(oevreDatogrense(foedselsdato))
 
         return if (sisteDatoIAaretForOevreDatogrense.isBefore(foersteUttakDato))
             sisteDatoIAaretForOevreDatogrense
@@ -66,8 +67,8 @@ object TrygdetidTrimmer {
             getRelativeDateByDays(foersteUttakDato, -1)
     }
 
-    private fun adjustFom(trygdetidPeriode: TTPeriode, foedselDato: LocalDate): TTPeriode {
-        trygdetidPeriode.fom = nedreDatogrense(foedselDato).toNorwegianDateAtNoon()
+    private fun adjustFom(trygdetidPeriode: TTPeriode, foedselsdato: LocalDate): TTPeriode {
+        trygdetidPeriode.fom = nedreDatogrense(foedselsdato).toNorwegianDateAtNoon()
         return trygdetidPeriode
     }
 

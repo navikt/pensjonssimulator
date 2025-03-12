@@ -1,12 +1,14 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningPOPPTypeCti
+import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningPOPPTypeEnum
 
-class OpptjeningTypeMapping(var opptjeningPOPPTypeCti: OpptjeningPOPPTypeCti? = null) {
+// Checked 2025-02-28
+class OpptjeningTypeMapping {
+    var opptjeningPOPPTypeEnum: OpptjeningPOPPTypeEnum? = null
 
-    constructor(opptjeningTypeMapping: OpptjeningTypeMapping) : this() {
-        if (opptjeningTypeMapping.opptjeningPOPPTypeCti != null) {
-            this.opptjeningPOPPTypeCti = OpptjeningPOPPTypeCti(opptjeningTypeMapping.opptjeningPOPPTypeCti)
-        }
+    constructor()
+
+    constructor(source: OpptjeningTypeMapping) : this() {
+        opptjeningPOPPTypeEnum = source.opptjeningPOPPTypeEnum
     }
 }

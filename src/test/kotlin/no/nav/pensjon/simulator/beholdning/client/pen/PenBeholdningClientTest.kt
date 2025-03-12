@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagPersonSpec
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
+import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -85,12 +86,12 @@ class PenBeholdningClientTest : FunSpec({
                 with(opptjeningGrunnlagListe[0]) {
                     ar shouldBe 2000
                     pi shouldBe 83237
-                    opptjeningType?.kode shouldBe "PPI"
+                    opptjeningTypeEnum shouldBe OpptjeningtypeEnum.PPI
                 }
                 inntektGrunnlagListe.size shouldBe 0
                 dagpengerGrunnlagListe.size shouldBe 0
                 omsorgGrunnlagListe.size shouldBe 0
-                foerstegangstjeneste shouldBe null
+                forstegangstjeneste shouldBe null
             }
         }
     }
@@ -107,14 +108,7 @@ object PenBeholdningResponse {
             "pi": 83237,
             "pia": 83237,
             "pp": 0.72,
-            "opptjeningType": {
-                "kode": "PPI",
-                "dekode": null,
-                "dato_fom": null,
-                "dato_tom": null,
-                "er_gyldig": true,
-                "kommentar": null
-            },
+            "opptjeningTypeEnum": "PPI",
             "maksUforegrad": 0,
             "bruk": true,
             "grunnlagKilde": {
@@ -132,24 +126,10 @@ object PenBeholdningResponse {
             "pi": 87067,
             "pia": 87067,
             "pp": 0.72,
-            "opptjeningType": {
-                "kode": "PPI",
-                "dekode": null,
-                "dato_fom": null,
-                "dato_tom": null,
-                "er_gyldig": true,
-                "kommentar": null
-            },
+            "opptjeningTypeEnum": "PPI",
             "maksUforegrad": 0,
             "bruk": true,
-            "grunnlagKilde": {
-                "kode": "POPP",
-                "dekode": null,
-                "dato_fom": null,
-                "dato_tom": null,
-                "er_gyldig": true,
-                "kommentar": null
-            },
+            "grunnlagKildeEnum": "POPP",
             "opptjeningTypeListe": []
         }
     ],

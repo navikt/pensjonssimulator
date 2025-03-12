@@ -10,6 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningsmetodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 
+// 2025-03-10
 @JsonSubTypes(
     JsonSubTypes.Type(value = Uforetrygdberegning::class),
     JsonSubTypes.Type(value = AfpPrivatBeregning::class),
@@ -18,17 +19,16 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 abstract class Beregning2011 {
-
     var gjelderPerson: PenPerson? = null
     open var grunnbelop = 0
     var tt_anv = 0
     var resultatTypeEnum: ResultattypeEnum? = null
     var beregningsMetodeEnum: BeregningsmetodeEnum? = null
     var beregningTypeEnum: BeregningtypeEnum? = null
-    var delberegning2011Liste: MutableList<BeregningRelasjon> = mutableListOf() // SIMDOM-EDIT Mutable
-    var merknadListe: MutableList<Merknad> = mutableListOf()
+    var delberegning2011Liste: List<BeregningRelasjon> = mutableListOf()
+    var merknadListe: List<Merknad> = mutableListOf()
 
-    val delberegningsListe: MutableList<BeregningRelasjon>
+    val delberegningsListe: List<BeregningRelasjon>
         get() = delberegning2011Liste
 
     /**
@@ -61,14 +61,10 @@ abstract class Beregning2011 {
         }
 
         if (kopierDelberegning2011Liste) {
-            for (r in source.delberegningsListe) {
-                delberegningsListe.add(BeregningRelasjon(r))
-            }
+            delberegning2011Liste = source.delberegning2011Liste.map(::BeregningRelasjon)
         }
 
-        for (m in source.merknadListe) {
-            merknadListe.add(Merknad(m))
-        }
+        merknadListe = source.merknadListe.map(::Merknad)
 
         if (source.beregningGjelderTypeEnum != null) {
             this.beregningGjelderTypeEnum = source.beregningGjelderTypeEnum

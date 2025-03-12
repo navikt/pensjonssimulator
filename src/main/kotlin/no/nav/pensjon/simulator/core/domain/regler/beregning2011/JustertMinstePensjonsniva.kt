@@ -1,37 +1,18 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
-class JustertMinstePensjonsniva : Serializable {
+// 2025-03-11
+class JustertMinstePensjonsniva {
     var minstePensjonsniva: MinstePensjonsniva? = null
     var justeringsInformasjon: JusteringsInformasjon? = null
-    var belop: Double = 0.0
+    var belop = 0.0
 
-    constructor() : super() {}
+    constructor()
 
-    constructor(fmpn: JustertMinstePensjonsniva) : super() {
-        belop = fmpn.belop
-        if (fmpn.minstePensjonsniva != null) {
-            minstePensjonsniva = MinstePensjonsniva(fmpn.minstePensjonsniva!!)
-        }
-        if (fmpn.justeringsInformasjon != null) {
-            justeringsInformasjon = JusteringsInformasjon(fmpn.justeringsInformasjon!!)
-        }
-    }
-
-    constructor(mpn: MinstePensjonsniva?) {
-        if (mpn != null) {
-            minstePensjonsniva = MinstePensjonsniva(mpn)
-        }
-    }
-
-    constructor(
-            minstePensjonsniva: MinstePensjonsniva? = null,
-            justeringsInformasjon: JusteringsInformasjon? = null,
-            belop: Double = 0.0
-    ) {
-        this.minstePensjonsniva = minstePensjonsniva
-        this.justeringsInformasjon = justeringsInformasjon
-        this.belop = belop
+    constructor(source: JustertMinstePensjonsniva) : super() {
+        belop = source.belop
+        minstePensjonsniva = source.minstePensjonsniva?.let(::MinstePensjonsniva)
+        justeringsInformasjon = source.justeringsInformasjon?.copy()
     }
 }

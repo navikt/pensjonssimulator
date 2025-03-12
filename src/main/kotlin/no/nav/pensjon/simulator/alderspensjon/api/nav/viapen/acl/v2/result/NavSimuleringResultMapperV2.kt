@@ -3,9 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtalltypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultatKildeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.result.*
@@ -61,7 +59,7 @@ object NavSimuleringResultMapperV2 {
         }
 
         return SimuleringResultatV2(
-            status = source.status?.let { VedtakResultatEnum.valueOf(it.kode) },
+            status = source.status,
             virk = source.virk?.toNorwegianDate(),
             beregning = source.beregning?.let(::beregning),
             delberegninger = beregningerPerId,
@@ -183,7 +181,7 @@ object NavSimuleringResultMapperV2 {
             ar = source.ar,
             bruktIBeregning = source.bruktIBeregning,
             gv = source.gv,
-            poengtallType = source.poengtallType?.let { PoengtalltypeEnum.valueOf(it.kode) },
+            poengtallType = source.poengtallTypeEnum,
             maksUforegrad = source.maksUforegrad,
             merknadListe = source.merknadListe,
             // Not used in PSELV:

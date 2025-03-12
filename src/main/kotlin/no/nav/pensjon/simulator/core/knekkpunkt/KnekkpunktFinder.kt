@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
-import no.nav.pensjon.simulator.core.domain.regler.kode.KravlinjeTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
@@ -44,7 +43,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         val foersteBeregningDato =
             knekkpunktSpec.forrigeAlderspensjonBeregningResultatVirkningFom?.let {
                 calculateFoersteBeregningDato(
-                    foedselDato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate(),
+                    foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate(),
                     foersteUttakDato = foersteUttakDato!!,
                     forrigeBeregningResultVirkning = it
                 )
@@ -272,7 +271,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
 
         // FinnKnekkpunkterHelper.calculateForsteBeregningDato
         private fun calculateFoersteBeregningDato(
-            foedselDato: LocalDate,
+            foedselsdato: LocalDate,
             foersteUttakDato: LocalDate,
             forrigeBeregningResultVirkning: LocalDate
         ): LocalDate {
@@ -283,7 +282,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             // - den 1. i måneden etter at bruker blir 67 år, dersom denne er etter dagens dato og forrigeBerResAP.virkDato
             //val today = DateProvider.getToday()
             val today = LocalDate.now()
-            val ubetingetPensjoneringDato: Date = ubetingetPensjoneringDato(foedselDato.toNorwegianDateAtNoon())
+            val ubetingetPensjoneringDato: Date = ubetingetPensjoneringDato(foedselsdato.toNorwegianDateAtNoon())
             val latestOfTodayAndForrigeBerResVirk: Date? =
                 findLatestDateByDay(today?.toNorwegianDateAtNoon(), forrigeBeregningResultVirkning.toNorwegianDateAtNoon())
             val sortedDates: SortedSet<Date> = TreeSet()
@@ -299,10 +298,10 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
 
         // FinnKnekkpunkterHelper.trimKnekkpunktListeInCaseOfSimulerForTp
         private fun trimKnekkpunkterInCaseOfSimulerForTp(
-            foedselDato: LocalDate,
+            foedselsdato: LocalDate,
             knekkpunkter: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>>
         ): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
-            var latestRelevantKnekkpunkt: LocalDate = ubetingetPensjoneringDato(foedselDato)
+            var latestRelevantKnekkpunkt: LocalDate = ubetingetPensjoneringDato(foedselsdato)
 
             // If there is a UTG knekkpunkt later than 67m, then use that as latest relevant knekkpunkt date
             for ((key, value) in knekkpunkter) {
@@ -346,8 +345,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             TrygdetidRequest().apply {
                 this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
                 this.brukerForsteVirk = soekerFoersteVirkning.toNorwegianDateAtNoon()
-                this.ytelsesTypeEnum = ytelseType
-                this.ytelsesType = KravlinjeTypeCti(ytelseType.name).apply { hovedKravlinje = ytelseType.erHovedkravlinje } //TODO remove
+                this.hovedKravlinjeType = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
                 this.regelverkTypeEnum = kravhode.regelverkTypeEnum

@@ -1,14 +1,11 @@
 package no.nav.pensjon.simulator.core.person.eps
 
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
-import no.nav.pensjon.simulator.core.beregn.InntektType
 import no.nav.pensjon.simulator.core.domain.Avdoed
-import no.nav.pensjon.simulator.core.domain.GrunnlagKilde
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
@@ -133,8 +130,8 @@ class EpsService(
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 fom = foersteDag(foersteUttakAar).toNorwegianDateAtNoon() // noon: ref. GrunnlagToReglerMapper.mapToInntektsgrunnlag in PEN
                 tom = null
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagKilde.BRUKER.name)
-                inntektType = InntektTypeCti(InntektType.FPI.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+                inntektTypeEnum = InntekttypeEnum.FPI
                 bruk = true
             }
     }

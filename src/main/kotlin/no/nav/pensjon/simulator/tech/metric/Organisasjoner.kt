@@ -7,9 +7,13 @@ object Organisasjoner {
     private val organisasjonNavnForNummer =
         mapOf(
             "889640782" to "Nav",
-            "938708606" to "KLP",
-            "982583462" to "SPK",
-            "931936492" to "Stb"
+            "927613298" to "Aks", // Aksio
+            "940380014" to "Are", // Arendal kommunale pensjonskasse
+            "980650383" to "Dra", // Drammen kommunale pensjonskasse
+            "938708606" to "KLP", // Kommunal Landspensjonskasse
+            "982759412" to "OPF", // Oslo Pensjonsforsikring
+            "982583462" to "SPK", // Statens pensjonskasse
+            "931936492" to "Stb"  // Storebrand Pensjonstjenester
         )
 
     fun navn(organisasjonsnummer: Organisasjonsnummer): String =

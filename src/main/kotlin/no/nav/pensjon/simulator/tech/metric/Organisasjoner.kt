@@ -10,6 +10,7 @@ object Organisasjoner {
             "927613298" to "Aks", // Aksio
             "940380014" to "Are", // Arendal kommunale pensjonskasse
             "980650383" to "Dra", // Drammen kommunale pensjonskasse
+            "916833520" to "Gab", // Gabler Pensjonstjenester
             "938708606" to "KLP", // Kommunal Landspensjonskasse
             "982759412" to "OPF", // Oslo Pensjonsforsikring
             "982583462" to "SPK", // Statens pensjonskasse

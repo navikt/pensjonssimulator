@@ -74,7 +74,7 @@ class Pre2025OffentligAfpBeregner(
         val simuleringResultat: Simuleringsresultat =
             simulerPensjonsberegning(spec, persongrunnlagListe, normAlder)
 
-        if (ikkeInnvilget(simuleringResultat.status)) {
+        if (ikkeInnvilget(simuleringResultat.statusEnum)) {
             //log.info(
             //    "Simulering AFP offentlig - Ikke innvilget - Kode {} - Merknader {}",
             //    if (status == null) "(ingen)" else status.code, SimulerAFPogAPCommand.asCsv(simuleringsresultat.merknadListe)
@@ -111,7 +111,7 @@ class Pre2025OffentligAfpBeregner(
 
         if (simuleringAvslag) {
             return Simuleringsresultat().apply {
-                status = VedtakResultatEnum.AVSL
+                statusEnum = VedtakResultatEnum.AVSL
                 merknadListe.add(minsteTrygdetidMerknad())
             }
         }
@@ -123,7 +123,7 @@ class Pre2025OffentligAfpBeregner(
         if (SimuleringTypeEnum.AFP == simulering.simuleringTypeEnum) {
             setBeregnForsorgingstilleggAndEktefelleMottarPensjon(simulering)
             simuleringsresultat = simulerVilkarsprovAfp(simulering)
-            simuleringsresultat.status?.let { simuleringAvslag = avslag(it) }
+            simuleringsresultat.statusEnum?.let { simuleringAvslag = avslag(it) }
         }
 
         if (!simuleringAvslag) {
@@ -131,8 +131,8 @@ class Pre2025OffentligAfpBeregner(
         }
 
         // Must be set explicitly, because pensjon-regler does not simulate "vilkår"
-        if (simuleringsresultat.status == null) {
-            simuleringsresultat.status = VedtakResultatEnum.INNV
+        if (simuleringsresultat.statusEnum == null) {
+            simuleringsresultat.statusEnum = VedtakResultatEnum.INNV
         }
 
         return simuleringsresultat

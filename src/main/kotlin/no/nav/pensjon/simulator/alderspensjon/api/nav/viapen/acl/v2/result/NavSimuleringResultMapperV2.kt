@@ -59,7 +59,7 @@ object NavSimuleringResultMapperV2 {
         }
 
         return SimuleringResultatV2(
-            status = source.status,
+            status = source.statusEnum,
             virk = source.virk?.toNorwegianDate(),
             beregning = source.beregning?.let(::beregning),
             delberegninger = beregningerPerId,

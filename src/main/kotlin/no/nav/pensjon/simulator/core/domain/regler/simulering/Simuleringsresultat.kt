@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import java.util.*
 
 class Simuleringsresultat(
-    var status: VedtakResultatEnum? = null,
+    var statusEnum: VedtakResultatEnum? = null,
     var beregning: Beregning? = null,
     var virk: Date? = null,
     var merknadListe: MutableList<Merknad> = mutableListOf()

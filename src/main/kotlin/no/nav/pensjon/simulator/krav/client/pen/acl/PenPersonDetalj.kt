@@ -8,21 +8,23 @@ import java.util.*
 
 /**
  * Persondetalj DTO (data transfer object) received from PEN.
- * Corresponds to no.nav.pensjon.pen.domain.api.simulator.grunnlag.PersonDetalj in PEN.
+ * See PersonDetalj for description of fields.
+ * Corresponds with no.nav.pensjon.pen.domain.api.simulator.grunnlag.PersonDetalj in PEN.
  */
-class PenPersonDetalj(
-    var grunnlagsrolleEnum: GrunnlagsrolleEnum? = null,
-    var rolleFomDato: Date? = null,
-    var rolleTomDato: Date? = null,
-    var sivilstandTypeEnum: SivilstandEnum? = null,
-    var sivilstandRelatertPerson: PenPenPerson? = null,
-    var borMedTypeEnum: BorMedTypeEnum? = null,
-    var barnDetalj: PenBarnDetalj? = null,
-    var tillegg: Boolean = false,
-    var bruk: Boolean = true,
-    var grunnlagKildeEnum: GrunnlagkildeEnum? = null,
-    var serskiltSatsUtenET: Boolean? = null,
-    var epsAvkallEgenPensjon: Boolean? = null,
-    var virkFom: Date? = null,
-    var virkTom: Date? = null
+data class PenPersonDetalj(
+    val grunnlagsrolleEnum: GrunnlagsrolleEnum? = null,
+    val rolleFomDato: Date? = null,
+    val rolleTomDato: Date? = null,
+    val sivilstandTypeEnum: SivilstandEnum? = null,
+    val sivilstandRelatertPerson: PenPenPerson? = null,
+    val borMedEnum: BorMedTypeEnum? = null,
+    val barnDetalj: PenBarnDetalj? = null,
+    val tillegg: Boolean = false,
+    val bruk: Boolean = true,
+    val grunnlagKildeEnum: GrunnlagkildeEnum? = null,
+    val serskiltSatsUtenET: Boolean? = null,
+    val epsAvkallEgenPensjon: Boolean? = null,
+    //--- Extra:
+    val virkFom: Date? = null,
+    val virkTom: Date? = null
 )

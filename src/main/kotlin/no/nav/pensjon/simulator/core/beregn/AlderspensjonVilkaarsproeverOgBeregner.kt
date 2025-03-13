@@ -152,7 +152,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             // Når vi kommer fra PSELV skal flagget settes i henhold til brukers løpende pensjon (ref. PK-15060)
-            if (!simuleringSpec.isTpOrigSimulering) {
+            if (!simuleringSpec.isTpOrigSimulering && !simuleringSpec.epsKanOverskrives) {
                 forrigeAlderspensjonBeregningResultat?.let {
                     if (it.epsMottarPensjon) {
                         simuleringSpec.epsHarPensjon = true //TODO make simuleringSpec immutable?

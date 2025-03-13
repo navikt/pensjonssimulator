@@ -68,7 +68,7 @@ class EndringPersongrunnlag(
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ): Kravhode {
-        if (spec.isTpOrigSimulering) {
+        if (spec.isTpOrigSimulering || spec.epsKanOverskrives) {
             epsService.addPersongrunnlagForEpsToKravhode(spec, endringKravhode, grunnbeloep)
             return endringKravhode
         }

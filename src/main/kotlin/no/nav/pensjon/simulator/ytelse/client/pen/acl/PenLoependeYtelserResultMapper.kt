@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregni
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
+import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelser
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
@@ -55,7 +56,7 @@ object PenLoependeYtelserResultMapper {
                     kapittel20AlderspensjonInfo!!
                 )
             } ?: alderspensjon.forrigeBeregningsresultat,
-            forrigeVilkarsvedtakListe = alderspensjon.forrigeVilkarsvedtakListe.orEmpty()
+            forrigeVilkarsvedtakListe = alderspensjon.forrigeVilkarsvedtakListe.orEmpty().map { setErHovedkrav(it) }
         )
     }
 
@@ -100,4 +101,12 @@ object PenLoependeYtelserResultMapper {
                 }
             } ?: afp.forrigeBeregningsresultat
         )
+
+    private fun setErHovedkrav(vedtak: VilkarsVedtak): VilkarsVedtak {
+        vedtak.kravlinje?.let {
+            it.hovedKravlinje = it.erHovedkravlinje()
+        }
+
+        return vedtak
+    }
 }

@@ -359,7 +359,7 @@ class Pre2025OffentligAfpBeregner(
                 afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                virkTom = persongrunnlag.penPerson?.foedselsdato?.let {
+                virkTom = persongrunnlag.fodselsdato?.let {
                     firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
                 }
             })

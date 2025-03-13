@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.regler.krav
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
@@ -11,7 +10,7 @@ import java.util.*
  * En Kravlinje er en del av et KravHode. Eksempler på Kravlinje er GP, ET, UP
  * osv.
  */
-open class Kravlinje {
+class Kravlinje {
     /**
      * Hvilken type kravlinjen gjelder, spesifisert som VilkarsvedtakType.
      */
@@ -29,31 +28,13 @@ open class Kravlinje {
     var hovedKravlinje: Boolean = false
 
     constructor()
-    /*
-    constructor(
-        relatertPerson: PenPerson?,
-        hovedKravlinje: Boolean = false
-    ) {
-        this.relatertPerson = relatertPerson
-        this.hovedKravlinje = hovedKravlinje
-    }
-
-    constructor(
-        kravlinjeTypeEnum: KravlinjeTypeEnum,
-        relatertPerson: PenPerson?,
-        hovedKravlinje: Boolean = false
-    ) {
-        this.relatertPerson = relatertPerson
-        this.kravlinjeTypeEnum = kravlinjeTypeEnum
-        this.hovedKravlinje = hovedKravlinje
-    }*/
 
     // SIMDOM-ADD:
 
-    @JsonIgnore
+    //@JsonIgnore
     var kravlinjeStatus: KravlinjeStatus? = null
 
-    @JsonIgnore
+    //@JsonIgnore
     var land: LandkodeEnum? = null
 
     constructor(source: Kravlinje) {

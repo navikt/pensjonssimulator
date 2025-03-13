@@ -13,11 +13,11 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findEarliestDateByDay
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
-import java.io.Serializable
 import java.time.LocalDate
 import java.util.*
 
-class VilkarsVedtak : Serializable {
+// 2025-03-13
+class VilkarsVedtak {
     /**
      * Kode som angir hvilket resultat pensjon-regler setter på vilkårsvedtaket. Se
      * K_VILKAR_RESUL_T for gyldige typer. Kun satt hvis pensjon-regler utfører

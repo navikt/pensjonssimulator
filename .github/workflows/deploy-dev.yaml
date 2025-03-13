@@ -70,3 +70,21 @@ jobs:
           IMAGE: ${{ needs.build.outputs.image }}
           RESOURCE: .nais/deploy-dev.yml,.nais/deploy-q1.yml
 
+  deploy-krakend-config-dev:
+    name: Deploy KrakenD config to dev
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy KrakenD config
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/api/krakend-dev.yaml
+      - name: Deploy API endpoints config
+        uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: .nais/api/apiendpoints.yaml

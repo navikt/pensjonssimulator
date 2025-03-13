@@ -185,32 +185,6 @@ class BeregningsvilkarPeriode : Comparable<BeregningsvilkarPeriode>, Serializabl
         this.vilkarListe = vilkarListe
     }
 
-    /**
-     * Copy constructor.
-     * NB: Liste av vilkar og beregningsvilkar kan inneholde innslag som er null.
-     * Derfor null sjekk før kall til dypKopi.
-     *
-     */
-    constructor(bvp: BeregningsvilkarPeriode) : this() {
-        if (bvp.fomDato != null) {
-            fomDato = bvp.fomDato!!.clone() as Date
-        }
-        if (bvp.tomDato != null) {
-            tomDato = bvp.tomDato!!.clone() as Date
-        }
-        for (bv in bvp.beregningsvilkarListe) {
-            beregningsvilkarListe.add(bv.dypKopi(bv)!!)
-        }
-        for (vk in bvp.vilkarListe.stream().filter { it != null }) {
-            vilkarListe.add(vk.dypKopi(vk)!!)
-        }
-        konvertertOrdiner = bvp.konvertertOrdiner
-        konvertertYrkesskade = bvp.konvertertYrkesskade
-        uforetrygdOpptjening = bvp.uforetrygdOpptjening
-        ufgFom = bvp.ufgFom
-        ufgTom = bvp.ufgTom
-    }
-
     private fun <T : AbstraktBeregningsvilkar> hentBeregningsvilkar(classOfBeregningsvilkar: Class<T>): T? {
         val bvFiltered = beregningsvilkarListe.filterIsInstance(classOfBeregningsvilkar)
         return if (bvFiltered.isNotEmpty()) {

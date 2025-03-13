@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
 class UforetrygdOrdiner : Ytelseskomponent, UforetrygdYtelseskomponent {
 
@@ -69,7 +70,7 @@ class UforetrygdOrdiner : Ytelseskomponent, UforetrygdYtelseskomponent {
         minsteytelse = source.minsteytelse?.let(::Minsteytelse)
         egenopptjentUforetrygd = source.egenopptjentUforetrygd?.let(::EgenopptjentUforetrygd)
         egenopptjentUforetrygdBest = source.egenopptjentUforetrygdBest
-        avkortingsinformasjon = source.avkortingsinformasjon?.let(::AvkortingsinformasjonUT)
+        avkortingsinformasjon = source.avkortingsinformasjon?.copy()
         nettoAkk = source.nettoAkk
         nettoRestAr = source.nettoRestAr
         avkortningsbelopPerAr = source.avkortningsbelopPerAr

@@ -1,14 +1,14 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.SakType
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
@@ -24,7 +24,7 @@ import java.time.LocalDate
 import java.util.*
 import java.util.function.Predicate
 
-// BehandlingsperiodeUtil
+// PEN: BehandlingsperiodeUtil
 object BehandlingPeriodeUtil {
 
     // BehandlingsperiodeUtil.periodiserGrunnlag
@@ -123,7 +123,7 @@ object BehandlingPeriodeUtil {
 
                 newPersongrunnlag.beholdninger
                     .removeIf {
-                        it.beholdningsType?.kode == BeholdningType.PEN_B.name &&
+                        it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B &&
                                 !dateValidator.areValid(it.fom!!, it.tom)
                     }
 
@@ -356,23 +356,23 @@ object BehandlingPeriodeUtil {
         val startofTwoYearBeforeVirkDatoFom = getFirstDateInYear(sameDateTwoYearsBefore)
         val endOfThisYear = if (virkningTom != null) getLastDateInYear(virkningTom) else null
         // If type PGI, the Inntektsgrunnlag just has to start sometime after startOfLastYear and before endOfThisYear to be included (CR 72810)
-        if (InntektType.PGI.name == grunnlag.inntektType!!.kode && intersectsWithPossiblyOpenEndings(
-                startofTwoYearBeforeVirkDatoFom,
-                endOfThisYear,
-                grunnlag.fom,
-                grunnlag.tom,
-                true
+        if (InntekttypeEnum.PGI == grunnlag.inntektTypeEnum && intersectsWithPossiblyOpenEndings(
+                o1Start = startofTwoYearBeforeVirkDatoFom,
+                o1End = endOfThisYear,
+                o2Start = grunnlag.fom,
+                o2End = grunnlag.tom,
+                considerContactByDayAsIntersection = true
             )
         ) {
             return true
         }
 
-        return isValidInntektType(grunnlag.inntektType!!) && isValidInntektFom(grunnlag.fom)
+        return isValidInntektType(grunnlag.inntektTypeEnum) && isValidInntektFom(grunnlag.fom)
     }
 
     private fun isValidInntektFom(fom: Date?): Boolean =
         fom?.let { isBeforeDay(it, INNTEKT_IS_RELEVANT_BEFORE_DATE) } == true
 
-    private fun isValidInntektType(type: InntektTypeCti) =
-        type.kode.let { InntektType.ARBLIGN.name == it || InntektType.AI.name == it }
+    private fun isValidInntektType(type: InntekttypeEnum?) =
+        InntekttypeEnum.ARBLIGN == type || InntekttypeEnum.AI == type
 }

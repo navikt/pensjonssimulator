@@ -12,5 +12,5 @@ data class BeholdningerMedGrunnlagResult(
     val inntektGrunnlagListe: List<Inntektsgrunnlag>,
     val dagpengerGrunnlagListe: List<Dagpengegrunnlag>,
     val omsorgGrunnlagListe: List<Omsorgsgrunnlag>,
-    val foerstegangstjeneste: Forstegangstjeneste?
+    val forstegangstjeneste: Forstegangstjeneste?
 )

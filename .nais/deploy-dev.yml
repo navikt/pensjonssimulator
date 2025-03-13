@@ -50,6 +50,7 @@ spec:
           product: "pensjonssimulator"
           consumers:
             - orgno: "889640782" # Nav (NB: dev only)
+            - orgno: "916833520" # Gabler Pensjonstjenester
             - orgno: "938708606" # KLP
             - orgno: "982759412" # Oslo Pensjonsforsikring
             - orgno: "982583462" # SPK
@@ -75,9 +76,9 @@ spec:
           cluster: dev-fss
         - application: pensjonskalkulator-backend
         - application: azure-token-generator # dev only
-          namespace: aura
+          namespace: nais
         - application: tokenx-token-generator # dev only
-          namespace: aura
+          namespace: nais
     outbound:
       rules:
         - application: pensjon-pen-q2

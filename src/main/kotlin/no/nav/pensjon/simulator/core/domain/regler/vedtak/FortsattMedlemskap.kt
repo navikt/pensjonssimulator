@@ -2,9 +2,9 @@ package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Eksportforbud
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Unntak
-import no.nav.pensjon.simulator.core.domain.regler.kode.VilkarOppfyltUTCti
 
-class FortsattMedlemskap : AbstraktVilkar {
+// 2025-03-10
+class FortsattMedlemskap : AbstraktVilkar() {
     /**
      * Fortsatt medlem i folketrygden
      */
@@ -13,12 +13,12 @@ class FortsattMedlemskap : AbstraktVilkar {
     /**
      * Brukeren har minst 20 års botid i Norge
      */
-    var minstTyveArBotidNorge: Boolean = false
+    var minstTyveArBotidNorge: Boolean? = null
 
     /**
      * Opptjent rett til tilleggspensjon etter folketrygdloven
      */
-    var opptjentRettTilTPEtterFT: Boolean = false
+    var opptjentRettTilTPEtterFT: Boolean? = null
 
     /**
      * Eksportforbud
@@ -28,18 +28,18 @@ class FortsattMedlemskap : AbstraktVilkar {
     /**
      * Fri eksport fordi uførhet skyldes yrkesskade
      */
-    var friEksportPgaYrkesskade: Boolean = false
+    var friEksportPgaYrkesskade: Boolean? = null
 
     /**
      * Innvilget garantert tilleggspensjon til ung ufør/død skal eksporteres
      */
-    var innvilgetGarantertTP: Boolean = false
+    var innvilgetGarantertTP: Boolean? = null
 
     /**
      * Eksportrett garantert TP
      */
     var eksportrettGarantertTP: Unntak? = null
-
+/*
     constructor() : super()
 
     constructor(aFortsattMedlemskap: FortsattMedlemskap?) : super(aFortsattMedlemskap!!) {
@@ -57,32 +57,5 @@ class FortsattMedlemskap : AbstraktVilkar {
             this.eksportrettGarantertTP = Unntak(aFortsattMedlemskap.eksportrettGarantertTP!!)
         }
     }
-
-    constructor(
-        fortsattMedlemFT: Boolean? = null,
-        minstTyveArBotidNorge: Boolean = false,
-        opptjentRettTilTPEtterFT: Boolean = false,
-        eksportforbud: Eksportforbud? = null,
-        friEksportPgaYrkesskade: Boolean = false,
-        innvilgetGarantertTP: Boolean = false,
-        eksportrettGarantertTP: Unntak? = null,
-        /** Super */
-        resultat: VilkarOppfyltUTCti? = null
-    ) : super(resultat) {
-        this.fortsattMedlemFT = fortsattMedlemFT
-        this.minstTyveArBotidNorge = minstTyveArBotidNorge
-        this.opptjentRettTilTPEtterFT = opptjentRettTilTPEtterFT
-        this.eksportforbud = eksportforbud
-        this.friEksportPgaYrkesskade = friEksportPgaYrkesskade
-        this.innvilgetGarantertTP = innvilgetGarantertTP
-        this.eksportrettGarantertTP = eksportrettGarantertTP
-    }
-
-    override fun dypKopi(abstraktVilkar: AbstraktVilkar): AbstraktVilkar? {
-        var fm: FortsattMedlemskap? = null
-        if (abstraktVilkar.javaClass == FortsattMedlemskap::class.java) {
-            fm = FortsattMedlemskap(abstraktVilkar as FortsattMedlemskap?)
-        }
-        return fm
-    }
+*/
 }

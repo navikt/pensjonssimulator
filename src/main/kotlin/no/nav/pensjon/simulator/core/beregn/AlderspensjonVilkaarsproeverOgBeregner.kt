@@ -3,16 +3,11 @@ package no.nav.pensjon.simulator.core.beregn
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
@@ -489,8 +484,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) =
             BeholdningPeriode(
                 datoFom = virkningFom,
-                pensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningType.PEN_B)?.totalbelop,
-                garantipensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningType.GAR_PEN_B)?.totalbelop,
+                pensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.PEN_B)?.totalbelop,
+                garantipensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
                 garantitilleggsbeholdning = garantitilleggBeholdningTotalBeloep(
                     virkningFom,
                     beholdninger,
@@ -505,20 +500,20 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             foedselsdato: LocalDate
         ): Double? =
             if (isBeforeByDay(getRelativeDateByYear(foedselsdato, GARANTITILLEGG_MAX_ALDER), virkningFom, false))
-                beholdninger.findBeholdningAvType(BeholdningType.GAR_T_B)?.totalbelop
+                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_T_B)?.totalbelop
             else
                 null
 
         private fun garantipensjonsniva(beholdninger: Beholdninger): GarantipensjonNivaa? {
             val garantipensjonBeholdning =
-                beholdninger.findBeholdningAvType(BeholdningType.GAR_PEN_B) as? Garantipensjonsbeholdning
+                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
                     ?: return null
 
             val justertNivaa = garantipensjonBeholdning.justertGarantipensjonsniva?.garantipensjonsniva ?: return null
 
             return GarantipensjonNivaa(
                 beloep = justertNivaa.belop,
-                satsType = justertNivaa.satsType!!.kode,
+                satsType = (justertNivaa.satsTypeEnum ?: GarantiPensjonsnivaSatsEnum.ORDINAER).name,
                 sats = justertNivaa.sats,
                 anvendtTrygdetid = justertNivaa.tt_anv
             )
@@ -553,7 +548,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             TrygdetidRequest().apply {
                 this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
                 this.brukerForsteVirk = soekerForsteVirkningFom.toNorwegianDateAtNoon()
-                this.ytelsesTypeEnum = ytelseType
+                this.hovedKravlinjeType = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
                 this.regelverkTypeEnum = kravhode.regelverkTypeEnum
@@ -585,5 +580,5 @@ private fun BeregningsResultatAfpPrivat.hentLivsvarigDelIBruk() =
         it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG && it is AfpLivsvarig
     } as AfpLivsvarig?
 
-private fun Beholdninger.findBeholdningAvType(type: BeholdningType) =
-    beholdninger.firstOrNull { type.name == it.beholdningsType?.kode }
+private fun Beholdninger.findBeholdningAvType(type: BeholdningtypeEnum) =
+    beholdninger.firstOrNull { type == it.beholdningsTypeEnum }

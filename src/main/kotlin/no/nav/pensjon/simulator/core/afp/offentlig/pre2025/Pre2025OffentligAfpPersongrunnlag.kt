@@ -96,7 +96,7 @@ class Pre2025OffentligAfpPersongrunnlag(
 
         epsGrunnlag?.let {
             // SimulerAFPogAPCommand.shouldAddInntektgrunnlagForEPS
-            if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregning) {
+            if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen()) {
                 retainPersondetaljerHavingVirksomRolle(it)
                 it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
                 addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato, grunnbeloep, persongrunnlag = it)

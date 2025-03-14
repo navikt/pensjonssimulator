@@ -1,111 +1,74 @@
 {
-    "ytelser": {
-        "alderspensjon": {
-            "sokerVirkningFom": "2022-12-01T00:00:00+0100",
-            "avdodVirkningFom": null,
-            "sisteBeregning": {
-                "type": "SisteAldersberegning2016",
-                "virkDato": "2024-05-01T12:00:00+0200",
-                "tt_anv": 40,
-                "basispensjon": {
-                    "totalbelop": 367034.82012000005,
-                    "gp": {
-                        "type": "BasisGrunnpensjon",
-                        "bruttoPerAr": 111625.20000000001,
-                        "psats_gp": 0.9
-                    },
-                    "tp": {
-                        "type": "BasisTilleggspensjon",
-                        "bruttoPerAr": 255409.62012,
-                        "formelMap": {}
-                    },
-                    "pt": {
-                        "type": "BasisPensjonstillegg",
-                        "brutto": 0,
-                        "pensjonstillegg": {
-                            "type": "Pensjonstillegg",
-                            "bruttoPerAr": -156489.27612000005
-                        }
-                    },
-                    "formelKode": {
-                        "kode": "ResPx"
+    "alderspensjon": {
+        "sokerVirkningFom": "2022-12-01T00:00:00+0100",
+        "avdodVirkningFom": null,
+        "sisteBeregning": {
+            "type": "SisteAldersberegning2016",
+            "virkDato": "2024-05-01T12:00:00+0200",
+            "tt_anv": 40,
+            "basispensjon": {
+                "totalbelop": 367034.82012000005,
+                "gp": {
+                    "type": "BasisGrunnpensjon",
+                    "bruttoPerAr": 111625.20000000001,
+                    "psats_gp": 0.9
+                },
+                "tp": {
+                    "type": "BasisTilleggspensjon",
+                    "bruttoPerAr": 255409.62012,
+                    "formelMap": {}
+                },
+                "pt": {
+                    "type": "BasisPensjonstillegg",
+                    "brutto": 0,
+                    "pensjonstillegg": {
+                        "type": "Pensjonstillegg",
+                        "bruttoPerAr": -156489.27612000005
                     }
                 },
-                "beholdninger": {
-                    "beholdninger": [
-                        {
-                            "type": "Pensjonsbeholdning",
-                            "ar": 2024,
-                            "merknadListe": []
-                        }
-                    ],
-                    "pensjonsbeholdning": {
+                "formelKode": {
+                    "kode": "ResPx"
+                }
+            },
+            "beholdninger": {
+                "beholdninger": [
+                    {
                         "type": "Pensjonsbeholdning",
                         "ar": 2024,
                         "merknadListe": []
-                    },
-                    "garantitilleggsbeholdning": {
-                        "type": "Garantitilleggsbeholdning",
-                        "ar": 2024,
-                        "garantitilleggInformasjon": {
-                            "sptVed67": 5.22,
-                            "estimertTTkap19Benyttet": false
-                        }
-                    },
-                    "garantipensjonsbeholdning": {
-                        "type": "Garantipensjonsbeholdning",
-                        "ar": 2024,
-                        "garPN_justert": 216226
+                    }
+                ],
+                "pensjonsbeholdning": {
+                    "type": "Pensjonsbeholdning",
+                    "ar": 2024,
+                    "merknadListe": []
+                },
+                "garantitilleggsbeholdning": {
+                    "type": "Garantitilleggsbeholdning",
+                    "ar": 2024,
+                    "garantitilleggInformasjon": {
+                        "sptVed67": 5.22,
+                        "estimertTTkap19Benyttet": false
                     }
                 },
-                "beholdningerAltKonv": null,
-                "tt_anv_kap_20": 40,
-                "tt_anv_kap_20AltKonv": 0,
-                "prorataBrok_kap_20AltKonv": null,
-                "pensjonUnderUtbetaling2011": {
-                    "totalbelopNetto": 24134,
-                    "barnetilleggFellesbarn": null
+                "garantipensjonsbeholdning": {
+                    "type": "Garantipensjonsbeholdning",
+                    "ar": 2024,
+                    "garPN_justert": 216226
                 }
+            },
+            "beholdningerAltKonv": null,
+            "tt_anv_kap_20": 40,
+            "tt_anv_kap_20AltKonv": 0,
+            "prorataBrok_kap_20AltKonv": null,
+            "pensjonUnderUtbetaling2011": {
+                "totalbelopNetto": 24134,
+                "barnetilleggFellesbarn": null
             }
-        },
-        "afpPrivat": {
-            "virkningFom": null,
-            "forrigeBeregningsresultat": null
         }
     },
-    "extraAlderspensjonInfo": {
-        "kravId": 12345,
-        "virkTom": null,
-        "epsMottarPensjon": true,
-        "epsPaavirkerBeregning": true,
-        "harGjenlevenderett": false
-    },
-    "extraKapittel19Alderspensjon2011Info": {
-        "kravId": null,
-        "virkTom": null,
-        "epsMottarPensjon": false,
-        "epsPaavirkerBeregning": false,
-        "harGjenlevenderett": false
-    },
-    "extraKapittel19Alderspensjon2016Info": {
-        "kravId": 12345,
-        "virkTom": null,
-        "epsMottarPensjon": true,
-        "epsPaavirkerBeregning": true,
-        "harGjenlevenderett": false
-    },
-    "extraKapittel20AlderspensjonInfo": {
-        "kravId": null,
-        "virkTom": null,
-        "epsMottarPensjon": false,
-        "epsPaavirkerBeregning": false,
-        "harGjenlevenderett": false
-    },
-    "extraPrivatAfpInfo": {
-        "kravId": null,
-        "virkTom": null,
-        "epsMottarPensjon": false,
-        "epsPaavirkerBeregning": false,
-        "harGjenlevenderett": false
+    "afpPrivat": {
+        "virkningFom": null,
+        "forrigeBeregningsresultat": null
     }
 }

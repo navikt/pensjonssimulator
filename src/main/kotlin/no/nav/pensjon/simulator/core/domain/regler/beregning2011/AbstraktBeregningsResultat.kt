@@ -32,26 +32,26 @@ abstract class AbstraktBeregningsResultat {
     var merknadListe: List<Merknad> = mutableListOf()
     var gjennomsnittligUttaksgradSisteAr = 0.0
 
+    //--- Extra:
 
-    // SIMDOM-ADD:
-    /*
-    @JsonIgnore var kravId: Long? = null
-    @JsonIgnore var virkTom: Date? = null
-    @JsonIgnore var epsMottarPensjon: Boolean = false // false in old PREG class
-    @JsonIgnore var epsPaavirkerBeregning: Boolean = false
-    @JsonIgnore var harGjenlevenderett: Boolean = false
-    */
+    // from PEN no.nav.domain.pensjon.kjerne.beregning2011.BeregningHoveddel
     var kravId: Long? = null
     var virkTom: Date? = null
-    var epsMottarPensjon: Boolean = false // false in old PREG class
-    var epsPaavirkerBeregning: Boolean = false
-    var harGjenlevenderett: Boolean = false
+    var beregningsinformasjon: SpecialBeregningInformasjon? = null
+    var epsMottarPensjon: Boolean = false // deprecated; use beregningInformasjon
+    var epsPaavirkerBeregning: Boolean = false // deprecated
+    var harGjenlevenderett: Boolean = false // deprecated
+
+    fun epsPaavirkerBeregningen(): Boolean =
+        beregningsinformasjon?.let {
+            it.epsMottarPensjon || it.epsHarInntektOver2G
+        } ?: epsPaavirkerBeregning
 
     protected constructor() : super()
 
     protected constructor(source: AbstraktBeregningsResultat) : super() {
-        source.virkFom?.let { virkFom = it.clone() as Date }
-        source.virkTom?.let { virkTom = it.clone() as Date }
+        virkFom = source.virkFom?.clone() as? Date
+        virkTom = source.virkTom?.clone() as? Date
         merknadListe = source.merknadListe.map(::Merknad).toMutableList()
         pensjonUnderUtbetaling = source.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)
         brukersSivilstandEnum = source.brukersSivilstandEnum
@@ -61,10 +61,10 @@ abstract class AbstraktBeregningsResultat {
         uttaksgrad = source.uttaksgrad
         gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr
         kravId = source.kravId
-        epsMottarPensjon = source.epsMottarPensjon
-        epsPaavirkerBeregning = source.epsPaavirkerBeregning
-        harGjenlevenderett = source.harGjenlevenderett
+        beregningsinformasjon = source.beregningsinformasjon?.copy()
+        epsMottarPensjon = source.epsMottarPensjon // deprecated
+        epsPaavirkerBeregning = source.epsPaavirkerBeregning // deprecated
+        harGjenlevenderett = source.harGjenlevenderett // deprecated
     }
-    // end SIMDOM-ADD
-
+    // end extra
 }

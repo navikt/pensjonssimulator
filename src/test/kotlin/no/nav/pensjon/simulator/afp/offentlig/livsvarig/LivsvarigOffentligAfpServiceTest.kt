@@ -25,7 +25,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             pid,
             foedselsdato = LocalDate.of(1962, 12, 31),
             forventetAarligInntektBeloep = 0,
-            fremtidigeInntekter = null,
+            fremtidigeInntekter = emptyList(),
+            brukFremtidigInntekt = false,
             virkningDato
         ) shouldBe null
 
@@ -37,7 +38,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             pid,
             foedselsdato = LocalDate.of(1970, 1, 1),
             forventetAarligInntektBeloep = 0,
-            fremtidigeInntekter = null,
+            fremtidigeInntekter = emptyList(),
+            brukFremtidigInntekt = false,
             virkningDato = LocalDate.of(2031, 12, 31)
         ) shouldBe null
 
@@ -49,7 +51,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             pid,
             foedselsdato,
             forventetAarligInntektBeloep = 123000,
-            fremtidigeInntekter = null,
+            fremtidigeInntekter = emptyList(),
+            brukFremtidigInntekt = false,
             virkningDato
         )
 
@@ -72,6 +75,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             foedselsdato,
             forventetAarligInntektBeloep = 123000,
             fremtidigeInntekter = emptyList(),
+            brukFremtidigInntekt = true,
             virkningDato
         )
 
@@ -94,6 +98,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
                 FremtidigInntekt(aarligInntektBeloep = 234000, fom = LocalDate.of(2024, 2, 1)),
                 FremtidigInntekt(aarligInntektBeloep = 123000, fom = LocalDate.of(2025, 3, 1))
             ),
+            brukFremtidigInntekt = true,
             virkningDato
         )
 

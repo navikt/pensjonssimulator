@@ -185,6 +185,7 @@ class SimulatorCore(
                             foedselsdato = it,
                             forventetAarligInntektBeloep = spec.forventetInntektBeloep,
                             fremtidigeInntekter = spec.fremtidigInntektListe,
+                            brukFremtidigInntekt = spec.brukFremtidigInntekt,
                             virkningDato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato!!
                         )
                     }

@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.tech.web.BadRequestException
 object SimuleringSpecValidator {
 
     fun validate(spec: SimuleringSpec){
-        spec.fremtidigInntektListe?.let(::validateInntekt)
+        validateInntekt(spec.fremtidigInntektListe)
         validateUttak(spec)
     }
 
@@ -34,9 +34,5 @@ object SimuleringSpecValidator {
             if (spec.foersteUttakDato.isAfter(spec.heltUttakDato))
             throw BadRequestException("Andre uttak (100 %) starter ikke etter første uttak (gradert)")
         }
-
-      //  if (spec.heltUttakDato?.let { spec.foersteUttakDato.isAfter(it).not() } == true) {
-        //    throw BadRequestException("Andre uttak (100 %) starter ikke etter første uttak (gradert)")
-       // }
     }
 }

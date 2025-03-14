@@ -26,12 +26,13 @@ object TestObjects {
         type: SimuleringType = SimuleringType.ALDER_M_AFP_PRIVAT,
         sivilstatus: SivilstatusType = SivilstatusType.UGIF,
         epsHarPensjon: Boolean = false,
+        foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),
         inntektSpecListe: List<FremtidigInntekt> = emptyList()
     ) = SimuleringSpec(
         type,
         sivilstatus,
         epsHarPensjon,
-        foersteUttakDato = LocalDate.of(2029, 1, 1),
+        foersteUttakDato,
         heltUttakDato = LocalDate.of(2032, 6, 1),
         pid = pid,
         foedselDato = null,

@@ -310,10 +310,9 @@ class KravhodeCreator(
         }
 
         val persongrunnlag = kravhode.hentPersongrunnlagForSoker()
-        val brukFremtidigInntekt = spec.fremtidigInntektListe != null // NB: true if empty list
         val inntektListe: MutableList<Inntekt>
 
-        if (brukFremtidigInntekt) {
+        if (spec.brukFremtidigInntekt) {
             val gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
             val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselAar(person, spec)
             val fom: LocalDate = foersteDag(gjeldendeAar)
@@ -708,7 +707,7 @@ class KravhodeCreator(
             sisteOpptjeningAar: Int,
             fom: LocalDate
         ): List<Inntektsgrunnlag> {
-            val fremtidigInntektListe = spec.fremtidigInntektListe ?: mutableListOf()
+            val fremtidigInntektListe = spec.fremtidigInntektListe
 
             // NB: The original fremtidigInntektListe is here modified (as is done in PEN):
             if (fremtidigInntektListe.isEmpty() || doesNotHaveFremtidigInntektBeforeFom(spec, fom)) {
@@ -772,7 +771,7 @@ class KravhodeCreator(
             }
 
         private fun doesNotHaveFremtidigInntektBeforeFom(spec: SimuleringSpec, fom: LocalDate) =
-            spec.fremtidigInntektListe.orEmpty().none { isBeforeByDay(it.fom, fom, true) }
+            spec.fremtidigInntektListe.none { isBeforeByDay(it.fom, fom, true) }
 
         private fun foedselsdato(person: PenPerson?, spec: SimuleringSpec): LocalDate =
             person?.foedselsdato ?: spec.foedselDato ?: foersteDag(spec.foedselAar)

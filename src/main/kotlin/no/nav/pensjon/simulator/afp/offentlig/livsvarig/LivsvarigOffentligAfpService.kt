@@ -24,7 +24,8 @@ class LivsvarigOffentligAfpService(
         pid: Pid,
         foedselsdato: LocalDate,
         forventetAarligInntektBeloep: Int,
-        fremtidigeInntekter: List<FremtidigInntekt>?,
+        fremtidigeInntekter: List<FremtidigInntekt>,
+        brukFremtidigInntekt: Boolean,
         virkningDato: LocalDate,
     ): LivsvarigOffentligAfpResult? {
         if (valid(foedselsdato.year, virkningDato.year).not()) return null
@@ -33,8 +34,8 @@ class LivsvarigOffentligAfpService(
         val til: LocalDate = sisteAarMedAfpOpptjeningInntekt(foedselsdato)
 
         val fremtidigInntektListe: List<Inntekt> =
-            fremtidigeInntekter?.map { Inntekt(it.aarligInntektBeloep, it.fom) }
-                ?: forventedeInntekter(fom, til, forventetAarligInntektBeloep)
+            if (brukFremtidigInntekt) fremtidigeInntekter.map { Inntekt(it.aarligInntektBeloep, it.fom) }
+            else forventedeInntekter(fom, til, forventetAarligInntektBeloep)
 
         return client.simuler(
             LivsvarigOffentligAfpSpec(

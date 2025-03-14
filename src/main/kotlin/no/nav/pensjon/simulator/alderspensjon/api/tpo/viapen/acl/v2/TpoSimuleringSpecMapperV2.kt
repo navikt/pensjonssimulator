@@ -31,6 +31,7 @@ object TpoSimuleringSpecMapperV2 {
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = source.fremtidigInntektList.orEmpty()
                 .map(TpoSimuleringSpecMapperV2::inntekt).toMutableList(), // V2, V3 only
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,

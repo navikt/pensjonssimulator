@@ -53,6 +53,7 @@ class UttakSpecMapperV1Test : FunSpec({
                     fom = LocalDate.of(2029, 2, 1)
                 )
             ),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,

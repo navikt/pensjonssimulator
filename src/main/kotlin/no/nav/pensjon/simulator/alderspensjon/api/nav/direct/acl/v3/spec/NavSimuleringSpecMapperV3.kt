@@ -55,7 +55,8 @@ object NavSimuleringSpecMapperV3 {
             flyktning = false,
             utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
             // Inntekt angis før/etter gradert/helt uttak istedenfor via liste:
-            fremtidigInntektListe = null, // NB: Must be null (not empty list)
+            fremtidigInntektListe = mutableListOf(),
+            brukFremtidigInntekt = false,
             rettTilOffentligAfpFom = null,
             afpOrdning = null,
             afpInntektMaanedFoerUttak = null,

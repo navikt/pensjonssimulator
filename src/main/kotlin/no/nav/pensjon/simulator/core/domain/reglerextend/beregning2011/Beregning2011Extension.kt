@@ -181,7 +181,6 @@ fun Uforetrygdberegning.copy() =
         it.yrkesskadegrad = this.yrkesskadegrad
         it.yrkesskadetidspunkt = this.yrkesskadetidspunkt?.clone() as? Date
         it.mottarMinsteytelse = this.mottarMinsteytelse
-        //it.avtaleBeregningsmetode = this.avtaleBeregningsmetode
         it.minsteytelseArsak = this.minsteytelseArsak
         it.instOppholdTypeEnum = this.instOppholdTypeEnum
         it.instOpphAnvendt = this.instOpphAnvendt
@@ -233,6 +232,7 @@ private fun copyBeregningsResultat(source: AbstraktBeregningsResultat, target: A
     target.epsMottarPensjon = source.epsMottarPensjon
     target.epsPaavirkerBeregning = source.epsPaavirkerBeregning
     target.harGjenlevenderett = source.harGjenlevenderett
+    target.beregningsinformasjon = source.beregningsinformasjon?.copy()
 }
 
 private fun copyJustering(source: IJustering): IJustering =

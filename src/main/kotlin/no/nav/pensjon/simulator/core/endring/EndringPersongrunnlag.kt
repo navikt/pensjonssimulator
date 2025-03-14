@@ -81,7 +81,7 @@ class EndringPersongrunnlag(
                 endringPersongrunnlagListe = endringKravhode.persongrunnlagListe,
                 eksisterendePersongrunnlagListe = it,
                 spec,
-                epsPaavirker = forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregning,
+                epsPaavirker = forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen(),
                 grunnbeloep
             )
         }

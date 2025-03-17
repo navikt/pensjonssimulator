@@ -20,7 +20,7 @@ import java.util.Objects.requireNonNull
 // PEN: PensjonReglerRestConsumerService
 @Component
 class PensjonReglerGenericRegelClient(
-    @Value("\${ps.fss-gw.url}") baseUrl: String,
+    @Value("\${ps.regler.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     @Qualifier("regler") private val objectMapper: ObjectMapper,

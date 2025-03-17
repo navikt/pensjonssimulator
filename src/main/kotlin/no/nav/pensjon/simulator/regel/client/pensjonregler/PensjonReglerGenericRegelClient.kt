@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
-import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
@@ -20,7 +19,7 @@ import java.util.Objects.requireNonNull
 // PEN: PensjonReglerRestConsumerService
 @Component
 class PensjonReglerGenericRegelClient(
-    @Value("\${ps.fss-gw.url}") baseUrl: String,
+    @Value("\${ps.regler.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     @Qualifier("regler") private val objectMapper: ObjectMapper,
@@ -70,7 +69,6 @@ class PensjonReglerGenericRegelClient(
 
     // makeHttpHeaders
     private fun setHeaders(headers: HttpHeaders, sakId: String? = null) {
-        with(EgressAccess.token(service).value) { headers.setBearerAuth(this) }
         sakId?.let { headers["sakId"] = it }
         headers.contentType = MediaType.APPLICATION_JSON
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
@@ -83,6 +81,6 @@ class PensjonReglerGenericRegelClient(
     companion object {
         private const val BASE_PATH = "api"
 
-        private val service = EgressService.FSS_GATEWAY
+        private val service = EgressService.PENSJON_REGLER
     }
 }

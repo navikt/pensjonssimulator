@@ -15,12 +15,18 @@ enum class EgressService(
     FSS_GATEWAY(
         description = "FSS-gateway",
         shortName = "FGW",
-        purpose = "Proxy for pensjon-regler og sporingslogg"
+        purpose = "Proxy for sporingslogg"
     ),
     PENSJONSFAGLIG_KJERNE(
         description = "Pensjonsfaglig kjerne",
         shortName = "PEN",
         purpose = "Finne tidligst mulig uttak"
+    ),
+    PENSJON_REGLER(
+        description = "Pensjonsfaglig regelmotor",
+        shortName = "PR",
+        purpose = "Vilårsprøving og beregning",
+        authType = AuthType.NONE
     ),
     TP_REGISTERET(
         description = "Tjenestepensjonsregisteret",

@@ -68,7 +68,7 @@ object EndringValidator {
     // SimulerEndringAvAPCommand.hasApWithGjenlevenderett
     private fun harAlderspensjonMedGjenlevenderett(resultat: AbstraktBeregningsResultat?): Boolean {
         return when (resultat) {
-            is BeregningsResultatAlderspensjon2011 -> resultat.harGjenlevenderett
+            is BeregningsResultatAlderspensjon2011 -> resultat.beregningsinformasjon?.harGjenlevenderett == true
             is BeregningsResultatAlderspensjon2016 -> resultat.beregningsResultat2011?.beregningsInformasjonKapittel19?.rettPaGjenlevenderett == true
             else -> false
         }

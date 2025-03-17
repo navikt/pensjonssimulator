@@ -46,10 +46,10 @@ class BeregningsInformasjon {
     var ttBeregnetForGrunnlagsrolle = 0
     var ungUforGarantiFrafalt = false
 
-    //@JsonIgnore
-    var epsMottarPensjon: Boolean = false
+    //--- Extra:
 
-    //@JsonIgnore
+    // from PEN no.nav.domain.pensjon.kjerne.beregning2011.BeregningsInformasjon
+    var epsMottarPensjon: Boolean = false
     var epsOver2G: Boolean = false
 
     @JsonIgnore

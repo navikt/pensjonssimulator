@@ -32,7 +32,7 @@ object UttakSpecMapperV1 {
             inntektEtterHeltUttakBeloep = 0, // fremtidigInntektListe is used instead
             inntektEtterHeltUttakAntallAar = null, // fremtidigInntektListe is used instead
             foedselAar = foedselsdato.year,
-            utlandAntallAar = 0, // not taken into account
+            utlandAntallAar = source.arIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(), // not taken into account
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty().map(::inntekt).toMutableList(),
             brukFremtidigInntekt = true,

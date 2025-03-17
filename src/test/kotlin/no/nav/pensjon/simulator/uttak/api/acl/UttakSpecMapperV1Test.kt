@@ -26,6 +26,7 @@ class UttakSpecMapperV1Test : FunSpec({
                         fraOgMedDato = LocalDate.of(2029, 2, 1)
                     )
                 ),
+                arIUtlandetEtter16 = 5
             ),
             foedselsdato = LocalDate.of(1964, 5, 6)
         ) shouldBe SimuleringSpec(
@@ -45,7 +46,7 @@ class UttakSpecMapperV1Test : FunSpec({
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = null,
             foedselAar = 1964,
-            utlandAntallAar = 0,
+            utlandAntallAar = 5,
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = mutableListOf(
                 FremtidigInntekt(

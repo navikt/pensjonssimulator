@@ -45,7 +45,8 @@ data class SimuleringSpec(
     val ignoreAvslag: Boolean, //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
     val isHentPensjonsbeholdninger: Boolean,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
-    val onlyVilkaarsproeving: Boolean
+    val onlyVilkaarsproeving: Boolean,
+    val epsKanOverskrives: Boolean
 ) {
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
     val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
@@ -142,7 +143,8 @@ data class SimuleringSpec(
             ignoreAvslag = ignoreAvslag,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-            onlyVilkaarsproeving = onlyVilkaarsproeving
+            onlyVilkaarsproeving = onlyVilkaarsproeving,
+            epsKanOverskrives = epsKanOverskrives
         )
 
     fun withFoersteUttakDato(dato: LocalDate?) =

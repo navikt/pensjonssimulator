@@ -62,7 +62,8 @@ object NavSimuleringSpecMapperV3 {
             afpInntektMaanedFoerUttak = null,
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = true
         )
     }
 

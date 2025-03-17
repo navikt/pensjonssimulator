@@ -42,7 +42,8 @@ object TpoSimuleringSpecMapperV2 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for TPO
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = false
         )
 
     private fun inntekt(source: InntektSpecLegacyV2) =

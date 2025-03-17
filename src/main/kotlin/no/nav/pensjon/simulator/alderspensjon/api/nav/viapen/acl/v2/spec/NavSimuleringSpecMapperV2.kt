@@ -49,7 +49,8 @@ object NavSimuleringSpecMapperV2 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = false
         )
 
     private fun utlandPeriode(source: NavSimuleringUtlandPeriodeV2) =

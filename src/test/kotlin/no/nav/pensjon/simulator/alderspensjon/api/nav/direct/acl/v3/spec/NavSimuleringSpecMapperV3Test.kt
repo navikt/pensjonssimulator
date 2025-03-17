@@ -90,7 +90,8 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // to produce månedsbeløp
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = true
         )
     }
 })

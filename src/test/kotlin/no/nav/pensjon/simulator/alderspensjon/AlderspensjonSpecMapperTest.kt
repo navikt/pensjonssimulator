@@ -90,5 +90,6 @@ private fun simuleringSpec(type: SimuleringType, livsvarigOffentligAfpRettFom: L
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-        onlyVilkaarsproeving = false
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false
     )

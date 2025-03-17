@@ -79,6 +79,7 @@ object TestObjects {
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
-        onlyVilkaarsproeving = false
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false
     )
 }

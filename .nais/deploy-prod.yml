@@ -75,6 +75,9 @@ spec:
         - application: pensjon-pen
           namespace: pensjondeployer
           cluster: prod-fss
+        - application: pensjon-regler
+          namespace: pensjon-regler
+          cluster: prod-fss
         - application: pensjon-selvbetjening-fss-gateway
           namespace: pensjonselvbetjening
           cluster: prod-fss
@@ -85,6 +88,7 @@ spec:
       external:
         - host: maskinporten.no
         - host: pensjon-pen.prod-fss-pub.nais.io
+        - host: pensjon-regler.prod-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
         - host: tp-api.prod-fss-pub.nais.io
   env:
@@ -96,6 +100,8 @@ spec:
       value: prod-fss:pensjondeployer:pensjon-pen
     - name: PEN_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io
+    - name: REGLER_URL
+      value: https://pensjon-regler.prod-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID
       value: prod-fss:pensjonsamhandling:tp
     - name: TJENESTEPENSJON_URL

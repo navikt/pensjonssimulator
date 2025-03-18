@@ -5,7 +5,7 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpLivsvarig
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAPKap19
@@ -53,7 +53,7 @@ object SimulatorContextUtil {
         spec.tom = spec.tom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
-        spec.afpLivsvarig?.let(::roundNettoPerAar)
+        spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
@@ -62,7 +62,7 @@ object SimulatorContextUtil {
         spec.virkFom = spec.virkFom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.finishInit() }
-        spec.afpLivsvarig?.let(::roundNettoPerAar)
+        spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
@@ -71,13 +71,13 @@ object SimulatorContextUtil {
         spec.fom = spec.fom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
-        spec.afpLivsvarig?.let(::roundNettoPerAar)
+        spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     fun postprocess(result: BeregningsResultatAfpPrivat) {
         result.virkTom = null
-        result.afpPrivatBeregning?.afpLivsvarig?.let(::roundNettoPerAar)
+        result.afpPrivatBeregning?.afpPrivatLivsvarig?.let(::roundNettoPerAar)
     }
 
     fun validerOgFerdigstillResponse(
@@ -180,7 +180,7 @@ object SimulatorContextUtil {
      * PEN's nettoPerAr is integer, whereas regler's is double;
      * therefore need to round when calling regler from PEN.
      */
-    private fun roundNettoPerAar(afp: AfpLivsvarig) {
+    private fun roundNettoPerAar(afp: AfpPrivatLivsvarig) {
         afp.nettoPerAr = afp.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
     }
 

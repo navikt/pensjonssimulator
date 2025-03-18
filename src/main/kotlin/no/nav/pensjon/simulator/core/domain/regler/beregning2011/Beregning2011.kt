@@ -10,7 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningsmetodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 
-// 2025-03-10
+// 2025-03-18
 @JsonSubTypes(
     JsonSubTypes.Type(value = Uforetrygdberegning::class),
     JsonSubTypes.Type(value = AfpPrivatBeregning::class),
@@ -36,38 +36,4 @@ abstract class Beregning2011 {
      * Ifbm. Gjenlevendetillegg settes koden avhengig av hvilke grunnlagsroller som beregningen angår.
      */
     var beregningGjelderTypeEnum: BeregningGjelderTypeEnum? = null
-
-    constructor()
-
-    constructor(source: Beregning2011, kopierDelberegning2011Liste: Boolean = true) {
-        this.grunnbelop = source.grunnbelop
-
-        if (source.gjelderPerson != null) {
-            gjelderPerson = PenPerson(source.gjelderPerson!!.penPersonId)
-        }
-
-        tt_anv = source.tt_anv
-
-        if (source.resultatTypeEnum != null) {
-            resultatTypeEnum = source.resultatTypeEnum
-        }
-
-        if (source.beregningsMetodeEnum != null) {
-            beregningsMetodeEnum = source.beregningsMetodeEnum
-        }
-
-        if (source.beregningTypeEnum != null) {
-            beregningTypeEnum = source.beregningTypeEnum
-        }
-
-        if (kopierDelberegning2011Liste) {
-            delberegning2011Liste = source.delberegning2011Liste.map(::BeregningRelasjon)
-        }
-
-        merknadListe = source.merknadListe.map(::Merknad)
-
-        if (source.beregningGjelderTypeEnum != null) {
-            this.beregningGjelderTypeEnum = source.beregningGjelderTypeEnum
-        }
-    }
 }

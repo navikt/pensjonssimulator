@@ -71,9 +71,6 @@ class PensjonUnderUtbetaling {
     var afpKronetillegg: AfpKronetillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpKronetillegg>(yk)
-    var afpLivsvarig: AfpLivsvarig?
-        get() = ytelseskomponenter.firstIsInstanceOrNull()
-        set(yk) = internalAddOrRemoveIfNull<AfpLivsvarig>(yk)
     var afpTillegg: AfpTillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpTillegg>(yk)
@@ -182,6 +179,12 @@ class PensjonUnderUtbetaling {
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggSerkullsbarnUT>(yk)
     // AfpLivsvarig:
+    var afpOffentligLivsvarig: AfpOffentligLivsvarig?
+        get() = ytelseskomponenter.firstIsInstanceOrNull()
+        set(yk) = internalAddOrRemoveIfNull<AfpOffentligLivsvarig>(yk)
+    var afpPrivatLivsvarig: AfpPrivatLivsvarig?
+        get() = ytelseskomponenter.firstIsInstanceOrNull()
+        set(yk) = internalAddOrRemoveIfNull<AfpPrivatLivsvarig>(yk)
     var fremskrevetAfpLivsvarig: FremskrevetAfpLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<FremskrevetAfpLivsvarig>(yk)

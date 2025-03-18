@@ -94,7 +94,8 @@ class PrivatAfpBeregner(
 
         val gjeldendeBeregningResultat =
             forrigeBeregningResultat?.let {
-                BeregningsResultatAfpPrivat(it).apply {
+                BeregningsResultatAfpPrivat().apply {
+                    afpPrivatBeregning = it.afpPrivatBeregning
                     virkTom = tidligsteKnekkpunktDato?.minusDays(1)?.toNorwegianDateAtNoon()
                 }
             }

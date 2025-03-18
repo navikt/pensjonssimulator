@@ -187,8 +187,7 @@ class Vilkaarsproever(private val context: SimulatorContext) {
                 fom = spec.virkningFom.toNorwegianDateAtNoon()
                 tom = null
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                afpLivsvarig = spec.privatAfp
+                afpPrivatLivsvarig = spec.privatAfp
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011
                 utforVilkarsberegning = true
             }
@@ -197,26 +196,20 @@ class Vilkaarsproever(private val context: SimulatorContext) {
             VilkarsprovAlderpensjon2016Request().apply {
                 kravhode = spec.kravhode
                 virkFom = spec.virkningFom.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
-                afpLivsvarig = spec.privatAfp
+                afpPrivatLivsvarig = spec.privatAfp
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016
                 utforVilkarsberegning = true
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggBeholdningGrunnlag
             }
 
         private fun vilkaarsproeving2025Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2025Request().apply {
                 kravhode = spec.kravhode
                 fom = spec.virkningFom.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
-                afpLivsvarig = spec.privatAfp
+                afpPrivatLivsvarig = spec.privatAfp
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011 // NB: 2011
                 utforVilkarsberegning = true
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggBeholdningGrunnlag
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
             }
     }

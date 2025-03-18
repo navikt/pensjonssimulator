@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpKompensasjonstillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpKronetillegg
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatBeregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpOpptjening

@@ -27,16 +27,14 @@ import java.util.*
 @Component
 class AlderspensjonBeregner(private val context: SimulatorContext) {
 
-    // VilkarsprovOgBeregnAlderHelper.beregnAP
+    // PEN: VilkarsprovOgBeregnAlderHelper.beregnAP
     fun beregnAlderspensjon(
         kravhode: Kravhode,
         vedtakListe: MutableList<VilkarsVedtak>,
         virkningDato: LocalDate,
-        forholdstallUtvalg: ForholdstallUtvalg,
-        delingstallUtvalg: DelingstallUtvalg,
         sisteAldersberegning2011: SisteBeregning?,
-        privatAfp: AfpLivsvarig?,
-        garantitilleggBeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag,
+        privatAfp: AfpPrivatLivsvarig?,
+        livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
         simuleringSpec: SimuleringSpec,
         sakId: Long?,
         isFoersteUttak: Boolean,
@@ -44,22 +42,28 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
     ): AbstraktBeregningsResultat =
         if (isFoersteUttak) {
             val request = beregningCommonSpec(
-                kravhode, vedtakListe, virkningDato, forholdstallUtvalg, delingstallUtvalg,
-                privatAfp, garantitilleggBeholdningGrunnlag, simuleringSpec
+                kravhode,
+                vedtakListe,
+                virkningDato,
+                privatAfp,
+                livsvarigOffentligAfpGrunnlag,
+                simuleringSpec
             )
-
             beregnFoersteUttak(request, sakId, ignoreAvslag)
         } else { // revurdering av alderspensjon
             val request = revurderingCommonSpec(
-                kravhode, vedtakListe, virkningDato, forholdstallUtvalg, delingstallUtvalg,
-                sisteAldersberegning2011!!, privatAfp, garantitilleggBeholdningGrunnlag, simuleringSpec
+                kravhode,
+                vedtakListe,
+                virkningDato,
+                sisteAldersberegning2011!!,
+                privatAfp,
+                livsvarigOffentligAfpGrunnlag,
+                simuleringSpec
             )
-
             beregnRevurdering(request, sakId)
         }
 
-    // VilkarsprovOgBeregnAlderHelper.beregnForsteUttak
-    //@Throws(PEN222BeregningstjenesteFeiletException::class)
+    // PEN: VilkarsprovOgBeregnAlderHelper.beregnForsteUttak
     private fun beregnFoersteUttak(
         spec: AlderspensjonBeregningCommonSpec,
         sakId: Long?,
@@ -155,25 +159,21 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             kravhode: Kravhode,
             vedtakListe: MutableList<VilkarsVedtak>,
             virkningFom: LocalDate,
-            forholdstallUtvalg: ForholdstallUtvalg,
-            delingstallUtvalg: DelingstallUtvalg,
-            livsvarigAfp: AfpLivsvarig?,
-            garantitilleggBeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag,
+            privatAfp: AfpPrivatLivsvarig?,
+            livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
             simuleringSpec: SimuleringSpec
         ): AlderspensjonBeregningCommonSpec {
             val epsMottarPensjon = epsMottarPensjon(simuleringSpec)
             val paavirkendeYtelseInfo = if (epsMottarPensjon) paavirkendeYtelseInfo(virkningFom, kravhode) else null
 
             return AlderspensjonBeregningCommonSpec(
-                kravhode = kravhode,
+                kravhode,
                 vilkarsvedtakListe = vedtakListe,
                 infoPavirkendeYtelse = paavirkendeYtelseInfo,
                 virkFom = virkningFom,
-                forholdstallUtvalg = forholdstallUtvalg,
-                delingstallUtvalg = delingstallUtvalg,
-                epsMottarPensjon = epsMottarPensjon,
-                afpLivsvarig = livsvarigAfp,
-                garantitilleggsbeholdningGrunnlag = garantitilleggBeholdningGrunnlag
+                epsMottarPensjon,
+                privatAfp,
+                livsvarigOffentligAfpGrunnlag
             )
         }
 
@@ -184,9 +184,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
-                forholdstallUtvalg = spec.forholdstallUtvalg
                 ektefellenMottarPensjon = spec.epsMottarPensjon
-                afpLivsvarig = spec.afpLivsvarig
+                afpPrivatLivsvarig = spec.privatAfp
             }
 
         private fun beregning2016Request(spec: AlderspensjonBeregningCommonSpec) =
@@ -195,11 +194,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
                 epsMottarPensjon = spec.epsMottarPensjon
-                afpLivsvarig = spec.afpLivsvarig
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
+                afpPrivatLivsvarig = spec.privatAfp
             }
 
         private fun beregning2025Request(spec: AlderspensjonBeregningCommonSpec) =
@@ -208,38 +204,32 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
                 epsMottarPensjon = spec.epsMottarPensjon
-                afpLivsvarig = spec.afpLivsvarig
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
+                afpPrivatLivsvarig = spec.privatAfp
+                afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
             }
 
         private fun revurderingCommonSpec(
             kravhode: Kravhode,
             vedtakListe: MutableList<VilkarsVedtak>,
             virkningFom: LocalDate,
-            forholdstallUtvalg: ForholdstallUtvalg,
-            delingstallUtvalg: DelingstallUtvalg,
             sisteAlderspensjonBeregning2011: SisteBeregning,
-            livsvarigAfp: AfpLivsvarig?,
-            garantitilleggBeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag,
+            privatAfp: AfpPrivatLivsvarig?,
+            livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
             simuleringSpec: SimuleringSpec
         ): AlderspensjonRevurderingCommonSpec {
             val epsMottarPensjon = epsMottarPensjon(simuleringSpec)
             val paavirkendeYtelseInfo = if (epsMottarPensjon) paavirkendeYtelseInfo(virkningFom, kravhode) else null
 
             return AlderspensjonRevurderingCommonSpec(
-                kravhode = kravhode,
+                kravhode,
                 vilkarsvedtakListe = vedtakListe,
                 infoPavirkendeYtelse = paavirkendeYtelseInfo,
-                epsMottarPensjon = epsMottarPensjon,
-                forholdstallUtvalg = forholdstallUtvalg,
-                delingstallUtvalg = delingstallUtvalg,
+                epsMottarPensjon,
                 virkFom = virkningFom,
                 forrigeAldersberegning = sisteAlderspensjonBeregning2011,
-                afpLivsvarig = livsvarigAfp,
-                garantitilleggsbeholdningGrunnlag = garantitilleggBeholdningGrunnlag
+                privatAfp,
+                livsvarigOffentligAfpGrunnlag
             )
         }
 
@@ -290,11 +280,10 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = Vector(spec.vilkarsvedtakListe)
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 epsMottarPensjon = spec.epsMottarPensjon
-                forholdstallUtvalg = spec.forholdstallUtvalg
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2011
-                afpLivsvarig = spec.afpLivsvarig
+                afpPrivatLivsvarig = spec.privatAfp
             }
 
         private fun revurdering2016Request(spec: AlderspensjonRevurderingCommonSpec) =
@@ -303,12 +292,9 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe)
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 epsMottarPensjon = spec.epsMottarPensjon
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016
-                afpLivsvarig = spec.afpLivsvarig
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
+                afpPrivatLivsvarig = spec.privatAfp
             }.also {
                 it.vilkarsvedtakListe.forEach(::prepareVedtak2016ForReglerCall)
                 it.forrigeAldersBeregning?.let(::clearFormelMaps)
@@ -320,12 +306,10 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe)
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 epsMottarPensjon = spec.epsMottarPensjon
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011 // NB: 2011
-                afpLivsvarig = spec.afpLivsvarig
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggsbeholdningGrunnlag
+                afpPrivatLivsvarig = spec.privatAfp
+                afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
             }.also {
                 it.vilkarsvedtakListe.forEach(::prepareVedtak2025ForReglerCall)
                 it.sisteAldersBeregning2011?.let(::prepareBeregningForReglerCall)

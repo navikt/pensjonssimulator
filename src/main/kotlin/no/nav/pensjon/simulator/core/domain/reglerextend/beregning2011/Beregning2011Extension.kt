@@ -6,16 +6,45 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.BeregningRelasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelseskomponent
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import java.util.*
+
+fun AfpPrivatBeregning.copy() =
+    AfpPrivatBeregning().also {
+        it.afpPrivatLivsvarig = this.afpPrivatLivsvarig
+        it.afpKompensasjonstillegg = this.afpKompensasjonstillegg
+        it.afpKronetillegg = this.afpKronetillegg
+        it.afpOpptjening = this.afpOpptjening
+        copyBeregning2011(source = this, target = it)
+    }
+
+fun AfpPrivatLivsvarig.copy() =
+    AfpPrivatLivsvarig().also {
+        it.justeringsbelop = this.justeringsbelop
+        it.afpProsentgrad = this.afpProsentgrad
+        it.afpForholdstall = this.afpForholdstall
+        copyAfpLivsvarig(source = this, target = it)
+    }
+
+fun AldersberegningKapittel19.copy() =
+    AldersberegningKapittel19().also {
+        it.restpensjon = this.restpensjon?.let(::Basispensjon)
+        it.basispensjon = this.basispensjon?.let(::Basispensjon)
+        it.basispensjonUtenGJR = this.basispensjonUtenGJR?.let(::Basispensjon)
+        it.restpensjonUtenGJR = this.restpensjonUtenGJR?.let(::Basispensjon)
+        it.forholdstall = this.forholdstall
+        it.ftBenyttetArsakListe = this.ftBenyttetArsakListe.map { it.copy() }.toMutableList()
+        copyBeregning2011(source = this, target = it)
+    }
 
 fun AldersberegningKapittel20.copy() =
     AldersberegningKapittel20().also {
         it.delingstall = this.delingstall
         it.beholdninger = this.beholdninger?.copy()
         it.pensjonUnderUtbetaling = this.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)
-        it.dtBenyttetArsakListe = this.dtBenyttetArsakListe.map(::FtDtArsak)
+        it.dtBenyttetArsakListe = this.dtBenyttetArsakListe.map { it.copy() }
         it.beholdningerForForsteuttak = this.beholdningerForForsteuttak
         it.prorataBrok = this.prorataBrok?.let(::Brok)
         copyBeregning2011(source = this, target = it)
@@ -107,7 +136,7 @@ fun BeregningsResultatAlderspensjon2011.copy() =
         it.pensjonUnderUtbetalingUtenGJR = this.pensjonUnderUtbetalingUtenGJR?.let(::PensjonUnderUtbetaling)
         it.beregningsInformasjonKapittel19 = this.beregningsInformasjonKapittel19?.copy()
         it.beregningsInformasjonAvdod = this.beregningsInformasjonAvdod?.copy()
-        it.beregningKapittel19 = this.beregningKapittel19?.let(::AldersberegningKapittel19)
+        it.beregningKapittel19 = this.beregningKapittel19?.copy()
         copyBeregningsResultat(source = this, target = it)
     }
 
@@ -118,6 +147,11 @@ fun FremskrivingsDetaljer.copy() =
         it.teller = this.teller
         it.nevner = this.nevner
         it.arskull = this.arskull
+    }
+
+fun FtDtArsak.copy() =
+    FtDtArsak().also {
+        it.ftDtArsakEnum = this.ftDtArsakEnum
     }
 
 fun GarantitilleggInformasjon.copy() =
@@ -196,6 +230,13 @@ private fun copyAvkortingsinformasjon(source: AbstraktAvkortingsinformasjon, tar
     target.avkortingsbelopPerAr = source.avkortingsbelopPerAr
     target.restTilUtbetaling = source.restTilUtbetaling
     target.inntektsavkortingTypeEnum = source.inntektsavkortingTypeEnum
+}
+
+private fun copyAfpLivsvarig(
+    source: AbstraktAfpLivsvarig,
+    target: AbstraktAfpLivsvarig
+) {
+    copyYtelseskomponent(source, target)
 }
 
 private fun copyBeregning2011(

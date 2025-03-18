@@ -119,8 +119,7 @@ class Vilkaarsproever(private val context: SimulatorContext) {
 
                 val foersteVirk = localFoersteVirk.toNorwegianDateAtNoon()
                 it.forsteVirk = foersteVirk // NB: modified in VilkarsprovOgBeregnAlderHelper 2023-08-30
-                it.kravlinjeForsteVirk =
-                    foersteVirk // NB: modified in VilkarsprovOgBeregnAlderHelper 2023-12-05 (PEB-476)
+                // Not setting kravlinjeForsteVirk, ref. github.com/navikt/pensjon-pen/pull/14573
                 it.finishInit()
             }
 

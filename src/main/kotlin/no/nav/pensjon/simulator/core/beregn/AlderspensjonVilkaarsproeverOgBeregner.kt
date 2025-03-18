@@ -147,6 +147,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
                 vedtakListe = vilkaarsproevingResult.first
                 kravhode = vilkaarsproevingResult.second
+                setKravlinjeFoersteVirkning(vedtakListe, soekerGrunnlag.forsteVirkningsdatoGrunnlagListe)
                 forrigeVedtakListe = vedtakListe
                 vedtakListeAllePerioder.addAll(forrigeVedtakListe)
             }
@@ -448,6 +449,30 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
                 is BeregningsResultatAlderspensjon2025 -> {
                     resultat.beregningsInformasjonKapittel20?.let { it.epsMottarPensjon = true }
+                }
+            }
+        }
+
+        // PEN: VilkarsprovOgBeregnAlderHelper.setKravlinjeForstevirkFromPersongrunnlag
+        private fun setKravlinjeFoersteVirkning(
+            vedtakListe: List<VilkarsVedtak>,
+            foersteVirkningGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
+        ) {
+            vedtakListe.forEach {
+                setKravlinjeFoersteVirkning(vedtak = it, foersteVirkningGrunnlagListe, KravlinjeTypeEnum.AP)
+                setKravlinjeFoersteVirkning(vedtak = it, foersteVirkningGrunnlagListe, KravlinjeTypeEnum.GJR)
+            }
+        }
+
+        // PEN: VilkarsprovOgBeregnAlderHelper.setKravlinjeForstevirkFromPersongrunnlagForType
+        private fun setKravlinjeFoersteVirkning(
+            vedtak: VilkarsVedtak,
+            foersteVirkningGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>,
+            kravlinjeType: KravlinjeTypeEnum
+        ) {
+            if (vedtak.kravlinjeTypeEnum == kravlinjeType) {
+                foersteVirkningGrunnlagListe.firstOrNull { it.kravlinjeTypeEnum == kravlinjeType }?.let {
+                    vedtak.kravlinjeForsteVirk = it.virkningsdato
                 }
             }
         }

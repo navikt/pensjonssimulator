@@ -11,12 +11,41 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import java.util.*
 
+fun AfpKompensasjonstillegg.copy() =
+    AfpKompensasjonstillegg().also {
+        it.referansebelop = this.referansebelop
+        it.reduksjonsbelop = this.reduksjonsbelop
+        it.forholdstallKompensasjonstillegg = this.forholdstallKompensasjonstillegg
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun AfpKronetillegg.copy() =
+    AfpKronetillegg().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun AfpOffentligLivsvarig.copy() =
+    AfpOffentligLivsvarig().also {
+        it.sistRegulertG = this.sistRegulertG
+        it.uttaksdato = this.uttaksdato
+        copyAfpLivsvarig(source = this, target = it)
+    }
+
+fun AfpLivsvarig.copy() =
+    AfpLivsvarig().also {
+        it.justeringsbelop = this.justeringsbelop
+        it.afpProsentgrad = this.afpProsentgrad
+        it.afpForholdstall = this.afpForholdstall
+        copyYtelseskomponent(source = this, target = it)
+    }
+
 fun AfpPrivatBeregning.copy() =
     AfpPrivatBeregning().also {
-        it.afpPrivatLivsvarig = this.afpPrivatLivsvarig
-        it.afpKompensasjonstillegg = this.afpKompensasjonstillegg
-        it.afpKronetillegg = this.afpKronetillegg
-        it.afpOpptjening = this.afpOpptjening
+        it.afpLivsvarig = this.afpLivsvarig?.copy()
+        it.afpPrivatLivsvarig = this.afpPrivatLivsvarig?.copy()
+        it.afpKompensasjonstillegg = this.afpKompensasjonstillegg?.copy()
+        it.afpKronetillegg = this.afpKronetillegg?.copy()
+        it.afpOpptjening = this.afpOpptjening?.copy()
         copyBeregning2011(source = this, target = it)
     }
 
@@ -30,10 +59,10 @@ fun AfpPrivatLivsvarig.copy() =
 
 fun AldersberegningKapittel19.copy() =
     AldersberegningKapittel19().also {
-        it.restpensjon = this.restpensjon?.let(::Basispensjon)
-        it.basispensjon = this.basispensjon?.let(::Basispensjon)
-        it.basispensjonUtenGJR = this.basispensjonUtenGJR?.let(::Basispensjon)
-        it.restpensjonUtenGJR = this.restpensjonUtenGJR?.let(::Basispensjon)
+        it.restpensjon = this.restpensjon?.copy()
+        it.basispensjon = this.basispensjon?.copy()
+        it.basispensjonUtenGJR = this.basispensjonUtenGJR?.copy()
+        it.restpensjonUtenGJR = this.restpensjonUtenGJR?.copy()
         it.forholdstall = this.forholdstall
         it.ftBenyttetArsakListe = this.ftBenyttetArsakListe.map { it.copy() }.toMutableList()
         copyBeregning2011(source = this, target = it)
@@ -88,6 +117,15 @@ fun AvkortingsinformasjonUT.copy() =
         copyAvkortingsinformasjon(source = this, target = it)
     }
 
+fun Basispensjon.copy() =
+    Basispensjon().also {
+        it.totalbelop = this.totalbelop
+        it.gp = this.gp?.let(::BasisGrunnpensjon)
+        it.tp = this.tp?.let(::BasisTilleggspensjon)
+        it.pt = this.pt?.let(::BasisPensjonstillegg)
+        it.formelKodeEnum = this.formelKodeEnum
+    }
+
 fun BeregningsInformasjon.copy() =
     BeregningsInformasjon().also {
         it.forholdstallUttak = this.forholdstallUttak
@@ -138,6 +176,14 @@ fun BeregningsResultatAlderspensjon2011.copy() =
         it.beregningsInformasjonAvdod = this.beregningsInformasjonAvdod?.copy()
         it.beregningKapittel19 = this.beregningKapittel19?.copy()
         copyBeregningsResultat(source = this, target = it)
+    }
+
+fun FremskrevetAfpLivsvarig.copy() =
+    FremskrevetAfpLivsvarig().also {
+        it.reguleringsfaktor = this.reguleringsfaktor
+        it.gap = this.gap
+        it.gjennomsnittligUttaksgradSisteAr = this.gjennomsnittligUttaksgradSisteAr
+        copyAfpLivsvarig(source = this, target = it)
     }
 
 fun FremskrivingsDetaljer.copy() =

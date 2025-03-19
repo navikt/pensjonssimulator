@@ -50,6 +50,7 @@ import java.math.RoundingMode
     JsonSubTypes.Type(value = UforetilleggTilAlderspensjon::class),
     JsonSubTypes.Type(value = UforetrygdOrdiner::class),
     JsonSubTypes.Type(value = Ventetillegg::class),
+    JsonSubTypes.Type(value = AfpLivsvarig::class),
     JsonSubTypes.Type(value = AbstraktAfpLivsvarig::class),
     JsonSubTypes.Type(value = AbstraktBarnetillegg::class)
 )

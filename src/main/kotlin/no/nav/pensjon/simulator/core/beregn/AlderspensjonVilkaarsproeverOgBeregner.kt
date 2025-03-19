@@ -117,7 +117,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     sistRegulertG = it.sistRegulertG ?: 0,
                     bruttoPerAr = it.bruttoPerAr,
                     uttaksdato = it.uttaksdato
-                        ?: throw RuntimeException("Missing uttaksdato in gjeldendeLivsvarigOffentligAfp"),
                 )
             }
 

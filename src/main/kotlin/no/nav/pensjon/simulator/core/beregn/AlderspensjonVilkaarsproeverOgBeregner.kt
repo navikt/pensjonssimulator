@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
@@ -353,14 +354,14 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     }
 
     private companion object {
-        private const val GARANTITILLEGG_MAX_ALDER = 67
+        private const val GARANTITILLEGG_MAX_ALDER = 67 //TODO normert?
 
         // VilkarsprovOgBeregnAlderHelper.getAfpLivsvarig
         private fun getPrivatAfp(
             resultatListe: MutableList<BeregningsResultatAfpPrivat>,
             knekkpunktDato: LocalDate
         ): AfpPrivatLivsvarig? =
-            findValidForDate(resultatListe, knekkpunktDato)?.hentLivsvarigDelIBruk()
+            findValidForDate(resultatListe, knekkpunktDato)?.privatAfp()
 
         private fun getLivsvarigOffentligAfp(
             resultatListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>,
@@ -577,11 +578,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
     }
 }
-
-private fun BeregningsResultatAfpPrivat.hentLivsvarigDelIBruk() =
-    pensjonUnderUtbetaling?.ytelseskomponenter?.firstOrNull {
-        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG && it is AfpPrivatLivsvarig
-    } as AfpPrivatLivsvarig?
 
 private fun Beholdninger.findBeholdningAvType(type: BeholdningtypeEnum) =
     beholdninger.firstOrNull { type == it.beholdningsTypeEnum }

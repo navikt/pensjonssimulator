@@ -4,7 +4,9 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.BeregningRelasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelseskomponent
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
@@ -31,6 +33,14 @@ fun AfpOffentligLivsvarig.copy() =
         copyAfpLivsvarig(source = this, target = it)
     }
 
+fun AfpLivsvarig.asPrivatAfp() =
+    AfpPrivatLivsvarig().also {
+        it.justeringsbelop = this.justeringsbelop
+        it.afpProsentgrad = this.afpProsentgrad
+        it.afpForholdstall = this.afpForholdstall
+        copyYtelseskomponent(source = this, target = it)
+    }
+
 fun AfpLivsvarig.copy() =
     AfpLivsvarig().also {
         it.justeringsbelop = this.justeringsbelop
@@ -47,6 +57,14 @@ fun AfpPrivatBeregning.copy() =
         it.afpKronetillegg = this.afpKronetillegg?.copy()
         it.afpOpptjening = this.afpOpptjening?.copy()
         copyBeregning2011(source = this, target = it)
+    }
+
+fun AfpPrivatLivsvarig.asLegacyPrivatAfp() =
+    AfpLivsvarig().also {
+        it.justeringsbelop = this.justeringsbelop
+        it.afpProsentgrad = this.afpProsentgrad
+        it.afpForholdstall = this.afpForholdstall
+        copyYtelseskomponent(source = this, target = it)
     }
 
 fun AfpPrivatLivsvarig.copy() =
@@ -167,6 +185,12 @@ fun BeregningsInformasjon.copy() =
         it.epsOver2G = this.epsOver2G
         it.unclearedDelingstallUttak = this.unclearedDelingstallUttak
         it.unclearedDelingstall67 = this.unclearedDelingstall67
+    }
+
+// PEN: BeregningsresultatAfpPrivat.hentLivsvarigDelIBruk
+fun BeregningsResultatAfpPrivat.privatAfp(): AfpPrivatLivsvarig? =
+    this.pensjonUnderUtbetaling?.ytelseskomponenter.orEmpty().let {
+        privatAfp(it) ?: legacyPrivatAfp(it)?.asPrivatAfp()
     }
 
 fun BeregningsResultatAlderspensjon2011.copy() =
@@ -329,3 +353,13 @@ private fun copyJustering(source: IJustering): IJustering =
         is GReguleringDetaljer -> throw RuntimeException("Deprecated IJustering type: GReguleringDetaljer")
         else -> throw RuntimeException("Unsupported IJustering type: ${source.javaClass.name}")
     }
+
+private fun legacyPrivatAfp(ytelseKomponentListe: List<Ytelseskomponent>): AfpLivsvarig? =
+    ytelseKomponentListe.firstOrNull {
+        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG
+    } as? AfpLivsvarig
+
+private fun privatAfp(ytelseKomponentListe: List<Ytelseskomponent>): AfpPrivatLivsvarig? =
+    ytelseKomponentListe.firstOrNull {
+        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG
+    } as? AfpPrivatLivsvarig

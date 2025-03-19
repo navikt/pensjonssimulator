@@ -77,6 +77,7 @@ object SimulatorContextUtil {
 
     fun postprocess(result: BeregningsResultatAfpPrivat) {
         result.virkTom = null
+        result.afpPrivatBeregning?.afpLivsvarig?.let(::roundNettoPerAar)
         result.afpPrivatBeregning?.afpPrivatLivsvarig?.let(::roundNettoPerAar)
     }
 

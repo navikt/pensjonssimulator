@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import java.util.function.Predicate
 
 /**
@@ -164,6 +165,7 @@ class PensjonUnderUtbetaling {
     var ventetillegg: Ventetillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Ventetillegg>(yk)
+
     // AbstraktBarnetillegg:
     var barnetilleggSerkullsbarn: BarnetilleggSerkullsbarn?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
@@ -171,6 +173,7 @@ class PensjonUnderUtbetaling {
     var barnetilleggFellesbarn: BarnetilleggFellesbarn?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggFellesbarn>(yk)
+
     // AbstraktBarnetillegg.AbstraktBarnetilleggUT:
     var barnetilleggFellesbarnUT: BarnetilleggFellesbarnUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
@@ -178,7 +181,11 @@ class PensjonUnderUtbetaling {
     var barnetilleggSerkullsbarnUT: BarnetilleggSerkullsbarnUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggSerkullsbarnUT>(yk)
+
     // AfpLivsvarig:
+    var afpLivsvarig: AfpLivsvarig?
+        get() = ytelseskomponenter.firstIsInstanceOrNull()
+        set(yk) = internalAddOrRemoveIfNull<AfpLivsvarig>(yk)
     var afpOffentligLivsvarig: AfpOffentligLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpOffentligLivsvarig>(yk)
@@ -188,18 +195,22 @@ class PensjonUnderUtbetaling {
     var fremskrevetAfpLivsvarig: FremskrevetAfpLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<FremskrevetAfpLivsvarig>(yk)
+
     // Grunnpensjon:
     var basisGrunnpensjon: BasisGrunnpensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BasisGrunnpensjon>(yk)
+
     // Tilleggspensjon:
     var basisTilleggspensjon: BasisTilleggspensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BasisTilleggspensjon>(yk)
+
     // Pensjonstillegg:
     var basisPensjonstillegg: BasisPensjonstillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BasisPensjonstillegg>(yk)
+
     // BeregningYtelseskomponent:
     var skattefriGrunnpensjon: SkattefriGrunnpensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
@@ -207,6 +218,7 @@ class PensjonUnderUtbetaling {
     var skattefriUforetrygdOrdiner: SkattefriUforetrygdOrdiner?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<SkattefriUforetrygdOrdiner>(yk)
+
     // BeregningYtelseskomponent.MotregningYtelseskomponent:
     var arbeidsavklaringspenger: Arbeidsavklaringspenger?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
@@ -242,9 +254,19 @@ class PensjonUnderUtbetaling {
         pubReguleringFratrekk = source.pubReguleringFratrekk
 
         for (komponent in source.ytelseskomponenter) {
-            val clazz = komponent.javaClass
-            val constructor = clazz.getConstructor(clazz)
-            addYtelseskomponent(constructor.newInstance(komponent))
+            when (komponent) {
+                is AfpKompensasjonstillegg -> addYtelseskomponent(komponent.copy())
+                is AfpKronetillegg -> addYtelseskomponent(komponent.copy())
+                is AfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                is AfpOffentligLivsvarig -> addYtelseskomponent(komponent.copy())
+                is AfpPrivatLivsvarig -> addYtelseskomponent(komponent.copy())
+                is FremskrevetAfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                //TODO the other ytelseskomponent subclasses
+                else -> {
+                    val constructor = komponent.javaClass.let { it.getConstructor(it) }
+                    addYtelseskomponent(constructor.newInstance(komponent))
+                }
+            }
         }
     }
     // end SIMDOM-MOD

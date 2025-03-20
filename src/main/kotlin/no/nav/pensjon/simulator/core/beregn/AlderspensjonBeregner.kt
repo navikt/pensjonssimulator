@@ -40,9 +40,14 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         sakId: Long?,
         isFoersteUttak: Boolean,
         ignoreAvslag: Boolean
-    ): AbstraktBeregningsResultat =
-        if (isFoersteUttak) {
-            val request = beregningCommonSpec(
+    ): AbstraktBeregningsResultat {
+        // Special handling for 'simuler folketrygdbeholdning' (vedtak always considered 'innvilget'):
+        if (ignoreAvslag)
+            innvilgVedtak(vedtakListe)
+        // end special handling
+
+        return if (isFoersteUttak) {
+            val beregningSpec = beregningCommonSpec(
                 kravhode,
                 vedtakListe,
                 virkningDato,
@@ -50,9 +55,10 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 livsvarigOffentligAfpGrunnlag,
                 simuleringSpec
             )
-            beregnFoersteUttak(request, sakId, ignoreAvslag)
+
+            beregnFoersteUttak(beregningSpec, sakId)
         } else { // revurdering av alderspensjon
-            val request = revurderingCommonSpec(
+            val revurderingSpec = revurderingCommonSpec(
                 kravhode,
                 vedtakListe,
                 virkningDato,
@@ -61,23 +67,18 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 livsvarigOffentligAfpGrunnlag,
                 simuleringSpec
             )
-            beregnRevurdering(request, sakId)
+
+            beregnRevurdering(revurderingSpec, sakId)
         }
+    }
 
     // PEN: VilkarsprovOgBeregnAlderHelper.beregnForsteUttak
     private fun beregnFoersteUttak(
         spec: AlderspensjonBeregningCommonSpec,
-        sakId: Long?,
-        ignoreAvslag: Boolean
+        sakId: Long?
     ): AbstraktBeregningsResultat {
         val regelverkType: RegelverkTypeEnum =
             spec.kravhode?.regelverkTypeEnum ?: throw RuntimeException("Undefined regelverkTypeEnum")
-
-        // SIMDOM-ADD for 'simuler folketrygdbeholdning' (da avslag ignoreres):
-        if (ignoreAvslag && spec.vilkarsvedtakListe.any { it.anbefaltResultatEnum != innvilgetResultat }) {
-            spec.vilkarsvedtakListe.replaceAll(::innvilgetVedtak)
-        }
-        // end SIMDOM-ADD
 
         return when (regelverkType) {
             RegelverkTypeEnum.N_REG_G_OPPTJ ->
@@ -136,6 +137,12 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 this.forsteVirk = virkningFom.toNorwegianDateAtNoon()
             }.also {
                 it.finishInit()
+            }
+        }
+
+        private fun innvilgVedtak(vedtakListe: MutableList<VilkarsVedtak>) {
+            if (vedtakListe.any { it.anbefaltResultatEnum != innvilgetResultat }) {
+                vedtakListe.replaceAll(::innvilgetVedtak)
             }
         }
 

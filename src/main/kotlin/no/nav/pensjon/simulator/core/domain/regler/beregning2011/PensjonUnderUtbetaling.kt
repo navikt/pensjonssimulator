@@ -3,6 +3,8 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copy
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.penobjekter.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import java.util.function.Predicate
 
@@ -257,10 +259,23 @@ class PensjonUnderUtbetaling {
             when (komponent) {
                 is AfpKompensasjonstillegg -> addYtelseskomponent(komponent.copy())
                 is AfpKronetillegg -> addYtelseskomponent(komponent.copy())
+                is AfpTillegg -> addYtelseskomponent(komponent.copy())
                 is AfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                //--- AbstraktAfpLivsvarig:
                 is AfpOffentligLivsvarig -> addYtelseskomponent(komponent.copy())
                 is AfpPrivatLivsvarig -> addYtelseskomponent(komponent.copy())
                 is FremskrevetAfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                // end AbstraktAfpLivsvarig ---
+                is Ektefelletillegg -> addYtelseskomponent(Ektefelletillegg(komponent))
+                is Familietillegg -> addYtelseskomponent(komponent.copy())
+                //--- BeregningYtelseskomponent:
+                is Arbeidsavklaringspenger -> addYtelseskomponent(komponent.copy())
+                is ArbeidsavklaringspengerUT -> addYtelseskomponent(komponent.copy())
+                is SkattefriGrunnpensjon -> addYtelseskomponent(komponent.copy())
+                is SkattefriUforetrygdOrdiner -> addYtelseskomponent(komponent.copy())
+                is Sykepenger -> addYtelseskomponent(komponent.copy())
+                is SykepengerUT -> addYtelseskomponent(komponent.copy())
+                // end BeregningYtelseskomponent ---
                 //TODO the other ytelseskomponent subclasses
                 else -> {
                     val constructor = komponent.javaClass.let { it.getConstructor(it) }

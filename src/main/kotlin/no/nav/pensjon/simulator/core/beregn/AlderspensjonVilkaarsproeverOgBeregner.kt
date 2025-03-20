@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.beholdning
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
@@ -488,8 +489,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) =
             BeholdningPeriode(
                 datoFom = virkningFom,
-                pensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.PEN_B)?.totalbelop,
-                garantipensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
+                pensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.PEN_B)?.totalbelop,
+                garantipensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
                 garantitilleggsbeholdning = garantitilleggBeholdningTotalBeloep(
                     virkningFom,
                     beholdninger,
@@ -504,13 +505,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             foedselsdato: LocalDate
         ): Double? =
             if (isBeforeByDay(getRelativeDateByYear(foedselsdato, GARANTITILLEGG_MAX_ALDER), virkningFom, false))
-                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_T_B)?.totalbelop
+                beholdninger.beholdning(BeholdningtypeEnum.GAR_T_B)?.totalbelop
             else
                 null
 
         private fun garantipensjonsniva(beholdninger: Beholdninger): GarantipensjonNivaa? {
             val garantipensjonBeholdning =
-                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
+                beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
                     ?: return null
 
             val justertNivaa = garantipensjonBeholdning.justertGarantipensjonsniva?.garantipensjonsniva ?: return null
@@ -578,6 +579,3 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
     }
 }
-
-private fun Beholdninger.findBeholdningAvType(type: BeholdningtypeEnum) =
-    beholdninger.firstOrNull { type == it.beholdningsTypeEnum }

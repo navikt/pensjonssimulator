@@ -1,8 +1,20 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.beregning
 
+import no.nav.pensjon.simulator.core.domain.regler.beregning.AfpTillegg
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Familietillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
+
+fun AfpTillegg.copy() =
+    AfpTillegg().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Familietillegg.copy() =
+    Familietillegg().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
 
 fun copyYtelseskomponent(
     source: Ytelseskomponent,

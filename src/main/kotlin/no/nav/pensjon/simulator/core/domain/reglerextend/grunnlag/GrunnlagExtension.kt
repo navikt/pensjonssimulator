@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
@@ -39,6 +40,10 @@ fun Beholdninger.copy() =
     Beholdninger().also {
         it.beholdninger = this.beholdninger.map(::copyBeholdning)
     }
+
+// PEN: Beholdninger.findBeholdningAvType
+fun Beholdninger.beholdning(type: BeholdningtypeEnum) =
+    beholdninger.firstOrNull { type == it.beholdningsTypeEnum }
 
 fun Garantipensjonsbeholdning.copy() =
     Garantipensjonsbeholdning().also {

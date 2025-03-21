@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+// 2025-03-19
 enum class GrunnlagsrolleEnum {
     BARN,
     FBARN,

@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon201
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2025Request
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.asLegacyPrivatAfp
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
@@ -187,8 +188,8 @@ class Vilkaarsproever(private val context: SimulatorContext) {
                 fom = spec.virkningFom.toNorwegianDateAtNoon()
                 tom = null
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                afpLivsvarig = spec.privatAfp
+                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
+                afpPrivatLivsvarig = spec.privatAfp
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011
                 utforVilkarsberegning = true
             }
@@ -197,26 +198,22 @@ class Vilkaarsproever(private val context: SimulatorContext) {
             VilkarsprovAlderpensjon2016Request().apply {
                 kravhode = spec.kravhode
                 virkFom = spec.virkningFom.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
-                afpLivsvarig = spec.privatAfp
+                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
+                afpPrivatLivsvarig = spec.privatAfp
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016
                 utforVilkarsberegning = true
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggBeholdningGrunnlag
             }
 
         private fun vilkaarsproeving2025Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2025Request().apply {
                 kravhode = spec.kravhode
                 fom = spec.virkningFom.toNorwegianDateAtNoon()
-                forholdstallUtvalg = spec.forholdstallUtvalg
-                delingstallUtvalg = spec.delingstallUtvalg
-                afpLivsvarig = spec.privatAfp
+                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
+                afpPrivatLivsvarig = spec.privatAfp
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011 // NB: 2011
                 utforVilkarsberegning = true
-                garantitilleggsbeholdningGrunnlag = spec.garantitilleggBeholdningGrunnlag
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
             }
     }

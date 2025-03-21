@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
@@ -483,9 +484,7 @@ class Persongrunnlag() {
             )
         }
 
-        if (source.overgangsInfoUPtilUT != null) {
-            this.overgangsInfoUPtilUT = OvergangsinfoUPtilUT(source.overgangsInfoUPtilUT!!)
-        }
+        this.overgangsInfoUPtilUT = source.overgangsInfoUPtilUT?.copy()
 
         for (utbetalingsgradUT in source.utbetalingsgradUTListe) {
             this.utbetalingsgradUTListe.add(UtbetalingsgradUT(utbetalingsgradUT))

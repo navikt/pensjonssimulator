@@ -7,13 +7,14 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.BarnetilleggSerkull
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvkortningsArsakEnum
 
+// 2025-03-20
 @JsonSubTypes(
     JsonSubTypes.Type(value = BarnetilleggSerkullsbarn::class),
     JsonSubTypes.Type(value = BarnetilleggFellesbarn::class),
     JsonSubTypes.Type(value = AbstraktBarnetilleggUT::class),
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-abstract class AbstraktBarnetillegg : Ytelseskomponent {
+abstract class AbstraktBarnetillegg : Ytelseskomponent() {
     /**
      * Antall barn i kullet.
      */
@@ -40,12 +41,12 @@ abstract class AbstraktBarnetillegg : Ytelseskomponent {
     var mpnSatsFT = 0.0
 
     /**
-     * Nevneren i prorata-brøken for EØS-avtaleberegnet tillegg
+     * Nevneren i proratabrøken for EØS-avtaleberegnet tillegg
      */
     var proratanevner = 0
 
     /**
-     * Telleren i prorata-brøken for EØS-avtaleberegnet tillegg
+     * Telleren i proratabrøken for EØS-avtaleberegnet tillegg
      */
     var proratateller = 0
 
@@ -60,31 +61,12 @@ abstract class AbstraktBarnetillegg : Ytelseskomponent {
     var tt_anv = 0
 
     /**
-     * Nedtrappingsgrad brukt ved utfasing av forsørgingstillegg fom 2023.
+     * Nedtrappingsgrad brukt ved utfasing av forsærgingstillegg fom 2023.
      */
     var forsorgingstilleggNiva = 100
 
     /**
-     * Årsaken(e) til avkorting. Satt dersom avkortet er true.
+     * årsaken(e) til avkorting. Satt dersom avkortet er true.
      */
     var avkortingsArsakListEnum: MutableList<AvkortningsArsakEnum> = mutableListOf()
-
-    constructor()
-
-    constructor(source: AbstraktBarnetillegg) : super(source) {
-        antallBarn = source.antallBarn
-        avkortet = source.avkortet
-        btDiff_eos = source.btDiff_eos
-        fribelop = source.fribelop
-        mpnSatsFT = source.mpnSatsFT
-        proratanevner = source.proratanevner
-        proratateller = source.proratateller
-        samletInntektAvkort = source.samletInntektAvkort
-        tt_anv = source.tt_anv
-        forsorgingstilleggNiva = source.forsorgingstilleggNiva
-
-        for (arsak in source.avkortingsArsakListEnum) {
-            avkortingsArsakListEnum.add(arsak)
-        }
-    }
 }

@@ -38,5 +38,5 @@ class PenKravhode {
     var sisteSakstypeForAPEnum: SakTypeEnum? = null
     var epsMottarPensjon = false
     var btVurderingsperiodeBenyttet = false
-    // overstyrendeP_satsGP ikke i PEN
+    var overstyrendeP_satsGP = 0.0 // not used; avoids UnrecognizedPropertyException
 }

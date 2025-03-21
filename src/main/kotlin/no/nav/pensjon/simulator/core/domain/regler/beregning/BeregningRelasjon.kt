@@ -41,8 +41,9 @@ class BeregningRelasjon {
 
     private fun copy(source: Beregning2011): Beregning2011? =
         when (source) {
-            is AfpPrivatBeregning -> AfpPrivatBeregning(source)
-            is AldersberegningKapittel19 -> AldersberegningKapittel19(source)
+            is AfpPrivatBeregning -> source.copy()
+            // NB: There's no AfpOffentligBeregning
+            is AldersberegningKapittel19 -> source.copy()
             is AldersberegningKapittel20 -> source.copy()
             is Uforetrygdberegning -> source.copy()
             else -> null

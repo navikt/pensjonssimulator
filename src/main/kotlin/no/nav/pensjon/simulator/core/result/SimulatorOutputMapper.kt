@@ -5,14 +5,10 @@ import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.DagpengetypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
@@ -48,7 +44,7 @@ object SimulatorOutputMapper {
     ): SimulertPrivatAfpPeriode {
         val privatAfpUnderUtbetaling = resultat.pensjonUnderUtbetaling
         val ytelseKomponentListe = privatAfpUnderUtbetaling?.ytelseskomponenter.orEmpty()
-        val privatAfp = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_LIVSVARIG) as AfpLivsvarig // privat AFP er livsvarig
+        val privatAfp: AfpPrivatLivsvarig? = resultat.privatAfp()
         val afpKronetillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KRONETILLEGG)
         val afpKompensasjonstillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KOMP_TILLEGG)
 
@@ -56,11 +52,11 @@ object SimulatorOutputMapper {
             alderAar = alder,
             aarligBeloep = aarligBeloep,
             maanedligBeloep = privatAfpUnderUtbetaling?.totalbelopNetto,
-            livsvarig = privatAfp.netto,
+            livsvarig = privatAfp?.netto,
             kronetillegg = afpKronetillegg?.netto ?: 0,
             kompensasjonstillegg = afpKompensasjonstillegg?.netto ?: 0,
-            afpForholdstall = privatAfp.afpForholdstall,
-            justeringBeloep = privatAfp.justeringsbelop,
+            afpForholdstall = privatAfp?.afpForholdstall,
+            justeringBeloep = privatAfp?.justeringsbelop,
             afpOpptjening = resultat.afpPrivatBeregning?.afpOpptjening?.totalbelop?.toInt() ?: 0
         )
     }

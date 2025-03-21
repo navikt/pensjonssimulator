@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
 class BarnetilleggFellesbarnUT : AbstraktBarnetilleggUT {
-
     /**
      * beløp som er fratrukket annen forelders inntekt (inntil 1G)
      */
@@ -29,12 +28,5 @@ class BarnetilleggFellesbarnUT : AbstraktBarnetilleggUT {
 
     constructor() {
         formelKodeEnum = FormelKodeEnum.BTx
-    }
-
-    constructor(source: BarnetilleggFellesbarnUT) : super(source) {
-        belopFratrukketAnnenForeldersInntekt = source.belopFratrukketAnnenForeldersInntekt
-        brukersInntektTilAvkortning = source.brukersInntektTilAvkortning
-        inntektAnnenForelder = source.inntektAnnenForelder
-        annenForelderUforetrygdForJustering = source.annenForelderUforetrygdForJustering
     }
 }

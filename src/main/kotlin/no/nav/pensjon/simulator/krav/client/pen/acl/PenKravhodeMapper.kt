@@ -99,7 +99,7 @@ object PenKravhodeMapper {
             opptjening = source.opptjening
             lonnsvekstInformasjon = source.lonnsvekstInformasjon
             reguleringsInformasjon = source.reguleringsInformasjon
-            formelKodeEnum = source.formelkodeEnum
+            formelKodeEnum = source.formelKodeEnum ?: source.formelkodeEnum
             merknadListe = source.merknadListe
             // beholdningsTypeEnum set in constructor
         }
@@ -186,11 +186,12 @@ object PenKravhodeMapper {
             arbeidsforholdEtterUforgrunnlagListe = source.arbeidsforholdEtterUforgrunnlagListe
             utenlandsoppholdListe = source.utenlandsoppholdListe
             overgangsInfoUPtilUT = source.overgangsInfoUPtilUT
-            afpTpoUpGrunnlag = source.AfpTpoUpGrunnlag
+            afpTpoUpGrunnlag = source.afpTpoUpGrunnlag
+            normertPensjonsalderGrunnlag = source.normertPensjonsalderGrunnlag
             yrkesskadegrunnlag = source.yrkesskadegrunnlag
             yrkesskadegrunnlagList = source.yrkesskadegrunnlagList
             barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder
-            beholdninger = source.beholdninger.map(::pensjonsbeholdning).toMutableList()
+            beholdninger = source.flatBeholdninger.map(::pensjonsbeholdning).toMutableList()
             trygdetider = source.trygdetider
             gjelderOmsorg = source.gjelderOmsorg
             gjelderUforetrygd = source.gjelderUforetrygd

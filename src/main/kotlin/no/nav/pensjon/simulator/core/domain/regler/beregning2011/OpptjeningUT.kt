@@ -6,6 +6,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
 // 2025-03-10
+/**
+ * NB: Modified to avoid UnrecognizedPropertyException.
+ */
 class OpptjeningUT : Omsorgsopptjening {
     /**
      * Angir om avkortet mot 6*grunnbeløp ved virk.
@@ -17,25 +20,19 @@ class OpptjeningUT : Omsorgsopptjening {
      */
     var brukt = false
 
-    /**
-     * Angir om det er inntekt i avtaleland som angår den konvensjon som beregningsgrunnlaget inngår i.
-     */
-    override var inntektIAvtaleland: Boolean = false
+    var inntektIAvtaleland: Boolean = false
 
-    override val opptjeningsar: Int
-        get() = ar
+    val opptjeningsar: Int = 0 // = ar
 
-    override val verdi: Double
-        get() = avkortetBelop
+    val verdi: Double = 0.0 // = avkortetBelop
 
     /**
      * Inntekten for et år ganget med forholdet mellom grunnbeløpet ved virk
      * og gjennomsnittlig grunnbeløp for inntektsåret.
      */
-    override var justertBelop: Double = 0.0
+    var justertBelop: Double = 0.0
 
-    override val omsorg: Boolean
-        get() = omsorgsar
+    val omsorg: Boolean = false // = omsorgsar
 
     /**
      * Pensjonsgivende inntekt.
@@ -86,7 +83,7 @@ class OpptjeningUT : Omsorgsopptjening {
      */
     var uforeopptjening = 0.0
 
-constructor()
+    constructor()
 
     constructor(source: OpptjeningUT) : this() {
         avkortetBelop = source.avkortetBelop

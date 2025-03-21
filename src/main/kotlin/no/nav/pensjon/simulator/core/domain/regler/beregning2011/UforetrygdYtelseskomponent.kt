@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.io.Serializable
 
+// 2025-03-20
 /**
  * PK-27754: Innførte nytt felt som skal være på alle uføretrygdytelser.
  */
@@ -14,6 +14,6 @@ import java.io.Serializable
     JsonSubTypes.Type(value = Gjenlevendetillegg::class)
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-interface UforetrygdYtelseskomponent : Serializable {
+interface UforetrygdYtelseskomponent {
     var tidligereBelopAr: Int
 }

@@ -7,11 +7,15 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
+import no.nav.pensjon.simulator.core.domain.regler.util.formula.Formel
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelseskomponent
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import java.util.*
+import kotlin.collections.component1
+import kotlin.collections.component2
 
 fun AfpKompensasjonstillegg.copy() =
     AfpKompensasjonstillegg().also {
@@ -135,6 +139,21 @@ fun AvkortingsinformasjonUT.copy() =
         copyAvkortingsinformasjon(source = this, target = it)
     }
 
+fun BarnetilleggFellesbarnUT.copy() =
+    BarnetilleggFellesbarnUT().also {
+        it.belopFratrukketAnnenForeldersInntekt = this.belopFratrukketAnnenForeldersInntekt
+        it.brukersInntektTilAvkortning = this.brukersInntektTilAvkortning
+        it.inntektAnnenForelder = this.inntektAnnenForelder
+        it.annenForelderUforetrygdForJustering = this.annenForelderUforetrygdForJustering
+        copyBarnetilleggUT(source = this, target = it)
+    }
+
+fun BarnetilleggSerkullsbarnUT.copy() =
+    BarnetilleggSerkullsbarnUT().also {
+        it.brukersGjenlevendetilleggForJustering = this.brukersGjenlevendetilleggForJustering
+        copyBarnetilleggUT(source = this, target = it)
+    }
+
 fun Basispensjon.copy() =
     Basispensjon().also {
         it.totalbelop = this.totalbelop
@@ -202,6 +221,17 @@ fun BeregningsResultatAlderspensjon2011.copy() =
         copyBeregningsResultat(source = this, target = it)
     }
 
+fun EktefelletilleggUT.copy() =
+    EktefelletilleggUT().also {
+        it.tidligereBelopAr = this.tidligereBelopAr
+        it.nettoAkk = this.nettoAkk
+        it.nettoRestAr = this.nettoRestAr
+        it.avkortningsbelopPerAr = this.avkortningsbelopPerAr
+        it.etForSkattekomp = this.etForSkattekomp
+        it.upForSkattekomp = this.upForSkattekomp
+        copyYtelseskomponent(source = this, target = it)
+    }
+
 fun FremskrevetAfpLivsvarig.copy() =
     FremskrevetAfpLivsvarig().also {
         it.reguleringsfaktor = this.reguleringsfaktor
@@ -222,6 +252,16 @@ fun FremskrivingsDetaljer.copy() =
 fun FtDtArsak.copy() =
     FtDtArsak().also {
         it.ftDtArsakEnum = this.ftDtArsakEnum
+    }
+
+fun Garantipensjon.copy() =
+    Garantipensjon().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Garantitillegg.copy() =
+    Garantitillegg().also {
+        copyYtelseskomponent(source = this, target = it)
     }
 
 fun GarantitilleggInformasjon.copy() =
@@ -245,6 +285,52 @@ fun GarantitilleggInformasjon.copy() =
         it.estimertTTkap19Benyttet = this.estimertTTkap19Benyttet
     }
 
+fun Gjenlevendetillegg.copy() =
+    Gjenlevendetillegg().also {
+        it.tidligereBelopAr = this.tidligereBelopAr
+        it.bgKonvertert = this.bgKonvertert
+        it.bgGjenlevendetillegg = this.bgGjenlevendetillegg
+        it.nettoAkk = this.nettoAkk
+        it.nettoRestAr = this.nettoRestAr
+        it.avkortningsbelopPerAr = this.avkortningsbelopPerAr
+        it.nyttGjenlevendetillegg = this.nyttGjenlevendetillegg
+        it.avkortingsfaktorGJT = this.avkortingsfaktorGJT
+        it.gjenlevendetilleggInformasjon = this.gjenlevendetilleggInformasjon?.let(::GjenlevendetilleggInformasjon)
+        it.periodisertAvvikEtteroppgjor = this.periodisertAvvikEtteroppgjor
+        it.eksportFaktor = this.eksportFaktor
+        it.grunnlagGjenlevendetillegg = this.grunnlagGjenlevendetillegg
+        this.formelMap.forEach { (key, value) -> it.formelMap[key] = Formel(value) }
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun GjenlevendetilleggAP.copy() =
+    GjenlevendetilleggAP().also {
+        it.apKap19MedGJR = this.apKap19MedGJR
+        it.apKap19UtenGJR = this.apKap19UtenGJR
+        it.referansebelop = this.referansebelop
+        it.sumReguleringsfradrag = this.sumReguleringsfradrag
+        it.anvendtUttaksgrad = this.anvendtUttaksgrad
+        it.metode = this.metode
+        this.formelMap.forEach { (key, value) -> it.formelMap[key] = Formel(value) }
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun GjenlevendetilleggAPKap19.copy() =
+    GjenlevendetilleggAPKap19().also {
+        it.apKap19MedGJR = this.apKap19MedGJR
+        it.apKap19UtenGJR = this.apKap19UtenGJR
+        it.referansebelop = this.referansebelop
+        it.metode = this.metode
+        this.formelMap.forEach { (key, value) -> it.formelMap[key] = Formel(value) }
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Inntektspensjon.copy() =
+    Inntektspensjon().also {
+        it.eksportBrok = this.eksportBrok?.let(::Brok)
+        copyYtelseskomponent(source = this, target = it)
+    }
+
 fun JusteringsInformasjon.copy() =
     JusteringsInformasjon().also {
         it.totalJusteringsfaktor = this.totalJusteringsfaktor
@@ -264,6 +350,38 @@ fun LonnsvekstDetaljer.copy() =
         it.justeringTomDato = this.justeringTomDato?.clone() as? Date
         it.justeringsfaktor = this.justeringsfaktor
         it.lonnsvekst = this.lonnsvekst
+    }
+
+fun MinstenivatilleggIndividuelt.copy() =
+    MinstenivatilleggIndividuelt().also {
+        it.samletPensjonForMNT = this.samletPensjonForMNT
+        it.mpn = this.mpn?.let(::MinstePensjonsniva)
+        it.garPN = this.garPN?.let(::Garantipensjonsniva)
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun MinstenivatilleggPensjonistpar.copy() =
+    MinstenivatilleggPensjonistpar().also {
+        it.bruker = this.bruker?.let(::BeregningsInformasjonMinstenivatilleggPensjonistpar)
+        it.ektefelle = this.ektefelle?.let(::BeregningsInformasjonMinstenivatilleggPensjonistpar)
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun OvergangsinfoUPtilUT.copy() =
+    OvergangsinfoUPtilUT().also {
+        it.ektefelletilleggUT = this.ektefelletilleggUT?.copy()
+        it.inntektsgrenseorFriinntektsdato = this.inntektsgrenseorFriinntektsdato
+        it.konvertertBeregningsgrunnlagOrdiner =
+            this.konvertertBeregningsgrunnlagOrdiner?.let(::BeregningsgrunnlagKonvertert)
+        it.konvertertBeregningsgrunnlagYrkesskade =
+            this.konvertertBeregningsgrunnlagYrkesskade?.let(::BeregningsgrunnlagKonvertert)
+        it.konvertertBeregningsgrunnlagGJT = this.konvertertBeregningsgrunnlagGJT?.let(::BeregningsgrunnlagKonvertert)
+        it.anvendtTrygdetidUP = this.anvendtTrygdetidUP?.let(::AnvendtTrygdetid)
+        it.anvendtTrygdetidUPHjemme = this.anvendtTrygdetidUPHjemme?.let(::AnvendtTrygdetid)
+        it.anvendtTrygdetidUP_egen = this.anvendtTrygdetidUP_egen?.let(::AnvendtTrygdetid)
+        it.minstepensjontypeEnum = this.minstepensjontypeEnum
+        it.resultatKildeEnum = this.resultatKildeEnum
+        it.sertilleggNetto = this.sertilleggNetto
     }
 
 fun TapendeBeregningsmetode.copy() =
@@ -293,6 +411,21 @@ fun Uforetrygdberegning.copy() =
         copyBeregning2011(source = this, target = it)
     }
 
+fun UforetrygdOrdiner.copy() =
+    UforetrygdOrdiner().also {
+        it.minsteytelse = this.minsteytelse?.let(::Minsteytelse)
+        it.egenopptjentUforetrygd = this.egenopptjentUforetrygd?.let(::EgenopptjentUforetrygd)
+        it.egenopptjentUforetrygdBest = this.egenopptjentUforetrygdBest
+        it.avkortingsinformasjon = this.avkortingsinformasjon?.copy()
+        it.nettoAkk = this.nettoAkk
+        it.nettoRestAr = this.nettoRestAr
+        it.avkortningsbelopPerAr = this.avkortningsbelopPerAr
+        it.periodisertAvvikEtteroppgjor = this.periodisertAvvikEtteroppgjor
+        it.fradragPerArUtenArbeidsforsok = this.fradragPerArUtenArbeidsforsok
+        it.tidligereBelopAr = this.tidligereBelopAr
+        copyYtelseskomponent(source = this, target = it)
+    }
+
 private fun copyAvkortingsinformasjon(source: AbstraktAvkortingsinformasjon, target: AbstraktAvkortingsinformasjon) {
     target.antallMndFor = source.antallMndFor
     target.antallMndEtter = source.antallMndEtter
@@ -307,6 +440,40 @@ private fun copyAfpLivsvarig(
     target: AbstraktAfpLivsvarig
 ) {
     copyYtelseskomponent(source, target)
+}
+
+fun copyBarnetillegg(
+    source: AbstraktBarnetillegg,
+    target: AbstraktBarnetillegg
+) {
+    target.antallBarn = source.antallBarn
+    target.avkortet = source.avkortet
+    target.btDiff_eos = source.btDiff_eos
+    target.fribelop = source.fribelop
+    target.mpnSatsFT = source.mpnSatsFT
+    target.proratanevner = source.proratanevner
+    target.proratateller = source.proratateller
+    target.samletInntektAvkort = source.samletInntektAvkort
+    target.tt_anv = source.tt_anv
+    target.forsorgingstilleggNiva = source.forsorgingstilleggNiva
+    target.avkortingsArsakListEnum = source.avkortingsArsakListEnum.map { it }.toMutableList()
+    copyYtelseskomponent(source, target)
+}
+
+private fun copyBarnetilleggUT(
+    source: AbstraktBarnetilleggUT,
+    target: AbstraktBarnetilleggUT
+) {
+    target.avkortingsinformasjon = source.avkortingsinformasjon?.copy()
+    target.avkortningsbelopPerAr = source.avkortningsbelopPerAr
+    target.inntektstak = source.inntektstak
+    target.nettoAkk = source.nettoAkk
+    target.nettoRestAr = source.nettoRestAr
+    target.periodisertAvvikEtteroppgjor = source.periodisertAvvikEtteroppgjor
+    target.reduksjonsinformasjon = source.reduksjonsinformasjon?.let(::Reduksjonsinformasjon)
+    target.tidligereBelopAr = source.tidligereBelopAr
+    target.brukersUforetrygdForJustering = source.brukersUforetrygdForJustering
+    copyBarnetillegg(source, target)
 }
 
 private fun copyBeregning2011(

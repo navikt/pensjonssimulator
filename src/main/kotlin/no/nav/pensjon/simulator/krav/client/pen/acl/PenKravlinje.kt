@@ -12,6 +12,7 @@ class PenKravlinje {
     var kravlinjeStatus: KravlinjeStatus? = null // PEN: KravlinjeStatusCode
     var land: LandkodeEnum? = null // PEN: Land3TegnCode
     var kravlinjeTypeEnum: KravlinjeTypeEnum? = null // includes 'hovedKravlinje'
+    var hovedKravlinje: Boolean? = null // not used; avoids UnrecognizedPropertyException
     var relatertPerson: PenPenPerson? = null
 
     fun distinguisher(): String =

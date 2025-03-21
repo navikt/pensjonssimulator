@@ -3,6 +3,8 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copy
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.penobjekter.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import java.util.function.Predicate
 
@@ -257,10 +259,47 @@ class PensjonUnderUtbetaling {
             when (komponent) {
                 is AfpKompensasjonstillegg -> addYtelseskomponent(komponent.copy())
                 is AfpKronetillegg -> addYtelseskomponent(komponent.copy())
+                is AfpTillegg -> addYtelseskomponent(komponent.copy())
+                is Ektefelletillegg -> addYtelseskomponent(Ektefelletillegg(komponent))
+                is Familietillegg -> addYtelseskomponent(komponent.copy())
+                is FasteUtgifterTillegg -> addYtelseskomponent(komponent.copy())
+                is FasteUtgifterTilleggUT -> addYtelseskomponent(komponent.copy())
+                is Garantipensjon -> addYtelseskomponent(komponent.copy())
+                is Garantitillegg -> addYtelseskomponent(komponent.copy())
+                is Garantitillegg_Art_27 -> addYtelseskomponent(komponent.copy())
+                is Garantitillegg_Art_27_UT -> addYtelseskomponent(komponent.copy())
+                is Garantitillegg_Art_50 -> addYtelseskomponent(komponent.copy())
+                is GjenlevendetilleggAP -> addYtelseskomponent(komponent.copy())
+                is GjenlevendetilleggAPKap19 -> addYtelseskomponent(komponent.copy())
+                is BasisGrunnpensjon -> addYtelseskomponent(BasisGrunnpensjon(komponent))
+                is Grunnpensjon -> addYtelseskomponent(Grunnpensjon(komponent))
+                is Hjelpeloshetsbidrag -> addYtelseskomponent(komponent.copy())
+                is Inntektspensjon -> addYtelseskomponent(komponent.copy())
+                is KrigOgGammelYrkesskade -> addYtelseskomponent(komponent.copy())
+                is Mendel -> addYtelseskomponent(komponent.copy())
+                is MinstenivatilleggIndividuelt -> addYtelseskomponent(komponent.copy())
+                is MinstenivatilleggPensjonistpar -> addYtelseskomponent(komponent.copy())
                 is AfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                //--- AbstraktBarnetillegg + UforetrygdYtelseskomponent:
+                is EktefelletilleggUT -> addYtelseskomponent(komponent.copy())
+                is UforetrygdOrdiner -> addYtelseskomponent(komponent.copy())
+                is Gjenlevendetillegg -> addYtelseskomponent(komponent.copy())
+                is BarnetilleggFellesbarn -> addYtelseskomponent(komponent.copy())
+                is BarnetilleggFellesbarnUT -> addYtelseskomponent(komponent.copy())
+                is BarnetilleggSerkullsbarn -> addYtelseskomponent(komponent.copy())
+                is BarnetilleggSerkullsbarnUT -> addYtelseskomponent(komponent.copy())
+                //--- AbstraktAfpLivsvarig:
                 is AfpOffentligLivsvarig -> addYtelseskomponent(komponent.copy())
                 is AfpPrivatLivsvarig -> addYtelseskomponent(komponent.copy())
                 is FremskrevetAfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                //--- BeregningYtelseskomponent:
+                is Arbeidsavklaringspenger -> addYtelseskomponent(komponent.copy())
+                is ArbeidsavklaringspengerUT -> addYtelseskomponent(komponent.copy())
+                is SkattefriGrunnpensjon -> addYtelseskomponent(komponent.copy())
+                is SkattefriUforetrygdOrdiner -> addYtelseskomponent(komponent.copy())
+                is Sykepenger -> addYtelseskomponent(komponent.copy())
+                is SykepengerUT -> addYtelseskomponent(komponent.copy())
+                // end BeregningYtelseskomponent ---
                 //TODO the other ytelseskomponent subclasses
                 else -> {
                     val constructor = komponent.javaClass.let { it.getConstructor(it) }

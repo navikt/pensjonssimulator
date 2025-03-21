@@ -48,6 +48,8 @@ class BeregningsInformasjon {
 
     //--- Extra:
 
+    var epsPaavirkerBeregning = false // deprecated
+
     // from PEN no.nav.domain.pensjon.kjerne.beregning2011.BeregningsInformasjon
     var epsMottarPensjon: Boolean = false
     var epsOver2G: Boolean = false

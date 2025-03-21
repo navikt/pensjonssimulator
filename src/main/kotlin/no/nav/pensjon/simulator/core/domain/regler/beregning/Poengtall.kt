@@ -6,6 +6,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtalltypeEnum
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
 // 2025-03-10
+/**
+ * NB: Modified to avoid UnrecognizedPropertyException.
+ */
 class Poengtall : Omsorgsopptjening {
     /**
      * Pensjonspoeng,
@@ -54,31 +57,25 @@ class Poengtall : Omsorgsopptjening {
 
     var merknadListe: MutableList<Merknad> = mutableListOf()
 
-    override val verdi: Double
-        get() = pp
+    var verdi: Double = 0.0 // = pp
 
     @Suppress("UNUSED_PARAMETER")
     //Her skal intet skje.
-    override var justertBelop: Double
-        get() = 0.0
-        set(justertBelop) {}
+    var justertBelop: Double = 0.0 // always 0.0
 
     /**
      * Angir om poengtallet er i et omsorgsår
      */
-    override var omsorg: Boolean = false
+    var omsorg: Boolean = false
 
     /**
      * Trengs for å implementere Omsorgsopptjening
      */
     @Suppress("UNUSED_PARAMETER")
     //Skal ikke gjøre noe.
-    override var inntektIAvtaleland: Boolean
-        get() = false
-        set(inntektIAvtaleland) {}
+    var inntektIAvtaleland: Boolean = false // always false
 
-    override val opptjeningsar: Int
-        get() = ar
+    var opptjeningsar: Int = 0 // = ar
 
     constructor()
 

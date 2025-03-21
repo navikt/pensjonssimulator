@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBarneti
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
+// 2025-03-20
 class BarnetilleggFellesbarn : AbstraktBarnetillegg {
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.TFB
@@ -11,6 +12,4 @@ class BarnetilleggFellesbarn : AbstraktBarnetillegg {
     constructor() {
         formelKodeEnum = FormelKodeEnum.BTx
     }
-
-    constructor(source: BarnetilleggFellesbarn) : super(source)
 }

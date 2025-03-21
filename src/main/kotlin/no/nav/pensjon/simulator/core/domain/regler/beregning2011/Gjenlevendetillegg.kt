@@ -5,8 +5,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.Formel
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.IFormelProvider
 
-class Gjenlevendetillegg : Ytelseskomponent, UforetrygdYtelseskomponent, IFormelProvider {
-
+// 2025-03-20
+class Gjenlevendetillegg() : Ytelseskomponent(), UforetrygdYtelseskomponent, IFormelProvider {
     /**
      * årsbeløp for delytelsen fra tidligere vedtak (fra tilsvarende beregningsperiode)
      */
@@ -76,28 +76,4 @@ class Gjenlevendetillegg : Ytelseskomponent, UforetrygdYtelseskomponent, IFormel
     override val formelMap: HashMap<String, Formel> = hashMapOf()
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.UT_GJT
-
-    // SIMDOM-ADD
-    constructor() : super(typeEnum = YtelseskomponentTypeEnum.UT_GJT)
-
-    /**
-     * Used via reflection in PensjonUnderUtbetaling: constructor.newInstance(komponent)
-     */
-    constructor(source: Gjenlevendetillegg) : super(source) {
-        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.UT_GJT
-        tidligereBelopAr = source.tidligereBelopAr
-        bgKonvertert = source.bgKonvertert
-        bgGjenlevendetillegg = source.bgGjenlevendetillegg
-        nettoAkk = source.nettoAkk
-        nettoRestAr = source.nettoRestAr
-        avkortningsbelopPerAr = source.avkortningsbelopPerAr
-        nyttGjenlevendetillegg = source.nyttGjenlevendetillegg
-        avkortingsfaktorGJT = source.avkortingsfaktorGJT
-        gjenlevendetilleggInformasjon = source.gjenlevendetilleggInformasjon?.let(::GjenlevendetilleggInformasjon)
-        periodisertAvvikEtteroppgjor = source.periodisertAvvikEtteroppgjor
-        eksportFaktor = source.eksportFaktor
-        grunnlagGjenlevendetillegg = source.grunnlagGjenlevendetillegg
-        source.formelMap.forEach { (key, value) -> formelMap[key] = Formel(value) }
-    }
-    // end SIMDOM-ADD
 }

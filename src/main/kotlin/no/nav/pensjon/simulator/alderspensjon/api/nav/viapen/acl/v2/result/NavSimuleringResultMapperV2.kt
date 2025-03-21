@@ -42,7 +42,7 @@ object NavSimuleringResultMapperV2 {
 
     private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
         SimulertPrivatAfpPeriodeV2(
-            alder = source.alderAar,
+            alder = source.alderAar?.let { if (it == 0) null else it },
             belopArlig = source.aarligBeloep,
             belopMnd = source.maanedligBeloep,
             livsvarig = source.livsvarig,

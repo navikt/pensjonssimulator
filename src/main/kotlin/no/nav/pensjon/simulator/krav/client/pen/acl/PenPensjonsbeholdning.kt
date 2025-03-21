@@ -12,6 +12,7 @@ import java.util.Date
  * 'Flattened' variant of Pensjonsbeholdning + Beholdning.
  */
 class PenPensjonsbeholdning {
+    var type: String? = null // avoids UnrecognizedPropertyException
     // From PEN domain:
     var fom: Date? = null
     var tom: Date? = null
@@ -22,6 +23,7 @@ class PenPensjonsbeholdning {
     var lonnsvekstInformasjon: LonnsvekstInformasjon? = null
     var reguleringsInformasjon: ReguleringsInformasjon? = null
     var formelkodeEnum: FormelKodeEnum? = null
+    var formelKodeEnum: FormelKodeEnum? = null // need both variants
     var beholdningsTypeEnum: BeholdningtypeEnum? = null
     var merknadListe: MutableList<Merknad> = mutableListOf()
 }

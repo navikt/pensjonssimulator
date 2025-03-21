@@ -1,9 +1,10 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.beregning
 
-import no.nav.pensjon.simulator.core.domain.regler.beregning.AfpTillegg
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Familietillegg
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
+import no.nav.pensjon.simulator.core.domain.regler.beregning.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BasisGrunnpensjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
+import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copyBarnetillegg
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
 fun AfpTillegg.copy() =
@@ -11,10 +12,47 @@ fun AfpTillegg.copy() =
         copyYtelseskomponent(source = this, target = it)
     }
 
+fun BarnetilleggFellesbarn.copy() =
+    BarnetilleggFellesbarn().also {
+        copyBarnetillegg(source = this, target = it)
+    }
+
+fun BarnetilleggSerkullsbarn.copy() =
+    BarnetilleggSerkullsbarn().also {
+        copyBarnetillegg(source = this, target = it)
+    }
+
 fun Familietillegg.copy() =
     Familietillegg().also {
         copyYtelseskomponent(source = this, target = it)
     }
+
+fun FasteUtgifterTillegg.copy() =
+    FasteUtgifterTillegg().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+/*
+fun Grunnpensjon.copy() =
+    Grunnpensjon().also {
+        it.pSats_gp = this.pSats_gp
+        it.satsTypeEnum = this.satsTypeEnum
+        it.ektefelleInntektOver2G = this.ektefelleInntektOver2G
+        it.anvendtTrygdetid = this.anvendtTrygdetid?.let(::AnvendtTrygdetid)
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Grunnpensjon.basis() =
+    BasisGrunnpensjon().also {
+        it.pSats_gp = this.pSats_gp
+        it.satsTypeEnum = this.satsTypeEnum
+        it.ektefelleInntektOver2G = this.ektefelleInntektOver2G
+        it.anvendtTrygdetid = this.anvendtTrygdetid?.let(::AnvendtTrygdetid)
+        copyYtelseskomponent(source = this, target = it)
+        brutto = 0
+        netto = 0
+    }
+*/
 
 fun copyYtelseskomponent(
     source: Ytelseskomponent,

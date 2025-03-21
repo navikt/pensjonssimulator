@@ -1,13 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.beregning.penobjekter
 
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.Arbeidsavklaringspenger
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.ArbeidsavklaringspengerUT
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.BeregningYtelseskomponent
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.MotregningYtelseskomponent
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.SkattefriGrunnpensjon
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.SkattefriUforetrygdOrdiner
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.Sykepenger
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.SykepengerUT
+import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelseskomponent
 
 fun Arbeidsavklaringspenger.copy() =
@@ -18,6 +11,51 @@ fun Arbeidsavklaringspenger.copy() =
 fun ArbeidsavklaringspengerUT.copy() =
     ArbeidsavklaringspengerUT().also {
         copyMotregningYtelseskomponent(source = this, target = it)
+    }
+
+fun FasteUtgifterTilleggUT.copy() =
+    FasteUtgifterTilleggUT().also {
+        it.nettoAkk = this.nettoAkk
+        it.nettoRestAr = this.nettoRestAr
+        it.avkortningsbelopPerAr = this.avkortningsbelopPerAr
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Garantitillegg_Art_27.copy() =
+    Garantitillegg_Art_27().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Garantitillegg_Art_27_UT.copy() =
+    Garantitillegg_Art_27_UT().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Garantitillegg_Art_50.copy() =
+    Garantitillegg_Art_50().also {
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Hjelpeloshetsbidrag.copy() =
+    Hjelpeloshetsbidrag().also {
+        it.grunnlagForUtbetaling = this.grunnlagForUtbetaling
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun KrigOgGammelYrkesskade.copy() =
+    KrigOgGammelYrkesskade().also {
+        it.pensjonsgrad = this.pensjonsgrad
+        it.grunnlagForUtbetaling = this.grunnlagForUtbetaling
+        it.kapitalutlosning = this.kapitalutlosning
+        it.ps = this.ps
+        it.yg = this.yg
+        it.mendel = this.mendel
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun Mendel.copy() =
+    Mendel().also {
+        copyYtelseskomponent(source = this, target = it)
     }
 
 fun SkattefriGrunnpensjon.copy() =

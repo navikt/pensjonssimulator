@@ -3,8 +3,8 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
-class EktefelletilleggUT : Ytelseskomponent, UforetrygdYtelseskomponent {
-
+// 2025-03-20
+class EktefelletilleggUT : Ytelseskomponent(), UforetrygdYtelseskomponent {
     /**
      * årsbeløp for delytelsen fra tidligere vedtak (fra tilsvarende beregningsperiode)
      */
@@ -37,16 +37,4 @@ class EktefelletilleggUT : Ytelseskomponent, UforetrygdYtelseskomponent {
     var upForSkattekomp = 0.0
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.UT_ET
-
-    constructor() : super()
-
-    constructor(source: EktefelletilleggUT) : super(source) {
-        nettoAkk = source.nettoAkk
-        nettoRestAr = source.nettoRestAr
-        avkortningsbelopPerAr = source.avkortningsbelopPerAr
-        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.UT_ET
-        etForSkattekomp = source.etForSkattekomp
-        upForSkattekomp = source.upForSkattekomp
-        tidligereBelopAr = source.tidligereBelopAr
-    }
 }

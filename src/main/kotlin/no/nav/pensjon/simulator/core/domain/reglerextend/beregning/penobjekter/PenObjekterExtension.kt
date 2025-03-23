@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.beregning.penobjekter
 
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelseskomponent
 
 fun Arbeidsavklaringspenger.copy() =
@@ -78,6 +80,18 @@ fun Sykepenger.copy() =
 fun SykepengerUT.copy() =
     SykepengerUT().also {
         copyMotregningYtelseskomponent(source = this, target = it)
+    }
+
+fun TilleggTilHjelpIHuset.copy() =
+    TilleggTilHjelpIHuset().also {
+        it.grunnlagForUtbetaling = this.grunnlagForUtbetaling
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun UforetilleggTilAlderspensjon.copy() =
+    UforetilleggTilAlderspensjon().also {
+        it.beregning = this.beregning?.copy()
+        copyYtelseskomponent(source = this, target = it)
     }
 
 fun copyBeregningYtelseskomponent(

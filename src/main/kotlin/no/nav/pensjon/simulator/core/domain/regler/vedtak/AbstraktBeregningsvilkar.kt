@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.vedtak
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
 @JsonSubTypes(
     JsonSubTypes.Type(value = Alderspensjon2011VedDod::class),
@@ -23,9 +24,7 @@ abstract class AbstraktBeregningsvilkar {
     constructor()
 
     protected constructor(abstraktBeregningsvilkar: AbstraktBeregningsvilkar) {
-        for (merknad in abstraktBeregningsvilkar.merknadListe) {
-            this.merknadListe.add(Merknad(merknad))
-        }
+        merknadListe = abstraktBeregningsvilkar.merknadListe.map { it.copy() }.toMutableList()
     }
 
     constructor(merknadListe: MutableList<Merknad> = mutableListOf()) {

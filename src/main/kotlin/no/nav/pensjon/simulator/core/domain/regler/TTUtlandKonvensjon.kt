@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.io.Serializable
 
 /**
@@ -77,8 +77,6 @@ class TTUtlandKonvensjon(
         this.tt_konvensjon_ar = tTUtlandKonvensjon.tt_konvensjon_ar
         this.tt_lik_pa = tTUtlandKonvensjon.tt_lik_pa
         this.merknadListe = mutableListOf()
-        for (merknad in tTUtlandKonvensjon.merknadListe) {
-            this.merknadListe.add(Merknad(merknad))
-        }
+        this.merknadListe = tTUtlandKonvensjon.merknadListe.map { it.copy() }.toMutableList()
     }
 }

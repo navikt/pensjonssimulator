@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
 import com.fasterxml.jackson.annotation.JsonGetter
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
 /**
  * Denne klassen representerer en pakkseddel som leveres sammen med resultatet
@@ -29,7 +30,7 @@ class Pakkseddel(
 
     constructor(pakkseddel: Pakkseddel) : this() {
         //SIMDOM-MOD this.version = pakkseddel.version
-        pakkseddel.merknadListe.forEach { merknadListe.add(Merknad(it)) }
+        pakkseddel.merknadListe.forEach { merknadListe.add(it.copy()) }
     }
 
     // SIMDOM-ADD

@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning
 
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.io.Serializable
 
 /**
@@ -42,9 +43,7 @@ class Sluttpoengtall : Serializable {
     constructor(sluttpoengtall: Sluttpoengtall) {
         pt = sluttpoengtall.pt
         poengTillegg = sluttpoengtall.poengTillegg
-        for (merknad in sluttpoengtall.merknadListe) {
-            merknadListe.add(Merknad(merknad))
-        }
+        merknadListe = sluttpoengtall.merknadListe.map { it.copy() }.toMutableList()
         fpp_grad_eos = sluttpoengtall.fpp_grad_eos
         if (sluttpoengtall.poengrekke != null) {
             poengrekke = Poengrekke(sluttpoengtall.poengrekke!!)

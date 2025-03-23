@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
 /**
  * Dataholderklasse for opptjening. Objektet vil være både input og output fra regeltjenester.
@@ -59,7 +60,7 @@ class Opptjening(
         opptjeningsgrunnlag = source.opptjeningsgrunnlag
         anvendtOpptjeningsgrunnlag = source.anvendtOpptjeningsgrunnlag
         arligOpptjening = source.arligOpptjening
-        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
+        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
         poengtall = source.poengtall?.let(::Poengtall)
         rawPoengtall = source.rawPoengtall?.let(::Poengtall)
         pSatsOpptjening = source.pSatsOpptjening

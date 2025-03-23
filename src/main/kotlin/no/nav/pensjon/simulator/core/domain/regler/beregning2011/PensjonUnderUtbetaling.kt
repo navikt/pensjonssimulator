@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
@@ -271,15 +272,28 @@ class PensjonUnderUtbetaling {
                 is Garantitillegg_Art_50 -> addYtelseskomponent(komponent.copy())
                 is GjenlevendetilleggAP -> addYtelseskomponent(komponent.copy())
                 is GjenlevendetilleggAPKap19 -> addYtelseskomponent(komponent.copy())
-                is BasisGrunnpensjon -> addYtelseskomponent(BasisGrunnpensjon(komponent))
-                is Grunnpensjon -> addYtelseskomponent(Grunnpensjon(komponent))
                 is Hjelpeloshetsbidrag -> addYtelseskomponent(komponent.copy())
                 is Inntektspensjon -> addYtelseskomponent(komponent.copy())
                 is KrigOgGammelYrkesskade -> addYtelseskomponent(komponent.copy())
                 is Mendel -> addYtelseskomponent(komponent.copy())
                 is MinstenivatilleggIndividuelt -> addYtelseskomponent(komponent.copy())
                 is MinstenivatilleggPensjonistpar -> addYtelseskomponent(komponent.copy())
-                is AfpLivsvarig -> addYtelseskomponent(komponent.copy())
+                is Paragraf_8_5_1_tillegg -> addYtelseskomponent(komponent.copy())
+                is Sertillegg -> addYtelseskomponent(komponent.copy())
+                is Skjermingstillegg -> addYtelseskomponent(komponent.copy())
+                is TemporarYtelseskomponent -> addYtelseskomponent(komponent.copy())
+                is TilleggTilHjelpIHuset -> addYtelseskomponent(komponent.copy())
+                is UforetilleggTilAlderspensjon -> addYtelseskomponent(komponent.copy())
+                is AfpLivsvarig -> addYtelseskomponent(AfpLivsvarig(komponent))
+                //--- Grunnpensjon:
+                is BasisGrunnpensjon -> addYtelseskomponent(BasisGrunnpensjon(komponent))
+                is Grunnpensjon -> addYtelseskomponent(Grunnpensjon(komponent))
+                //--- Pensjonstillegg:
+                is BasisPensjonstillegg -> addYtelseskomponent(BasisPensjonstillegg(komponent))
+                is Pensjonstillegg -> addYtelseskomponent(Pensjonstillegg(komponent))
+                //--- Tilleggspensjon:
+                is BasisTilleggspensjon -> addYtelseskomponent(BasisTilleggspensjon(komponent))
+                is Tilleggspensjon -> addYtelseskomponent(Tilleggspensjon(komponent))
                 //--- AbstraktBarnetillegg + UforetrygdYtelseskomponent:
                 is EktefelletilleggUT -> addYtelseskomponent(komponent.copy())
                 is UforetrygdOrdiner -> addYtelseskomponent(komponent.copy())
@@ -300,13 +314,14 @@ class PensjonUnderUtbetaling {
                 is Sykepenger -> addYtelseskomponent(komponent.copy())
                 is SykepengerUT -> addYtelseskomponent(komponent.copy())
                 // end BeregningYtelseskomponent ---
-                //TODO the other ytelseskomponent subclasses
                 else -> {
+                    log.error { "Unexpected ytelseskomponent type ${komponent.javaClass.simpleName}" }
                     val constructor = komponent.javaClass.let { it.getConstructor(it) }
                     addYtelseskomponent(constructor.newInstance(komponent))
                 }
             }
         }
     }
+    val log = KotlinLogging.logger { }
     // end SIMDOM-MOD
 }

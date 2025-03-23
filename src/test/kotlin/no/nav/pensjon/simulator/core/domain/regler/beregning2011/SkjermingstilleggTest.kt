@@ -2,12 +2,13 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class SkjermingstilleggTest : FunSpec({
 
-    test("copy constructor copies base class values") {
+    test("'copy' should copy base class values") {
         val source = Skjermingstillegg().apply {
             brutto = 1
             netto = 2
@@ -15,7 +16,7 @@ class SkjermingstilleggTest : FunSpec({
             bruttoPerAr = 1.2
         }
 
-        with(Skjermingstillegg(source)) {
+        with(source.copy()) {
             brutto shouldBe 1
             netto shouldBe 2
             fradrag shouldBe 3

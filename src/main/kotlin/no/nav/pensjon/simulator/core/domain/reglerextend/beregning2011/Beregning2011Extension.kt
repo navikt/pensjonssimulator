@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011
 
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.BeregningRelasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
@@ -14,8 +13,6 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelsesko
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import java.util.*
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 fun AfpKompensasjonstillegg.copy() =
     AfpKompensasjonstillegg().also {
@@ -45,17 +42,9 @@ fun AfpLivsvarig.asPrivatAfp() =
         copyYtelseskomponent(source = this, target = it)
     }
 
-fun AfpLivsvarig.copy() =
-    AfpLivsvarig().also {
-        it.justeringsbelop = this.justeringsbelop
-        it.afpProsentgrad = this.afpProsentgrad
-        it.afpForholdstall = this.afpForholdstall
-        copyYtelseskomponent(source = this, target = it)
-    }
-
 fun AfpPrivatBeregning.copy() =
     AfpPrivatBeregning().also {
-        it.afpLivsvarig = this.afpLivsvarig?.copy()
+        it.afpLivsvarig = this.afpLivsvarig?.let(::AfpLivsvarig)
         it.afpPrivatLivsvarig = this.afpPrivatLivsvarig?.copy()
         it.afpKompensasjonstillegg = this.afpKompensasjonstillegg?.copy()
         it.afpKronetillegg = this.afpKronetillegg?.copy()
@@ -352,6 +341,13 @@ fun LonnsvekstDetaljer.copy() =
         it.lonnsvekst = this.lonnsvekst
     }
 
+fun LonnsvekstInformasjon.copy() =
+    LonnsvekstInformasjon().also {
+        it.lonnsvekst = this.lonnsvekst
+        it.reguleringsDato = this.reguleringsDato?.clone() as? Date
+        it.uttaksgradVedRegulering = this.uttaksgradVedRegulering
+    }
+
 fun MinstenivatilleggIndividuelt.copy() =
     MinstenivatilleggIndividuelt().also {
         it.samletPensjonForMNT = this.samletPensjonForMNT
@@ -382,6 +378,22 @@ fun OvergangsinfoUPtilUT.copy() =
         it.minstepensjontypeEnum = this.minstepensjontypeEnum
         it.resultatKildeEnum = this.resultatKildeEnum
         it.sertilleggNetto = this.sertilleggNetto
+    }
+
+fun Skjermingstillegg.copy() =
+    Skjermingstillegg().also {
+        it.ft67Soker = this.ft67Soker
+        it.skjermingsgrad = this.skjermingsgrad
+        it.ufg = this.ufg
+        it.basGp_bruttoPerAr = this.basGp_bruttoPerAr
+        it.basTp_bruttoPerAr = this.basTp_bruttoPerAr
+        it.basPenT_bruttoPerAr = this.basPenT_bruttoPerAr
+        copyYtelseskomponent(source = this, target = it)
+    }
+
+fun TemporarYtelseskomponent.copy() =
+    TemporarYtelseskomponent().also {
+        copyYtelseskomponent(source = this, target = it)
     }
 
 fun TapendeBeregningsmetode.copy() =
@@ -487,7 +499,7 @@ private fun copyBeregning2011(
     target.resultatTypeEnum = source.resultatTypeEnum
     target.beregningsMetodeEnum = source.beregningsMetodeEnum
     target.beregningTypeEnum = source.beregningTypeEnum
-    target.merknadListe = source.merknadListe.map(::Merknad)
+    target.merknadListe = source.merknadListe.map { it.copy() }
     target.beregningGjelderTypeEnum = source.beregningGjelderTypeEnum
 
     if (copyDelberegninger) {
@@ -498,12 +510,12 @@ private fun copyBeregning2011(
 private fun copyBeregningsResultat(source: AbstraktBeregningsResultat, target: AbstraktBeregningsResultat) {
     target.virkFom = source.virkFom?.clone() as? Date
     target.virkTom = source.virkTom?.clone() as? Date
-    target.merknadListe = source.merknadListe.map(::Merknad).toMutableList()
+    target.merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
     target.pensjonUnderUtbetaling = source.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)
     target.brukersSivilstandEnum = source.brukersSivilstandEnum
     target.benyttetSivilstandEnum = source.benyttetSivilstandEnum
     target.beregningArsakEnum = source.beregningArsakEnum
-    target.lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
+    target.lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
     target.uttaksgrad = source.uttaksgrad
     target.gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr
     target.kravId = source.kravId

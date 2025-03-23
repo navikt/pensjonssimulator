@@ -45,6 +45,16 @@ fun Beholdninger.copy() =
 fun Beholdninger.beholdning(type: BeholdningtypeEnum) =
     beholdninger.firstOrNull { type == it.beholdningsTypeEnum }
 
+fun EosEkstra.copy() =
+    EosEkstra().also {
+        it.proRataBeregningTypeEnum = this.proRataBeregningTypeEnum
+        it.redusertAntFppAr = this.redusertAntFppAr
+        it.spt_eos = this.spt_eos
+        it.spt_pa_f92_eos = this.spt_pa_f92_eos
+        it.spt_pa_e91_eos = this.spt_pa_e91_eos
+        it.vilkar3_17Aok = this.vilkar3_17Aok
+    }
+
 fun Garantipensjonsbeholdning.copy() =
     Garantipensjonsbeholdning().also {
         it.justertGarantipensjonsniva = this.justertGarantipensjonsniva?.copy()
@@ -54,7 +64,6 @@ fun Garantipensjonsbeholdning.copy() =
         it.sats = this.sats
         it.garPN_tt_anv = this.garPN_tt_anv
         it.garPN_justert = this.garPN_justert
-        // beholdningsTypeEnum is set in constructor
         copyBeholdning(source = this, target = it)
     }
 
@@ -95,5 +104,5 @@ private fun copyBeholdning(source: Beholdning, target: Beholdning) {
     target.beholdningsTypeEnum = source.beholdningsTypeEnum
     target.formelKodeEnum = source.formelKodeEnum
     target.merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
-    target.lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
+    target.lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
 }

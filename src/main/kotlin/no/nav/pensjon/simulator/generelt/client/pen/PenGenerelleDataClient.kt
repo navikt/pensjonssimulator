@@ -46,7 +46,7 @@ class PenGenerelleDataClient(
     override fun service() = service
 
     override fun fetchGenerelleData(spec: GenerelleDataSpec): GenerelleData =
-        cache.getIfPresent(spec) ?: fetchFreshData(spec) //.also { cache.put(spec, it) }
+        cache.getIfPresent(spec) ?: fetchFreshData(spec).also { cache.put(spec, it) }
 
     private fun fetchFreshData(spec: GenerelleDataSpec): GenerelleData {
         val uri = "$BASE_PATH/$PATH"

@@ -8,12 +8,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.Formel
 import no.nav.pensjon.simulator.core.domain.regler.util.formula.IFormelProvider
 
+// 2025-03-23
 @JsonSubTypes(
     JsonSubTypes.Type(value = BasisTilleggspensjon::class)
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 open class Tilleggspensjon : Ytelseskomponent, IFormelProvider {
-
     /**
      * Det ordinåre sluttpoengtallet.
      */
@@ -54,17 +54,13 @@ open class Tilleggspensjon : Ytelseskomponent, IFormelProvider {
         if (source.spt != null) {
             spt = Sluttpoengtall(source.spt!!)
         }
-
         if (source.ypt != null) {
             ypt = Sluttpoengtall(source.ypt!!)
         }
-
         if (source.opt != null) {
             opt = Sluttpoengtall(source.opt!!)
         }
-
         skiltesDelAvAdodesTP = source.skiltesDelAvAdodesTP
-
         if (source.formelMap.isNotEmpty()) {
             source.formelMap.forEach { (key, value) ->
                 formelMap[key] = Formel(value)

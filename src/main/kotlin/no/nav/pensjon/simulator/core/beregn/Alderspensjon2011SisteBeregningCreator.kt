@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
@@ -34,8 +35,8 @@ class Alderspensjon2011SisteBeregningCreator(kravService: KravService) : SisteBe
         source.pensjonUnderUtbetaling?.let { sink.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(it) }
         source.beregningKapittel19?.tt_anv?.let { sink.tt_anv = it }
         source.beregningKapittel19?.resultatTypeEnum?.let { sink.resultatTypeEnum = it }
-        source.beregningKapittel19?.basispensjon?.let { sink.basispensjon = Basispensjon(it) }
-        source.beregningKapittel19?.restpensjon?.let { sink.restpensjon = Basispensjon(it) }
+        source.beregningKapittel19?.basispensjon?.let { sink.basispensjon = it.copy() }
+        source.beregningKapittel19?.restpensjon?.let { sink.restpensjon = it.copy() }
         source.beregningsInformasjonKapittel19?.epsMottarPensjon?.let { sink.epsMottarPensjon = it }
         source.beregningsInformasjonKapittel19?.gjenlevenderettAnvendt?.let { sink.gjenlevenderettAnvendt = it }
     }

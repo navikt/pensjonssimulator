@@ -4,10 +4,10 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntektKode1Enum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntektKode2Enum
 
+// 2025-03-23
 /**
  * Denne klassen inneholder spesielle data fra en beregning av uførepensjon.
  */
-// 2025-03-10
 class UforeEkstra {
     /**
      * Beskriver hvordan inntektstaket (tak) er beregnet. Se K_INNTEKT1_T
@@ -83,31 +83,4 @@ class UforeEkstra {
      * Uforeperioden for ysk som skal benyttes i historikken hvis/når Uføregrunnlaget blir historisk.
      */
     var uforeperiodeYSK: BeregningUforeperiode? = null
-
-    constructor()
-
-    constructor(source: UforeEkstra) {
-        inntektkode1Enum = source.inntektkode1Enum
-        inntektkode2Enum = source.inntektkode2Enum
-        tak = source.tak
-        inntektsgrenseForFriinntektsdato = source.inntektsgrenseForFriinntektsdato
-        fpp = source.fpp
-        fppGaranti = source.fppGaranti
-        fppGarantiKodeEnum = source.fppGarantiKodeEnum
-        redusertAntFppAr = source.redusertAntFppAr
-        uforeperiode = BeregningUforeperiode(source.uforeperiode!!)
-        uforeperiodeYSK = BeregningUforeperiode(source.uforeperiodeYSK!!)
-    }
-
-    override fun toString(): String {
-        val TAB = "    "
-
-        val retValue = StringBuilder()
-
-        retValue.append("UforeEkstra ( ").append(super.toString()).append(TAB).append("inntektkode1 = ")
-            .append(inntektkode1Enum).append(TAB).append("inntektkode2 = ")
-            .append(inntektkode2Enum).append(TAB).append("tak = ").append(tak).append(TAB).append(" )")
-
-        return retValue.toString()
-    }
 }

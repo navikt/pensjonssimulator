@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntektsavkortingTypeEnum
 
+// 2025-03-20
 /**
  * Inneholder felles felt for avkorting av både UT og BT. Enkelte felt fra tidligere klasse Avkortningsinformasjon.
  */
-// 2025-09-03
 @JsonSubTypes(
     JsonSubTypes.Type(value = AvkortingsinformasjonUT::class),
     JsonSubTypes.Type(value = AvkortingsinformasjonBT::class),
@@ -43,15 +43,4 @@ abstract class AbstraktAvkortingsinformasjon {
      * Angir om inntektsavkorting er gjort med hensyn til etteroppgjør, evt ved revurdering.
      */
     var inntektsavkortingTypeEnum: InntektsavkortingTypeEnum? = null
-/*
-    constructor() {}
-
-    constructor(source: AbstraktAvkortingsinformasjon) {
-        antallMndFor = source.antallMndFor
-        antallMndEtter = source.antallMndEtter
-        inntektstak = source.inntektstak
-        avkortingsbelopPerAr = source.avkortingsbelopPerAr
-        restTilUtbetaling = source.restTilUtbetaling
-        inntektsavkortingTypeEnum = source.inntektsavkortingTypeEnum
-    }*/
 }

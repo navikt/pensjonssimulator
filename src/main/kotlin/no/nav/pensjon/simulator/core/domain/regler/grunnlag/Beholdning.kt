@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInfor
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
 // 2025-03-10
@@ -36,6 +37,6 @@ abstract class Beholdning protected constructor() {
         beholdningsTypeEnum = source.beholdningsTypeEnum
         formelKodeEnum = source.formelKodeEnum
         merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
-        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.let(::LonnsvekstInformasjon)
+        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
     }
 }

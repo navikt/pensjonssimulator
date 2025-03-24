@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Aldersberegning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AldersberegningKapittel20
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Uforetrygdberegning
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
 class BeregningRelasjon {
@@ -27,7 +28,7 @@ class BeregningRelasjon {
     constructor()
 
     constructor(source: BeregningRelasjon) {
-        beregning = source.beregning?.let(::Beregning)
+        beregning = source.beregning?.copy()
         //beregning!!.beregningsrelasjon = this
 
         beregning2011 = source.beregning2011?.let(::copy)
@@ -41,8 +42,9 @@ class BeregningRelasjon {
 
     private fun copy(source: Beregning2011): Beregning2011? =
         when (source) {
-            is AfpPrivatBeregning -> AfpPrivatBeregning(source)
-            is AldersberegningKapittel19 -> AldersberegningKapittel19(source)
+            is AfpPrivatBeregning -> source.copy()
+            // NB: There's no AfpOffentligBeregning
+            is AldersberegningKapittel19 -> source.copy()
             is AldersberegningKapittel20 -> source.copy()
             is Uforetrygdberegning -> source.copy()
             else -> null

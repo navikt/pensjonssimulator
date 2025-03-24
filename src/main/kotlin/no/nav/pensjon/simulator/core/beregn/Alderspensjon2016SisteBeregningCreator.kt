@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.beregn
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
@@ -97,10 +98,10 @@ class Alderspensjon2016SisteBeregningCreator(kravService: KravService) : SisteBe
 
             with(source) {
                 sink.tt_anv = tt_anv
-                restpensjon?.let { sink.restpensjon = Basispensjon(it) }
-                basispensjon?.let { sink.basispensjon = Basispensjon(it) }
-                restpensjonUtenGJR?.let { sink.restpensjonUtenGJR = Basispensjon(it) }
-                basispensjonUtenGJR?.let { sink.basispensjonUtenGJR = Basispensjon(it) }
+                restpensjon?.let { sink.restpensjon = it.copy() }
+                basispensjon?.let { sink.basispensjon = it.copy() }
+                restpensjonUtenGJR?.let { sink.restpensjonUtenGJR = it.copy() }
+                basispensjonUtenGJR?.let { sink.basispensjonUtenGJR = it.copy() }
             }
         }
 

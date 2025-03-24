@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.math.RoundingMode
 
 /**
@@ -18,7 +19,6 @@ import java.math.RoundingMode
 @JsonSubTypes(
     JsonSubTypes.Type(value = AfpKompensasjonstillegg::class),
     JsonSubTypes.Type(value = AfpKronetillegg::class),
-    JsonSubTypes.Type(value = AfpLivsvarig::class),
     JsonSubTypes.Type(value = AfpTillegg::class),
     JsonSubTypes.Type(value = BeregningYtelseskomponent::class),
     JsonSubTypes.Type(value = Ektefelletillegg::class),
@@ -51,6 +51,8 @@ import java.math.RoundingMode
     JsonSubTypes.Type(value = UforetilleggTilAlderspensjon::class),
     JsonSubTypes.Type(value = UforetrygdOrdiner::class),
     JsonSubTypes.Type(value = Ventetillegg::class),
+    JsonSubTypes.Type(value = AfpLivsvarig::class),
+    JsonSubTypes.Type(value = AbstraktAfpLivsvarig::class),
     JsonSubTypes.Type(value = AbstraktBarnetillegg::class)
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -142,9 +144,7 @@ abstract class Ytelseskomponent {
             formelKodeEnum = source.formelKodeEnum
         }
 
-        for (merknad in source.merknadListe) {
-            merknadListe.add(Merknad(merknad))
-        }
+        merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
 
         if (source.reguleringsInformasjon != null) {
             reguleringsInformasjon = ReguleringsInformasjon(source.reguleringsInformasjon!!)
@@ -162,8 +162,10 @@ abstract class Ytelseskomponent {
     }
 
     // SIMDOM-ADD
-    @JsonIgnore var brukt: Boolean = true
-    @JsonIgnore private var unroundedNettoPerAr: Double? = null
+    @JsonIgnore
+    var brukt: Boolean = true
+    @JsonIgnore
+    private var unroundedNettoPerAr: Double? = null
 
     val internNettoPerAr: Double
         @JsonIgnore get() = unroundedNettoPerAr ?: nettoPerAr

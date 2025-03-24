@@ -8,8 +8,8 @@ metadata:
 spec:
   image: {{ image }}
   replicas:
-    min: 2
-    max: 4
+    min: 3
+    max: 5
     cpuThresholdPercentage: 70
   resources:
     limits:

@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
@@ -315,13 +314,11 @@ class PensjonUnderUtbetaling {
                 is SykepengerUT -> addYtelseskomponent(komponent.copy())
                 // end BeregningYtelseskomponent ---
                 else -> {
-                    log.error { "Unexpected ytelseskomponent type ${komponent.javaClass.simpleName}" }
                     val constructor = komponent.javaClass.let { it.getConstructor(it) }
                     addYtelseskomponent(constructor.newInstance(komponent))
                 }
             }
         }
     }
-    val log = KotlinLogging.logger { }
     // end SIMDOM-MOD
 }

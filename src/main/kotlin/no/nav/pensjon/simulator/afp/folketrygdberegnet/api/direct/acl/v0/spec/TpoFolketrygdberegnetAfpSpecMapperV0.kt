@@ -37,7 +37,8 @@ object TpoFolketrygdberegnetAfpSpecMapperV0 {
             foedselAar = 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = mutableListOf(),
-            fremtidigInntektListe = null, // NB: not mutableListOf()
+            fremtidigInntektListe = mutableListOf(),
+            brukFremtidigInntekt = false,
             inntektOver1GAntallAar = 0, // used for anonym only
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
@@ -48,6 +49,7 @@ object TpoFolketrygdberegnetAfpSpecMapperV0 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false, //TODO verify
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false, //TODO verify
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = false,
         )
 }

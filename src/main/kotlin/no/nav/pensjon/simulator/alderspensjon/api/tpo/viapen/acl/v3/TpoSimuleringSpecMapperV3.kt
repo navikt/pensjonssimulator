@@ -30,6 +30,7 @@ object TpoSimuleringSpecMapperV3 {
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = source.fremtidigInntektList.orEmpty().map(::inntekt).toMutableList(),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
@@ -40,7 +41,8 @@ object TpoSimuleringSpecMapperV3 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for TPO
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = false
         )
 
     private fun inntekt(source: InntektSpecLegacyV3) =

@@ -78,7 +78,8 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
                     arbeidet = true
                 )
             ),
-            fremtidigInntektListe = null, // null in this context
+            fremtidigInntektListe = mutableListOf(), // empty in this context
+            brukFremtidigInntekt = false,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,
@@ -89,7 +90,8 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // to produce månedsbeløp
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = true
         )
     }
 })

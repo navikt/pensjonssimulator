@@ -1,79 +1,77 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.kode.BarnepensjonEOSKapittelCti
-import java.io.Serializable
+import no.nav.pensjon.simulator.core.domain.regler.enum.BarnepensjonEosKapEnum
 
-class Trygdeavtaledetaljer(
+// Checked 2025-02-28
+class Trygdeavtaledetaljer {
     /**
-     * Angir om arbeidsinntekten er på minst 1G på uføre-/dødstidspunktet.
+     * Angir om arbeidsinntekten er på minst 1G på Uføre-/dødstidspunktet.
      */
-    var arbeidsinntektMinst1G: Boolean = false,
+    var arbeidsinntektMinst1G: Boolean? = null
+
     /**
      * Liste med poengår i avtaleland av typen PoengarManuell
      */
-    var poengarListe: MutableList<PoengarManuell> = mutableListOf(),
+    var poengarListe: List<PoengarManuell> = mutableListOf()
+
     /**
      * Faktisk trygdetid i andre EØS-land for alternativ pro rata beregning
      */
-    var ftt_andreEOSLand: AntallArOgMnd? = null,
+    var ftt_andreEOSLand: AntallArOgMnd? = null
+
     /**
      * Faktisk trygdetid garantitillegg
      */
-    var ftt_garanti: AntallArOgMnd? = null,
+    var ftt_garanti: AntallArOgMnd? = null
+
     /**
      * Faktisk trygdetid annet nordisk land
      */
-    var ftt_annetNordiskLand: AntallArOgMnd? = null,
+    var ftt_annetNordiskLand: AntallArOgMnd? = null
+
     /**
      * Sum pensjon i andre avtaleland
      */
-    var sumPensjonAndreAvtaleland: Int = 0,
+    var sumPensjonAndreAvtaleland = 0
+
     /**
      * Inntektsprøvet pensjon fra annet avtaleland
      */
-    var inntektsprovetPensjonAvtaleland: Boolean = false,
+    var inntektsprovetPensjonAvtaleland: Boolean? = null
+
     /**
      * Art.10 anvendes på grunnpensjon
      */
-    var erArt10BruktGP: Boolean = false,
+    var erArt10BruktGP: Boolean? = null
+
     /**
      * Art.10 anvendes på tilleggspensjon
      */
-    var erArt10BruktTP: Boolean? = null,
+    var erArt10BruktTP: Boolean? = null
+
     /**
      * Antall faktiske poengår i annet nordisk land
      */
-    var fpa_nordisk: Int = 0,
+    var fpa_nordisk = 0
+
     /**
      * Angir hvilket kapittel (3 eller 8) i forordning 1408/71 barnepensjon skal beregnes etter ved EØS-saker.
      */
-    var barnepensjonForordning1408_71: BarnepensjonEOSKapittelCti? = null
-) : Serializable {
+    var barnepensjonForordning1408_71Enum: BarnepensjonEosKapEnum? = null
 
-    constructor(trygdeavtaledetaljer: Trygdeavtaledetaljer) : this() {
-        this.arbeidsinntektMinst1G = trygdeavtaledetaljer.arbeidsinntektMinst1G
-        for (poengarManuell in trygdeavtaledetaljer.poengarListe) {
-            this.poengarListe.add(PoengarManuell(poengarManuell))
-        }
-        if (trygdeavtaledetaljer.ftt_andreEOSLand != null) {
-            this.ftt_andreEOSLand = AntallArOgMnd(trygdeavtaledetaljer.ftt_andreEOSLand!!)
-        }
-        if (trygdeavtaledetaljer.ftt_garanti != null) {
-            this.ftt_garanti = AntallArOgMnd(trygdeavtaledetaljer.ftt_garanti!!)
-        }
-        if (trygdeavtaledetaljer.ftt_annetNordiskLand != null) {
-            this.ftt_annetNordiskLand = AntallArOgMnd(trygdeavtaledetaljer.ftt_annetNordiskLand!!)
-        }
-        this.sumPensjonAndreAvtaleland = trygdeavtaledetaljer.sumPensjonAndreAvtaleland
-        this.inntektsprovetPensjonAvtaleland = trygdeavtaledetaljer.inntektsprovetPensjonAvtaleland
-        this.erArt10BruktGP = trygdeavtaledetaljer.erArt10BruktGP
-        if (trygdeavtaledetaljer.erArt10BruktTP != null) {
-            this.erArt10BruktTP = trygdeavtaledetaljer.erArt10BruktTP
-        }
-        this.fpa_nordisk = trygdeavtaledetaljer.fpa_nordisk
-        if (trygdeavtaledetaljer.barnepensjonForordning1408_71 != null) {
-            this.barnepensjonForordning1408_71 =
-                BarnepensjonEOSKapittelCti(trygdeavtaledetaljer.barnepensjonForordning1408_71)
-        }
+    constructor()
+
+    constructor(source: Trygdeavtaledetaljer) : this() {
+        arbeidsinntektMinst1G = source.arbeidsinntektMinst1G
+        poengarListe = source.poengarListe.map(::PoengarManuell)
+        ftt_andreEOSLand = source.ftt_andreEOSLand?.let(::AntallArOgMnd)
+        ftt_garanti = source.ftt_garanti?.let(::AntallArOgMnd)
+        ftt_annetNordiskLand = source.ftt_annetNordiskLand?.let(::AntallArOgMnd)
+        sumPensjonAndreAvtaleland = source.sumPensjonAndreAvtaleland
+        inntektsprovetPensjonAvtaleland = source.inntektsprovetPensjonAvtaleland
+        erArt10BruktGP = source.erArt10BruktGP
+        erArt10BruktTP = source.erArt10BruktTP
+        fpa_nordisk = source.fpa_nordisk
+        barnepensjonForordning1408_71Enum = source.barnepensjonForordning1408_71Enum
     }
 }

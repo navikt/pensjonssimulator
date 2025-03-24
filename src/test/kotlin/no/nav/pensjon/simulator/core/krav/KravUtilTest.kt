@@ -90,7 +90,8 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         foedselAar = 0,
         utlandAntallAar = 0,
         utlandPeriodeListe = utlandPeriodeListe,
-        fremtidigInntektListe = null,
+        fremtidigInntektListe = mutableListOf(),
+        brukFremtidigInntekt = false,
         inntektOver1GAntallAar = 0,
         flyktning = null,
         epsHarInntektOver2G = false,
@@ -101,5 +102,6 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         afpInntektMaanedFoerUttak = null,
         isHentPensjonsbeholdninger = false,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
-        onlyVilkaarsproeving = false
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false
     )

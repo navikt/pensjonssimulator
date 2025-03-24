@@ -41,6 +41,7 @@ object AlderspensjonSpecMapper {
             utlandAntallAar = source.antallAarUtenlandsEtter16,
             utlandPeriodeListe = mutableListOf(), // utenlandsopphold is in V4 specified by utlandAntallAar
             fremtidigInntektListe = source.fremtidigInntektListe.map(::fremtidigInntekt).toMutableList(),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
@@ -51,7 +52,8 @@ object AlderspensjonSpecMapper {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = false
         )
 
     private fun foersteUttakFom(source: AlderspensjonSpec): LocalDate =

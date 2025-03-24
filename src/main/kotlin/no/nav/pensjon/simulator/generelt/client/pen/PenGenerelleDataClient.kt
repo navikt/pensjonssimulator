@@ -46,15 +46,15 @@ class PenGenerelleDataClient(
     override fun service() = service
 
     override fun fetchGenerelleData(spec: GenerelleDataSpec): GenerelleData =
-        cache.getIfPresent(spec) ?: fetchFreshData(spec).also { cache.put(spec, it) }
+        cache.getIfPresent(spec) ?: fetchFreshData(spec) //.also { cache.put(spec, it) }
 
     private fun fetchFreshData(spec: GenerelleDataSpec): GenerelleData {
         val uri = "$BASE_PATH/$PATH"
         val dto = PenGenerelleDataSpecMapper.toDto(spec)
         log.debug { "POST to URI: '$uri' with body '$dto'" }
 
-        return try {
-            webClient
+        try {
+            val x: PenGenerelleDataResult? = webClient
                 .post()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,8 +65,11 @@ class PenGenerelleDataClient(
                 .bodyToMono(PenGenerelleDataResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let(PenGenerelleDataResultMapper::fromDto)
-                ?: nullResult()
+            //?.let(PenGenerelleDataResultMapper::fromDto)
+            //?: nullResult()
+
+            log.info { "DebugGenerelleData include ${spec.inkludering} result $x" }
+            return x?.let(PenGenerelleDataResultMapper::fromDto) ?: nullResult()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {

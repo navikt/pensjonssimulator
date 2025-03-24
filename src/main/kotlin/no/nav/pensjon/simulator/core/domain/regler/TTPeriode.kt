@@ -1,44 +1,52 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
-import no.nav.pensjon.simulator.core.domain.regler.util.DateCompareUtil
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import java.io.Serializable
 import java.util.*
 
-class TTPeriode(
-    var fom: Date? = null,
-    var tom: Date? = null,
-    var changed: Boolean? = null,
+// Checked 2025-02-28
+class TTPeriode {
+    /**
+     * Fra-og-med dato for perioden.
+     */
+    var fom: Date? = null
+
+    /**
+     * Til-og-med dato for perioden.
+     */
+    var tom: Date? = null
 
     /**
      * Skal bruker ha poeng for hele året i fom-datoen
      */
-    var poengIInnAr: Boolean = false,
+    var poengIInnAr: Boolean = false
 
     /**
      * Skal bruker ha poeng for hele året i tom-datoen
      */
-    var poengIUtAr: Boolean = false,
+    var poengIUtAr: Boolean = false
 
     /**
      * Hvilket land perioden er opptjent i.
      */
-    var land: LandCti? = null,
+    var landEnum: LandkodeEnum? = null
 
     /**
      * Om det skal regnes pro rata. Gjelder ved utenlandssaker.
      */
-    var ikkeProRata: Boolean = false,
+    var ikkeProRata: Boolean = false
 
     /**
      * Angir om trygdetidsperioden brukes somm grunnlag på kravet.
      */
-    var bruk: Boolean? = null, // SIMDOM-EDIT true -> null, since nullable in Trygdetidsgrunnlag in PEN
-    var grunnlagKilde: GrunnlagKildeCti? = null
-) : Comparable<TTPeriode>, Serializable {
+    var bruk: Boolean? = null // SIMDOM-EDIT true -> null, since nullable in Trygdetidsgrunnlag in PEN
+
+    /**
+     * Kilden til trygdetidsperioden.
+     */
+    var grunnlagKildeEnum: GrunnlagkildeEnum? = null
 
     // SIMDOM-ADD:
     @JsonIgnore
@@ -54,24 +62,22 @@ class TTPeriode(
     }
     // end SIMDOM-ADD
 
-    constructor(source: TTPeriode) : this() {
-        source.fom?.let { this.fom = it.clone() as Date }
-        source.rawFom?.let { this.rawFom = it.clone() as Date }
-        source.tom?.let { this.tom = it.clone() as Date }
-        source.rawTom?.let { this.rawTom = it.clone() as Date }
-        this.poengIInnAr = source.poengIInnAr
-        this.poengIUtAr = source.poengIUtAr
-        source.land?.let { this.land = LandCti(it) }
-        this.ikkeProRata = source.ikkeProRata
-        this.bruk = source.bruk
-        source.grunnlagKilde?.let { this.grunnlagKilde = GrunnlagKildeCti(it) }
-    }
+    constructor()
 
-    override fun compareTo(other: TTPeriode): Int {
-        return DateCompareUtil.compareTo(fom, other.fom)
+    constructor(source: TTPeriode) : this() {
+        fom = source.fom?.clone() as? Date
+        rawFom = source.rawFom?.clone() as? Date
+        tom = source.tom?.clone() as? Date
+        rawTom = source.rawTom?.clone() as? Date
+        poengIInnAr = source.poengIInnAr
+        poengIUtAr = source.poengIUtAr
+        landEnum = source.landEnum
+        ikkeProRata = source.ikkeProRata
+        bruk = source.bruk
+        grunnlagKildeEnum = source.grunnlagKildeEnum
     }
 
     override fun toString(): String {
-        return "TTPeriode(fom=$fom, tom=$tom, poengIInnAr=$poengIInnAr, poengIUtAr=$poengIUtAr, land=$land, ikkeProRata=$ikkeProRata, bruk=$bruk, grunnlagKilde=$grunnlagKilde)"
+        return "TTPeriode(fom=$fom, tom=$tom, poengIInnAr=$poengIInnAr, poengIUtAr=$poengIUtAr, land=$landEnum, ikkeProRata=$ikkeProRata, bruk=$bruk, grunnlagKilde=$grunnlagKildeEnum)"
     }
 }

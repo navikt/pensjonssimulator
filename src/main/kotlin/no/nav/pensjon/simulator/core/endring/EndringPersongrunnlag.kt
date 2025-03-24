@@ -9,9 +9,6 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.OpptjeningTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -71,7 +68,7 @@ class EndringPersongrunnlag(
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ): Kravhode {
-        if (spec.isTpOrigSimulering) {
+        if (spec.isTpOrigSimulering || spec.epsKanOverskrives) {
             epsService.addPersongrunnlagForEpsToKravhode(spec, endringKravhode, grunnbeloep)
             return endringKravhode
         }
@@ -84,7 +81,7 @@ class EndringPersongrunnlag(
                 endringPersongrunnlagListe = endringKravhode.persongrunnlagListe,
                 eksisterendePersongrunnlagListe = it,
                 spec,
-                epsPaavirker = forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregning,
+                epsPaavirker = forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen(),
                 grunnbeloep
             )
         }
@@ -100,7 +97,7 @@ class EndringPersongrunnlag(
         inntektListe: List<Inntekt>,
         foedselDato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag> {
-        val opptjeningType = OpptjeningTypeCti(OpptjeningtypeEnum.PPI.name)
+        val opptjeningType = OpptjeningtypeEnum.PPI
 
         var inntektsbasertOpptjeningsgrunnlagListe: MutableList<Opptjeningsgrunnlag> =
             inntektListe
@@ -248,16 +245,16 @@ class EndringPersongrunnlag(
                 bruk = true
                 fom = inntektFom.toNorwegianDateAtNoon()
                 tom = null
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.BRUKER.name)
-                inntektType = InntektTypeCti(InntekttypeEnum.FPI.name) // Forventet pensjongivende inntekt
+                grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+                inntektTypeEnum = InntekttypeEnum.FPI // Forventet pensjongivende inntekt
             }
 
         // Extracted from OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
-        private fun opptjeningsgrunnlag(inntekt: Inntekt, type: OpptjeningTypeCti) =
+        private fun opptjeningsgrunnlag(inntekt: Inntekt, type: OpptjeningtypeEnum) =
             Opptjeningsgrunnlag().apply {
                 ar = inntekt.inntektAar
                 pi = inntekt.beloep.toInt()
-                opptjeningType = type
+                opptjeningTypeEnum = type
             }
 
         // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
@@ -302,12 +299,12 @@ class EndringPersongrunnlag(
             opprinneligListe: List<Opptjeningsgrunnlag>,
             inntektBasertListe: MutableList<Opptjeningsgrunnlag>
         ): MutableList<Opptjeningsgrunnlag> {
-            val grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.BRUKER.name)
+            val grunnlagKilde = GrunnlagkildeEnum.BRUKER
             val komplettListe: MutableList<Opptjeningsgrunnlag> = opprinneligListe.toMutableList()
 
             inntektBasertListe.forEach {
                 it.bruk = true
-                it.grunnlagKilde = grunnlagKilde
+                it.grunnlagKildeEnum = grunnlagKilde
                 komplettListe.add(it)
             }
 
@@ -318,7 +315,7 @@ class EndringPersongrunnlag(
         private fun relevantPersongrunnlag(source: Persongrunnlag) =
             Persongrunnlag(source).apply {
                 inntektsgrunnlagListe = inntektsgrunnlagListe.filter {
-                    it.bruk == true && InntekttypeEnum.FPI.name != it.inntektType?.kode
+                    it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum
                 }.toMutableList()
 
                 personDetaljListe = personDetaljListe.filter {

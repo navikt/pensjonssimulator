@@ -8,8 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrun
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.kode.GrunnlagKildeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.InntektTypeCti
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
@@ -98,7 +96,7 @@ class Pre2025OffentligAfpPersongrunnlag(
 
         epsGrunnlag?.let {
             // SimulerAFPogAPCommand.shouldAddInntektgrunnlagForEPS
-            if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregning) {
+            if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen()) {
                 retainPersondetaljerHavingVirksomRolle(it)
                 it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
                 addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato, grunnbeloep, persongrunnlag = it)
@@ -206,8 +204,8 @@ class Pre2025OffentligAfpPersongrunnlag(
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
                 fom = fomDatoInntekt.toNorwegianDateAtNoon() // is set to noon in property
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.BRUKER.name)
-                inntektType = InntektTypeCti(InntekttypeEnum.FPI.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+                inntektTypeEnum = InntekttypeEnum.FPI
                 //kopiertFraGammeltKrav = false <--- not used by pensjon-regler
                 //registerKilde = null <--- not used by pensjon-regler
                 tom = null
@@ -283,6 +281,6 @@ class Pre2025OffentligAfpPersongrunnlag(
         }
 
         private fun isForventetPensjongivendeInntekt(grunnlag: Inntektsgrunnlag): Boolean =
-            InntekttypeEnum.FPI.name != grunnlag.inntektType?.kode
+            InntekttypeEnum.FPI != grunnlag.inntektTypeEnum
     }
 }

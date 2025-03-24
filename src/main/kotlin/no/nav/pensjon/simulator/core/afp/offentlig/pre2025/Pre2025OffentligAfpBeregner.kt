@@ -10,7 +10,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
@@ -75,7 +74,7 @@ class Pre2025OffentligAfpBeregner(
         val simuleringResultat: Simuleringsresultat =
             simulerPensjonsberegning(spec, persongrunnlagListe, normAlder)
 
-        if (avslag(simuleringResultat.status)) {
+        if (ikkeInnvilget(simuleringResultat.statusEnum)) {
             //log.info(
             //    "Simulering AFP offentlig - Ikke innvilget - Kode {} - Merknader {}",
             //    if (status == null) "(ingen)" else status.code, SimulerAFPogAPCommand.asCsv(simuleringsresultat.merknadListe)
@@ -112,7 +111,7 @@ class Pre2025OffentligAfpBeregner(
 
         if (simuleringAvslag) {
             return Simuleringsresultat().apply {
-                status = VilkarsvedtakResultatCti(VedtakResultatEnum.AVSL.name)
+                statusEnum = VedtakResultatEnum.AVSL
                 merknadListe.add(minsteTrygdetidMerknad())
             }
         }
@@ -121,10 +120,10 @@ class Pre2025OffentligAfpBeregner(
         createVedtakListe(simulering)
         var simuleringsresultat = Simuleringsresultat()
 
-        if (SimuleringTypeEnum.AFP.name == simulering.simuleringType?.kode) {
+        if (SimuleringTypeEnum.AFP == simulering.simuleringTypeEnum) {
             setBeregnForsorgingstilleggAndEktefelleMottarPensjon(simulering)
             simuleringsresultat = simulerVilkarsprovAfp(simulering)
-            simuleringsresultat.status?.let { simuleringAvslag = avslag(it.kode) }
+            simuleringsresultat.statusEnum?.let { simuleringAvslag = avslag(it) }
         }
 
         if (!simuleringAvslag) {
@@ -132,8 +131,8 @@ class Pre2025OffentligAfpBeregner(
         }
 
         // Must be set explicitly, because pensjon-regler does not simulate "vilkår"
-        if (simuleringsresultat.status == null) {
-            simuleringsresultat.status = VilkarsvedtakResultatCti(VedtakResultatEnum.INNV.name)
+        if (simuleringsresultat.statusEnum == null) {
+            simuleringsresultat.statusEnum = VedtakResultatEnum.INNV
         }
 
         return simuleringsresultat
@@ -173,7 +172,7 @@ class Pre2025OffentligAfpBeregner(
             persongrunnlag.trygdetid = persongrunnlag.latestTrygdetid()
 
             // Validate trygdetid to see if the simulation should be rejected:
-            if (SimuleringTypeEnum.ALDER.name == simulering.simuleringType?.kode) {
+            if (SimuleringTypeEnum.ALDER == simulering.simuleringTypeEnum) {
                 if (persongrunnlag.personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum && trygdetid.tt < MIN_TRYGDETID }) {
                     simuleringAvslag = true
                     break
@@ -186,11 +185,11 @@ class Pre2025OffentligAfpBeregner(
 
     // SimulerPensjonsberegningCommand.addUforehistorikk
     private fun addUfoereHistorikk(simulering: Simulering) {
-        val simuleringType: String? = simulering.simuleringType?.kode
+        val simuleringType = simulering.simuleringTypeEnum
 
-        if (simuleringType == SimuleringTypeEnum.ALDER.name
-            || simuleringType == SimuleringTypeEnum.ALDER_M_GJEN.name
-            || simuleringType == SimuleringTypeEnum.AFP.name
+        if (simuleringType == SimuleringTypeEnum.ALDER
+            || simuleringType == SimuleringTypeEnum.ALDER_M_GJEN
+            || simuleringType == SimuleringTypeEnum.AFP
         ) {
             val soekerGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
@@ -202,7 +201,7 @@ class Pre2025OffentligAfpBeregner(
             }
         }
 
-        if (simuleringType == SimuleringTypeEnum.ALDER_M_GJEN.name) {
+        if (simuleringType == SimuleringTypeEnum.ALDER_M_GJEN) {
             val avdoedGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.AVDOD)
 
@@ -214,7 +213,7 @@ class Pre2025OffentligAfpBeregner(
             }
         }
 
-        if (simuleringType == SimuleringTypeEnum.BARN.name) {
+        if (simuleringType == SimuleringTypeEnum.BARN) {
             val morGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.MOR)
 
@@ -255,13 +254,13 @@ class Pre2025OffentligAfpBeregner(
 
     // SimulerPensjonsberegningCommand.createVilkarsvedtakList
     private fun createVedtakListe(simulering: Simulering) {
-        val innvilgetResultat = VilkarsvedtakResultatCti(VedtakResultatEnum.INNV.name)
+        val innvilgetResultat = VedtakResultatEnum.INNV
 
         for (persongrunnlag in simulering.persongrunnlagListe) {
             val virkningFom: Date? = simulering.uttaksdato?.let { virkningFom(it).noon() }// TODO LocalDate
 
             val vedtak = VilkarsVedtak().apply {
-                vilkarsvedtakResultat = innvilgetResultat
+                vilkarsvedtakResultatEnum = innvilgetResultat
                 virkFom = virkningFom
                 virkTom = null
                 gjelderPerson = persongrunnlag.penPerson
@@ -289,7 +288,7 @@ class Pre2025OffentligAfpBeregner(
 
         try {
             // SIMDOM: Only AFP (pre-2025 offentlig AFP) supported in this context
-            if (SimuleringTypeEnum.AFP.name == simulering.simuleringType?.kode) {
+            if (SimuleringTypeEnum.AFP == simulering.simuleringTypeEnum) {
                 return simulerPre2025OffentligAfp(
                     simulering,
                     beregnInstopphold,
@@ -297,7 +296,7 @@ class Pre2025OffentligAfpBeregner(
                     ektefelleMottarPensjon
                 )
             } else {
-                throw RuntimeException("Unsupported simuleringtype in pre-2025 offentlig AFP context: ${simulering.simuleringType?.kode}")
+                throw RuntimeException("Unsupported simuleringtype in pre-2025 offentlig AFP context: ${simulering.simuleringTypeEnum}")
             }
         } catch (e: KanIkkeBeregnesException) {
             throw FeilISimuleringsgrunnlagetException(e)
@@ -328,9 +327,9 @@ class Pre2025OffentligAfpBeregner(
     // SimulerPensjonsberegningCommand.setBeregnForsorgingstilleggAndEktefelleMottarPensjon
     private fun setBeregnForsorgingstilleggAndEktefelleMottarPensjon(simulering: Simulering) {
         simulering.vilkarsvedtakliste.forEach {
-            val kravlinjeType = it.kravlinjeType?.kode
+            val kravlinjeType = it.kravlinjeTypeEnum
 
-            if (kravlinjeType == KravlinjeTypeEnum.ET.name || kravlinjeType == KravlinjeTypeEnum.BT.name) {
+            if (kravlinjeType == KravlinjeTypeEnum.ET || kravlinjeType == KravlinjeTypeEnum.BT) {
                 beregnForsorgingstillegg = true
             }
         }
@@ -357,10 +356,10 @@ class Pre2025OffentligAfpBeregner(
                 // tp = tilleggspensjon, spt = sluttpoengtall, fpp = framtidige pensjonspoeng, pt = poengtall
                 afpFpp = beregning?.tp?.spt?.poengrekke?.fpp?.pt
                     ?: 0.0 // SimulerAFPogAPCommand.getFppValueFromTilleggspensjonList + SimulerAFPogAPCommandHelper.checkValuesForNullAndReturnFpp
-                afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
+                afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                virkTom = persongrunnlag.penPerson?.foedselsdato?.let {
+                virkTom = persongrunnlag.fodselsdato?.let {
                     firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
                 }
             })
@@ -403,16 +402,16 @@ class Pre2025OffentligAfpBeregner(
             val epsGrunnlag = persongrunnlagListe.firstOrNull { p -> p.personDetaljListe.any { it.isEps() } }
 
             return epsGrunnlag?.inntektsgrunnlagListe.orEmpty()
-                .any { it.inntektType?.kode == InntekttypeEnum.PENF.name && it.belop > 0 }
+                .any { it.inntektTypeEnum == InntekttypeEnum.PENF && it.belop > 0 }
         }
 
         // SimulerAFPogAPCommand.createInntektsgrunnlag
         private fun inntektsgrunnlag(fom: Date?, type: InntekttypeEnum, beloep: Int) =
             Inntektsgrunnlag().apply {
-                inntektType = InntektTypeCti(type.name)
+                inntektTypeEnum = type
                 this.fom = fom
                 this.belop = beloep
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.SIMULERING.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
                 bruk = true
                 //kopiertFraGammeltKrav = Boolean.FALSE
             }
@@ -421,10 +420,10 @@ class Pre2025OffentligAfpBeregner(
         private fun inntektsgrunnlagOneManedBeforeUttak(spec: SimuleringSpec) =
             Inntektsgrunnlag().apply {
                 bruk = true
-                inntektType = InntektTypeCti(InntekttypeEnum.IMFU.name) // IMFU = Inntekt måneden før uttak
+                inntektTypeEnum = InntekttypeEnum.IMFU // IMFU = Inntekt måneden før uttak
                 fom = spec.foersteUttakDato?.toNorwegianDateAtNoon()?.let { getRelativeDateByMonth(it, -1) }
                 belop = spec.afpInntektMaanedFoerUttak ?: 0
-                grunnlagKilde = GrunnlagKildeCti(GrunnlagkildeEnum.SIMULERING.name)
+                grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
             }
 
         // SimulerPensjonsberegningCommand.opprettEktefelleTillegg
@@ -434,7 +433,7 @@ class Pre2025OffentligAfpBeregner(
             grunnbeloep: Double
         ): Boolean {
             // Check if "søker" is applicable for "ektefelletillegg"
-            val alderspensjonSimulering = SimuleringTypeEnum.ALDER.name == simulering.simuleringType?.kode
+            val alderspensjonSimulering = SimuleringTypeEnum.ALDER == simulering.simuleringTypeEnum
             if (!alderspensjonSimulering) return false
 
             var opprettEktefelleTillegg = false
@@ -442,11 +441,11 @@ class Pre2025OffentligAfpBeregner(
             var forventetPensjongivendeInntekt = 0
 
             for (inntektsgrunnlag in epsGrunnlag.inntektsgrunnlagListe) {
-                val inntektType = inntektsgrunnlag.inntektType?.kode
+                val inntektType = inntektsgrunnlag.inntektTypeEnum
 
-                if (InntekttypeEnum.PENF.name == inntektType) {
+                if (InntekttypeEnum.PENF == inntektType) {
                     pensjonsinntektFraFolketrygden = inntektsgrunnlag.belop
-                } else if (InntekttypeEnum.FPI.name == inntektType) {
+                } else if (InntekttypeEnum.FPI == inntektType) {
                     forventetPensjongivendeInntekt = inntektsgrunnlag.belop
                 }
             }
@@ -486,11 +485,9 @@ class Pre2025OffentligAfpBeregner(
         ) {
             // Based on the type of simulation and "grunnlagsrolle", set the type of "vilkårsvedtak" and find the "første virkningsdato"
             var virkningFom = vedtak.virkFom
-            var kravlinjeType: KravlinjeTypeCti? = null
+            var kravlinjeType: KravlinjeTypeEnum? = null
             val rolle = personDetalj.grunnlagsrolleEnum
-
-            val simuleringType: SimuleringTypeEnum? =
-                simulering.simuleringType?.let { SimuleringTypeEnum.valueOf(it.kode) }
+            val simuleringType: SimuleringTypeEnum? = simulering.simuleringTypeEnum
 
             if (GrunnlagsrolleEnum.SOKER == rolle) {
                 kravlinjeType = simuleringType?.let(::soekerKravlinjeType)
@@ -499,13 +496,13 @@ class Pre2025OffentligAfpBeregner(
             } else if (GrunnlagsrolleEnum.BARN == rolle) {
                 if (SimuleringTypeEnum.ALDER == simuleringType || SimuleringTypeEnum.ALDER_M_GJEN == simuleringType) {
                     if (personDetalj.barnDetalj?.inntektOver1G != true) {
-                        kravlinjeType = kravlinjeTypeCti(KravlinjeTypeEnum.BT) // Barnetillegg
+                        kravlinjeType = KravlinjeTypeEnum.BT // Barnetillegg
                         virkningFom = vedtak.virkFom
                     }
                 }
             } else if (gjelderEps(rolle?.name, personDetalj)) {
                 if (opprettEktefelleTillegg(simulering, persongrunnlag, grunnbeloep)) {
-                    kravlinjeType = kravlinjeTypeCti(KravlinjeTypeEnum.ET) // Ektefelletillegg
+                    kravlinjeType = KravlinjeTypeEnum.ET // Ektefelletillegg
                     virkningFom = vedtak.virkFom
                 }
             }
@@ -513,10 +510,11 @@ class Pre2025OffentligAfpBeregner(
             // Add the vilkårsvedtak to the simulation:
             kravlinjeType?.let {
                 vedtak.kravlinje = Kravlinje().apply {
-                    this.kravlinjeType = it
+                    this.kravlinjeTypeEnum = it
+                    this.hovedKravlinje = it.erHovedkravlinje
                     this.relatertPerson = persongrunnlag.penPerson
                 }
-                vedtak.kravlinjeType = it
+                vedtak.kravlinjeTypeEnum = it
                 vedtak.forsteVirk = virkningFom
                 simulering.vilkarsvedtakliste.add(vedtak)
             }
@@ -525,9 +523,9 @@ class Pre2025OffentligAfpBeregner(
         // Extracted from SimulerAFPogAPCommand.beregnAfpOffentlig + .getAfpSimuleringsType
         private fun simulering(spec: SimuleringSpec, persongrunnlagListe: MutableList<Persongrunnlag>) =
             Simulering().apply {
-                simuleringType = SimuleringTypeCti(SimuleringTypeEnum.AFP.name) // getAfpSimuleringsType
+                simuleringTypeEnum = SimuleringTypeEnum.AFP
                 uttaksdato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                afpOrdning = spec.afpOrdning?.let { AfpOrdningTypeCti(it.name) }
+                afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 this.persongrunnlagListe = persongrunnlagListe
             }
 
@@ -535,15 +533,13 @@ class Pre2025OffentligAfpBeregner(
         //@Throws(PEN019ForUngForSimuleringException::class)
         private fun validateInput(simulering: Simulering, normAlder: Alder) {
             val simuleringType =
-                simulering.simuleringType ?: throw ImplementationUnrecoverableException("simulering.simuleringType")
+                simulering.simuleringTypeEnum ?: throw ImplementationUnrecoverableException("simulering.simuleringType")
 
             if (simulering.uttaksdato == null) {
                 throw ImplementationUnrecoverableException("simulering.uttaksdato")
             }
 
-            val simuleringTypeKode = simuleringType.kode
-
-            if (SimuleringTypeEnum.AFP.name == simuleringTypeKode && simulering.afpOrdning == null) {
+            if (SimuleringTypeEnum.AFP == simuleringType && simulering.afpOrdningEnum == null) {
                 throw ImplementationUnrecoverableException("simulering.afpordning")
             }
 
@@ -564,13 +560,13 @@ class Pre2025OffentligAfpBeregner(
             val uttakMaaned = uttakDato[Calendar.MONTH]
             val alder = uttakDato[Calendar.YEAR] - soekerFoedselsdato[Calendar.YEAR]
 
-            if (SimuleringTypeEnum.ALDER.name == simuleringTypeKode) {
+            if (SimuleringTypeEnum.ALDER == simuleringType) {
                 if (alder < normAlder.aar || alder == normAlder.aar && uttakMaaned <= foedselMaaned) {
                     throw PersonForUngException("Alderspensjon;${normAlder.aar};0")
                 }
             }
 
-            if (SimuleringTypeEnum.AFP.name == simuleringTypeKode) {
+            if (SimuleringTypeEnum.AFP == simuleringType) {
                 if (alder < AFP_MIN_AGE || alder == AFP_MIN_AGE && uttakMaaned <= foedselMaaned) {
                     throw PersonForUngException("AFP;$AFP_MIN_AGE;0")
                 }
@@ -589,12 +585,12 @@ class Pre2025OffentligAfpBeregner(
             persongrunnlag.personDetaljListe.any { rolle == it.grunnlagsrolleEnum }
 
         // Extracted from SimulerPensjonsberegningCommand.execute
-        private fun avslag(status: String) =
-            VedtakResultatEnum.AVSL.name == status || VedtakResultatEnum.VETIKKE.name == status
+        private fun avslag(status: VedtakResultatEnum) =
+            VedtakResultatEnum.AVSL == status || VedtakResultatEnum.VETIKKE == status
 
         // Extracted from SimulerAFPogAPCommand.beregnAfpOffentlig
-        private fun avslag(status: VilkarsvedtakResultatCti?) =
-            status == null || VedtakResultatEnum.INNV.name != status.kode
+        private fun ikkeInnvilget(status: VedtakResultatEnum?) =
+            status == null || VedtakResultatEnum.INNV != status
 
         // Extracted from SimulerPensjonsberegningCommand.execute
         private fun minsteTrygdetidMerknad() = Merknad().apply { kode = MINSTE_TRYGDETID }
@@ -653,7 +649,7 @@ class Pre2025OffentligAfpBeregner(
         // SimulerAFPogAPCommand.removeInntektsgrunnlagForventetArbeidsinntektFromList
         private fun removeInntektsgrunnlagForventetArbeidsinntekt(inntektGrunnlagListe: MutableList<Inntektsgrunnlag>) {
             inntektGrunnlagListe.removeIf {
-                it.inntektType?.kode == InntekttypeEnum.FPI.name
+                it.inntektTypeEnum == InntekttypeEnum.FPI
             }
         }
 
@@ -671,29 +667,22 @@ class Pre2025OffentligAfpBeregner(
                     || GrunnlagsrolleEnum.SAMBO.name == rolle && (BorMedTypeEnum.SAMBOER1_5 == personDetalj.borMedEnum))
 
         // Extracted from SimulerPensjonsberegningCommand.updateVilkarsvedtak
-        private fun soekerKravlinjeType(simuleringType: SimuleringTypeEnum): KravlinjeTypeCti? =
+        private fun soekerKravlinjeType(simuleringType: SimuleringTypeEnum): KravlinjeTypeEnum? =
             when (simuleringType) {
-                SimuleringTypeEnum.ALDER -> kravlinjeTypeCti(KravlinjeTypeEnum.AP)
-                SimuleringTypeEnum.ALDER_M_GJEN -> kravlinjeTypeCti(KravlinjeTypeEnum.AP)
-                SimuleringTypeEnum.AFP -> kravlinjeTypeCti(KravlinjeTypeEnum.AFP)
-                SimuleringTypeEnum.GJENLEVENDE -> kravlinjeTypeCti(KravlinjeTypeEnum.GJP)
-                SimuleringTypeEnum.BARN -> kravlinjeTypeCti(KravlinjeTypeEnum.BP)
+                SimuleringTypeEnum.ALDER -> KravlinjeTypeEnum.AP
+                SimuleringTypeEnum.ALDER_M_GJEN -> KravlinjeTypeEnum.AP
+                SimuleringTypeEnum.AFP -> KravlinjeTypeEnum.AFP
+                SimuleringTypeEnum.GJENLEVENDE -> KravlinjeTypeEnum.GJP
+                SimuleringTypeEnum.BARN -> KravlinjeTypeEnum.BP
                 else -> null
             }
 
         // Extracted from SimulerPensjonsberegningCommand.updateVilkarsvedtak
-        private fun avdoedKravlinjeType(simuleringType: SimuleringTypeEnum): KravlinjeTypeCti? =
+        private fun avdoedKravlinjeType(simuleringType: SimuleringTypeEnum): KravlinjeTypeEnum? =
             when (simuleringType) {
-                SimuleringTypeEnum.ALDER_M_GJEN -> kravlinjeTypeCti(KravlinjeTypeEnum.GJR)
+                SimuleringTypeEnum.ALDER_M_GJEN -> KravlinjeTypeEnum.GJR
                 else -> null
             }
-
-        // Extracted from SimulerPensjonsberegningCommand.updateVilkarsvedtak
-        private fun kravlinjeTypeCti(type: KravlinjeTypeEnum) =
-            KravlinjeTypeCti(
-                kode = type.name,
-                hovedKravlinje = type.erHovedkravlinje
-            )
 
         private data class Eps(
             val harInntektOver2G: Boolean,

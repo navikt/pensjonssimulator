@@ -3,16 +3,11 @@ package no.nav.pensjon.simulator.core.beregn
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
@@ -152,14 +147,15 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
                 vedtakListe = vilkaarsproevingResult.first
                 kravhode = vilkaarsproevingResult.second
+                setKravlinjeFoersteVirkning(vedtakListe, soekerGrunnlag.forsteVirkningsdatoGrunnlagListe)
                 forrigeVedtakListe = vedtakListe
                 vedtakListeAllePerioder.addAll(forrigeVedtakListe)
             }
 
             // Når vi kommer fra PSELV skal flagget settes i henhold til brukers løpende pensjon (ref. PK-15060)
-            if (!simuleringSpec.isTpOrigSimulering) {
+            if (!simuleringSpec.isTpOrigSimulering && !simuleringSpec.epsKanOverskrives) {
                 forrigeAlderspensjonBeregningResultat?.let {
-                    if (it.epsMottarPensjon) {
+                    if (it.beregningsinformasjon?.epsMottarPensjon == true) {
                         simuleringSpec.epsHarPensjon = true //TODO make simuleringSpec immutable?
                     }
                 }
@@ -457,6 +453,30 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
         }
 
+        // PEN: VilkarsprovOgBeregnAlderHelper.setKravlinjeForstevirkFromPersongrunnlag
+        private fun setKravlinjeFoersteVirkning(
+            vedtakListe: List<VilkarsVedtak>,
+            foersteVirkningGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>
+        ) {
+            vedtakListe.forEach {
+                setKravlinjeFoersteVirkning(vedtak = it, foersteVirkningGrunnlagListe, KravlinjeTypeEnum.AP)
+                setKravlinjeFoersteVirkning(vedtak = it, foersteVirkningGrunnlagListe, KravlinjeTypeEnum.GJR)
+            }
+        }
+
+        // PEN: VilkarsprovOgBeregnAlderHelper.setKravlinjeForstevirkFromPersongrunnlagForType
+        private fun setKravlinjeFoersteVirkning(
+            vedtak: VilkarsVedtak,
+            foersteVirkningGrunnlagListe: List<ForsteVirkningsdatoGrunnlag>,
+            kravlinjeType: KravlinjeTypeEnum
+        ) {
+            if (vedtak.kravlinjeTypeEnum == kravlinjeType) {
+                foersteVirkningGrunnlagListe.firstOrNull { it.kravlinjeTypeEnum == kravlinjeType }?.let {
+                    vedtak.kravlinjeForsteVirk = it.virkningsdato
+                }
+            }
+        }
+
         private fun isCriteriaForDoingKap20ForSimulerForTpFullfilled(
             spec: SimuleringSpec,
             foedselsdato: LocalDate,
@@ -489,8 +509,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) =
             BeholdningPeriode(
                 datoFom = virkningFom,
-                pensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningType.PEN_B)?.totalbelop,
-                garantipensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningType.GAR_PEN_B)?.totalbelop,
+                pensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.PEN_B)?.totalbelop,
+                garantipensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
                 garantitilleggsbeholdning = garantitilleggBeholdningTotalBeloep(
                     virkningFom,
                     beholdninger,
@@ -505,20 +525,20 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             foedselsdato: LocalDate
         ): Double? =
             if (isBeforeByDay(getRelativeDateByYear(foedselsdato, GARANTITILLEGG_MAX_ALDER), virkningFom, false))
-                beholdninger.findBeholdningAvType(BeholdningType.GAR_T_B)?.totalbelop
+                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_T_B)?.totalbelop
             else
                 null
 
         private fun garantipensjonsniva(beholdninger: Beholdninger): GarantipensjonNivaa? {
             val garantipensjonBeholdning =
-                beholdninger.findBeholdningAvType(BeholdningType.GAR_PEN_B) as? Garantipensjonsbeholdning
+                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
                     ?: return null
 
             val justertNivaa = garantipensjonBeholdning.justertGarantipensjonsniva?.garantipensjonsniva ?: return null
 
             return GarantipensjonNivaa(
                 beloep = justertNivaa.belop,
-                satsType = justertNivaa.satsType!!.kode,
+                satsType = (justertNivaa.satsTypeEnum ?: GarantiPensjonsnivaSatsEnum.ORDINAER).name,
                 sats = justertNivaa.sats,
                 anvendtTrygdetid = justertNivaa.tt_anv
             )
@@ -553,7 +573,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             TrygdetidRequest().apply {
                 this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
                 this.brukerForsteVirk = soekerForsteVirkningFom.toNorwegianDateAtNoon()
-                this.ytelsesTypeEnum = ytelseType
+                this.hovedKravlinjeType = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
                 this.regelverkTypeEnum = kravhode.regelverkTypeEnum
@@ -585,5 +605,5 @@ private fun BeregningsResultatAfpPrivat.hentLivsvarigDelIBruk() =
         it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG && it is AfpLivsvarig
     } as AfpLivsvarig?
 
-private fun Beholdninger.findBeholdningAvType(type: BeholdningType) =
-    beholdninger.firstOrNull { type.name == it.beholdningsType?.kode }
+private fun Beholdninger.findBeholdningAvType(type: BeholdningtypeEnum) =
+    beholdninger.firstOrNull { type == it.beholdningsTypeEnum }

@@ -1,8 +1,11 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning
 
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatBeregning
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AldersberegningKapittel19
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AldersberegningKapittel20
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Uforetrygdberegning
-import java.lang.reflect.InvocationTargetException
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
 class BeregningRelasjon {
 
@@ -23,44 +26,25 @@ class BeregningRelasjon {
 
     constructor()
 
-    constructor(beregningRelasjon: BeregningRelasjon) {
-        if (beregningRelasjon.beregning != null) {
-            beregning = Beregning(beregningRelasjon.beregning)
-            //beregning!!.beregningsrelasjon = this
-        }
+    constructor(source: BeregningRelasjon) {
+        beregning = source.beregning?.let(::Beregning)
+        //beregning!!.beregningsrelasjon = this
 
-        beregning2011 = createBeregning2011UsingCopyConstructor(beregningRelasjon.beregning2011)
+        beregning2011 = source.beregning2011?.let(::copy)
 
         //if (beregning2011 != null) {
         //    beregning2011!!.beregningsrelasjon = this
         //}
 
-        bruk = beregningRelasjon.bruk
+        bruk = source.bruk
     }
 
-    private fun createBeregning2011UsingCopyConstructor(beregning2011: Beregning2011?): Beregning2011? {
-        if (beregning2011 == null) return null
-
-        val clazz = beregning2011.javaClass
-
-        return try {
-            if (beregning2011 is Uforetrygdberegning) {
-                val constructor = clazz.getConstructor(clazz, Boolean::class.javaPrimitiveType)
-                constructor.newInstance(beregning2011, true)
-            } else {
-                val constructor = clazz.getConstructor(clazz)
-                constructor.newInstance(beregning2011)
-            }
-        } catch (e: NoSuchMethodException) {
-            throw RuntimeException(e)
-        } catch (e: IllegalArgumentException) {
-            throw RuntimeException(e)
-        } catch (e: InstantiationException) {
-            throw RuntimeException(e)
-        } catch (e: IllegalAccessException) {
-            throw RuntimeException(e)
-        } catch (e: InvocationTargetException) {
-            throw RuntimeException(e)
+    private fun copy(source: Beregning2011): Beregning2011? =
+        when (source) {
+            is AfpPrivatBeregning -> AfpPrivatBeregning(source)
+            is AldersberegningKapittel19 -> AldersberegningKapittel19(source)
+            is AldersberegningKapittel20 -> source.copy()
+            is Uforetrygdberegning -> source.copy()
+            else -> null
         }
-    }
 }

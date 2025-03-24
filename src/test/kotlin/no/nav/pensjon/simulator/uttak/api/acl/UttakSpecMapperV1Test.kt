@@ -26,6 +26,7 @@ class UttakSpecMapperV1Test : FunSpec({
                         fraOgMedDato = LocalDate.of(2029, 2, 1)
                     )
                 ),
+                arIUtlandetEtter16 = 5
             ),
             foedselsdato = LocalDate.of(1964, 5, 6)
         ) shouldBe SimuleringSpec(
@@ -45,7 +46,7 @@ class UttakSpecMapperV1Test : FunSpec({
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = null,
             foedselAar = 1964,
-            utlandAntallAar = 0,
+            utlandAntallAar = 5,
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = mutableListOf(
                 FremtidigInntekt(
@@ -53,6 +54,7 @@ class UttakSpecMapperV1Test : FunSpec({
                     fom = LocalDate.of(2029, 2, 1)
                 )
             ),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,
@@ -63,7 +65,8 @@ class UttakSpecMapperV1Test : FunSpec({
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-            onlyVilkaarsproeving = true // true for 'tidligst mulig uttak'
+            onlyVilkaarsproeving = true, // true for 'tidligst mulig uttak'
+            epsKanOverskrives = false
         )
     }
 })

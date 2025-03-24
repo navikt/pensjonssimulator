@@ -32,9 +32,10 @@ object UttakSpecMapperV1 {
             inntektEtterHeltUttakBeloep = 0, // fremtidigInntektListe is used instead
             inntektEtterHeltUttakAntallAar = null, // fremtidigInntektListe is used instead
             foedselAar = foedselsdato.year,
-            utlandAntallAar = 0, // not taken into account
+            utlandAntallAar = source.arIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(), // not taken into account
             fremtidigInntektListe = source.fremtidigInntektListe.orEmpty().map(::inntekt).toMutableList(),
+            brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,
@@ -45,7 +46,8 @@ object UttakSpecMapperV1 {
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
-            onlyVilkaarsproeving = true
+            onlyVilkaarsproeving = true,
+            epsKanOverskrives = false
         )
 
     private fun inntekt(source: UttakInntektSpecV1) =

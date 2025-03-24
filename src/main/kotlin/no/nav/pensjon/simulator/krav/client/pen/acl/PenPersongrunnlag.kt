@@ -4,21 +4,20 @@ import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUPtilUT
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.kode.BorMedTypeCti
-import no.nav.pensjon.simulator.core.domain.regler.kode.LandCti
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.util.*
 
 /**
  * Persongrunnlag DTO (data transfer object) received from PEN.
- * Corresponds to PersongrunnlagDtoForSimulator in PEN.
+ * Corresponds to no.nav.pensjon.pen.domain.api.simulator.grunnlag.Persongrunnlag in PEN.
  */
 class PenPersongrunnlag(
     var penPerson: PenPenPerson? = null,
     var fodselsdato: Date? = null,
     var dodsdato: Date? = null,
-    var statsborgerskap: LandCti? = null,
+    var statsborgerskapEnum: LandkodeEnum? = null,
     var flyktning: Boolean? = null,
     var personDetaljListe: MutableList<PenPersonDetalj> = mutableListOf(),
     var sistMedlITrygden: Date? = null,
@@ -58,7 +57,7 @@ class PenPersongrunnlag(
     var skiltesDelAvAvdodesTP: Int = -99,
     var instOpphReduksjonsperiodeListe: MutableList<InstOpphReduksjonsperiode> = mutableListOf(),
     var instOpphFasteUtgifterperiodeListe: MutableList<InstOpphFasteUtgifterperiode> = mutableListOf(),
-    var bosattLand: LandCti? = null,
+    var bosattLandEnum: LandkodeEnum? = null,
     var pensjonsbeholdning: PenPensjonsbeholdning? = null,
     var forstegangstjenestegrunnlag: Forstegangstjeneste? = null,
     var dagpengegrunnlagListe: MutableList<Dagpengegrunnlag> = mutableListOf(),
@@ -67,7 +66,6 @@ class PenPersongrunnlag(
     var arbeidsforholdEtterUforgrunnlagListe: MutableList<ArbeidsforholdEtterUforgrunnlag> = mutableListOf(),
     var overgangsInfoUPtilUT: OvergangsinfoUPtilUT? = null,
     var utbetalingsgradUTListe: MutableList<UtbetalingsgradUT> = mutableListOf(),
-    var borMed: BorMedTypeCti? = null,
     var instOpphReduksjonsperiode: InstOpphReduksjonsperiode? = null,
     var instOpphFasteUtgifterperiode: InstOpphFasteUtgifterperiode? = null,
     var ektefellenMottarPensjon: Boolean = false,

@@ -55,13 +55,15 @@ object NavSimuleringSpecMapperV3 {
             flyktning = false,
             utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
             // Inntekt angis før/etter gradert/helt uttak istedenfor via liste:
-            fremtidigInntektListe = null, // NB: Must be null (not empty list)
+            fremtidigInntektListe = mutableListOf(),
+            brukFremtidigInntekt = false,
             rettTilOffentligAfpFom = null,
             afpOrdning = source.afpOrdning,
             afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-            onlyVilkaarsproeving = false
+            onlyVilkaarsproeving = false,
+            epsKanOverskrives = true
         )
     }
 

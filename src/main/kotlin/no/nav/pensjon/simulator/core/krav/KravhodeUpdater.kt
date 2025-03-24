@@ -3,9 +3,9 @@ package no.nav.pensjon.simulator.core.krav
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
-import no.nav.pensjon.simulator.core.beholdning.BeholdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
@@ -101,7 +101,7 @@ class KravhodeUpdater(
     // SimulerFleksibelAPCommand.settPensjonsbeholdning (part of)
     private fun fetchBeholdninger(grunnlag: Persongrunnlag, foersteUttakDato: LocalDate?) =
         context.beregnOpptjening(foersteUttakDato, grunnlag)
-            .filter { BeholdningType.PEN_B.name == it.beholdningsType?.kode }
+            .filter { BeholdningtypeEnum.PEN_B == it.beholdningsTypeEnum }
 
     private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag) {
         setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdato)
@@ -194,7 +194,7 @@ class KravhodeUpdater(
 
         val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe,
-            foedselsdato = persongrunnlag.penPerson!!.foedselsdato!!,
+            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
             spec.foersteUttakDato
         )
 
@@ -208,7 +208,7 @@ class KravhodeUpdater(
 
         val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
             trygdetidGrunnlagUtlandOppholdListe,
-            foedselsdato = persongrunnlag.penPerson!!.foedselsdato!!,
+            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
             spec.foersteUttakDato
         )
 

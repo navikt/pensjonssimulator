@@ -132,6 +132,7 @@ private fun simuleringSpec() =
                 fom = LocalDate.of(2027, 8, 1)
             )
         ),
+        brukFremtidigInntekt = true,
         type = SimuleringType.ALDER,
         foedselAar = 0, // only for anonym
         forventetInntektBeloep = 0, // inntekt instead given by fremtidigInntektListe
@@ -152,7 +153,8 @@ private fun simuleringSpec() =
         ignoreAvslag = true, // true for folketrygdbeholdning
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
-        onlyVilkaarsproeving = false
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false
     )
 
 

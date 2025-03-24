@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.krav.client.pen
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
@@ -73,7 +74,7 @@ class PenKravClientTest : FunSpec({
                 fodselsdato shouldBe dateAtNoon(year = 1974, zeroBasedMonth = Calendar.MARCH, day = 30)
             }
             result.kravlinjeListe.size shouldBe 1
-            result.kravlinjeListe[0].kravlinjeType?.kode shouldBe "UT"
+            result.kravlinjeListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.UT
         }
     }
 })
@@ -89,48 +90,20 @@ object PenKravhodeResponse {
             },
             "fodselsdato": "1974-03-30T12:00:00+0100",
             "dodsdato": null,
-            "statsborgerskap": {
-                "kode": "NOR",
-                "dekode": null,
-                "dato_fom": null,
-                "dato_tom": null,
-                "er_gyldig": true,
-                "kommentar": null
-            },
+            "statsborgerskapEnum": "NOR",
             "flyktning": false,
             "personDetaljListe": [
                 {
-                    "grunnlagsrolle": {
-                        "kode": "SOKER",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagsrolleEnum": "SOKER",
                     "rolleFomDato": "1974-04-01T12:00:00+0100",
                     "rolleTomDato": null,
-                    "sivilstandType": {
-                        "kode": "UGIF",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "sivilstandTypeEnum": "UGIF",
                     "sivilstandRelatertPerson": null,
                     "borMed": null,
                     "barnDetalj": null,
                     "tillegg": false,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "TPS",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "TPS",
                     "serskiltSatsUtenET": null,
                     "epsAvkallEgenPensjon": null,
                     "eps": false
@@ -150,26 +123,13 @@ object PenKravhodeResponse {
                     "pi": 653500,
                     "pia": 516717,
                     "pp": 5.92,
-                    "opptjeningType": {
-                        "kode": "PPI",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "opptjeningTypeEnum": "PPI",
                     "maksUforegrad": 0,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "POPP",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "POPP",
                     "opptjeningTypeListe": [
                         {
+                            "opptjeningPOPPTypeEnum": "INN_LON",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "INN_LON",
                                 "dekode": null,
@@ -180,6 +140,7 @@ object PenKravhodeResponse {
                             }
                         },
                         {
+                            "opptjeningPOPPTypeEnum": "AI",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "AI",
                                 "dekode": null,
@@ -196,16 +157,10 @@ object PenKravhodeResponse {
                     "pi": 665000,
                     "pia": 533763,
                     "pp": 5.84,
-                    "opptjeningType": {
-                        "kode": "PPI",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "opptjeningTypeEnum": "PPI",
                     "maksUforegrad": 0,
                     "bruk": true,
+                    "grunnlagKildeEnum": "POPP",
                     "grunnlagKilde": {
                         "kode": "POPP",
                         "dekode": null,
@@ -216,6 +171,7 @@ object PenKravhodeResponse {
                     },
                     "opptjeningTypeListe": [
                         {
+                            "opptjeningPOPPTypeEnum": "INN_LON",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "INN_LON",
                                 "dekode": null,
@@ -226,6 +182,7 @@ object PenKravhodeResponse {
                             }
                         },
                         {
+                            "opptjeningPOPPTypeEnum": "AI",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "AI",
                                 "dekode": null,
@@ -242,36 +199,16 @@ object PenKravhodeResponse {
                     "pi": 649100,
                     "pia": 540979,
                     "pp": 5.67,
-                    "opptjeningType": {
-                        "kode": "PPI",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "opptjeningTypeEnum": "PPI",
                     "maksUforegrad": 0,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "POPP",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "POPP",
                     "opptjeningTypeListe": [
                         {
-                            "opptjeningPOPPTypeCti": {
-                                "kode": "INN_LON",
-                                "dekode": null,
-                                "dato_fom": null,
-                                "dato_tom": null,
-                                "er_gyldig": true,
-                                "kommentar": null
-                            }
+                            "opptjeningPOPPTypeEnum": "INN_LON"
                         },
                         {
+                            "opptjeningPOPPTypeEnum": "AI",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "AI",
                                 "dekode": null,
@@ -288,26 +225,13 @@ object PenKravhodeResponse {
                     "pi": 627300,
                     "pia": 545916,
                     "pp": 5.48,
-                    "opptjeningType": {
-                        "kode": "PPI",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "opptjeningTypeEnum": "PPI",
                     "maksUforegrad": 0,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "POPP",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "POPP",
                     "opptjeningTypeListe": [
                         {
+                            "opptjeningPOPPTypeEnum": "INN_LON",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "INN_LON",
                                 "dekode": null,
@@ -318,6 +242,7 @@ object PenKravhodeResponse {
                             }
                         },
                         {
+                            "opptjeningPOPPTypeEnum": "AI",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "AI",
                                 "dekode": null,
@@ -334,6 +259,7 @@ object PenKravhodeResponse {
                     "pi": 631200,
                     "pia": 559712,
                     "pp": 5.41,
+                    "opptjeningTypeEnum": "PPI",
                     "opptjeningType": {
                         "kode": "PPI",
                         "dekode": null,
@@ -344,16 +270,10 @@ object PenKravhodeResponse {
                     },
                     "maksUforegrad": 0,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "POPP",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "POPP",
                     "opptjeningTypeListe": [
                         {
+                            "opptjeningPOPPTypeEnum": "INN_LON",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "INN_LON",
                                 "dekode": null,
@@ -364,6 +284,7 @@ object PenKravhodeResponse {
                             }
                         },
                         {
+                            "opptjeningPOPPTypeEnum": "AI",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "AI",
                                 "dekode": null,
@@ -380,36 +301,16 @@ object PenKravhodeResponse {
                     "pi": 589300,
                     "pia": 554441,
                     "pp": 5.19,
-                    "opptjeningType": {
-                        "kode": "PPI",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "opptjeningTypeEnum": "PPI",
                     "maksUforegrad": 0,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "POPP",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "POPP",
                     "opptjeningTypeListe": [
                         {
-                            "opptjeningPOPPTypeCti": {
-                                "kode": "INN_LON",
-                                "dekode": null,
-                                "dato_fom": null,
-                                "dato_tom": null,
-                                "er_gyldig": true,
-                                "kommentar": null
-                            }
+                            "opptjeningPOPPTypeEnum": "INN_LON"
                         },
                         {
+                            "opptjeningPOPPTypeEnum": "AI",
                             "opptjeningPOPPTypeCti": {
                                 "kode": "AI",
                                 "dekode": null,
@@ -426,44 +327,16 @@ object PenKravhodeResponse {
                     "pi": 556600,
                     "pia": 552493,
                     "pp": 5.02,
-                    "opptjeningType": {
-                        "kode": "PPI",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "opptjeningTypeEnum": "PPI",
                     "maksUforegrad": 0,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "POPP",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "grunnlagKildeEnum": "POPP",
                     "opptjeningTypeListe": [
                         {
-                            "opptjeningPOPPTypeCti": {
-                                "kode": "INN_LON",
-                                "dekode": null,
-                                "dato_fom": null,
-                                "dato_tom": null,
-                                "er_gyldig": true,
-                                "kommentar": null
-                            }
+                            "opptjeningPOPPTypeEnum": "INN_LON"
                         },
                         {
-                            "opptjeningPOPPTypeCti": {
-                                "kode": "AI",
-                                "dekode": null,
-                                "dato_fom": null,
-                                "dato_tom": null,
-                                "er_gyldig": true,
-                                "kommentar": null
-                            }
+                            "opptjeningPOPPTypeEnum": "AI"
                         }
                     ]
                 }
@@ -476,24 +349,10 @@ object PenKravhodeResponse {
                     "changed": null,
                     "poengIInnAr": false,
                     "poengIUtAr": false,
-                    "land": {
-                        "kode": "NOR",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    },
+                    "landEnum": "NOR",
                     "ikkeProRata": false,
                     "bruk": true,
-                    "grunnlagKilde": {
-                        "kode": "SAKSB",
-                        "dekode": null,
-                        "dato_fom": null,
-                        "dato_tom": null,
-                        "er_gyldig": true,
-                        "kommentar": null
-                    }
+                    "grunnlagKildeEnum": "POPP"
                 }
             ],
             "trygdetidPerioderKapittel20": [],
@@ -525,6 +384,7 @@ object PenKravhodeResponse {
                 {
                     "fom": "1998-01-01T12:00:00+0100",
                     "tom": "2002-12-31T12:00:00+0100",
+                    "landEnum": "SWE",
                     "land": {
                         "kode": "SWE",
                         "dekode": null,
@@ -603,6 +463,7 @@ object PenKravhodeResponse {
                     "prisOgLonnsvekst": 0.0
                 },
                 "formelkode": null,
+                "beholdningsTypeEnum": "PEN_B",
                 "beholdningsType": {
                     "kode": "PEN_B",
                     "dekode": null,
@@ -632,6 +493,7 @@ object PenKravhodeResponse {
     ],
     "kravlinjeListe": [
         {
+            "kravlinjeTypeEnum": "UT",
             "kravlinjeType": {
                 "kode": "UT",
                 "dekode": null,
@@ -650,6 +512,7 @@ object PenKravhodeResponse {
     "afpOrdning": null,
     "afptillegg": false,
     "brukOpptjeningFra65I66Aret": false,
+    "kravVelgTypeEnum": "VARIG",
     "kravVelgType": {
         "kode": "VARIG",
         "dekode": null,

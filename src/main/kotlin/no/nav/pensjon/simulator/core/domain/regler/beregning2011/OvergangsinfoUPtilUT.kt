@@ -4,8 +4,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.MinstepensjonstypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultatKildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
 
+// Checked 2025-02-28
 class OvergangsinfoUPtilUT {
-
     /**
      * Konvertert beregningsgrunnlag for Ordinår beregning
      */
@@ -64,42 +64,18 @@ class OvergangsinfoUPtilUT {
     constructor()
 
     constructor(source: OvergangsinfoUPtilUT) : this() {
-        if (source.ektefelletilleggUT != null) {
-            ektefelletilleggUT = EktefelletilleggUT(source.ektefelletilleggUT!!)
-        }
-
+        ektefelletilleggUT = source.ektefelletilleggUT?.let(::EktefelletilleggUT)
         inntektsgrenseorFriinntektsdato = source.inntektsgrenseorFriinntektsdato
-
-        if (source.konvertertBeregningsgrunnlagOrdiner != null) {
-            konvertertBeregningsgrunnlagOrdiner = BeregningsgrunnlagKonvertert(source.konvertertBeregningsgrunnlagOrdiner!!)
-        }
-
-        if (source.konvertertBeregningsgrunnlagYrkesskade != null) {
-            konvertertBeregningsgrunnlagYrkesskade = BeregningsgrunnlagKonvertert(source.konvertertBeregningsgrunnlagYrkesskade!!)
-        }
-
-        if (source.konvertertBeregningsgrunnlagGJT != null) {
-            konvertertBeregningsgrunnlagGJT = BeregningsgrunnlagKonvertert(source.konvertertBeregningsgrunnlagGJT!!)
-        }
-
-        if (source.anvendtTrygdetidUP != null) {
-            anvendtTrygdetidUP = AnvendtTrygdetid(source.anvendtTrygdetidUP!!)
-        }
-
-        if (source.anvendtTrygdetidUPHjemme != null) {
-            anvendtTrygdetidUPHjemme = AnvendtTrygdetid(source.anvendtTrygdetidUPHjemme!!)
-        }
-
-        if (source.anvendtTrygdetidUP_egen != null) {
-            anvendtTrygdetidUP_egen = AnvendtTrygdetid(source.anvendtTrygdetidUP_egen!!)
-        }
-
-        if (source.minstepensjontypeEnum != null) {
-            minstepensjontypeEnum = source.minstepensjontypeEnum
-        }
-
-        if (source.resultatKildeEnum != null) {
-            resultatKildeEnum = source.resultatKildeEnum
-        }
+        konvertertBeregningsgrunnlagOrdiner =
+            source.konvertertBeregningsgrunnlagOrdiner?.let(::BeregningsgrunnlagKonvertert)
+        konvertertBeregningsgrunnlagYrkesskade =
+            source.konvertertBeregningsgrunnlagYrkesskade?.let(::BeregningsgrunnlagKonvertert)
+        konvertertBeregningsgrunnlagGJT = source.konvertertBeregningsgrunnlagGJT?.let(::BeregningsgrunnlagKonvertert)
+        anvendtTrygdetidUP = source.anvendtTrygdetidUP?.let(::AnvendtTrygdetid)
+        anvendtTrygdetidUPHjemme = source.anvendtTrygdetidUPHjemme?.let(::AnvendtTrygdetid)
+        anvendtTrygdetidUP_egen = source.anvendtTrygdetidUP_egen?.let(::AnvendtTrygdetid)
+        minstepensjontypeEnum = source.minstepensjontypeEnum
+        resultatKildeEnum = source.resultatKildeEnum
+        sertilleggNetto = source.sertilleggNetto
     }
 }

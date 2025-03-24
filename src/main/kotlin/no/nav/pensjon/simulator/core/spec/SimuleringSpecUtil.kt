@@ -92,6 +92,7 @@ object SimuleringSpecUtil {
             utlandAntallAar = source.utlandAntallAar,
             utlandPeriodeListe = source.utlandPeriodeListe,
             fremtidigInntektListe = source.fremtidigInntektListe,
+            brukFremtidigInntekt = source.brukFremtidigInntekt,
             inntektOver1GAntallAar = source.inntektOver1GAntallAar,
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
@@ -102,7 +103,8 @@ object SimuleringSpecUtil {
             ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-            onlyVilkaarsproeving = source.onlyVilkaarsproeving
+            onlyVilkaarsproeving = source.onlyVilkaarsproeving,
+            epsKanOverskrives = source.epsKanOverskrives
         )
     }
 
@@ -127,6 +129,7 @@ object SimuleringSpecUtil {
             utlandAntallAar = source.utlandAntallAar,
             utlandPeriodeListe = source.utlandPeriodeListe,
             fremtidigInntektListe = source.fremtidigInntektListe,
+            brukFremtidigInntekt = source.brukFremtidigInntekt,
             inntektOver1GAntallAar = source.inntektOver1GAntallAar,
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
@@ -137,7 +140,8 @@ object SimuleringSpecUtil {
             ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-            onlyVilkaarsproeving = source.onlyVilkaarsproeving
+            onlyVilkaarsproeving = source.onlyVilkaarsproeving,
+            epsKanOverskrives = source.epsKanOverskrives
         )
 
     private fun naermesteLavereUttakGrad(grad: UttakGradKode) =

@@ -17,7 +17,6 @@ spec:
       cpu: 20m
       memory: 512Mi
   ingresses:
-    - https://pensjonssimulator.ekstern.dev.nav.no
     - https://pensjonssimulator.intern.dev.nav.no
   port: 8080
   liveness:
@@ -50,6 +49,7 @@ spec:
           product: "pensjonssimulator"
           consumers:
             - orgno: "889640782" # Nav (NB: dev only)
+            - orgno: "916833520" # Gabler Pensjonstjenester
             - orgno: "938708606" # KLP
             - orgno: "982759412" # Oslo Pensjonsforsikring
             - orgno: "982583462" # SPK
@@ -67,9 +67,6 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: pensjon-pen-q1
-          namespace: pensjon-q1
-          cluster: dev-fss
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss
@@ -83,6 +80,9 @@ spec:
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss
+        - application: pensjon-regler-q2
+          namespace: pensjon-regler
+          cluster: dev-fss
         - application: pensjon-selvbetjening-fss-gateway
           namespace: pensjonselvbetjening
           cluster: dev-fss
@@ -92,6 +92,7 @@ spec:
         - application: tjenestepensjon-simulering
       external:
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
+        - host: pensjon-regler-q2.dev-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
         - host: tp-api-q2.dev-fss-pub.nais.io
   env:
@@ -103,6 +104,8 @@ spec:
       value: dev-fss:pensjon-q2:pensjon-pen-q2
     - name: PEN_URL
       value: https://pensjon-pen-q2.dev-fss-pub.nais.io
+    - name: REGLER_URL
+      value: https://pensjon-regler-q2.dev-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID
       value: dev-fss:pensjonsamhandling:tp-q2
     - name: TJENESTEPENSJON_URL

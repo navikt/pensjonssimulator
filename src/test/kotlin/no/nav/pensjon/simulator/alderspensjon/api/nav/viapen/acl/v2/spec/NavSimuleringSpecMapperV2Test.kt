@@ -104,7 +104,8 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                             arbeidet = true
                         )
                     ),
-                    fremtidigInntektListe = null, // ikke brukt i PSELV
+                    fremtidigInntektListe = mutableListOf(), // ikke brukt i PSELV
+                    brukFremtidigInntekt = false,
                     inntektOver1GAntallAar = 0, // kun for anonym simulering
                     flyktning = false,
                     epsHarInntektOver2G = true,
@@ -115,7 +116,8 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     ignoreAvslag = false,
                     isHentPensjonsbeholdninger = true,
                     isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
-                    onlyVilkaarsproeving = false
+                    onlyVilkaarsproeving = false,
+                    epsKanOverskrives = false
                 )
     }
 })

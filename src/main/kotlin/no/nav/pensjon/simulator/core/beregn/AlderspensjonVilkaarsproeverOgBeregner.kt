@@ -116,7 +116,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             val livsvarigOffentligAfpGrunnlag = gjeldendeLivsvarigOffentligAfp?.let {
                 AfpOffentligLivsvarigGrunnlag(
-                    sistRegulertG = it.sistRegulertG ?: 0,
+                    sistRegulertG = it.sistRegulertG ?: CURRENT_GRUNNBELOEP,
                     bruttoPerAr = it.bruttoPerAr,
                     uttaksdato = it.uttaksdato
                 )
@@ -356,6 +356,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
     private companion object {
         private const val GARANTITILLEGG_MAX_ALDER = 67 //TODO normert?
+        private const val CURRENT_GRUNNBELOEP = 124028 //TODO get value from tjenestepensjon-simulering
 
         // VilkarsprovOgBeregnAlderHelper.getAfpLivsvarig
         private fun getPrivatAfp(

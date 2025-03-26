@@ -53,17 +53,17 @@ object NavSimuleringResultMapperV3 {
     private fun pre2025OffentligAfp(source: SimulertPre2025OffentligAfp) =
         NavPre2025OffentligAfp(
             alderAar = source.alderAar,
-            totalbelopAfp = source.totalbelopAfp,
+            totaltAfpBeloep = source.totaltAfpBeloep,
             tidligereArbeidsinntekt = source.tidligereArbeidsinntekt,
-            grunnbelop = source.grunnbelop,
+            grunnbeloep = source.grunnbeloep,
             sluttpoengtall = source.sluttpoengtall,
             trygdetid = source.trygdetid,
-            poeangaarFoer92 = source.poeangaarFoer92,
-            poeangaarEtter91 = source.poeangaarEtter91,
+            poengaarTom1991 = source.poengaarTom1991,
+            poengaarFom1992 = source.poengaarFom1992,
             grunnpensjon = source.grunnpensjon,
             tilleggspensjon = source.tilleggspensjon,
             afpTillegg = source.afpTillegg,
-            sertillegg = source.sertillegg
+            saertillegg = source.saertillegg
         )
 
     private fun privatAfp(source: SimulertPrivatAfp) =

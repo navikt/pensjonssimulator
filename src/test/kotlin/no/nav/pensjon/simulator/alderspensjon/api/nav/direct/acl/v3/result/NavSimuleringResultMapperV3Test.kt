@@ -48,7 +48,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                         )
                     ),
                     privatAfp = listOf(SimulertPrivatAfp(alderAar = 66, beloep = 789)),
-                    pre2025OffentligAfp = SimulertPre2025OffentligAfp(alderAar = 62, totalbelopAfp = 890, tidligereArbeidsinntekt = 123, grunnbelop = 456, sluttpoengtall = 7.8, trygdetid = 30, poeangaarFoer92 = 10, poeangaarEtter91 = 20, grunnpensjon = 567, tilleggspensjon = 678, afpTillegg = 789, sertillegg = 890),
+                    pre2025OffentligAfp = SimulertPre2025OffentligAfp(alderAar = 62, totaltAfpBeloep = 890, tidligereArbeidsinntekt = 123, grunnbeloep = 456, sluttpoengtall = 7.8, trygdetid = 30, poengaarTom1991 = 10, poengaarFom1992 = 20, grunnpensjon = 567, tilleggspensjon = 678, afpTillegg = 789, saertillegg = 890),
                     livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 63, beloep = 901)),
                     pensjonBeholdningPeriodeListe = listOf(
                         SimulertPensjonBeholdningPeriode(
@@ -111,17 +111,17 @@ class NavSimuleringResultMapperV3Test : FunSpec({
             ),
             pre2025OffentligAfp = NavPre2025OffentligAfp(
                 alderAar = 62,
-                totalbelopAfp = 890,
+                totaltAfpBeloep = 890,
                 tidligereArbeidsinntekt = 123,
-                grunnbelop = 456,
+                grunnbeloep = 456,
                 sluttpoengtall = 7.8,
                 trygdetid = 30,
-                poeangaarFoer92 = 10,
-                poeangaarEtter91 = 20,
+                poengaarTom1991 = 10,
+                poengaarFom1992 = 20,
                 grunnpensjon = 567,
                 tilleggspensjon = 678,
                 afpTillegg = 789,
-                sertillegg = 890
+                saertillegg = 890
             ),
             privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789)),
             livsvarigOffentligAfpListe = listOf(NavLivsvarigOffentligAfpV3(alderAar = 63, beloep = 901)),

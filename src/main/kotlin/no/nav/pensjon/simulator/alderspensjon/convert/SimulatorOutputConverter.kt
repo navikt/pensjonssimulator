@@ -143,17 +143,17 @@ object SimulatorOutputConverter {
 
                 SimulertPre2025OffentligAfp(
                     alderAar = alderAar(foedselDato, it),
-                    totalbelopAfp = beregning.netto,
+                    totaltAfpBeloep = beregning.netto,
                     tidligereArbeidsinntekt = poengrekke?.tpi ?: 0,
-                    grunnbelop = beregning.g,
+                    grunnbeloep = beregning.g,
                     sluttpoengtall = sluttpoengtall?.pt ?: 0.0,
                     trygdetid = beregning.tt_anv,
-                    poeangaarFoer92 = poengrekke?.pa_f92 ?: 0,
-                    poeangaarEtter91 = poengrekke?.pa_e91 ?: 0,
+                    poengaarTom1991 = poengrekke?.pa_f92 ?: 0,
+                    poengaarFom1992 = poengrekke?.pa_e91 ?: 0,
                     grunnpensjon = beregning.gp?.netto ?: 0,
                     tilleggspensjon = beregning.tp?.netto ?: 0,
                     afpTillegg = beregning.afpTillegg?.netto ?: 0,
-                    sertillegg = beregning.st?.netto ?: 0
+                    saertillegg = beregning.st?.netto ?: 0
                 )
             }
 

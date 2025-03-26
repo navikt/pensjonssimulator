@@ -60,17 +60,17 @@ data class NavLivsvarigOffentligAfpV3(
 
 data class NavPre2025OffentligAfp(
     val alderAar: Int,
-    val totalbelopAfp: Int,
+    val totaltAfpBeloep: Int,
     val tidligereArbeidsinntekt: Int,
-    val grunnbelop: Int,
+    val grunnbeloep: Int,
     val sluttpoengtall: Double,
     val trygdetid: Int,
-    val poeangaarFoer92: Int,
-    val poeangaarEtter91: Int,
+    val poengaarTom1991: Int,
+    val poengaarFom1992: Int,
     val grunnpensjon: Int,
     val tilleggspensjon: Int,
     val afpTillegg: Int,
-    val sertillegg: Int
+    val saertillegg: Int
 )
 
 @JsonInclude(NON_NULL)

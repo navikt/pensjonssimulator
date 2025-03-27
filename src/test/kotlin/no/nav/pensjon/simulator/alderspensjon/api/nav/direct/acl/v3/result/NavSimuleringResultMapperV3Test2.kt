@@ -156,7 +156,17 @@ class NavSimuleringResultMapperV3Test2 {
                     ),
                     pre2025OffentligAfp = SimulertPre2025OffentligAfp(
                         alderAar = 11,
-                        beloep = 12
+                        totaltAfpBeloep = 12,
+                        tidligereArbeidsinntekt = 13,
+                        grunnbeloep = 14,
+                        sluttpoengtall = 15.0,
+                        trygdetid = 16,
+                        poengaarTom1991 = 17,
+                        poengaarFom1992 = 18,
+                        grunnpensjon = 19,
+                        tilleggspensjon = 20,
+                        afpTillegg = 21,
+                        saertillegg = 22
                     ),
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(

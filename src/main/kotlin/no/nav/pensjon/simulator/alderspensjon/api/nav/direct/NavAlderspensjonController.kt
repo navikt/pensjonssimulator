@@ -137,6 +137,7 @@ class NavAlderspensjonController(
             NavSimuleringResultV3(
                 alderspensjonListe = emptyList(),
                 alderspensjonMaanedsbeloep = null,
+                pre2025OffentligAfp = null,
                 privatAfpListe = emptyList(),
                 livsvarigOffentligAfpListe = emptyList(),
                 vilkaarsproeving = NavVilkaarsproevingResultatV3(

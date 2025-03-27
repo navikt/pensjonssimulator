@@ -3,6 +3,8 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sertillegg
 import no.nav.pensjon.simulator.core.domain.regler.enum.Fravik_19_3_Enum
 import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtilleggEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copy
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 
 /**
  * Generell historisk info for en bruker
@@ -62,9 +64,9 @@ class GenerellHistorikk {
         fpp_eos = source.fpp_eos
         ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.let(::Ventetilleggsgrunnlag)
         poengtilleggEnum = source.poengtilleggEnum
-        eosEkstra = source.eosEkstra?.let(::EosEkstra)
+        eosEkstra = source.eosEkstra?.copy()
         garantiTrygdetid = source.garantiTrygdetid?.let(::GarantiTrygdetid)
-        sertillegg1943kull = source.sertillegg1943kull?.let(::Sertillegg)
+        sertillegg1943kull = source.sertillegg1943kull?.copy()
         giftFor2011 = source.giftFor2011
     }
 }

@@ -3,11 +3,11 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
+// 2025-03-20
 /**
  * Brukes i pensjon-regler kun ved g-omregning
  */
-class KrigOgGammelYrkesskade : Ytelseskomponent {
-
+class KrigOgGammelYrkesskade : Ytelseskomponent() {
     /**
      * Pensjonsgraden
      */
@@ -39,21 +39,4 @@ class KrigOgGammelYrkesskade : Ytelseskomponent {
     var mendel = 0
 
     override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.KRIG_GY
-
-    // SIMDOM-ADD
-    constructor() : super(typeEnum = YtelseskomponentTypeEnum.KRIG_GY)
-
-    /**
-     * Used via reflection in PensjonUnderUtbetaling: constructor.newInstance(komponent)
-     */
-    constructor(source: KrigOgGammelYrkesskade) : super(source) {
-        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.KRIG_GY
-        pensjonsgrad = source.pensjonsgrad
-        grunnlagForUtbetaling = source.grunnlagForUtbetaling
-        kapitalutlosning = source.kapitalutlosning
-        ps = source.ps
-        yg = source.yg
-        mendel = source.mendel
-    }
-    // end SIMDOM-ADD
 }

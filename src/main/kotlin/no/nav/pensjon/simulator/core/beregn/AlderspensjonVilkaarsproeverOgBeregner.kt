@@ -11,6 +11,8 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.beholdning
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
@@ -26,7 +28,6 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -41,8 +42,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val beregner: AlderspensjonBeregner,
     private val vilkaarsproever: Vilkaarsproever,
     private val trygdetidFastsetter: TrygdetidFastsetter,
-    private val sisteBeregningCreator: SisteBeregningCreator,
-    private val generelleDataHolder: GenerelleDataHolder
+    private val sisteBeregningCreator: SisteBeregningCreator
 ) {
     private val log = KotlinLogging.logger { }
 
@@ -67,7 +67,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         val soekerGrunnlag = kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
         val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
         var vedtakListe: List<VilkarsVedtak>
-        val garantitilleggBeholdningGrunnlag = hentGarantiTilleggsbeholdningGrunnlag()
         var sisteBeregning2011Tp: SisteBeregning? = null
         val loependeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResultat
         val privatAfpBeregningResultatListe =
@@ -105,15 +104,23 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             // Corresponds to part 3
             val foedselsdato: LocalDate = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
-            val forholdstallUtvalg = generelleDataHolder.getForholdstallUtvalg(knekkpunktDato, foedselsdato)
-            val delingstallUtvalg = generelleDataHolder.getDelingstallUtvalg(knekkpunktDato, foedselsdato)
 
             // Corresponds to part 4
             val gjeldendePrivatAfp = getPrivatAfp(privatAfpBeregningResultatListe, knekkpunktDato)
-            //val gjeldendeLivsvarigOffentligAfp: AfpOffentligLivsvarigGrunnlag? =
-            val gjeldendeLivsvarigOffentligAfp: AfpOffentligLivsvarigDto? =
-                getLivsvarigOffentligAfp(spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe, knekkpunktDato)
-            val gjeldendeLivsvarigAfp = gjeldendePrivatAfp ?: gjeldendeLivsvarigOffentligAfp?.toAfpLivsvarig()
+
+            val gjeldendeLivsvarigOffentligAfp: AfpOffentligLivsvarig? =
+                getLivsvarigOffentligAfp(
+                    resultatListe = spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe.orEmpty(),
+                    knekkpunktDato
+                )
+
+            val livsvarigOffentligAfpGrunnlag = gjeldendeLivsvarigOffentligAfp?.let {
+                AfpOffentligLivsvarigGrunnlag(
+                    sistRegulertG = it.sistRegulertG ?: CURRENT_GRUNNBELOEP,
+                    bruttoPerAr = it.bruttoPerAr,
+                    uttaksdato = it.uttaksdato
+                )
+            }
 
             // Corresponds to part 5
             if (aarsaker.contains(KnekkpunktAarsak.UTG)) { // UTG = 'Endring av uttaksgrad'
@@ -124,16 +131,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 val sisteBeregningForVilkarsproving = sisteBeregning2011Tp ?: sisteBeregning
 
                 val vilkaarsproevingSpec = vilkaarsproevingSpec(
-                    gjeldendeLivsvarigOffentligAfp?.toVilkarsprovDto(),
+                    livsvarigOffentligAfpGrunnlag,
                     gjeldendePrivatAfp,
                     knekkpunktDato,
                     kravhode,
                     spec.forsteVirkAfpPrivat,
-                    forholdstallUtvalg,
-                    delingstallUtvalg,
                     sisteBeregningForVilkarsproving,
                     forrigeVedtakListe,
-                    garantitilleggBeholdningGrunnlag,
                     soekerFoersteVirkning,
                     avdoedFoersteVirkning,
                     spec.sakId,
@@ -175,11 +179,9 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode,
                 vedtakListe = forrigeVedtakListe,
                 virkningDato = knekkpunktDato,
-                forholdstallUtvalg,
-                delingstallUtvalg,
                 sisteAldersberegning2011 = sisteBeregning,
-                privatAfp = gjeldendeLivsvarigAfp,
-                garantitilleggBeholdningGrunnlag,
+                privatAfp = gjeldendePrivatAfp,
+                livsvarigOffentligAfpGrunnlag,
                 simuleringSpec,
                 sakId = spec.sakId,
                 isFoersteUttak = sisteBeregning == null,
@@ -204,14 +206,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 simuleringSpec.simulerForTp = false
 
                 val gjeldendeBeregningsresultatTp = beregner.beregnAlderspensjon(
-                    kravhode = kravhode,
+                    kravhode,
                     vedtakListe = forrigeVedtakListe,
                     virkningDato = knekkpunktDato,
-                    forholdstallUtvalg = forholdstallUtvalg,
-                    delingstallUtvalg = delingstallUtvalg,
                     sisteAldersberegning2011 = sisteBeregning, // <---- NB: sisteBeregning2011Tp in VilkarsprovOgBeregnAlderHelper
-                    privatAfp = gjeldendeLivsvarigAfp,
-                    garantitilleggBeholdningGrunnlag = garantitilleggBeholdningGrunnlag,
+                    privatAfp = gjeldendePrivatAfp,
+                    livsvarigOffentligAfpGrunnlag,
                     simuleringSpec = simuleringSpec,
                     sakId = spec.sakId,
                     isFoersteUttak = sisteBeregning2011Tp == null,
@@ -243,11 +243,9 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     kravhode = folketrygdBeholdningKravhode,
                     vedtakListe = mutableListOf(vilkarsvedtak),
                     virkningDato = knekkpunktDato,
-                    forholdstallUtvalg = forholdstallUtvalg,
-                    delingstallUtvalg = delingstallUtvalg,
                     sisteAldersberegning2011 = null, // null in legacy
-                    privatAfp = gjeldendeLivsvarigAfp,
-                    garantitilleggBeholdningGrunnlag = garantitilleggBeholdningGrunnlag,
+                    privatAfp = gjeldendePrivatAfp,
+                    livsvarigOffentligAfpGrunnlag,
                     simuleringSpec = simuleringSpec,
                     sakId = spec.sakId,
                     isFoersteUttak = true,
@@ -278,16 +276,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
 
         return AlderspensjonBeregnerResult(beregningResultatListe, pensjonBeholdningPeriodeListe)
-    }
-
-    private fun hentGarantiTilleggsbeholdningGrunnlag(): GarantitilleggsbeholdningGrunnlag {
-        val virkningDato = LocalDate.of(GARANTITILLEGGSBEHOLDNINGSGRUNNLAG_FODSELSAR + GARANTITILLEGG_MAX_ALDER, 2, 1)
-        val foedselsdato = LocalDate.of(GARANTITILLEGGSBEHOLDNINGSGRUNNLAG_FODSELSAR, 1, 1)
-
-        return GarantitilleggsbeholdningGrunnlag().apply {
-            dt67_1962 = generelleDataHolder.getDelingstallUtvalg(virkningDato, foedselsdato).dt
-            ft67_1962 = generelleDataHolder.getForholdstallUtvalg(virkningDato, foedselsdato).ft
-        }
     }
 
     private fun oppdaterTrygdetidForSoekerOgAvdoed(
@@ -367,42 +355,38 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     }
 
     private companion object {
-        private const val GARANTITILLEGG_MAX_ALDER = 67
-        private const val GARANTITILLEGGSBEHOLDNINGSGRUNNLAG_FODSELSAR = 1962
+        private const val GARANTITILLEGG_MAX_ALDER = 67 //TODO normert?
+        private const val CURRENT_GRUNNBELOEP = 124028 //TODO get value from tjenestepensjon-simulering
 
         // VilkarsprovOgBeregnAlderHelper.getAfpLivsvarig
         private fun getPrivatAfp(
             resultatListe: MutableList<BeregningsResultatAfpPrivat>,
             knekkpunktDato: LocalDate
-        ): AfpLivsvarig? =
-            findValidForDate(resultatListe, knekkpunktDato)?.hentLivsvarigDelIBruk()
+        ): AfpPrivatLivsvarig? =
+            findValidForDate(resultatListe, knekkpunktDato)?.privatAfp()
 
         private fun getLivsvarigOffentligAfp(
-            resultatListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>?,
+            resultatListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>,
             knekkpunktDato: LocalDate
-            //): AfpOffentligLivsvarigGrunnlag? =
-        ): AfpOffentligLivsvarigDto? =
+        ): AfpOffentligLivsvarig? =
             resultatListe
-                ?.filter { it.gjelderFom.isBeforeOrOn(knekkpunktDato) }
-                ?.maxByOrNull { it.gjelderFom }
-                //?.let { AfpOffentligLivsvarigGrunnlag(sistRegulertG = 0, bruttoPerAr = it.afpYtelsePerAar) }
+                .filter { it.gjelderFom.isBeforeOrOn(knekkpunktDato) }
+                .maxByOrNull { it.gjelderFom }
                 ?.let {
-                    AfpOffentligLivsvarigDto(bruttoPerAr = it.afpYtelsePerAar).apply {
-                        ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.AFP_OFFENTLIG_LIVSVARIG
+                    AfpOffentligLivsvarig().apply {
+                        bruttoPerAr = it.afpYtelsePerAar
+                        uttaksdato = it.gjelderFom
                     }
                 }
 
         private fun vilkaarsproevingSpec(
             livsvarigOffentligAfp: AfpOffentligLivsvarigGrunnlag?,
-            privatAfp: AfpLivsvarig?,
+            privatAfp: AfpPrivatLivsvarig?,
             virkningDato: LocalDate,
             kravhode: Kravhode,
             privatAfpFoersteVirkning: LocalDate?,
-            forholdstallUtvalg: ForholdstallUtvalg,
-            delingstallUtvalg: DelingstallUtvalg,
             sisteBeregning: SisteBeregning?,
             forrigeVedtakListe: List<VilkarsVedtak>,
-            garantitilleggBeholdningGrunnlag: GarantitilleggsbeholdningGrunnlag,
             soekerFoersteVirkning: LocalDate,
             avdoedFoersteVirkning: LocalDate?,
             sakId: Long?,
@@ -414,11 +398,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 virkningDato,
                 kravhode,
                 privatAfpFoersteVirkning,
-                forholdstallUtvalg,
-                delingstallUtvalg,
                 sisteBeregning,
                 forrigeVedtakListe,
-                garantitilleggBeholdningGrunnlag,
                 soekerFoersteVirkning,
                 avdoedFoersteVirkning,
                 sakId,
@@ -509,8 +490,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) =
             BeholdningPeriode(
                 datoFom = virkningFom,
-                pensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.PEN_B)?.totalbelop,
-                garantipensjonsbeholdning = beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
+                pensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.PEN_B)?.totalbelop,
+                garantipensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
                 garantitilleggsbeholdning = garantitilleggBeholdningTotalBeloep(
                     virkningFom,
                     beholdninger,
@@ -525,13 +506,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             foedselsdato: LocalDate
         ): Double? =
             if (isBeforeByDay(getRelativeDateByYear(foedselsdato, GARANTITILLEGG_MAX_ALDER), virkningFom, false))
-                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_T_B)?.totalbelop
+                beholdninger.beholdning(BeholdningtypeEnum.GAR_T_B)?.totalbelop
             else
                 null
 
         private fun garantipensjonsniva(beholdninger: Beholdninger): GarantipensjonNivaa? {
             val garantipensjonBeholdning =
-                beholdninger.findBeholdningAvType(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
+                beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
                     ?: return null
 
             val justertNivaa = garantipensjonBeholdning.justertGarantipensjonsniva?.garantipensjonsniva ?: return null
@@ -599,11 +580,3 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
     }
 }
-
-private fun BeregningsResultatAfpPrivat.hentLivsvarigDelIBruk() =
-    pensjonUnderUtbetaling?.ytelseskomponenter?.firstOrNull {
-        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG && it is AfpLivsvarig
-    } as AfpLivsvarig?
-
-private fun Beholdninger.findBeholdningAvType(type: BeholdningtypeEnum) =
-    beholdninger.firstOrNull { type == it.beholdningsTypeEnum }

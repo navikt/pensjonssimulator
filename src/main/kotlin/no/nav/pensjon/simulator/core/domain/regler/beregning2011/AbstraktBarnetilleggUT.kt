@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
+// 2025-03-20
 @JsonSubTypes(
     JsonSubTypes.Type(value = BarnetilleggFellesbarnUT::class),
     JsonSubTypes.Type(value = BarnetilleggSerkullsbarnUT::class),
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-abstract class AbstraktBarnetilleggUT : AbstraktBarnetillegg, UforetrygdYtelseskomponent {
-
+abstract class AbstraktBarnetilleggUT : AbstraktBarnetillegg(), UforetrygdYtelseskomponent {
     /**
      * Detaljer rundt avkortning av netto barnetillegg.
      */
@@ -55,18 +55,4 @@ abstract class AbstraktBarnetilleggUT : AbstraktBarnetillegg, UforetrygdYtelsesk
      * Brukers uføretrygd før justering
      */
     var brukersUforetrygdForJustering = 0
-
-    constructor()
-
-    constructor(source: AbstraktBarnetilleggUT) : super(source) {
-        avkortingsinformasjon = source.avkortingsinformasjon?.copy()
-        avkortningsbelopPerAr = source.avkortningsbelopPerAr
-        inntektstak = source.inntektstak
-        nettoAkk = source.nettoAkk
-        nettoRestAr = source.nettoRestAr
-        periodisertAvvikEtteroppgjor = source.periodisertAvvikEtteroppgjor
-        reduksjonsinformasjon = source.reduksjonsinformasjon?.let(::Reduksjonsinformasjon)
-        tidligereBelopAr = source.tidligereBelopAr
-        brukersUforetrygdForJustering = source.brukersUforetrygdForJustering
-    }
 }

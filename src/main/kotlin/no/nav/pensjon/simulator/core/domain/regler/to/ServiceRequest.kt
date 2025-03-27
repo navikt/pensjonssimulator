@@ -1,9 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-import java.io.Serializable
-
-//TODO remove ServiceRequest
-abstract class ServiceRequest : Serializable {
+// 2025-03-18
+abstract class ServiceRequest {
 
     /**
      * Satsstabell som skal benyttes ved beregning.

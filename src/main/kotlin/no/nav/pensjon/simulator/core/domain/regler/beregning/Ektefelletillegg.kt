@@ -4,8 +4,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AvkortningsArsakEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
+// 2025-03-19
 class Ektefelletillegg : Ytelseskomponent {
-
     /**
      * Fribeløpet
      */

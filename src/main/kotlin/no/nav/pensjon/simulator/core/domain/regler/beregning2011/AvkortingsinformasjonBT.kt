@@ -2,10 +2,10 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvviksjusteringEnum
 
+// 2025-03-20
 /**
  * Angir detaljer rund avkortingen av barnetillegg.
  */
-// 2025-09-03
 class AvkortingsinformasjonBT : AbstraktAvkortingsinformasjon() {
     /**
      * Angir liste over fremtidige perioder.

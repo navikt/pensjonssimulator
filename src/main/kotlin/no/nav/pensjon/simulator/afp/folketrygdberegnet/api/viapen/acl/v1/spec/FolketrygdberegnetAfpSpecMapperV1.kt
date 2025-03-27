@@ -24,7 +24,7 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = null, //TODO verify
-            pid = source.fnr?.pid?.let(::Pid),
+            pid = source.fnr?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = null,
             isTpOrigSimulering = false,

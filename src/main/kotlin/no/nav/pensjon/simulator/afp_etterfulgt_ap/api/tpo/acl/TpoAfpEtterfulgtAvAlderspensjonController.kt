@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.AfpEtterfulgtAvAlderspensjonResultV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.AfpEtterfulgtAvAlderspensjonSpecMapperV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.AfpEtterfulgtAvAlderspensjonSpecV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException

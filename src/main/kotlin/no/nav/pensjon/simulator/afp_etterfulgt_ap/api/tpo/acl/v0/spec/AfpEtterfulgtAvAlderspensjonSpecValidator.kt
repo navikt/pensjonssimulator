@@ -1,6 +1,5 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0
+package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSivilstandSpecV0
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate

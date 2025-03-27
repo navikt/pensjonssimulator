@@ -45,10 +45,10 @@ object SimulatorOutputConverter {
             alderspensjon = pensjonsperioder.map { alderspensjon(it, alderspensjon) },
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
                 .map(SimulatorOutputConverter::alderspensjonFraFolketrygden),
-            privatAfp = source.privatAfpPeriodeListe.map(SimulatorOutputConverter::privatAfp),
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
                 pre2025OffentligAfp(it, source.foedselDato)
             },
+            privatAfp = source.privatAfpPeriodeListe.map(SimulatorOutputConverter::privatAfp),
             livsvarigOffentligAfp = source.livsvarigOffentligAfp.orEmpty().map(SimulatorOutputConverter::livsvarigOffentligAfp),
             pensjonBeholdningPeriodeListe = alderspensjon?.pensjonBeholdningListe.orEmpty()
                 .map(SimulatorOutputConverter::beholdningPeriode),
@@ -138,11 +138,25 @@ object SimulatorOutputConverter {
             null
         else
             beregning.virkFom?.let {
+                val sluttpoengtall = beregning.tp?.spt
+                val poengrekke = sluttpoengtall?.poengrekke
+
                 SimulertPre2025OffentligAfp(
                     alderAar = alderAar(foedselDato, it),
-                    beregning.netto
+                    totaltAfpBeloep = beregning.netto,
+                    tidligereArbeidsinntekt = poengrekke?.tpi ?: 0,
+                    grunnbeloep = beregning.g,
+                    sluttpoengtall = sluttpoengtall?.pt ?: 0.0,
+                    trygdetid = beregning.tt_anv,
+                    poengaarTom1991 = poengrekke?.pa_f92 ?: 0,
+                    poengaarFom1992 = poengrekke?.pa_e91 ?: 0,
+                    grunnpensjon = beregning.gp?.netto ?: 0,
+                    tilleggspensjon = beregning.tp?.netto ?: 0,
+                    afpTillegg = beregning.afpTillegg?.netto ?: 0,
+                    saertillegg = beregning.st?.netto ?: 0
                 )
             }
+
 
     private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
         SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep)

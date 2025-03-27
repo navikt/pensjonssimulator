@@ -58,8 +58,8 @@ object NavSimuleringSpecMapperV3 {
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             rettTilOffentligAfpFom = null,
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
+            afpOrdning = source.afpOrdning,
+            afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,

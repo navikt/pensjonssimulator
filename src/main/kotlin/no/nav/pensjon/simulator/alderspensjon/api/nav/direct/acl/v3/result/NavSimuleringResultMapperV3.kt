@@ -13,6 +13,7 @@ object NavSimuleringResultMapperV3 {
         NavSimuleringResultV3(
             alderspensjonListe = source?.pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
             alderspensjonMaanedsbeloep = maanedsbeloep(source?.pensjon?.alderspensjonFraFolketrygden.orEmpty()),
+            pre2025OffentligAfp = source?.pensjon?.pre2025OffentligAfp?.let(::pre2025OffentligAfp),
             privatAfpListe = source?.pensjon?.privatAfp.orEmpty().map(::privatAfp),
             livsvarigOffentligAfpListe = source?.pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             vilkaarsproeving = vilkaarsproevingResultat(source?.alternativ),
@@ -47,6 +48,22 @@ object NavSimuleringResultMapperV3 {
         NavMaanedsbeloepV3(
             gradertUttakBeloep = source.firstOrNull { it.uttakGrad != 100 }?.maanedligBeloep,
             heltUttakBeloep = source.firstOrNull { it.uttakGrad == 100 }?.maanedligBeloep ?: 0
+        )
+
+    private fun pre2025OffentligAfp(source: SimulertPre2025OffentligAfp) =
+        NavPre2025OffentligAfp(
+            alderAar = source.alderAar,
+            totaltAfpBeloep = source.totaltAfpBeloep,
+            tidligereArbeidsinntekt = source.tidligereArbeidsinntekt,
+            grunnbeloep = source.grunnbeloep,
+            sluttpoengtall = source.sluttpoengtall,
+            trygdetid = source.trygdetid,
+            poengaarTom1991 = source.poengaarTom1991,
+            poengaarFom1992 = source.poengaarFom1992,
+            grunnpensjon = source.grunnpensjon,
+            tilleggspensjon = source.tilleggspensjon,
+            afpTillegg = source.afpTillegg,
+            saertillegg = source.saertillegg
         )
 
     private fun privatAfp(source: SimulertPrivatAfp) =

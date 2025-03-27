@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0
+package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0
+package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.result.PensjonPeriode

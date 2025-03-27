@@ -28,6 +28,11 @@ enum class EgressService(
         purpose = "Vilårsprøving og beregning",
         authType = AuthType.NONE
     ),
+    PENSJONSOPPTJENING(
+        description = "Pensjonsopptjening",
+        shortName = "POPP",
+        purpose = "Hente opptjeningsgrunnlag"
+    ),
     TP_REGISTERET(
         description = "Tjenestepensjonsregisteret",
         shortName = "TP",

@@ -16,6 +16,7 @@ class ApiAuthenticationManagerResolver(
             AntPathRequestMatcher("/api/anonym/**") to entraProvider,
             AntPathRequestMatcher("/api/nav/**") to entraProvider,
             AntPathRequestMatcher("/api/tpo/**") to entraProvider,
+            AntPathRequestMatcher("/api/v0/simuler-afp-etterfulgt-av-alderspensjon") to maskinportenProvider,
             AntPathRequestMatcher("/api/v4/simuler-alderspensjon") to maskinportenProvider,
             AntPathRequestMatcher("/api/v1/simuler-folketrygdbeholdning") to maskinportenProvider,
             AntPathRequestMatcher("/api/v0/simuler-folketrygdberegnet-afp") to maskinportenProvider,

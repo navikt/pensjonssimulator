@@ -27,7 +27,7 @@ data class SimuleringSpec(
     var simulerForTp: Boolean,
     val uttakGrad: UttakGradKode,
     val forventetInntektBeloep: Int,
-    val inntektUnderGradertUttakBeloep: Int,
+    val inntektUnderGradertUttakBeloep: Int, // NB: For AFP_ETTERF_ALDER this is inntekt during AFP-uttak
     val inntektEtterHeltUttakBeloep: Int,
     val inntektEtterHeltUttakAntallAar: Int?,
     val foedselAar: Int,
@@ -170,6 +170,12 @@ data class SimuleringSpec(
         uttakGrad == other.uttakGrad &&
                 foersteUttakDato == other.foersteUttakDato &&
                 heltUttakDato == other.heltUttakDato
+
+    /**
+     * NB: inntektUnderGradertUttak should for AFP_ETTERF_ALDER be interpreted as inntekt during AFP-uttak.
+     */
+    fun isRegardedAsHeltUttak() =
+        uttakGrad == UttakGradKode.P_100 && type != SimuleringType.AFP_ETTERF_ALDER
 
     private companion object {
         //TODO move to UttakGradKode?

@@ -257,17 +257,21 @@ class KravhodeCreator(
             personDetaljListe = mutableListOf(anonymPersondetalj(spec))
             inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
             sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-        }.also { it.finishInit() }
+        }.also {
+            it.finishInit()
+        }
 
     // SimulerFleksibelAPCommand.createPersonDetaljerForenkletSimulering
     private fun anonymPersondetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-            rolleFomDato = legacyFoersteDag(spec.foedselAar)
+            penRolleFom = legacyFoersteDag(spec.foedselAar)
             sivilstandTypeEnum = anonymSivilstand(spec.sivilstatus)
             bruk = true
-        }.also { it.finishInit() }
+        }.also {
+            it.finishInit()
+        }
 
     // SimulerFleksibelAPCommand.getSivilstandForenkletSimulering
     private fun anonymSivilstand(sivilstatus: SivilstatusType): SivilstandEnum =
@@ -423,8 +427,12 @@ class KravhodeCreator(
         }
 
         val forventetInntekt = spec.forventetInntektBeloep
+
+        // NB: In PEN uttakGrad (utg) is null, and null is not interpreted as 100 % (used for AFP_ETTERF_ALDER)
+        // Ref. PEN SimuleringEtter2011.isUttaksgrad100
         val inntektUnderGradertUttak =
-            if (spec.uttakGrad == UttakGradKode.P_100) 0 else spec.inntektUnderGradertUttakBeloep
+            if (spec.isRegardedAsHeltUttak()) 0 else spec.inntektUnderGradertUttakBeloep
+
         val inntektEtterHeltUttak = spec.inntektEtterHeltUttakBeloep
         val inntekter: MutableList<Inntekt> = mutableListOf()
 
@@ -448,11 +456,12 @@ class KravhodeCreator(
         return inntekter
     }
 
+    // PEN: antallMndMedInntektEtterHeltUttak
     private fun antallMaanederMedInntektEtterHeltUttak(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
         val antallAarInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
         val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato!!)
-        val isHeltUttak = spec.uttakGrad == UttakGradKode.P_100
+        val isHeltUttak = spec.isRegardedAsHeltUttak()
         val heltUttakAar: Int = if (isHeltUttak) foersteUttakAar else spec.heltUttakDato?.year ?: 0
         val heltUttakMaaned =
             if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato!!)
@@ -473,10 +482,11 @@ class KravhodeCreator(
         return 0
     }
 
+    // PEN: antallMndMedInntektUnderGradertUttak
     private fun antallMaanederMedInntektUnderGradertUttak(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
         val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato!!)
-        val isHeltUttak = spec.uttakGrad == UttakGradKode.P_100
+        val isHeltUttak = spec.isRegardedAsHeltUttak()
         val heltUttakAar: Int = if (isHeltUttak) foersteUttakAar else spec.heltUttakDato?.year ?: 0
         val heltUttakMaaned =
             if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato!!)
@@ -624,6 +634,7 @@ class KravhodeCreator(
         private fun fjernForventetArbeidsinntektFraInntektGrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
             grunnlagListe.filter { it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum }
 
+        // PEN: OpprettKravHodeHelper.opprettInntektsgrunnlagForBruker
         private fun opprettInntektGrunnlagForSoeker(
             spec: SimuleringSpec,
             existingInntektsgrunnlagList: MutableList<Inntektsgrunnlag>
@@ -641,7 +652,7 @@ class KravhodeCreator(
                 )
             }
 
-            val isHeltUttak = spec.uttakGrad == UttakGradKode.P_100
+            val isHeltUttak = spec.isRegardedAsHeltUttak()
             val inntektUnderGradertUttak: Int = spec.inntektUnderGradertUttakBeloep
 
             if (!isHeltUttak && inntektUnderGradertUttak > 0) {
@@ -785,6 +796,7 @@ class KravhodeCreator(
         private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
             trygdetidPeriodeListe.any { it.landEnum != LandkodeEnum.NOR }
 
+        // PEN: SimulerFleksibelAPCommand.isUttaksgradLessThan100Percent
         private fun erGradertUttak(spec: SimuleringSpec) =
             spec.uttakGrad != UttakGradKode.P_100
 

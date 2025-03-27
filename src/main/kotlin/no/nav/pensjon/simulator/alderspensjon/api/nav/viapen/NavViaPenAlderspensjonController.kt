@@ -15,6 +15,7 @@ import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -72,7 +73,9 @@ class NavViaPenAlderspensjonController(
             val output: SimulatorOutput = simulator.simuler(spec)
 
             NavSimuleringSpecAndResultV2(
-                simulering = specV2,
+                simulering = specV2.apply {
+                    heltUttakDato = output.heltUttakDato?.toNorwegianDate()
+                },
                 simuleringsresultat = toSimuleringResultV2(output)
             )
         } catch (e: EgressException) {

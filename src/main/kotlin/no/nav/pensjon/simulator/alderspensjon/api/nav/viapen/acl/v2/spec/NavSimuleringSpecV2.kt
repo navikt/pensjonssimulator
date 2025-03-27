@@ -17,9 +17,9 @@ data class NavSimuleringSpecV2(
     val simuleringId: Long? = null,
     val simuleringType: NavSimuleringTypeSpecV2? = null,
     val simuleringNavn: String? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val lagringstidspunkt: LocalDate? = null,
-    val fnr: NavSimuleringPersonIdComboSpecV2? = null,
-    val fnrAvdod: NavSimuleringPersonIdComboSpecV2? = null,
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val lagringstidspunkt: LocalDate? = null,
+    val fnr: String? = null,
+    val fnrAvdod: String? = null,
     val fodselsar: Int? = null,
     val offentligAfpRett: Boolean? = null,
     val privatAfpRett: Boolean? = null,
@@ -30,7 +30,7 @@ data class NavSimuleringSpecV2(
     val forsteUttakDato: Date? = null, // epoch value in JSON
     val utg: UttakGradKode? = null,
     val inntektUnderGradertUttak: Int? = null,
-    val heltUttakDato: Date? = null, // epoch value in JSON
+    var heltUttakDato: Date? = null, // epoch value in JSON
     val inntektEtterHeltUttak: Int? = null,
     val antallArInntektEtterHeltUttak: Int? = null,
     val utenlandsopphold: Int? = null,
@@ -56,13 +56,6 @@ data class NavSimuleringSpecV2(
     val stillingsprosentOffGradertUttak: String? = null,
     val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2> = emptyList(),
     val changeStamp: NavSimuleringChangeStampSpecDummyV2? = null
-)
-
-data class NavSimuleringPersonIdComboSpecV2(
-    val pid: String,
-    val dnummer: Boolean? = false,
-    val npid: Boolean? = false,
-    val pidInvalidWithBostnummer: Boolean? = false
 )
 
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PEN

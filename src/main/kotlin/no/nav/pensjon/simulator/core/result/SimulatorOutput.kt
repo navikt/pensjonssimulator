@@ -23,4 +23,6 @@ class SimulatorOutput {
 
     var foedselDato: LocalDate? = null
     var persongrunnlag: Persongrunnlag? = null
+
+    var heltUttakDato: LocalDate? = null
 }

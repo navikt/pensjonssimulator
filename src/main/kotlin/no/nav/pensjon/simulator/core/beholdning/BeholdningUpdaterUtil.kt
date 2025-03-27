@@ -449,11 +449,11 @@ object BeholdningUpdaterUtil {
     private fun createPersonDetalj(person: PenPerson) =
         PersonDetalj().apply {
             bruk = true
-            rolleFomDato = person.foedselsdato?.toNorwegianDateAtNoon()
+            penRolleFom = person.foedselsdato?.toNorwegianDateAtNoon()
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
             grunnlagKildeEnum = GrunnlagkildeEnum.PEN
         }.also {
-            it.finishInit() // NB: Assuming finishInit is appropriate here
+            it.finishInit()
         }
 
     // BeholdningHelper.deleteBeholdningerFromPenPersongrunnlagObject

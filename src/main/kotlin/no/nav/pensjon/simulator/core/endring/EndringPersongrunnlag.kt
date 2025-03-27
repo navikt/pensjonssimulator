@@ -268,9 +268,11 @@ class EndringPersongrunnlag(
         private fun persondetalj(avdoed: Avdoed) =
             PersonDetalj().apply {
                 bruk = true
-                rolleFomDato = avdoed.doedDato.toNorwegianDateAtNoon()
+                penRolleFom = avdoed.doedDato.toNorwegianDateAtNoon()
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
+            }.also {
+                it.finishInit()
             }
 
         // SimulerEndringAvAPCommandHelper.isPersonDetaljValid
@@ -319,7 +321,7 @@ class EndringPersongrunnlag(
                 }.toMutableList()
 
                 personDetaljListe = personDetaljListe.filter {
-                    it.bruk == true && it.rolleTomDato == null
+                    it.bruk == true && it.penRolleTom == null
                 }.toMutableList()
                 // NB: In the original code (SimulerEndringAvAPCommandHelper.createPersongrunnlagWithValidPersonDetaljer)
                 // the PersonDetalj objects are copied twice: new Persongrunnlag(...) and then new PersonDetalj(...)
@@ -362,8 +364,10 @@ class EndringPersongrunnlag(
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                rolleFomDato = fom?.toNorwegianDateAtNoon()
+                penRolleFom = fom?.toNorwegianDateAtNoon()
                 bruk = true
+            }.also {
+                it.finishInit()
             }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
@@ -372,7 +376,7 @@ class EndringPersongrunnlag(
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun isValidInPast(detalj: PersonDetalj): Boolean =
-            detalj.rolleTomDato?.let { isBeforeByDay(it, LocalDate.now(), false) } == true
+            detalj.penRolleTom?.let { isBeforeByDay(it, LocalDate.now(), false) } == true
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun isValidToday(detalj: PersonDetalj) =
@@ -387,6 +391,6 @@ class EndringPersongrunnlag(
 
         // Extracted from SimulerEndringAvAPCommandHelper.isPersonDetaljValid
         private fun isValidInFuture(detalj: PersonDetalj?) =
-            detalj?.let { it.rolleTomDato == null } == true
+            detalj?.let { it.penRolleTom == null } == true
     }
 }

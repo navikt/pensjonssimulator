@@ -3,12 +3,12 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.ResultatKildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.util.concurrent.atomic.AtomicLong
 
 object NavSimuleringResultMapperV2 {
@@ -60,7 +60,7 @@ object NavSimuleringResultMapperV2 {
 
         return SimuleringResultatV2(
             status = source.statusEnum,
-            virk = source.virk?.toNorwegianDate(),
+            virk = source.virk?.toNorwegianNoon(),
             beregning = source.beregning?.let(::beregning),
             delberegninger = beregningerPerId,
             merknader = source.merknadListe.map(::merknad)
@@ -98,9 +98,13 @@ object NavSimuleringResultMapperV2 {
         }
     }
 
-    private fun merknad(source: Merknad) =
+    /**
+     * NB: In PEN 'ar' is not mapped from regler to PEN (ref. CommonToPen.mapMerknadListeToPen in PEN),
+     * but is assigned in addMerknad in no.nav.domain.pensjon.kjerne.beregning.Poengtall
+     */
+    private fun merknad(source: Merknad, aar: Int? = null) =
         MerknadV2(
-            ar = null, // Not mapped from regler to PEN, ref. CommonToPen.mapMerknadListeToPen in PEN
+            ar = aar,
             argumentListeString = source.argumentListe.joinToString(", "),
             kode = source.kode
         )
@@ -129,7 +133,7 @@ object NavSimuleringResultMapperV2 {
             brutto = source.brutto,
             netto = source.netto,
             g = source.g,
-            resultatKilde = ResultatKildeEnum.AUTO, // ref. BeregnPensjonUtil.setResultatKilde in PEN
+            resultatKilde = null, //ResultatKildeEnum.AUTO, // ref. BeregnPensjonUtil.setResultatKilde in PEN
             resultatType = source.resultatTypeEnum,
             afpPensjonsgrad = source.afpPensjonsgrad,
             ytelseskomponenter = source.getBrukteYtelseskomponenter().map(::ytelseKomponent),
@@ -183,7 +187,10 @@ object NavSimuleringResultMapperV2 {
             gv = source.gv,
             poengtallType = source.poengtallTypeEnum,
             maksUforegrad = source.maksUforegrad,
-            merknadListe = source.merknadListe,
+            merknadListe = source.merknadListe.map {
+                // Ref. PEN: addMerknad in no.nav.domain.pensjon.kjerne.beregning.Poengtall:
+                merknad(it, source.ar)
+            }
             // Not used in PSELV:
             // uforear
         )

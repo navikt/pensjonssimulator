@@ -73,18 +73,20 @@ class PersongrunnlagMapper(
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-            rolleFomDato = soekerPid?.let {
+            penRolleFom = soekerPid?.let {
                 generelleDataHolder.getPerson(it).foedselDato.toNorwegianDateAtNoon()
             }
             borMedEnum = null
             bruk = true
+        }.also {
+            it.finishInit()
         }
 
     // PersongrunnlagMapper.createPersonDetalj
     private fun createPersonDetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-            rolleFomDato = rolleFom(spec)?.toNorwegianDateAtNoon()
+            penRolleFom = rolleFom(spec)?.toNorwegianDateAtNoon()
             sivilstandTypeEnum = mapToSivilstand(spec)
             bruk = true
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
@@ -146,13 +148,11 @@ class PersongrunnlagMapper(
         private fun mapToEpsPersonDetalj(sivilstatus: SivilstatusType, foedselsdato: LocalDate?) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = mapToEpsGrunnlagRolle(sivilstatus)
-                rolleFomDato = foedselsdato?.toNorwegianDateAtNoon()
+                penRolleFom = foedselsdato?.toNorwegianDateAtNoon()
                 borMedEnum = mapToEpsBorMedType(sivilstatus)
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             }.also {
-                // finishInit sets virkFom and then rolleFomDato = virkFom.noon()
-                // (ref. PEN GrunnlagToReglerMapper.mapPersonDetaljToRegler):
                 it.finishInit()
             }
 

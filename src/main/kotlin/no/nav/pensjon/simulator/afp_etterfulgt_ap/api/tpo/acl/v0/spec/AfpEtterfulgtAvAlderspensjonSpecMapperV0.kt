@@ -1,6 +1,7 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0
+package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 
 import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSivilstandSpecV0.Companion.fromExternalValue
+import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -54,7 +55,7 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             foedselAar = 0, // only for anonym
             flyktning = false,
             rettTilOffentligAfpFom = null,
-            afpOrdning = null,
+            afpOrdning = AfpOrdningType.AFPSTAT, //ingen praktisk betydning i regelmotoren
             foedselDato = null, // only for anonym
             avdoed = null,
             isTpOrigSimulering = true,

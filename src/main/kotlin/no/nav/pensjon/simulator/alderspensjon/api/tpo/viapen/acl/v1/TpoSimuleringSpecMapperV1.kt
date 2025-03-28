@@ -34,8 +34,7 @@ object TpoSimuleringSpecMapperV1 {
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
             rettTilOffentligAfpFom = null,
-            afpOrdning = null, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
-            afpInntektMaanedFoerUttak = null, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
+            pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO

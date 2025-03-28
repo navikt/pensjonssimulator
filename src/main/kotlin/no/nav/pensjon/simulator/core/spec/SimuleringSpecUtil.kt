@@ -61,7 +61,7 @@ object SimuleringSpecUtil {
     fun withLavereUttakGrad(source: SimuleringSpec): SimuleringSpec =
         newSimuleringSpec(
             source,
-            uttaksgrad = if (source.isGradert()) naermesteLavereUttakGrad(source.uttakGrad) else UttakGradKode.P_100
+            uttaksgrad = if (source.isGradert()) naermesteLavereUttaksgrad(source.uttakGrad) else UttakGradKode.P_100
         )
 
     private fun newSimuleringSpec(
@@ -97,8 +97,7 @@ object SimuleringSpecUtil {
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
             rettTilOffentligAfpFom = source.rettTilOffentligAfpFom,
-            afpOrdning = source.afpOrdning,
-            afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak,
+            pre2025OffentligAfp = source.pre2025OffentligAfp,
             erAnonym = source.erAnonym,
             ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
@@ -134,8 +133,7 @@ object SimuleringSpecUtil {
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
             rettTilOffentligAfpFom = source.rettTilOffentligAfpFom,
-            afpOrdning = source.afpOrdning,
-            afpInntektMaanedFoerUttak = source.afpInntektMaanedFoerUttak,
+            pre2025OffentligAfp = source.pre2025OffentligAfp,
             erAnonym = source.erAnonym,
             ignoreAvslag = source.ignoreAvslag,
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
@@ -144,7 +142,7 @@ object SimuleringSpecUtil {
             epsKanOverskrives = source.epsKanOverskrives
         )
 
-    private fun naermesteLavereUttakGrad(grad: UttakGradKode) =
+    private fun naermesteLavereUttaksgrad(grad: UttakGradKode) =
         when (grad) {
             UttakGradKode.P_0 -> UttakGradKode.P_0
             UttakGradKode.P_20 -> UttakGradKode.P_0

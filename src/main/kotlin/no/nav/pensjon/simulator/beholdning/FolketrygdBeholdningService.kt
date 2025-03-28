@@ -123,8 +123,7 @@ class FolketrygdBeholdningService(
                 utlandPeriodeListe = mutableListOf(),
                 flyktning = null,
                 rettTilOffentligAfpFom = null,
-                afpOrdning = null, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
-                afpInntektMaanedFoerUttak = null, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
+                pre2025OffentligAfp = null, // never used in this context
                 erAnonym = false,
                 ignoreAvslag = true, // true for folketrygdbeholdning
                 isHentPensjonsbeholdninger = true, // true for TPO

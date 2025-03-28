@@ -170,11 +170,16 @@ object SimulatorOutputMapper {
             this.aarligBeloep = pensjon?.totalbelopNettoAr?.toInt() ?: 0
             this.maanedligBeloep = pensjon?.totalbelopNetto
             this.inntektspensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.IP)
+            this.inntektspensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.IP)
             this.garantipensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GAP)
+            this.garantipensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GAP)
             this.garantitillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GAT)
             this.grunnpensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GP)
+            this.grunnpensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GP)
             this.tilleggspensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.TP)
+            this.tilleggspensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.TP)
             this.pensjonstillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.PT)
+            this.pensjonstilleggPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.PT)
             this.individueltMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
             this.pensjonistParMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_PPAR)
             this.forholdstall = beregningsinfo?.forholdstallUttak
@@ -424,6 +429,9 @@ object SimulatorOutputMapper {
 
     private fun bruttoPerAr(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseskomponentTypeEnum) =
         firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), ytelseType)?.bruttoPerAr?.toInt()
+
+    private fun bruttoPerMaaned(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseskomponentTypeEnum) =
+        firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), ytelseType)?.brutto
 
     private fun firstDayOf(year: Int) = LocalDate.of(year, 1, 1)
 }

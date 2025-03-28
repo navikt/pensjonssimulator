@@ -24,7 +24,7 @@ object NavSimuleringSpecMapperV2 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate(),
-            pid = source.fnr?.pid?.let(::Pid),
+            pid = source.fnr?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = avdoed(source),
             isTpOrigSimulering = false,
@@ -64,7 +64,7 @@ object NavSimuleringSpecMapperV2 {
     private fun avdoed(source: NavSimuleringSpecV2): Avdoed? =
         source.fnrAvdod?.let {
             Avdoed(
-                pid = Pid(it.pid),
+                pid = Pid(it),
                 antallAarUtenlands = source.avdodAntallArIUtlandet ?: 0,
                 inntektFoerDoed = source.avdodInntektForDod ?: 0,
                 doedDato = source.dodsdato!!.toNorwegianLocalDate(),

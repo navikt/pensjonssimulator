@@ -254,6 +254,7 @@ class SimulatorCore(
             output.apply {
                 this.foedselDato = foedselsdato
                 this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
+                this.heltUttakDato = spec.heltUttakDato
             }
     }
 

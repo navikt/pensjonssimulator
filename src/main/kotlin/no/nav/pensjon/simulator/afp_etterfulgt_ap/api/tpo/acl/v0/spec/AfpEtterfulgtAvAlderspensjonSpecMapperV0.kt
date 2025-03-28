@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfu
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
@@ -39,7 +40,6 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             brukFremtidigInntekt = false,
             inntektEtterHeltUttakBeloep = 0,
             inntektOver1GAntallAar = 0, // only for anonym
-            afpInntektMaanedFoerUttak = afpInntektMaanedFoerUttak,
             inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
             inntektEtterHeltUttakAntallAar = null, //TODO mangler sluttdato
             forventetInntektBeloep = forventetInntektBeloep,
@@ -55,7 +55,12 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             foedselAar = 0, // only for anonym
             flyktning = false,
             rettTilOffentligAfpFom = null,
-            afpOrdning = AfpOrdningType.AFPSTAT, //ingen praktisk betydning i regelmotoren
+            pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                afpOrdning = AfpOrdningType.AFPSTAT, // ingen praktisk betydning i regelmotoren
+                inntektMaanedenFoerAfpUttakBeloep = afpInntektMaanedFoerUttak,
+                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                inntektUnderAfpUttakBeloep = inntektUnderGradertUttakBeloep
+            ),
             foedselDato = null, // only for anonym
             avdoed = null,
             isTpOrigSimulering = true,

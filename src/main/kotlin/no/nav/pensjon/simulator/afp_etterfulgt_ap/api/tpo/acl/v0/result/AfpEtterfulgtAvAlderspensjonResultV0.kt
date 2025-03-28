@@ -16,7 +16,7 @@ data class AfpEtterfulgtAvAlderspensjonResultV0(
 data class FolketrygdberegnetAfpV0(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     val fraOgMedDato: LocalDate,
-    val tidligereInntekt: Int?, //
+    val tidligereInntekt: Int?,
     val afpGrad: Int,
     val grunnpensjon: GrunnpensjonV0,
     val tilleggspensjon: TilleggspensjonV0?,
@@ -27,14 +27,14 @@ data class FolketrygdberegnetAfpV0(
 
 data class GrunnpensjonV0(
     val maanedligUtbetaling: Int,
-    val grunnbeloep: Int?, //Foreløpig tomt
+    val grunnbeloep: Int,
     val grunnpensjonsats: Double?, //Foreløpig tomt
     val trygdetid: Int,
 )
 
 data class TilleggspensjonV0(
     val maanedligUtbetaling: Int,
-    val grunnbeloep: Int?, //Foreløpig tomt
+    val grunnbeloep: Int,
     val sluttpoengTall: Double,
     val antallPoengaarTilOgMed1991: Int,
     val antallPoengaarFraOgMed1992: Int,

@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -9,10 +10,12 @@ import java.time.LocalDate
 import java.util.*
 
 object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
+    private val log = KotlinLogging.logger {}
 
     fun toDto(source: SimulatorOutput, forventetInntekt: Int): AfpEtterfulgtAvAlderspensjonResultV0 {
         val afp: Beregning = source.pre2025OffentligAfp?.beregning ?: return ufullstendigRespons()
         val alderspensjon = source.alderspensjon ?: return ufullstendigRespons()
+
 
         return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = true,
@@ -80,9 +83,10 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             .pensjonPeriodeListe
             .map { alderspensjon(it, alderspensjon) }
 
+        log.info { "afp etterf ap output: $liste" }
         val res = liste.map {
             AlderspensjonFraFolketrygdenV0(
-                fraOgMedDato = it.fom!!, //kommer fra simulertBeregningInformasjonListe, kan være null?
+                fraOgMedDato = it.fom, //er null :(
                 sumMaanedligUtbetaling = it.beloep,
                 andelKapittel19 = it.andelsbroekKap19!!, //TODO alderspensjon er simulert
                 alderspensjonKapittel19 = AlderspensjonKapittel19V0(

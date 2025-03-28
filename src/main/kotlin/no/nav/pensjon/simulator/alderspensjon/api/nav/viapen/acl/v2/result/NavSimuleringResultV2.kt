@@ -74,7 +74,7 @@ data class SimuleringResultatV2(
 // (which is the same as no.nav.pensjon.pen.domain.api.Merknad in PSELV)
 @JsonInclude(NON_NULL)
 data class MerknadV2(
-    val ar: Int? = null, // will not be set
+    val ar: Int? = null,
     val argumentListeString: String? = null,
     val kode: String? = null
 )

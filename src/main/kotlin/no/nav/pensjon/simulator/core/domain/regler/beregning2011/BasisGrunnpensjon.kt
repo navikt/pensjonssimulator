@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Grunnpensjon
 
+// 2025-03-20
 class BasisGrunnpensjon : Grunnpensjon {
     /**
      * En versjon av Grunnpensjon uten tilgang til brutto og netto siden Basispensjonsytelsene kun

@@ -9,9 +9,8 @@ data class PenFoersteVirkningDato(
     val sakType: String?, // SakTypeEnum
     val kravlinjeTypeEnum: String?, // KravlinjeTypeEnum
     val virkningsdato: Date?,
-    val annenPerson: PenPenPerson?
-    // Not mapped:
-    //var kravFremsattDato: Date? = null
-    //var bruker: PenPerson? = null
-    //var kravlinjeType: KravlinjeTypeCti? = null
+    val annenPerson: PenPenPerson?,
+    // Not mapped; included to avoid UnrecognizedPropertyException:
+    val kravFremsattDato: Date? = null,
+    val bruker: PenPenPerson? = null
 )

@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.util.*
 
 /**
@@ -73,13 +72,14 @@ class PenPersongrunnlag(
     var poengtillegg: Double = 0.0,
     var boddEllerArbeidetIUtlandet: Boolean = false,
     var forsteVirk: Date? = null,
-    var AfpTpoUpGrunnlag: AfpTpoUpGrunnlag? = null,
-    var vilkarsvedtakEPSListe: MutableList<VilkarsVedtak> = mutableListOf(),
+    var afpTpoUpGrunnlag: AfpTpoUpGrunnlag? = null,
+    var normertPensjonsalderGrunnlag: NormertPensjonsalderGrunnlag? = null,
 
     var gjelderOmsorg: Boolean = false,
     var gjelderUforetrygd: Boolean = false,
     var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> = mutableListOf(),
-    var beholdninger: MutableList<PenPensjonsbeholdning> = mutableListOf(),
+    var beholdninger: MutableList<PenPensjonsbeholdning> = mutableListOf(), // not used; flatBeholdninger used instead
+    var flatBeholdninger: MutableList<PenPensjonsbeholdning> = mutableListOf(),
     var trygdetider: MutableList<Trygdetid> = mutableListOf(),
     var uforegrunnlagList: MutableList<Uforegrunnlag> = mutableListOf(),
     var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf()

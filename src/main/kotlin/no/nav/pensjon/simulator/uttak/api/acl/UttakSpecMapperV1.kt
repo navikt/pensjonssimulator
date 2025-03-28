@@ -40,8 +40,7 @@ object UttakSpecMapperV1 {
             flyktning = false,
             epsHarInntektOver2G = false,
             rettTilOffentligAfpFom = source.rettTilAfpOffentligDato,
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
+            pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result

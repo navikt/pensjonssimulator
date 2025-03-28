@@ -215,7 +215,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         private fun retainPersondetaljerHavingVirksomRolle(persongrunnlag: Persongrunnlag) {
             persongrunnlag.personDetaljListe =
                 persongrunnlag.personDetaljListe.filter {
-                    it.bruk == true && it.rolleTomDato == null
+                    it.bruk == true && it.penRolleTom == null
                 }.toMutableList()
         }
 

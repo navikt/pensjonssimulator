@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.io.Serializable
 import java.util.*
 
@@ -39,9 +40,7 @@ class FramtidigPensjonspoengtall : Serializable {
         for (poengtall in framtidigPensjonspoengtall.poengtallListe) {
             poengtallListe.add(Poengtall(poengtall))
         }
-        for (merknad in framtidigPensjonspoengtall.merknadListe) {
-            merknadListe.add(Merknad(merknad))
-        }
+        merknadListe = framtidigPensjonspoengtall.merknadListe.map { it.copy() }.toMutableList()
     }
 
     constructor(

@@ -9,7 +9,7 @@ import java.util.Date
  */
 data class FolketrygdberegnetAfpSpecV1(
     val simuleringType: FolketrygdberegnetAfpSimuleringTypeSpecV1? = null,
-    val fnr: FolketrygdberegnetAfpPersonIdComboSpecV1? = null,
+    val fnr: String? = null,
     val forventetInntekt: Int? = null,
     val forsteUttakDato: Date? = null,
     val inntektUnderGradertUttak: Int? = null,
@@ -24,7 +24,7 @@ data class FolketrygdberegnetAfpSpecV1(
 ) {
     override fun toString(): String =
         "\"simuleringType\": \"$simuleringType\", " +
-                "\"fnr:\" \"$fnr\", " +
+                "\"fnr:\" \"${redact(fnr)}\", " +
                 "\"forventetInntekt\": $forventetInntekt, " +
                 "\"forsteUttakDato\": \"$forsteUttakDato\", " +
                 "\"inntektUnderGradertUttak\": $inntektUnderGradertUttak, " +
@@ -36,14 +36,4 @@ data class FolketrygdberegnetAfpSpecV1(
                 "\"eps2G\": $eps2G, " +
                 "\"afpOrdning\": \"$afpOrdning\", " +
                 "\"afpInntektMndForUttak\": $afpInntektMndForUttak"
-}
-
-data class FolketrygdberegnetAfpPersonIdComboSpecV1(
-    val pid: String,
-    val dnummer: Boolean? = false,
-    val npid: Boolean? = false,
-    val pidInvalidWithBostnummer: Boolean? = false
-) {
-    override fun toString(): String =
-        "pid: ${redact(pid)}"
 }

@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 
+// 2025-03-19
 class Basispensjon {
-
     /**
      * Utgjør summen av basisgrunnpensjon, basistilleggspensjon og i basispensjonstillegg.
      */
@@ -28,24 +28,4 @@ class Basispensjon {
      * Formelkode kun for bruk for restpensjon
      */
     var formelKodeEnum: FormelKodeEnum = FormelKodeEnum.ResPx
-
-    // SIMDOM-ADD
-    constructor(): super()
-    constructor(source: Basispensjon) {
-        totalbelop = source.totalbelop
-
-        if (source.gp != null) {
-            gp = BasisGrunnpensjon(source.gp!!)
-        }
-
-        if (source.tp != null) {
-            tp = BasisTilleggspensjon(source.tp!!)
-        }
-
-        if (source.pt != null) {
-            pt = BasisPensjonstillegg(source.pt!!)
-        }
-
-        formelKodeEnum = source.formelKodeEnum
-    }
 }

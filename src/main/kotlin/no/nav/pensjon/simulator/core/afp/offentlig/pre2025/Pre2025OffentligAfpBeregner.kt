@@ -42,7 +42,6 @@ class Pre2025OffentligAfpBeregner(
     private var ektefelleMottarPensjon = false // TODO pass as parameter instead?
 
     // SimulerAFPogAPCommand.beregnAfpOffentlig
-    //@Throws(PEN222BeregningstjenesteFeiletException::class)
     fun beregnAfp(
         spec: SimuleringSpec,
         kravhode: Kravhode,
@@ -79,17 +78,7 @@ class Pre2025OffentligAfpBeregner(
             //    "Simulering AFP offentlig - Ikke innvilget - Kode {} - Merknader {}",
             //    if (status == null) "(ingen)" else status.code, SimulerAFPogAPCommand.asCsv(simuleringsresultat.merknadListe)
             //)
-
-            // Throwing PEN240VilkarsprovingAvAFPOffentligErAvslattException without packaging it in a RuntimeException, would
-            // force the execute method of the abstract class which this class relies on to throw
-            // PEN240VilkarsprovingAvAFPOffentligErAvslattException. This would then cascade into forcing the other classes
-            // inheriting from the abstract class to also throw the exception, impacting a lot more code than intended by the
-            // design.
-            //
-            // For this reason the Exception is packaged in a RuntimeException, which will be explicitly catch by the service
-            // using this command. This service will unpack the original exception and throw it, accordingly to the intended
-            // design.
-            throw Pre2025OffentligAfpAvslaattException(simuleringResultat.merknadListe.joinToString(", "))
+            throw Pre2025OffentligAfpAvslaattException(simuleringResultat.merknadListe.joinToString(", ") { it.asString() })
         }
 
         populateKravhodeWithAfpHistorikk(kravhode, simuleringResultat.beregning, spec)
@@ -141,7 +130,6 @@ class Pre2025OffentligAfpBeregner(
     // SimulerPensjonsberegningCommand.simulateVilkarsprvAFP
     // -> DefaultSimuleringConsumerService.simulerVilkarsprovAfp
     // -> SimulerVilkarsprovAfpConsumerCommand.execute
-    //@Throws(PEN071FeilISimuleringsgrunnlagetException::class, PEN070KonsistensenIGrunnlagetErFeilException::class)
     private fun simulerVilkarsprovAfp(simulering: Simulering): Simuleringsresultat =
         try {
             context.simulerVilkarsprovPre2025OffentligAfp(SimuleringRequest(simulering, simulering.uttaksdato))
@@ -282,7 +270,6 @@ class Pre2025OffentligAfpBeregner(
 
     // SimulerPensjonsberegningCommand.simulate
     // -> SimulerPensjonsberegningCommand.simulateCorrectTypeOfPensjon
-    //@Throws(PEN071FeilISimuleringsgrunnlagetException::class, PEN070KonsistensenIGrunnlagetErFeilException::class, PEN019ForUngForSimuleringException::class)
     private fun simulerPre2025OffentligAfp(simulering: Simulering): Simuleringsresultat {
         setBeregnForsorgingstilleggAndEktefelleMottarPensjon(simulering) // TODO use function arguments instead?
 
@@ -307,7 +294,6 @@ class Pre2025OffentligAfpBeregner(
 
     // DefaultSimuleringConsumerService.simulerAFP
     // -> SimulerPensjonsberegningConsumerCommand.execute with ytelse = SimulerPensjonsberegningConsumerCommand.AFP
-    //@Throws(PEN165KanIkkeBeregnesException::class, PEN166BeregningsmotorValidereException::class)
     private fun simulerPre2025OffentligAfp(
         simulering: Simulering,
         beregnInstitusjonsopphold: Boolean,
@@ -356,7 +342,7 @@ class Pre2025OffentligAfpBeregner(
                 // tp = tilleggspensjon, spt = sluttpoengtall, fpp = framtidige pensjonspoeng, pt = poengtall
                 afpFpp = beregning?.tp?.spt?.poengrekke?.fpp?.pt
                     ?: 0.0 // SimulerAFPogAPCommand.getFppValueFromTilleggspensjonList + SimulerAFPogAPCommandHelper.checkValuesForNullAndReturnFpp
-                afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
+                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 virkTom = persongrunnlag.fodselsdato?.let {
@@ -422,7 +408,7 @@ class Pre2025OffentligAfpBeregner(
                 bruk = true
                 inntektTypeEnum = InntekttypeEnum.IMFU // IMFU = Inntekt måneden før uttak
                 fom = spec.foersteUttakDato?.toNorwegianDateAtNoon()?.let { getRelativeDateByMonth(it, -1) }
-                belop = spec.afpInntektMaanedFoerUttak ?: 0
+                belop = spec.pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep ?: 0
                 grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
             }
 
@@ -525,12 +511,11 @@ class Pre2025OffentligAfpBeregner(
             Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.AFP
                 uttaksdato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
+                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 this.persongrunnlagListe = persongrunnlagListe
             }
 
         // SimulerPensjonsberegningCommand.validateInput
-        //@Throws(PEN019ForUngForSimuleringException::class)
         private fun validateInput(simulering: Simulering, normAlder: Alder) {
             val simuleringType =
                 simulering.simuleringTypeEnum ?: throw ImplementationUnrecoverableException("simulering.simuleringType")

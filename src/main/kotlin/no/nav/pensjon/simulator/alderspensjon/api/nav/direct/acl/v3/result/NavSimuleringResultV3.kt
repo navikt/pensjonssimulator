@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 data class NavSimuleringResultV3(
     val alderspensjonListe: List<NavAlderspensjonV3>,
     val alderspensjonMaanedsbeloep: NavMaanedsbeloepV3?,
+    val pre2025OffentligAfp: NavPre2025OffentligAfp?,
     val privatAfpListe: List<NavPrivatAfpV3>,
     val livsvarigOffentligAfpListe: List<NavLivsvarigOffentligAfpV3>,
     val vilkaarsproeving: NavVilkaarsproevingResultatV3,
@@ -55,6 +56,21 @@ data class NavPrivatAfpV3(
 data class NavLivsvarigOffentligAfpV3(
     val alderAar: Int,
     val beloep: Int
+)
+
+data class NavPre2025OffentligAfp(
+    val alderAar: Int,
+    val totaltAfpBeloep: Int,
+    val tidligereArbeidsinntekt: Int,
+    val grunnbeloep: Int,
+    val sluttpoengtall: Double,
+    val trygdetid: Int,
+    val poengaarTom1991: Int,
+    val poengaarFom1992: Int,
+    val grunnpensjon: Int,
+    val tilleggspensjon: Int,
+    val afpTillegg: Int,
+    val saertillegg: Int
 )
 
 @JsonInclude(NON_NULL)

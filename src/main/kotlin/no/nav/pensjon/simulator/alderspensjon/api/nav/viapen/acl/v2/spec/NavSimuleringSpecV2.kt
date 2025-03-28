@@ -6,20 +6,20 @@ import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import java.time.LocalDate
-import java.util.Date
+import java.util.*
 
 /**
  * Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011
  *              and no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011Dto in PEN
  * (same as no.nav.pensjon.pen.domain.api.kalkulator.SimuleringEtter2011 in PSELV)
  */
-data class NavSimuleringSpecV2 (
+data class NavSimuleringSpecV2(
     val simuleringId: Long? = null,
     val simuleringType: NavSimuleringTypeSpecV2? = null,
     val simuleringNavn: String? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val lagringstidspunkt: LocalDate? = null,
-    val fnr: NavSimuleringPersonIdComboSpecV2? = null,
-    val fnrAvdod: NavSimuleringPersonIdComboSpecV2? = null,
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val lagringstidspunkt: LocalDate? = null,
+    val fnr: String? = null,
+    val fnrAvdod: String? = null,
     val fodselsar: Int? = null,
     val offentligAfpRett: Boolean? = null,
     val privatAfpRett: Boolean? = null,
@@ -30,7 +30,7 @@ data class NavSimuleringSpecV2 (
     val forsteUttakDato: Date? = null, // epoch value in JSON
     val utg: UttakGradKode? = null,
     val inntektUnderGradertUttak: Int? = null,
-    val heltUttakDato: Date? = null, // epoch value in JSON
+    var heltUttakDato: Date? = null, // epoch value in JSON
     val inntektEtterHeltUttak: Int? = null,
     val antallArInntektEtterHeltUttak: Int? = null,
     val utenlandsopphold: Int? = null,
@@ -48,21 +48,14 @@ data class NavSimuleringSpecV2 (
     val avdodFlyktning: Boolean? = null,
     val simulerForTp: Boolean? = null,
     val tpOrigSimulering: Boolean = false,
-    val utenlandsperiodeForSimuleringList: List<NavSimuleringUtlandPeriodeV2> = listOf()
-    // Not used in PSELV:
-    // ansettelsessektor
-    // brukerRegTPListe
-    // stillingsprosentOffHeltUttak
-    // stillingsprosentOffGradertUttak
-    // fremtidigInntektList
-    // changeStamp
-)
-
-data class NavSimuleringPersonIdComboSpecV2(
-    val pid: String,
-    val dnummer: Boolean? = false,
-    val npid: Boolean? = false,
-    val pidInvalidWithBostnummer: Boolean? = false
+    val utenlandsperiodeForSimuleringList: List<NavSimuleringUtlandPeriodeV2> = listOf(),
+    // Not used in PSELV, but included to avoid failing on unknown properties:
+    val ansettelsessektor: String? = null,
+    val brukerRegTPListe: List<NavSimuleringBrukerRegTjenestepensjonSpecDummyV2> = emptyList(),
+    val stillingsprosentOffHeltUttak: String? = null,
+    val stillingsprosentOffGradertUttak: String? = null,
+    val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2> = emptyList(),
+    val changeStamp: NavSimuleringChangeStampSpecDummyV2? = null
 )
 
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PEN
@@ -72,4 +65,33 @@ data class NavSimuleringUtlandPeriodeV2(
     val arbeidetIUtland: Boolean = false,
     val periodeFom: LocalDate,
     val periodeTom: LocalDate?
+)
+
+/**
+ * Dummy class required to avoid failing on unknown properties.
+ */
+data class NavSimuleringBrukerRegTjenestepensjonSpecDummyV2(
+    val navnOrdningTP: String?,
+    val utgTP: String?,
+    val utbetStartTP: String?,
+    val utbetSluttTP: String?,
+    val belopTP: Int?
+)
+
+/**
+ * Dummy class required to avoid failing on unknown properties.
+ */
+data class NavSimuleringFremtidigInntektSpecDummyV2(
+    val datoFom: Date,
+    val arliginntekt: Int?
+)
+
+/**
+ * Dummy class required to avoid failing on unknown properties.
+ */
+data class NavSimuleringChangeStampSpecDummyV2(
+    val createdDate: Date,
+    val createdBy: String,
+    val updatedDate: Date,
+    val updatedBy: String
 )

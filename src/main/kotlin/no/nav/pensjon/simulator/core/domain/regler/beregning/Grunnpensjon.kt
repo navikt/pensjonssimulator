@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GPSatsTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
 
+// 2025-03-20
 @JsonSubTypes(
     JsonSubTypes.Type(value = BasisGrunnpensjon::class)
 )
@@ -36,20 +37,10 @@ open class Grunnpensjon : Ytelseskomponent {
         formelKodeEnum = FormelKodeEnum.GPx
     }
 
-    /**
-     * Copy Constructor
-     */
     constructor(source: Grunnpensjon) : super(source) {
         pSats_gp = source.pSats_gp
-
-        if (source.satsTypeEnum != null) {
-            satsTypeEnum = source.satsTypeEnum
-        }
-
+        satsTypeEnum = source.satsTypeEnum
         ektefelleInntektOver2G = source.ektefelleInntektOver2G
-
-        if (source.anvendtTrygdetid != null) {
-            anvendtTrygdetid = AnvendtTrygdetid(source.anvendtTrygdetid!!)
-        }
+        anvendtTrygdetid = source.anvendtTrygdetid?.let(::AnvendtTrygdetid)
     }
 }

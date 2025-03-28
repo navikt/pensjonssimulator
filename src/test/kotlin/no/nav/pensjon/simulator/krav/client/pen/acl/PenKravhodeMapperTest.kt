@@ -43,10 +43,12 @@ class PenKravhodeMapperTest : FunSpec({
             with(persongrunnlagListe.first()) {
                 with(personDetaljListe.first()) {
                     grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
-                    legacyRolleFomDato shouldBe dateAtNoon(2021, Calendar.JANUARY, 1)
-                    legacyRolleTomDato shouldBe dateAtNoon(2022, Calendar.FEBRUARY, 2)
-                    rolleFomDato shouldBe dateAtNoon(2021, Calendar.FEBRUARY, 1) // NB (manipulated in finishInit)
-                    rolleTomDato shouldBe dateAtNoon(2022, Calendar.FEBRUARY, 28) // NB (manipulated in finishInit)
+                    penRolleFom shouldBe dateAtNoon(2021, Calendar.JANUARY, 1)
+                    penRolleTom shouldBe dateAtNoon(2022, Calendar.FEBRUARY, 2)
+                    rolleFomDato shouldBe dateAtNoon(2023, Calendar.MARCH, 3) // set to virkFom in mapper
+                    rolleTomDato shouldBe dateAtNoon(2024, Calendar.APRIL, 4) // set to virkTom in mapper
+                    virkFom shouldBe dateAtNoon(2023, Calendar.MARCH, 3)
+                    virkTom shouldBe dateAtNoon(2024, Calendar.APRIL, 4)
                     sivilstandTypeEnum shouldBe SivilstandEnum.GIFT
                     with(sivilstandRelatertPerson!!) { penPersonId shouldBe 1 }
                     borMedEnum shouldBe BorMedTypeEnum.SAMBOER3_2
@@ -56,8 +58,6 @@ class PenKravhodeMapperTest : FunSpec({
                     grunnlagKildeEnum shouldBe GrunnlagkildeEnum.PEN
                     serskiltSatsUtenET shouldBe true
                     epsAvkallEgenPensjon shouldBe false
-                    virkFom shouldBe dateAtNoon(2021, Calendar.FEBRUARY, 1) // NB (manipulated in finishInit)
-                    virkTom shouldBe dateAtNoon(2022, Calendar.FEBRUARY, 28) // NB (manipulated in finishInit)
                 }
             }
         }

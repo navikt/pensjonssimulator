@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.generelt.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
@@ -39,22 +38,20 @@ class PenGenerelleDataClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), GenerelleDataClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
     private val cache: Cache<GenerelleDataSpec, GenerelleData> = createCache("generelleData", cacheManager)
 
     override fun service() = service
 
     override fun fetchGenerelleData(spec: GenerelleDataSpec): GenerelleData =
-        cache.getIfPresent(spec) ?: fetchFreshData(spec) //.also { cache.put(spec, it) }
+        cache.getIfPresent(spec) ?: fetchFreshData(spec).also { cache.put(spec, it) }
 
     private fun fetchFreshData(spec: GenerelleDataSpec): GenerelleData {
         val uri = "$BASE_PATH/$PATH"
         val dto = PenGenerelleDataSpecMapper.toDto(spec)
-        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
-        try {
-            val x: PenGenerelleDataResult? = webClient
+        return try {
+            webClient
                 .post()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,11 +62,8 @@ class PenGenerelleDataClient(
                 .bodyToMono(PenGenerelleDataResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-            //?.let(PenGenerelleDataResultMapper::fromDto)
-            //?: nullResult()
-
-            log.info { "DebugGenerelleData include ${spec.inkludering} result $x" }
-            return x?.let(PenGenerelleDataResultMapper::fromDto) ?: nullResult()
+                ?.let(PenGenerelleDataResultMapper::fromDto)
+                ?: nullResult()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -80,11 +74,7 @@ class PenGenerelleDataClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

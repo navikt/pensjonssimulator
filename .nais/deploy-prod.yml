@@ -88,6 +88,7 @@ spec:
       external:
         - host: maskinporten.no
         - host: pensjon-pen.prod-fss-pub.nais.io
+        - host: pensjon-popp.prod-fss-pub.nais.io
         - host: pensjon-regler.prod-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
         - host: tp-api.prod-fss-pub.nais.io
@@ -100,6 +101,10 @@ spec:
       value: prod-fss:pensjondeployer:pensjon-pen
     - name: PEN_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io
+    - name: POPP_SERVICE_ID
+      value: prod-fss:pensjonopptjening:pensjon-popp
+    - name: POPP_URL
+      value: https://pensjon-popp.prod-fss-pub.nais.io
     - name: REGLER_URL
       value: https://pensjon-regler.prod-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID

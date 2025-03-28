@@ -16,6 +16,15 @@ spec:
       - nav:pensjonssimulator:simulering
       - nav:pensjon/simulering.read
   endpoints:
+    - path: /pensjonssimulator/v0/simuler-afp-etterfulgt-av-alderspensjon
+      method: POST
+      forwardHeaders:
+        - Authorization
+        - Content-Type
+        - X-Request-Id
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v0/simuler-afp-etterfulgt-av-alderspensjon
+      timeout: 20s
     - path: /pensjonssimulator/v4/simuler-alderspensjon
       method: POST
       forwardHeaders:

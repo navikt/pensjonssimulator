@@ -338,7 +338,7 @@ class Pre2025OffentligAfpBeregner(
                 // tp = tilleggspensjon, spt = sluttpoengtall, fpp = framtidige pensjonspoeng, pt = poengtall
                 afpFpp = beregning?.tp?.spt?.poengrekke?.fpp?.pt
                     ?: 0.0 // SimulerAFPogAPCommand.getFppValueFromTilleggspensjonList + SimulerAFPogAPCommandHelper.checkValuesForNullAndReturnFpp
-                afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
+                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 virkTom = persongrunnlag.fodselsdato?.let {
@@ -404,7 +404,7 @@ class Pre2025OffentligAfpBeregner(
                 bruk = true
                 inntektTypeEnum = InntekttypeEnum.IMFU // IMFU = Inntekt måneden før uttak
                 fom = spec.foersteUttakDato?.toNorwegianDateAtNoon()?.let { getRelativeDateByMonth(it, -1) }
-                belop = spec.afpInntektMaanedFoerUttak ?: 0
+                belop = spec.pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep ?: 0
                 grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
             }
 
@@ -507,7 +507,7 @@ class Pre2025OffentligAfpBeregner(
             Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.AFP
                 uttaksdato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                afpOrdningEnum = spec.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
+                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
                 this.persongrunnlagListe = persongrunnlagListe
             }
 

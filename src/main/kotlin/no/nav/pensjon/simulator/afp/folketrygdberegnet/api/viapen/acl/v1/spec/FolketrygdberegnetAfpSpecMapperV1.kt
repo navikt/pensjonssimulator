@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
@@ -24,7 +25,7 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = null, //TODO verify
-            pid = source.fnr?.pid?.let(::Pid),
+            pid = source.fnr?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = null,
             isTpOrigSimulering = false,
@@ -43,8 +44,7 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
             rettTilOffentligAfpFom = null, //TODO map to offentligAfpRett?
-            afpOrdning = source.afpOrdning?.let(AfpOrdningType::valueOf), // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
-            afpInntektMaanedFoerUttak = source.afpInntektMndForUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
+            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false, //TODO verify
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false, //TODO verify
@@ -52,4 +52,15 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
+
+    private fun pre2025OffentligAfpSpec(simuleringSpec: FolketrygdberegnetAfpSpecV1): Pre2025OffentligAfpSpec? =
+        if (simuleringSpec.simuleringType == FolketrygdberegnetAfpSimuleringTypeSpecV1.AFP_ETTERF_ALDER)
+            Pre2025OffentligAfpSpec(
+                afpOrdning = AfpOrdningType.valueOf(simuleringSpec.afpOrdning!!),
+                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
+                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
+            )
+        else
+            null
 }

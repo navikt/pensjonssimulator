@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -24,7 +25,7 @@ object NavSimuleringSpecMapperV2 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate(),
-            pid = source.fnr?.pid?.let(::Pid),
+            pid = source.fnr?.let(::Pid),
             foedselDato = null, // used for anonym only
             avdoed = avdoed(source),
             isTpOrigSimulering = false,
@@ -43,8 +44,7 @@ object NavSimuleringSpecMapperV2 {
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
             rettTilOffentligAfpFom = null, //TODO map to offentligAfpRett?
-            afpOrdning = source.afpOrdning, // Hvilken AFP-ordning bruker er tilknyttet (kun for simulering av pre-2025 offentlig AFP)
-            afpInntektMaanedFoerUttak = source.afpInntektMndForUttak, // Brukers inntekt måneden før uttak av AFP (kun for simulering av pre-2025 offentlig AFP)
+            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
@@ -52,6 +52,17 @@ object NavSimuleringSpecMapperV2 {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
+
+    private fun pre2025OffentligAfpSpec(simuleringSpec: NavSimuleringSpecV2): Pre2025OffentligAfpSpec? =
+        if (simuleringSpec.simuleringType == NavSimuleringTypeSpecV2.AFP_ETTERF_ALDER)
+            Pre2025OffentligAfpSpec(
+                afpOrdning = simuleringSpec.afpOrdning!!,
+                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
+                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
+            )
+        else
+            null
 
     private fun utlandPeriode(source: NavSimuleringUtlandPeriodeV2) =
         UtlandPeriode(
@@ -64,7 +75,7 @@ object NavSimuleringSpecMapperV2 {
     private fun avdoed(source: NavSimuleringSpecV2): Avdoed? =
         source.fnrAvdod?.let {
             Avdoed(
-                pid = Pid(it.pid),
+                pid = Pid(it),
                 antallAarUtenlands = source.avdodAntallArIUtlandet ?: 0,
                 inntektFoerDoed = source.avdodInntektForDod ?: 0,
                 doedDato = source.dodsdato!!.toNorwegianLocalDate(),

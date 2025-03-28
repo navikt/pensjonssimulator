@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import java.util.*
@@ -26,7 +27,9 @@ data class NavSimuleringSpecV3(
     val epsHarPensjon: Boolean? = null,
     val epsHarInntektOver2G: Boolean? = null,
     val fremtidigInntektListe: List<NavSimuleringInntektSpecV3>? = null,
-    val utenlandsperiodeListe: List<NavSimuleringUtlandSpecV3>? = null
+    val utenlandsperiodeListe: List<NavSimuleringUtlandSpecV3>? = null,
+    val afpInntektMaanedFoerUttak: Int? = null,
+    val afpOrdning: AfpOrdningType? = null
 ) {
     /**
      * toString with redacted person ID
@@ -43,7 +46,9 @@ data class NavSimuleringSpecV3(
                 "\"epsHarPensjon\": $epsHarPensjon, " +
                 "\"epsHarInntektOver2G\": $epsHarInntektOver2G, " +
                 "\"fremtidigInntektListe\": [ $fremtidigInntektListe ], " +
-                "\"utenlandsperiodeListe\": [ $utenlandsperiodeListe ]"
+                "\"utenlandsperiodeListe\": [ $utenlandsperiodeListe ]," +
+                "\"afpInntektMaanedFoerUttak\": $afpInntektMaanedFoerUttak," +
+                "\"afpOrdning\": \"$afpOrdning\","
 }
 
 @JsonInclude(NON_NULL)

@@ -104,15 +104,15 @@ object PenKravhodeMapper {
             // beholdningsTypeEnum set in constructor
         }
 
+    /**
+     * Corresponds to GrunnlagToReglerMapper.mapPersonDetaljToRegler in PEN.
+     * Note in particular that virkFom/virkTom are mapped to rolleFomDato/rolleTomDato.
+     */
     private fun personDetalj(source: PenPersonDetalj) =
         PersonDetalj().apply {
             grunnlagsrolleEnum = source.grunnlagsrolleEnum
-            /* TODO: PEN to regler mapping:
-            rolleFomDato = source.virkFom
-            rolleTomDato = source.virkTom
-            */
-            rolleFomDato = source.rolleFomDato
-            rolleTomDato = source.rolleTomDato
+            rolleFomDato = source.virkFom // yes, virkFom is actually mapped to rolleFomDato
+            rolleTomDato = source.virkTom // ... and virkTom is mapped to rolleTomDato
             sivilstandTypeEnum = source.sivilstandTypeEnum
             sivilstandRelatertPerson = source.sivilstandRelatertPerson?.let(::penPerson)
             borMedEnum = source.borMedEnum
@@ -123,14 +123,11 @@ object PenKravhodeMapper {
             serskiltSatsUtenET = source.serskiltSatsUtenET
             epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
             //--- Extra:
+            penRolleFom = source.rolleFomDato // the original 'rolle f.o.m.-dato' in PEN
+            penRolleTom = source.rolleTomDato // the original 'rolle t.o.m.-dato' in PEN
             virkFom = source.virkFom
             virkTom = source.virkTom
-        }.also {
-            it.finishInit()
-            //TODO
-            // due to rolleFomDato manipulation in finishInit, have to use legacyRolleFomDato in logic
-            // (rolleFomDato shall only be used by regler)
-        }
+        } // do not call finishInit() here; the values received from PEN are already 'finished'
 
     private fun persongrunnlag(source: PenPersongrunnlag) =
         Persongrunnlag().apply {

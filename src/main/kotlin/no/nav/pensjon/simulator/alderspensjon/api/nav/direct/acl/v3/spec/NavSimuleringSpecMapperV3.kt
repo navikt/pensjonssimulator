@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
@@ -58,8 +59,10 @@ object NavSimuleringSpecMapperV3 {
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             rettTilOffentligAfpFom = null,
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
+
+            // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+            pre2025OffentligAfp = pre2025OffentligAfpSpec(source, gradertUttak?.aarligInntekt),
+
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
@@ -114,6 +117,19 @@ object NavSimuleringSpecMapperV3 {
             antallArInntektEtterHeltUttak = inntektTomAlderSpec.aar - uttakFomAlderSpec.aar + 1 // +1, siden fra/til OG MED
         )
     }
+
+    private fun pre2025OffentligAfpSpec(
+        simuleringSpec: NavSimuleringSpecV3,
+        inntektAarligBeloep: Int?
+    ): Pre2025OffentligAfpSpec? =
+        if (simuleringSpec.simuleringstype == NavSimuleringTypeSpecV3.AFP_ETTERF_ALDER)
+            Pre2025OffentligAfpSpec(
+                afpOrdning = simuleringSpec.afpOrdning!!,
+                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMaanedFoerUttak ?: 0,
+                inntektUnderAfpUttakBeloep = inntektAarligBeloep ?: 0
+            )
+        else
+            null
 
     private fun utlandPeriode(source: NavSimuleringUtlandSpecV3) =
         UtlandPeriode(

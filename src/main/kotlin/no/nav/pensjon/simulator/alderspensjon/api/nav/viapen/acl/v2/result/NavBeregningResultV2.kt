@@ -15,8 +15,8 @@ import java.time.LocalDate
 @JsonInclude(NON_NULL)
 data class NavBeregningResultV2 (
     val merknadliste: List<MerknadV2> = emptyList(),
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val virkDatoFom: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val virkDatoTom: LocalDate? = null,
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkDatoFom: LocalDate? = null,
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkDatoTom: LocalDate? = null,
     val brutto: Int? = 0,
     val netto: Int? = 0,
     val g: Int? = 0,
@@ -28,7 +28,9 @@ data class NavBeregningResultV2 (
     val minstepensjonType: MinstepensjonstypeEnum? = null,
     val ttAnv: Int? = 0,
     val yug: Int? = 0,
-    val ufg: Int? = 0
+    val ufg: Int? = 0,
+    val ctype: String = "BEREGNING" // needed for PEN to resolve type during deserialization
+
     // Not used in PSELV:
     // beregningId
     // versjon

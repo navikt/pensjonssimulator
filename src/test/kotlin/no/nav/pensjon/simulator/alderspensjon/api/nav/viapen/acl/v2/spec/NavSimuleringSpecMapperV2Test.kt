@@ -23,8 +23,8 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                 simuleringType = NavSimuleringTypeSpecV2.ALDER,
                 simuleringNavn = "x",
                 lagringstidspunkt = LocalDate.of(2012, 3, 4),
-                fnr = NavSimuleringPersonIdComboSpecV2(pid.value),
-                fnrAvdod = NavSimuleringPersonIdComboSpecV2("04925398980"),
+                fnr = pid.value,
+                fnrAvdod = "04925398980",
                 fodselsar = 1963,
                 forventetInntekt = 250000,
                 antArInntektOverG = 0, // used for anonym only
@@ -110,8 +110,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     flyktning = false,
                     epsHarInntektOver2G = true,
                     rettTilOffentligAfpFom = null,
-                    afpOrdning = null, // kun for simulering av pre-2025 offentlig AFP
-                    afpInntektMaanedFoerUttak = null, // kun for simulering av pre-2025 offentlig AFP
+                    pre2025OffentligAfp = null,
                     erAnonym = false,
                     ignoreAvslag = false,
                     isHentPensjonsbeholdninger = true,

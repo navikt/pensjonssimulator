@@ -39,7 +39,7 @@ class PenBeholdningClientTest : FunSpec({
         )
 
         server = MockWebServer().also { it.start() }
-        baseUrl = server.let { "http://localhost:${it.port}" }
+        baseUrl = server.let { "http://localhost:${it?.port}" }
     }
 
     afterSpec {

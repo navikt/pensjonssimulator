@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import java.util.*
 
 /**
@@ -79,45 +78,19 @@ open class PersonDetalj {
     var serskiltSatsUtenET: Boolean? = null
     var epsAvkallEgenPensjon: Boolean? = null
 
-    // SIMDOM-ADD
+    //--- Extra fields:
+    @JsonIgnore
+    var penRolleFom: Date? = null
+
+    @JsonIgnore
+    var penRolleTom: Date? = null
+
     @JsonIgnore
     var virkFom: Date? = null
 
     @JsonIgnore
     var virkTom: Date? = null
-
-    @JsonIgnore
-    var legacyRolleFomDato: Date? = null
-
-    @JsonIgnore
-    var legacyRolleTomDato: Date? = null
-
-    @JsonIgnore
-    var rawRolleFomDato: Date? = null
-
-    @JsonIgnore
-    var rawRolleTomDato: Date? = null
-
-    fun finishInit() {
-        rawRolleFomDato = rolleFomDato
-        rawRolleTomDato = rolleTomDato
-
-        rolleFomDato = rawRolleFomDato?.noon()
-        updateVirkFom()
-        updateVirkTomAndVirkFom()
-
-        rolleTomDato = rawRolleTomDato?.noon()
-
-        if (rolleFomDato != null) {
-            updateVirkFom()
-            updateVirkTomAndVirkFom()
-        }
-
-        legacyRolleFomDato = rolleFomDato
-        legacyRolleTomDato = rolleTomDato
-        rolleFomDato = virkFom?.noon() // since rolleFomDato is set to virkFom.noon() in GrunnlagToReglerMapper.mapPersonDetaljToRegler
-        rolleTomDato = virkTom?.noon()
-    }
+    // end extra fields
 
     constructor() {}
 
@@ -160,52 +133,55 @@ open class PersonDetalj {
         this.serskiltSatsUtenET = source.serskiltSatsUtenET
         this.epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
 
-        // SIMDOM-ADD:
-        if (source.virkFom != null) {
-            this.virkFom = source.virkFom!!.clone() as Date
-        }
-
-        if (source.virkTom != null) {
-            this.virkTom = source.virkTom!!.clone() as Date
-        }
-
-        if (source.legacyRolleFomDato != null) {
-            this.legacyRolleFomDato = source.legacyRolleFomDato!!.clone() as Date
-        }
-
-        if (source.legacyRolleTomDato != null) {
-            this.legacyRolleTomDato = source.legacyRolleTomDato!!.clone() as Date
-        }
-
-        if (source.rawRolleFomDato != null) {
-            this.rawRolleFomDato = source.rawRolleFomDato!!.clone() as Date
-        }
-
-        if (source.rawRolleTomDato != null) {
-            this.rawRolleTomDato = source.rawRolleTomDato!!.clone() as Date
-        }
-        // end SIMDOM-ADD
+        //--- Extra:
+        virkFom = source.virkFom?.clone() as? Date
+        virkTom = source.virkTom?.clone() as? Date
+        penRolleFom = source.penRolleFom?.clone() as? Date
+        penRolleTom = source.penRolleTom?.clone() as? Date
+        // end extra
     }
 
-    // SIMDOM-ADD
+    //--- Extra functions:
+    /**
+     * Equivalent to setRolleFomDato + setRolleTomDato
+     * in PEN no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj
+     */
+    fun finishInit() {
+        // Ref. PEN setRolleFomDato:
+        updateVirkFom()
+        updateVirkTomAndVirkFom()
+
+        // Ref. PEN setRolleTomDato:
+        if (penRolleFom != null) {
+            updateVirkFom()
+            updateVirkTomAndVirkFom()
+        }
+
+        // Set virk-periode as rolle-periode (ref. PEN GrunnlagToReglerMapper.mapPersonDetaljToRegler):
+        rolleFomDato = virkFom
+        rolleTomDato = virkTom
+    }
+
+    // PEN: updateVirkFom in no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj
     private fun updateVirkFom() {
-        if (rolleTomDato != null && rolleFomDato != null && getLastDayOfMonth(rolleFomDato!!).after(rolleTomDato)) {
+        if (penRolleTom != null && penRolleFom != null && getLastDayOfMonth(penRolleFom!!).after(penRolleTom)) {
             virkFom = null
         } else {
-            if (rolleFomDato != null) {
-                val monthAfterRolleFom = getRelativeDateByMonth(rolleFomDato!!, 1)
+            penRolleFom?.let {
+                val monthAfterRolleFom = getRelativeDateByMonth(it, 1)
                 virkFom = getFirstDayOfMonth(monthAfterRolleFom)
             }
         }
     }
 
+    // PEN: updateVirkTomAndVirkFom in no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj
     private fun updateVirkTomAndVirkFom() {
-        if (rolleTomDato == null) {
+        if (penRolleTom == null) {
             virkTom = null
         } else {
-            val rolleTomPlusOneDay = getRelativeDateByDays(rolleTomDato!!, 1)
-            if (getMonth(rolleTomPlusOneDay) == getMonth(rolleFomDato!!)
-                && getYear(rolleTomPlusOneDay) == getYear(rolleFomDato!!)
+            val rolleTomPlusOneDay = getRelativeDateByDays(penRolleTom!!, 1)
+            if (getMonth(rolleTomPlusOneDay) == getMonth(penRolleFom!!)
+                && getYear(rolleTomPlusOneDay) == getYear(penRolleFom!!)
             ) {
                 virkFom = null
                 virkTom = null
@@ -228,7 +204,7 @@ open class PersonDetalj {
     fun is3_2Samboer(): Boolean =
         BorMedTypeEnum.SAMBOER3_2 == borMedEnum
 
-    private fun hasGrunnlagsrolle(vararg roller: GrunnlagsrolleEnum) : Boolean =
+    private fun hasGrunnlagsrolle(vararg roller: GrunnlagsrolleEnum): Boolean =
         grunnlagsrolleEnum?.let { roller.any { x -> x == it } } == true
-    // end SIMDOM-ADD
+    // end extra functions
 }

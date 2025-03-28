@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtalltypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
@@ -10,7 +9,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 // PSELV: no.nav.pensjon.pen.domain.api.beregning.Ytelseskomponent
 @JsonInclude(NON_NULL)
 data class NavYtelseKomponentV2 (
-
     val ytelseskomponentType: YtelseskomponentTypeEnum? = null,
     val merknader: List<MerknadV2> = emptyList(),
     val bruttoPerAr: Double? = 0.0,
@@ -174,7 +172,7 @@ data class PoengtallV2 (
     val gv: Int? = 0,
     val poengtallType: PoengtalltypeEnum? = null,
     val maksUforegrad: Int? = 0,
-    val merknadListe: List<Merknad> = emptyList()
+    val merknadListe: List<MerknadV2> = emptyList()
     // Not used in PSELV:
     // uforear
 )

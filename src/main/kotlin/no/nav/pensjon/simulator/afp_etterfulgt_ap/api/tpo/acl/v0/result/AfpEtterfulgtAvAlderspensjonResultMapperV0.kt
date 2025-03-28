@@ -12,15 +12,14 @@ import java.util.*
 object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private val log = KotlinLogging.logger {}
 
-    fun toDto(source: SimulatorOutput, forventetInntekt: Int): AfpEtterfulgtAvAlderspensjonResultV0 {
+    fun toDto(source: SimulatorOutput, inntektVedAfpUttak: Int): AfpEtterfulgtAvAlderspensjonResultV0 {
         val afp: Beregning = source.pre2025OffentligAfp?.beregning ?: return ufullstendigRespons()
         val alderspensjon = source.alderspensjon ?: return ufullstendigRespons()
-
 
         return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
-            folketrygdberegnetAfp = mapToFolketrygdberegnetAfp(source.pre2025OffentligAfp?.virk!!, afp, forventetInntekt),
+            folketrygdberegnetAfp = mapToFolketrygdberegnetAfp(source.pre2025OffentligAfp?.virk!!, afp, inntektVedAfpUttak),
             alderspensjonFraFolketrygden = mapToAlderspensjon(alderspensjon, source.grunnbeloep)
         )
     }
@@ -35,7 +34,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun mapToFolketrygdberegnetAfp(
         virk: Date,
         afp: Beregning,
-        forventetInntekt: Int,
+        inntektVedAfpUttak: Int,
     ): FolketrygdberegnetAfpV0 {
         val tilleggspensjon = afp.tp
         val grunnpensjon = afp.gp!!
@@ -45,7 +44,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         val res = FolketrygdberegnetAfpV0(
             fraOgMedDato = virk.toNorwegianLocalDate(),
             tidligereInntekt = tidligereInntekt,
-            afpGrad = beregnAfpGrad(forventetInntekt, tidligereInntekt),
+            afpGrad = beregnAfpGrad(inntektVedAfpUttak, tidligereInntekt),
             grunnpensjon = GrunnpensjonV0(
                 maanedligUtbetaling = grunnpensjon.netto,
                 grunnbeloep = afp.g,
@@ -74,8 +73,8 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         return res
     }
 
-    private fun beregnAfpGrad(forventetInntekt: Int, tidligereInntekt: Int) =
-        100 - (forventetInntekt.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1 for å unngå deling på 0
+    private fun beregnAfpGrad(inntektVedAfpUttak: Int, tidligereInntekt: Int) =
+        100 - (inntektVedAfpUttak.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1kr for å unngå deling på 0
 
     private fun mapToAlderspensjon(alderspensjon: SimulertAlderspensjon, grunnbeloep: Int): List<AlderspensjonFraFolketrygdenV0> {
 
@@ -87,37 +86,37 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         log.info { "afp etterf ap output: $liste" }
         val res = liste.map {
             AlderspensjonFraFolketrygdenV0(
-                fraOgMedDato = it.fom, //er null :(
+                fraOgMedDato = it.fom,
                 sumMaanedligUtbetaling = it.beloep,
-                andelKapittel19 = it.andelsbroekKap19!!, //TODO alderspensjon er simulert
+                andelKapittel19 = it.andelsbroekKap19!!,
                 alderspensjonKapittel19 = AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(
-                        maanedligUtbetaling = it.grunnpensjon!!,
+                        maanedligUtbetaling = (it.grunnpensjon!!.toDouble() / 12).toInt(),
                         grunnbeloep = grunnbeloep,
                         grunnpensjonsats = null, //pSats_gp TODO mangler
                         trygdetid = it.trygdetidKap19!!
                     ),
                     tilleggspensjon = TilleggspensjonV0(
-                        maanedligUtbetaling = it.tilleggspensjon!!,
+                        maanedligUtbetaling = (it.tilleggspensjon!!.toDouble() / 12).toInt(),
                         grunnbeloep = grunnbeloep,
                         sluttpoengTall = it.sluttpoengtall!!,
                         antallPoengaarTilOgMed1991 = it.poengaarFoer92!!,
                         antallPoengaarFraOgMed1992 = it.poengaarEtter91!!
                     ),
                     pensjonstillegg = PensjonstilleggV0(
-                        maanedligUtbetaling = it.pensjonstillegg!!,
+                        maanedligUtbetaling = (it.pensjonstillegg!!.toDouble() / 12).toInt(),
                         minstepensjonsnivaasats = null, //TODO mangler
                     ),
                     forholdstall = it.forholdstall!!
                 ),
-                andelKapittel20 = it.andelsbroekKap20!!, //TODO alderspensjon er simulert
+                andelKapittel20 = it.andelsbroekKap20!!,
                 alderspensjonKapittel20 = AlderspensjonKapittel20V0(
                     inntektspensjon = InntektspensjonV0(
-                        maanedligUtbetaling = it.inntektspensjon!!,
+                        maanedligUtbetaling = (it.inntektspensjon!!.toDouble() / 12).toInt(),
                         pensjonsbeholdningFoerUttak = it.pensjonBeholdningFoerUttak!!,
                     ),
                     garantipensjon = GarantipensjonV0(
-                        maanedligUtbetaling = it.garantipensjon!!,
+                        maanedligUtbetaling = (it.garantipensjon!!.toDouble() / 12).toInt(),
                         garantipensjonssats = null, //TODO mangler
                         trygdetid = it.trygdetidKap20!!
                     ),
@@ -135,8 +134,8 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         return SimulertAlderspensjonInfo(
             fom = info?.datoFom,
             beloep = source.beloep ?: 0,
-            inntektspensjon = info?.inntektspensjon,
-            garantipensjon = info?.garantipensjon,
+            inntektspensjon = info?.inntektspensjonPerMaaned,
+            garantipensjon = info?.garantipensjonPerMaaned,
             delingstall = info?.delingstall,
             pensjonBeholdningFoerUttak = source.simulertBeregningInformasjonListe.firstOrNull { it.pensjonBeholdningFoerUttak != null }?.pensjonBeholdningFoerUttak,
             andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,
@@ -147,9 +146,9 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             poengaarFoer92 = info?.pa_f92,
             poengaarEtter91 = info?.pa_e91,
             forholdstall = info?.forholdstall,
-            grunnpensjon = info?.grunnpensjon,
-            tilleggspensjon = info?.tilleggspensjon,
-            pensjonstillegg = info?.pensjonstillegg,
+            grunnpensjon = info?.grunnpensjonPerMaaned,
+            tilleggspensjon = info?.tilleggspensjonPerMaaned,
+            pensjonstillegg = info?.pensjonstilleggPerMaaned,
             skjermingstillegg = info?.skjermingstillegg,
         )
     }

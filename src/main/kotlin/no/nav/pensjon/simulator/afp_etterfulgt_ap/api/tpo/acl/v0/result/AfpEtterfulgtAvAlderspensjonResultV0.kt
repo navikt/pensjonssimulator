@@ -47,7 +47,7 @@ data class SaertilleggV0(
 
 data class AlderspensjonFraFolketrygdenV0(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    val fraOgMedDato: LocalDate,
+    val fraOgMedDato: LocalDate?, //nullable for test
     val andelKapittel19: Double,
     val alderspensjonKapittel19: AlderspensjonKapittel19V0,
     val andelKapittel20: Double,

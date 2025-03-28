@@ -21,7 +21,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
             folketrygdberegnetAfp = mapToFolketrygdberegnetAfp(source.pre2025OffentligAfp?.virk!!, afp, forventetInntekt),
-            alderspensjonFraFolketrygden = mapToAlderspensjon(alderspensjon)
+            alderspensjonFraFolketrygden = mapToAlderspensjon(alderspensjon, source.grunnbeloep)
         )
     }
 
@@ -77,10 +77,11 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun beregnAfpGrad(forventetInntekt: Int, tidligereInntekt: Int) =
         100 - (forventetInntekt.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1 for å unngå deling på 0
 
-    private fun mapToAlderspensjon(alderspensjon: SimulertAlderspensjon): List<AlderspensjonFraFolketrygdenV0> {
+    private fun mapToAlderspensjon(alderspensjon: SimulertAlderspensjon, grunnbeloep: Int): List<AlderspensjonFraFolketrygdenV0> {
 
         val liste: List<SimulertAlderspensjonInfo> = alderspensjon
             .pensjonPeriodeListe
+            .filter { it.simulertBeregningInformasjonListe.isNotEmpty() }
             .map { alderspensjon(it, alderspensjon) }
 
         log.info { "afp etterf ap output: $liste" }
@@ -92,13 +93,13 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
                 alderspensjonKapittel19 = AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(
                         maanedligUtbetaling = it.grunnpensjon!!,
-                        grunnbeloep = null, //TODO mangler
+                        grunnbeloep = grunnbeloep,
                         grunnpensjonsats = null, //pSats_gp TODO mangler
                         trygdetid = it.trygdetidKap19!!
                     ),
                     tilleggspensjon = TilleggspensjonV0(
                         maanedligUtbetaling = it.tilleggspensjon!!,
-                        grunnbeloep = null, //TODO mangler
+                        grunnbeloep = grunnbeloep,
                         sluttpoengTall = it.sluttpoengtall!!,
                         antallPoengaarTilOgMed1991 = it.poengaarFoer92!!,
                         antallPoengaarFraOgMed1992 = it.poengaarEtter91!!

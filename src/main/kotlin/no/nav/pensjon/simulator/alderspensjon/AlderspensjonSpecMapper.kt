@@ -46,8 +46,7 @@ object AlderspensjonSpecMapper {
             flyktning = false,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
             rettTilOffentligAfpFom = source.livsvarigOffentligAfpRettFom,
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
+            pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result

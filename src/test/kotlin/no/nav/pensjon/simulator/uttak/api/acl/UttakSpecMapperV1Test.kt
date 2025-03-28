@@ -12,7 +12,7 @@ import java.time.LocalDate
 
 class UttakSpecMapperV1Test : FunSpec({
 
-    test("fromSpecV1 maps DTO to domain object representing simulering specification") {
+    test("fromSpecV1 should map DTO to domain object representing simulering specification") {
         UttakSpecMapperV1.fromSpecV1(
             source = TidligstMuligUttakSpecV1(
                 personId = pid.value,
@@ -59,8 +59,7 @@ class UttakSpecMapperV1Test : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             rettTilOffentligAfpFom = LocalDate.of(2027, 8, 1),
-            afpOrdning = null,
-            afpInntektMaanedFoerUttak = null,
+            pre2025OffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,

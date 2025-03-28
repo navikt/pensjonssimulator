@@ -430,8 +430,9 @@ class KravhodeCreator(
 
         // NB: In PEN uttakGrad (utg) is null, and null is not interpreted as 100 % (used for AFP_ETTERF_ALDER)
         // Ref. PEN SimuleringEtter2011.isUttaksgrad100
-        val inntektUnderGradertUttak =
-            if (spec.isRegardedAsHeltUttak()) 0 else spec.inntektUnderGradertUttakBeloep
+        val inntektUnderAfpEllerGradertUttak =
+            spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep
+                ?: if (spec.isGradert()) spec.inntektUnderGradertUttakBeloep else 0
 
         val inntektEtterHeltUttak = spec.inntektEtterHeltUttakBeloep
         val inntekter: MutableList<Inntekt> = mutableListOf()
@@ -439,8 +440,8 @@ class KravhodeCreator(
         for (aar in gjeldendeAar..aarSoekerBlirMaxAlder) {
             val beregnetForventetInntekt =
                 (forventetInntekt * forventetInntektAntallMaaneder(aar, spec) / MAANEDER_PER_AAR).toLong()
-            val beregnetInntektUnderGradertUttak = (inntektUnderGradertUttak *
-                    antallMaanederMedInntektUnderGradertUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
+            val beregnetInntektUnderAfpEllerGradertUttak = (inntektUnderAfpEllerGradertUttak *
+                    antallMaanederMedInntektUnderAfpEllerGradertUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val beregnetInntektEtterHeltUttak = (inntektEtterHeltUttak *
                     antallMaanederMedInntektEtterHeltUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val forhold = calculateGrunnbeloepForhold(aar, spec, veietGrunnbeloepListe, grunnbeloep)
@@ -448,7 +449,7 @@ class KravhodeCreator(
             inntekter.add(
                 Inntekt(
                     inntektAar = aar,
-                    beloep = Math.round(forhold * (beregnetForventetInntekt + beregnetInntektUnderGradertUttak + beregnetInntektEtterHeltUttak))
+                    beloep = Math.round(forhold * (beregnetForventetInntekt + beregnetInntektUnderAfpEllerGradertUttak + beregnetInntektEtterHeltUttak))
                 )
             )
         }
@@ -456,56 +457,59 @@ class KravhodeCreator(
         return inntekter
     }
 
-    // PEN: antallMndMedInntektEtterHeltUttak
-    private fun antallMaanederMedInntektEtterHeltUttak(aar: Int, spec: SimuleringSpec): Int {
-        val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
-        val antallAarInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
-        val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato!!)
-        val isHeltUttak = spec.isRegardedAsHeltUttak()
-        val heltUttakAar: Int = if (isHeltUttak) foersteUttakAar else spec.heltUttakDato?.year ?: 0
-        val heltUttakMaaned =
-            if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato!!)
+    // PEN: antallMndMedInntektUnderGradertUttak
+    private fun antallMaanederMedInntektUnderAfpEllerGradertUttak(aar: Int, spec: SimuleringSpec): Int {
+        val foersteUttak =
+            KalenderMaaned(
+                aarstall = spec.foersteUttakDato!!.year,
+                maaned = monthOfYearRange1To12(spec.foersteUttakDato)
+            )
 
-        if (aar == heltUttakAar) {
-            val antallMaanederMedInntektUnderGradertUttak = heltUttakMaaned - 1
-            return MAANEDER_PER_AAR - antallMaanederMedInntektUnderGradertUttak
+        val heltUttak = heltUttakTidspunkt(spec) ?: foersteUttak
+
+        if (aar == foersteUttak.aarstall) {
+            return if (foersteUttak.aarstall != heltUttak.aarstall) {
+                val antallMaanederMedForventetInntekt = foersteUttak.maaned - 1
+                MAANEDER_PER_AAR - antallMaanederMedForventetInntekt
+            } else {
+                heltUttak.maaned - foersteUttak.maaned
+            }
         }
 
-        if (heltUttakAar < aar && aar < heltUttakAar + antallAarInntektEtterHeltUttak) {
+        if (aar in (foersteUttak.aarstall + 1) until heltUttak.aarstall) {
             return MAANEDER_PER_AAR
         }
 
-        if (aar - heltUttakAar == antallAarInntektEtterHeltUttak) {
-            return heltUttakMaaned - 1
+        if (aar == heltUttak.aarstall) {
+            return heltUttak.maaned - 1
         }
 
         return 0
     }
 
-    // PEN: antallMndMedInntektUnderGradertUttak
-    private fun antallMaanederMedInntektUnderGradertUttak(aar: Int, spec: SimuleringSpec): Int {
-        val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
-        val foersteUttakMaaned = monthOfYearRange1To12(spec.foersteUttakDato!!)
-        val isHeltUttak = spec.isRegardedAsHeltUttak()
-        val heltUttakAar: Int = if (isHeltUttak) foersteUttakAar else spec.heltUttakDato?.year ?: 0
-        val heltUttakMaaned =
-            if (isHeltUttak) foersteUttakMaaned else monthOfYearRange1To12(spec.heltUttakDato!!)
+    // PEN: antallMndMedInntektEtterHeltUttak
+    private fun antallMaanederMedInntektEtterHeltUttak(aar: Int, spec: SimuleringSpec): Int {
+        val foersteUttak =
+            KalenderMaaned(
+                aarstall = spec.foersteUttakDato!!.year,
+                maaned = monthOfYearRange1To12(spec.foersteUttakDato)
+            )
 
-        if (aar == foersteUttakAar) {
-            return if (foersteUttakAar != heltUttakAar) {
-                val mndMedForventetInntekt = foersteUttakMaaned - 1
-                MAANEDER_PER_AAR - mndMedForventetInntekt
-            } else {
-                heltUttakMaaned - foersteUttakMaaned
-            }
+        val heltUttak = heltUttakTidspunkt(spec) ?: foersteUttak
+
+        if (aar == heltUttak.aarstall) {
+            val antallMaanederMedInntektUnderGradertUttak = heltUttak.maaned - 1
+            return MAANEDER_PER_AAR - antallMaanederMedInntektUnderGradertUttak
         }
 
-        if (aar in (foersteUttakAar + 1) until heltUttakAar) {
+        val antallAarInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
+
+        if (heltUttak.aarstall < aar && aar < heltUttak.aarstall + antallAarInntektEtterHeltUttak) {
             return MAANEDER_PER_AAR
         }
 
-        if (aar == heltUttakAar) {
-            return heltUttakMaaned - 1
+        if (aar - heltUttak.aarstall == antallAarInntektEtterHeltUttak) {
+            return heltUttak.maaned - 1
         }
 
         return 0
@@ -541,7 +545,7 @@ class KravhodeCreator(
         private fun alderspensjonUttakGradListe(spec: SimuleringSpec): MutableList<Uttaksgrad> {
             val uttaksgradListe = mutableListOf(angittUttaksgrad(spec))
 
-            if (erGradertUttak(spec)) {
+            if (spec.uttakErGradertEllerNull()) {
                 uttaksgradListe.add(uttaksgradForHeltUttak(spec.heltUttakDato))
             }
 
@@ -554,7 +558,7 @@ class KravhodeCreator(
                 fomDato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 uttaksgrad = spec.uttakGrad.value.toInt()
 
-                if (erGradertUttak(spec)) {
+                if (spec.uttakErGradertEllerNull()) {
                     validateGradertUttak(spec)
                     tomDato = spec.heltUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
                 }
@@ -641,7 +645,8 @@ class KravhodeCreator(
         ): MutableList<Inntektsgrunnlag> {
             val inntektsgrunnlagListe: MutableList<Inntektsgrunnlag> = mutableListOf()
 
-            // Inntekt frem til første uttak
+            // Inntekt fram til første uttak:
+
             if (isAfterToday(spec.foersteUttakDato) && spec.forventetInntektBeloep > 0) {
                 inntektsgrunnlagListe.add(
                     inntektsgrunnlagForSoekerOrEps(
@@ -652,24 +657,30 @@ class KravhodeCreator(
                 )
             }
 
-            val isHeltUttak = spec.isRegardedAsHeltUttak()
-            val inntektUnderGradertUttak: Int = spec.inntektUnderGradertUttakBeloep
+            // Inntekt mellom første og andre uttak:
 
-            if (!isHeltUttak && inntektUnderGradertUttak > 0) {
+            val inntektUnderAfpEllerGradertUttak: Int =
+                spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
+
+            val gjelder2PeriodeSimulering: Boolean = spec.gjelder2PeriodeSimulering()
+
+            if (gjelder2PeriodeSimulering && inntektUnderAfpEllerGradertUttak > 0) {
                 inntektsgrunnlagListe.add(
                     inntektsgrunnlagForSoekerOrEps(
-                        beloep = inntektUnderGradertUttak,
+                        beloep = inntektUnderAfpEllerGradertUttak,
                         fom = spec.foersteUttakDato,
                         tom = getRelativeDateByDays(spec.heltUttakDato!!, -1)
                     )
                 )
             }
 
-            val antallArInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
+            // Inntekt etter start av helt uttak:
 
-            if (spec.inntektEtterHeltUttakBeloep > 0 && antallArInntektEtterHeltUttak > 0) {
-                val fom = if (isHeltUttak) spec.foersteUttakDato else spec.heltUttakDato
-                val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, antallArInntektEtterHeltUttak), -1)
+            val inntektEtterHeltUttakAntallAar: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
+
+            if (spec.inntektEtterHeltUttakBeloep > 0 && inntektEtterHeltUttakAntallAar > 0) {
+                val fom = if (gjelder2PeriodeSimulering) spec.heltUttakDato else spec.foersteUttakDato
+                val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, inntektEtterHeltUttakAntallAar), -1)
                 inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
             }
 
@@ -796,9 +807,14 @@ class KravhodeCreator(
         private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
             trygdetidPeriodeListe.any { it.landEnum != LandkodeEnum.NOR }
 
-        // PEN: SimulerFleksibelAPCommand.isUttaksgradLessThan100Percent
-        private fun erGradertUttak(spec: SimuleringSpec) =
-            spec.uttakGrad != UttakGradKode.P_100
+        private fun heltUttakTidspunkt(spec: SimuleringSpec): KalenderMaaned? =
+            if (spec.gjelder2PeriodeSimulering())
+                KalenderMaaned(
+                    aarstall = spec.heltUttakDato!!.year,
+                    maaned = monthOfYearRange1To12(spec.heltUttakDato)
+                )
+            else
+                null
 
         private fun sammeAar(a: FremtidigInntekt, b: FremtidigInntekt) =
             a.fom.year == b.fom.year
@@ -815,4 +831,9 @@ class KravhodeCreator(
         private fun legacyFoersteDag(aar: Int) =
             foersteDag(aar).toNorwegianDateAtNoon()
     }
+
+    private data class KalenderMaaned(
+        val aarstall: Int,
+        val maaned: Int // 1 t.o.m. 12
+    )
 }

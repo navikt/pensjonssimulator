@@ -23,7 +23,7 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
         val inntektSisteMaanedOver1G = source.inntektSisteMaanedOver1G
         val epsHarPensjon = source.epsPensjon
         val epsHarInntektOver2G = source.eps2G
-        val inntektEtterHeltUttakBeloep = source.fremtidigAarligInntektUnderUttak
+        val inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderUttak
         val afpInntektMaanedFoerUttak = settMaanedsInntektOver1GFoerUttak(inntektSisteMaanedOver1G, hentGrunnbeloep)
         val utlandAntallAar = source.aarIUtlandetEtter16
 
@@ -37,10 +37,10 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             heltUttakDato = uttakDato,
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
-            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
+            inntektEtterHeltUttakBeloep = 0,
             inntektOver1GAntallAar = 0, // only for anonym
             afpInntektMaanedFoerUttak = afpInntektMaanedFoerUttak,
-            inntektUnderGradertUttakBeloep = 0,
+            inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
             inntektEtterHeltUttakAntallAar = null, //TODO mangler sluttdato
             forventetInntektBeloep = forventetInntektBeloep,
             utlandAntallAar = utlandAntallAar,

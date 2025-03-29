@@ -13,6 +13,18 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimu
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecV2
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.core.exception.BadSpecException
+import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
+import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
+import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
+import no.nav.pensjon.simulator.core.exception.PersonForGammelException
+import no.nav.pensjon.simulator.core.exception.PersonForUngException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
@@ -20,10 +32,14 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.format.DateTimeParseException
 
 @RestController
 @RequestMapping("api/nav")
@@ -60,8 +76,8 @@ class NavViaPenAlderspensjonController(
     )
     fun simulerAlderspensjon(@RequestBody specV2: NavSimuleringSpecV2): NavSimuleringSpecAndResultV2 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV2" }
-        countCall(FUNCTION_ID)
+        log.debug { "$AP_FUNCTION_ID request: $specV2" }
+        countCall(AP_FUNCTION_ID)
 
         return try {
             val spec: SimuleringSpec = fromSimuleringSpecV2(
@@ -78,12 +94,53 @@ class NavViaPenAlderspensjonController(
                 },
                 simuleringsresultat = toSimuleringResultV2(output)
             )
+        } catch (e: BadRequestException) {
+            log.warn(e) { "$AP_FUNCTION_ID bad request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: BadSpecException) {
+            log.warn { "$AP_FUNCTION_ID bad spec - $specV2" } // not log.warn(e)
+            throw e
+        } catch (e: DateTimeParseException) {
+            log.warn { "$AP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV2" }
+            throw e
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            log.warn(e) { "$AP_FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV2" }
+            throw e
+        } catch (e: ImplementationUnrecoverableException) {
+            log.error(e) { "$AP_FUNCTION_ID unrecoverable error - request - $specV2" }
+            throw e
+        } catch (e: InvalidArgumentException) {
+            log.warn(e) { "$AP_FUNCTION_ID invalid argument - request - $specV2" }
+            throw e
+        } catch (e: InvalidEnumValueException) {
+            log.warn(e) { "$AP_FUNCTION_ID invalid enum value - request - $specV2" }
+            throw e
+        } catch (e: KanIkkeBeregnesException) {
+            log.warn(e) { "$AP_FUNCTION_ID kan ikke beregnes - request - $specV2" }
+            throw e
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            log.warn(e) { "$AP_FUNCTION_ID inkonsistent grunnlag - request - $specV2" }
+            throw e
+        } catch (e: PersonForGammelException) {
+            log.warn(e) { "$AP_FUNCTION_ID person for gammel - request - $specV2" }
+            throw e
+        } catch (e: PersonForUngException) {
+            log.warn(e) { "$AP_FUNCTION_ID person for ung - request - $specV2" }
+            throw e
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            log.warn(e) { "$AP_FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV2" }
+            throw e
+        } catch (e: RegelmotorValideringException) {
+            log.warn(e) { "$AP_FUNCTION_ID regelmotorvalideringsfeil - request - $specV2" }
+            throw e
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn(e) { "$AP_FUNCTION_ID utilstrekkelig opptjening - request - $specV2" }
+            throw e
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn(e) { "$AP_FUNCTION_ID utilstrekkelig trygdetid - request - $specV2" }
+            throw e
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
-        } catch (e: InvalidEnumValueException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
@@ -116,8 +173,8 @@ class NavViaPenAlderspensjonController(
     )
     fun simulerAlderspensjonForTjenestepensjon(@RequestBody specV2: NavSimuleringSpecV2): ApForTpResultV2 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $specV2" }
-        countCall(FUNCTION_ID)
+        log.debug { "$TP_FUNCTION_ID request: $specV2" }
+        countCall(TP_FUNCTION_ID)
 
         return try {
             val spec: SimuleringSpec = fromSimuleringSpecV2(
@@ -128,21 +185,102 @@ class NavViaPenAlderspensjonController(
 
             val output: SimulatorOutput = simulator.simuler(spec)
             toApForTpResultV2(output)
+        } catch (e: BadRequestException) {
+            log.warn(e) { "$TP_FUNCTION_ID bad request - $specV2" }
+            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: BadSpecException) {
+            log.warn { "$TP_FUNCTION_ID bad spec - $specV2" } // not log.warn(e)
+            throw e
+        } catch (e: DateTimeParseException) {
+            log.warn { "$TP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV2" }
+            throw e
+        } catch (e: FeilISimuleringsgrunnlagetException) {
+            log.warn(e) { "$TP_FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV2" }
+            throw e
+        } catch (e: ImplementationUnrecoverableException) {
+            log.error(e) { "$TP_FUNCTION_ID unrecoverable error - request - $specV2" }
+            throw e
+        } catch (e: InvalidArgumentException) {
+            log.warn(e) { "$TP_FUNCTION_ID invalid argument - request - $specV2" }
+            throw e
+        } catch (e: InvalidEnumValueException) {
+            log.warn(e) { "$TP_FUNCTION_ID invalid enum value - request - $specV2" }
+            throw e
+        } catch (e: KanIkkeBeregnesException) {
+            log.warn(e) { "$TP_FUNCTION_ID kan ikke beregnes - request - $specV2" }
+            throw e
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
+            log.warn(e) { "$TP_FUNCTION_ID inkonsistent grunnlag - request - $specV2" }
+            throw e
+        } catch (e: PersonForGammelException) {
+            log.warn(e) { "$TP_FUNCTION_ID person for gammel - request - $specV2" }
+            throw e
+        } catch (e: PersonForUngException) {
+            log.warn(e) { "$TP_FUNCTION_ID person for ung - request - $specV2" }
+            throw e
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            log.warn(e) { "$TP_FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV2" }
+            throw e
+        } catch (e: RegelmotorValideringException) {
+            log.warn(e) { "$TP_FUNCTION_ID regelmotorvalideringsfeil - request - $specV2" }
+            throw e
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            log.warn(e) { "$TP_FUNCTION_ID utilstrekkelig opptjening - request - $specV2" }
+            throw e
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            log.warn(e) { "$TP_FUNCTION_ID utilstrekkelig trygdetid - request - $specV2" }
+            throw e
         } catch (e: EgressException) {
             handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
-        } catch (e: InvalidEnumValueException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
     }
 
+    @ExceptionHandler(
+        value = [
+            BadRequestException::class,
+            BadSpecException::class,
+            DateTimeParseException::class,
+            FeilISimuleringsgrunnlagetException::class,
+            InvalidArgumentException::class,
+            InvalidEnumValueException::class,
+            KanIkkeBeregnesException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            PersonForGammelException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            RegelmotorValideringException::class,
+            UtilstrekkeligOpptjeningException::class,
+            UtilstrekkeligTrygdetidException::class
+        ]
+    )
+    private fun handleBadRequest(e: RuntimeException): ResponseEntity<NavSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e))
+
+    @ExceptionHandler(
+        value = [
+            ImplementationUnrecoverableException::class
+        ]
+    )
+    fun handleInternalServerError(e: RuntimeException): ResponseEntity<NavSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto(e))
+
     override fun errorMessage() = ERROR_MESSAGE
+
+    /**
+     * Ref. PEN JsonErrorEntityBuilder.createErrorEntity
+     */
+    data class NavSimuleringErrorDto(val feil: String)
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon V2 for Nav-klient"
-        private const val FUNCTION_ID = "nav-ap-v2"
+        private const val AP_FUNCTION_ID = "nav-ap-v2"
+        private const val TP_FUNCTION_ID = "nav-ap-tp"
+
+        private fun errorDto(e: RuntimeException) =
+            NavSimuleringErrorDto(
+                feil = e.javaClass.simpleName
+            )
     }
 }

@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
+import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
+import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
 import java.time.LocalDate
 import java.util.*
 
@@ -56,7 +59,22 @@ data class NavSimuleringSpecV2(
     val stillingsprosentOffGradertUttak: String? = null,
     val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2> = emptyList(),
     val changeStamp: NavSimuleringChangeStampSpecDummyV2? = null
-)
+){
+    /**
+     * toString with redacted person ID
+     */
+    override fun toString() =
+        "{ \"fnr\": ${textAsString(redact(fnr))}, " +
+                "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
+                "\"epsPensjon\": $epsPensjon, " +
+                "\"eps2G\": $eps2G, " +
+                "\"utenlandsopphold\": $utenlandsopphold, " +
+                "\"simuleringType\": ${textAsString(simuleringType)}, " +
+                "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
+                "\"forsteUttakDato\": ${textAsString(forsteUttakDato)}, " +
+                "\"utg\": ${textAsString(utg)}, " +
+                "\"heltUttakDato\": ${textAsString(heltUttakDato)} }"
+}
 
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PEN
 // (which is the same as no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PSELV)

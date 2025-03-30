@@ -90,7 +90,8 @@ private fun simulerAlderspensjon(
         simulator = mock(SimulatorCore::class.java),
         alternativSimuleringService = mock(AlternativSimuleringService::class.java),
         vedtakService = vedtakService(harGjenlevenderettighet),
-        generelleDataHolder = generelleDataHolder()
+        generelleDataHolder = generelleDataHolder(),
+        time = { LocalDate.of(2025, 1, 1) }
     ).simulerAlderspensjon(
         AlderspensjonSpec(
             pid,

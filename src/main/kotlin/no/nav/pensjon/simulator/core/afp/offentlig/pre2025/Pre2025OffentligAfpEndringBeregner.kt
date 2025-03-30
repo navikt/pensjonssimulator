@@ -9,10 +9,9 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormAlderService
-import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.Date
+import java.util.*
 
 /**
  * Corresponds to SimulerEndringAvAPCommand (AFP offentlig part) in PEN.
@@ -31,9 +30,7 @@ class Pre2025OffentligAfpEndringBeregner(private val normAlderService: NormAlder
             return Pre2025OffentligAfpResult(simuleringResult = null, kravhode)
         }
 
-        val normAlderDato: LocalDate = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate().let {
-            uttakDato(foedselsdato = it, uttakAlder = normAlderService.normAlder(it))
-        }
+        val normAlderDato = normAlderService.normAlderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
 
         //TODO support LocalDate in findEarliestDateByDay:
         val virkningTom: Date = getRelativeDateByDays(

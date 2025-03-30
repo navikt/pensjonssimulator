@@ -70,7 +70,7 @@ class AlternativtUttakServiceTest : FunSpec({
 })
 
 private fun arrangeNormAlderService(service: NormAlderService) {
-    `when`(service.normAlder(foedselDato = LocalDate.of(1967, 1, 1))).thenReturn(Alder(67, 0))
+    `when`(service.normAlder(foedselsdato = LocalDate.of(1967, 1, 1))).thenReturn(Alder(67, 0))
 }
 
 private fun arrangeSimulator(simulator: SimulatorCore) {

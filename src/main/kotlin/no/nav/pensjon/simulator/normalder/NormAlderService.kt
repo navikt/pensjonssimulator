@@ -1,8 +1,10 @@
 package no.nav.pensjon.simulator.normalder
 
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -17,10 +19,15 @@ import java.time.LocalDate
 class NormAlderService(
     private val generelleDataHolder: GenerelleDataHolder
 ) {
-    fun normAlder(foedselDato: LocalDate?) = MINIMUM_NORM_ALDER
+    fun normAlder(foedselsdato: LocalDate?) = MINIMUM_NORM_ALDER
 
     fun normAlder(pid: Pid?): Alder =
         normAlder(pid?.let { generelleDataHolder.getPerson(it) }?.foedselDato)
+
+    fun normAlderDato(foedselsdato: LocalDate): LocalDate =
+        foedselsdato.let {
+            uttakDato(foedselsdato = it, uttakAlder = normAlder(it))
+        }
 
     companion object {
         val MINIMUM_NORM_ALDER = Alder(aar = 67, maaneder = 0)

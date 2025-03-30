@@ -307,7 +307,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = kravhode,
                 persongrunnlag = avdoedGrunnlag!!,
                 knekkpunktDato = knekkpunktDato,
-                soekerForsteVirkningFom = avdoedFoersteVirkning!!, // TODO: check possible mismatch (soker vs avdod)
+                soekerForsteVirkningFom = avdoedFoersteVirkning, // TODO: check possible mismatch (soker vs avdod)
                 ytelseType = KravlinjeTypeEnum.GJR,
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             )
@@ -547,13 +547,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             kravhode: Kravhode,
             persongrunnlag: Persongrunnlag,
             knekkpunktDato: LocalDate,
-            soekerForsteVirkningFom: LocalDate,
+            soekerForsteVirkningFom: LocalDate?, // nullable
             ytelseType: KravlinjeTypeEnum,
             boddEllerArbeidetUtenlands: Boolean
         ) =
             TrygdetidRequest().apply {
                 this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-                this.brukerForsteVirk = soekerForsteVirkningFom.toNorwegianDateAtNoon()
+                this.brukerForsteVirk = soekerForsteVirkningFom?.toNorwegianDateAtNoon()
                 this.hovedKravlinjeType = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands

@@ -177,19 +177,27 @@ object SimulatorOutputMapper {
             this.uttakGrad = beregningResultat.uttaksgrad.toDouble()
         }
 
+    /**
+     * The logic behind useNullAsDefaultPensjonspoeng is found in PEN:
+     * SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
+     * In PEN poengtallListe is nullable; if null then pensjonspoengPi becomes null
+     * Here poengtallListe is not nullable, so need useNullAsDefaultPensjonspoeng to carry this info
+     */
     // SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
     fun mapToSimulertOpptjening(
         kalenderAar: Int,
         resultatListe: List<AbstraktBeregningsResultat>,
         soekerGrunnlag: Persongrunnlag,
-        poengtallListe: List<Poengtall>
+        poengtallListe: List<Poengtall>,
+        useNullAsDefaultPensjonspoeng: Boolean
     ): SimulertOpptjening {
         val opptjeningGrunnlagListe = soekerGrunnlag.opptjeningsgrunnlagListe
 
         return SimulertOpptjening(
             pensjonsgivendeInntekt = pensjonsgivendeInntektForAar(opptjeningGrunnlagListe, kalenderAar)?.pi ?: 0,
             kalenderAar = kalenderAar,
-            pensjonsgivendeInntektPensjonspoeng = findValidForAr(poengtallListe, kalenderAar)?.pp, // nullable
+            pensjonsgivendeInntektPensjonspoeng = findValidForAr(poengtallListe, kalenderAar)?.pp
+                ?: if (useNullAsDefaultPensjonspoeng) null else 0.0,
             omsorgPensjonspoeng = omsorgspoengForAar(opptjeningGrunnlagListe, kalenderAar),
             pensjonBeholdning = pensjonBeholdning(soekerGrunnlag, kalenderAar, resultatListe)?.totalbelop?.toInt(),
             omsorg = containsValidOmsorgsgrunnlagForAr(soekerGrunnlag.omsorgsgrunnlagListe, kalenderAar),

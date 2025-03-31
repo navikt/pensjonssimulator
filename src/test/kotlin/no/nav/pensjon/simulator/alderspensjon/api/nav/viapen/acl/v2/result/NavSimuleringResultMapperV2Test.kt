@@ -14,12 +14,12 @@ import no.nav.pensjon.simulator.core.result.SimulertOpptjening
 
 class NavSimuleringResultMapperV2Test : FunSpec({
 
-    test("toSimuleringResultV2 should use 0.0 as default for pensjonspoengPi") {
+    test("toSimuleringResultV2 should use null (undefined) as default for pensjonspoengPi") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
             SimulatorOutput().apply {
                 opptjeningListe.add(SimulertOpptjening(pensjonsgivendeInntektPensjonspoeng = null))
             }
-        ).opptjeningListe[0].pensjonspoengPi shouldBe 0.0
+        ).opptjeningListe[0].pensjonspoengPi shouldBe null
     }
 
     test("toSimuleringResultV2 should use aar from poengtall as merknad aar") {

@@ -76,7 +76,7 @@ class NavViaPenAlderspensjonController(
     )
     fun simulerAlderspensjon(@RequestBody specV2: NavSimuleringSpecV2): NavSimuleringSpecAndResultV2 {
         traceAid.begin()
-        log.debug { "$AP_FUNCTION_ID request: $specV2" }
+        log.info { "$AP_FUNCTION_ID request: $specV2" }
         countCall(AP_FUNCTION_ID)
 
         return try {
@@ -93,7 +93,9 @@ class NavViaPenAlderspensjonController(
                     heltUttakDato = output.heltUttakDato?.toNorwegianDate()
                 },
                 simuleringsresultat = toSimuleringResultV2(output)
-            )
+            ).also {
+                log.info { "$AP_FUNCTION_ID response: $it" }
+            }
         } catch (e: BadRequestException) {
             log.warn(e) { "$AP_FUNCTION_ID bad request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -173,7 +175,7 @@ class NavViaPenAlderspensjonController(
     )
     fun simulerAlderspensjonForTjenestepensjon(@RequestBody specV2: NavSimuleringSpecV2): ApForTpResultV2 {
         traceAid.begin()
-        log.debug { "$TP_FUNCTION_ID request: $specV2" }
+        log.info { "$TP_FUNCTION_ID request: $specV2" }
         countCall(TP_FUNCTION_ID)
 
         return try {
@@ -184,7 +186,10 @@ class NavViaPenAlderspensjonController(
             )
 
             val output: SimulatorOutput = simulator.simuler(spec)
-            toApForTpResultV2(output)
+
+            toApForTpResultV2(output).also {
+                log.info { "$TP_FUNCTION_ID response: $it" }
+            }
         } catch (e: BadRequestException) {
             log.warn(e) { "$TP_FUNCTION_ID bad request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>

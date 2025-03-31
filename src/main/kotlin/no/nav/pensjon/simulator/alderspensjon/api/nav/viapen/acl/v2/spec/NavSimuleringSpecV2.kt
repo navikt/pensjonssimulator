@@ -65,7 +65,13 @@ data class NavSimuleringSpecV2(
      */
     override fun toString() =
         "{ \"fnr\": ${textAsString(redact(fnr))}, " +
+                "\"fnrAvdod\": ${textAsString(redact(fnrAvdod))}, " +
+                "\"simuleringType\": ${textAsString(simuleringType)}, " +
                 "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
+                "\"forventetInntekt\": $forventetInntekt, " +
+                "\"inntektUnderGradertUttak\": $inntektUnderGradertUttak, " +
+                "\"inntektEtterHeltUttak\": $inntektEtterHeltUttak, " +
+                "\"antallArInntektEtterHeltUttak\": $antallArInntektEtterHeltUttak, " +
                 "\"epsPensjon\": $epsPensjon, " +
                 "\"eps2G\": $eps2G, " +
                 "\"utenlandsopphold\": $utenlandsopphold, " +

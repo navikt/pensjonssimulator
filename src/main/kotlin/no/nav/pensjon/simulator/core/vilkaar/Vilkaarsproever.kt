@@ -64,7 +64,7 @@ class Vilkaarsproever(private val context: SimulatorContext) {
         val vedtakListe: MutableList<VilkarsVedtak> = vilkaarsproevAlderspensjon(spec, soekerGrunnlag)
 
         if (spec.ignoreAvslag) {
-            log.info { "vilkaarsproevAlderspensjon ignoreAvslag = TRUE" }
+            log.debug { "vilkaarsproevAlderspensjon ignoreAvslag = TRUE" }
         } else {
             AvslagHandler.handleAvslag(vedtakListe)
         }

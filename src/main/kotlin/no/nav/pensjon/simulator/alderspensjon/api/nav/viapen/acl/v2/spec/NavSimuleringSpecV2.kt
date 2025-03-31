@@ -87,8 +87,8 @@ data class NavSimuleringSpecV2(
 data class NavSimuleringUtlandPeriodeV2(
     val land: LandkodeEnum,
     val arbeidetIUtland: Boolean = false,
-    val periodeFom: LocalDate,
-    val periodeTom: LocalDate?
+    val periodeFom: Date,
+    val periodeTom: Date?
 )
 
 /**

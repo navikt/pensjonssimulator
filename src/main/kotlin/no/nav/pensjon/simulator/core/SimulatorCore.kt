@@ -56,7 +56,8 @@ class SimulatorCore(
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService,
-    private val normAlderService: NormAlderService
+    private val normAlderService: NormAlderService,
+    private val resultPreparer: SimuleringResultPreparer
 ) : UttakAlderDiscriminator {
 
     private val log = KotlinLogging.logger {}
@@ -227,7 +228,7 @@ class SimulatorCore(
                     pre2025OffentligAfp = pre2025OffentligAfpResult?.simuleringResult
                 }
             else
-                SimuleringResultPreparer.opprettOutput(
+                resultPreparer.opprettOutput(
                     ResultPreparerSpec(
                         simuleringSpec = spec,
                         kravhode = kravhode,

@@ -6,8 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.enum.Beregningsarsak
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
-import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
-import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.util.*
 
 // 2025-03-10
@@ -51,22 +49,5 @@ abstract class AbstraktBeregningsResultat {
 
     protected constructor() : super()
 
-    protected constructor(source: AbstraktBeregningsResultat) : super() {
-        virkFom = source.virkFom?.clone() as? Date
-        virkTom = source.virkTom?.clone() as? Date
-        merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
-        pensjonUnderUtbetaling = source.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)
-        brukersSivilstandEnum = source.brukersSivilstandEnum
-        benyttetSivilstandEnum = source.benyttetSivilstandEnum
-        beregningArsakEnum = source.beregningArsakEnum
-        lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
-        uttaksgrad = source.uttaksgrad
-        gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr
-        kravId = source.kravId
-        beregningsinformasjon = source.beregningsinformasjon?.copy()
-        epsMottarPensjon = source.epsMottarPensjon // deprecated
-        epsPaavirkerBeregning = source.epsPaavirkerBeregning // deprecated
-        harGjenlevenderett = source.harGjenlevenderett // deprecated
-    }
     // end extra
 }

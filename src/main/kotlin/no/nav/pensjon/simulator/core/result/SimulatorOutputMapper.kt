@@ -153,6 +153,9 @@ object SimulatorOutputMapper {
             beregningKapittel20?.let {
                 this.delingstall = it.delingstall
                 this.tt_anv_kap20 = it.tt_anv
+                this.garantipensjonssats = (it.beholdningerForForsteuttak ?: it.beholdninger)
+                    ?.beholdninger?.filterIsInstance<Garantipensjonsbeholdning>()
+                    ?.map(Garantipensjonsbeholdning::sats)?.firstOrNull()
             }
 
             beregningsinfo?.spt?.let {
@@ -172,10 +175,12 @@ object SimulatorOutputMapper {
             this.garantitillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GAT)
             this.grunnpensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.GP)
             this.grunnpensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GP)
+            this.grunnpensjonsats = pensjon?.grunnpensjon?.pSats_gp
             this.tilleggspensjon = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.TP)
             this.tilleggspensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.TP)
             this.pensjonstillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.PT)
             this.pensjonstilleggPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.PT)
+            this.minstepensjonsnivaaSats = pensjon?.pensjonstillegg?.minstepensjonsnivaSats
             this.individueltMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
             this.pensjonistParMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_PPAR)
             this.forholdstall = beregningsinfo?.forholdstallUttak

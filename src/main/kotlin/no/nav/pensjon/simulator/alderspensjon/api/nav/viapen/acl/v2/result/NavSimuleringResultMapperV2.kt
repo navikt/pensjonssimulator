@@ -115,7 +115,10 @@ object NavSimuleringResultMapperV2 {
             pensjonsgivendeInntekt = source.pensjonsgivendeInntekt,
             pensjonsbeholdning = source.pensjonBeholdning,
             pensjonspoengOmsorg = source.omsorgPensjonspoeng,
-            pensjonspoengPi = source.pensjonsgivendeInntektPensjonspoeng, // default null in legacy (PEN)
+
+            // Default 0.0, ref. PEN SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
+            pensjonspoengPi = source.pensjonsgivendeInntektPensjonspoeng ?: 0.0,
+
             dagpenger = source.dagpenger,
             dagpengerFiskere = source.dagpengerFiskere,
             forstegangstjeneste = source.foerstegangstjeneste,

@@ -11,8 +11,10 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtMidnight
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
+import java.util.*
 
 class NavSimuleringSpecMapperV2Test : FunSpec({
 
@@ -51,14 +53,14 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     NavSimuleringUtlandPeriodeV2(
                         land = LandkodeEnum.ALB,
                         arbeidetIUtland = false,
-                        periodeFom = LocalDate.of(2010, 1, 1),
-                        periodeTom = LocalDate.of(2010, 12, 31)
+                        periodeFom = dateAtMidnight(2010, Calendar.JANUARY, 1),
+                        periodeTom = dateAtMidnight(2010, Calendar.DECEMBER, 31)
                     ),
                     NavSimuleringUtlandPeriodeV2(
                         land = LandkodeEnum.BDI,
                         arbeidetIUtland = true,
-                        periodeFom = LocalDate.of(2011, 1, 1),
-                        periodeTom = LocalDate.of(2020, 5, 31)
+                        periodeFom = dateAtMidnight(2011, Calendar.JANUARY, 1),
+                        periodeTom = dateAtMidnight(2020, Calendar.MAY, 31)
                     )
                 )
             ),

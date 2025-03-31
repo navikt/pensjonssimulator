@@ -123,7 +123,6 @@ object SimuleringResultPreparer {
     ) {
         if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
 
-        var poengtallListe: List<Poengtall> = emptyList()
         var sisteBeregningsresultat2011: BeregningsResultatAlderspensjon2011? = null
 
         if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ) {
@@ -135,13 +134,8 @@ object SimuleringResultPreparer {
             sisteBeregningsresultat2011 = sisteBeregningsresultat2016.beregningsResultat2011
         }
 
-        if (sisteBeregningsresultat2011 != null) {
-            val sluttpoengtall = sisteBeregningsresultat2011.beregningsInformasjonKapittel19?.spt
-
-            if (sluttpoengtall != null) {
-                poengtallListe = sluttpoengtall.poengrekke?.poengtallListe.orEmpty()
-            }
-        }
+        val poengtallListe: List<Poengtall>? =
+            sisteBeregningsresultat2011?.beregningsInformasjonKapittel19?.spt?.poengrekke?.poengtallListe
 
         // Run from the year of the earliest opptjeningsgrunnlag to the year the user turns MAX_OPPTJENING_ALDER years of age
         val foersteAar: Int = findEarliest(soekerGrunnlag.opptjeningsgrunnlagListe)?.ar ?: return
@@ -149,7 +143,13 @@ object SimuleringResultPreparer {
 
         for (aar in foersteAar..sisteAar) {
             simulatorOutput.opptjeningListe.add(
-                SimulatorOutputMapper.mapToSimulertOpptjening(aar, beregningResultatListe, soekerGrunnlag, poengtallListe)
+                SimulatorOutputMapper.mapToSimulertOpptjening(
+                    kalenderAar = aar,
+                    resultatListe = beregningResultatListe,
+                    soekerGrunnlag,
+                    poengtallListe = poengtallListe.orEmpty(),
+                    useNullAsDefaultPensjonspoeng = poengtallListe == null
+                )
             )
         }
     }
@@ -306,7 +306,8 @@ object SimuleringResultPreparer {
     ): BeloepPeriode {
         val periodeStart: Date =
             getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
-        val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
+        val periodeSlutt: Date =
+            getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
         var beloep = 0
 
         for (resultat in resultatListe) {
@@ -578,13 +579,14 @@ object SimuleringResultPreparer {
         val simulertBeregningInformasjonMap: SortedMap<LocalDate, SimulertBeregningInformasjon> = TreeMap()
 
         if (isBeforeByDay(firstKnekkpunkt, ubetingetPensjoneringDato, true)) {
-            simulertBeregningInformasjonMap[ubetingetPensjoneringDato] = createSimulertBeregningsinformasjonForKnekkpunkt(
-                kravhode,
-                resultatListe,
-                simulertAlderspensjon,
-                foedselDato,
-                ubetingetPensjoneringDato
-            )
+            simulertBeregningInformasjonMap[ubetingetPensjoneringDato] =
+                createSimulertBeregningsinformasjonForKnekkpunkt(
+                    kravhode,
+                    resultatListe,
+                    simulertAlderspensjon,
+                    foedselDato,
+                    ubetingetPensjoneringDato
+                )
         }
 
         simulertBeregningInformasjonMap[foersteHeleUttak] = createSimulertBeregningsinformasjonForKnekkpunkt(
@@ -814,7 +816,10 @@ object SimuleringResultPreparer {
     }
 
     // TypedInformationListeUtils.subsetOfTypes
-    private fun subsetOfTypes(list: List<Ytelseskomponent>, vararg types: YtelseskomponentTypeEnum): List<Ytelseskomponent> =
+    private fun subsetOfTypes(
+        list: List<Ytelseskomponent>,
+        vararg types: YtelseskomponentTypeEnum
+    ): List<Ytelseskomponent> =
         list.filter {
             listOf(*types).any { t -> t == it.ytelsekomponentTypeEnum }
         }

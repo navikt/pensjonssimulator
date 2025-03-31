@@ -87,7 +87,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         val res = liste.map {
             AlderspensjonFraFolketrygdenV0(
                 fraOgMedDato = it.fom,
-                sumMaanedligUtbetaling = it.beloep,
+                sumMaanedligUtbetaling = (it.beloep.toDouble() / 12).toInt(),
                 andelKapittel19 = it.andelsbroekKap19!!,
                 alderspensjonKapittel19 = AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(

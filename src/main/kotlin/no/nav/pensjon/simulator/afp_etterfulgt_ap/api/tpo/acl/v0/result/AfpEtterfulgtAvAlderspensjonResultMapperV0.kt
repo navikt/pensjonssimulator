@@ -91,33 +91,33 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
                 andelKapittel19 = it.andelsbroekKap19!!,
                 alderspensjonKapittel19 = AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(
-                        maanedligUtbetaling = (it.grunnpensjon!!.toDouble() / 12).toInt(),
+                        maanedligUtbetaling = it.grunnpensjon!!,
                         grunnbeloep = grunnbeloep,
-                        grunnpensjonsats = null, //pSats_gp TODO mangler
+                        grunnpensjonsats = it.grunnpensjonsats,
                         trygdetid = it.trygdetidKap19!!
                     ),
                     tilleggspensjon = TilleggspensjonV0(
-                        maanedligUtbetaling = (it.tilleggspensjon!!.toDouble() / 12).toInt(),
+                        maanedligUtbetaling = it.tilleggspensjon!!,
                         grunnbeloep = grunnbeloep,
                         sluttpoengTall = it.sluttpoengtall!!,
                         antallPoengaarTilOgMed1991 = it.poengaarFoer92!!,
                         antallPoengaarFraOgMed1992 = it.poengaarEtter91!!
                     ),
                     pensjonstillegg = PensjonstilleggV0(
-                        maanedligUtbetaling = (it.pensjonstillegg!!.toDouble() / 12).toInt(),
-                        minstepensjonsnivaasats = null, //TODO mangler
+                        maanedligUtbetaling = it.pensjonstillegg!!,
+                        minstepensjonsnivaaSats = it.minstepensjonsnivaaSats,
                     ),
                     forholdstall = it.forholdstall!!
                 ),
                 andelKapittel20 = it.andelsbroekKap20!!,
                 alderspensjonKapittel20 = AlderspensjonKapittel20V0(
                     inntektspensjon = InntektspensjonV0(
-                        maanedligUtbetaling = (it.inntektspensjon!!.toDouble() / 12).toInt(),
+                        maanedligUtbetaling = it.inntektspensjon!!,
                         pensjonsbeholdningFoerUttak = it.pensjonBeholdningFoerUttak!!,
                     ),
                     garantipensjon = GarantipensjonV0(
-                        maanedligUtbetaling = (it.garantipensjon!!.toDouble() / 12).toInt(),
-                        garantipensjonssats = null, //TODO mangler
+                        maanedligUtbetaling = it.garantipensjon!!,
+                        garantipensjonssats = it.garantipensjonssats,
                         trygdetid = it.trygdetidKap20!!
                     ),
                     delingstall = it.delingstall!!
@@ -147,8 +147,11 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             poengaarEtter91 = info?.pa_e91,
             forholdstall = info?.forholdstall,
             grunnpensjon = info?.grunnpensjonPerMaaned,
+            grunnpensjonsats =  info?.grunnpensjonsats,
             tilleggspensjon = info?.tilleggspensjonPerMaaned,
             pensjonstillegg = info?.pensjonstilleggPerMaaned,
+            garantipensjonssats = info?.garantipensjonssats,
+            minstepensjonsnivaaSats = info?.minstepensjonsnivaaSats,
             skjermingstillegg = info?.skjermingstillegg,
         )
     }
@@ -173,5 +176,8 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         val tilleggspensjon: Int?,
         val pensjonstillegg: Int?,
         val skjermingstillegg: Int?,
+        val grunnpensjonsats: Double?,
+        val minstepensjonsnivaaSats: Double?,
+        val garantipensjonssats: Double?,
     )
 }

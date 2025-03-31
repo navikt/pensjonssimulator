@@ -70,6 +70,8 @@ class SimulertBeregningInformasjon {
      */
     var garantipensjonPerMaaned: Int? = null
 
+    var garantipensjonssats: Double? = null
+
     /**
      * Beregnet garantitillegg.
      */
@@ -131,6 +133,8 @@ class SimulertBeregningInformasjon {
      */
     var grunnpensjonPerMaaned: Int? = null
 
+    var grunnpensjonsats: Double? = null
+
     /**
      * Beregnet tilleggspensjon.
      */
@@ -150,6 +154,8 @@ class SimulertBeregningInformasjon {
      * Beregnet pensjonstillegg per måned.
      */
     var pensjonstilleggPerMaaned: Int? = null
+
+    var minstepensjonsnivaaSats: Double? = null
 
     /**
      * Minstenivatillegg individuelt.

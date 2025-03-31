@@ -64,7 +64,7 @@ data class AlderspensjonKapittel19V0(
 
 data class PensjonstilleggV0(
     val maanedligUtbetaling: Int,
-    val minstepensjonsnivaasats: Int?, //Foreløpig tomt
+    val minstepensjonsnivaaSats: Double?,
 )
 
 data class AlderspensjonKapittel20V0(
@@ -75,7 +75,7 @@ data class AlderspensjonKapittel20V0(
 
 data class GarantipensjonV0(
     val maanedligUtbetaling: Int,
-    val garantipensjonssats: Int?, //Foreløpig tomt
+    val garantipensjonssats: Double?, //Foreløpig tomt
     val trygdetid: Int,
 )
 

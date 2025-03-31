@@ -195,6 +195,12 @@ fun BeregningsInformasjon.copy() =
         it.unclearedDelingstall67 = this.unclearedDelingstall67
     }
 
+fun BeregningsResultatAfpPrivat.copy() =
+    BeregningsResultatAfpPrivat().also {
+        afpPrivatBeregning = afpPrivatBeregning?.copy()
+        copyBeregningsResultat(source = this, target = it)
+    }
+
 // PEN: BeregningsresultatAfpPrivat.hentLivsvarigDelIBruk
 fun BeregningsResultatAfpPrivat.privatAfp(): AfpPrivatLivsvarig? =
     this.pensjonUnderUtbetaling?.ytelseskomponenter.orEmpty().let {
@@ -207,6 +213,27 @@ fun BeregningsResultatAlderspensjon2011.copy() =
         it.beregningsInformasjonKapittel19 = this.beregningsInformasjonKapittel19?.copy()
         it.beregningsInformasjonAvdod = this.beregningsInformasjonAvdod?.copy()
         it.beregningKapittel19 = this.beregningKapittel19?.copy()
+        copyBeregningsResultat(source = this, target = it)
+    }
+
+fun BeregningsResultatAlderspensjon2016.copy() =
+    BeregningsResultatAlderspensjon2016().also {
+        it.andelKapittel19 = this.andelKapittel19
+        it.beregningsResultat2011 = this.beregningsResultat2011?.copy()
+        it.beregningsResultat2025 = this.beregningsResultat2025?.copy()
+        copyBeregningsResultat(source = this, target = it)
+    }
+
+fun BeregningsResultatAlderspensjon2025.copy() =
+    BeregningsResultatAlderspensjon2025().also {
+        it.beregningKapittel20 = this.beregningKapittel20?.copy()
+        it.beregningsInformasjonKapittel20 = this.beregningsInformasjonKapittel20?.copy()
+        copyBeregningsResultat(source = this, target = it)
+    }
+
+fun BeregningsresultatUforetrygd.copy() =
+    BeregningsresultatUforetrygd().also {
+        it.uforetrygdberegning = this.uforetrygdberegning?.copy()
         copyBeregningsResultat(source = this, target = it)
     }
 

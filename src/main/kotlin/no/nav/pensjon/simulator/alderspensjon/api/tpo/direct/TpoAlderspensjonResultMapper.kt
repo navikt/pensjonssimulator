@@ -24,7 +24,8 @@ object TpoAlderspensjonResultMapper {
     fun mapPensjonEllerAlternativ(
         source: SimulertPensjonEllerAlternativ?,
         angittFoersteUttakFom: LocalDate,
-        angittAndreUttakFom: LocalDate? // null if not gradert uttak
+        angittAndreUttakFom: LocalDate?, // null if not gradert uttak
+        onlyIncludeEntriesForUttakDatoer: Boolean // PEN: hentFullAPListe.not()
     ): AlderspensjonResult {
         val pensjon: SimulertPensjon? = source?.pensjon
         val harUttak = pensjon?.harUttak == true
@@ -33,11 +34,14 @@ object TpoAlderspensjonResultMapper {
         if (source?.alternativ == null) {
             // Angitt uttak ble innvilget i vilkårsprøvingen
             val alderspensjonListe =
-                pickEntriesForFomDatoer(
-                    pensjonListe = alderspensjonFraFolketrygdenListe,
-                    foersteUttakFom = angittFoersteUttakFom,
-                    andreUttakFom = angittAndreUttakFom
-                )
+                if (onlyIncludeEntriesForUttakDatoer)
+                    pickEntriesForFomDatoer(
+                        pensjonListe = alderspensjonFraFolketrygdenListe,
+                        foersteUttakFom = angittFoersteUttakFom,
+                        andreUttakFom = angittAndreUttakFom
+                    )
+                else
+                    alderspensjonFraFolketrygdenListe
 
             return AlderspensjonResult(
                 simuleringSuksess = alderspensjonListe.isNotEmpty(),

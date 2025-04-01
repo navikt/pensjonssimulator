@@ -87,7 +87,8 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         val res = liste.map {
             AlderspensjonFraFolketrygdenV0(
                 fraOgMedDato = it.fom,
-                sumMaanedligUtbetaling = (it.beloep.toDouble() / 12).toInt(),
+                sumMaanedligUtbetaling = it.maanedsbeloepVedPeriodeStart,
+                sumBeloepIHelePerioden = it.beloep,
                 andelKapittel19 = it.andelsbroekKap19!!,
                 alderspensjonKapittel19 = AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(
@@ -134,6 +135,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         return SimulertAlderspensjonInfo(
             fom = info?.datoFom,
             beloep = source.beloep ?: 0,
+            maanedsbeloepVedPeriodeStart = source.maanedsbeloepVedPeriodeStart ?: 0,
             inntektspensjon = info?.inntektspensjonPerMaaned,
             garantipensjon = info?.garantipensjonPerMaaned,
             delingstall = info?.delingstall,
@@ -160,6 +162,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     data class SimulertAlderspensjonInfo(
         val fom: LocalDate?,
         val beloep: Int,
+        val maanedsbeloepVedPeriodeStart: Int,
         val inntektspensjon: Int?,
         val garantipensjon: Int?,
         val delingstall: Double?,

@@ -8,6 +8,8 @@ class PensjonPeriode {
      */
     var beloep: Int? = null
 
+    var maanedsbeloepVedPeriodeStart: Int? = null
+
     /**
      * Brukers alder i perioden
      */

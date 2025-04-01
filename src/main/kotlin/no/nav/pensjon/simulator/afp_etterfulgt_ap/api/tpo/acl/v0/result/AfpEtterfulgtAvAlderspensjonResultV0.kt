@@ -53,6 +53,7 @@ data class AlderspensjonFraFolketrygdenV0(
     val andelKapittel20: Double,
     val alderspensjonKapittel20: AlderspensjonKapittel20V0,
     val sumMaanedligUtbetaling: Int,
+    val sumBeloepIHelePerioden: Int,
 )
 
 data class AlderspensjonKapittel19V0(

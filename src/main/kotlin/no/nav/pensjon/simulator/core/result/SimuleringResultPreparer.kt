@@ -367,27 +367,24 @@ class SimuleringResultPreparer(private val time: Time) {
                 }
             }
 
-        private fun <T : AbstraktBeregningsResultat> beloepPeriode(
-            foedselsdato: LocalDate,
-            alderAar: Int,
-            resultatListe: MutableList<T>
-        ): BeloepPeriode {
-            val periodeStart: Date =
-                getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
-            val periodeSlutt: Date =
-                getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
-            var beloep = 0
-            var maanedsbeloepVedPeriodeStart = 0
+    private fun <T : AbstraktBeregningsResultat> beloepPeriode(
+        foedselsdato: LocalDate,
+        alderAar: Int,
+        resultatListe: MutableList<T>
+    ): BeloepPeriode {
+        val periodeStart: Date =
+            getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
+        val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
+        var beloep = 0
+        val maanedsbeloepVedPeriodeStart = resultatListe[0].pensjonUnderUtbetaling?.totalbelopNetto ?: 0
+        for (resultat in resultatListe) {
+            val fom: Date = resultat.virkFom!!.toNorwegianNoon()
+            val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
 
-            for (resultat in resultatListe) {
-                val fom: Date = resultat.virkFom!!.toNorwegianNoon()
-                val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
-
-                if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
-                    beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
-                }
-                maanedsbeloepVedPeriodeStart = resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0
+            if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
+                beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
             }
+        }
 
             return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsbeloepVedPeriodeStart)
         }

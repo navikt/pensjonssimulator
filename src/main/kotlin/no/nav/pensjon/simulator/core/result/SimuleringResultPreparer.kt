@@ -313,7 +313,7 @@ object SimuleringResultPreparer {
             getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
         val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
         var beloep = 0
-        var maanedsbeloepVedPeriodeStart = 0
+        val maanedsbeloepVedPeriodeStart = resultatListe[0].pensjonUnderUtbetaling?.totalbelopNetto ?: 0
         for (resultat in resultatListe) {
             val fom: Date = resultat.virkFom!!.toNorwegianNoon()
             val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
@@ -321,7 +321,6 @@ object SimuleringResultPreparer {
             if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
                 beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
             }
-            maanedsbeloepVedPeriodeStart = resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0
         }
 
         return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsbeloepVedPeriodeStart)

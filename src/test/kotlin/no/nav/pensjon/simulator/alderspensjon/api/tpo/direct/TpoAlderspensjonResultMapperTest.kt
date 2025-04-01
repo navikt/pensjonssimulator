@@ -10,11 +10,12 @@ import java.time.LocalDate
 
 class TpoAlderspensjonResultMapperTest : FunSpec({
 
-    test("mapPensjonEllerAlternativ for null resulterer i tomt resultat") {
+    test("mapPensjonEllerAlternativ for null should resultere i tomt resultat") {
         TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = null,
             angittFoersteUttakFom = LocalDate.of(2030, 1, 1),
-            angittAndreUttakFom = null
+            angittAndreUttakFom = null,
+            onlyIncludeEntriesForUttakDatoer = false
         ) shouldBe AlderspensjonResult(
             simuleringSuksess = false,
             aarsakListeIkkeSuksess = emptyList(),
@@ -87,7 +88,8 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                 alternativ = null
             ),
             angittFoersteUttakFom = LocalDate.of(2030, 1, 2),
-            angittAndreUttakFom = null
+            angittAndreUttakFom = null,
+            onlyIncludeEntriesForUttakDatoer = false
         ) shouldBe AlderspensjonResult(
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
@@ -103,44 +105,26 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
         )
     }
 
-    test("mapPensjonEllerAlternativ plukker ut pensjon for første uttaksdato") {
+    test("mapPensjonEllerAlternativ should return alle perioder when onlyIncludeEntriesForUttakDatoer = false") {
         TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
-            source = SimulertPensjonEllerAlternativ(
-                SimulertPensjon(
-                    alderspensjon = emptyList(),
-                    alderspensjonFraFolketrygden = listOf(
-                        SimulertAlderspensjonFraFolketrygden(
-                            datoFom = LocalDate.of(2031, 1, 1), // matches angittFoersteUttakFom
-                            delytelseListe = emptyList(),
-                            uttakGrad = 100,
-                            maanedligBeloep = 500
-                        ),
-                        SimulertAlderspensjonFraFolketrygden(
-                            datoFom = LocalDate.of(2032, 1, 1), // no match
-                            delytelseListe = emptyList(),
-                            uttakGrad = 100,
-                            maanedligBeloep = 600
-                        )
-                    ),
-                    privatAfp = emptyList(),
-                    pre2025OffentligAfp = null,
-                    livsvarigOffentligAfp = emptyList(),
-                    pensjonBeholdningPeriodeListe = emptyList(),
-                    harUttak = true,
-                    harNokTrygdetidForGarantipensjon = true,
-                    trygdetid = 40,
-                    opptjeningGrunnlagListe = emptyList()
-                ),
-                alternativ = null
+            source = simulertPensjon(
+                datoFomAar1 = LocalDate.of(2031, 1, 1), // matches angittFoersteUttakFom
+                datoFomAar2 = LocalDate.of(2032, 1, 1) // no match with angittFoersteUttakFom/angittAndreUttakFom
             ),
             angittFoersteUttakFom = LocalDate.of(2031, 1, 1),
-            angittAndreUttakFom = null
+            angittAndreUttakFom = null,
+            onlyIncludeEntriesForUttakDatoer = false
         ) shouldBe AlderspensjonResult(
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
             alderspensjon = listOf(
                 AlderspensjonFraFolketrygden(
                     fom = LocalDate.of(2031, 1, 1),
+                    delytelseListe = emptyList(),
+                    uttaksgrad = Uttaksgrad.HUNDRE_PROSENT
+                ),
+                AlderspensjonFraFolketrygden( // included since onlyIncludeEntriesForUttakDatoer = false
+                    fom = LocalDate.of(2032, 1, 1),
                     delytelseListe = emptyList(),
                     uttaksgrad = Uttaksgrad.HUNDRE_PROSENT
                 )
@@ -150,44 +134,57 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
         )
     }
 
-    test("mapPensjonEllerAlternativ plukker ut pensjon for begge uttaksdatoer når gradert") {
+    test("mapPensjonEllerAlternativ should plukke ut pensjon for første uttaksdato when onlyIncludeEntriesForUttakDatoer = true") {
         TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
-            source = SimulertPensjonEllerAlternativ(
-                SimulertPensjon(
-                    alderspensjon = emptyList(),
-                    alderspensjonFraFolketrygden = listOf(
-                        SimulertAlderspensjonFraFolketrygden(
-                            datoFom = LocalDate.of(2035, 6, 1), // matches angittAndreUttakFom
-                            delytelseListe = emptyList(),
-                            uttakGrad = 100,
-                            maanedligBeloep = 500
-                        ),
-                        SimulertAlderspensjonFraFolketrygden(
-                            datoFom = LocalDate.of(2032, 1, 1), // no match
-                            delytelseListe = emptyList(),
-                            uttakGrad = 60,
-                            maanedligBeloep = 600
-                        ),
-                        SimulertAlderspensjonFraFolketrygden(
-                            datoFom = LocalDate.of(2031, 1, 1), // matches angittFoersteUttakFom
-                            delytelseListe = emptyList(),
-                            uttakGrad = 80,
-                            maanedligBeloep = 700
-                        )
+            source = simulertPensjon(
+                datoFomAar1 = LocalDate.of(2032, 1, 1), // matches angittFoersteUttakFom
+                datoFomAar2 = LocalDate.of(2033, 1, 1) // no match with angittFoersteUttakFom/angittAndreUttakFom
+            ),
+            angittFoersteUttakFom = LocalDate.of(2032, 1, 1),
+            angittAndreUttakFom = null,
+            onlyIncludeEntriesForUttakDatoer = true
+        ) shouldBe AlderspensjonResult(
+            simuleringSuksess = true,
+            aarsakListeIkkeSuksess = emptyList(),
+            alderspensjon = listOf(
+                AlderspensjonFraFolketrygden( // included since it matches angittFoersteUttakFom
+                    fom = LocalDate.of(2032, 1, 1),
+                    delytelseListe = emptyList(),
+                    uttaksgrad = Uttaksgrad.HUNDRE_PROSENT
+                )
+            ),
+            forslagVedForLavOpptjening = null,
+            harUttak = true
+        )
+    }
+
+    test("mapPensjonEllerAlternativ should plukke ut pensjon for begge uttaksdatoer når gradert when onlyIncludeEntriesForUttakDatoer = true") {
+        TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+            source = simulertPensjon(
+                alderspensjonFraFolketrygden = listOf(
+                    SimulertAlderspensjonFraFolketrygden(
+                        datoFom = LocalDate.of(2035, 6, 1), // matches angittAndreUttakFom
+                        delytelseListe = emptyList(),
+                        uttakGrad = 100,
+                        maanedligBeloep = 500
                     ),
-                    privatAfp = emptyList(),
-                    pre2025OffentligAfp = null,
-                    livsvarigOffentligAfp = emptyList(),
-                    pensjonBeholdningPeriodeListe = emptyList(),
-                    harUttak = true,
-                    harNokTrygdetidForGarantipensjon = true,
-                    trygdetid = 40,
-                    opptjeningGrunnlagListe = emptyList()
-                ),
-                alternativ = null
+                    SimulertAlderspensjonFraFolketrygden(
+                        datoFom = LocalDate.of(2032, 1, 1), // no match
+                        delytelseListe = emptyList(),
+                        uttakGrad = 60,
+                        maanedligBeloep = 600
+                    ),
+                    SimulertAlderspensjonFraFolketrygden(
+                        datoFom = LocalDate.of(2031, 1, 1), // matches angittFoersteUttakFom
+                        delytelseListe = emptyList(),
+                        uttakGrad = 80,
+                        maanedligBeloep = 700
+                    )
+                )
             ),
             angittFoersteUttakFom = LocalDate.of(2031, 1, 1),
-            angittAndreUttakFom = LocalDate.of(2035, 6, 1)
+            angittAndreUttakFom = LocalDate.of(2035, 6, 1),
+            onlyIncludeEntriesForUttakDatoer = true
         ) shouldBe AlderspensjonResult(
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
@@ -207,3 +204,38 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
         )
     }
 })
+
+private fun simulertPensjon(datoFomAar1: LocalDate, datoFomAar2: LocalDate) =
+    simulertPensjon(
+        alderspensjonFraFolketrygden = listOf(
+            SimulertAlderspensjonFraFolketrygden(
+                datoFom = datoFomAar1,
+                delytelseListe = emptyList(),
+                uttakGrad = 100,
+                maanedligBeloep = 500
+            ),
+            SimulertAlderspensjonFraFolketrygden(
+                datoFom = datoFomAar2,
+                delytelseListe = emptyList(),
+                uttakGrad = 100,
+                maanedligBeloep = 600
+            )
+        )
+    )
+
+private fun simulertPensjon(alderspensjonFraFolketrygden: List<SimulertAlderspensjonFraFolketrygden>) =
+    SimulertPensjonEllerAlternativ(
+        SimulertPensjon(
+            alderspensjon = emptyList(),
+            alderspensjonFraFolketrygden,
+            privatAfp = emptyList(),
+            pre2025OffentligAfp = null,
+            livsvarigOffentligAfp = emptyList(),
+            pensjonBeholdningPeriodeListe = emptyList(),
+            harUttak = true,
+            harNokTrygdetidForGarantipensjon = true,
+            trygdetid = 40,
+            opptjeningGrunnlagListe = emptyList()
+        ),
+        alternativ = null
+    )

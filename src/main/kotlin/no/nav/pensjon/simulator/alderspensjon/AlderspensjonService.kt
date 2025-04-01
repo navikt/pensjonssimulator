@@ -48,7 +48,8 @@ class AlderspensjonService(
         return TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simuleringResultat,
             angittFoersteUttakFom = foersteUttakFom(simuleringSpec),
-            angittAndreUttakFom = andreUttakFom(simuleringSpec)
+            angittAndreUttakFom = andreUttakFom(simuleringSpec),
+            onlyIncludeEntriesForUttakDatoer = false
         )
     }
 

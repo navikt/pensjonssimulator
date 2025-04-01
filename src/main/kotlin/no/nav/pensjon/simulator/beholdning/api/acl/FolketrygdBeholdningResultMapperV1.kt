@@ -15,6 +15,7 @@ object FolketrygdBeholdningResultMapperV1 {
         PensjonsbeholdningPeriodeV1(
             pensjonsBeholdning = source.pensjonBeholdning,
             garantiPensjonsBeholdning = source.garantipensjonBeholdning,
+            garantitilleggsbeholdning = source.garantitilleggBeholdning,
             garantiPensjonsNiva = garantipensjonNivaa(source.garantipensjonNivaa),
             fraOgMedDato = source.fom
         )

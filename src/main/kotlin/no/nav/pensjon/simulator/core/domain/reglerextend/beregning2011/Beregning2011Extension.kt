@@ -197,7 +197,7 @@ fun BeregningsInformasjon.copy() =
 
 fun BeregningsResultatAfpPrivat.copy() =
     BeregningsResultatAfpPrivat().also {
-        afpPrivatBeregning = afpPrivatBeregning?.copy()
+        it.afpPrivatBeregning = this.afpPrivatBeregning?.copy()
         copyBeregningsResultat(source = this, target = it)
     }
 

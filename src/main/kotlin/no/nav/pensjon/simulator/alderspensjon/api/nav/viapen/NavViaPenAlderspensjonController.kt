@@ -90,6 +90,7 @@ class NavViaPenAlderspensjonController(
 
             NavSimuleringSpecAndResultV2(
                 simulering = specV2.apply {
+                    epsPensjon = output.epsHarPensjon
                     heltUttakDato = output.heltUttakDato?.toNorwegianDate()
                 },
                 simuleringsresultat = toSimuleringResultV2(output)

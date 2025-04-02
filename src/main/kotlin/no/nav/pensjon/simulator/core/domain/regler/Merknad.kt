@@ -14,5 +14,6 @@ class Merknad {
     var argumentListe: List<String> = mutableListOf()
 
     //--- Extra:
-    fun asString(): String = "$kode:${argumentListe.joinToString(separator = ",")}"
+    // For choice of separator character, ref. no.nav.pensjon.pen.domain.api.Merknad in PEN
+    fun asString(): String = "$kode:${argumentListe.joinToString(separator = "¤")}"
 }

@@ -112,7 +112,7 @@ class SimulatorCore(
 
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
 
-        log.debug { "Simulator steg 3 - Beregn AFP Privat" }
+        log.debug { "Simulator steg 3 - Beregn privat AFP" }
 
         var privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf()
         var gjeldendePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat? = null
@@ -120,9 +120,9 @@ class SimulatorCore(
         if (ytelser.privatAfpVirkningFom != null) {
             val response = privatAfpBeregner.beregnPrivatAfp(
                 PrivatAfpSpec(
-                    simulering = spec,
                     kravhode,
                     virkningFom = ytelser.privatAfpVirkningFom,
+                    foersteUttakDato = spec.foersteUttakDato,
                     forrigePrivatAfpBeregningResult = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
                     gjelderOmsorg = kravhode.hentPersongrunnlagForSoker().gjelderOmsorg,
                     sakId = kravhode.sakId
@@ -157,7 +157,7 @@ class SimulatorCore(
             )
         )
 
-        log.debug { "Simulator steg 6 - Beregn AFP i offentlig sektor" }
+        log.debug { "Simulator steg 6 - Beregn offentlig AFP" }
 
         val pre2025OffentligAfpResult: Pre2025OffentligAfpResult?
         val livsvarigOffentligAfpResult: LivsvarigOffentligAfpResult?

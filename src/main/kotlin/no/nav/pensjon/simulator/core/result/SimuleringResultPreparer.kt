@@ -120,26 +120,18 @@ class SimuleringResultPreparer(private val time: Time) {
 
         for (alder in startAlder..MAX_KNEKKPUNKT_ALDER) {
             val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, resultatListe)
-            simulertAlderspensjon.addPensjonsperiode(
-                pensjonPeriode(
-                    alder,
-                    beloepPeriode.beloep,
-                    beloepPeriode.maanedsbeloepVedPeriodeStart
-                )
-            )
+            simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(alder, beloepPeriode.beloep, beloepPeriode.maanedsutbetalinger))
         }
 
         forrigeResultatCopy?.let {
             // Add a periode representing løpende ytelser (tagged with alder=null)
             val maanedsbeloepVedPeriodeStart = it.pensjonUnderUtbetaling?.totalbelopNetto ?: 0
             val beloep = maanedsbeloepVedPeriodeStart * MAANEDER_PER_AAR
-            simulertAlderspensjon.addPensjonsperiode(
-                pensjonPeriode(
-                    null,
-                    beloep,
-                    maanedsbeloepVedPeriodeStart
-                )
-            )
+            simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(
+                null,
+                beloep,
+                listOf(Maanedsutbetaling(maanedsbeloepVedPeriodeStart, it.virkFom!!.toNorwegianLocalDate()))
+            ))
         }
     }
 
@@ -376,18 +368,23 @@ class SimuleringResultPreparer(private val time: Time) {
             getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
         val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
         var beloep = 0
-        val maanedsbeloepVedPeriodeStart = resultatListe[0].pensjonUnderUtbetaling?.totalbelopNetto ?: 0
+        val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
         for (resultat in resultatListe) {
             val fom: Date = resultat.virkFom!!.toNorwegianNoon()
             val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
 
             if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
                 beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
+
+                maanedsutbetalinger.add(
+                    Maanedsutbetaling(
+                        resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0, resultat.virkFom!!.toNorwegianLocalDate())
+                )
             }
         }
 
-            return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsbeloepVedPeriodeStart)
-        }
+        return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsutbetalinger)
+    }
 
         // OpprettOutputHelper.addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder
         //       + fetchAldersberegningKapittel19FromAlder2016 + getAldersberegningKapittel19
@@ -785,12 +782,12 @@ class SimuleringResultPreparer(private val time: Time) {
             return result
         }
 
-        private fun pensjonPeriode(alderAar: Int?, beloep: Int, maanedsbeloepVedPeriodeStart: Int) =
-            PensjonPeriode().apply {
-                this.alderAar = alderAar
-                this.beloep = beloep
-                this.maanedsbeloepVedPeriodeStart = maanedsbeloepVedPeriodeStart
-            }
+    private fun pensjonPeriode(alderAar: Int?, beloep: Int, maanedsutbetalinger: List<Maanedsutbetaling>) =
+        PensjonPeriode().apply {
+            this.alderAar = alderAar
+            this.beloep = beloep
+            this.maanedsutbetalinger = maanedsutbetalinger
+        }
 
         // From ArligInformasjonListeUtils
         private fun findEarliest(list: List<Opptjeningsgrunnlag>): Opptjeningsgrunnlag? {
@@ -849,11 +846,6 @@ class SimuleringResultPreparer(private val time: Time) {
                 else -> throw IllegalArgumentException("Unexpected AbstraktBeregningsResultat subclass: $original")
             }
 
-        private data class BeloepPeriode(
-            val beloep: Int,
-            val start: Date?,
-            val slutt: Date?,
-            val maanedsbeloepVedPeriodeStart: Int
-        )
+        private data class BeloepPeriode(val beloep: Int, val start: Date?, val slutt: Date?, val maanedsutbetalinger: List<Maanedsutbetaling>)
     }
 }

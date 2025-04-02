@@ -22,7 +22,7 @@ object Pre2025OffentligAfpTerminator {
     fun terminatePre2025OffentligAfp(
         kravhode: Kravhode,
         foersteUttakDato: LocalDate?,
-    ): Pre2025OffentligAfpResult? {
+    ): Pre2025OffentligAfpResult {
         val persongrunnlag: Persongrunnlag = kravhode.hentPersongrunnlagForSoker()
         val afpHistorikk: AfpHistorikk? = persongrunnlag.afpHistorikkListe.firstOrNull()
 

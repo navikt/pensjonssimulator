@@ -246,13 +246,15 @@ class TpoViaPenAlderspensjonController(
     )
     fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): TpoSimuleringResultV3 {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID_V3 request: $specV3" }
+        log.info { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
 
         return try {
             val spec: SimuleringSpec = TpoSimuleringSpecMapperV3.fromDto(specV3)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
-            TpoSimuleringResultMapperV3.toDto(result)
+            TpoSimuleringResultMapperV3.toDto(result).also {
+                log.info { "$FUNCTION_ID_V3 response: $it" }
+            }
         } catch (e: BadRequestException) {
             log.warn(e) { "$FUNCTION_ID_V3 bad request - ${e.message} - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>

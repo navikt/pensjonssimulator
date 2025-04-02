@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 
 class PakkseddelTest : FunSpec({
 
-    test("merknader as string") {
+    test("merknaderAsString should be string containing kode and argumentliste with special separator") {
         Pakkseddel(
             mutableListOf(
                 Merknad().apply {
@@ -17,6 +17,6 @@ class PakkseddelTest : FunSpec({
                     argumentListe = mutableListOf("A21", "A22")
                 }
             )
-        ).merknaderAsString() shouldBe "M1:A11,A12, M2:A21,A22"
+        ).merknaderAsString() shouldBe "M1:A11¤A12, M2:A21¤A22"
     }
 })

@@ -17,16 +17,21 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
 // Corresponds to FinnKnekkpunkterHelper + FastsettTrygdetidCache
 @Component
-class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
+class KnekkpunktFinder(
+    private val trygdetidFastsetter: TrygdetidFastsetter,
+    private val normAlderService: NormAlderService,
+    private val time: Time
+) {
 
     // FinnKnekkpunkterHelper.finnKnekkpunkter
     fun finnKnekkpunkter(knekkpunktSpec: KnekkpunktSpec): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
@@ -39,13 +44,16 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
         var knekkpunktMap: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> = TreeMap()
 
+        val normAlderDato: LocalDate =
+            normAlderService.normAlderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
+
         // STEP 1 - Calculate forsteBerDato
         val foersteBeregningDato =
             knekkpunktSpec.forrigeAlderspensjonBeregningResultatVirkningFom?.let {
                 calculateFoersteBeregningDato(
-                    foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate(),
-                    foersteUttakDato = foersteUttakDato!!,
-                    forrigeBeregningResultVirkning = it
+                    normAlderDato,
+                    foersteUttakDato!!,
+                    forrigeBeregningResultatVirkning = it
                 )
             }
                 ?: forsteBeregningsdato(simuleringSpec)
@@ -77,10 +85,10 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
 
         if (avdoedGrunnlag != null) {
             addKnekkpunkterBasedOnTrygdetid(
-                knekkpunktMap = knekkpunktMap,
-                foersteBeregningDato = foersteBeregningDato,
-                foersteVirkning = avdoedFoersteVirkning!!,
-                kravhode = kravhode,
+                knekkpunktMap,
+                foersteBeregningDato,
+                foersteVirkning = avdoedFoersteVirkning,
+                kravhode,
                 aarsak = KnekkpunktAarsak.TTAVDOD,
                 sakId = knekkpunktSpec.sakId
             )
@@ -92,7 +100,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         // STEP 5 - Add a knekkpunkt the 1st of the month after bruker turns 67 years old
         addKnekkpunkt(
             knekkpunktMap = knekkpunktMap,
-            knekkpunktDato = soekerGrunnlag.fodselsdato!!.let { ubetingetPensjoneringDato(it).toNorwegianLocalDate() },
+            knekkpunktDato = normAlderDato,
             aarsak = KnekkpunktAarsak.OPPTJBRUKER
         )
 
@@ -104,8 +112,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         // a Kap 20 result. The following is part of that "logic". This "hack" should be removed as soon as they're able to
         // receive Kap 20 results.
         if (simuleringSpec.simulerForTp) {
-            knekkpunktMap =
-                trimKnekkpunkterInCaseOfSimulerForTp(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate(), knekkpunktMap)
+            knekkpunktMap = trimKnekkpunkterInCaseOfSimulerForTp(normAlderDato, knekkpunktMap)
         }
 
         return knekkpunktMap
@@ -116,7 +123,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         aarsak: KnekkpunktAarsak,
         kravhode: Kravhode,
         foersteBeregningDato: LocalDate,
-        foersteVirkning: LocalDate,
+        foersteVirkning: LocalDate?, // NB: nullable at least for avdød
         sakId: Long?
     ): TrygdetidCombo {
         if (aarsak == KnekkpunktAarsak.TTBRUKER) { // from FinnKnekkpunkterHelper.addKnekkpunkterBasedOnTrygdetid
@@ -160,7 +167,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
     private fun addKnekkpunkterBasedOnTrygdetid(
         knekkpunktMap: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>>,
         foersteBeregningDato: LocalDate,
-        foersteVirkning: LocalDate,
+        foersteVirkning: LocalDate?, // NB: nullable at least for avdød
         kravhode: Kravhode,
         aarsak: KnekkpunktAarsak,
         sakId: Long?
@@ -176,7 +183,7 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             if (gjelderSoeker)
                 yearUserTurnsGivenAge(persongrunnlag.fodselsdato!!, MAX_RELEVANTE_TRYGDETID_ALDER)
             else
-                getYear(getRelativeDateByYear(persongrunnlag.dodsdato!!, ANTALL_RELEVANTE_AR_ETTER_DODSDATO))
+                getYear(getRelativeDateByYear(persongrunnlag.dodsdato!!, ANTALL_RELEVANTE_AAR_ETTER_DOED))
 
         addKnekkpunkt(knekkpunktMap, foersteBeregningDato, aarsak)
         val forrigeTrygdetid = fastsettTrygdetid(aarsak, kravhode, foersteBeregningDato, foersteVirkning, sakId)
@@ -217,10 +224,44 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
         }
     }
 
+    // FinnKnekkpunkterHelper.calculateForsteBeregningDato
+    private fun calculateFoersteBeregningDato(
+        normAlderDato: LocalDate,
+        foersteUttakDato: LocalDate,
+        forrigeBeregningResultatVirkning: LocalDate
+    ): LocalDate {
+        // Citation from design:
+        // SETT forsteBerDato = den første av følgende datoer
+        // - 1.1 neste kalenderår etter den siste av dagens dato og forrigeBerResAP.virkDato
+        // - forsteUttaksdato
+        // - den 1. i måneden etter at bruker blir 67 år, dersom denne er etter dagens dato og forrigeBerResAP.virkDato
+        val latestOfTodayAndForrigeBeregningResultatVirkning: Date? =
+            findLatestDateByDay(
+                first = time.today().toNorwegianDateAtNoon(),
+                second = forrigeBeregningResultatVirkning.toNorwegianDateAtNoon()
+            )
+
+        val sortedDates: SortedSet<Date> = TreeSet()
+        sortedDates.add(
+            createDate(
+                getYear(latestOfTodayAndForrigeBeregningResultatVirkning!!) + 1,
+                Calendar.JANUARY,
+                1
+            )
+        )
+        sortedDates.add(foersteUttakDato.toNorwegianDateAtNoon())
+
+        if (isAfterByDay(normAlderDato, latestOfTodayAndForrigeBeregningResultatVirkning, false)) {
+            sortedDates.add(normAlderDato.toNorwegianDateAtNoon())
+        }
+
+        return sortedDates.iterator().next().toNorwegianLocalDate()
+    }
+
     private companion object {
         private const val MAX_RELEVANTE_TRYGDETID_ALDER = 76
-        private const val FULL_TRYGDETID_ANTALL_AR = 40
-        private const val ANTALL_RELEVANTE_AR_ETTER_DODSDATO = 2
+        private const val FULL_TRYGDETID_ANTALL_AAR = 40
+        private const val ANTALL_RELEVANTE_AAR_ETTER_DOED = 2
 
         // FinnKnekkpunkterHelper.addKnekkpunkt
         private fun addKnekkpunkt(
@@ -269,39 +310,12 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             }
         }
 
-        // FinnKnekkpunkterHelper.calculateForsteBeregningDato
-        private fun calculateFoersteBeregningDato(
-            foedselsdato: LocalDate,
-            foersteUttakDato: LocalDate,
-            forrigeBeregningResultVirkning: LocalDate
-        ): LocalDate {
-            // Citation from design:
-            // SETT forsteBerDato = den første av følgende datoer
-            // - 1.1 neste kalenderår etter den siste av dagens dato og forrigeBerResAP.virkDato
-            // - forsteUttaksdato
-            // - den 1. i måneden etter at bruker blir 67 år, dersom denne er etter dagens dato og forrigeBerResAP.virkDato
-            //val today = DateProvider.getToday()
-            val today = LocalDate.now()
-            val ubetingetPensjoneringDato: Date = ubetingetPensjoneringDato(foedselsdato.toNorwegianDateAtNoon())
-            val latestOfTodayAndForrigeBerResVirk: Date? =
-                findLatestDateByDay(today?.toNorwegianDateAtNoon(), forrigeBeregningResultVirkning.toNorwegianDateAtNoon())
-            val sortedDates: SortedSet<Date> = TreeSet()
-            sortedDates.add(createDate(getYear(latestOfTodayAndForrigeBerResVirk!!) + 1, Calendar.JANUARY, 1))
-            sortedDates.add(foersteUttakDato.toNorwegianDateAtNoon())
-
-            if (isAfterByDay(ubetingetPensjoneringDato, latestOfTodayAndForrigeBerResVirk, false)) {
-                sortedDates.add(ubetingetPensjoneringDato)
-            }
-
-            return sortedDates.iterator().next().toNorwegianLocalDate()
-        }
-
         // FinnKnekkpunkterHelper.trimKnekkpunktListeInCaseOfSimulerForTp
         private fun trimKnekkpunkterInCaseOfSimulerForTp(
-            foedselsdato: LocalDate,
+            normAlderDato: LocalDate,
             knekkpunkter: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>>
         ): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
-            var latestRelevantKnekkpunkt: LocalDate = ubetingetPensjoneringDato(foedselsdato)
+            var latestRelevantKnekkpunkt: LocalDate = normAlderDato
 
             // If there is a UTG knekkpunkt later than 67m, then use that as latest relevant knekkpunkt date
             for ((key, value) in knekkpunkter) {
@@ -331,20 +345,23 @@ class KnekkpunktFinder(private val trygdetidFastsetter: TrygdetidFastsetter) {
             return b != null && a!!.tt != b.tt
         }
 
+        /**
+         * NB: Udefinert trygdetid anses som full trygdetid.
+         */
         private fun erFull(trygdetid: Trygdetid?) =
-            trygdetid == null || trygdetid.tt == FULL_TRYGDETID_ANTALL_AR
+            trygdetid?.let { it.tt == FULL_TRYGDETID_ANTALL_AAR } != false
 
         private fun trygdetidFastsetterInput(
             kravhode: Kravhode,
             persongrunnlag: Persongrunnlag,
             knekkpunktDato: LocalDate,
-            soekerFoersteVirkning: LocalDate,
+            soekerFoersteVirkning: LocalDate?, // NB: nullable at least for avdød
             ytelseType: KravlinjeTypeEnum,
             boddEllerArbeidetUtenlands: Boolean
         ) =
             TrygdetidRequest().apply {
                 this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-                this.brukerForsteVirk = soekerFoersteVirkning.toNorwegianDateAtNoon()
+                this.brukerForsteVirk = soekerFoersteVirkning?.toNorwegianDateAtNoon()
                 this.hovedKravlinjeType = ytelseType
                 this.persongrunnlag = persongrunnlag
                 this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands

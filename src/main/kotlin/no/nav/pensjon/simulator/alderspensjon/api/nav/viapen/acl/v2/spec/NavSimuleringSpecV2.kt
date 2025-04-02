@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.person.Pid.Companion.redact
+import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
+import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
 import java.time.LocalDate
 import java.util.*
 
@@ -30,13 +33,13 @@ data class NavSimuleringSpecV2(
     val forsteUttakDato: Date? = null, // epoch value in JSON
     val utg: UttakGradKode? = null,
     val inntektUnderGradertUttak: Int? = null,
-    var heltUttakDato: Date? = null, // epoch value in JSON
+    var heltUttakDato: Date? = null, // epoch value in JSON; mutable
     val inntektEtterHeltUttak: Int? = null,
     val antallArInntektEtterHeltUttak: Int? = null,
     val utenlandsopphold: Int? = null,
     val flyktning: Boolean? = null,
     val sivilstatus: NavSivilstandSpecV2? = null,
-    val epsPensjon: Boolean? = null,
+    var epsPensjon: Boolean? = null, // mutable (in AlderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder)
     val eps2G: Boolean? = null,
     val afpOrdning: AfpOrdningType? = null,
     val afpInntektMndForUttak: Int? = null,
@@ -56,15 +59,36 @@ data class NavSimuleringSpecV2(
     val stillingsprosentOffGradertUttak: String? = null,
     val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2> = emptyList(),
     val changeStamp: NavSimuleringChangeStampSpecDummyV2? = null
-)
+) {
+    /**
+     * toString with redacted person ID
+     */
+    override fun toString() =
+        "{ \"fnr\": ${textAsString(redact(fnr))}, " +
+                "\"fnrAvdod\": ${textAsString(redact(fnrAvdod))}, " +
+                "\"simuleringType\": ${textAsString(simuleringType)}, " +
+                "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
+                "\"forventetInntekt\": $forventetInntekt, " +
+                "\"inntektUnderGradertUttak\": $inntektUnderGradertUttak, " +
+                "\"inntektEtterHeltUttak\": $inntektEtterHeltUttak, " +
+                "\"antallArInntektEtterHeltUttak\": $antallArInntektEtterHeltUttak, " +
+                "\"epsPensjon\": $epsPensjon, " +
+                "\"eps2G\": $eps2G, " +
+                "\"utenlandsopphold\": $utenlandsopphold, " +
+                "\"simuleringType\": ${textAsString(simuleringType)}, " +
+                "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
+                "\"forsteUttakDato\": ${textAsString(forsteUttakDato)}, " +
+                "\"utg\": ${textAsString(utg)}, " +
+                "\"heltUttakDato\": ${textAsString(heltUttakDato)} }"
+}
 
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PEN
 // (which is the same as no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PSELV)
 data class NavSimuleringUtlandPeriodeV2(
     val land: LandkodeEnum,
     val arbeidetIUtland: Boolean = false,
-    val periodeFom: LocalDate,
-    val periodeTom: LocalDate?
+    val periodeFom: Date,
+    val periodeTom: Date?
 )
 
 /**

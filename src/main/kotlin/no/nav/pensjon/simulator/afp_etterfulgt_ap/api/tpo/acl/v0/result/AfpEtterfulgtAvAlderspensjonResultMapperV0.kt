@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
+import no.nav.pensjon.simulator.core.result.Maanedsutbetaling
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
@@ -19,7 +20,11 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
-            folketrygdberegnetAfp = mapToFolketrygdberegnetAfp(source.pre2025OffentligAfp?.virk!!, afp, inntektVedAfpUttak),
+            folketrygdberegnetAfp = mapToFolketrygdberegnetAfp(
+                source.pre2025OffentligAfp?.virk!!,
+                afp,
+                inntektVedAfpUttak
+            ),
             alderspensjonFraFolketrygden = mapToAlderspensjon(alderspensjon, source.grunnbeloep)
         )
     }
@@ -76,21 +81,24 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun beregnAfpGrad(inntektVedAfpUttak: Int, tidligereInntekt: Int) =
         100 - (inntektVedAfpUttak.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1kr for å unngå deling på 0
 
-    private fun mapToAlderspensjon(alderspensjon: SimulertAlderspensjon, grunnbeloep: Int): List<AlderspensjonFraFolketrygdenV0> {
+    private fun mapToAlderspensjon(
+        alderspensjon: SimulertAlderspensjon,
+        grunnbeloep: Int
+    ): List<AlderspensjonFraFolketrygdenV0> {
 
-        val liste: List<SimulertAlderspensjonInfo> = alderspensjon
+        val liste: List<Simuleringsperiode> = alderspensjon
             .pensjonPeriodeListe
             .filter { it.simulertBeregningInformasjonListe.isNotEmpty() }
             .map { alderspensjon(it, alderspensjon) }
+            .flatten()
 
         log.info { "afp etterf ap output: $liste" }
-        val res = liste.map {
+        val res = liste.map { simuleringsperiode ->
             AlderspensjonFraFolketrygdenV0(
-                fraOgMedDato = it.fom,
-                sumMaanedligUtbetaling = it.maanedsbeloepVedPeriodeStart,
-                sumBeloepIHelePerioden = it.beloep,
-                andelKapittel19 = it.andelsbroekKap19!!,
-                alderspensjonKapittel19 = AlderspensjonKapittel19V0(
+                fraOgMedDato = simuleringsperiode.fom,
+                sumMaanedligUtbetaling = simuleringsperiode.maanedsbeloep,
+                andelKapittel19 = simuleringsperiode.simulertAlderspensjonInfo?.andelsbroekKap19,
+                alderspensjonKapittel19 = simuleringsperiode.simulertAlderspensjonInfo?.let { AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(
                         maanedligUtbetaling = it.grunnpensjon!!,
                         grunnbeloep = grunnbeloep,
@@ -109,60 +117,78 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
                         minstepensjonsnivaaSats = it.minstepensjonsnivaaSats,
                     ),
                     forholdstall = it.forholdstall!!
-                ),
-                andelKapittel20 = it.andelsbroekKap20!!,
-                alderspensjonKapittel20 = AlderspensjonKapittel20V0(
-                    inntektspensjon = InntektspensjonV0(
-                        maanedligUtbetaling = it.inntektspensjon!!,
-                        pensjonsbeholdningFoerUttak = it.pensjonBeholdningFoerUttak!!,
-                    ),
-                    garantipensjon = GarantipensjonV0(
-                        maanedligUtbetaling = it.garantipensjon!!,
-                        garantipensjonssats = it.garantipensjonssats,
-                        trygdetid = it.trygdetidKap20!!
-                    ),
-                    delingstall = it.delingstall!!
-            )
+                )},
+                andelKapittel20 = simuleringsperiode.simulertAlderspensjonInfo?.andelsbroekKap20,
+                alderspensjonKapittel20 = simuleringsperiode.simulertAlderspensjonInfo?.let {
+                    AlderspensjonKapittel20V0(
+                        inntektspensjon = InntektspensjonV0(
+                            maanedligUtbetaling = it.inntektspensjon!!,
+                            pensjonsbeholdningFoerUttak = it.pensjonBeholdningFoerUttak!!,
+                        ),
+                        garantipensjon = GarantipensjonV0(
+                            maanedligUtbetaling = it.garantipensjon!!,
+                            garantipensjonssats = it.garantipensjonssats,
+                            trygdetid = it.trygdetidKap20!!
+                        ),
+                        delingstall = it.delingstall!!
+                    )
+                }
             )
         }
         return res
     }
 
 
-    fun alderspensjon(source: PensjonPeriode, simulertAlderspensjon: SimulertAlderspensjon?): SimulertAlderspensjonInfo {
-        val info = source.simulertBeregningInformasjonListe.firstOrNull()
-
-        return SimulertAlderspensjonInfo(
-            fom = info?.datoFom,
-            beloep = source.beloep ?: 0,
-            maanedsbeloepVedPeriodeStart = source.maanedsbeloepVedPeriodeStart ?: 0,
-            inntektspensjon = info?.inntektspensjonPerMaaned,
-            garantipensjon = info?.garantipensjonPerMaaned,
-            delingstall = info?.delingstall,
-            pensjonBeholdningFoerUttak = source.simulertBeregningInformasjonListe.firstOrNull { it.pensjonBeholdningFoerUttak != null }?.pensjonBeholdningFoerUttak,
-            andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,
-            andelsbroekKap20 = simulertAlderspensjon?.kapittel20Andel ?: 0.0,
-            sluttpoengtall = info?.spt,
-            trygdetidKap19 = info?.tt_anv_kap19,
-            trygdetidKap20 = info?.tt_anv_kap20,
-            poengaarFoer92 = info?.pa_f92,
-            poengaarEtter91 = info?.pa_e91,
-            forholdstall = info?.forholdstall,
-            grunnpensjon = info?.grunnpensjonPerMaaned,
-            grunnpensjonsats =  info?.grunnpensjonsats,
-            tilleggspensjon = info?.tilleggspensjonPerMaaned,
-            pensjonstillegg = info?.pensjonstilleggPerMaaned,
-            garantipensjonssats = info?.garantipensjonssats,
-            minstepensjonsnivaaSats = info?.minstepensjonsnivaaSats,
-            skjermingstillegg = info?.skjermingstillegg,
-        )
+    fun alderspensjon(source: PensjonPeriode, simulertAlderspensjon: SimulertAlderspensjon?): List<Simuleringsperiode> {
+        return source.maanedsutbetalinger.map { maanedsutbetaling: Maanedsutbetaling ->
+            Simuleringsperiode(
+                fom = maanedsutbetaling.fom,
+                maanedsbeloep = maanedsutbetaling.beloep ?: 0,
+                simulertAlderspensjonInfo = source.simulertBeregningInformasjonListe
+                    .filter { it.datoFom == maanedsutbetaling.fom }
+                    .map { info ->
+                        SimulertAlderspensjonInfo(
+                            fom = info.datoFom,
+                            beloep = source.beloep ?: 0,
+                            maanedsbeloep = maanedsutbetaling.beloep,
+                            inntektspensjon = info.inntektspensjonPerMaaned,
+                            garantipensjon = info.garantipensjonPerMaaned,
+                            delingstall = info.delingstall,
+                            pensjonBeholdningFoerUttak = source.simulertBeregningInformasjonListe
+                                .firstOrNull { it.pensjonBeholdningFoerUttak != null }
+                                ?.pensjonBeholdningFoerUttak,
+                            andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,
+                            andelsbroekKap20 = simulertAlderspensjon?.kapittel20Andel ?: 0.0,
+                            sluttpoengtall = info.spt,
+                            trygdetidKap19 = info.tt_anv_kap19,
+                            trygdetidKap20 = info.tt_anv_kap20,
+                            poengaarFoer92 = info.pa_f92,
+                            poengaarEtter91 = info.pa_e91,
+                            forholdstall = info.forholdstall,
+                            grunnpensjon = info.grunnpensjonPerMaaned,
+                            grunnpensjonsats = info.grunnpensjonsats,
+                            tilleggspensjon = info.tilleggspensjonPerMaaned,
+                            pensjonstillegg = info.pensjonstilleggPerMaaned,
+                            garantipensjonssats = info.garantipensjonssats,
+                            minstepensjonsnivaaSats = info.minstepensjonsnivaaSats,
+                            skjermingstillegg = info.skjermingstillegg,
+                        )
+                    }
+                    .firstOrNull()
+            )
+        }
     }
 
+    data class Simuleringsperiode(
+        val fom: LocalDate,
+        val maanedsbeloep: Int,
+        val simulertAlderspensjonInfo: SimulertAlderspensjonInfo?,
+    )
 
     data class SimulertAlderspensjonInfo(
         val fom: LocalDate?,
         val beloep: Int,
-        val maanedsbeloepVedPeriodeStart: Int,
+        val maanedsbeloep: Int,
         val inntektspensjon: Int?,
         val garantipensjon: Int?,
         val delingstall: Double?,

@@ -10,6 +10,8 @@ class PensjonPeriode {
 
     var maanedsbeloepVedPeriodeStart: Int? = null
 
+    var maanedsutbetalinger: List<Maanedsutbetaling> = mutableListOf()
+
     /**
      * Brukers alder i perioden
      */

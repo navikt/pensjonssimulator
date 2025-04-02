@@ -289,7 +289,7 @@ object SimuleringResultPreparer {
 
         for (alder in startAlder..MAX_KNEKKPUNKT_ALDER) {
             val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, resultatListe)
-            simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(alder, beloepPeriode.beloep, beloepPeriode.maanedsbeloepVedPeriodeStart))
+            simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(alder, beloepPeriode.beloep, beloepPeriode.maanedsutbetalinger))
         }
 
         forrigeResultatCopy?.let {
@@ -299,7 +299,7 @@ object SimuleringResultPreparer {
             simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(
                 null,
                 beloep,
-                maanedsbeloepVedPeriodeStart
+                listOf(Maanedsutbetaling(maanedsbeloepVedPeriodeStart, it.virkFom!!.toNorwegianLocalDate()))
             ))
         }
     }
@@ -313,17 +313,22 @@ object SimuleringResultPreparer {
             getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
         val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
         var beloep = 0
-        val maanedsbeloepVedPeriodeStart = resultatListe[0].pensjonUnderUtbetaling?.totalbelopNetto ?: 0
+        val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
         for (resultat in resultatListe) {
             val fom: Date = resultat.virkFom!!.toNorwegianNoon()
             val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
 
             if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
                 beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
+
+                maanedsutbetalinger.add(
+                    Maanedsutbetaling(
+                        resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0, resultat.virkFom!!.toNorwegianLocalDate())
+                )
             }
         }
 
-        return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsbeloepVedPeriodeStart)
+        return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsutbetalinger)
     }
 
     // OpprettOutputHelper.addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder
@@ -774,11 +779,11 @@ object SimuleringResultPreparer {
         return result
     }
 
-    private fun pensjonPeriode(alderAar: Int?, beloep: Int, maanedsbeloepVedPeriodeStart: Int) =
+    private fun pensjonPeriode(alderAar: Int?, beloep: Int, maanedsutbetalinger: List<Maanedsutbetaling>) =
         PensjonPeriode().apply {
             this.alderAar = alderAar
             this.beloep = beloep
-            this.maanedsbeloepVedPeriodeStart = maanedsbeloepVedPeriodeStart
+            this.maanedsutbetalinger = maanedsutbetalinger
         }
 
     // From ArligInformasjonListeUtils
@@ -825,5 +830,5 @@ object SimuleringResultPreparer {
             listOf(*types).any { t -> t == it.ytelsekomponentTypeEnum }
         }
 
-    private data class BeloepPeriode(val beloep: Int, val start: Date?, val slutt: Date?, val maanedsbeloepVedPeriodeStart: Int)
+    private data class BeloepPeriode(val beloep: Int, val start: Date?, val slutt: Date?, val maanedsutbetalinger: List<Maanedsutbetaling>)
 }

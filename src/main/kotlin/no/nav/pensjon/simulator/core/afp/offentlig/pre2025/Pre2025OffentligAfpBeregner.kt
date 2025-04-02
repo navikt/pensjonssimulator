@@ -323,9 +323,9 @@ class Pre2025OffentligAfpBeregner(
         ektefelleMottarPensjon = epsMottarPensjon(simulering.persongrunnlagListe)
     }
 
-    private companion object {
+    companion object {
+        const val AFP_VIRKNING_TOM_ALDER_AAR: Int = 67 // TODO use normalder?
         private const val AFP_MIN_AGE: Int = 62
-        private const val AFP_VIRKNING_TOM_ALDER_AAR: Int = 67 // TODO use normalder?
         private const val MAX_TRYGDETID: Int = 40
         private const val MIN_TRYGDETID: Int = 3
         private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51

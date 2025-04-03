@@ -105,7 +105,7 @@ object NavSimuleringResultMapperV2 {
     private fun merknad(source: Merknad, aar: Int? = null) =
         MerknadV2(
             ar = aar,
-            argumentListeString = source.argumentListe.joinToString(", "),
+            argumentListeString = source.argumentListe.joinToString(separator = "¤"),
             kode = source.kode
         )
 
@@ -149,7 +149,11 @@ object NavSimuleringResultMapperV2 {
 
         return NavYtelseKomponentV2(
             ytelseskomponentType = source.ytelsekomponentTypeEnum,
-            merknader = source.merknadListe.map(::merknad),
+
+            // Return distinct merknader,
+            // ref. PEN Set<Merknad> merknadSet in no.nav.domain.pensjon.Merknader:
+            merknader = source.merknadListe.distinctBy { it.kode }.map(::merknad),
+
             bruttoPerAr = source.bruttoPerAr,
             netto = source.netto,
             erBrukt = source.brukt,

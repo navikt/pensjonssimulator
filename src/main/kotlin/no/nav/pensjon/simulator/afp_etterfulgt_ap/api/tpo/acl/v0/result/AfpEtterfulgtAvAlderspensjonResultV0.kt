@@ -87,4 +87,13 @@ data class InntektspensjonV0(
 data class AarsakIkkeSuccessV0(
     val statusKode: String,
     val statusBeskrivelse: String
-)
+) {
+    companion object {
+        val FEIL_I_GRUNNLAG = AarsakIkkeSuccessV0("FEIL_I_GRUNNLAG", "Beregningen kunne ikke fullføres på grunn av inkonsistens i datagrunnlaget.")
+        val FOR_HOEY_ALDER = AarsakIkkeSuccessV0("FOR_HOEY_ALDER", "Brukerens alder overstiger tillatt grense.")
+        val FOR_LAV_ALDER = AarsakIkkeSuccessV0("FOR_LAV_ALDER", "Brukerens alder er under nedre aldersgrense.")
+        val AFP_ER_AVSLAATT = AarsakIkkeSuccessV0("AFP_ER_AVSLAATT", "AFP er avslått")
+        val UTILSTREKKELIG_OPPTJENING = AarsakIkkeSuccessV0("UTILSTREKKELIG_OPPTJENING", "Utilstrekkelig opptjening")
+        val UTILSTREKKELIG_TRYGDETID = AarsakIkkeSuccessV0("UTILSTREKKELIG_TRYGDETID", "Utilstrekkelig trygdetid")
+    }
+}

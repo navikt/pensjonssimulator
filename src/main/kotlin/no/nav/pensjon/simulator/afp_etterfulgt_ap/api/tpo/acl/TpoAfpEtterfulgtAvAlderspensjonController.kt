@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AarsakIkkeSuccessV0
 import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak
 import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
 import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
 import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
@@ -83,34 +85,34 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             toDto(simulatorCore.simuler(spec), spec.inntektUnderGradertUttakBeloep)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+            throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
-            throw e
-        } catch (e: ImplementationUnrecoverableException) {
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
+        } catch (e: ImplementationUnrecoverableException) { //"Internal server error"
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
             throw e
         }  catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
-            throw e
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV0" }
-            throw e
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID person for ung - request - $specV0" }
-            throw e
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_LAV_ALDER)
+        } catch (e: Pre2025OffentligAfpAvslaattException){
             log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV0" }
-            throw e
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.AFP_ER_AVSLAATT)
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV0" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
             log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
-            throw e
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
             log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
-            throw e
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!
         } finally {
@@ -121,14 +123,6 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
     @ExceptionHandler(
         value = [
             BadSpecException::class,
-            FeilISimuleringsgrunnlagetException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
-            PersonForGammelException::class,
-            PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
-            UtilstrekkeligOpptjeningException::class,
-            UtilstrekkeligTrygdetidException::class
         ]
     )
     private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
@@ -136,6 +130,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
 
     @ExceptionHandler(
         value = [
+            RegelmotorValideringException::class,
             ImplementationUnrecoverableException::class
         ]
     )

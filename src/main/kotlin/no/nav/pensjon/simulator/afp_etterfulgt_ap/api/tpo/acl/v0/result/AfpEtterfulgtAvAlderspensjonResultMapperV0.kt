@@ -29,6 +29,15 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         )
     }
 
+    fun tomResponsMedAarsak(arsakIkkeSuccess: AarsakIkkeSuccessV0) : AfpEtterfulgtAvAlderspensjonResultV0{
+        return AfpEtterfulgtAvAlderspensjonResultV0(
+            simuleringSuksess = false,
+            aarsakListeIkkeSuksess = listOf(arsakIkkeSuccess),
+            folketrygdberegnetAfp = null,
+            alderspensjonFraFolketrygden = emptyList()
+        )
+    }
+
     private fun ufullstendigRespons() = AfpEtterfulgtAvAlderspensjonResultV0(
         simuleringSuksess = false,
         aarsakListeIkkeSuksess = emptyList(),//TODO

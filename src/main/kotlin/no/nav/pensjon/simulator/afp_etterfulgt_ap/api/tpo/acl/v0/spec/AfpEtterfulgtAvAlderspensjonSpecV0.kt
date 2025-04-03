@@ -6,9 +6,9 @@ data class AfpEtterfulgtAvAlderspensjonSpecV0(
     val personId: String?,
     val sivilstandVedPensjonering: String?,
     val uttakFraOgMedDato: String?,
-    val fremtidigAarligInntektTilUttak: Int?, //bruk siste lignet inntekt, når denne er ikke med
+    val fremtidigAarligInntektTilAfpUttak: Int?, //bruk siste lignet inntekt, når denne er ikke med
     val inntektSisteMaanedOver1G: Boolean?,
-    val fremtidigAarligInntektUnderUttak: Int?,
+    val fremtidigAarligInntektUnderAfpUttak: Int?,
     val aarIUtlandetEtter16: Int?,
     val epsPensjon: Boolean?,
     val eps2G: Boolean?,
@@ -18,9 +18,9 @@ data class AfpEtterfulgtAvAlderspensjonSpecV0(
         val personId: String,
         val sivilstandVedPensjonering: String,
         val uttakFraOgMedDato: String,
-        val fremtidigAarligInntektTilUttak: Int?, //bruk siste lignet inntekt, når denne er ikke med
+        val fremtidigAarligInntektTilAfpUttak: Int?, //bruk siste lignet inntekt, når denne er ikke med
         val inntektSisteMaanedOver1G: Boolean,
-        val fremtidigAarligInntektUnderUttak: Int,
+        val fremtidigAarligInntektUnderAfpUttak: Int,
         val aarIUtlandetEtter16: Int,
         val epsPensjon: Boolean,
         val eps2G: Boolean,
@@ -30,9 +30,9 @@ data class AfpEtterfulgtAvAlderspensjonSpecV0(
         return "personId:" + redact(personId) +
                 ", sivilstandVedPensjonering:" + sivilstandVedPensjonering +
                 ", uttakFraOgMedDato:" + uttakFraOgMedDato +
-                ", fremtidigAarligInntektTilUttak:" + fremtidigAarligInntektTilUttak +
+                ", fremtidigAarligInntektTilUttak:" + fremtidigAarligInntektTilAfpUttak +
                 ", inntektSisteMaanedOver1G:" + inntektSisteMaanedOver1G +
-                ", fremtidigAarligInntektUnderUttak:" + fremtidigAarligInntektUnderUttak +
+                ", fremtidigAarligInntektUnderUttak:" + fremtidigAarligInntektUnderAfpUttak +
                 ", aarIUtlandetEtter16:" + aarIUtlandetEtter16 +
                 ", epsPensjon:" + epsPensjon +
                 ", eps2G:" + eps2G

@@ -20,11 +20,11 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
         val pid = Pid(source.personId)
         val uttakDato = LocalDate.parse(source.uttakFraOgMedDato)
         val sivilstatus = fromExternalValue(source.sivilstandVedPensjonering).internalValue
-        val forventetInntektBeloep: Int = source.fremtidigAarligInntektTilUttak ?: hentSisteInntektFraPOPP(pid)
+        val forventetInntektBeloep: Int = source.fremtidigAarligInntektTilAfpUttak ?: hentSisteInntektFraPOPP(pid)
         val inntektSisteMaanedOver1G = source.inntektSisteMaanedOver1G
         val epsHarPensjon = source.epsPensjon
         val epsHarInntektOver2G = source.eps2G
-        val inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderUttak
+        val inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak
         val afpInntektMaanedFoerUttak = settMaanedsInntektOver1GFoerUttak(inntektSisteMaanedOver1G, hentGrunnbeloep)
         val utlandAntallAar = source.aarIUtlandetEtter16
 

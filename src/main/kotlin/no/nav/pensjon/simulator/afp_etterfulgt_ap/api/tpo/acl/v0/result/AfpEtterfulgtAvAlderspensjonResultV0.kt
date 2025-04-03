@@ -28,7 +28,7 @@ data class FolketrygdberegnetAfpV0(
 data class GrunnpensjonV0(
     val maanedligUtbetaling: Int,
     val grunnbeloep: Int,
-    val grunnpensjonsats: Double?, //Foreløpig tomt
+    val grunnpensjonsats: Double?,
     val trygdetid: Int,
 )
 
@@ -42,12 +42,12 @@ data class TilleggspensjonV0(
 
 data class SaertilleggV0(
     val maanedligUtbetaling: Int,
-    val saertilleggsats: Double?, //Foreløpig tomt
+    val saertilleggsats: Double?,
 )
 
 data class AlderspensjonFraFolketrygdenV0(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    val fraOgMedDato: LocalDate, //nullable for test
+    val fraOgMedDato: LocalDate,
     val andelKapittel19: Double?,
     val alderspensjonKapittel19: AlderspensjonKapittel19V0?,
     val andelKapittel20: Double?,
@@ -75,7 +75,7 @@ data class AlderspensjonKapittel20V0(
 
 data class GarantipensjonV0(
     val maanedligUtbetaling: Int,
-    val garantipensjonssats: Double?, //Foreløpig tomt
+    val garantipensjonssats: Double?,
     val trygdetid: Int,
 )
 

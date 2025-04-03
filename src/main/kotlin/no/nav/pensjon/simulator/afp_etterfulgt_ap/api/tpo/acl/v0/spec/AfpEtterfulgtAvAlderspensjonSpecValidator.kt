@@ -51,7 +51,7 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
         if (dto.uttakFraOgMedDato == null) throw BadSpecException("uttakFraOgMedDato missing")
         //if(dto.fremtidigAarligInntektTilUttak == null) is Optional
         if (dto.inntektSisteMaanedOver1G == null) throw BadSpecException("inntektSisteMaanedOver1G missing")
-        if (dto.fremtidigAarligInntektUnderUttak == null) throw BadSpecException("fremtidigAarligInntektUnderUttak missing")
+        if (dto.fremtidigAarligInntektUnderAfpUttak == null) throw BadSpecException("fremtidigAarligInntektUnderUttak missing")
         if (dto.aarIUtlandetEtter16 == null) throw BadSpecException("aarIUtlandetEtter16 missing")
         if (dto.epsPensjon == null) throw BadSpecException("epsPensjon missing")
         if (dto.eps2G == null) throw BadSpecException("eps2G missing")
@@ -60,9 +60,9 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
             dto.personId,
             dto.sivilstandVedPensjonering,
             dto.uttakFraOgMedDato,
-            dto.fremtidigAarligInntektTilUttak,
+            dto.fremtidigAarligInntektTilAfpUttak,
             dto.inntektSisteMaanedOver1G,
-            dto.fremtidigAarligInntektUnderUttak,
+            dto.fremtidigAarligInntektUnderAfpUttak,
             dto.aarIUtlandetEtter16,
             dto.epsPensjon,
             dto.eps2G

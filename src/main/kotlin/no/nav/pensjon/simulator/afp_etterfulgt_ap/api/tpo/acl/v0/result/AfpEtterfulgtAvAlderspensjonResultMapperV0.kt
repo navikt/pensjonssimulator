@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.result.Maanedsutbetaling
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -14,8 +15,8 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private val log = KotlinLogging.logger {}
 
     fun toDto(source: SimulatorOutput, inntektVedAfpUttak: Int): AfpEtterfulgtAvAlderspensjonResultV0 {
-        val afp: Beregning = source.pre2025OffentligAfp?.beregning ?: return ufullstendigRespons()
-        val alderspensjon = source.alderspensjon ?: return ufullstendigRespons()
+        val afp: Beregning = source.pre2025OffentligAfp?.beregning ?: throw ImplementationUnrecoverableException("pre2025OffentligAfp mangler i beregningsresultatet")
+        val alderspensjon = source.alderspensjon ?: throw ImplementationUnrecoverableException("alderspensjon mangler i beregningsresultatet")
 
         return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = true,
@@ -37,13 +38,6 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             alderspensjonFraFolketrygden = emptyList()
         )
     }
-
-    private fun ufullstendigRespons() = AfpEtterfulgtAvAlderspensjonResultV0(
-        simuleringSuksess = false,
-        aarsakListeIkkeSuksess = emptyList(),//TODO
-        folketrygdberegnetAfp = null,
-        alderspensjonFraFolketrygden = emptyList()
-    )
 
     private fun mapToFolketrygdberegnetAfp(
         virk: Date,

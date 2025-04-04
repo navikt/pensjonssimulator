@@ -89,7 +89,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
-        } catch (e: ImplementationUnrecoverableException) { //"Internal server error"
+        } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
             throw e
         }  catch (e: KonsistensenIGrunnlagetErFeilException) {
@@ -126,7 +126,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         ]
     )
     private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e))
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e.message!!))
 
     @ExceptionHandler(
         value = [
@@ -150,6 +150,10 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         private fun errorDto(e: RuntimeException) =
             TpoSimuleringErrorDto(
                 feil = e.javaClass.simpleName
+            )
+        private fun errorDto(error: String) =
+            TpoSimuleringErrorDto(
+                feil = error
             )
     }
 }

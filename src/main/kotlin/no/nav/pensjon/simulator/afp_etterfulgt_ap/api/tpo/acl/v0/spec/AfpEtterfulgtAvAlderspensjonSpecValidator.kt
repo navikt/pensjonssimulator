@@ -1,9 +1,11 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 
+import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import kotlin.reflect.KProperty1
 
 object AfpEtterfulgtAvAlderspensjonSpecValidator {
 
@@ -45,27 +47,21 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
         }
     }
 
-    private fun validateMissingFields(dto: AfpEtterfulgtAvAlderspensjonSpecV0): AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0 {
-        if (dto.personId == null) throw BadSpecException("personId missing")
-        if (dto.sivilstandVedPensjonering == null) throw BadSpecException("sivilstandVedPensjonering missing")
-        if (dto.uttakFraOgMedDato == null) throw BadSpecException("uttakFraOgMedDato missing")
-        //if(dto.fremtidigAarligInntektTilUttak == null) is Optional
-        if (dto.inntektSisteMaanedOver1G == null) throw BadSpecException("inntektSisteMaanedOver1G missing")
-        if (dto.fremtidigAarligInntektUnderAfpUttak == null) throw BadSpecException("fremtidigAarligInntektUnderUttak missing")
-        if (dto.aarIUtlandetEtter16 == null) throw BadSpecException("aarIUtlandetEtter16 missing")
-        if (dto.epsPensjon == null) throw BadSpecException("epsPensjon missing")
-        if (dto.eps2G == null) throw BadSpecException("eps2G missing")
-
-        return AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
-            dto.personId,
-            dto.sivilstandVedPensjonering,
-            dto.uttakFraOgMedDato,
+    private fun validateMissingFields(dto: AfpEtterfulgtAvAlderspensjonSpecV0): AfpEtterfulgtAvAlderspensjonValidatedSpecV0 =
+        AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::personId),
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::sivilstandVedPensjonering),
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::uttakFraOgMedDato),
             dto.fremtidigAarligInntektTilAfpUttak,
-            dto.inntektSisteMaanedOver1G,
-            dto.fremtidigAarligInntektUnderAfpUttak,
-            dto.aarIUtlandetEtter16,
-            dto.epsPensjon,
-            dto.eps2G
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::inntektSisteMaanedOver1G),
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::fremtidigAarligInntektUnderAfpUttak),
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::aarIUtlandetEtter16),
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::epsPensjon),
+            requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::eps2G)
         )
+
+    fun <T, R> requireFieldValue(instance: T, field: KProperty1<T, R?>): R {
+        return field.get(instance)
+            ?: throw BadSpecException("${field.name} missing")
     }
 }

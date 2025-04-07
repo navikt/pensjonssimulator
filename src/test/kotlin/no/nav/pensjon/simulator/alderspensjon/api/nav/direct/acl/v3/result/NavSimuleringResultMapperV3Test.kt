@@ -47,7 +47,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                             maanedligBeloep = 678
                         )
                     ),
-                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 66, beloep = 789)),
+                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 66, beloep = 789, maanedligBeloep = 100)),
                     pre2025OffentligAfp = SimulertPre2025OffentligAfp(alderAar = 62, totaltAfpBeloep = 890, tidligereArbeidsinntekt = 123, grunnbeloep = 456, sluttpoengtall = 7.8, trygdetid = 30, poengaarTom1991 = 10, poengaarFom1992 = 20, grunnpensjon = 567, tilleggspensjon = 678, afpTillegg = 789, saertillegg = 890),
                     livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 63, beloep = 901)),
                     pensjonBeholdningPeriodeListe = listOf(
@@ -123,7 +123,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                 afpTillegg = 789,
                 saertillegg = 890
             ),
-            privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789)),
+            privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789, maanedligBeloep = 300)),
             livsvarigOffentligAfpListe = listOf(NavLivsvarigOffentligAfpV3(alderAar = 63, beloep = 901)),
             vilkaarsproeving = NavVilkaarsproevingResultatV3(
                 vilkaarErOppfylt = false, // since alternativ exists

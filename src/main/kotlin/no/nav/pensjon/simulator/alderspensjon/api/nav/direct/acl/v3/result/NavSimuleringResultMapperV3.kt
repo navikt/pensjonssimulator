@@ -69,7 +69,8 @@ object NavSimuleringResultMapperV3 {
     private fun privatAfp(source: SimulertPrivatAfp) =
         NavPrivatAfpV3(
             alderAar = source.alderAar,
-            beloep = source.beloep
+            beloep = source.beloep,
+            maanedligBeloep = source.maanedligBeloep
         )
 
     private fun livsvarigOffentligAfp(source: SimulertLivsvarigOffentligAfp) =

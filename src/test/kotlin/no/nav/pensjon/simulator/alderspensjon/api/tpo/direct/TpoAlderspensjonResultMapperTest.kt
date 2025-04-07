@@ -60,7 +60,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                             maanedligBeloep = 500
                         )
                     ),
-                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 63, beloep = 5000)),
+                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 63, beloep = 5000, maanedligBeloep = 900)),
                     pre2025OffentligAfp = null,
                     livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 66, beloep = 6000)),
                     pensjonBeholdningPeriodeListe = listOf(

@@ -84,7 +84,7 @@ class KravhodeCreator(
 
         val kravhode = Kravhode().apply {
             kravFremsattDato = Date()
-            onsketVirkningsdato = oensketVirkningDato(spec)?.toNorwegianDateAtNoon()
+            onsketVirkningsdato = oensketVirkningDato(spec)
             gjelder = null
             sakId = null
             sakType = SakType.ALDER

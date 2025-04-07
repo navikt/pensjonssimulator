@@ -108,7 +108,11 @@ class PersongrunnlagMapper(
             fodselsdato = person.foedselsdato?.toNorwegianDateAtNoon()
             statsborgerskapEnum = person.pid?.let { generelleDataHolder.getPerson(it).statsborgerskap }
             bosattLandEnum = norge
-            afpHistorikkListe = person.afpHistorikkListe ?: mutableListOf()
+
+            // use only first AFP-historikk item, ref. PEN kjerne.Persongrunnlag.setAfpHistorikkListe
+            afpHistorikkListe =
+                person.afpHistorikkListe.orEmpty().firstOrNull()?.let { mutableListOf(it) } ?: mutableListOf()
+
             uforeHistorikk = person.uforehistorikk
             generellHistorikk = person.generellHistorikk
             personDetaljListe.add(personDetalj)

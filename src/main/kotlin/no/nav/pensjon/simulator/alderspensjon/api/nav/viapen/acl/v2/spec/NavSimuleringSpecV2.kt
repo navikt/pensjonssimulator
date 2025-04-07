@@ -77,6 +77,7 @@ data class NavSimuleringSpecV2(
                 "\"utenlandsopphold\": $utenlandsopphold, " +
                 "\"simuleringType\": ${textAsString(simuleringType)}, " +
                 "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
+                "\"utenlandsperiodeForSimuleringList\": ${listAsString(utenlandsperiodeForSimuleringList)}, " +
                 "\"forsteUttakDato\": ${textAsString(forsteUttakDato)}, " +
                 "\"utg\": ${textAsString(utg)}, " +
                 "\"heltUttakDato\": ${textAsString(heltUttakDato)} }"

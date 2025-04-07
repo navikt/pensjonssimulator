@@ -69,7 +69,8 @@ data class SimulertPre2025OffentligAfp(
 
 data class SimulertLivsvarigOffentligAfp(
     val alderAar: Int,
-    val beloep: Int
+    val beloep: Int,
+    val maanedligBeloep: Int
 )
 
 data class SimulertPensjonBeholdningPeriode(

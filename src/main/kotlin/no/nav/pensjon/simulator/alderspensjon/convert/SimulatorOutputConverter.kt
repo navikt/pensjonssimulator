@@ -159,7 +159,7 @@ object SimulatorOutputConverter {
 
 
     private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
-        SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep)
+        SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep, source.maanedligBeloep)
 
     private fun beholdningPeriode(source: BeholdningPeriode) =
         SimulertPensjonBeholdningPeriode(

@@ -123,7 +123,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                 afpTillegg = 789,
                 saertillegg = 890
             ),
-            privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789, maanedligBeloep = 300)),
+            privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789, maanedligBeloep = 100)),
             livsvarigOffentligAfpListe = listOf(NavLivsvarigOffentligAfpV3(alderAar = 63, beloep = 901)),
             vilkaarsproeving = NavVilkaarsproevingResultatV3(
                 vilkaarErOppfylt = false, // since alternativ exists

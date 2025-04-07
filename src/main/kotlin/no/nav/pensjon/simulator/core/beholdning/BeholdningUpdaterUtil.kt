@@ -21,7 +21,6 @@ import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_AN
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForDate
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 import java.util.*
@@ -359,7 +358,7 @@ object BeholdningUpdaterUtil {
 
     // BeholdningSwitchDecider.beholdningShouldBeSwitched
     fun isVirkFomEligibleForSwitching(kravhode: Kravhode): Boolean =
-        kravhode.onsketVirkningsdato?.let { isFirstDayOfYear(it) || isFirstDayOfMay(it) } == true
+        kravhode.onsketVirkningsdato?.let { it.dayOfYear == 1 || isFirstDayOfMay(it) } == true
 
     // BeholdningSwitchDecider.isSokersPersongrunnlag
     fun isSokersPersongrunnlag(kravhode: Kravhode, persongrunnlag: Persongrunnlag): Boolean =
@@ -375,16 +374,12 @@ object BeholdningUpdaterUtil {
     // RevurderingHelper.isRevurderingBackToFirstUttaksdatoOrForstegangsbehandling
     fun isRevurderingBackToFirstUttaksdatoOrForstegangsbehandling(kravhode: Kravhode): Boolean =
         with(kravhode.sakForsteVirkningsdato()) {
-            this == null || this == kravhode.onsketVirkningsdato?.toNorwegianLocalDate()
+            this == null || this == kravhode.onsketVirkningsdato
         }
 
-    // RevurderingHelper.isFirstDayOfYear
-    fun isFirstDayOfYear(date: Date): Boolean =
-        date.toNorwegianLocalDate().dayOfYear == 1
-
     // RevurderingHelper.isFirstDayOfMay
-    fun isFirstDayOfMay(date: Date): Boolean =
-        with(date.toNorwegianLocalDate()) {
+    fun isFirstDayOfMay(date: LocalDate): Boolean =
+        with(date) {
             dayOfMonth == 1 && monthValue == 5
             //TODO use const
         }

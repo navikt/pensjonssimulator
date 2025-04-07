@@ -82,7 +82,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
                 hentSisteLignetInntektService::hentSisteLignetInntekt
             )
 
-            toDto(simulatorCore.simuler(spec), spec.inntektUnderGradertUttakBeloep)
+            toDto(simulatorCore.simuler(spec), spec)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
             throw e

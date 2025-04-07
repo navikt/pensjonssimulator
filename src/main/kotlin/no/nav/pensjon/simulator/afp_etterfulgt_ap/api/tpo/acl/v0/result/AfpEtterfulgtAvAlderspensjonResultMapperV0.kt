@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.result.Maanedsutbetaling
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.util.*
@@ -14,7 +15,7 @@ import java.util.*
 object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private val log = KotlinLogging.logger {}
 
-    fun toDto(source: SimulatorOutput, inntektVedAfpUttak: Int): AfpEtterfulgtAvAlderspensjonResultV0 {
+    fun toDto(source: SimulatorOutput, spec: SimuleringSpec): AfpEtterfulgtAvAlderspensjonResultV0 {
         val afp: Beregning = source.pre2025OffentligAfp?.beregning ?: throw ImplementationUnrecoverableException("pre2025OffentligAfp mangler i beregningsresultatet")
         val alderspensjon = source.alderspensjon ?: throw ImplementationUnrecoverableException("alderspensjon mangler i beregningsresultatet")
 
@@ -24,7 +25,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             folketrygdberegnetAfp = mapToFolketrygdberegnetAfp(
                 source.pre2025OffentligAfp?.virk!!,
                 afp,
-                inntektVedAfpUttak
+                spec
             ),
             alderspensjonFraFolketrygden = mapToAlderspensjon(alderspensjon, source.grunnbeloep)
         )
@@ -42,17 +43,19 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun mapToFolketrygdberegnetAfp(
         virk: Date,
         afp: Beregning,
-        inntektVedAfpUttak: Int,
+        spec: SimuleringSpec,
     ): FolketrygdberegnetAfpV0 {
         val tilleggspensjon = afp.tp
         val grunnpensjon = afp.gp!!
         val saertillegg = afp.st
-        val tidligereInntekt = tilleggspensjon?.spt?.poengrekke?.tpi!!
+        val beregnetTidligereInntekt = tilleggspensjon?.spt?.poengrekke?.tpi!!
 
         val res = FolketrygdberegnetAfpV0(
             fraOgMedDato = virk.toNorwegianLocalDate(),
-            tidligereInntekt = tidligereInntekt,
-            afpGrad = beregnAfpGrad(inntektVedAfpUttak, tidligereInntekt),
+            beregnetTidligereInntekt = beregnetTidligereInntekt,
+            afpGrad = beregnAfpGrad(spec.inntektUnderGradertUttakBeloep, beregnetTidligereInntekt),
+            fremtidigAarligInntektTilAfpUttak = spec.forventetInntektBeloep,
+            afpAvkortetTil70Prosent = false,
             grunnpensjon = GrunnpensjonV0(
                 maanedligUtbetaling = grunnpensjon.netto,
                 grunnbeloep = afp.g,

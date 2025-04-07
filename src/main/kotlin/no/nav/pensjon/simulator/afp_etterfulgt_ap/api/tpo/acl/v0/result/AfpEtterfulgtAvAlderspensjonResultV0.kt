@@ -16,8 +16,10 @@ data class AfpEtterfulgtAvAlderspensjonResultV0(
 data class FolketrygdberegnetAfpV0(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     val fraOgMedDato: LocalDate,
-    val tidligereInntekt: Int?,
+    val beregnetTidligereInntekt: Int?,
+    val fremtidigAarligInntektTilAfpUttak: Int,
     val afpGrad: Int,
+    val afpAvkortetTil70Prosent: Boolean,
     val grunnpensjon: GrunnpensjonV0,
     val tilleggspensjon: TilleggspensjonV0?,
     val saertillegg: SaertilleggV0?,

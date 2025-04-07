@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUPtilUT
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
@@ -16,6 +17,7 @@ import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import java.util.*
 
+// 2025-04-05
 /**
  * Persongrunnlag inneholder nødvendige data knyttet til en bestemt person.
  * Persongrunnlag brukes som inndata til kall på en regeltjeneste og må defineres før kallet.
@@ -180,7 +182,7 @@ class Persongrunnlag() {
      * Historikk for AFP ytelser. Inneholder informasjon relevant for
      * perioden(e) bruker hadde AFP.
      */
-    var afpHistorikkListe: MutableList<AfpHistorikk> = mutableListOf() // SIMDOM-EDIT: Mutable
+    var afpHistorikkListe: List<AfpHistorikk> = mutableListOf()
 
     /**
      * Beskriver hvor mange barn det er i kullet.
@@ -249,7 +251,7 @@ class Persongrunnlag() {
 
     /**
      * Årstall for avtjent verneplikt. Maks 4 år godkjennes. Er null dersom det
-     * ikke finnes vernepliktsær. må være i stigende rekkefålge, eks:<br></br>
+     * ikke finnes vernepliktsår. må være i stigende rekkefølge, eks:<br></br>
      * `[0] = 2001`<br></br>
      * `[1] = 2002`<br></br>
      * `[2] = 2004`
@@ -266,7 +268,7 @@ class Persongrunnlag() {
      * Liste av institusjonsoppholdsreduksjonsperioder relatert til
      * persongrunnlaget
      */
-    var instOpphReduksjonsperiodeListe: MutableList<InstOpphReduksjonsperiode> = mutableListOf() // SIMDOM-EDIT: Mutable
+    var instOpphReduksjonsperiodeListe: List<InstOpphReduksjonsperiode> = mutableListOf()
 
     /**
      * Liste av institusjonsoppholdsfasteutgifterperioder relatert til
@@ -297,8 +299,7 @@ class Persongrunnlag() {
     /**
      * Contains information about post injury arbeidsforhold perioder and stillingsprosent.
      */
-    var arbeidsforholdEtterUforgrunnlagListe: MutableList<ArbeidsforholdEtterUforgrunnlag> =
-        mutableListOf() // SIMDOM-EDIT: Mutable
+    var arbeidsforholdEtterUforgrunnlagListe: List<ArbeidsforholdEtterUforgrunnlag> = mutableListOf()
 
     /**
      * Informasjon om konverterting fra UP til UT.
@@ -308,7 +309,7 @@ class Persongrunnlag() {
     /**
      * Inneholder utbetalingsgraden for uføretrygd etter inntektsavkorting.
      */
-    var utbetalingsgradUTListe: MutableList<UtbetalingsgradUT> = mutableListOf() // SIMDOM-EDIT: Mutable
+    var utbetalingsgradUTListe: List<UtbetalingsgradUT> = mutableListOf()
 
     /**
      * Objekt som inneholder informasjon om TP-ordningers uførepensjonsgrunnlag. Dette er manuelt registrerte data og ikke hentet fra TP-registeret eller andre eksterne kilder.
@@ -342,6 +343,9 @@ class Persongrunnlag() {
 
     @JsonIgnore
     var beholdninger: MutableList<Pensjonsbeholdning> = mutableListOf() // BEHOLDNING
+
+    @JsonIgnore
+    var livsvarigOffentligAfpGrunnlagListe: List<AfpOffentligLivsvarigGrunnlag> = emptyList()
 
     @JsonIgnore
     var trygdetider: MutableList<Trygdetid> = mutableListOf() // TRYGDETID
@@ -378,14 +382,14 @@ class Persongrunnlag() {
         excludeForsteVirkningsdatoGrunnlag: Boolean = false,
         excludeTrygdetidPerioder: Boolean = false
     ) : this() {
-        source.penPerson?.let { penPerson = PenPerson(it) }
-        source.fodselsdato?.let { fodselsdato = it.clone() as Date }
-        source.dodsdato?.let { dodsdato = it.clone() as Date }
-        source.statsborgerskapEnum?.let { statsborgerskapEnum = it }
-        source.flyktning?.let { flyktning = it }
+        penPerson = source.penPerson?.let(::PenPerson)
+        fodselsdato = source.fodselsdato?.clone() as? Date
+        dodsdato = source.dodsdato?.clone() as? Date
+        statsborgerskapEnum = source.statsborgerskapEnum
+        flyktning = source.flyktning
         source.personDetaljListe.forEach { personDetaljListe.add(PersonDetalj(it)) }
-        source.sistMedlITrygden?.let { sistMedlITrygden = it.clone() as Date }
-        source.hentetPopp?.let { hentetPopp = it }
+        sistMedlITrygden = source.sistMedlITrygden?.clone() as? Date
+        hentetPopp = source.hentetPopp
         hentetInnt = source.hentetInnt
         hentetInst = source.hentetInst
         hentetTT = source.hentetTT
@@ -434,11 +438,8 @@ class Persongrunnlag() {
             this.vernepliktAr = source.vernepliktAr!!.clone()
         }
 
-        this.skiltesDelAvAvdodesTP = source.skiltesDelAvAvdodesTP
-
-        for (instOpphReduksjonsperiode in source.instOpphReduksjonsperiodeListe) {
-            this.instOpphReduksjonsperiodeListe.add(InstOpphReduksjonsperiode(instOpphReduksjonsperiode))
-        }
+        skiltesDelAvAvdodesTP = source.skiltesDelAvAvdodesTP
+        instOpphReduksjonsperiodeListe = source.instOpphReduksjonsperiodeListe.map(::InstOpphReduksjonsperiode)
 
         for (instOpphFasteUtgifterperiode in source.instOpphFasteUtgifterperiodeListe) {
             this.instOpphFasteUtgifterperiodeListe.add(InstOpphFasteUtgifterperiode(instOpphFasteUtgifterperiode))
@@ -476,24 +477,13 @@ class Persongrunnlag() {
             this.arbeidsforholdsgrunnlagListe.add(Arbeidsforholdsgrunnlag(afg))
         }
 
-        for (arbeidsforholdEtterUforgrunnlag in source.arbeidsforholdEtterUforgrunnlagListe) {
-            this.arbeidsforholdEtterUforgrunnlagListe.add(
-                ArbeidsforholdEtterUforgrunnlag(
-                    arbeidsforholdEtterUforgrunnlag
-                )
-            )
-        }
-
-        this.overgangsInfoUPtilUT = source.overgangsInfoUPtilUT?.copy()
-
-        for (utbetalingsgradUT in source.utbetalingsgradUTListe) {
-            this.utbetalingsgradUTListe.add(UtbetalingsgradUT(utbetalingsgradUT))
-        }
-
+        arbeidsforholdEtterUforgrunnlagListe =
+            source.arbeidsforholdEtterUforgrunnlagListe.map(::ArbeidsforholdEtterUforgrunnlag)
+        overgangsInfoUPtilUT = source.overgangsInfoUPtilUT?.copy()
+        utbetalingsgradUTListe = source.utbetalingsgradUTListe.map(::UtbetalingsgradUT)
         trygdetidAlternativ = source.trygdetidAlternativ?.copy()
-
-        this.sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
-        this.barnetilleggVurderingsperiode = source.barnetilleggVurderingsperiode
+        sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
+        barnetilleggVurderingsperiode = source.barnetilleggVurderingsperiode
 
         if (source.afpTpoUpGrunnlag != null) {
             this.afpTpoUpGrunnlag = AfpTpoUpGrunnlag(source.afpTpoUpGrunnlag!!)
@@ -501,18 +491,16 @@ class Persongrunnlag() {
         //for (vilkarsVedtak in persongrunnlag.vilkarsvedtakEPSListe) {
         //    this.vilkarsvedtakEPSListe.add(VilkarsVedtak(vilkarsVedtak))
         //}
-        // SIMDOM-ADD
+        //--- Extra:
         gjelderOmsorg = source.gjelderOmsorg //: Boolean = false
         gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
-
-        source.barnetilleggVurderingsperioder.forEach {
-            barnetilleggVurderingsperioder.add(BarnetilleggVurderingsperiode(it))
-        }
-
-        source.beholdninger.forEach { beholdninger.add(Pensjonsbeholdning(it)) }
+        barnetilleggVurderingsperioder =
+            source.barnetilleggVurderingsperioder.map(::BarnetilleggVurderingsperiode).toMutableList()
+        beholdninger = source.beholdninger.map { it.copy() }.toMutableList()
+        livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe.map { it.copy() }
         trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
-        source.uforegrunnlagList.forEach { uforegrunnlagList.add(Uforegrunnlag(it)) }
-        source.yrkesskadegrunnlagList.forEach { yrkesskadegrunnlagList.add(Yrkesskadegrunnlag(it)) }
+        uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
+        yrkesskadegrunnlagList = source.yrkesskadegrunnlagList.map(::Yrkesskadegrunnlag).toMutableList()
         rawFodselsdato = source.rawFodselsdato?.clone() as? Date
         rawDodsdato = source.rawDodsdato?.clone() as? Date
         rawSistMedlITrygden = source.rawSistMedlITrygden?.clone() as? Date
@@ -527,7 +515,7 @@ class Persongrunnlag() {
                 erPrognose = it.erPrognose
             )
         }
-        // end SIMDOM-ADD
+        // end extra ---
     }
 
     fun addBeholdning(beholdning: Pensjonsbeholdning) {
@@ -539,7 +527,7 @@ class Persongrunnlag() {
         beholdninger.clear()
         beholdninger.addAll(list)
         // pensjon-regler only uses latest beholdning
-        pensjonsbeholdning = findLatest(beholdninger) // cf. kjerne.Persongrunnlag.getPensjonsbeholdning
+        pensjonsbeholdning = findLatest(beholdninger) // cf. PEN kjerne.Persongrunnlag.getPensjonsbeholdning
     }
 
     /**
@@ -551,7 +539,7 @@ class Persongrunnlag() {
             (!checkBruk || it.bruk == true) && it.grunnlagsrolleEnum == rolle
         }
 
-    // no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljWithRolleForPeriode
+    // PEN: no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljWithRolleForPeriode
     fun findPersonDetaljWithRolleForPeriode(
         rolle: GrunnlagsrolleEnum,
         virkningDato: Date?,
@@ -563,7 +551,7 @@ class Persongrunnlag() {
                     isDateInPeriod(virkningDato, it.virkFom, it.virkTom)
         }
 
-    // no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.isAvdod
+    // PEN: no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.isAvdod
     fun isAvdod() = findPersonDetaljIPersongrunnlag(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = true) != null
 
     fun isBarnOrFosterbarn() =
@@ -610,7 +598,7 @@ class Persongrunnlag() {
     /**
      * Finner nyeste trygdetid, hvis ingen finnes returneres null
      */
-    // Persongrunnlag.findLatestTrygdetid + Trygdetid.compareTo
+    // PEN: Persongrunnlag.findLatestTrygdetid + Trygdetid.compareTo
     fun latestTrygdetid(): Trygdetid? =
         trygdetider.filter { it.virkFom != null }.maxByOrNull { it.virkFom!! }
             ?: trygdetider.firstOrNull()

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.krav
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
@@ -10,9 +11,11 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.krav.KravGjelder
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.time.Periode
 import java.time.LocalDate
 import java.util.*
 
+// 2025-04-05
 /**
  * Kravhode utgjør, sammen med en liste av VilkarsVedtak, hele inndata for
  * de fleste regeltjenestene.
@@ -74,6 +77,7 @@ open class Kravhode {
             field = value
             sorterUttaksgradListe()
         }
+
     var regelverkTypeEnum: RegelverkTypeEnum? = null
 
     /**
@@ -99,7 +103,7 @@ open class Kravhode {
         Collections.sort(uttaksgradListe, Collections.reverseOrder())
     }
 
-    // SIMDOM-ADD
+    //--- Extra:
     @JsonIgnore
     var kravId: Long? = null
 
@@ -107,7 +111,7 @@ open class Kravhode {
     var kravFremsattDato: Date? = null
 
     @JsonIgnore
-    var onsketVirkningsdato: Date? = null
+    var onsketVirkningsdato: LocalDate? = null
 
     @JsonIgnore
     var gjelder: KravGjelder? = null
@@ -139,15 +143,15 @@ open class Kravhode {
         return null
     }
 
-    // KravHode.hentPersongrunnlagForSoker + finnPersongrunnlagForRolle
+    // PEN: KravHode.hentPersongrunnlagForSoker + finnPersongrunnlagForRolle
     fun hentPersongrunnlagForSoker(): Persongrunnlag =
-        persongrunnlagListe.firstOrNull(::isSokerAmongDetaljer)
+        persongrunnlagListe.firstOrNull(::isSoekerAmongDetaljer)
             ?: throw IllegalStateException("Kravhode has no persongrunnlag for søker")
 
     fun findPersonGrunnlagIGrunnlagsRolle(rolle: GrunnlagsrolleEnum): Persongrunnlag? =
         findPersonGrunnlagIGrunnlagsRolle(rolle, false)
 
-    // KravHode.getHarGjenlevenderettighet + hasNotAvsluttetKravlinjeOfType
+    // PEN: KravHode.getHarGjenlevenderettighet + hasNotAvsluttetKravlinjeOfType
     fun harGjenlevenderettighet(): Boolean =
         kravlinjeListe.any {
             KravlinjeTypeEnum.GJR == it.kravlinjeTypeEnum && !it.isKravlinjeAvbrutt()
@@ -156,16 +160,15 @@ open class Kravhode {
     private fun findPersonGrunnlagIGrunnlagsRolle(rolle: GrunnlagsrolleEnum, inUse: Boolean): Persongrunnlag? =
         persongrunnlagListe.firstOrNull { it.findPersonDetaljIPersongrunnlag(rolle, inUse) != null }
 
-    private fun isSokerAmongDetaljer(persongrunnlag: Persongrunnlag): Boolean =
+    private fun isSoekerAmongDetaljer(persongrunnlag: Persongrunnlag): Boolean =
         persongrunnlag.personDetaljListe.any {
             it.bruk == true && GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum
         }
 
-    //SIMDOM-ADD:
     fun isUforetrygd() = hasKravlinjeOfType(KravlinjeTypeEnum.UT)
 
-    private fun hasKravlinjeOfType(kravlinjeType: KravlinjeTypeEnum) =
-        kravlinjeListe.any { it.kravlinjeTypeEnum == kravlinjeType }
+    private fun hasKravlinjeOfType(type: KravlinjeTypeEnum): Boolean =
+        kravlinjeListe.any { type == it.kravlinjeTypeEnum }
 
     fun findPersonDetaljIBruk(rolle: GrunnlagsrolleEnum): PersonDetalj? {
         for (persongrunnlag in persongrunnlagListe) {
@@ -202,11 +205,39 @@ open class Kravhode {
         return hovedKravlinje
     }
 
+    // PEN: KravHode.hentGjeldendeLivsvarigInnvilgetAfpOffentligGrunnlag
+    fun gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag(): AfpOffentligLivsvarigGrunnlag? =
+        hentPersongrunnlagForSoker().livsvarigOffentligAfpGrunnlagListe
+            .firstOrNull {
+                periodFallsWithin(
+                    p1Start = it.uttaksdato,
+                    p1End = it.virkTom,
+                    p2Start = onsketVirkningsdato,
+                    p2End = onsketVirkningsdato,
+                    considerSameDayAsFallsWithin = true
+                )
+            }
+
     private companion object {
 
+        // PEN: DateUtils.isDatePeriodFallsWithInWithPossiblyOpenEndings
+        // -> LocalDateUtils.isDatePeriodFallsWithIn
+        private fun periodFallsWithin(
+            p1Start: LocalDate?,
+            p1End: LocalDate?,
+            p2Start: LocalDate?,
+            p2End: LocalDate?,
+            considerSameDayAsFallsWithin: Boolean
+        ): Boolean {
+            val p1: Periode = Periode.of(p1Start, p1End)
+            val p2: Periode = Periode.of(p2Start, p2End)
+            return p2.fitsIn(p1) && (considerSameDayAsFallsWithin || !p1.sameStart(p2) && !p1.sameEnd(p2))
+        }
+
         private fun kunUtland(kravGjelder: KravGjelder?) =
-            kravGjelder?.let { EnumSet.of(KravGjelder.F_BH_KUN_UTL, KravGjelder.SLUTTBEH_KUN_UTL).contains(it) }
-                ?: false
+            kravGjelder?.let {
+                EnumSet.of(KravGjelder.F_BH_KUN_UTL, KravGjelder.SLUTTBEH_KUN_UTL).contains(it)
+            } == true
     }
-    //--- end SIMDOM-ADD
+    // end extra
 }

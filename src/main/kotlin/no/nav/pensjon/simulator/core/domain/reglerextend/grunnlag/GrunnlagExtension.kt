@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -60,6 +59,7 @@ fun Garantipensjonsbeholdning.copy() =
         it.justertGarantipensjonsniva = this.justertGarantipensjonsniva?.copy()
         it.pensjonsbeholdning = this.pensjonsbeholdning
         it.delingstall67 = this.delingstall67
+        it.delingstallVedNormertPensjonsalder = this.delingstallVedNormertPensjonsalder
         it.satsTypeEnum = this.satsTypeEnum
         it.sats = this.sats
         it.garPN_tt_anv = this.garPN_tt_anv

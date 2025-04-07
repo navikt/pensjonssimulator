@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.beregn
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
+import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpUtil.getLivsvarigOffentligAfp
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
@@ -23,7 +23,6 @@ import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
-import no.nav.pensjon.simulator.core.util.isBeforeOrOn
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
@@ -119,8 +118,9 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     sistRegulertG = it.sistRegulertG ?: CURRENT_GRUNNBELOEP,
                     bruttoPerAr = it.bruttoPerAr,
                     uttaksdato = it.uttaksdato
+                    // virkTom only relevant for innvilget AFP
                 )
-            }
+            } ?: kravhode.gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag()
 
             // Corresponds to part 5
             if (aarsaker.contains(KnekkpunktAarsak.UTG)) { // UTG = 'Endring av uttaksgrad'
@@ -364,20 +364,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             knekkpunktDato: LocalDate
         ): AfpPrivatLivsvarig? =
             findValidForDate(resultatListe, knekkpunktDato)?.privatAfp()
-
-        private fun getLivsvarigOffentligAfp(
-            resultatListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>,
-            knekkpunktDato: LocalDate
-        ): AfpOffentligLivsvarig? =
-            resultatListe
-                .filter { it.gjelderFom.isBeforeOrOn(knekkpunktDato) }
-                .maxByOrNull { it.gjelderFom }
-                ?.let {
-                    AfpOffentligLivsvarig().apply {
-                        bruttoPerAr = it.afpYtelsePerAar
-                        uttaksdato = it.gjelderFom
-                    }
-                }
 
         private fun vilkaarsproevingSpec(
             livsvarigOffentligAfp: AfpOffentligLivsvarigGrunnlag?,

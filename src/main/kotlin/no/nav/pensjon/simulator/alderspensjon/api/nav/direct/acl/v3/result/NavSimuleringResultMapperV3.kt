@@ -76,7 +76,8 @@ object NavSimuleringResultMapperV3 {
     private fun livsvarigOffentligAfp(source: SimulertLivsvarigOffentligAfp) =
         NavLivsvarigOffentligAfpV3(
             alderAar = source.alderAar,
-            beloep = source.beloep
+            beloep = source.beloep,
+            maanedligBeloep = source.maanedligBeloep
         )
 
     private fun vilkaarsproevingResultat(source: SimulertAlternativ?) =

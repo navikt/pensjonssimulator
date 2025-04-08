@@ -76,7 +76,7 @@ class PenBeholdningClient(
     }
 
     private companion object {
-        private const val BASE_PATH = "pen/api"
+        private const val BASE_PATH = "api"
         private const val BEHOLDNINGER_MED_GRUNNLAG_PATH = "beholdning/v1/beholdninger-med-grunnlag"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE

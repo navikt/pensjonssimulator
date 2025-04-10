@@ -55,7 +55,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             beregnetTidligereInntekt = beregnetTidligereInntekt,
             afpGrad = beregnAfpGrad(spec.inntektUnderGradertUttakBeloep, beregnetTidligereInntekt),
             fremtidigAarligInntektTilAfpUttak = spec.forventetInntektBeloep,
-            afpAvkortetTil70Prosent = false,
+            afpAvkortetTil70Prosent = afp.gpAfpPensjonsregulert != null,
             grunnpensjon = GrunnpensjonV0(
                 maanedligUtbetaling = grunnpensjon.netto,
                 grunnbeloep = afp.g,

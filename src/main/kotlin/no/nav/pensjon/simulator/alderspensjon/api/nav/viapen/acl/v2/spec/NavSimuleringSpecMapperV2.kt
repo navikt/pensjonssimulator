@@ -68,8 +68,8 @@ object NavSimuleringSpecMapperV2 {
         UtlandPeriode(
             land = source.land,
             arbeidet = source.arbeidetIUtland,
-            fom = source.periodeFom,
-            tom = source.periodeTom
+            fom = source.periodeFom.toNorwegianLocalDate(),
+            tom = source.periodeTom?.toNorwegianLocalDate()
         )
 
     private fun avdoed(source: NavSimuleringSpecV2): Avdoed? =

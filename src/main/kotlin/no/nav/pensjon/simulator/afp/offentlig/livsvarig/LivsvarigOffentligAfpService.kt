@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
+import no.nav.pensjon.simulator.core.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
@@ -55,13 +56,13 @@ class LivsvarigOffentligAfpService(
 
     private fun valid(foedselAar: Int, virkningFomAar: Int): Boolean =
         when {
-            foedselAar < MINIMUM_FOEDSEL_AAR -> {
-                log.warn { "LvOfAFP - fødselsår $foedselAar er for tidlig - minimum er $MINIMUM_FOEDSEL_AAR" }
+            foedselAar < mimimumFoedselAar() -> {
+                log.warn { "LvOfAFP - fødselsår $foedselAar er for tidlig - minimum er ${mimimumFoedselAar()}" }
                 false
             }
 
-            virkningFomAar < foedselAar + LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR -> {
-                log.warn { "LvOfAFP - virkningsår $virkningFomAar er for tidlig - minimum er ${foedselAar + LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR}" }
+            virkningFomAar < minimumVirkningFomAar(foedselAar) -> {
+                log.warn { "LvOfAFP - virkningsår $virkningFomAar er for tidlig - minimum er ${minimumVirkningFomAar(foedselAar)}" }
                 false
             }
 
@@ -72,7 +73,12 @@ class LivsvarigOffentligAfpService(
         time.today().minusYears(1)
 
     private companion object {
-        private const val MINIMUM_FOEDSEL_AAR = 1963
+
+        private fun mimimumFoedselAar(): Int =
+            OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
+
+        private fun minimumVirkningFomAar(foedselAar: Int): Long =
+            foedselAar + LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
 
         private fun sisteAarMedAfpOpptjeningInntekt(foedselsdato: LocalDate): LocalDate =
             foedselsdato.plusYears(LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR)

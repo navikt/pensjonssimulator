@@ -3,12 +3,13 @@ package no.nav.pensjon.simulator.alderspensjon.spec
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.web.BadRequestException
+import java.time.LocalDate
 
 object SimuleringSpecValidator {
 
-    fun validate(spec: SimuleringSpec){
+    fun validate(spec: SimuleringSpec, today: LocalDate) {
         validateInntekt(spec.fremtidigInntektListe)
-        validateUttak(spec)
+        validateUttak(spec, today)
     }
 
     private fun validateInntekt(inntektListe: MutableList<FremtidigInntekt>) {
@@ -25,14 +26,15 @@ object SimuleringSpecValidator {
         }
     }
 
-    private fun validateUttak(spec: SimuleringSpec) {
-        if (spec.foersteUttakDato == null) {
-            throw BadRequestException("Dato for første uttak mangler")
-        }
+    private fun validateUttak(spec: SimuleringSpec, today: LocalDate) {
+        spec.foersteUttakDato?.let {
+            if (it.isBefore(today))
+                throw BadRequestException("Dato for første uttak er for tidlig")
+        } ?: throw BadRequestException("Dato for første uttak mangler")
 
         if (spec.heltUttakDato != null) {
             if (spec.foersteUttakDato.isAfter(spec.heltUttakDato))
-            throw BadRequestException("Andre uttak (100 %) starter ikke etter første uttak (gradert)")
+                throw BadRequestException("Andre uttak (100 %) starter ikke etter første uttak (gradert)")
         }
     }
 }

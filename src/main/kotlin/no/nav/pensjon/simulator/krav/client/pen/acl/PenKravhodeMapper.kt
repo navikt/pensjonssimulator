@@ -20,7 +20,7 @@ object PenKravhodeMapper {
         Kravhode().apply {
             kravId = source.kravId
             kravFremsattDato = source.kravFremsattDato
-            onsketVirkningsdato = source.onsketVirkningsdato
+            onsketVirkningsdato = source.onsketVirkningsdato?.toNorwegianLocalDate()
             gjelder = source.gjelder
             sakId = source.sakId
             sakType = source.sakType
@@ -189,6 +189,7 @@ object PenKravhodeMapper {
             yrkesskadegrunnlagList = source.yrkesskadegrunnlagList
             barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder
             beholdninger = source.flatBeholdninger.map(::pensjonsbeholdning).toMutableList()
+            livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe
             trygdetider = source.trygdetider
             gjelderOmsorg = source.gjelderOmsorg
             gjelderUforetrygd = source.gjelderUforetrygd

@@ -15,6 +15,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.vedtak.VedtakService
 import no.nav.pensjon.simulator.vedtak.VedtakStatus
 import org.springframework.stereotype.Component
@@ -25,7 +26,8 @@ class AlderspensjonService(
     private val simulator: SimulatorCore,
     private val alternativSimuleringService: AlternativSimuleringService,
     private val vedtakService: VedtakService,
-    private val generelleDataHolder: GenerelleDataHolder
+    private val generelleDataHolder: GenerelleDataHolder,
+    private val time: Time
 ) {
     fun simulerAlderspensjon(spec: AlderspensjonSpec): AlderspensjonResult {
         val vedtakInfo = vedtakService.vedtakStatus(spec.pid, foersteUttakFom(spec))
@@ -40,13 +42,14 @@ class AlderspensjonService(
             )
         )
 
-        validate(simuleringSpec)
+        validate(simuleringSpec, time.today())
         val simuleringResultat = simulerMedMuligAlternativ(simuleringSpec)
 
         return TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simuleringResultat,
             angittFoersteUttakFom = foersteUttakFom(simuleringSpec),
-            angittAndreUttakFom = andreUttakFom(simuleringSpec)
+            angittAndreUttakFom = andreUttakFom(simuleringSpec),
+            onlyIncludeEntriesForUttakDatoer = false
         )
     }
 

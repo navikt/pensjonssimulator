@@ -2,11 +2,13 @@ package no.nav.pensjon.simulator.core
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
+import no.nav.pensjon.simulator.core.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpResult
+import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpTerminator.terminatePre2025OffentligAfp
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
@@ -37,6 +39,7 @@ import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.util.*
 
 /**
  * Corresponds to AbstraktSimulerAPFra2011Command, SimulerFleksibelAPCommand, SimulerAFPogAPCommand, SimulerEndringAvAPCommand
@@ -56,7 +59,8 @@ class SimulatorCore(
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService,
-    private val normAlderService: NormAlderService
+    private val normAlderService: NormAlderService,
+    private val resultPreparer: SimuleringResultPreparer
 ) : UttakAlderDiscriminator {
 
     private val log = KotlinLogging.logger {}
@@ -78,7 +82,7 @@ class SimulatorCore(
 
         val person: PenPerson? = initialSpec.pid
             ?.let(personService::person)
-          //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
+        //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
 
         val foedselsdato: LocalDate? = person?.foedselsdato
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
@@ -111,7 +115,7 @@ class SimulatorCore(
 
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
 
-        log.debug { "Simulator steg 3 - Beregn AFP Privat" }
+        log.debug { "Simulator steg 3 - Beregn privat AFP" }
 
         var privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf()
         var gjeldendePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat? = null
@@ -119,9 +123,9 @@ class SimulatorCore(
         if (ytelser.privatAfpVirkningFom != null) {
             val response = privatAfpBeregner.beregnPrivatAfp(
                 PrivatAfpSpec(
-                    simulering = spec,
                     kravhode,
                     virkningFom = ytelser.privatAfpVirkningFom,
+                    foersteUttakDato = spec.foersteUttakDato,
                     forrigePrivatAfpBeregningResult = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
                     gjelderOmsorg = kravhode.hentPersongrunnlagForSoker().gjelderOmsorg,
                     sakId = kravhode.sakId
@@ -156,7 +160,7 @@ class SimulatorCore(
             )
         )
 
-        log.debug { "Simulator steg 6 - Beregn AFP i offentlig sektor" }
+        log.debug { "Simulator steg 6 - Beregn offentlig AFP" }
 
         val pre2025OffentligAfpResult: Pre2025OffentligAfpResult?
         val livsvarigOffentligAfpResult: LivsvarigOffentligAfpResult?
@@ -173,6 +177,11 @@ class SimulatorCore(
         } else if (gjelderEndring && spec.type != SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) {
             pre2025OffentligAfpResult =
                 spec.foersteUttakDato?.let { pre2025OffentligAfpEndringBeregner.beregnAfp(kravhode, it) }
+            livsvarigOffentligAfpResult = null
+        } else if (simuleringTyperSomKreverTermineringAvPre2025OffentligAfp.contains(spec.type) &&
+            mayHavePre2025OffentligAfp(foedselsdato)
+        ) {
+            pre2025OffentligAfpResult = terminatePre2025OffentligAfp(kravhode, spec.foersteUttakDato)
             livsvarigOffentligAfpResult = null
         } else {
             pre2025OffentligAfpResult = null
@@ -227,7 +236,7 @@ class SimulatorCore(
                     pre2025OffentligAfp = pre2025OffentligAfpResult?.simuleringResult
                 }
             else
-                SimuleringResultPreparer.opprettOutput(
+                resultPreparer.opprettOutput(
                     ResultPreparerSpec(
                         simuleringSpec = spec,
                         kravhode = kravhode,
@@ -263,4 +272,12 @@ class SimulatorCore(
 
     private fun fetchGrunnbeloep(): Int =
         context.fetchGrunnbeloepListe(LocalDate.now()).satsResultater.firstOrNull()?.verdi?.toInt() ?: 0
+
+    private companion object {
+        private val simuleringTyperSomKreverTermineringAvPre2025OffentligAfp =
+            EnumSet.of(SimuleringType.ALDER, SimuleringType.ALDER_M_AFP_PRIVAT, SimuleringType.ALDER_M_GJEN)
+
+        private fun mayHavePre2025OffentligAfp(foedselsdato: LocalDate?): Boolean =
+            foedselsdato?.let { it.year < OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR } == true
+    }
 }

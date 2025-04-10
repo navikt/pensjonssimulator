@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.krav
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
@@ -16,6 +17,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
+import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
@@ -82,7 +84,7 @@ class KravhodeCreator(
 
         val kravhode = Kravhode().apply {
             kravFremsattDato = Date()
-            onsketVirkningsdato = oensketVirkningDato(spec)?.toNorwegianDateAtNoon()
+            onsketVirkningsdato = oensketVirkningDato(spec)
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
@@ -432,7 +434,7 @@ class KravhodeCreator(
         // Ref. PEN SimuleringEtter2011.isUttaksgrad100
         val inntektUnderAfpEllerGradertUttak =
             spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep
-                ?: if (spec.isGradert()) spec.inntektUnderGradertUttakBeloep else 0
+                ?: if (spec.uttakErGradertEllerNull()) spec.inntektUnderGradertUttakBeloep else 0
 
         val inntektEtterHeltUttak = spec.inntektEtterHeltUttakBeloep
         val inntekter: MutableList<Inntekt> = mutableListOf()
@@ -531,6 +533,7 @@ class KravhodeCreator(
         private const val MAX_UTTAKSGRAD = 100
         private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
+        private val log = KotlinLogging.logger {}
 
         private fun regelverkType(foedselAar: Int): RegelverkTypeEnum =
             when {
@@ -662,9 +665,9 @@ class KravhodeCreator(
             val inntektUnderAfpEllerGradertUttak: Int =
                 spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
 
-            val gjelder2PeriodeSimulering: Boolean = spec.gjelder2PeriodeSimulering()
+            val gjelder2FaseSimulering: Boolean = spec.gjelder2FaseSimulering()
 
-            if (gjelder2PeriodeSimulering && inntektUnderAfpEllerGradertUttak > 0) {
+            if (gjelder2FaseSimulering && inntektUnderAfpEllerGradertUttak > 0) {
                 inntektsgrunnlagListe.add(
                     inntektsgrunnlagForSoekerOrEps(
                         beloep = inntektUnderAfpEllerGradertUttak,
@@ -679,7 +682,7 @@ class KravhodeCreator(
             val inntektEtterHeltUttakAntallAar: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
 
             if (spec.inntektEtterHeltUttakBeloep > 0 && inntektEtterHeltUttakAntallAar > 0) {
-                val fom = if (gjelder2PeriodeSimulering) spec.heltUttakDato else spec.foersteUttakDato
+                val fom = if (gjelder2FaseSimulering) spec.heltUttakDato else spec.foersteUttakDato
                 val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, inntektEtterHeltUttakAntallAar), -1)
                 inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
             }
@@ -808,11 +811,13 @@ class KravhodeCreator(
             trygdetidPeriodeListe.any { it.landEnum != LandkodeEnum.NOR }
 
         private fun heltUttakTidspunkt(spec: SimuleringSpec): KalenderMaaned? =
-            if (spec.gjelder2PeriodeSimulering())
-                KalenderMaaned(
-                    aarstall = spec.heltUttakDato!!.year,
-                    maaned = monthOfYearRange1To12(spec.heltUttakDato)
-                )
+            if (spec.gjelder2FaseSimulering())
+                spec.heltUttakDato?.let {
+                    KalenderMaaned(
+                        aarstall = it.year,
+                        maaned = monthOfYearRange1To12(it)
+                    )
+                } ?: handleMissingHeltUttakDato(spec)
             else
                 null
 
@@ -830,6 +835,12 @@ class KravhodeCreator(
 
         private fun legacyFoersteDag(aar: Int) =
             foersteDag(aar).toNorwegianDateAtNoon()
+
+        private fun handleMissingHeltUttakDato(spec: SimuleringSpec): Nothing =
+            "Manglende heltUttakDato for 2-fase-simulering".let {
+                log.warn { "$it - $spec" }
+                throw BadSpecException(it)
+            }
     }
 
     private data class KalenderMaaned(

@@ -90,18 +90,21 @@ class NavViaPenAlderspensjonController(
 
             NavSimuleringSpecAndResultV2(
                 simulering = specV2.apply {
+                    epsPensjon = output.epsHarPensjon
                     heltUttakDato = output.heltUttakDato?.toNorwegianDate()
                 },
                 simuleringsresultat = toSimuleringResultV2(output)
-            )
+            ).also {
+                log.debug { "$AP_FUNCTION_ID response: $it" }
+            }
         } catch (e: BadRequestException) {
             log.warn(e) { "$AP_FUNCTION_ID bad request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: BadSpecException) {
-            log.warn { "$AP_FUNCTION_ID bad spec - $specV2" } // not log.warn(e)
+            log.warn { "$AP_FUNCTION_ID bad spec - ${extractMessageRecursively(e)} - $specV2" } // not log.warn(e)
             throw e
         } catch (e: DateTimeParseException) {
-            log.warn { "$AP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV2" }
+            log.warn { "$AP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${extractMessageRecursively(e)} - request: $specV2" }
             throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$AP_FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV2" }
@@ -184,15 +187,18 @@ class NavViaPenAlderspensjonController(
             )
 
             val output: SimulatorOutput = simulator.simuler(spec)
-            toApForTpResultV2(output)
+
+            toApForTpResultV2(output).also {
+                log.debug { "$TP_FUNCTION_ID response: $it" }
+            }
         } catch (e: BadRequestException) {
             log.warn(e) { "$TP_FUNCTION_ID bad request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: BadSpecException) {
-            log.warn { "$TP_FUNCTION_ID bad spec - $specV2" } // not log.warn(e)
+            log.warn { "$TP_FUNCTION_ID bad spec - ${extractMessageRecursively(e)} - $specV2" } // not log.warn(e)
             throw e
         } catch (e: DateTimeParseException) {
-            log.warn { "$TP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV2" }
+            log.warn { "$TP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${extractMessageRecursively(e)} - request: $specV2" }
             throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$TP_FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV2" }

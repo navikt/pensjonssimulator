@@ -33,13 +33,13 @@ data class NavSimuleringSpecV2(
     val forsteUttakDato: Date? = null, // epoch value in JSON
     val utg: UttakGradKode? = null,
     val inntektUnderGradertUttak: Int? = null,
-    var heltUttakDato: Date? = null, // epoch value in JSON
+    var heltUttakDato: Date? = null, // epoch value in JSON; mutable
     val inntektEtterHeltUttak: Int? = null,
     val antallArInntektEtterHeltUttak: Int? = null,
     val utenlandsopphold: Int? = null,
     val flyktning: Boolean? = null,
     val sivilstatus: NavSivilstandSpecV2? = null,
-    val epsPensjon: Boolean? = null,
+    var epsPensjon: Boolean? = null, // mutable (in AlderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder)
     val eps2G: Boolean? = null,
     val afpOrdning: AfpOrdningType? = null,
     val afpInntektMndForUttak: Int? = null,
@@ -59,18 +59,25 @@ data class NavSimuleringSpecV2(
     val stillingsprosentOffGradertUttak: String? = null,
     val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2> = emptyList(),
     val changeStamp: NavSimuleringChangeStampSpecDummyV2? = null
-){
+) {
     /**
      * toString with redacted person ID
      */
     override fun toString() =
         "{ \"fnr\": ${textAsString(redact(fnr))}, " +
+                "\"fnrAvdod\": ${textAsString(redact(fnrAvdod))}, " +
+                "\"simuleringType\": ${textAsString(simuleringType)}, " +
                 "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
+                "\"forventetInntekt\": $forventetInntekt, " +
+                "\"inntektUnderGradertUttak\": $inntektUnderGradertUttak, " +
+                "\"inntektEtterHeltUttak\": $inntektEtterHeltUttak, " +
+                "\"antallArInntektEtterHeltUttak\": $antallArInntektEtterHeltUttak, " +
                 "\"epsPensjon\": $epsPensjon, " +
                 "\"eps2G\": $eps2G, " +
                 "\"utenlandsopphold\": $utenlandsopphold, " +
                 "\"simuleringType\": ${textAsString(simuleringType)}, " +
                 "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
+                "\"utenlandsperiodeForSimuleringList\": ${listAsString(utenlandsperiodeForSimuleringList)}, " +
                 "\"forsteUttakDato\": ${textAsString(forsteUttakDato)}, " +
                 "\"utg\": ${textAsString(utg)}, " +
                 "\"heltUttakDato\": ${textAsString(heltUttakDato)} }"
@@ -81,8 +88,8 @@ data class NavSimuleringSpecV2(
 data class NavSimuleringUtlandPeriodeV2(
     val land: LandkodeEnum,
     val arbeidetIUtland: Boolean = false,
-    val periodeFom: LocalDate,
-    val periodeTom: LocalDate?
+    val periodeFom: Date,
+    val periodeTom: Date?
 )
 
 /**

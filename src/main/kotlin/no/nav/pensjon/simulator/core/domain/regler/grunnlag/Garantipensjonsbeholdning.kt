@@ -5,11 +5,13 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.JustertGarantip
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
 
-// Checked 2025-02-28
+// 2025-04-06
 class Garantipensjonsbeholdning() : Beholdning() {
     var justertGarantipensjonsniva: JustertGarantipensjonsniva? = null
     var pensjonsbeholdning = 0.0
+    @Deprecated("Avvikles.", replaceWith = ReplaceWith("delingstallVedNormertPensjonsalder"))
     var delingstall67 = 0.0
+    var delingstallVedNormertPensjonsalder = 0.0
 
     /**
      * Satstype brukt i garantipensjonsnivå.
@@ -33,7 +35,7 @@ class Garantipensjonsbeholdning() : Beholdning() {
 
     override var beholdningsTypeEnum: BeholdningtypeEnum = BeholdningtypeEnum.GAR_PEN_B
 
-    // SIMDOM-ADD
+    //--- Extra:
     @JsonIgnore private var unclearedPensjonsbeholdning: Double? = null
 
     val internPensjonsbeholdning: Double
@@ -44,4 +46,5 @@ class Garantipensjonsbeholdning() : Beholdning() {
         unclearedPensjonsbeholdning = pensjonsbeholdning
         pensjonsbeholdning = 0.0
     }
+    // end extra ---
 }

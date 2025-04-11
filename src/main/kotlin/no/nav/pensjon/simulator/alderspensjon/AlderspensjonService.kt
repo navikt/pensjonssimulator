@@ -29,6 +29,8 @@ class AlderspensjonService(
     private val generelleDataHolder: GenerelleDataHolder,
     private val time: Time
 ) {
+    // Used for V4
+    //TODO merge this with SimuleringFacade?
     fun simulerAlderspensjon(spec: AlderspensjonSpec): AlderspensjonResult {
         val vedtakInfo = vedtakService.vedtakStatus(spec.pid, foersteUttakFom(spec))
         checkForGjenlevenderettighet(vedtakInfo)

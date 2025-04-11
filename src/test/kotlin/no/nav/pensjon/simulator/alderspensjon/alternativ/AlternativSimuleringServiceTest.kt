@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
@@ -26,7 +25,7 @@ class AlternativSimuleringServiceTest : FunSpec({
         val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
 
         val service = AlternativSimuleringService(
-            simulator, normAlderService, mock(AlternativtUttakService::class.java), mock(UfoereService::class.java)
+            simulator, normAlderService, mock(AlternativtUttakService::class.java)
         )
 
         service.simulerMedFallendeUttaksgrad(
@@ -48,7 +47,7 @@ class AlternativSimuleringServiceTest : FunSpec({
         val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
 
         val service = AlternativSimuleringService(
-            simulator, normAlderService, mock(AlternativtUttakService::class.java), mock(UfoereService::class.java)
+            simulator, normAlderService, mock(AlternativtUttakService::class.java)
         )
 
         service.simulerMedFallendeUttaksgrad(
@@ -70,7 +69,7 @@ class AlternativSimuleringServiceTest : FunSpec({
         val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
 
         val service = AlternativSimuleringService(
-            simulator, normAlderService, mock(AlternativtUttakService::class.java), mock(UfoereService::class.java)
+            simulator, normAlderService, mock(AlternativtUttakService::class.java)
         )
 
         shouldThrow<UtilstrekkeligOpptjeningException> {

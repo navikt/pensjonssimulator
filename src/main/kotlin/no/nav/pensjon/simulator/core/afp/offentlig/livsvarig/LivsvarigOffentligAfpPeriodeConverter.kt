@@ -35,7 +35,8 @@ object LivsvarigOffentligAfpPeriodeConverter {
             else -> listOf(
                 OutputLivsvarigOffentligAfp(
                     alderAar = ytelseVedUttak.gjelderFomAlder.aar,
-                    beloep = ytelseVedUttak.afpYtelsePerAar.toInt()
+                    beloep = ytelseVedUttak.afpYtelsePerAar.toInt(),
+                    maanedligBeloep = (ytelseVedUttak.afpYtelsePerAar / MAANEDER_PER_AAR).roundToInt()
                 )
             )
         }
@@ -66,10 +67,11 @@ object LivsvarigOffentligAfpPeriodeConverter {
             satsPerMaanedVedUttak * maanederMedUttakSats + satsPerMaanedEtterOppdatering * maanederMedOppdatertUttakSats
 
         return listOf(
-            OutputLivsvarigOffentligAfp(alderAar = alderAarVedUttak, beloep = belop.roundToInt()),
+            OutputLivsvarigOffentligAfp(alderAar = alderAarVedUttak, beloep = belop.roundToInt(), maanedligBeloep = satsPerMaanedVedUttak.roundToInt()),
             OutputLivsvarigOffentligAfp(
                 alderAar = alderAarVedUttak + 1,
-                beloep = ytelsePerAarEtterOppdatering.roundToInt()
+                beloep = ytelsePerAarEtterOppdatering.roundToInt(),
+                maanedligBeloep = satsPerMaanedEtterOppdatering.roundToInt()
             )
         )
     }

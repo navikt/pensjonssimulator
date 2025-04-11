@@ -58,10 +58,29 @@ object SimuleringSpecUtil {
         )
     }
 
-    fun withLavereUttakGrad(source: SimuleringSpec): SimuleringSpec =
+    fun withLavereUttakGrad(
+        source: SimuleringSpec,
+        tillatOvergangFraHeltTilGradertUttak: Boolean = false
+    ): SimuleringSpec =
         newSimuleringSpec(
             source,
-            uttaksgrad = if (source.isGradert()) naermesteLavereUttaksgrad(source.uttakGrad) else UttakGradKode.P_100
+            uttaksgrad =
+                if (tillatOvergangFraHeltTilGradertUttak || source.isGradert())
+                    naermesteLavereUttaksgrad(source.uttakGrad)
+                else
+                    UttakGradKode.P_100
+        )
+
+    fun withGradertInsteadOfHeltUttak(
+        source: SimuleringSpec,
+        normAlder: Alder,
+        foedselsdato: LocalDate
+    ): SimuleringSpec =
+        newSimuleringSpec(
+            source,
+            foersteUttakFom = PensjonAlderDato(foedselsdato, source.foersteUttakDato!!),
+            uttaksgrad = UttakGradKode.P_80,
+            heltUttakFom = PensjonAlderDato(foedselsdato, normAlder)
         )
 
     private fun newSimuleringSpec(

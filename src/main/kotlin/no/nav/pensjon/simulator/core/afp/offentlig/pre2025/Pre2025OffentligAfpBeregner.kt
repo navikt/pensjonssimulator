@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag.Companion.persongrunnlagHavingRolle
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
-import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
@@ -20,12 +19,12 @@ import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.NorwegianCalendar
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormAlderService
-import no.nav.pensjon.simulator.person.PersonService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -35,7 +34,7 @@ import java.util.*
 class Pre2025OffentligAfpBeregner(
     private val context: SimulatorContext,
     private val normAlderService: NormAlderService,
-    private val personService: PersonService
+    private val ufoereService: UfoereService
 ) {
     private var beregnInstopphold = false // TODO this seems to be always false
     private var beregnForsorgingstillegg = false // TODO pass as parameter instead?
@@ -171,6 +170,14 @@ class Pre2025OffentligAfpBeregner(
         return simuleringAvslag
     }
 
+    private fun ufoerehistorikk(persongrunnlag: Persongrunnlag, simulering: Simulering): Uforehistorikk? =
+        persongrunnlag.penPerson?.pid?.let {
+            ufoereService.ufoerehistorikk(
+                pid = it,
+                uttakDato = simulering.uttaksdato!!.toNorwegianLocalDate()
+            )
+        }
+
     // SimulerPensjonsberegningCommand.addUforehistorikk
     private fun addUfoereHistorikk(simulering: Simulering) {
         val simuleringType = simulering.simuleringTypeEnum
@@ -181,11 +188,13 @@ class Pre2025OffentligAfpBeregner(
         ) {
             val soekerGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
-            val soekerUfoereHistorikk: Uforehistorikk? =
-                fetchUforehistorikk(soekerGrunnlag?.penPerson, simulering.uttaksdato)
 
-            if (soekerUfoereHistorikk?.containsActualUforeperiode() == true) {
-                soekerGrunnlag?.uforeHistorikk = soekerUfoereHistorikk
+            soekerGrunnlag?.let {
+                val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, simulering)
+
+                if (historikk?.containsActualUforeperiode() == true) {
+                    it.uforeHistorikk = historikk
+                }
             }
         }
 
@@ -193,11 +202,12 @@ class Pre2025OffentligAfpBeregner(
             val avdoedGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.AVDOD)
 
-            val avdoedUfoereHistorikk: Uforehistorikk? =
-                fetchUforehistorikk(avdoedGrunnlag?.penPerson, simulering.uttaksdato)
+            avdoedGrunnlag?.let {
+                val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, simulering)
 
-            if (avdoedUfoereHistorikk?.containsActualUforeperiode() == true) {
-                avdoedGrunnlag?.uforeHistorikk = avdoedUfoereHistorikk
+                if (historikk?.containsActualUforeperiode() == true) {
+                    it.uforeHistorikk = historikk
+                }
             }
         }
 
@@ -205,38 +215,24 @@ class Pre2025OffentligAfpBeregner(
             val morGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.MOR)
 
-            if (morGrunnlag != null) {
-                val morUforehistorikk: Uforehistorikk? =
-                    fetchUforehistorikk(morGrunnlag.penPerson, simulering.uttaksdato)
+            morGrunnlag?.let {
+                val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, simulering)
 
-                if (morUforehistorikk?.containsActualUforeperiode() == true) {
-                    morGrunnlag.uforeHistorikk = morUforehistorikk
+                if (historikk?.containsActualUforeperiode() == true) {
+                    it.uforeHistorikk = historikk
                 }
             }
 
             val farGrunnlag: Persongrunnlag? =
                 findPersongrunnlagHavingRolle(simulering.persongrunnlagListe, GrunnlagsrolleEnum.FAR)
 
-            if (farGrunnlag != null) {
-                val farUforehistorikk: Uforehistorikk? =
-                    fetchUforehistorikk(farGrunnlag.penPerson, simulering.uttaksdato)
+            farGrunnlag?.let {
+                val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, simulering)
 
-                if (farUforehistorikk?.containsActualUforeperiode() == true) {
-                    farGrunnlag.uforeHistorikk = farUforehistorikk
+                if (historikk?.containsActualUforeperiode() == true) {
+                    it.uforeHistorikk = historikk
                 }
             }
-        }
-    }
-
-    // SimulerPensjonsberegningCommand.getUforehistorikkForPenPerson
-    private fun fetchUforehistorikk(penPerson: PenPerson?, virkningsdato: Date?): Uforehistorikk? {
-        val soeker = penPerson?.pid?.let(personService::person)
-        val ufoereHistorikk: Uforehistorikk = soeker?.uforehistorikk ?: return null
-
-        // Creating copy to prevent hibernate from updating the actual object.
-        // TODO hibernate issues not relevant in this context
-        return Uforehistorikk(ufoereHistorikk).apply {
-            uforeperiodeListe = uforeperiodeListe.filter { it.virk?.before(virkningsdato) == true }.toMutableList()
         }
     }
 

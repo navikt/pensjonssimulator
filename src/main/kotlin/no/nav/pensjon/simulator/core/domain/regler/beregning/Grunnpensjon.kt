@@ -43,4 +43,10 @@ open class Grunnpensjon : Ytelseskomponent {
         ektefelleInntektOver2G = source.ektefelleInntektOver2G
         anvendtTrygdetid = source.anvendtTrygdetid?.let(::AnvendtTrygdetid)
     }
+
+    override fun toString(): String {
+        return "Grunnpensjon(brukt=$brukt, pSats_gp=$pSats_gp, satsTypeEnum=$satsTypeEnum, ektefelleInntektOver2G=$ektefelleInntektOver2G, anvendtTrygdetid=$anvendtTrygdetid, ytelsekomponentTypeEnum=$ytelsekomponentTypeEnum), " +
+                "brutto=$brutto, netto=$netto, fradrag=$fradrag, formelKodeEnum=$formelKodeEnum, merknader=${merknadListe.map { it.asString() }}, " +
+                "nettoPerAr=$nettoPerAr, bruttoPerAr=${bruttoPerAr}, fradragPerAr=$fradragPerAr)"
+    }
 }

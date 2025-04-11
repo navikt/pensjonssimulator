@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withGradertInsteadOfHeltUttak
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
-import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Service
@@ -34,19 +33,13 @@ import java.time.LocalDate
 class AlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normAlderService: NormAlderService,
-    private val alternativtUttakService: AlternativtUttakService,
-    private val ufoereService: UfoereService
+    private val alternativtUttakService: AlternativtUttakService
 ) {
     fun simulerMedNesteLavereUttaksgrad(
         spec: SimuleringSpec,
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ {
         return try {
-            if (spec.gjelderAfp() && hasUfoereperiode(spec)) {
-                // Spesiell prosedyre for uføre med AFP-mulighet:
-                return simulerMedFallendeUttaksgrad(spec)
-            }
-
             val lavereGradSpec: SimuleringSpec = withLavereUttakGrad(spec)
             val result: SimulatorOutput = simulator.simuler(lavereGradSpec)
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
@@ -171,9 +164,6 @@ class AlternativSimuleringService(
 
     private fun ubetingetUttakResponseUtenSimulertPensjon(foedselsdato: LocalDate, normAlder: Alder) =
         alternativResponse(ubetingetUttakAlternativ(foedselsdato, normAlder), alternativPensjon = null)
-
-    private fun hasUfoereperiode(spec: SimuleringSpec): Boolean =
-        spec.pid?.let { ufoereService.hasUfoereperiode(it, spec.foersteUttakDato!!) } == true
 
     private companion object {
 

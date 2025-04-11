@@ -49,13 +49,12 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         val grunnpensjon = afp.gp!!
         val saertillegg = afp.st
         val beregnetTidligereInntekt = tilleggspensjon?.spt?.poengrekke?.tpi!!
-        log.info { "Avkortet Grunnpensjon: ${afp.gpAfpPensjonsregulert?.toString()}" }
         val res = FolketrygdberegnetAfpV0(
             fraOgMedDato = virk.toNorwegianLocalDate(),
             beregnetTidligereInntekt = beregnetTidligereInntekt,
             afpGrad = beregnAfpGrad(spec.inntektUnderGradertUttakBeloep, beregnetTidligereInntekt),
             fremtidigAarligInntektTilAfpUttak = spec.forventetInntektBeloep,
-            afpAvkortetTil70Prosent = afp.gpAfpPensjonsregulert != null,
+            afpAvkortetTil70Prosent = afp.gpAfpPensjonsregulert?.brukt == true,
             grunnpensjon = GrunnpensjonV0(
                 maanedligUtbetaling = grunnpensjon.netto,
                 grunnbeloep = afp.g,

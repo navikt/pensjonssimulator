@@ -125,7 +125,7 @@ object SimulatorOutputConverter {
     }
 
     private fun privatAfp(source: SimulertPrivatAfpPeriode) =
-        SimulertPrivatAfp(source.alderAar ?: 0, source.aarligBeloep ?: 0, source.maanedligBeloep)
+        SimulertPrivatAfp(source.alderAar ?: 0, source.aarligBeloep ?: 0, source.maanedligBeloep ?: 0)
 
     /**
      * Ref. BeregningFormPopulator.createBeregningFormDataFromBeregning in pensjon-pselv

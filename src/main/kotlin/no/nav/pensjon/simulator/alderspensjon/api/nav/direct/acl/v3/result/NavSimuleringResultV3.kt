@@ -51,7 +51,7 @@ data class NavMaanedsbeloepV3(
 data class NavPrivatAfpV3(
     val alderAar: Int,
     val beloep: Int,
-    val maanedligBeloep: Int?
+    val maanedligBeloep: Int
 )
 
 data class NavLivsvarigOffentligAfpV3(

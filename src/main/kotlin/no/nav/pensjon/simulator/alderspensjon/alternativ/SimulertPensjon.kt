@@ -49,7 +49,7 @@ data class SimulertAlderspensjonFraFolketrygden(
 data class SimulertPrivatAfp(
     val alderAar: Int,
     val beloep: Int,
-    val maanedligBeloep: Int?
+    val maanedligBeloep: Int
 )
 
 data class SimulertPre2025OffentligAfp(

@@ -102,7 +102,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             AlderspensjonFraFolketrygdenV0(
                 fraOgMedDato = simuleringsperiode.fom,
                 sumMaanedligUtbetaling = simuleringsperiode.maanedsbeloep,
-                andelKapittel19 = simuleringsperiode.simulertAlderspensjonInfo?.andelsbroekKap19,
+                andelKapittel19 = alderspensjon.kapittel19Andel,
                 alderspensjonKapittel19 = simuleringsperiode.simulertAlderspensjonInfo?.let { AlderspensjonKapittel19V0(
                     grunnpensjon = GrunnpensjonV0(
                         maanedligUtbetaling = it.grunnpensjon!!,
@@ -123,7 +123,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
                     ),
                     forholdstall = it.forholdstall!!
                 )},
-                andelKapittel20 = simuleringsperiode.simulertAlderspensjonInfo?.andelsbroekKap20,
+                andelKapittel20 = alderspensjon.kapittel20Andel,
                 alderspensjonKapittel20 = simuleringsperiode.simulertAlderspensjonInfo?.let {
                     AlderspensjonKapittel20V0(
                         inntektspensjon = InntektspensjonV0(
@@ -148,7 +148,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         return source.maanedsutbetalinger.map { maanedsutbetaling: Maanedsutbetaling ->
             Simuleringsperiode(
                 fom = maanedsutbetaling.fom,
-                maanedsbeloep = maanedsutbetaling.beloep ?: 0,
+                maanedsbeloep = maanedsutbetaling.beloep,
                 simulertAlderspensjonInfo = source.simulertBeregningInformasjonListe
                     .filter { it.datoFom == maanedsutbetaling.fom }
                     .map { info ->
@@ -175,7 +175,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
                             tilleggspensjon = info.tilleggspensjonPerMaaned,
                             pensjonstillegg = info.pensjonstilleggPerMaaned,
                             garantipensjonssats = info.garantipensjonssats,
-                            minstepensjonsnivaaSats = info.minstepensjonsnivaaSats,
+                            minstepensjonsnivaaSats = info.minstePensjonsnivaSats,
                             skjermingstillegg = info.skjermingstillegg,
                         )
                     }

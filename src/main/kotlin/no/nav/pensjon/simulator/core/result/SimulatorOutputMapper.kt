@@ -180,7 +180,7 @@ object SimulatorOutputMapper {
             this.tilleggspensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.TP)
             this.pensjonstillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.PT)
             this.pensjonstilleggPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.PT)
-            this.minstepensjonsnivaaSats = pensjon?.pensjonstillegg?.minstepensjonsnivaSats
+            this.minstePensjonsnivaSats = pensjon?.pensjonstillegg?.minstepensjonsnivaSats
             this.individueltMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
             this.pensjonistParMinstenivaaTillegg = bruttoPerAr(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_PPAR)
             this.forholdstall = beregningsinfo?.forholdstallUttak

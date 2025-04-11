@@ -8,8 +8,6 @@ class PensjonPeriode {
      */
     var beloep: Int? = null
 
-    var maanedsbeloepVedPeriodeStart: Int? = null
-
     var maanedsutbetalinger: List<Maanedsutbetaling> = mutableListOf()
 
     /**

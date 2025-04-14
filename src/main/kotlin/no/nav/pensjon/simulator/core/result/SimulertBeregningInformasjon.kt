@@ -17,7 +17,7 @@ class SimulertBeregningInformasjon {
     /**
      * Beregnet årlig beløp
      */
-    var aarligBeloep: Int? = null
+        var aarligBeloep: Int? = null
 
     /**
      * Beregnet månedlig beløp
@@ -154,8 +154,6 @@ class SimulertBeregningInformasjon {
      * Beregnet pensjonstillegg per måned.
      */
     var pensjonstilleggPerMaaned: Int? = null
-
-    var minstepensjonsnivaaSats: Double? = null
 
     /**
      * Minstenivatillegg individuelt.

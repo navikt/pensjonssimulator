@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
@@ -18,22 +18,42 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
+import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.memberProperties
 
-class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : FunSpec({
-
-    test("toDto should map values to AfpEtterfulgtAvAlderspensjonResultV0") {
+class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
+    "toDto mapper alle felter til AfpEtterfulgtAvAlderspensjonResultV0" {
 
         val foedseldato = LocalDate.of(1963, 2, 22)
         val nesteMaaned = LocalDate.now().plusMonths(1).withDayOfMonth(1)
         val simuleringSpec = mockSimuleringSpec(nesteMaaned, foedseldato)
         val simulatorOutput = mockSimulatorOutput(nesteMaaned, foedseldato)
 
-        val dto: AfpEtterfulgtAvAlderspensjonResultV0 = AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
+        val dto: AfpEtterfulgtAvAlderspensjonResultV0 =
+            AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
 
         dto.simuleringSuksess shouldBe true
         dto.aarsakListeIkkeSuksess shouldBe emptyList()
         dto.folketrygdberegnetAfp shouldBe afpResultat(simulatorOutput, simuleringSpec)
-        dto.alderspensjonFraFolketrygden shouldBe alderspensjonFraFolketrygdenResultatListe(simulatorOutput, nesteMaaned)
+        dto.alderspensjonFraFolketrygden shouldBe alderspensjonFraFolketrygdenResultatListe(
+            simulatorOutput,
+            nesteMaaned
+        )
+    }
+
+    val alleAarsak = AarsakIkkeSuccessV0::class.companionObject!!
+        .memberProperties
+        .mapNotNull { it.call(AarsakIkkeSuccessV0) as? AarsakIkkeSuccessV0 }
+
+    alleAarsak.forEach { aarsak ->
+        "${aarsak.statusKode} mappes til tom dto med fylt aarsak i listen" {
+            val dto = AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(aarsak)
+
+            dto.simuleringSuksess shouldBe false
+            dto.aarsakListeIkkeSuksess shouldBe listOf(aarsak)
+            dto.folketrygdberegnetAfp shouldBe null
+            dto.alderspensjonFraFolketrygden shouldBe emptyList()
+        }
     }
 })
 
@@ -167,45 +187,46 @@ private fun mockSimulatorOutput(
             beloep = 5
             maanedsutbetalinger =
                 mutableListOf(Maanedsutbetaling(6, nesteMaaned), Maanedsutbetaling(7, nesteMaaned.plusYears(1)))
-            simulertBeregningInformasjonListe = mutableListOf(SimulertBeregningInformasjon()
-                .apply {
-                    datoFom = nesteMaaned
-                    aarligBeloep = 8
-                    maanedligBeloep = 9
-                    inntektspensjon = 12
-                    garantipensjon = 14
-                    delingstall = 15.0
-                    pensjonBeholdningFoerUttak = 18
-                    spt = 19.0
-                    tt_anv_kap19 = 20
-                    tt_anv_kap20 = 21
-                    pa_f92 = 22
-                    pa_e91 = 23
-                    forholdstall = 24.0
-                    grunnpensjonPerMaaned = 25
-                    grunnpensjonsats = 26.0
-                    tilleggspensjonPerMaaned = 27
-                    pensjonstilleggPerMaaned = 28
-                    garantipensjonssats = 29.0
-                    minstePensjonsnivaSats = 30.0
-                    skjermingstillegg = 31
-                    startMaaned = 1
-                    vinnendeBeregning = GrunnlagRolle.SOKER
-                    uttakGrad = 100.0
-                    kapittel20Pensjon = 10
-                    vektetKapittel20Pensjon = 11
-                    inntektspensjonPerMaaned = 13
-                    garantipensjonPerMaaned = 15
-                    garantitillegg = 17
-                    pensjonBeholdningEtterUttak = 19
-                    kapittel19Pensjon = 20
-                    vektetKapittel19Pensjon = 21
-                    basispensjon = 22
-                    basisGrunnpensjon = 23.0
-                    basisTilleggspensjon = 24.0
-                    basisPensjonstillegg = 25.0
-                    restBasisPensjon = 26
-                })
+            simulertBeregningInformasjonListe = mutableListOf(
+                SimulertBeregningInformasjon()
+                    .apply {
+                        datoFom = nesteMaaned
+                        aarligBeloep = 8
+                        maanedligBeloep = 9
+                        inntektspensjon = 12
+                        garantipensjon = 14
+                        delingstall = 15.0
+                        pensjonBeholdningFoerUttak = 18
+                        spt = 19.0
+                        tt_anv_kap19 = 20
+                        tt_anv_kap20 = 21
+                        pa_f92 = 22
+                        pa_e91 = 23
+                        forholdstall = 24.0
+                        grunnpensjonPerMaaned = 25
+                        grunnpensjonsats = 26.0
+                        tilleggspensjonPerMaaned = 27
+                        pensjonstilleggPerMaaned = 28
+                        garantipensjonssats = 29.0
+                        minstePensjonsnivaSats = 30.0
+                        skjermingstillegg = 31
+                        startMaaned = 1
+                        vinnendeBeregning = GrunnlagRolle.SOKER
+                        uttakGrad = 100.0
+                        kapittel20Pensjon = 10
+                        vektetKapittel20Pensjon = 11
+                        inntektspensjonPerMaaned = 13
+                        garantipensjonPerMaaned = 15
+                        garantitillegg = 17
+                        pensjonBeholdningEtterUttak = 19
+                        kapittel19Pensjon = 20
+                        vektetKapittel19Pensjon = 21
+                        basispensjon = 22
+                        basisGrunnpensjon = 23.0
+                        basisTilleggspensjon = 24.0
+                        basisPensjonstillegg = 25.0
+                        restBasisPensjon = 26
+                    })
         }
     )
     result.sisteGyldigeOpptjeningAar = 1

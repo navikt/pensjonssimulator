@@ -78,7 +78,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
 
             val spec: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0.fromDto(
                 validatedSpecV0,
-                grunnbeloepService::hentAaretsGrunnbeloep,
+                grunnbeloepService.hentSisteMaanedsInntektOver1G(validatedSpecV0.inntektSisteMaanedOver1G),
                 hentSisteLignetInntektService::hentSisteLignetInntekt
             )
 

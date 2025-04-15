@@ -22,18 +22,20 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
         )
 
         // When
-        val result: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0.fromDto(dto, { 100000 }, { 500000 })
+        val result: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0.fromDto(dto, 100000, { 12345 })
 
         // Then
-        result.pid?.value shouldBe "12345678901"
+        result.pid?.value shouldBe dto.personId
         result.sivilstatus shouldBe SivilstatusType.UGIF
-        result.foersteUttakDato.toString() shouldBe "2023-01-01"
+        result.foersteUttakDato.toString() shouldBe dto.uttakFraOgMedDato
         result.fremtidigInntektListe.size shouldBe 0
         result.brukFremtidigInntekt shouldBe false
         result.inntektEtterHeltUttakBeloep shouldBe 0
-        result.inntektUnderGradertUttakBeloep shouldBe 400000
+        result.inntektUnderGradertUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
         result.inntektEtterHeltUttakAntallAar shouldBe null
-        result.forventetInntektBeloep shouldBe 500000
-        result.utlandAntallAar shouldBe 2
+        result.forventetInntektBeloep shouldBe dto.fremtidigAarligInntektTilAfpUttak
+        result.utlandAntallAar shouldBe dto.aarIUtlandetEtter16
+        result.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
+        result.pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep shouldBe 100000
     }
 })

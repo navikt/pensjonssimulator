@@ -34,7 +34,7 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             epsHarPensjon = epsHarPensjon,
             epsHarInntektOver2G = epsHarInntektOver2G,
             foersteUttakDato = uttakDato,
-            heltUttakDato = null,
+            heltUttakDato = null, //alltid 67 år ved AFP etterfulgt av AP
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             inntektEtterHeltUttakBeloep = 0,

@@ -153,6 +153,9 @@ object SimulatorOutputMapper {
             beregningKapittel20?.let {
                 this.delingstall = it.delingstall
                 this.tt_anv_kap20 = it.tt_anv
+                this.garantipensjonssats = (it.beholdningerForForsteuttak ?: it.beholdninger)
+                    ?.beholdninger?.filterIsInstance<Garantipensjonsbeholdning>()
+                    ?.map(Garantipensjonsbeholdning::sats)?.firstOrNull()
             }
 
             beregningsinfo?.spt?.let {
@@ -166,11 +169,18 @@ object SimulatorOutputMapper {
             this.aarligBeloep = pensjon?.totalbelopNettoAr?.toInt() ?: 0
             this.maanedligBeloep = pensjon?.totalbelopNetto
             this.inntektspensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.IP)
+            this.inntektspensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.IP)
             this.garantipensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GAP)
+            this.garantipensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GAP)
             this.garantitillegg = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GAT)
             this.grunnpensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GP)
+            this.grunnpensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GP)
+            this.grunnpensjonsats = pensjon?.grunnpensjon?.pSats_gp
             this.tilleggspensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.TP)
+            this.tilleggspensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.TP)
             this.pensjonstillegg = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.PT)
+            this.pensjonstilleggPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.PT)
+            this.minstePensjonsnivaSats = pensjon?.pensjonstillegg?.minstepensjonsnivaSats
             this.individueltMinstenivaaTillegg = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
             this.pensjonistParMinstenivaaTillegg = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.MIN_NIVA_TILL_PPAR)
             this.forholdstall = beregningsinfo?.forholdstallUttak
@@ -429,6 +439,9 @@ object SimulatorOutputMapper {
 
     private fun bruttoPerAar(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseskomponentTypeEnum) =
         firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), ytelseType)?.bruttoPerAr?.toInt()
+
+    private fun bruttoPerMaaned(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseskomponentTypeEnum) =
+        firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), ytelseType)?.brutto
 
     private fun firstDayOf(year: Int) = LocalDate.of(year, 1, 1)
 }

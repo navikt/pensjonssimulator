@@ -28,4 +28,18 @@ class GrunnbeloepService(
 
         return response.satsResultater.first().verdi.toInt()
     }
+
+    fun hentSisteMaanedsInntektOver1G(inntektSisteMaanedOver1G: Boolean) : Int {
+        return if (inntektSisteMaanedOver1G){
+            hentAaretsGrunnbeloep() * TILFELDIG_ANTALL_G_STOERRE_ENN_EN / MAANEDER_I_AAR
+        } else {
+            TILFELDIG_MAANEDS_INNTEKT_STOERRE_ENN_NULL
+        }
+    }
+
+    companion object {
+        const val MAANEDER_I_AAR = 12
+        const val TILFELDIG_MAANEDS_INNTEKT_STOERRE_ENN_NULL = 42
+        const val TILFELDIG_ANTALL_G_STOERRE_ENN_EN = 2
+    }
 }

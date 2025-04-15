@@ -13,7 +13,7 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
 
     fun fromDto(
         source: AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0,
-        hentGrunnbeloep: () -> Int,
+        inntektSisteMaaned: Int,
         hentSisteInntektFraPOPP: (Pid) -> Int
     ): SimuleringSpec {
 
@@ -21,11 +21,10 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
         val uttakDato = LocalDate.parse(source.uttakFraOgMedDato)
         val sivilstatus = fromExternalValue(source.sivilstandVedPensjonering).internalValue
         val forventetInntektBeloep: Int = source.fremtidigAarligInntektTilAfpUttak ?: hentSisteInntektFraPOPP(pid)
-        val inntektSisteMaanedOver1G = source.inntektSisteMaanedOver1G
         val epsHarPensjon = source.epsPensjon
         val epsHarInntektOver2G = source.eps2G
         val inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak
-        val afpInntektMaanedFoerUttak = settMaanedsInntektOver1GFoerUttak(inntektSisteMaanedOver1G, hentGrunnbeloep)
+        val afpInntektMaanedFoerUttak = inntektSisteMaaned
         val utlandAntallAar = source.aarIUtlandetEtter16
 
         return SimuleringSpec(
@@ -67,16 +66,4 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             uttakGrad = UttakGradKode.P_100,
         )
     }
-
-    private fun settMaanedsInntektOver1GFoerUttak(inntektSisteMaanedOver1G: Boolean, hentGrunnbeloep: () -> Int): Int {
-        return if (inntektSisteMaanedOver1G) {
-            hentGrunnbeloep.invoke() * TILFELDIG_ANTALL_G_STOERRE_ENN_EN / MAANEDER_I_AAR
-        } else {
-            TILFELDIG_MAANEDS_INNTEKT_STOERRE_ENN_NULL
-        }
-    }
-
-    const val MAANEDER_I_AAR = 12
-    const val TILFELDIG_MAANEDS_INNTEKT_STOERRE_ENN_NULL = 42
-    const val TILFELDIG_ANTALL_G_STOERRE_ENN_EN = 2
 }

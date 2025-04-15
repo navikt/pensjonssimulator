@@ -34,7 +34,7 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
             epsHarPensjon = epsHarPensjon,
             epsHarInntektOver2G = epsHarInntektOver2G,
             foersteUttakDato = uttakDato,
-            heltUttakDato = uttakDato,
+            heltUttakDato = null,
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             inntektEtterHeltUttakBeloep = 0,

@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.util.*
 
 /**
@@ -102,7 +103,7 @@ object FoersteVirkningDatoRepopulator {
         annenPerson: PenPerson?
     ) =
         ForsteVirkningsdatoGrunnlag().apply {
-            this.virkningsdato = kravhode.onsketVirkningsdato?.noon()
+            this.virkningsdato = kravhode.onsketVirkningsdato?.toNorwegianDateAtNoon()
             this.kravFremsattDato = kravhode.kravFremsattDato?.noon()
             this.bruker = soeker
             this.annenPerson = if (gjelderForsorgingstillegg(kravlinjeType)) annenPerson else null

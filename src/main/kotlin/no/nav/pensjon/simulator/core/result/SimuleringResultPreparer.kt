@@ -31,6 +31,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossibly
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
+import no.nav.pensjon.simulator.core.result.SimulatorOutputMapper.simulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.PeriodeUtil
@@ -197,10 +198,10 @@ class SimuleringResultPreparer(private val time: Time) {
 
             afpResultat?.let {
                 simulatorOutput.privatAfpPeriodeListe.add(
-                    SimulatorOutputMapper.mapToSimulertAfpPrivatPeriode(
+                    simulertPrivatAfpPeriode(
                         aarligBeloep = beloepPeriode.beloep,
                         resultat = it,
-                        alder = alder
+                        alder
                     )
                 )
             }
@@ -208,7 +209,7 @@ class SimuleringResultPreparer(private val time: Time) {
 
         forrigeAfpBeregningsresultatKopi?.let {
             simulatorOutput.privatAfpPeriodeListe.add(
-                SimulatorOutputMapper.mapToSimulertAfpPrivatPeriode(
+                simulertPrivatAfpPeriode(
                     aarligBeloep = it.pensjonUnderUtbetaling?.totalbelopNettoAr?.toInt() ?: 0,
                     resultat = it,
                     alder = 0 // github.com/navikt/pensjon-pen/pull/14903

@@ -44,4 +44,41 @@ class NavSimuleringResultMapperV2Test : FunSpec({
         ).afpOffentlig?.beregning?.ytelseskomponenter[0]
             ?.spt?.poengrekke?.poengtallListe[0]?.merknadListe[0]?.ar shouldBe 2025
     }
+
+    test("toSimuleringResultV2 should return distinct merknader") {
+        NavSimuleringResultMapperV2.toSimuleringResultV2(
+            SimulatorOutput().apply {
+                pre2025OffentligAfp = Simuleringsresultat().apply {
+                    beregning = Beregning().apply {
+                        tp = Tilleggspensjon().apply {
+                            merknadListe = mutableListOf(
+                                Merknad().apply { kode = "A" },
+                                Merknad().apply { kode = "B" },
+                                Merknad().apply { kode = "A" } // duplicate, should be ignored
+                            )
+                        }
+                    }
+                }
+            }
+        ).afpOffentlig?.beregning?.ytelseskomponenter[0]?.merknader?.size shouldBe 2
+    }
+
+    test("toSimuleringResultV2 should use special separator for merknad-argumenter") {
+        NavSimuleringResultMapperV2.toSimuleringResultV2(
+            SimulatorOutput().apply {
+                pre2025OffentligAfp = Simuleringsresultat().apply {
+                    beregning = Beregning().apply {
+                        tp = Tilleggspensjon().apply {
+                            merknadListe = mutableListOf(
+                                Merknad().apply {
+                                    kode = "K"
+                                    argumentListe = mutableListOf("A", "B")
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+        ).afpOffentlig?.beregning?.ytelseskomponenter[0]?.merknader[0]?.argumentListeString shouldBe "A¤B"
+    }
 })

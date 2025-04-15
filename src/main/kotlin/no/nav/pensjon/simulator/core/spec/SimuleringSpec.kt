@@ -159,8 +159,14 @@ data class SimuleringSpec(
     fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
         type == SimuleringType.AFP_ETTERF_ALDER
 
-    fun gjelder2PeriodeSimulering() =
-        gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || isGradert()
+    /**
+     * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak,
+     * separert i tid. Uttrykket brukes for:
+     * - Gradert uttak (eller 0 %) etterfulgt av helt uttak
+     * - Offentlig AFP (før 2025) etterfulgt av alderspensjon
+     */
+    fun gjelder2FaseSimulering() =
+        gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()
 
     fun gjelderPrivatAfpFoersteUttak() =
         type == SimuleringType.ALDER_M_AFP_PRIVAT

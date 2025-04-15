@@ -84,7 +84,7 @@ class KravhodeCreator(
 
         val kravhode = Kravhode().apply {
             kravFremsattDato = Date()
-            onsketVirkningsdato = oensketVirkningDato(spec)?.toNorwegianDateAtNoon()
+            onsketVirkningsdato = oensketVirkningDato(spec)
             gjelder = null
             sakId = null
             sakType = SakType.ALDER
@@ -434,7 +434,7 @@ class KravhodeCreator(
         // Ref. PEN SimuleringEtter2011.isUttaksgrad100
         val inntektUnderAfpEllerGradertUttak =
             spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep
-                ?: if (spec.isGradert()) spec.inntektUnderGradertUttakBeloep else 0
+                ?: if (spec.uttakErGradertEllerNull()) spec.inntektUnderGradertUttakBeloep else 0
 
         val inntektEtterHeltUttak = spec.inntektEtterHeltUttakBeloep
         val inntekter: MutableList<Inntekt> = mutableListOf()
@@ -665,9 +665,9 @@ class KravhodeCreator(
             val inntektUnderAfpEllerGradertUttak: Int =
                 spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
 
-            val gjelder2PeriodeSimulering: Boolean = spec.gjelder2PeriodeSimulering()
+            val gjelder2FaseSimulering: Boolean = spec.gjelder2FaseSimulering()
 
-            if (gjelder2PeriodeSimulering && inntektUnderAfpEllerGradertUttak > 0) {
+            if (gjelder2FaseSimulering && inntektUnderAfpEllerGradertUttak > 0) {
                 inntektsgrunnlagListe.add(
                     inntektsgrunnlagForSoekerOrEps(
                         beloep = inntektUnderAfpEllerGradertUttak,
@@ -682,7 +682,7 @@ class KravhodeCreator(
             val inntektEtterHeltUttakAntallAar: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
 
             if (spec.inntektEtterHeltUttakBeloep > 0 && inntektEtterHeltUttakAntallAar > 0) {
-                val fom = if (gjelder2PeriodeSimulering) spec.heltUttakDato else spec.foersteUttakDato
+                val fom = if (gjelder2FaseSimulering) spec.heltUttakDato else spec.foersteUttakDato
                 val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, inntektEtterHeltUttakAntallAar), -1)
                 inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
             }
@@ -811,7 +811,7 @@ class KravhodeCreator(
             trygdetidPeriodeListe.any { it.landEnum != LandkodeEnum.NOR }
 
         private fun heltUttakTidspunkt(spec: SimuleringSpec): KalenderMaaned? =
-            if (spec.gjelder2PeriodeSimulering())
+            if (spec.gjelder2FaseSimulering())
                 spec.heltUttakDato?.let {
                     KalenderMaaned(
                         aarstall = it.year,

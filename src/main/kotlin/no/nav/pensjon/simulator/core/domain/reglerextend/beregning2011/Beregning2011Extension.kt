@@ -42,6 +42,14 @@ fun AfpLivsvarig.asPrivatAfp() =
         copyYtelseskomponent(source = this, target = it)
     }
 
+fun AfpOffentligLivsvarigGrunnlag.copy() =
+    AfpOffentligLivsvarigGrunnlag(
+        sistRegulertG = this.sistRegulertG,
+        bruttoPerAr = this.bruttoPerAr,
+        uttaksdato = this.uttaksdato,
+        virkTom = this.virkTom
+    )
+
 fun AfpPrivatBeregning.copy() =
     AfpPrivatBeregning().also {
         it.afpLivsvarig = this.afpLivsvarig?.let(::AfpLivsvarig)

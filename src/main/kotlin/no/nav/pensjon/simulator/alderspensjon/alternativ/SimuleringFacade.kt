@@ -27,7 +27,7 @@ class SimuleringFacade(
                 pensjon = if (spec.onlyVilkaarsproeving)
                     null // irrelevant when finding uttak only
                 else
-                    pensjon(result),
+                    pensjon(result, spec),
                 alternativ = null
             )
         } catch (e: UtilstrekkeligOpptjeningException) {

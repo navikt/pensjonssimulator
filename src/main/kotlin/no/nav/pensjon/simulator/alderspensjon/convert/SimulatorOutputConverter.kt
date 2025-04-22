@@ -18,6 +18,7 @@ import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.time.Period
@@ -36,7 +37,7 @@ object SimulatorOutputConverter {
 
     private const val ALDER_REPRESENTING_LOPENDE_YTELSER = 0
 
-    fun pensjon(source: SimulatorOutput): SimulertPensjon {
+    fun pensjon(source: SimulatorOutput, simuleringSpec: SimuleringSpec? = null): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
         val pensjonsperioder: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
         val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
@@ -46,7 +47,7 @@ object SimulatorOutputConverter {
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
                 .map(SimulatorOutputConverter::alderspensjonFraFolketrygden),
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
-                pre2025OffentligAfp(it, source.foedselDato)
+                pre2025OffentligAfp(it, source.foedselDato, simuleringSpec)
             },
             privatAfp = source.privatAfpPeriodeListe.map(SimulatorOutputConverter::privatAfp),
             livsvarigOffentligAfp = source.livsvarigOffentligAfp.orEmpty().map(SimulatorOutputConverter::livsvarigOffentligAfp),
@@ -132,7 +133,8 @@ object SimulatorOutputConverter {
      */
     private fun pre2025OffentligAfp(
         beregning: Beregning,
-        foedselDato: LocalDate?
+        foedselDato: LocalDate?,
+        simuleringSpec: SimuleringSpec?
     ): SimulertPre2025OffentligAfp? =
         if (foedselDato == null)
             null
@@ -153,10 +155,13 @@ object SimulatorOutputConverter {
                     grunnpensjon = beregning.gp?.netto ?: 0,
                     tilleggspensjon = beregning.tp?.netto ?: 0,
                     afpTillegg = beregning.afpTillegg?.netto ?: 0,
-                    saertillegg = beregning.st?.netto ?: 0
+                    saertillegg = beregning.st?.netto ?: 0,
+                    afpGrad = beregnAfpGrad(simuleringSpec?.inntektUnderGradertUttakBeloep ?: 0, poengrekke?.tpi ?: 0)
                 )
             }
 
+    private fun beregnAfpGrad(inntektVedAfpUttak: Int, tidligereInntekt: Int) =
+        100 - (inntektVedAfpUttak.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1kr for å unngå deling på 0
 
     private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
         SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep)

@@ -166,7 +166,8 @@ class NavSimuleringResultMapperV3Test2 {
                         grunnpensjon = 19,
                         tilleggspensjon = 20,
                         afpTillegg = 21,
-                        saertillegg = 22
+                        saertillegg = 22,
+                        afpGrad = 23
                     ),
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(

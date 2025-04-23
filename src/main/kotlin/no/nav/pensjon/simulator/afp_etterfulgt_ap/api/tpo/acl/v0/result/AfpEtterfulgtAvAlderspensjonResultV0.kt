@@ -1,18 +1,20 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonInclude
 import java.time.LocalDate
 
 /**
  * Ref. API specification: https://confluence.adeo.no/x/hJRHK
  */
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class AfpEtterfulgtAvAlderspensjonResultV0(
     val simuleringSuksess: Boolean,
     val aarsakListeIkkeSuksess: List<AarsakIkkeSuccessV0>,
     val folketrygdberegnetAfp: FolketrygdberegnetAfpV0?,
     val alderspensjonFraFolketrygden: List<AlderspensjonFraFolketrygdenV0>,
 )
-
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class FolketrygdberegnetAfpV0(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     val fraOgMedDato: LocalDate,
@@ -26,7 +28,7 @@ data class FolketrygdberegnetAfpV0(
     val maanedligAfpTillegg: Int,
     val sumMaanedligUtbetaling: Int,
 )
-
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class GrunnpensjonV0(
     val maanedligUtbetaling: Int,
     val grunnbeloep: Int,
@@ -41,12 +43,12 @@ data class TilleggspensjonV0(
     val antallPoengaarTilOgMed1991: Int,
     val antallPoengaarFraOgMed1992: Int,
 )
-
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class SaertilleggV0(
     val maanedligUtbetaling: Int,
     val saertilleggsats: Double?,
 )
-
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class AlderspensjonFraFolketrygdenV0(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     val fraOgMedDato: LocalDate,
@@ -63,7 +65,7 @@ data class AlderspensjonKapittel19V0(
     val pensjonstillegg: PensjonstilleggV0,
     val forholdstall: Double,
 )
-
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class PensjonstilleggV0(
     val maanedligUtbetaling: Int,
     val minstepensjonsnivaaSats: Double?,
@@ -74,7 +76,7 @@ data class AlderspensjonKapittel20V0(
     val garantipensjon: GarantipensjonV0,
     val delingstall: Double,
 )
-
+@JsonInclude(JsonInclude.Include.ALWAYS)
 data class GarantipensjonV0(
     val maanedligUtbetaling: Int,
     val garantipensjonssats: Double?,

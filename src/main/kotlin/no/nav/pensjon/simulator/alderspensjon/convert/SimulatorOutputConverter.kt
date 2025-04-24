@@ -156,7 +156,8 @@ object SimulatorOutputConverter {
                     tilleggspensjon = beregning.tp?.netto ?: 0,
                     afpTillegg = beregning.afpTillegg?.netto ?: 0,
                     saertillegg = beregning.st?.netto ?: 0,
-                    afpGrad = beregnAfpGrad(simuleringSpec?.inntektUnderGradertUttakBeloep ?: 0, poengrekke?.tpi ?: 0)
+                    afpGrad = beregnAfpGrad(simuleringSpec?.inntektUnderGradertUttakBeloep ?: 0, poengrekke?.tpi ?: 0),
+                    afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true
                 )
             }
 

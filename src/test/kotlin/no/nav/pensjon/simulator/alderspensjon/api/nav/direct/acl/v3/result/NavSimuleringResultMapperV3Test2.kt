@@ -168,7 +168,8 @@ class NavSimuleringResultMapperV3Test2 {
                         tilleggspensjon = 20,
                         afpTillegg = 21,
                         saertillegg = 22,
-                        afpGrad = 23
+                        afpGrad = 23,
+                        afpAvkortetTil70Prosent = false
                     ),
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(

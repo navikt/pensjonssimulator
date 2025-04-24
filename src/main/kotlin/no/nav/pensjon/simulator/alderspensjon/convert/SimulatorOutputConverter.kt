@@ -126,7 +126,7 @@ object SimulatorOutputConverter {
     }
 
     private fun privatAfp(source: SimulertPrivatAfpPeriode) =
-        SimulertPrivatAfp(source.alderAar ?: 0, source.aarligBeloep ?: 0)
+        SimulertPrivatAfp(source.alderAar ?: 0, source.aarligBeloep ?: 0, source.maanedligBeloep ?: 0)
 
     /**
      * Ref. BeregningFormPopulator.createBeregningFormDataFromBeregning in pensjon-pselv
@@ -164,7 +164,7 @@ object SimulatorOutputConverter {
         100 - (inntektVedAfpUttak.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1kr for å unngå deling på 0
 
     private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
-        SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep)
+        SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep, source.maanedligBeloep)
 
     private fun beholdningPeriode(source: BeholdningPeriode) =
         SimulertPensjonBeholdningPeriode(

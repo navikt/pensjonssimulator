@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPer
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
+// PEN:
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.InsertTrygdetidsgrunnlagForDomesticPeriods
 object InnlandTrygdetidGrunnlagInserter {
 
@@ -33,6 +34,7 @@ object InnlandTrygdetidGrunnlagInserter {
         )
     }
 
+    // PEN: createTrygdetidsgrunnlagAfterLastUtlandTrygdetidsgrunnlag
     private fun addGrunnlagAfterLastUtlandTrygdetidGrunnlag(grunnlagListe: MutableList<TrygdetidOpphold>) {
         val tom = grunnlagListe[grunnlagListe.size - 1].periode.tom ?: return
         grunnlagListe.add(trygdetidMedArbeid(tom.toNorwegianLocalDate().plusDays(1), null))

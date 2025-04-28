@@ -3,13 +3,15 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil
+import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.ubetingetSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withGradertInsteadOfHeltUttak
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
@@ -18,20 +20,20 @@ import java.time.LocalDate
 
 /**
  * Utfører simulering med alternative parametre, i den hensikt å finne kombinasjoner som gir "innvilget" i vilkårsprøvingen.
- * Parameterne som varieres er én eller flere av:
+ * Parameterne som varieres er én eller begge av:
  * - Uttaksgrad
- * - Alder for uttak av gradert alderspensjon
  * - Alder for uttak av hel alderspensjon
+ * NB: For uføre varieres ikke alder for uttak av gradert alderspensjon (da det kan medføre inntektstap)
  * -------------------------
  * Parameter 'inkluderPensjonHvisUbetinget' er relevant hvis bruker kun kan ta ut pensjon ved normalder (ubetinget alder):
  * - Hvis 'true' vil responsen inkludere simulert pensjon
  * - Hvis 'false' vil responsen bare inneholde informasjon om at bruker kun kan ta ut pensjon ved normalder
  */
 @Service
-class AlternativSimuleringService(
+class UfoereAlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normAlderService: NormAlderService,
-    private val alternativtUttakService: AlternativtUttakService
+    private val alternativtUttakService: UfoereAlternativtUttakService
 ) {
     fun simulerMedNesteLavereUttaksgrad(
         spec: SimuleringSpec,
@@ -43,7 +45,7 @@ class AlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result, spec)
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result)
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -55,10 +57,55 @@ class AlternativSimuleringService(
     }
 
     /**
+     * Rekursiv funksjon som simulerer med stadig lavere uttaksgrad inntil innvilgelse eller til minste uttaksgrad
+     * er nådd. Første uttaksdato holdes konstant.
+     * Hvis utgangspunktet er helt uttak, så "konverteres" dette til gradert uttak slik:
+     * - uttaksgrad settes til neste lavere verdi
+     * - opprinnelig uttaksdato brukes som dato for gradert uttak, og
+     * - normert pensjoneringsdato brukes som dato for etterfølgende helt uttak
+     */
+    fun simulerMedFallendeUttaksgrad(
+        spec: SimuleringSpec,
+        exception: RuntimeException? = null
+    ): SimulertPensjonEllerAlternativ {
+        val lavereGradSpec: SimuleringSpec =
+            when (spec.uttakGrad) {
+                UttakGradKode.P_100 ->
+                    withGradertInsteadOfHeltUttak(
+                        source = spec,
+                        normAlder = normAlderService.normAlder(spec.foedselDato),
+                        foedselsdato = spec.foedselDato!!
+                    )
+
+                UttakGradKode.P_20 -> throw exception ?: BadSpecException("Kan ikke gå lavere enn 20 % uttak")
+                UttakGradKode.P_0 -> throw BadSpecException("0 % uttak")
+
+                else -> withLavereUttakGrad(
+                    source = spec,
+                    tillatOvergangFraHeltTilGradertUttak = true
+                )
+            }
+
+        return try {
+            val result: SimulatorOutput = simulator.simuler(lavereGradSpec)
+            // Lavere grad innvilget; returner dette som alternativ og avslutt:
+            alternativResponse(
+                spec = lavereGradSpec,
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result)
+                // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
+            )
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            simulerMedFallendeUttaksgrad(lavereGradSpec, e)
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            simulerMedFallendeUttaksgrad(lavereGradSpec, e)
+        }
+    }
+
+    /**
      * "Utkanttilfellet" er den "dårligst" mulige kombinasjon av uttaksalder og -grad for gradert uttak.
      * Denne kombinasjonen består av:
      * - Lavest mulig uttaksgrad (20 %)
-     * - Høyest mulig alder for uttak av gradert alderspensjon (én måned før normalder)
+     * - Angitt alder for uttak av gradert alderspensjon (denne alderen holdes konstant for uføre)
      * - Normalder for uttak av hel alderspensjon (før 2026 er dette 67 år)
      * ---------------
      * Hensikten med å simulere for ytkanttilfellet er å fastslå hvorvidt brukeren kan ta gradert uttak i det hele tatt.
@@ -72,7 +119,8 @@ class AlternativSimuleringService(
         val normAlder: Alder = normAlderService.normAlder(spec.foedselDato)
 
         return try {
-            val utkantSpec: SimuleringSpec = utkantSimuleringSpec(spec, normAlder, spec.foedselDato!!)
+            val utkantSpec: SimuleringSpec =
+                utkantSimuleringSpec(spec, normAlder, spec.foedselDato!!, foersteUttakAlderIsConstant = true)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again
@@ -83,11 +131,7 @@ class AlternativSimuleringService(
             // resultatet av 'simuler' ignoreres - det interessante er om en exception oppstår
 
             // Ingen exception => utkanttilfellet innvilget => prøv alternative parametre:
-            alternativtUttakService.findAlternativtUttak(
-                spec,
-                spec.gradertUttak(),
-                spec.heltUttak()
-            )
+            alternativtUttakService.findAlternativtUttak(spec)
         } catch (_: UtilstrekkeligOpptjeningException) {
             // Utkanttilfellet avslått (intet gradert uttak mulig); returner alternativ for ubetinget uttak:
             if (inkluderPensjonHvisUbetinget)
@@ -107,9 +151,9 @@ class AlternativSimuleringService(
         normAlder: Alder
     ): SimulertPensjonEllerAlternativ =
         try {
-            val ubetingetSpec: SimuleringSpec = SimuleringSpecUtil.ubetingetSimuleringSpec(spec, normAlder)
+            val ubetingetSpec: SimuleringSpec = ubetingetSimuleringSpec(spec, normAlder)
             val result: SimulatorOutput = simulator.simuler(ubetingetSpec)
-            alternativResponse(ubetingetSpec, if (spec.onlyVilkaarsproeving) null else pensjon(result, spec))
+            alternativResponse(ubetingetSpec, if (spec.onlyVilkaarsproeving) null else pensjon(result))
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Skal ikke kunne skje
             throw RuntimeException("Simulering for ubetinget alder feilet", e)
@@ -149,10 +193,7 @@ class AlternativSimuleringService(
                 uttakDato = uttakDato(foedselsdato, normAlder)
             )
 
-        private fun alternativResponse(
-            spec: SimuleringSpec,
-            alternativPensjon: SimulertPensjon?
-        ) =
+        private fun alternativResponse(spec: SimuleringSpec, alternativPensjon: SimulertPensjon?) =
             alternativResponse(alternativ(spec), alternativPensjon)
 
         private fun alternativResponse(alternativ: SimulertAlternativ?, alternativPensjon: SimulertPensjon?) =

@@ -61,7 +61,7 @@ class AlderspensjonService(
             val result: SimulatorOutput = simulator.simuler(spec)
 
             return SimulertPensjonEllerAlternativ(
-                pensjon = SimulatorOutputConverter.pensjon(result), // SimulatorOutput -> SimulertPensjon
+                pensjon = SimulatorOutputConverter.pensjon(result, spec), // SimulatorOutput -> SimulertPensjon
                 alternativ = null
             )
         } catch (e: UtilstrekkeligOpptjeningException) {

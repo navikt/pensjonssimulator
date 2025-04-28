@@ -63,7 +63,9 @@ object NavSimuleringResultMapperV3 {
             grunnpensjon = source.grunnpensjon,
             tilleggspensjon = source.tilleggspensjon,
             afpTillegg = source.afpTillegg,
-            saertillegg = source.saertillegg
+            saertillegg = source.saertillegg,
+            afpGrad = source.afpGrad,
+            afpAvkortetTil70Prosent = source.afpAvkortetTil70Prosent
         )
 
     private fun privatAfp(source: SimulertPrivatAfp) =

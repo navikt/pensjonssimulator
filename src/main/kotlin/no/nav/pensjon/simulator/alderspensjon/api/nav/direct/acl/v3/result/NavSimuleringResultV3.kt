@@ -72,7 +72,9 @@ data class NavPre2025OffentligAfp(
     val grunnpensjon: Int,
     val tilleggspensjon: Int,
     val afpTillegg: Int,
-    val saertillegg: Int
+    val saertillegg: Int,
+    val afpGrad: Int,
+    val afpAvkortetTil70Prosent: Boolean,
 )
 
 @JsonInclude(NON_NULL)

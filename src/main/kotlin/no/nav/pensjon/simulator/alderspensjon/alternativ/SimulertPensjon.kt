@@ -64,7 +64,9 @@ data class SimulertPre2025OffentligAfp(
     val grunnpensjon: Int,
     val tilleggspensjon: Int,
     val afpTillegg: Int,
-    val saertillegg: Int
+    val saertillegg: Int,
+    val afpGrad: Int,
+    val afpAvkortetTil70Prosent: Boolean
 )
 
 data class SimulertLivsvarigOffentligAfp(

@@ -28,6 +28,7 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.regel.client.GrunnbeloepService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -44,6 +45,7 @@ import java.time.LocalDate
 class NavAlderspensjonController(
     private val service: SimuleringFacade,
     private val generelleDataHolder: GenerelleDataHolder,
+    private val grunnbeloepService: GrunnbeloepService,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -79,7 +81,10 @@ class NavAlderspensjonController(
 
         return try {
             val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV3.pid)).foedselDato
-            val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselsdato)
+            val inntektSisteMaanedOver1G = specV3.afpInntektMaanedFoerUttak?.let {
+                grunnbeloepService.hentSisteMaanedsInntektOver1G(it)
+            }
+            val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselsdato, inntektSisteMaanedOver1G)
 
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)

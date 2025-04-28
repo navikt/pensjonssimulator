@@ -28,7 +28,7 @@ data class NavSimuleringSpecV3(
     val epsHarInntektOver2G: Boolean? = null,
     val fremtidigInntektListe: List<NavSimuleringInntektSpecV3>? = null,
     val utenlandsperiodeListe: List<NavSimuleringUtlandSpecV3>? = null,
-    val afpInntektMaanedFoerUttak: Int? = null,
+    val afpInntektMaanedFoerUttak: Boolean? = null,
     val afpOrdning: AfpOrdningType? = null
 ) {
     /**

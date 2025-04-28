@@ -32,7 +32,8 @@ object SimuleringSpecUtil {
     fun utkantSimuleringSpec(
         source: SimuleringSpec,
         normAlder: Alder,
-        foedselsdato: LocalDate
+        foedselsdato: LocalDate,
+        foersteUttakAlderIsConstant: Boolean = false
     ): SimuleringSpec {
         val gradert = source.isGradert()
 
@@ -41,10 +42,14 @@ object SimuleringSpecUtil {
         else
             PensjonAlderDato(foedselsdato, normAlder)
 
-        val utkantFoersteUttakAlder: Alder = maxAlder.alder.minusMaaneder(1)
+        val variableFoersteUttakAlder = maxAlder.alder.minusMaaneder(1)
+
+        val utkantFoersteUttakAlder: Alder =
+            if (foersteUttakAlderIsConstant) PensjonAlderDato(foedselsdato, source.foersteUttakDato!!).alder
+            else variableFoersteUttakAlder
 
         val heltUttakFomAlder: Alder =
-            if (gradert) maxAlder.alder else utkantFoersteUttakAlder
+            if (gradert) maxAlder.alder else variableFoersteUttakAlder
 
         return newSimuleringSpec(
             source,
@@ -58,10 +63,29 @@ object SimuleringSpecUtil {
         )
     }
 
-    fun withLavereUttakGrad(source: SimuleringSpec): SimuleringSpec =
+    fun withLavereUttakGrad(
+        source: SimuleringSpec,
+        tillatOvergangFraHeltTilGradertUttak: Boolean = false
+    ): SimuleringSpec =
         newSimuleringSpec(
             source,
-            uttaksgrad = if (source.isGradert()) naermesteLavereUttaksgrad(source.uttakGrad) else UttakGradKode.P_100
+            uttaksgrad =
+                if (tillatOvergangFraHeltTilGradertUttak || source.isGradert())
+                    naermesteLavereUttaksgrad(source.uttakGrad)
+                else
+                    UttakGradKode.P_100
+        )
+
+    fun withGradertInsteadOfHeltUttak(
+        source: SimuleringSpec,
+        normAlder: Alder,
+        foedselsdato: LocalDate
+    ): SimuleringSpec =
+        newSimuleringSpec(
+            source,
+            foersteUttakFom = PensjonAlderDato(foedselsdato, source.foersteUttakDato!!),
+            uttaksgrad = naermesteLavereUttaksgrad(UttakGradKode.P_100),
+            heltUttakFom = PensjonAlderDato(foedselsdato, normAlder)
         )
 
     private fun newSimuleringSpec(

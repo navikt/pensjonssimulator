@@ -178,6 +178,13 @@ data class SimuleringSpec(
                 type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG ||
                 type == SimuleringType.ENDR_ALDER_M_GJEN
 
+    //TODO move to SimuleringType?
+    fun gjelderAfp() =
+        type == SimuleringType.ALDER_M_AFP_PRIVAT ||
+                type == SimuleringType.ENDR_AP_M_AFP_PRIVAT ||
+                type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
+                type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+
     fun hasSameUttakAs(other: SimuleringSpec) =
         uttakGrad == other.uttakGrad &&
                 foersteUttakDato == other.foersteUttakDato &&

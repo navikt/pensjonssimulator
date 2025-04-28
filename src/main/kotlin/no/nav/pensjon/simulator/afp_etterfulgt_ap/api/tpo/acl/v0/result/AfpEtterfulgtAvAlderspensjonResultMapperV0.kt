@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.pre2025.AfpGrad
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.result.Maanedsutbetaling
@@ -52,7 +53,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         val res = FolketrygdberegnetAfpV0(
             fraOgMedDato = virk.toNorwegianLocalDate(),
             beregnetTidligereInntekt = beregnetTidligereInntekt,
-            afpGrad = beregnAfpGrad(spec.inntektUnderGradertUttakBeloep, beregnetTidligereInntekt),
+            afpGrad = AfpGrad.beregnAfpGrad(spec.inntektUnderGradertUttakBeloep, beregnetTidligereInntekt),
             fremtidigAarligInntektTilAfpUttak = spec.forventetInntektBeloep,
             afpAvkortetTil70Prosent = afp.gpAfpPensjonsregulert?.brukt == true,
             grunnpensjon = GrunnpensjonV0(
@@ -82,9 +83,6 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
 
         return res
     }
-
-    private fun beregnAfpGrad(inntektVedAfpUttak: Int, tidligereInntekt: Int) =
-        100 - (inntektVedAfpUttak.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1kr for å unngå deling på 0
 
     private fun mapToAlderspensjon(
         alderspensjon: SimulertAlderspensjon,

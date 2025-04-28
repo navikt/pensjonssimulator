@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
+import no.nav.pensjon.simulator.afp.pre2025.AfpGrad
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
@@ -156,13 +157,10 @@ object SimulatorOutputConverter {
                     tilleggspensjon = beregning.tp?.netto ?: 0,
                     afpTillegg = beregning.afpTillegg?.netto ?: 0,
                     saertillegg = beregning.st?.netto ?: 0,
-                    afpGrad = beregnAfpGrad(simuleringSpec?.inntektUnderGradertUttakBeloep ?: 0, poengrekke?.tpi ?: 0),
+                    afpGrad = AfpGrad.beregnAfpGrad(simuleringSpec?.inntektUnderGradertUttakBeloep ?: 0, poengrekke?.tpi ?: 0),
                     afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true
                 )
             }
-
-    private fun beregnAfpGrad(inntektVedAfpUttak: Int, tidligereInntekt: Int) =
-        100 - (inntektVedAfpUttak.toDouble() / (tidligereInntekt + 1) * 100).toInt() //+ 1kr for å unngå deling på 0
 
     private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
         SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep, source.maanedligBeloep)

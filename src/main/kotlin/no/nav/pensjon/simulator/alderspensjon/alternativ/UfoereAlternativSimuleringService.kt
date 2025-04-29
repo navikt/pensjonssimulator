@@ -66,7 +66,7 @@ class UfoereAlternativSimuleringService(
      */
     fun simulerMedFallendeUttaksgrad(
         spec: SimuleringSpec,
-        exception: RuntimeException? = null
+        exception: RuntimeException
     ): SimulertPensjonEllerAlternativ {
         val lavereGradSpec: SimuleringSpec =
             when (spec.uttakGrad) {
@@ -77,7 +77,7 @@ class UfoereAlternativSimuleringService(
                         foedselsdato = spec.foedselDato
                     )
 
-                UttakGradKode.P_20 -> throw exception ?: BadSpecException("Kan ikke gå lavere enn 20 % uttak")
+                UttakGradKode.P_20 -> throw exception
                 UttakGradKode.P_0 -> throw BadSpecException("0 % uttak")
 
                 else -> withLavereUttakGrad(

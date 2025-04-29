@@ -21,8 +21,8 @@ import java.time.LocalDate
 class UfoereAlternativSimuleringServiceTest : FunSpec({
 
     test("simulerMedFallendeUttaksgrad for gradert uttak should return: alternativ med lavere grad men samme uttaksdato") {
-        val simulator = mock(SimulatorCore::class.java).also { arrangeSimulatorForGradertUttak(it) }
-        val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
+        val simulator = mock(SimulatorCore::class.java).also(::arrangeSimulatorForGradertUttak)
+        val normAlderService = mock(NormAlderService::class.java).also(::arrangeNormAlder)
 
         val service = UfoereAlternativSimuleringService(
             simulator, normAlderService, mock(UfoereAlternativtUttakService::class.java)
@@ -33,7 +33,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
                 foersteUttakDato = LocalDate.of(2030, 2, 1),
                 uttaksgrad = UttakGradKode.P_60,
                 heltUttakDato = LocalDate.of(2032, 2, 1)
-            )
+            ),
+            exception = UtilstrekkeligOpptjeningException()
         ).alternativ shouldBe SimulertAlternativ(
             gradertUttakAlder = SimulertUttakAlder(alder = Alder(63, 0), uttakDato = LocalDate.of(2030, 2, 1)),
             uttakGrad = UttakGradKode.P_40,
@@ -43,8 +44,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
     }
 
     test("simulerMedFallendeUttaksgrad for helt uttak should return: alternativ med lavere grad med helt uttak-dato som ny gradert uttak-dato") {
-        val simulator = mock(SimulatorCore::class.java).also { arrangeSimulatorForHeltUttak(it) }
-        val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
+        val simulator = mock(SimulatorCore::class.java).also(::arrangeSimulatorForHeltUttak)
+        val normAlderService = mock(NormAlderService::class.java).also(::arrangeNormAlder)
 
         val service = UfoereAlternativSimuleringService(
             simulator, normAlderService, mock(UfoereAlternativtUttakService::class.java)
@@ -55,7 +56,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
                 foersteUttakDato = LocalDate.of(2030, 2, 1),
                 uttaksgrad = UttakGradKode.P_100,
                 heltUttakDato = null // brukes bare ved gradert uttak (etterfulgt av helt uttak)
-            )
+            ),
+            exception = UtilstrekkeligTrygdetidException()
         ).alternativ shouldBe SimulertAlternativ(
             gradertUttakAlder = SimulertUttakAlder(alder = Alder(63, 0), uttakDato = LocalDate.of(2030, 2, 1)),
             uttakGrad = UttakGradKode.P_60,
@@ -65,8 +67,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
     }
 
     test("simulerMedFallendeUttaksgrad for ingen innvilgede uttak should throw exception") {
-        val simulator = mock(SimulatorCore::class.java).also { arrangeSimulatorForIngenInnvilgedeUttak(it) }
-        val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
+        val simulator = mock(SimulatorCore::class.java).also(::arrangeSimulatorForIngenInnvilgedeUttak)
+        val normAlderService = mock(NormAlderService::class.java).also(::arrangeNormAlder)
 
         val service = UfoereAlternativSimuleringService(
             simulator, normAlderService, mock(UfoereAlternativtUttakService::class.java)
@@ -78,7 +80,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
                     foersteUttakDato = LocalDate.of(2030, 2, 1),
                     uttaksgrad = UttakGradKode.P_40,
                     heltUttakDato = LocalDate.of(2032, 2, 1)
-                )
+                ),
+                exception = UtilstrekkeligOpptjeningException()
             )
         }.message shouldBe null
     }

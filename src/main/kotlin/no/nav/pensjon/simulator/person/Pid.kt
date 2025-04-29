@@ -3,18 +3,19 @@ package no.nav.pensjon.simulator.person
 /**
  * Person identifier, e.g. fødselsnummer (FNR).
  */
-class Pid(argument: String) {
+@JvmInline
+value class Pid(val argument: String) {
 
-    val isValid = argument.length == FOEDSELSNUMMER_LENGTH
-    val value = if (isValid) argument else "invalid"
-    val displayValue = redact(value)
+    val isValid: Boolean
+        get() = argument.length == FOEDSELSNUMMER_LENGTH
+
+    val value: String
+        get() = if (isValid) argument else "invalid"
+
+    val displayValue : String
+        get() = redact(value)
 
     override fun toString(): String = displayValue
-
-    override fun hashCode(): Int = value.hashCode()
-
-    override fun equals(other: Any?): Boolean =
-        (other as? Pid)?.let { value == it.value } == true
 
     companion object {
         private const val FOEDSELSNUMMER_LENGTH = 11

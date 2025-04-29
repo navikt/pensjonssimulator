@@ -52,7 +52,10 @@ class SimuleringFacade(
     ): SimulertPensjonEllerAlternativ? =
         if (gjelderUfoereMedAfp)
             if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normAlderService.normAlderDato(spec.foedselDato!!)))
-                ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
+                if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
+                    ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)
+                else
+                    ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
             else
                 ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
         else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))

@@ -4,16 +4,23 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.generelt.Person
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.time.LocalDate
 
 class UttakSpecMapperV1Test : FunSpec({
 
     test("fromSpecV1 should map DTO to domain object representing simulering specification") {
-        UttakSpecMapperV1.fromSpecV1(
+        val personService = arrangeFoedselsdato()
+
+        UttakSpecMapperV1(personService).fromSpecV1(
             source = TidligstMuligUttakSpecV1(
                 personId = pid.value,
                 fodselsdato = LocalDate.of(1964, 5, 6),
@@ -27,8 +34,7 @@ class UttakSpecMapperV1Test : FunSpec({
                     )
                 ),
                 arIUtlandetEtter16 = 5
-            ),
-            foedselsdato = LocalDate.of(1964, 5, 6)
+            )
         ) shouldBe SimuleringSpec(
             type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
             sivilstatus = SivilstatusType.UGIF,
@@ -69,3 +75,13 @@ class UttakSpecMapperV1Test : FunSpec({
         )
     }
 })
+
+private fun arrangeFoedselsdato(): GenerelleDataHolder =
+    mock(GenerelleDataHolder::class.java).also {
+        `when`(it.getPerson(pid)).thenReturn(
+            Person(
+                foedselDato = LocalDate.of(1964, 5, 6),
+                statsborgerskap = LandkodeEnum.NOR
+            )
+        )
+    }

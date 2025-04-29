@@ -73,8 +73,8 @@ class UfoereAlternativSimuleringService(
                 UttakGradKode.P_100 ->
                     withGradertInsteadOfHeltUttak(
                         source = spec,
-                        normAlder = normAlderService.normAlder(spec.foedselDato),
-                        foedselsdato = spec.foedselDato!!
+                        normAlder = normAlderService.normAlder(spec.foedselDato!!),
+                        foedselsdato = spec.foedselDato
                     )
 
                 UttakGradKode.P_20 -> throw exception ?: BadSpecException("Kan ikke gå lavere enn 20 % uttak")
@@ -116,11 +116,11 @@ class UfoereAlternativSimuleringService(
         spec: SimuleringSpec,
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ? {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato)
+        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
 
         return try {
             val utkantSpec: SimuleringSpec =
-                utkantSimuleringSpec(spec, normAlder, spec.foedselDato!!, foersteUttakAlderIsConstant = true)
+                utkantSimuleringSpec(spec, normAlder, spec.foedselDato, foersteUttakAlderIsConstant = true)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again
@@ -137,12 +137,12 @@ class UfoereAlternativSimuleringService(
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder)
             else
-                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato!!, normAlder)
+                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato, normAlder)
         } catch (_: UtilstrekkeligTrygdetidException) {
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder)
             else
-                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato!!, normAlder)
+                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato, normAlder)
         }
     }
 

@@ -8,16 +8,21 @@ import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import org.springframework.stereotype.Component
 
-object NavSimuleringSpecMapperV2 {
+@Component
+class NavSimuleringSpecMapperV2(val personService: GenerelleDataHolder) {
 
     fun fromSimuleringSpecV2(
         source: NavSimuleringSpecV2,
         isHentPensjonsbeholdninger: Boolean,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
-    ) =
-        SimuleringSpec(
+    ): SimuleringSpec {
+        val pid = source.fnr?.let(::Pid)
+
+        return SimuleringSpec(
             type = source.simuleringType?.let { NavSimuleringTypeSpecV2.fromExternalValue(it.name).internalValue }
                 ?: SimuleringType.ALDER,
             sivilstatus = source.sivilstatus?.let { NavSivilstandSpecV2.fromExternalValue(it.name).internalValue }
@@ -25,8 +30,8 @@ object NavSimuleringSpecMapperV2 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate(),
-            pid = source.fnr?.let(::Pid),
-            foedselDato = null, // used for anonym only
+            pid = pid,
+            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
             avdoed = avdoed(source),
             isTpOrigSimulering = false,
             simulerForTp = false,
@@ -52,6 +57,7 @@ object NavSimuleringSpecMapperV2 {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
+    }
 
     private fun pre2025OffentligAfpSpec(simuleringSpec: NavSimuleringSpecV2): Pre2025OffentligAfpSpec? =
         if (simuleringSpec.simuleringType == NavSimuleringTypeSpecV2.AFP_ETTERF_ALDER)

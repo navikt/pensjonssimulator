@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApFor
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApForTpResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.NavSimuleringResultMapperV2.toSimuleringResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.NavSimuleringSpecAndResultV2
-import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecMapperV2.fromSimuleringSpecV2
+import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecMapperV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecV2
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
@@ -46,6 +46,7 @@ import java.time.format.DateTimeParseException
 @SecurityRequirement(name = "BearerAuthentication")
 class NavViaPenAlderspensjonController(
     private val simulator: SimulatorCore,
+    private val specMapper: NavSimuleringSpecMapperV2,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -80,7 +81,7 @@ class NavViaPenAlderspensjonController(
         countCall(AP_FUNCTION_ID)
 
         return try {
-            val spec: SimuleringSpec = fromSimuleringSpecV2(
+            val spec: SimuleringSpec = specMapper.fromSimuleringSpecV2(
                 source = specV2,
                 isHentPensjonsbeholdninger = false,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
@@ -180,7 +181,7 @@ class NavViaPenAlderspensjonController(
         countCall(TP_FUNCTION_ID)
 
         return try {
-            val spec: SimuleringSpec = fromSimuleringSpecV2(
+            val spec: SimuleringSpec = specMapper.fromSimuleringSpecV2(
                 source = specV2,
                 isHentPensjonsbeholdninger = true,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true

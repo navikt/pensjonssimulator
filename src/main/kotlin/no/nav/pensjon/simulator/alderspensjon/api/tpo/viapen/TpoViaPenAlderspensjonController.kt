@@ -42,6 +42,9 @@ import java.time.format.DateTimeParseException
 @SecurityRequirement(name = "BearerAuthentication")
 class TpoViaPenAlderspensjonController(
     private val simulatorCore: SimulatorCore,
+    private val specMapperV1: TpoSimuleringSpecMapperV1,
+    private val specMapperV2: TpoSimuleringSpecMapperV2,
+    private val specMapperV3: TpoSimuleringSpecMapperV3,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -72,7 +75,7 @@ class TpoViaPenAlderspensjonController(
         countCall(FUNCTION_ID_V1)
 
         return try {
-            val spec: SimuleringSpec = TpoSimuleringSpecMapperV1.fromDto(specV1)
+            val spec: SimuleringSpec = specMapperV1.fromDto(specV1)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV1.toDto(result)
         } catch (e: BadRequestException) {
@@ -168,7 +171,7 @@ class TpoViaPenAlderspensjonController(
         countCall(FUNCTION_ID_V2)
 
         return try {
-            val spec: SimuleringSpec = TpoSimuleringSpecMapperV2.fromDto(specV2)
+            val spec: SimuleringSpec = specMapperV2.fromDto(specV2)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV2.toDto(result)
         } catch (e: BadRequestException) {
@@ -250,7 +253,7 @@ class TpoViaPenAlderspensjonController(
         countCall(FUNCTION_ID_V3)
 
         return try {
-            val spec: SimuleringSpec = TpoSimuleringSpecMapperV3.fromDto(specV3)
+            val spec: SimuleringSpec = specMapperV3.fromDto(specV3)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV3.toDto(result).also {
                 log.debug { "$FUNCTION_ID_V3 response: $it" }

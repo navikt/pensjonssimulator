@@ -16,10 +16,10 @@ class UttakService(
 ) {
     fun finnTidligstMuligUttak(spec: SimuleringSpec): TidligstMuligUttak {
         val tidligstUttakAlder: Alder =
-            normAlderService.normAlder(spec.foedselDato)
+            normAlderService.normAlder(spec.foedselDato!!)
                 .minusAar(ANTALL_AAR_MELLOM_TIDLIGST_OG_NORMERT_PENSJONERINGSALDER)
 
-        val tidligstUttak = fremtidigPensjonAlderDato(spec.foedselDato!!, tidligstUttakAlder)
+        val tidligstUttak = fremtidigPensjonAlderDato(spec.foedselDato, tidligstUttakAlder)
         val newSpec = spec.withFoersteUttakDato(tidligstUttak.dato)
 
         val result: SimulertPensjonEllerAlternativ =

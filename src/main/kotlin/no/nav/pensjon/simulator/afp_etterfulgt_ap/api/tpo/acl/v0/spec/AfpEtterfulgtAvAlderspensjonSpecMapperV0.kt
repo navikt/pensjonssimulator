@@ -6,10 +6,13 @@ import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 
-object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
+@Component
+class AfpEtterfulgtAvAlderspensjonSpecMapperV0(val personService: GenerelleDataHolder) {
 
     fun fromDto(
         source: AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0,
@@ -60,7 +63,7 @@ object AfpEtterfulgtAvAlderspensjonSpecMapperV0 {
                 // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = inntektUnderGradertUttakBeloep
             ),
-            foedselDato = null, // only for anonym
+            foedselDato = personService.getPerson(pid).foedselDato,
             avdoed = null,
             isTpOrigSimulering = true,
             uttakGrad = UttakGradKode.P_100,

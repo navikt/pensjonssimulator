@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.FolketrygdberegnetAfpResultMapperV1.toResultV1
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.FolketrygdberegnetAfpResultV1
-import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecMapperV1.fromSimuleringSpecV1
+import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecMapperV1
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.TpoViaPenAlderspensjonController.TpoSimuleringErrorDto
 import no.nav.pensjon.simulator.common.api.ControllerBase
@@ -30,6 +30,7 @@ import java.time.format.DateTimeParseException
 @SecurityRequirement(name = "BearerAuthentication")
 class FolketrygdberegnetAfpController(
     private val simulator: SimulatorCore,
+    private val specMapper: FolketrygdberegnetAfpSpecMapperV1,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -63,7 +64,7 @@ class FolketrygdberegnetAfpController(
         countCall(FUNCTION_ID)
 
         return try {
-            val spec: SimuleringSpec = fromSimuleringSpecV1(specV1)
+            val spec: SimuleringSpec = specMapper.fromSimuleringSpecV1(specV1)
             val output: SimulatorOutput = simulator.simuler(spec)
             toResultV1(output)
         } catch (e: BadRequestException) {

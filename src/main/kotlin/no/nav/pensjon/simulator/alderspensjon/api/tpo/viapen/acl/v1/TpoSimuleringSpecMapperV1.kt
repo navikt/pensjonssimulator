@@ -4,19 +4,24 @@ import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import org.springframework.stereotype.Component
 
-object TpoSimuleringSpecMapperV1 {
+@Component
+class TpoSimuleringSpecMapperV1(val personService: GenerelleDataHolder) {
 
-    fun fromDto(source: TpoSimuleringSpecV1) =
-        SimuleringSpec(
+    fun fromDto(source: TpoSimuleringSpecV1): SimuleringSpec {
+        val pid = source.pid?.let(::Pid)
+
+        return SimuleringSpec(
             type = source.simuleringType ?: SimuleringType.ALDER,
             sivilstatus = source.sivilstatus ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.foersteUttakDato,
             heltUttakDato = source.heltUttakDato,
-            pid = source.pid?.let(::Pid),
-            foedselDato = null,
+            pid = pid,
+            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
             avdoed = null,
             isTpOrigSimulering = true, // true for TPO
             simulerForTp = false,
@@ -42,4 +47,5 @@ object TpoSimuleringSpecMapperV1 {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
+    }
 }

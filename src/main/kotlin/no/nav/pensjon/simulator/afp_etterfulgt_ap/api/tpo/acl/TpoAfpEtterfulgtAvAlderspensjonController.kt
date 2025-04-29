@@ -40,7 +40,8 @@ import org.springframework.web.bind.annotation.*
 class TpoAfpEtterfulgtAvAlderspensjonController(
     private val hentSisteLignetInntektService: HentSisteLignetInntektService,
     private val grunnbeloepService: GrunnbeloepService,
-    private val simulatorCore: SimulatorCore,
+    private val simulator: SimulatorCore,
+    private val specMapper: AfpEtterfulgtAvAlderspensjonSpecMapperV0,
     private val traceAid: TraceAid,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService,
@@ -76,13 +77,13 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             val validatedSpecV0 = validateSpec(specV0)
             verifiserAtBrukerTilknyttetTpLeverandoer(Pid(validatedSpecV0.personId))
 
-            val spec: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0.fromDto(
+            val spec: SimuleringSpec = specMapper.fromDto(
                 validatedSpecV0,
                 grunnbeloepService.hentSisteMaanedsInntektOver1G(validatedSpecV0.inntektSisteMaanedOver1G),
                 hentSisteLignetInntektService::hentSisteLignetInntekt
             )
 
-            toDto(simulatorCore.simuler(spec), spec)
+            toDto(simulator.simuler(spec), spec)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
             throw e
@@ -92,7 +93,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
             throw e
-        }  catch (e: KonsistensenIGrunnlagetErFeilException) {
+        } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: PersonForGammelException) {
@@ -101,7 +102,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID person for ung - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_LAV_ALDER)
-        } catch (e: Pre2025OffentligAfpAvslaattException){
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
             log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.AFP_ER_AVSLAATT)
         } catch (e: RegelmotorValideringException) {
@@ -120,11 +121,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         }
     }
 
-    @ExceptionHandler(
-        value = [
-            BadSpecException::class,
-        ]
-    )
+    @ExceptionHandler(value = [BadSpecException::class])
     private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e.message!!))
 
@@ -147,13 +144,11 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av AFP etterfulgt av alderspensjon V0"
         private const val FUNCTION_ID = "afp-etterf-av-ap-tpo-v0"
+
         private fun errorDto(e: RuntimeException) =
-            TpoSimuleringErrorDto(
-                feil = e.javaClass.simpleName
-            )
+            TpoSimuleringErrorDto(feil = e.javaClass.simpleName)
+
         private fun errorDto(error: String) =
-            TpoSimuleringErrorDto(
-                feil = error
-            )
+            TpoSimuleringErrorDto(feil = error)
     }
 }

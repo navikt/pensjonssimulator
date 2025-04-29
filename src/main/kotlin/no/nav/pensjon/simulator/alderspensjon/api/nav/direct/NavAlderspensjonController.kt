@@ -11,23 +11,12 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSi
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3.toDto
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavVilkaarsproevingResultatV3
-import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3.fromNavSimuleringSpecV3
+import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
-import no.nav.pensjon.simulator.core.exception.PersonForGammelException
-import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
+import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.regel.client.GrunnbeloepService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
@@ -37,14 +26,13 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDate
 
 @RestController
 @RequestMapping("api/nav")
 @SecurityRequirement(name = "BearerAuthentication")
 class NavAlderspensjonController(
     private val service: SimuleringFacade,
-    private val generelleDataHolder: GenerelleDataHolder,
+    private val specMapper: NavSimuleringSpecMapperV3,
     private val grunnbeloepService: GrunnbeloepService,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
@@ -80,11 +68,8 @@ class NavAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            val foedselsdato: LocalDate = generelleDataHolder.getPerson(Pid(specV3.pid)).foedselDato
-            val inntektSisteMaanedOver1G = specV3.afpInntektMaanedFoerUttak?.let {
-                grunnbeloepService.hentSisteMaanedsInntektOver1G(it)
-            }
-            val spec: SimuleringSpec = fromNavSimuleringSpecV3(specV3, foedselsdato, inntektSisteMaanedOver1G)
+            val inntektSisteMaanedOver1G = specV3.afpInntektMaanedFoerUttak?.let(grunnbeloepService::hentSisteMaanedsInntektOver1G)
+            val spec: SimuleringSpec = specMapper.fromNavSimuleringSpecV3(specV3, inntektSisteMaanedOver1G)
 
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)

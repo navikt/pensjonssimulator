@@ -5,22 +5,27 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
-import java.time.LocalDate
+import org.springframework.stereotype.Component
 
-object UttakSpecMapperV1 {
+@Component
+class UttakSpecMapperV1(val personService: GenerelleDataHolder) {
 
     // PEN: SimuleringUttaksalderSpecToInputMapper.mapSpecToInput
     @OptIn(ExperimentalStdlibApi::class)
-    fun fromSpecV1(source: TidligstMuligUttakSpecV1, foedselsdato: LocalDate) =
-        SimuleringSpec(
+    fun fromSpecV1(source: TidligstMuligUttakSpecV1): SimuleringSpec {
+        val pid = Pid(source.personId)
+        val foedselsdato = personService.getPerson(pid).foedselDato
+
+        return SimuleringSpec(
             type = source.rettTilAfpOffentligDato?.let { SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG }
                 ?: SimuleringType.ALDER,
             sivilstatus = SivilstatusType.UGIF,
             epsHarPensjon = false,
             foersteUttakDato = null, // ukjent; det er verdien vi ønsker å finne
             heltUttakDato = source.heltUttakFraOgMedDato,
-            pid = Pid(source.personId),
+            pid = pid,
             foedselDato = foedselsdato,
             avdoed = null,
             isTpOrigSimulering = true,
@@ -48,6 +53,7 @@ object UttakSpecMapperV1 {
             onlyVilkaarsproeving = true,
             epsKanOverskrives = false
         )
+    }
 
     private fun inntekt(source: UttakInntektSpecV1) =
         FremtidigInntekt(

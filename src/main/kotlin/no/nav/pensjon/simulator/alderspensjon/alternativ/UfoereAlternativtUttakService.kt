@@ -38,7 +38,7 @@ class UfoereAlternativtUttakService(
         andreUttakAngittAlder: Alder,
         maxUttaksgrad: UttakGradKode
     ): SimulertPensjonEllerAlternativ {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato) //TODO use foedselDato from PDL, not spec?
+        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
         val finder = UfoereAlternativtUttakFinder(simulator, spec, normAlderService)
 
         val andreUttakMinAlder: Alder? =

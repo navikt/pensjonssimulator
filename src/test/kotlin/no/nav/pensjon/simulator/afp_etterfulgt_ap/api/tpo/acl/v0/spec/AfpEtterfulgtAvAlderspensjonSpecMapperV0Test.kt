@@ -3,14 +3,22 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.generelt.Person
+import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
+import java.time.LocalDate
 
 class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 
     "fromDto mapper AfpEtterfulgtAvAlderspensjonValidatedSpecV0 korrekt til SimuleringSpec" {
         // Given
+        val personService = arrangeFoedselsdato()
         val dto = AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
-            personId = "12345678901",
+            personId = pid.value,
             sivilstandVedPensjonering = "UGIF",
             uttakFraOgMedDato = "2023-01-01",
             fremtidigAarligInntektTilAfpUttak = 500000,
@@ -22,7 +30,11 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
         )
 
         // When
-        val result: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0.fromDto(dto, 100000, { 12345 })
+        val result: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0(personService).fromDto(
+            source = dto,
+            inntektSisteMaaned = 100000,
+            hentSisteInntektFraPOPP = { 12345 }
+        )
 
         // Then
         result.pid?.value shouldBe dto.personId
@@ -39,3 +51,13 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
         result.pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep shouldBe 100000
     }
 })
+
+private fun arrangeFoedselsdato(): GenerelleDataHolder =
+    mock(GenerelleDataHolder::class.java).also {
+        `when`(it.getPerson(pid)).thenReturn(
+            Person(
+                foedselDato = LocalDate.of(1963, 4, 5),
+                statsborgerskap = LandkodeEnum.NOR
+            )
+        )
+    }

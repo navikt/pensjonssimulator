@@ -9,8 +9,10 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
@@ -18,17 +20,18 @@ import java.util.*
  * Maps between data transfer objects (DTOs) and domain objects related to 'simulering for Nav'.
  * The DTOs are specified by version 3 of the API offered to clients.
  */
-object NavSimuleringSpecMapperV3 {
+@Component
+class NavSimuleringSpecMapperV3(val personService: GenerelleDataHolder) {
 
     fun fromNavSimuleringSpecV3(
         source: NavSimuleringSpecV3,
-        foedselsdato: LocalDate,
         inntektSisteMaanedOver1G: Int?
     ): SimuleringSpec {
+        val pid = Pid(source.pid)
+        val foedselsdato = personService.getPerson(pid).foedselDato
         val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselsdato)
         val heltUttak: SimuleringHeltUttak = heltUttak(source, foedselsdato)
-        val utlandPeriodeListe: List<UtlandPeriode> =
-            source.utenlandsperiodeListe.orEmpty().map(::utlandPeriode)
+        val utlandPeriodeListe: List<UtlandPeriode> = source.utenlandsperiodeListe.orEmpty().map(::utlandPeriode)
 
         return SimuleringSpec(
             type = NavSimuleringTypeSpecV3.fromExternalValue(source.simuleringstype.name).internalValue,
@@ -49,7 +52,7 @@ object NavSimuleringSpecMapperV3 {
             erAnonym = false,
             ignoreAvslag = false,
             // Resten er kun for ikke-anonym simulering:
-            pid = Pid(source.pid),
+            pid = pid,
             foedselDato = foedselsdato,
             avdoed = null,
             isTpOrigSimulering = false,

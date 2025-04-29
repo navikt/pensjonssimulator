@@ -10,16 +10,22 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.generelt.Person
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtMidnight
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.*
 
 class NavSimuleringSpecMapperV2Test : FunSpec({
 
     test("fromSimuleringSpecV2 maps from domain to DTO version 2") {
-        NavSimuleringSpecMapperV2.fromSimuleringSpecV2(
+        val personService = arrangeFoedselsdato()
+
+        NavSimuleringSpecMapperV2(personService).fromSimuleringSpecV2(
             source = NavSimuleringSpecV2(
                 simuleringId = 123L,
                 simuleringType = NavSimuleringTypeSpecV2.ALDER,
@@ -74,7 +80,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     foersteUttakDato = LocalDate.of(2029, 1, 1),
                     heltUttakDato = LocalDate.of(2032, 6, 1),
                     pid = pid,
-                    foedselDato = null, // kun for anonym simulering
+                    foedselDato = LocalDate.of(1963, 4, 5),
                     avdoed = Avdoed(
                         pid = Pid("04925398980"),
                         antallAarUtenlands = 1,
@@ -122,4 +128,14 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                 )
     }
 })
+
+private fun arrangeFoedselsdato(): GenerelleDataHolder =
+    mock(GenerelleDataHolder::class.java).also {
+        `when`(it.getPerson(pid)).thenReturn(
+            Person(
+                foedselDato = LocalDate.of(1963, 4, 5),
+                statsborgerskap = LandkodeEnum.NOR
+            )
+        )
+    }
 

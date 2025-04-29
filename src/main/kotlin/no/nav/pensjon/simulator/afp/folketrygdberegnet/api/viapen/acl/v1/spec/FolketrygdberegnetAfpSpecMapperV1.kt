@@ -8,17 +8,22 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import org.springframework.stereotype.Component
 
 /**
  * Maps from received DTO to domain object for specification of 'simulering av folketrygdberegnet AFP'.
  * V1 = Versipn 1 of the API (application programming interface) and DTO (data transfer object)
  * AFP = Avtalefestet pensjon
  */
-object FolketrygdberegnetAfpSpecMapperV1 {
+@Component
+class FolketrygdberegnetAfpSpecMapperV1(val personService: GenerelleDataHolder) {
 
-    fun fromSimuleringSpecV1(source: FolketrygdberegnetAfpSpecV1) =
-        SimuleringSpec(
+    fun fromSimuleringSpecV1(source: FolketrygdberegnetAfpSpecV1): SimuleringSpec {
+        val pid = source.fnr?.let(::Pid)
+
+        return SimuleringSpec(
             type = source.simuleringType?.let { FolketrygdberegnetAfpSimuleringTypeSpecV1.fromExternalValue(it.name).internalValue }
                 ?: SimuleringType.ALDER,
             sivilstatus = source.sivilstatus?.let { FolketrygdberegnetAfpSivilstandSpecV1.fromExternalValue(it.name).internalValue }
@@ -26,8 +31,8 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = null, // not relevant in this context
-            pid = source.fnr?.let(::Pid),
-            foedselDato = null, // used for anonym only
+            pid = pid,
+            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,
@@ -53,6 +58,7 @@ object FolketrygdberegnetAfpSpecMapperV1 {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
+    }
 
     private fun pre2025OffentligAfpSpec(spec: FolketrygdberegnetAfpSpecV1): Pre2025OffentligAfpSpec =
         spec.afpOrdning?.let {

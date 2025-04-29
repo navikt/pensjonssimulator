@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
 class KravUtilTest : FunSpec({
@@ -77,7 +78,7 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         epsHarPensjon = false,
         foersteUttakDato = LocalDate.of(2001, 8, 1), // => uttaksperiode 2001 = 1.aug.-31.des., inntektsperiode før uttak = 1.jan.-31.juli
         heltUttakDato = null,
-        pid = null,
+        pid = pid,
         foedselDato = null,
         avdoed = null,
         isTpOrigSimulering = false,

@@ -38,22 +38,23 @@ class SimuleringFacade(
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
-            return alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget) ?: throw e
+            return alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget, e) ?: throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            return alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget) ?: throw e
+            return alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget, e) ?: throw e
         }
     }
 
     private fun alternativ(
         spec: SimuleringSpec,
         gjelderUfoereMedAfp: Boolean,
-        inkluderPensjonHvisUbetinget: Boolean
+        inkluderPensjonHvisUbetinget: Boolean,
+        exception: RuntimeException
     ): SimulertPensjonEllerAlternativ? =
         if (gjelderUfoereMedAfp)
             if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normAlderService.normAlderDato(spec.foedselDato!!)))
                 ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
             else
-                ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec)
+                ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
         else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
             alternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
         else

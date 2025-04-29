@@ -26,5 +26,6 @@ data class SimulertUttakAlder(
 enum class SimulatorResultStatus {
     GOOD,
     SUBOPTIMAL,
-    BAD
+    BAD,
+    NONE
 }

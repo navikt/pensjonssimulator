@@ -95,11 +95,14 @@ object NavSimuleringResultMapperV3 {
         )
 
     private fun alternativ(source: SimulertAlternativ) =
-        NavAlternativtResultatV3(
-            gradertUttakAlder = source.gradertUttakAlder?.let(::alder),
-            uttaksgrad = source.uttakGrad.value.toInt(),
-            heltUttakAlder = alder(source.heltUttakAlder)
-        )
+        if (source.resultStatus == SimulatorResultStatus.NONE)
+            null
+        else
+            NavAlternativtResultatV3(
+                gradertUttakAlder = source.gradertUttakAlder?.let(::alder),
+                uttaksgrad = source.uttakGrad.value.toInt(),
+                heltUttakAlder = alder(source.heltUttakAlder)
+            )
 
     private fun alder(source: SimulertUttakAlder) =
         NavAlderV3(

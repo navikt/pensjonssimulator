@@ -53,9 +53,9 @@ class SimuleringFacade(
         if (gjelderUfoereMedAfp)
             if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normAlderService.normAlderDato(spec.foedselDato!!)))
                 if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
-                    ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)
+                    ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec)
                 else
-                    ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
+                    ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec)
             else
                 ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
         else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))

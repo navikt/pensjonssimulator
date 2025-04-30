@@ -1,18 +1,16 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
-import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
-import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
-import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
-import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
+import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
-import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
-import no.nav.pensjon.simulator.core.spec.HeltUttakSimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil
+import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.normalder.NormAlderService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Service
@@ -32,7 +30,8 @@ import java.time.LocalDate
 @Service
 class AlternativSimuleringService(
     private val simulator: SimulatorCore,
-    private val normAlderService: NormAlderService
+    private val normAlderService: NormAlderService,
+    private val alternativtUttakService: AlternativtUttakService
 ) {
     fun simulerMedNesteLavereUttaksgrad(
         spec: SimuleringSpec,
@@ -44,7 +43,7 @@ class AlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result)
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result, spec)
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -84,7 +83,7 @@ class AlternativSimuleringService(
             // resultatet av 'simuler' ignoreres - det interessante er om en exception oppstår
 
             // Ingen exception => utkanttilfellet innvilget => prøv alternative parametre:
-            findAlternativtUttak(
+            alternativtUttakService.findAlternativtUttak(
                 spec,
                 spec.gradertUttak(),
                 spec.heltUttak()
@@ -110,7 +109,7 @@ class AlternativSimuleringService(
         try {
             val ubetingetSpec: SimuleringSpec = SimuleringSpecUtil.ubetingetSimuleringSpec(spec, normAlder)
             val result: SimulatorOutput = simulator.simuler(ubetingetSpec)
-            alternativResponse(ubetingetSpec, if (spec.onlyVilkaarsproeving) null else pensjon(result))
+            alternativResponse(ubetingetSpec, if (spec.onlyVilkaarsproeving) null else pensjon(result, spec))
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Skal ikke kunne skje
             throw RuntimeException("Simulering for ubetinget alder feilet", e)
@@ -121,108 +120,6 @@ class AlternativSimuleringService(
 
     private fun ubetingetUttakResponseUtenSimulertPensjon(foedselsdato: LocalDate, normAlder: Alder) =
         alternativResponse(ubetingetUttakAlternativ(foedselsdato, normAlder), alternativPensjon = null)
-
-    private fun findAlternativtUttak(
-        spec: SimuleringSpec,
-        gradertUttak: GradertUttakSimuleringSpec?,
-        heltUttak: HeltUttakSimuleringSpec
-    ): SimulertPensjonEllerAlternativ {
-
-        val pensjonEllerAlternativ: SimulertPensjonEllerAlternativ =
-            findAlternativtUttak(
-                spec,
-                heltUttakInntektTomAlderAar = heltUttak.inntektTom.alder.aar,
-                foersteUttakAngittAlder = forsteUttakAlder(gradertUttak, heltUttak),
-                andreUttakAngittAlder = andreUttakAlder(gradertUttak, heltUttak),
-                maxUttaksgrad = gradertUttak?.grad ?: UttakGradKode.P_100
-            )
-
-        return if (spec.onlyVilkaarsproeving) // bare vilkårsprøvingresultet ar interessant, ikke beregnet pensjon
-            pensjonEllerAlternativ.alternativ
-                ?.let { pensjonEllerAlternativ } ?: findAlternativFailed()
-        else
-            pensjonEllerAlternativ.pensjon
-                ?.let { pensjonEllerAlternativ } ?: findAlternativFailed()
-    }
-
-    private fun findAlternativtUttak(
-        spec: SimuleringSpec,
-        heltUttakInntektTomAlderAar: Int,
-        foersteUttakAngittAlder: Alder,
-        andreUttakAngittAlder: Alder?, // null if not gradert
-        maxUttaksgrad: UttakGradKode
-    ): SimulertPensjonEllerAlternativ {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato)
-        val finder = AlternativtUttakFinder(simulator, spec, normAlderService, heltUttakInntektTomAlderAar)
-        val foersteUttakMinAlder = foersteUttakAngittAlder.plusMaaneder(1)
-
-        val andreUttakMinAlder: Alder? =
-            andreUttakAngittAlder?.let { if (foersteUttakMinAlder == it) it.plusMaaneder(1) else it }
-
-        val foersteUttakMaxAlder: Alder =
-            if (spec.onlyVilkaarsproeving && spec.isGradert())
-                andreUttakMinAlder!!.minusMaaneder(1)
-            else
-                normAlder.minusMaaneder(2)
-
-        // For 'onlyVilkaarsproeving' (tidligst mulig uttak for tjenestepensjonsordninger) gjelder:
-        // (1) Alder for andreuttak er konstant
-        // (2) Uttaksgrad er konstant
-        // Dermed blir:
-        // (1) andreUttakMaxAlder = andreUttakMinAlder
-        // (2) keepUttaksgradConstant = true
-        val initialResult: SimulertPensjonEllerAlternativ =
-            finder.findAlternativtUttak(
-                foersteUttakMinAlder,
-                foersteUttakMaxAlder,
-                andreUttakMinAlder,
-                andreUttakMaxAlder = if (spec.onlyVilkaarsproeving) andreUttakMinAlder else normAlder,
-                maxUttaksgrad,
-                keepUttaksgradConstant = spec.onlyVilkaarsproeving
-            )
-
-        return initialResult.alternativ?.let {
-            if (it.resultStatus == SimulatorResultStatus.SUBOPTIMAL)
-                findMoreOptimalUttak(
-                    it,
-                    finder,
-                    foersteUttakAngittAlder,
-                    andreUttakAngittAlder,
-                    spec.onlyVilkaarsproeving
-                ) ?: initialResult
-            else
-                initialResult
-        } ?: initialResult
-    }
-
-    private fun findMoreOptimalUttak(
-        suboptimal: SimulertAlternativ,
-        finder: AlternativtUttakFinder,
-        foersteUttakAngittAlder: Alder,
-        andreUttakAngittAlder: Alder?,
-        onlyVilkaarsproeving: Boolean
-    ): SimulertPensjonEllerAlternativ? {
-        val gradertUttakAlder: SimulertUttakAlder? = suboptimal.gradertUttakAlder
-        val heltUttakAlder: SimulertUttakAlder = suboptimal.heltUttakAlder
-        val foersteUttakSuboptimalAlder: SimulertUttakAlder = gradertUttakAlder ?: heltUttakAlder
-        val andreUttakSuboptimalAlder: SimulertUttakAlder? =
-            if (gradertUttakAlder == null) null else heltUttakAlder
-
-        val betterResult: SimulertPensjonEllerAlternativ =
-            finder.findAlternativtUttak(
-                foersteUttakMinAlder = foersteUttakAngittAlder,
-                foersteUttakMaxAlder = foersteUttakSuboptimalAlder.alder.minusMaaneder(1),
-                andreUttakMinAlder = andreUttakAngittAlder,
-                andreUttakMaxAlder = if (onlyVilkaarsproeving) andreUttakAngittAlder else andreUttakSuboptimalAlder?.alder,
-                maxUttaksgrad = suboptimal.uttakGrad,
-                keepUttaksgradConstant = true
-            )
-
-        return when (betterResult.alternativ?.resultStatus) {
-            SimulatorResultStatus.GOOD -> betterResult
-            else -> null
-        }
-    }
 
     private companion object {
 
@@ -237,23 +134,6 @@ class AlternativSimuleringService(
                     resultStatus = SimulatorResultStatus.GOOD
                 )
             }
-
-        private fun forsteUttakAlder(
-            gradertUttak: GradertUttakSimuleringSpec?,
-            heltUttak: HeltUttakSimuleringSpec
-        ): Alder =
-            (gradertUttak?.uttakFom ?: heltUttak.uttakFom).alder
-
-        private fun andreUttakAlder(
-            gradertUttak: GradertUttakSimuleringSpec?,
-            heltUttak: HeltUttakSimuleringSpec
-        ): Alder? {
-            if (gradertUttak == null) {
-                return null
-            }
-
-            return heltUttak.uttakFom.alder
-        }
 
         private fun ubetingetUttakAlternativ(foedselsdato: LocalDate, normAlder: Alder) =
             SimulertAlternativ(
@@ -280,9 +160,5 @@ class AlternativSimuleringService(
                 pensjon = alternativPensjon,
                 alternativ
             )
-
-        private fun findAlternativFailed(): Nothing {
-            throw RuntimeException("Failed to find alternative simuleringsparametre")
-        }
     }
 }

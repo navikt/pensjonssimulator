@@ -50,12 +50,14 @@ data class NavMaanedsbeloepV3(
 
 data class NavPrivatAfpV3(
     val alderAar: Int,
-    val beloep: Int
+    val beloep: Int,
+    val maanedligBeloep: Int
 )
 
 data class NavLivsvarigOffentligAfpV3(
     val alderAar: Int,
-    val beloep: Int
+    val beloep: Int,
+    val maanedligBeloep: Int
 )
 
 data class NavPre2025OffentligAfp(
@@ -70,7 +72,9 @@ data class NavPre2025OffentligAfp(
     val grunnpensjon: Int,
     val tilleggspensjon: Int,
     val afpTillegg: Int,
-    val saertillegg: Int
+    val saertillegg: Int,
+    val afpGrad: Int,
+    val afpAvkortetTil70Prosent: Boolean,
 )
 
 @JsonInclude(NON_NULL)

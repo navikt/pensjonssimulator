@@ -151,7 +151,8 @@ class NavSimuleringResultMapperV3Test2 {
                     privatAfp = listOf(
                         SimulertPrivatAfp(
                             alderAar = 9,
-                            beloep = 10
+                            beloep = 10,
+                            maanedligBeloep = 1
                         )
                     ),
                     pre2025OffentligAfp = SimulertPre2025OffentligAfp(
@@ -166,12 +167,15 @@ class NavSimuleringResultMapperV3Test2 {
                         grunnpensjon = 19,
                         tilleggspensjon = 20,
                         afpTillegg = 21,
-                        saertillegg = 22
+                        saertillegg = 22,
+                        afpGrad = 23,
+                        afpAvkortetTil70Prosent = false
                     ),
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(
                             alderAar = 13,
-                            beloep = 14
+                            beloep = 14,
+                            maanedligBeloep = 1
                         )
                     ),
                     pensjonBeholdningPeriodeListe = listOf(

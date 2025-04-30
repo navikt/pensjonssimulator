@@ -51,7 +51,8 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
                     )
                 )
             ),
-            foedselsdato = LocalDate.of(1963, 4, 5)
+            foedselsdato = LocalDate.of(1963, 4, 5),
+            inntektSisteMaanedOver1G = 30000,
         ) shouldBe SimuleringSpec(
             type = SimuleringType.ENDR_ALDER,
             sivilstatus = SivilstatusType.GJPA,

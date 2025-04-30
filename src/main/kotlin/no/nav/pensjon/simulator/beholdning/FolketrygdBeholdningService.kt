@@ -37,8 +37,8 @@ class FolketrygdBeholdningService(
 
         val result: SimulatorOutput =
             simulator.simuler(
-                simuleringSpec( // PEN: simdomSimulerAlderspensjonForFolketrygdbeholdning
-                    beholdningSpec = beholdningSpec,
+                simuleringSpec(
+                    beholdningSpec,
                     foedselsdato,
                     erFoerstegangsuttak = vedtakInfo.harGjeldendeVedtak.not()
                 )
@@ -56,9 +56,9 @@ class FolketrygdBeholdningService(
         private const val MAX_ALDER_AAR = 75
 
         // PEN: SimuleringRequestConverter.verifyRequest
-        private fun verifySpec(spec: FolketrygdBeholdningSpec, fodselsdato: LocalDate) {
+        private fun verifySpec(spec: FolketrygdBeholdningSpec, foedselsdato: LocalDate) {
             spec.fremtidigInntektListe.forEach { verifyDateIsFirstInMonth(it.inntektFom) }
-            verifyUttakFom(spec.uttakFom, fodselsdato)
+            verifyUttakFom(spec.uttakFom, foedselsdato)
         }
 
         private fun verifyDateIsFirstInMonth(date: LocalDate) {
@@ -87,9 +87,9 @@ class FolketrygdBeholdningService(
             }
         }
 
-        private fun convertDatoFomToAlderTuple(fom: LocalDate, fodselsdato: LocalDate): Tuple2<Int, Int> {
+        private fun convertDatoFomToAlderTuple(fom: LocalDate, foedselsdato: LocalDate): Tuple2<Int, Int> {
             val firstDayOfLastMonth = fom.minusMonths(1L).withDayOfMonth(1)
-            val period = Period.between(fodselsdato.withDayOfMonth(1), firstDayOfLastMonth)
+            val period = Period.between(foedselsdato.withDayOfMonth(1), firstDayOfLastMonth)
             return Tuple2(period.years, period.months + 1) //TODO Use Alder
         }
 
@@ -148,6 +148,7 @@ class FolketrygdBeholdningService(
             BeholdningPeriode(
                 pensjonBeholdning = source.pensjonBeholdning.toInt(),
                 garantipensjonBeholdning = source.garantipensjonBeholdning.toInt(),
+                garantitilleggBeholdning = source.garantitilleggBeholdning.toInt(),
                 garantipensjonNivaa = garantipensjonNivaa(source.garantipensjonNivaa),
                 fom = source.datoFom
             )

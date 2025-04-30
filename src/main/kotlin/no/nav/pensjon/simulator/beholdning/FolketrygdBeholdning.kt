@@ -7,16 +7,16 @@ data class FolketrygdBeholdning(
     val pensjonBeholdningPeriodeListe: List<BeholdningPeriode> = emptyList()
 )
 
-// no.nav.domain.pensjon.kjerne.simulering.PensjonsbeholdningPeriode
-// minus garantitilleggsbeholdning
+// PEN: no.nav.domain.pensjon.kjerne.simulering.PensjonsbeholdningPeriode
 data class BeholdningPeriode(
     val pensjonBeholdning: Int = 0,
     val garantipensjonBeholdning: Int = 0,
+    val garantitilleggBeholdning: Int = 0,
     val garantipensjonNivaa: GarantipensjonNivaa,
     val fom: LocalDate
 )
 
-// no.nav.domain.pensjon.kjerne.simulering.Garantipensjonsniva
+// PEN: no.nav.domain.pensjon.kjerne.simulering.Garantipensjonsniva
 // with Int instead of Double
 data class GarantipensjonNivaa(
     val beloep: Int = 0,

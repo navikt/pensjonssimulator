@@ -29,6 +29,8 @@ class AlderspensjonService(
     private val generelleDataHolder: GenerelleDataHolder,
     private val time: Time
 ) {
+    // Used for V4
+    //TODO merge this with SimuleringFacade?
     fun simulerAlderspensjon(spec: AlderspensjonSpec): AlderspensjonResult {
         val vedtakInfo = vedtakService.vedtakStatus(spec.pid, foersteUttakFom(spec))
         checkForGjenlevenderettighet(vedtakInfo)
@@ -48,7 +50,8 @@ class AlderspensjonService(
         return TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simuleringResultat,
             angittFoersteUttakFom = foersteUttakFom(simuleringSpec),
-            angittAndreUttakFom = andreUttakFom(simuleringSpec)
+            angittAndreUttakFom = andreUttakFom(simuleringSpec),
+            onlyIncludeEntriesForUttakDatoer = false
         )
     }
 
@@ -58,7 +61,7 @@ class AlderspensjonService(
             val result: SimulatorOutput = simulator.simuler(spec)
 
             return SimulertPensjonEllerAlternativ(
-                pensjon = SimulatorOutputConverter.pensjon(result), // SimulatorOutput -> SimulertPensjon
+                pensjon = SimulatorOutputConverter.pensjon(result, spec), // SimulatorOutput -> SimulertPensjon
                 alternativ = null
             )
         } catch (e: UtilstrekkeligOpptjeningException) {

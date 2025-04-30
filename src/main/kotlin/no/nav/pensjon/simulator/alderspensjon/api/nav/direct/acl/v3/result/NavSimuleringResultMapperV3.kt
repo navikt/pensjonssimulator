@@ -63,19 +63,23 @@ object NavSimuleringResultMapperV3 {
             grunnpensjon = source.grunnpensjon,
             tilleggspensjon = source.tilleggspensjon,
             afpTillegg = source.afpTillegg,
-            saertillegg = source.saertillegg
+            saertillegg = source.saertillegg,
+            afpGrad = source.afpGrad,
+            afpAvkortetTil70Prosent = source.afpAvkortetTil70Prosent
         )
 
     private fun privatAfp(source: SimulertPrivatAfp) =
         NavPrivatAfpV3(
             alderAar = source.alderAar,
-            beloep = source.beloep
+            beloep = source.beloep,
+            maanedligBeloep = source.maanedligBeloep
         )
 
     private fun livsvarigOffentligAfp(source: SimulertLivsvarigOffentligAfp) =
         NavLivsvarigOffentligAfpV3(
             alderAar = source.alderAar,
-            beloep = source.beloep
+            beloep = source.beloep,
+            maanedligBeloep = source.maanedligBeloep
         )
 
     private fun vilkaarsproevingResultat(source: SimulertAlternativ?) =
@@ -91,11 +95,14 @@ object NavSimuleringResultMapperV3 {
         )
 
     private fun alternativ(source: SimulertAlternativ) =
-        NavAlternativtResultatV3(
-            gradertUttakAlder = source.gradertUttakAlder?.let(::alder),
-            uttaksgrad = source.uttakGrad.value.toInt(),
-            heltUttakAlder = alder(source.heltUttakAlder)
-        )
+        if (source.resultStatus == SimulatorResultStatus.NONE)
+            null
+        else
+            NavAlternativtResultatV3(
+                gradertUttakAlder = source.gradertUttakAlder?.let(::alder),
+                uttaksgrad = source.uttakGrad.value.toInt(),
+                heltUttakAlder = alder(source.heltUttakAlder)
+            )
 
     private fun alder(source: SimulertUttakAlder) =
         NavAlderV3(

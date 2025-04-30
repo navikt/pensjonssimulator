@@ -22,7 +22,8 @@ object NavSimuleringSpecMapperV3 {
 
     fun fromNavSimuleringSpecV3(
         source: NavSimuleringSpecV3,
-        foedselsdato: LocalDate
+        foedselsdato: LocalDate,
+        inntektSisteMaanedOver1G: Int?
     ): SimuleringSpec {
         val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselsdato)
         val heltUttak: SimuleringHeltUttak = heltUttak(source, foedselsdato)
@@ -61,7 +62,7 @@ object NavSimuleringSpecMapperV3 {
             rettTilOffentligAfpFom = null,
 
             // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source, gradertUttak?.aarligInntekt),
+            pre2025OffentligAfp = pre2025OffentligAfpSpec(source, gradertUttak?.aarligInntekt, inntektSisteMaanedOver1G),
 
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
@@ -120,12 +121,13 @@ object NavSimuleringSpecMapperV3 {
 
     private fun pre2025OffentligAfpSpec(
         simuleringSpec: NavSimuleringSpecV3,
-        inntektAarligBeloep: Int?
+        inntektAarligBeloep: Int?,
+        inntektSisteMaanedOver1G: Int?
     ): Pre2025OffentligAfpSpec? =
         if (simuleringSpec.simuleringstype == NavSimuleringTypeSpecV3.AFP_ETTERF_ALDER)
             Pre2025OffentligAfpSpec(
                 afpOrdning = simuleringSpec.afpOrdning!!,
-                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMaanedFoerUttak ?: 0,
+                inntektMaanedenFoerAfpUttakBeloep = inntektSisteMaanedOver1G ?: 0,
                 inntektUnderAfpUttakBeloep = inntektAarligBeloep ?: 0
             )
         else

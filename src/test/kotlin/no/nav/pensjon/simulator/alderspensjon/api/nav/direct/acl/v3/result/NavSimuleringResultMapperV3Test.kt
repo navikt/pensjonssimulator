@@ -47,9 +47,9 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                             maanedligBeloep = 678
                         )
                     ),
-                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 66, beloep = 789)),
-                    pre2025OffentligAfp = SimulertPre2025OffentligAfp(alderAar = 62, totaltAfpBeloep = 890, tidligereArbeidsinntekt = 123, grunnbeloep = 456, sluttpoengtall = 7.8, trygdetid = 30, poengaarTom1991 = 10, poengaarFom1992 = 20, grunnpensjon = 567, tilleggspensjon = 678, afpTillegg = 789, saertillegg = 890),
-                    livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 63, beloep = 901)),
+                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 66, beloep = 789, maanedligBeloep = 100)),
+                    pre2025OffentligAfp = SimulertPre2025OffentligAfp(alderAar = 62, totaltAfpBeloep = 890, tidligereArbeidsinntekt = 123, grunnbeloep = 456, sluttpoengtall = 7.8, trygdetid = 30, poengaarTom1991 = 10, poengaarFom1992 = 20, grunnpensjon = 567, tilleggspensjon = 678, afpTillegg = 789, saertillegg = 890, afpGrad = 80, afpAvkortetTil70Prosent = false),
+                    livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 63, beloep = 901, maanedligBeloep = 100)),
                     pensjonBeholdningPeriodeListe = listOf(
                         SimulertPensjonBeholdningPeriode(
                             pensjonBeholdning = 2.3,
@@ -121,10 +121,12 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                 grunnpensjon = 567,
                 tilleggspensjon = 678,
                 afpTillegg = 789,
-                saertillegg = 890
+                saertillegg = 890,
+                afpGrad = 80,
+                afpAvkortetTil70Prosent = false
             ),
-            privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789)),
-            livsvarigOffentligAfpListe = listOf(NavLivsvarigOffentligAfpV3(alderAar = 63, beloep = 901)),
+            privatAfpListe = listOf(NavPrivatAfpV3(alderAar = 66, beloep = 789, maanedligBeloep = 100)),
+            livsvarigOffentligAfpListe = listOf(NavLivsvarigOffentligAfpV3(alderAar = 63, beloep = 901, maanedligBeloep = 100)),
             vilkaarsproeving = NavVilkaarsproevingResultatV3(
                 vilkaarErOppfylt = false, // since alternativ exists
                 alternativ = NavAlternativtResultatV3(

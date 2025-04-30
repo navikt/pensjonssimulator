@@ -48,7 +48,8 @@ data class SimulertAlderspensjonFraFolketrygden(
 
 data class SimulertPrivatAfp(
     val alderAar: Int,
-    val beloep: Int
+    val beloep: Int,
+    val maanedligBeloep: Int
 )
 
 data class SimulertPre2025OffentligAfp(
@@ -63,12 +64,15 @@ data class SimulertPre2025OffentligAfp(
     val grunnpensjon: Int,
     val tilleggspensjon: Int,
     val afpTillegg: Int,
-    val saertillegg: Int
+    val saertillegg: Int,
+    val afpGrad: Int,
+    val afpAvkortetTil70Prosent: Boolean
 )
 
 data class SimulertLivsvarigOffentligAfp(
     val alderAar: Int,
-    val beloep: Int
+    val beloep: Int,
+    val maanedligBeloep: Int
 )
 
 data class SimulertPensjonBeholdningPeriode(

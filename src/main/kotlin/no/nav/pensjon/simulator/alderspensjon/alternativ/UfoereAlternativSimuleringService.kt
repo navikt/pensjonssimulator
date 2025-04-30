@@ -108,7 +108,7 @@ class UfoereAlternativSimuleringService(
      * og uttaket kan tidligst starte ved normalderen.
      */
     fun simulerAlternativHvisUtkanttilfelletInnvilges(spec: SimuleringSpec): SimulertPensjonEllerAlternativ? {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato)
+        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
 
         return try {
             val utkantSpec: SimuleringSpec =

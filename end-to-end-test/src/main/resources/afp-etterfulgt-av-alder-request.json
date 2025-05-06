@@ -1,0 +1,11 @@
+{
+  "personId": "07426133576",
+  "sivilstandVedPensjonering": "UGIF",
+  "uttakFraOgMedDato": "2025-06-01",
+  "fremtidigAarligInntektTilAfpUttak": 600000,
+  "inntektSisteMaanedOver1G": true,
+  "fremtidigAarligInntektUnderAfpUttak": 150000,
+  "aarIUtlandetEtter16": 0,
+  "epsPensjon": false,
+  "eps2G": false
+}

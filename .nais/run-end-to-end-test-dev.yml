@@ -1,0 +1,44 @@
+apiVersion: nais.io/v1
+kind: Naisjob
+metadata:
+  name: pensjonssimulator-end-to-end-tester
+  namespace: pensjonskalkulator
+  labels:
+    team: pensjonskalkulator
+spec:
+  image: {{ image }}
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 10m
+      memory: 256Mi
+  observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  azure:
+    application:
+      enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      consumes:
+        - name: nav:pensjonssimulator:simulering
+  accessPolicy:
+    outbound:
+      rules:
+        - application: pensjonssimulator
+  backoffLimit: 5
+  completions: 1
+  concurrencyPolicy: Allow
+  failedJobsHistoryLimit: 2
+  env:
+    - name: URL
+      value: http://pensjonssimulator
+    - name: STDOUT_LOG_OUTPUT
+      value: JSON
+    - name: PS_LOGGING_LEVEL
+      value: DEBUG
+    - name: JAVA_TOOL_OPTIONS
+      value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005

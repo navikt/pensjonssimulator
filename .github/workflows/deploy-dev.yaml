@@ -88,3 +88,16 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/apiendpoints.yaml
+
+  run-integrasjonstester-dev:
+    name: Run integration tests
+    needs: [ deploy-sandbox ]
+    permissions:
+      actions: "read"
+      contents: "read"
+      checks: "write"
+      id-token: "write"
+      packages: "write"
+      security-events: "write"
+    secrets: inherit
+    uses: ./.github/workflows/run-end-to-end-tester-i-sandbox.yaml

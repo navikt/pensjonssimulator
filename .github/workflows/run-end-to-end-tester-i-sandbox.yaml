@@ -21,6 +21,7 @@ jobs:
           java-version: 21
           distribution: temurin
       - name: Change wrapper permissions
+        working-directory: end-to-end-test
         run: chmod +x ./gradlew
       - name: Build
         working-directory: end-to-end-test

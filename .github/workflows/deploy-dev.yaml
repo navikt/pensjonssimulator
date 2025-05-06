@@ -89,12 +89,12 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/apiendpoints.yaml
 
-  run-integrasjonstester-dev:
-    name: Run integration tests
+  run-end-to-end-tester-dev:
+    name: Run end-to-end tests
     needs: [ deploy-sandbox ]
     permissions:
       actions: "read"
-      contents: "read"
+      contents: "write"
       checks: "write"
       id-token: "write"
       packages: "write"

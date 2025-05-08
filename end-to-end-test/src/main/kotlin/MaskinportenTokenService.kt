@@ -29,8 +29,8 @@ class MaskinportenTokenService(val client: HttpClient) {
                 .type(JOSEObjectType.JWT)
                 .build(),
             JWTClaimsSet.Builder()
-                .audience(maskinportenConfig.clientId)
-                .issuer(maskinportenConfig.issuer)
+                .audience(maskinportenConfig.issuer)
+                .issuer(maskinportenConfig.clientId)
                 .claim("scope", maskinportenConfig.scope)
                 .issueTime(Date())
                 .expirationTime(getExpireAfter())

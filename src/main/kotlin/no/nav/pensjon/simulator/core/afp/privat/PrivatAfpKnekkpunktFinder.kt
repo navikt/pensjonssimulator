@@ -5,18 +5,22 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurns67
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.util.SortedSet
-import java.util.TreeSet
+import java.util.*
 
 @Service
-class PrivatAfpKnekkpunktFinder(private val time: Time) {
+class PrivatAfpKnekkpunktFinder(
+    private val normalderService: NormertPensjonsalderService,
+    private val time: Time
+) {
 
      fun findKnekkpunktDatoer(
         foersteUttakDato: LocalDate?,
@@ -62,11 +66,17 @@ class PrivatAfpKnekkpunktFinder(private val time: Time) {
             }
         }
 
-        // 1st of month after user turns 67 years old
-        //TODO normert?
-        foedselsdato?.let { knekkpunktDatoer.add(lastDayOfMonthUserTurns67(it).plusDays(1)) }
+        val sisteDagIMaanedenForNormalder: LocalDate = sisteDagIMaanedenForNormalder(foedselsdato!!)
+        knekkpunktDatoer.add(sisteDagIMaanedenForNormalder.plusDays(1))
 
         // Returns only unique values that must be in future and not before første virk privat AFP
         return knekkpunktDatoer.tailSet(findLatestDateByDay(time.today(), privatAfpFoersteVirkning))
     }
+
+    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
+    private fun sisteDagIMaanedenForNormalder(foedselsdato: LocalDate): LocalDate =
+        lastDayOfMonthUserTurnsGivenAge(
+            foedselsdato.toNorwegianDateAtNoon(),
+            alder = normalderService.normalder(foedselsdato)
+        ).toNorwegianLocalDate()
 }

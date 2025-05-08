@@ -6,30 +6,30 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LEGACY_UBETINGET_PENSJONERINGSALDER_AAR
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import org.springframework.stereotype.Component
-import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.SimulerAFPogAPCommand (beholdning part)
 @Component
-class Pre2025OffentligAfpBeholdning(val context: SimulatorContext) {
-
+class Pre2025OffentligAfpBeholdning(
+    val context: SimulatorContext,
+    val normalderService: NormertPensjonsalderService
+) {
     // SimulerAFPogAPCommand.settPensjonsbeholdning
-    //@Throws(PEN222BeregningstjenesteFeiletException::class)
     fun setPensjonsbeholdning(
         persongrunnlag: Persongrunnlag,
         forrigeAlderspensjonBeregningResult: AbstraktBeregningsResultat?
     ): Persongrunnlag {
         if (forrigeAlderspensjonBeregningResult != null) return persongrunnlag
 
-        val normAlder: Date =
-            getRelativeDateByYear(persongrunnlag.fodselsdato!!, LEGACY_UBETINGET_PENSJONERINGSALDER_AAR)
+       val normalderOppnaasAar = normalderService.normalderOppnaasDato(persongrunnlag.fodselsdato!!.toNorwegianLocalDate()).year
+
         val beholdningListe: List<Beholdning> =
-            context.beregnOpptjening(getFirstDateInYear(normAlder).toNorwegianLocalDate(), persongrunnlag)
+            context.beregnOpptjening(foersteDag(normalderOppnaasAar), persongrunnlag)
+
         addMissingBeholdningerToPersongrunnlag(beholdningListe, persongrunnlag)
         return persongrunnlag
     }

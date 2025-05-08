@@ -24,7 +24,7 @@ import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.NorwegianCalendar
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -33,7 +33,7 @@ import java.util.*
 @Component
 class Pre2025OffentligAfpBeregner(
     private val context: SimulatorContext,
-    private val normAlderService: NormAlderService,
+    private val normalderService: NormertPensjonsalderService,
     private val ufoereService: UfoereService
 ) {
     private var beregnInstopphold = false // TODO this seems to be always false
@@ -67,10 +67,10 @@ class Pre2025OffentligAfpBeregner(
 
         val soekerGrunnlag: Persongrunnlag? = persongrunnlagHavingRolle(persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
         soekerGrunnlag?.inntektsgrunnlagListe?.add(inntektsgrunnlagOneManedBeforeUttak(spec))
-        val normAlder: Alder = normAlderService.normAlder(spec.pid!!)
+        val normalder: Alder = normalderService.normalder(spec.pid!!)
 
         val simuleringResultat: Simuleringsresultat =
-            simulerPensjonsberegning(spec, persongrunnlagListe, normAlder)
+            simulerPensjonsberegning(spec, persongrunnlagListe, normalder)
 
         if (ikkeInnvilget(simuleringResultat.statusEnum)) {
             //log.info(
@@ -87,14 +87,14 @@ class Pre2025OffentligAfpBeregner(
     private fun simulerPensjonsberegning(
         spec: SimuleringSpec,
         persongrunnlagListe: MutableList<Persongrunnlag>,
-        normAlder: Alder
+        normalder: Alder
     ): Simuleringsresultat =
-        simulerPensjonsberegning(simulering(spec, persongrunnlagListe), normAlder)
+        simulerPensjonsberegning(simulering(spec, persongrunnlagListe), normalder)
 
     // SimpleSimuleringService.simulerPensjonsberegning
     // -> SimulerPensjonsberegningCommand.execute
-    private fun simulerPensjonsberegning(simulering: Simulering, normAlder: Alder): Simuleringsresultat {
-        validateInput(simulering, normAlder)
+    private fun simulerPensjonsberegning(simulering: Simulering, normalder: Alder): Simuleringsresultat {
+        validateInput(simulering, normalder)
         var simuleringAvslag: Boolean = simulerTrygdetid(simulering)
 
         if (simuleringAvslag) {
@@ -512,7 +512,7 @@ class Pre2025OffentligAfpBeregner(
             }
 
         // SimulerPensjonsberegningCommand.validateInput
-        private fun validateInput(simulering: Simulering, normAlder: Alder) {
+        private fun validateInput(simulering: Simulering, normalder: Alder) {
             val simuleringType =
                 simulering.simuleringTypeEnum ?: throw ImplementationUnrecoverableException("simulering.simuleringType")
 
@@ -542,8 +542,8 @@ class Pre2025OffentligAfpBeregner(
             val alder = uttakDato[Calendar.YEAR] - soekerFoedselsdato[Calendar.YEAR]
 
             if (SimuleringTypeEnum.ALDER == simuleringType) {
-                if (alder < normAlder.aar || alder == normAlder.aar && uttakMaaned <= foedselMaaned) {
-                    throw PersonForUngException("Alderspensjon;${normAlder.aar};0")
+                if (alder < normalder.aar || alder == normalder.aar && uttakMaaned <= foedselMaaned) {
+                    throw PersonForUngException("Alderspensjon;${normalder.aar};0")
                 }
             }
 

@@ -20,16 +20,19 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.asLegacyPrivatAfp
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 // PEN: vilkårsprøving part of
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.VilkarsprovOgBeregnAlderHelper
 @Component
-class Vilkaarsproever(private val context: SimulatorContext) {
-
+class Vilkaarsproever(
+    private val context: SimulatorContext,
+    private val normalderService: NormertPensjonsalderService
+) {
     // PEN: VilkarsprovOgBeregnAlderHelper.vilkarsprovKrav
     fun vilkaarsproevKrav(spec: VilkaarsproevingSpec): Tuple2<MutableList<VilkarsVedtak>, Kravhode> {
         val vedtakListe = vilkaarsproevAlderspensjon(spec)
@@ -77,7 +80,11 @@ class Vilkaarsproever(private val context: SimulatorContext) {
         spec: VilkaarsproevingSpec,
         soekerGrunnlag: Persongrunnlag
     ): MutableList<VilkarsVedtak> =
-        if (isAfterByDay(spec.virkningFom, ubetingetPensjoneringDato(soekerGrunnlag.fodselsdato!!), true))
+        if (isAfterByDay(
+                thisDate = spec.virkningFom,
+                thatDate = normalderService.normertPensjoneringsdato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()),
+                allowSameDay = true
+            ))
             context.vilkaarsproevUbetingetAlderspensjon(ubetingetVilkaarsproevingRequest(spec), spec.sakId)
         else
             vilkaarsproevBetingetAlderspensjon(spec)

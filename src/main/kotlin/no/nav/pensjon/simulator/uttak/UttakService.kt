@@ -1,24 +1,25 @@
 package no.nav.pensjon.simulator.uttak
 
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertUttakAlder
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.normalder.NormAlderService
-import no.nav.pensjon.simulator.uttak.UttakUtil.fremtidigPensjonAlderDato
+import no.nav.pensjon.simulator.core.util.isBeforeOrOn
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class UttakService(
     private val simuleringFacade: SimuleringFacade,
-    private val normAlderService: NormAlderService
+    private val normalderService: NormertPensjonsalderService,
+    private val time: Time
 ) {
     fun finnTidligstMuligUttak(spec: SimuleringSpec): TidligstMuligUttak {
-        val tidligstUttakAlder: Alder =
-            normAlderService.normAlder(spec.foedselDato!!)
-                .minusAar(ANTALL_AAR_MELLOM_TIDLIGST_OG_NORMERT_PENSJONERINGSALDER)
-
+        val tidligstUttakAlder: Alder = normalderService.nedreAlder(spec.foedselDato!!)
         val tidligstUttak = fremtidigPensjonAlderDato(spec.foedselDato, tidligstUttakAlder)
         val newSpec = spec.withFoersteUttakDato(tidligstUttak.dato)
 
@@ -40,7 +41,15 @@ class UttakService(
         )
     }
 
-    companion object {
-        const val ANTALL_AAR_MELLOM_TIDLIGST_OG_NORMERT_PENSJONERINGSALDER = 5
+    private fun fremtidigPensjonAlderDato(foedselsdato: LocalDate, alder: Alder): PensjonAlderDato {
+        val alderDato = PensjonAlderDato(foedselsdato, alder)
+
+        // Sjekk at dato er i fremtid:
+        return time.today().let {
+            if (alderDato.dato.isBeforeOrOn(it))
+                PensjonAlderDato(foedselsdato, dato = it.withDayOfMonth(1).plusMonths(1))
+            else
+                alderDato
+        }
     }
 }

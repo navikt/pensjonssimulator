@@ -2,10 +2,10 @@ package no.nav.pensjon.simulator.normalder.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalder
+import no.nav.pensjon.simulator.normalder.Aldersgrenser
 import no.nav.pensjon.simulator.normalder.client.NormertPensjonsalderClient
-import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormAlderResultMapper
-import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormAlderResult
+import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormalderResultMapper
+import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormalderResult
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -32,15 +32,15 @@ class PenNormertPensjonsalderClient(
 
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    private val cache: Cache<Int, List<NormertPensjonsalder>> =
+    private val cache: Cache<Int, List<Aldersgrenser>> =
         createCache("normertPensjonsalder", cacheManager)
 
-    override fun fetchNormAlderListe(): List<NormertPensjonsalder> =
+    override fun fetchNormalderListe(): List<Aldersgrenser> =
         cache.getIfPresent(1) ?: fetchFreshData().also { cache.put(1, it) }
 
     override fun service() = service
 
-    private fun fetchFreshData(): List<NormertPensjonsalder> {
+    private fun fetchFreshData(): List<Aldersgrenser> {
         val uri = "$BASE_PATH/$RESOURCE"
 
         return try {
@@ -50,10 +50,10 @@ class PenNormertPensjonsalderClient(
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(::setHeaders)
                 .retrieve()
-                .bodyToMono(PenNormAlderResult::class.java)
+                .bodyToMono(PenNormalderResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.let(PenNormAlderResultMapper::fromDto)
+                ?.let(PenNormalderResultMapper::fromDto)
                 ?: emptyList()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)

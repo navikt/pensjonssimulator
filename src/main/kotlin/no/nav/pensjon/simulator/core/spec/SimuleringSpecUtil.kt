@@ -14,9 +14,9 @@ object SimuleringSpecUtil {
      */
     fun ubetingetSimuleringSpec(
         source: SimuleringSpec,
-        normAlder: Alder
+        normalder: Alder
     ): SimuleringSpec {
-        val uttakFomAlder = PensjonAlderDato(source.foedselDato!!, normAlder)
+        val uttakFomAlder = PensjonAlderDato(source.foedselDato!!, normalder)
 
         return newSimuleringSpec(
             source,
@@ -31,7 +31,7 @@ object SimuleringSpecUtil {
      */
     fun utkantSimuleringSpec(
         source: SimuleringSpec,
-        normAlder: Alder,
+        normalder: Alder,
         foedselsdato: LocalDate,
         foersteUttakAlderIsConstant: Boolean = false
     ): SimuleringSpec {
@@ -40,7 +40,7 @@ object SimuleringSpecUtil {
         val maxAlder = if (source.onlyVilkaarsproeving && gradert)
             PensjonAlderDato(foedselsdato, source.heltUttakDato!!)
         else
-            PensjonAlderDato(foedselsdato, normAlder)
+            PensjonAlderDato(foedselsdato, normalder)
 
         val variableFoersteUttakAlder = maxAlder.alder.minusMaaneder(1)
 
@@ -78,14 +78,14 @@ object SimuleringSpecUtil {
 
     fun withGradertInsteadOfHeltUttak(
         source: SimuleringSpec,
-        normAlder: Alder,
+        normalder: Alder,
         foedselsdato: LocalDate
     ): SimuleringSpec =
         newSimuleringSpec(
             source,
             foersteUttakFom = PensjonAlderDato(foedselsdato, source.foersteUttakDato!!),
             uttaksgrad = naermesteLavereUttaksgrad(UttakGradKode.P_100),
-            heltUttakFom = PensjonAlderDato(foedselsdato, normAlder)
+            heltUttakFom = PensjonAlderDato(foedselsdato, normalder)
         )
 
     private fun newSimuleringSpec(

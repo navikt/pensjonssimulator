@@ -19,14 +19,14 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
+import no.nav.pensjon.simulator.core.person.eps.EpsUtil.setEpsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -41,7 +41,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val beregner: AlderspensjonBeregner,
     private val vilkaarsproever: Vilkaarsproever,
     private val trygdetidFastsetter: TrygdetidFastsetter,
-    private val sisteBeregningCreator: SisteBeregningCreator
+    private val sisteBeregningCreator: SisteBeregningCreator,
+    private val normalderService: NormertPensjonsalderService
 ) {
     private val log = KotlinLogging.logger { }
 
@@ -290,7 +291,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     ) {
         // Corresponds to part 2
         if (aarsakListe.contains(KnekkpunktAarsak.TTBRUKER)) {
-            val request = trygdetidRequest(
+            val spec = trygdetidSpec(
                 kravhode = kravhode,
                 persongrunnlag = soekerGrunnlag,
                 knekkpunktDato = knekkpunktDato,
@@ -299,11 +300,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 boddEllerArbeidetUtenlands = kravhode.boddEllerArbeidetIUtlandet
             )
 
-            fastsettTrygdetidForPeriode(request, GrunnlagsrolleEnum.SOKER, soekerGrunnlag.gjelderUforetrygd, sakId)
+            fastsettTrygdetidForPeriode(spec, GrunnlagsrolleEnum.SOKER, soekerGrunnlag.gjelderUforetrygd, sakId)
         }
 
         if (aarsakListe.contains(KnekkpunktAarsak.TTAVDOD)) {
-            val request = trygdetidRequest(
+            val spec = trygdetidSpec(
                 kravhode = kravhode,
                 persongrunnlag = avdoedGrunnlag!!,
                 knekkpunktDato = knekkpunktDato,
@@ -312,21 +313,21 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             )
 
-            fastsettTrygdetidForPeriode(request, GrunnlagsrolleEnum.AVDOD, avdoedGrunnlag.gjelderUforetrygd, sakId)
+            fastsettTrygdetidForPeriode(spec, GrunnlagsrolleEnum.AVDOD, avdoedGrunnlag.gjelderUforetrygd, sakId)
         }
     }
 
     // VilkarsprovOgBeregnAlderHelper.fastsettTrygdetidForPeriode + FastsettTrygdetidCache.updateSisteGyldigeOpptjeningsaar
     private fun fastsettTrygdetidForPeriode(
-        request: TrygdetidRequest,
+        spec: TrygdetidRequest,
         grunnlagRolle: GrunnlagsrolleEnum,
         kravGjelderUfoeretrygd: Boolean,
         sakId: Long?
     ) {
         val response =
-            trygdetidFastsetter.fastsettTrygdetidForPeriode(request, grunnlagRolle, kravGjelderUfoeretrygd, sakId)
+            trygdetidFastsetter.fastsettTrygdetidForPeriode(spec, grunnlagRolle, kravGjelderUfoeretrygd, sakId)
 
-        request.persongrunnlag?.let {
+        spec.persongrunnlag?.let {
             it.trygdetid = response.kapittel19
             it.trygdetidKapittel20 = response.kapittel20
         }
@@ -354,8 +355,80 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         return sisteBeregning
     }
 
+    private fun garantitilleggsbeholdningTotalBeloep(
+        virkningFom: LocalDate,
+        beholdninger: Beholdninger,
+        foedselsdato: LocalDate
+    ): Double? =
+        if (isBeforeByDay(
+                thisDate = getRelativeDateByYear(foedselsdato, normalderService.normalder(foedselsdato).aar),
+                thatDate = virkningFom,
+                allowSameDay = false
+            )
+        )
+            beholdninger.beholdning(BeholdningtypeEnum.GAR_T_B)?.totalbelop
+        else
+            null
+
+    private fun beholdningPeriode(
+        virkningFom: LocalDate,
+        beholdninger: Beholdninger,
+        foedselsdato: LocalDate
+    ) =
+        BeholdningPeriode(
+            datoFom = virkningFom,
+            pensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.PEN_B)?.totalbelop,
+            garantipensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
+            garantitilleggsbeholdning = garantitilleggsbeholdningTotalBeloep(
+                virkningFom, beholdninger, foedselsdato
+            ),
+            garantipensjonsniva = garantipensjonsnivaa(beholdninger)
+        )
+
+    private fun garantipensjonsnivaa(beholdninger: Beholdninger): GarantipensjonNivaa? {
+        val garantipensjonBeholdning =
+            beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
+                ?: return null
+
+        val justertNivaa = garantipensjonBeholdning.justertGarantipensjonsniva?.garantipensjonsniva ?: return null
+
+        return GarantipensjonNivaa(
+            beloep = justertNivaa.belop,
+            satsType = (justertNivaa.satsTypeEnum ?: GarantiPensjonsnivaSatsEnum.ORDINAER).name,
+            sats = justertNivaa.sats,
+            anvendtTrygdetid = justertNivaa.tt_anv
+        )
+    }
+
+    private fun isCriteriaForDoingKap20ForSimulerForTpFullfilled(
+        spec: SimuleringSpec,
+        foedselsdato: LocalDate,
+        knekkpunktDato: LocalDate
+    ): Boolean {
+        val heltUttakDato = spec.heltUttakDato
+
+        if (!spec.simulerForTp || heltUttakDato == null) {
+            return false
+        }
+
+        val erHeltUttakDatoFoerNormertPensjoneringsdato =
+            isBeforeByDay(
+                thisDate = heltUttakDato,
+                thatDate = normalderService.normertPensjoneringsdato(foedselsdato),
+                allowSameDay = false
+            )
+
+        val erKnekkpunktDatoFoerHeltUttakDato =
+            isBeforeByDay(
+                thisDate = knekkpunktDato,
+                thatDate = heltUttakDato,
+                allowSameDay = false
+            )
+
+        return erHeltUttakDatoFoerNormertPensjoneringsdato && erKnekkpunktDatoFoerHeltUttakDato
+    }
+
     private companion object {
-        private const val GARANTITILLEGG_MAX_ALDER = 67 //TODO normert?
         private const val CURRENT_GRUNNBELOEP = 124028 //TODO get value from tjenestepensjon-simulering
 
         // VilkarsprovOgBeregnAlderHelper.getAfpLivsvarig
@@ -392,34 +465,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 ignoreAvslag
             )
 
-        // VilkarsprovOgBeregnAlderHelper.setEpsMottarPensjonOnForrigeBeregningsresultat
-        private fun setEpsMottarPensjon(
-            resultat: AbstraktBeregningsResultat?,
-            spec: SimuleringSpec
-        ) {
-            if (!epsMottarPensjon(spec)) return
-
-            when (resultat) {
-                is BeregningsResultatAlderspensjon2011 -> {
-                    resultat.beregningsInformasjonKapittel19?.let { it.epsMottarPensjon = true }
-                }
-
-                is BeregningsResultatAlderspensjon2016 -> {
-                    resultat.beregningsResultat2011?.beregningsInformasjonKapittel19?.let {
-                        it.epsMottarPensjon = true
-                    }
-
-                    resultat.beregningsResultat2025?.beregningsInformasjonKapittel20?.let {
-                        it.epsMottarPensjon = true
-                    }
-                }
-
-                is BeregningsResultatAlderspensjon2025 -> {
-                    resultat.beregningsInformasjonKapittel20?.let { it.epsMottarPensjon = true }
-                }
-            }
-        }
-
         // PEN: VilkarsprovOgBeregnAlderHelper.setKravlinjeForstevirkFromPersongrunnlag
         private fun setKravlinjeFoersteVirkning(
             vedtakListe: List<VilkarsVedtak>,
@@ -444,23 +489,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
         }
 
-        private fun isCriteriaForDoingKap20ForSimulerForTpFullfilled(
-            spec: SimuleringSpec,
-            foedselsdato: LocalDate,
-            knekkpunktDato: LocalDate
-        ): Boolean {
-            val heltUttakDato = spec.heltUttakDato
-
-            if (!spec.simulerForTp || heltUttakDato == null) {
-                return false
-            }
-
-            val erHeltUttakDatoFoerUbetingetPensjoneringDato =
-                isBeforeByDay(heltUttakDato, ubetingetPensjoneringDato(foedselsdato), false)
-            val erKnekkpunktDatoFoerHeltUttakDato = isBeforeByDay(knekkpunktDato, heltUttakDato, false)
-            return erHeltUttakDatoFoerUbetingetPensjoneringDato && erKnekkpunktDatoFoerHeltUttakDato
-        }
-
         private fun shouldAddPensjonBeholdningPerioder(
             hentPensjonBeholdninger: Boolean,
             regelverkType: RegelverkTypeEnum?
@@ -468,48 +496,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             hentPensjonBeholdninger &&
                     EnumSet.of(RegelverkTypeEnum.N_REG_N_OPPTJ, RegelverkTypeEnum.N_REG_G_N_OPPTJ)
                         .contains(regelverkType)
-
-        private fun beholdningPeriode(
-            virkningFom: LocalDate,
-            beholdninger: Beholdninger,
-            foedselsdato: LocalDate
-        ) =
-            BeholdningPeriode(
-                datoFom = virkningFom,
-                pensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.PEN_B)?.totalbelop,
-                garantipensjonsbeholdning = beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B)?.totalbelop,
-                garantitilleggsbeholdning = garantitilleggBeholdningTotalBeloep(
-                    virkningFom,
-                    beholdninger,
-                    foedselsdato
-                ),
-                garantipensjonsniva = garantipensjonsniva(beholdninger)
-            )
-
-        private fun garantitilleggBeholdningTotalBeloep(
-            virkningFom: LocalDate,
-            beholdninger: Beholdninger,
-            foedselsdato: LocalDate
-        ): Double? =
-            if (isBeforeByDay(getRelativeDateByYear(foedselsdato, GARANTITILLEGG_MAX_ALDER), virkningFom, false))
-                beholdninger.beholdning(BeholdningtypeEnum.GAR_T_B)?.totalbelop
-            else
-                null
-
-        private fun garantipensjonsniva(beholdninger: Beholdninger): GarantipensjonNivaa? {
-            val garantipensjonBeholdning =
-                beholdninger.beholdning(BeholdningtypeEnum.GAR_PEN_B) as? Garantipensjonsbeholdning
-                    ?: return null
-
-            val justertNivaa = garantipensjonBeholdning.justertGarantipensjonsniva?.garantipensjonsniva ?: return null
-
-            return GarantipensjonNivaa(
-                beloep = justertNivaa.belop,
-                satsType = (justertNivaa.satsTypeEnum ?: GarantiPensjonsnivaSatsEnum.ORDINAER).name,
-                sats = justertNivaa.sats,
-                anvendtTrygdetid = justertNivaa.tt_anv
-            )
-        }
 
         private fun addAfpBeregningResultat(
             spec: AlderspensjonVilkaarsproeverBeregnerSpec,
@@ -529,7 +515,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         /**
          * Ref. FastsettTrygdetidCache.fastsettTrygdetidInPreg and RequestToReglerMapper.mapToTrygdetidRequest
          */
-        private fun trygdetidRequest(
+        private fun trygdetidSpec(
             kravhode: Kravhode,
             persongrunnlag: Persongrunnlag,
             knekkpunktDato: LocalDate,

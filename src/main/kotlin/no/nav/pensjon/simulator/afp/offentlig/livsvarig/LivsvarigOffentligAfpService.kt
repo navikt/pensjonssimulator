@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentli
 import no.nav.pensjon.simulator.core.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
@@ -73,6 +72,7 @@ class LivsvarigOffentligAfpService(
         time.today().minusYears(1)
 
     private companion object {
+        private const val LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR: Long = 62 // normert?
 
         private fun mimimumFoedselAar(): Int =
             OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR

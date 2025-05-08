@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.legacy.util
 
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.util.NorwegianCalendar
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -24,7 +25,7 @@ object DateUtil {
         monthOfYearRange1To12(date.toNorwegianDateAtNoon())
 
     /**
-     * {@see DateUtil.intersects} Removes the values for HOUR_OF_DAY, MINUTES, SECONDS and MILLISECONDS before the compare such
+     * Removes the values for HOUR_OF_DAY, MINUTES, SECONDS and MILLISECONDS before the compare such
      * that same day is regarded as intersection if `considerContactByDayAsIntersection` is true. The endings of
      * the respective periods can be NULL, if so these will be set to infinity.
      */
@@ -129,13 +130,6 @@ object DateUtil {
             start < end
     }
 
-    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
-    fun lastDayOfMonthUserTurns67(foedselsdato: Date): Date =
-        lastDayOfMonthUserTurnsGivenAge(foedselsdato, 67) //TODO normert?
-
-    fun lastDayOfMonthUserTurns67(foedselsdato: LocalDate): LocalDate =
-        lastDayOfMonthUserTurns67(foedselsdato.toNorwegianDateAtNoon()).toNorwegianLocalDate()
-
     fun calculateAgeInYears(foedselsdato: Date, dato: LocalDate): Int =
         calculateAgeInYears(foedselsdato.toNorwegianLocalDate(), dato)
 
@@ -231,8 +225,9 @@ object DateUtil {
     // no.stelvio.common.util.DateUtil.isBeforeToday
     fun isBeforeToday(date: Date?): Boolean = isBeforeDay(date, null as Date?)
 
-    // no.stelvio.common.util.DateUtil.getYesterday
-    fun getYesterday(): Date = getRelativeDateFromNow(-1)
+    // no.stelvio.common.util.DateUtil.getYesterday + getRelativeDateFromNow
+    fun getYesterday(): Date =
+        getRelativeDateByDays(LocalDate.now().toNorwegianDateAtNoon(), -1)
 
     // SimuleringEtter2011Utils.firstDayOfMonthAfterUserTurnsGivenAge
     fun firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato: Date, alderAar: Int): Date =
@@ -246,11 +241,11 @@ object DateUtil {
         firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato.toNorwegianDateAtNoon(), alderAar)
 
     // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurnsGivenAge
-    private fun lastDayOfMonthUserTurnsGivenAge(foedselsdato: Date, alderAar: Int): Date {
+    fun lastDayOfMonthUserTurnsGivenAge(foedselsdato: Date, alder: Alder): Date {
         val dato: Date =
             NorwegianCalendar.forNoon(foedselsdato).apply {
-                add(Calendar.YEAR, alderAar)
-                add(Calendar.MONTH, 1)
+                add(Calendar.YEAR, alder.aar)
+                add(Calendar.MONTH, alder.maaneder + 1)
             }.time
 
         return findLastDayInMonthBefore(dato)
@@ -282,6 +277,7 @@ object DateUtil {
             this[Calendar.DAY_OF_MONTH] = getActualMinimum(Calendar.DAY_OF_MONTH)
         }.time
 
+    //TODO replace by foersteDag
     fun getFirstDateInYear(date: LocalDate): LocalDate =
         getFirstDateInYear(date.toNorwegianDateAtNoon()).toNorwegianLocalDate()
 
@@ -294,10 +290,6 @@ object DateUtil {
 
     fun getLastDateInYear(date: LocalDate): LocalDate =
         getLastDateInYear(date.toNorwegianDateAtNoon()).toNorwegianLocalDate()
-
-    // no.stelvio.common.util.DateUtil.getRelativeDateFromNow
-    private fun getRelativeDateFromNow(days: Int): Date =
-        getRelativeDateByDays(LocalDate.now().toNorwegianDateAtNoon(), days)
 
     // SimuleringEtter2011Utils.yearUserTurnsGivenAge
     fun yearUserTurnsGivenAge(foedselsdato: Date, age: Int): Int =

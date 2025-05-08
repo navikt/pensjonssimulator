@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ufoere.UfoereService
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Service
 
 // PEN: SimpleSimuleringService
@@ -18,7 +18,7 @@ class SimuleringFacade(
     private val simulator: SimulatorCore,
     private val alternativSimulering: AlternativSimuleringService,
     private val ufoereAlternativSimulering: UfoereAlternativSimuleringService,
-    private val normAlderService: NormAlderService,
+    private val normalderService: NormertPensjonsalderService,
     private val ufoereService: UfoereService
 ) {
     fun simulerAlderspensjon(
@@ -51,7 +51,7 @@ class SimuleringFacade(
         exception: RuntimeException
     ): SimulertPensjonEllerAlternativ? =
         if (gjelderUfoereMedAfp)
-            if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normAlderService.normAlderDato(spec.foedselDato!!)))
+            if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normalderService.normalderDato(spec.foedselDato!!)))
                 if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
                     ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec)
                 else

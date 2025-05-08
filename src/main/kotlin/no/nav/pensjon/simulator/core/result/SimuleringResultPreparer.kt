@@ -30,10 +30,9 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersects
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.result.SimulatorOutputMapper.simulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.ubetingetPensjoneringDato
+import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.PeriodeUtil
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForDate
@@ -41,6 +40,8 @@ import no.nav.pensjon.simulator.core.util.PeriodeUtil.numberOfMonths
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -48,7 +49,10 @@ import java.util.*
 
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettOutputHelper
 @Component
-class SimuleringResultPreparer(private val time: Time) {
+class SimuleringResultPreparer(
+    private val normalderService: NormertPensjonsalderService,
+    private val time: Time
+) {
 
     fun opprettOutput(preparerSpec: ResultPreparerSpec): SimulatorOutput {
         val kravhode = preparerSpec.kravhode
@@ -110,7 +114,7 @@ class SimuleringResultPreparer(private val time: Time) {
         resultatListe: MutableList<AbstraktBeregningsResultat>
     ) {
         val foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
-        val startAlder = calculateStartAlder(spec, foedselsdato, forrigeResultat, true)
+        val startAlderAar = calculateStartAlder(spec, foedselsdato, forrigeResultat, handlePre2025OffentligAfpEtterfulgtAvAlderspensjon = true)
         var forrigeResultatCopy: AbstraktBeregningsResultat? = null
 
         if (forrigeResultat != null) {
@@ -119,21 +123,167 @@ class SimuleringResultPreparer(private val time: Time) {
             resultatListe.add(forrigeResultatCopy)
         }
 
-        for (alder in startAlder..MAX_KNEKKPUNKT_ALDER) {
-            val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, resultatListe)
-            simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(alder, beloepPeriode.beloep, beloepPeriode.maanedsutbetalinger))
+        for (alderAar in startAlderAar..sluttAlderAar(foedselsdato)) {
+            beloepPeriode(foedselsdato, alderAar, resultatListe).let {
+                simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(alderAar, it.beloep, it.maanedsutbetalinger))
+            }
         }
 
         forrigeResultatCopy?.let {
             // Add a periode representing løpende ytelser (tagged with alder=null)
             val maanedsbeloepVedPeriodeStart = it.pensjonUnderUtbetaling?.totalbelopNetto ?: 0
             val beloep = maanedsbeloepVedPeriodeStart * MAANEDER_PER_AAR
-            simulertAlderspensjon.addPensjonsperiode(pensjonPeriode(
-                null,
-                beloep,
-                listOf(Maanedsutbetaling(maanedsbeloepVedPeriodeStart, it.virkFom!!.toNorwegianLocalDate()))
-            ))
+            simulertAlderspensjon.addPensjonsperiode(
+                pensjonPeriode(
+                    null,
+                    beloep,
+                    listOf(Maanedsutbetaling(maanedsbeloepVedPeriodeStart, it.virkFom!!.toNorwegianLocalDate()))
+                )
+            )
         }
+    }
+
+    // OpprettOutputHelper.addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder
+    //       + fetchAldersberegningKapittel19FromAlder2016 + getAldersberegningKapittel19
+    private fun addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder(
+        simulertAlderspensjon: SimulertAlderspensjon,
+        spec: SimuleringSpec,
+        kravhode: Kravhode,
+        soekerGrunnlag: Persongrunnlag,
+        resultatListe: List<AbstraktBeregningsResultat>,
+        forrigeResultat: AbstraktBeregningsResultat?,
+        pensjonBeholdningPeriodeListe: List<BeholdningPeriode>,
+        outputSimulertBeregningsinfoForAlleKnekkpunkter: Boolean
+    ) {
+        val forrigeBasispensjon: Int
+        val forrigeBeholdning: Int
+
+        if (forrigeResultat != null) {
+            when (forrigeResultat) {
+                is BeregningsResultatAlderspensjon2011 -> {
+                    forrigeBasispensjon = basispensjon(forrigeResultat.beregningKapittel19)
+                    forrigeBeholdning = 0
+                }
+
+                is BeregningsResultatAlderspensjon2016 -> {
+                    forrigeBasispensjon = basispensjon(forrigeResultat.beregningsResultat2011?.beregningKapittel19)
+                    forrigeBeholdning = pensjonsbeholdning(forrigeResultat.beregningsResultat2025)
+                }
+
+                is BeregningsResultatAlderspensjon2025 -> {
+                    forrigeBasispensjon = 0
+                    forrigeBeholdning = pensjonsbeholdning(forrigeResultat)
+                }
+
+                else -> throw RuntimeException("Unexpected type of forrigeResultat: $forrigeResultat")
+            }
+        } else {
+            forrigeBasispensjon = 0
+            forrigeBeholdning = 0
+        }
+
+        val foedselsdato = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate()
+        val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, foedselsdato)
+
+        createSimulertBeregningsinfoForKnekkpunkter(
+            kravhode,
+            soekerGrunnlag,
+            resultatListe,
+            forrigeResultat,
+            simulertAlderspensjon,
+            forrigeBasispensjon,
+            forrigeBeholdning,
+            punkter,
+            foedselsdato!!
+        )
+
+        if (outputSimulertBeregningsinfoForAlleKnekkpunkter) {
+            simulertAlderspensjon.simulertBeregningInformasjonListe =
+                createSimulertBeregningsinfoForAlleKnekkpunkter(
+                    kravhode,
+                    resultatListe,
+                    simulertAlderspensjon,
+                    foedselsdato,
+                    spec
+                )
+        }
+
+        simulertAlderspensjon.pensjonBeholdningListe = pensjonBeholdningPeriodeListe
+    }
+
+    private fun createSimulertBeregningsinfoForAlleKnekkpunkter(
+        kravhode: Kravhode,
+        resultatListe: List<AbstraktBeregningsResultat>,
+        simulertAlderspensjon: SimulertAlderspensjon,
+        foedselsdato: LocalDate,
+        spec: SimuleringSpec
+    ): List<SimulertBeregningInformasjon> {
+        val foersteHeleUttak: LocalDate
+        val gradertUttak: LocalDate?
+
+        if (spec.gjelderPre2025OffentligAfp()) {
+            gradertUttak = null // AFP-simulering does not contain gradert uttak
+            foersteHeleUttak = spec.heltUttakDato!! // Assuming heltUttakDato cannot be null in this context
+        } else if (spec.heltUttakDato == null) {
+            gradertUttak = null
+            foersteHeleUttak =
+                spec.foersteUttakDato!! // Assuming forsteUttakDato cannot be null in this context
+        } else {
+            gradertUttak = spec.foersteUttakDato
+            foersteHeleUttak = spec.heltUttakDato
+        }
+
+        val normertPensjoneringsdato = normalderService.normertPensjoneringsdato(foedselsdato)
+        val firstKnekkpunkt = gradertUttak ?: foersteHeleUttak
+        val lastKnekkpunkt = foersteDag(aar = getRelativeDateByYear(foedselsdato, sluttAlderAar(foedselsdato)).year)
+        val simulertBeregningInformasjonMap: SortedMap<LocalDate, SimulertBeregningInformasjon> = TreeMap()
+
+        if (isBeforeByDay(firstKnekkpunkt, normertPensjoneringsdato, allowSameDay = true)) {
+            simulertBeregningInformasjonMap[normertPensjoneringsdato] =
+                createSimulertBeregningsinformasjonForKnekkpunkt(
+                    kravhode,
+                    resultatListe,
+                    simulertAlderspensjon,
+                    foedselsdato,
+                    normertPensjoneringsdato
+                )
+        }
+
+        simulertBeregningInformasjonMap[foersteHeleUttak] = createSimulertBeregningsinformasjonForKnekkpunkt(
+            kravhode,
+            resultatListe,
+            simulertAlderspensjon,
+            foedselsdato,
+            foersteHeleUttak
+        )
+
+        if (gradertUttak != null) {
+            simulertBeregningInformasjonMap[gradertUttak] = createSimulertBeregningsinformasjonForKnekkpunkt(
+                kravhode,
+                resultatListe,
+                simulertAlderspensjon,
+                foedselsdato,
+                gradertUttak
+            )
+        }
+
+        var knekkpunkt = getFirstDateInYear(firstKnekkpunkt)
+
+        while (isBeforeByDay(knekkpunkt, lastKnekkpunkt, true)) {
+            if (isAfterByDay(knekkpunkt, firstKnekkpunkt, false)) {
+                simulertBeregningInformasjonMap[knekkpunkt] = createSimulertBeregningsinformasjonForKnekkpunkt(
+                    kravhode,
+                    resultatListe,
+                    simulertAlderspensjon,
+                    foedselsdato,
+                    knekkpunkt
+                )
+            }
+
+            knekkpunkt = getRelativeDateByYear(knekkpunkt, 1)
+        }
+
+        return ArrayList(simulertBeregningInformasjonMap.values)
     }
 
     private fun createAndMapSimulertAlderspensjon(
@@ -191,7 +341,7 @@ class SimuleringResultPreparer(private val time: Time) {
             privatAfpBeregningResultatListe.add(forrigeAfpBeregningsresultatKopi)
         }
 
-        for (alder in startAlder..MAX_OPPTJENING_ALDER) {
+        for (alder in startAlder..normalderService.maxOpptjeningAar(foedselsdato)) {
             val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, privatAfpBeregningResultatListe)
             val afpResultat: BeregningsResultatAfpPrivat? =
                 findEarliestIntersecting(privatAfpBeregningResultatListe, beloepPeriode.start, beloepPeriode.slutt)
@@ -267,10 +417,71 @@ class SimuleringResultPreparer(private val time: Time) {
         }
     }
 
-    private companion object {
-        private const val MAX_OPPTJENING_ALDER = 75
-        private const val MAX_KNEKKPUNKT_ALDER = 77
+    // OpprettOutputHelper.createAndMapSimulertOpptjeningListe
+    private fun createAndMapSimulertOpptjeningListe(
+        simulatorOutput: SimulatorOutput,
+        beregningResultatListe: List<AbstraktBeregningsResultat>,
+        soekerGrunnlag: Persongrunnlag,
+        kravhode: Kravhode
+    ) {
+        if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
 
+        var sisteBeregningsresultat2011: BeregningsResultatAlderspensjon2011? = null
+
+        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ) {
+            sisteBeregningsresultat2011 = findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2011
+        }
+
+        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_N_OPPTJ) {
+            val sisteBeregningsresultat2016 =
+                findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2016
+            sisteBeregningsresultat2011 = sisteBeregningsresultat2016.beregningsResultat2011
+        }
+
+        val poengtallListe: List<Poengtall>? =
+            sisteBeregningsresultat2011?.beregningsInformasjonKapittel19?.spt?.poengrekke?.poengtallListe
+
+        // Run from the year of the earliest opptjeningsgrunnlag to the year the user turns MAX_OPPTJENING_ALDER years of age
+        val foersteAar: Int = findEarliest(soekerGrunnlag.opptjeningsgrunnlagListe)?.ar ?: return
+        val sisteAar = normalderService.maxOpptjeningAar(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
+
+        for (aar in foersteAar..sisteAar) {
+            simulatorOutput.opptjeningListe.add(
+                SimulatorOutputMapper.mapToSimulertOpptjening(
+                    kalenderAar = aar,
+                    resultatListe = beregningResultatListe,
+                    soekerGrunnlag,
+                    poengtallListe = poengtallListe.orEmpty(),
+                    useNullAsDefaultPensjonspoeng = poengtallListe == null
+                )
+            )
+        }
+    }
+
+    private fun findKnekkpunkter(spec: SimuleringSpec, foedselsdato: LocalDate?): SortedSet<LocalDate> {
+        val knekkpunkter: SortedSet<LocalDate> = TreeSet()
+
+        if (spec.type != SimuleringType.AFP_ETTERF_ALDER) {
+            addBeregningsinfoKnekkpunkt(
+                knekkpunkter,
+                spec.foersteUttakDato!!
+            ) //TODO: Can forsteUttakDato be null?
+        }
+
+        spec.heltUttakDato?.let { addBeregningsinfoKnekkpunkt(knekkpunkter, it) }
+        val normertPensjoneringsdato = foedselsdato?.let(normalderService::normertPensjoneringsdato)
+
+        if (isBeforeByDay(spec.foersteUttakDato, normertPensjoneringsdato, false)) {
+            addBeregningsinfoKnekkpunkt(knekkpunkter, normertPensjoneringsdato)
+        }
+
+        return knekkpunkter
+    }
+
+    private fun sluttAlderAar(foedselsdato: LocalDate): Int =
+        normalderService.maxOpptjeningAar(foedselsdato) + OPPTJENING_ETTERSLEP_ANTALL_AAR
+
+    private companion object {
         // TODO: Reconsider necessity for this
         private fun forceKap19OutputIfSimulerForTp(kravhode: Kravhode, spec: SimuleringSpec) {
             if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_N_OPPTJ && spec.simulerForTp) {
@@ -285,47 +496,6 @@ class SimuleringResultPreparer(private val time: Time) {
             grunnbeloep: Int
         ) =
             SimulatorOutputMapper.mapToSimulatorOutput(spec, soekerGrunnlag, grunnbeloep)
-
-        // OpprettOutputHelper.createAndMapSimulertOpptjeningListe
-        private fun createAndMapSimulertOpptjeningListe(
-            simulatorOutput: SimulatorOutput,
-            beregningResultatListe: List<AbstraktBeregningsResultat>,
-            soekerGrunnlag: Persongrunnlag,
-            kravhode: Kravhode
-        ) {
-            if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
-
-            var sisteBeregningsresultat2011: BeregningsResultatAlderspensjon2011? = null
-
-            if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ) {
-                sisteBeregningsresultat2011 = findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2011
-            }
-
-            if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_N_OPPTJ) {
-                val sisteBeregningsresultat2016 =
-                    findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2016
-                sisteBeregningsresultat2011 = sisteBeregningsresultat2016.beregningsResultat2011
-            }
-
-            val poengtallListe: List<Poengtall>? =
-                sisteBeregningsresultat2011?.beregningsInformasjonKapittel19?.spt?.poengrekke?.poengtallListe
-
-            // Run from the year of the earliest opptjeningsgrunnlag to the year the user turns MAX_OPPTJENING_ALDER years of age
-            val foersteAar: Int = findEarliest(soekerGrunnlag.opptjeningsgrunnlagListe)?.ar ?: return
-            val sisteAar = yearUserTurnsGivenAge(soekerGrunnlag.fodselsdato!!, MAX_OPPTJENING_ALDER)
-
-            for (aar in foersteAar..sisteAar) {
-                simulatorOutput.opptjeningListe.add(
-                    SimulatorOutputMapper.mapToSimulertOpptjening(
-                        kalenderAar = aar,
-                        resultatListe = beregningResultatListe,
-                        soekerGrunnlag,
-                        poengtallListe = poengtallListe.orEmpty(),
-                        useNullAsDefaultPensjonspoeng = poengtallListe == null
-                    )
-                )
-            }
-        }
 
         // OpprettOutputHelper.setRatioKap19Kap20OnSimulertAlder
         private fun simulertAlderspensjonMedRegelverkAndel(
@@ -360,99 +530,34 @@ class SimuleringResultPreparer(private val time: Time) {
                 }
             }
 
-    private fun <T : AbstraktBeregningsResultat> beloepPeriode(
-        foedselsdato: LocalDate,
-        alderAar: Int,
-        resultatListe: MutableList<T>
-    ): BeloepPeriode {
-        val periodeStart: Date =
-            getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
-        val periodeSlutt: Date = getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
-        var beloep = 0
-        val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
-        for (resultat in resultatListe) {
-            val fom: Date = resultat.virkFom!!.toNorwegianNoon()
-            val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
+        private fun <T : AbstraktBeregningsResultat> beloepPeriode(
+            foedselsdato: LocalDate,
+            alderAar: Int,
+            resultatListe: MutableList<T>
+        ): BeloepPeriode {
+            val periodeStart: Date =
+                getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
+            val periodeSlutt: Date =
+                getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
+            var beloep = 0
+            val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
+            for (resultat in resultatListe) {
+                val fom: Date = resultat.virkFom!!.toNorwegianNoon()
+                val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
 
-            if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
-                beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
+                if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
+                    beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
 
-                maanedsutbetalinger.add(
-                    Maanedsutbetaling(
-                        resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0, resultat.virkFom!!.toNorwegianLocalDate())
-                )
-            }
-        }
-
-        return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsutbetalinger)
-    }
-
-        // OpprettOutputHelper.addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder
-        //       + fetchAldersberegningKapittel19FromAlder2016 + getAldersberegningKapittel19
-        private fun addSimulertBeregningsinformasjonForKnekkpunkterToSimulertAlder(
-            simulertAlderspensjon: SimulertAlderspensjon,
-            spec: SimuleringSpec,
-            kravhode: Kravhode,
-            soekerGrunnlag: Persongrunnlag,
-            resultatListe: List<AbstraktBeregningsResultat>,
-            forrigeResultat: AbstraktBeregningsResultat?,
-            pensjonBeholdningPeriodeListe: List<BeholdningPeriode>,
-            outputSimulertBeregningsinfoForAlleKnekkpunkter: Boolean
-        ) {
-            val forrigeBasispensjon: Int
-            val forrigeBeholdning: Int
-
-            if (forrigeResultat != null) {
-                when (forrigeResultat) {
-                    is BeregningsResultatAlderspensjon2011 -> {
-                        forrigeBasispensjon = basispensjon(forrigeResultat.beregningKapittel19)
-                        forrigeBeholdning = 0
-                    }
-
-                    is BeregningsResultatAlderspensjon2016 -> {
-                        forrigeBasispensjon = basispensjon(forrigeResultat.beregningsResultat2011?.beregningKapittel19)
-                        forrigeBeholdning = pensjonsbeholdning(forrigeResultat.beregningsResultat2025)
-                    }
-
-                    is BeregningsResultatAlderspensjon2025 -> {
-                        forrigeBasispensjon = 0
-                        forrigeBeholdning = pensjonsbeholdning(forrigeResultat)
-                    }
-
-                    else -> throw RuntimeException("Unexpected type of forrigeResultat: $forrigeResultat")
-                }
-            } else {
-                forrigeBasispensjon = 0
-                forrigeBeholdning = 0
-            }
-
-            val foedselsdato = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate()
-            val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, foedselsdato)
-
-            createSimulertBeregningsinfoForKnekkpunkter(
-                kravhode,
-                soekerGrunnlag,
-                resultatListe,
-                forrigeResultat,
-                simulertAlderspensjon,
-                forrigeBasispensjon,
-                forrigeBeholdning,
-                punkter,
-                foedselsdato!!
-            )
-
-            if (outputSimulertBeregningsinfoForAlleKnekkpunkter) {
-                simulertAlderspensjon.simulertBeregningInformasjonListe =
-                    createSimulertBeregningsinfoForAlleKnekkpunkter(
-                        kravhode,
-                        resultatListe,
-                        simulertAlderspensjon,
-                        foedselsdato,
-                        spec
+                    maanedsutbetalinger.add(
+                        Maanedsutbetaling(
+                            resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0,
+                            resultat.virkFom!!.toNorwegianLocalDate()
+                        )
                     )
+                }
             }
 
-            simulertAlderspensjon.pensjonBeholdningListe = pensjonBeholdningPeriodeListe
+            return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsutbetalinger)
         }
 
         private fun earliestVirkningFom(resultater: List<AbstraktBeregningsResultat>): Date? =
@@ -484,26 +589,6 @@ class SimuleringResultPreparer(private val time: Time) {
                 fom.toNorwegianLocalDate(),
                 tom.toNorwegianLocalDate()
             )
-
-        private fun findKnekkpunkter(spec: SimuleringSpec, foedselsdato: LocalDate?): SortedSet<LocalDate> {
-            val knekkpunkter: SortedSet<LocalDate> = TreeSet()
-
-            if (spec.type != SimuleringType.AFP_ETTERF_ALDER) {
-                addBeregningsinfoKnekkpunkt(
-                    knekkpunkter,
-                    spec.foersteUttakDato!!
-                ) //TODO: Can forsteUttakDato be null?
-            }
-
-            spec.heltUttakDato?.let { addBeregningsinfoKnekkpunkt(knekkpunkter, it) }
-            val betingelseslosPensjoneringsdato = foedselsdato?.let { ubetingetPensjoneringDato(it) }
-
-            if (isBeforeByDay(spec.foersteUttakDato, betingelseslosPensjoneringsdato, false)) {
-                addBeregningsinfoKnekkpunkt(knekkpunkter, betingelseslosPensjoneringsdato)
-            }
-
-            return knekkpunkter
-        }
 
         private fun createSimulertBeregningsinfoForKnekkpunkter(
             kravhode: Kravhode,
@@ -552,81 +637,6 @@ class SimuleringResultPreparer(private val time: Time) {
                     )
                 periodeForAge?.simulertBeregningInformasjonListe?.add(simulertBeregningsinfo)
             }
-        }
-
-        private fun createSimulertBeregningsinfoForAlleKnekkpunkter(
-            kravhode: Kravhode,
-            resultatListe: List<AbstraktBeregningsResultat>,
-            simulertAlderspensjon: SimulertAlderspensjon,
-            foedselsdato: LocalDate,
-            spec: SimuleringSpec
-        ): List<SimulertBeregningInformasjon> {
-            val foersteHeleUttak: LocalDate
-            val gradertUttak: LocalDate?
-
-            if (spec.gjelderPre2025OffentligAfp()) {
-                gradertUttak = null // AFP-simulering does not contain gradert uttak
-                foersteHeleUttak = spec.heltUttakDato!! // Assuming heltUttakDato cannot be null in this context
-            } else if (spec.heltUttakDato == null) {
-                gradertUttak = null
-                foersteHeleUttak =
-                    spec.foersteUttakDato!! // Assuming forsteUttakDato cannot be null in this context
-            } else {
-                gradertUttak = spec.foersteUttakDato
-                foersteHeleUttak = spec.heltUttakDato
-            }
-
-            val ubetingetPensjoneringDato = ubetingetPensjoneringDato(foedselsdato)
-            val firstKnekkpunkt = gradertUttak ?: foersteHeleUttak
-            val lastKnekkpunkt = getFirstDateInYear(getRelativeDateByYear(foedselsdato, MAX_KNEKKPUNKT_ALDER))
-            val simulertBeregningInformasjonMap: SortedMap<LocalDate, SimulertBeregningInformasjon> = TreeMap()
-
-            if (isBeforeByDay(firstKnekkpunkt, ubetingetPensjoneringDato, true)) {
-                simulertBeregningInformasjonMap[ubetingetPensjoneringDato] =
-                    createSimulertBeregningsinformasjonForKnekkpunkt(
-                        kravhode,
-                        resultatListe,
-                        simulertAlderspensjon,
-                        foedselsdato,
-                        ubetingetPensjoneringDato
-                    )
-            }
-
-            simulertBeregningInformasjonMap[foersteHeleUttak] = createSimulertBeregningsinformasjonForKnekkpunkt(
-                kravhode,
-                resultatListe,
-                simulertAlderspensjon,
-                foedselsdato,
-                foersteHeleUttak
-            )
-
-            if (gradertUttak != null) {
-                simulertBeregningInformasjonMap[gradertUttak] = createSimulertBeregningsinformasjonForKnekkpunkt(
-                    kravhode,
-                    resultatListe,
-                    simulertAlderspensjon,
-                    foedselsdato,
-                    gradertUttak
-                )
-            }
-
-            var knekkpunkt = getFirstDateInYear(firstKnekkpunkt)
-
-            while (isBeforeByDay(knekkpunkt, lastKnekkpunkt, true)) {
-                if (isAfterByDay(knekkpunkt, firstKnekkpunkt, false)) {
-                    simulertBeregningInformasjonMap[knekkpunkt] = createSimulertBeregningsinformasjonForKnekkpunkt(
-                        kravhode,
-                        resultatListe,
-                        simulertAlderspensjon,
-                        foedselsdato,
-                        knekkpunkt
-                    )
-                }
-
-                knekkpunkt = getRelativeDateByYear(knekkpunkt, 1)
-            }
-
-            return ArrayList(simulertBeregningInformasjonMap.values)
         }
 
         private fun createSimulertBeregningsinformasjonForKnekkpunkt(
@@ -783,12 +793,12 @@ class SimuleringResultPreparer(private val time: Time) {
             return result
         }
 
-    private fun pensjonPeriode(alderAar: Int?, beloep: Int, maanedsutbetalinger: List<Maanedsutbetaling>) =
-        PensjonPeriode().apply {
-            this.alderAar = alderAar
-            this.beloep = beloep
-            this.maanedsutbetalinger = maanedsutbetalinger
-        }
+        private fun pensjonPeriode(alderAar: Int?, beloep: Int, maanedsutbetalinger: List<Maanedsutbetaling>) =
+            PensjonPeriode().apply {
+                this.alderAar = alderAar
+                this.beloep = beloep
+                this.maanedsutbetalinger = maanedsutbetalinger
+            }
 
         // From ArligInformasjonListeUtils
         private fun findEarliest(list: List<Opptjeningsgrunnlag>): Opptjeningsgrunnlag? {
@@ -847,6 +857,11 @@ class SimuleringResultPreparer(private val time: Time) {
                 else -> throw IllegalArgumentException("Unexpected AbstraktBeregningsResultat subclass: $original")
             }
 
-        private data class BeloepPeriode(val beloep: Int, val start: Date?, val slutt: Date?, val maanedsutbetalinger: List<Maanedsutbetaling>)
+        private data class BeloepPeriode(
+            val beloep: Int,
+            val start: Date?,
+            val slutt: Date?,
+            val maanedsutbetalinger: List<Maanedsutbetaling>
+        )
     }
 }

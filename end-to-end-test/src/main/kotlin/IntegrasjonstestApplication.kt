@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory
 suspend fun main() {
     val logger = LoggerFactory.getLogger("IntegrasjonstestApplication")
     val pensjonssimulatorConfig = loadPensjonssimulatorConfig()
+    logger.info("Loaded pensjonssimulator config")
 
     val requestJson = readResourceAsText("afp-etterfulgt-av-alder-request.json")
     val expectedJson = Json.parseToJsonElement(readResourceAsText("afp-etterfulgt-av-alder-response.json"))
@@ -25,6 +26,7 @@ suspend fun main() {
         }
     }
     val maskinportenTokenService = MaskinportenTokenService(client)
+    logger.info("Loaded maskinporten config")
     val token = maskinportenTokenService.hentToken()
 
     try {

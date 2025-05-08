@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="STDOUT_LOG_APPENDER" value="${STDOUT_LOG_OUTPUT:-CONSOLE}_STDOUT" />
-
     <appender name="JSON_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <throwableConverter class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
@@ -14,7 +12,6 @@
             </throwableConverter>
         </encoder>
     </appender>
-
     <appender name="CONSOLE_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg - %mdc%n</pattern>
@@ -22,6 +19,6 @@
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="${STDOUT_LOG_APPENDER}"/>
+        <appender-ref ref="JSON_STDOUT"/>
     </root>
 </configuration>

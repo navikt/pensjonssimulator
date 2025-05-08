@@ -9,11 +9,10 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.client.request.*
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 import java.util.*
 
@@ -39,32 +38,26 @@ class MaskinportenTokenService(val client: HttpClient) {
         )
         signedJWT.sign(RSASSASigner(rsaKey.toRSAPrivateKey()))
 
-        try {
-            val response: MaskinportenTokenResponse = client.post(maskinportenConfig.tokenEndpointUrl) {
-                contentType(ContentType.Application.FormUrlEncoded)
-                accept(ContentType.Any)
-                setBody(
-                    Parameters.build {
-                        append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
-                        append("assertion", signedJWT.serialize())
-                    }.formUrlEncode()
-                )
-            }.body()
-
-            log.info("Hentet token fra maskinporten med scope(s): ${maskinportenConfig.scope}")
-            return "Bearer ${response.access_token}"
-        } catch (e: ClientRequestException) { // 4xx
-            val body = e.response.bodyAsText()
-            log.warn("4xx error from Maskinporten: ${e.response.status} - $body")
-            throw e
-        } catch (e: ServerResponseException) { // 5xx
-            val body = e.response.bodyAsText()
-            log.error("5xx error from Maskinporten: ${e.response.status} - $body")
-            throw e
-        } catch (e: Exception) {
-            log.error("Unexpected error calling Maskinporten", e)
-            throw e
+        val httpResponse = client.post(maskinportenConfig.tokenEndpointUrl) {
+            contentType(ContentType.Application.FormUrlEncoded)
+            accept(ContentType.Any)
+            setBody(
+                Parameters.build {
+                    append("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")
+                    append("assertion", signedJWT.serialize())
+                }.formUrlEncode()
+            )
         }
+
+        if (!httpResponse.status.isSuccess()) {
+            val errorText = httpResponse.bodyAsText()
+            log.warn("Error from Maskinporten: ${httpResponse.status} - $errorText")
+            throw RuntimeException("Failed to get token: HTTP ${httpResponse.status}")
+        }
+
+        val response: MaskinportenTokenResponse = httpResponse.body()
+        log.info("Hentet token fra maskinporten med scope(s): ${maskinportenConfig.scope}")
+        return "Bearer ${response.access_token}"
     }
 
     fun getExpireAfter(): Date {
@@ -74,6 +67,7 @@ class MaskinportenTokenService(val client: HttpClient) {
         return calendar.time
     }
 
+    @Serializable
     data class MaskinportenTokenResponse(
         val access_token: String,
         val token_type: String,

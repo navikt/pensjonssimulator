@@ -22,12 +22,17 @@ suspend fun main() {
 
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
-            json()
+            json(
+                Json {
+                    ignoreUnknownKeys = true
+                }
+            )
         }
     }
     val maskinportenTokenService = MaskinportenTokenService(client)
     logger.info("Loaded maskinporten config")
     val token = maskinportenTokenService.hentToken()
+    logger.info("Hentet maskinporten-token")
 
     try {
         val response = client.post("${pensjonssimulatorConfig.url}/api/v0/simuler-afp-etterfulgt-av-alderspensjon") {

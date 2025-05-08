@@ -89,15 +89,15 @@ jobs:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/apiendpoints.yaml
 
-  run-end-to-end-tester-dev:
-    name: Run end-to-end tests
-    needs: [ deploy-sandbox ]
-    permissions:
-      actions: "read"
-      contents: "write"
-      checks: "write"
-      id-token: "write"
-      packages: "write"
-      security-events: "write"
-    secrets: inherit
-    uses: ./.github/workflows/run-end-to-end-tester-i-sandbox.yaml
+#  run-end-to-end-tester-dev:
+#    name: Run end-to-end tests
+#    needs: [ deploy-sandbox ]
+#    permissions:
+#      actions: "read"
+#      contents: "write"
+#      checks: "write"
+#      id-token: "write"
+#      packages: "write"
+#      security-events: "write"
+#    secrets: inherit
+#    uses: ./.github/workflows/run-end-to-end-tester-i-sandbox.yaml

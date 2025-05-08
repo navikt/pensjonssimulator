@@ -3,6 +3,10 @@ package no.nav.pensjon
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
@@ -13,9 +17,9 @@ import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
 suspend fun main() {
-    val logger = LoggerFactory.getLogger("IntegrasjonstestApplication")
+    val log = LoggerFactory.getLogger("IntegrasjonstestApplication")
     val pensjonssimulatorConfig = loadPensjonssimulatorConfig()
-    logger.info("Loaded pensjonssimulator config")
+    log.info("Loaded pensjonssimulator config")
 
     val requestJson = readResourceAsText("afp-etterfulgt-av-alder-request.json")
     val expectedJson = Json.parseToJsonElement(readResourceAsText("afp-etterfulgt-av-alder-response.json"))
@@ -28,11 +32,15 @@ suspend fun main() {
                 }
             )
         }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.ALL
+        }
     }
     val maskinportenTokenService = MaskinportenTokenService(client)
-    logger.info("Loaded maskinporten config")
+    log.info("Loaded maskinporten config")
     val token = maskinportenTokenService.hentToken()
-    logger.info("Hentet maskinporten-token")
+    log.info("Hentet maskinporten-token:$token")
 
     try {
         val response = client.post("${pensjonssimulatorConfig.url}/api/v0/simuler-afp-etterfulgt-av-alderspensjon") {
@@ -44,14 +52,14 @@ suspend fun main() {
         if (response.status == HttpStatusCode.OK) {
             val actualJson = Json.parseToJsonElement(response.bodyAsText())
             val result = if (actualJson == expectedJson) "MATCH" else "MISMATCH"
-            logger.info("Response comparison result: $result with actualJson:$actualJson" )
+            log.info("Response comparison result: $result with actualJson:$actualJson" )
         }
         else {
-            logger.error("Unexpected response status: ${response.status}")
-            logger.error("Response body: ${response.bodyAsText()}")
+            log.error("Unexpected response status: ${response.status}")
+            log.error("Response body: ${response.bodyAsText()}")
         }
     } catch (e: Exception) {
-        logger.error("Request failed: ${e.message}", e)
+        log.error("Request failed: ${e.message}", e)
     } finally {
         client.close()
     }

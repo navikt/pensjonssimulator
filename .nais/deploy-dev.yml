@@ -96,6 +96,7 @@ spec:
         - host: pensjon-regler-q2.dev-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.dev-fss-pub.nais.io
         - host: tp-api-q2.dev-fss-pub.nais.io
+        - host: pensjonskalkulator-unleash-api.nav.cloud.nais.io
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: dev-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
@@ -125,3 +126,5 @@ spec:
       value: DEBUG
     - name: JAVA_TOOL_OPTIONS
       value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+  envFrom:
+    - secret: pensjonssimulator-unleash-api-token

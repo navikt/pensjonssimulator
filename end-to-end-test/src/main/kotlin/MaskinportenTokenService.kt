@@ -21,6 +21,7 @@ class MaskinportenTokenService(val client: HttpClient) {
 
     suspend fun hentToken(): String {
         val log = LoggerFactory.getLogger("HentToken")
+        log.info("Bruker følgende conf: $maskinportenConfig")
 
         val rsaKey = RSAKey.parse(maskinportenConfig.clientJwk)
         val signedJWT = SignedJWT(
@@ -29,7 +30,7 @@ class MaskinportenTokenService(val client: HttpClient) {
                 .type(JOSEObjectType.JWT)
                 .build(),
             JWTClaimsSet.Builder()
-                .audience(maskinportenConfig.issuer)
+                .audience(maskinportenConfig.tokenEndpointUrl)
                 .issuer(maskinportenConfig.clientId)
                 .claim("scope", maskinportenConfig.scope)
                 .issueTime(Date())

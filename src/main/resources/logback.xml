@@ -24,4 +24,7 @@
     <root level="INFO">
         <appender-ref ref="${STDOUT_LOG_APPENDER}"/>
     </root>
+    <logger name="org.springframework.security" level="DEBUG"/>
+    <logger name="org.springframework.security.web.access" level="DEBUG"/>
+    <logger name="org.springframework.security.access" level="DEBUG"/>
 </configuration>

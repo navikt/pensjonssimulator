@@ -75,6 +75,7 @@ spec:
           namespace: nais
         - application: tokenx-token-generator # dev only
           namespace: nais
+        - application: pensjonssimulator-end-to-end-tester
     outbound:
       rules:
         - application: pensjon-pen-q2

@@ -1,0 +1,75 @@
+{
+  "simuleringSuksess": true,
+  "aarsakListeIkkeSuksess": [],
+  "folketrygdberegnetAfp": {
+    "fraOgMedDato": "2025-06-01",
+    "beregnetTidligereInntekt": 862000,
+    "fremtidigAarligInntektTilAfpUttak": 600000,
+    "afpGrad": 83,
+    "afpAvkortetTil70Prosent": false,
+    "grunnpensjon": {
+      "maanedligUtbetaling": 8579,
+      "grunnbeloep": 124028,
+      "grunnpensjonsats": 1,
+      "trygdetid": 40
+    },
+    "tilleggspensjon": {
+      "maanedligUtbetaling": 21272,
+      "grunnbeloep": 124028,
+      "sluttpoengTall": 5.76,
+      "antallPoengaarTilOgMed1991": 14,
+      "antallPoengaarFraOgMed1992": 26
+    },
+    "saertillegg": null,
+    "maanedligAfpTillegg": 1411,
+    "sumMaanedligUtbetaling": 31262
+  },
+  "alderspensjonFraFolketrygden": [
+    {
+      "fraOgMedDato": "2028-03-01",
+      "andelKapittel19": 0.2,
+      "alderspensjonKapittel19": {
+        "grunnpensjon": {
+          "maanedligUtbetaling": 1854,
+          "grunnbeloep": 124028,
+          "grunnpensjonsats": 1,
+          "trygdetid": 40
+        },
+        "tilleggspensjon": {
+          "maanedligUtbetaling": 4597,
+          "grunnbeloep": 124028,
+          "sluttpoengTall": 5.76,
+          "antallPoengaarTilOgMed1991": 14,
+          "antallPoengaarFraOgMed1992": 26
+        },
+        "pensjonstillegg": {
+          "maanedligUtbetaling": 0,
+          "minstepensjonsnivaaSats": 264134
+        },
+        "forholdstall": 1.115
+      },
+      "andelKapittel20": 0.8,
+      "alderspensjonKapittel20": {
+        "inntektspensjon": {
+          "maanedligUtbetaling": 30738,
+          "pensjonsbeholdningFoerUttak": 7381691
+        },
+        "garantipensjon": {
+          "maanedligUtbetaling": 0,
+          "garantipensjonssats": 0,
+          "trygdetid": 40
+        },
+        "delingstall": 16.01
+      },
+      "sumMaanedligUtbetaling": 37189
+    },
+    {
+      "fraOgMedDato": "2029-01-01",
+      "andelKapittel19": 0.2,
+      "alderspensjonKapittel19": null,
+      "andelKapittel20": 0.8,
+      "alderspensjonKapittel20": null,
+      "sumMaanedligUtbetaling": 37307
+    }
+  ]
+}

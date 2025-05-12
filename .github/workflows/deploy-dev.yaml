@@ -68,7 +68,7 @@ jobs:
         env:
           CLUSTER: dev-gcp
           IMAGE: ${{ needs.build.outputs.image }}
-          RESOURCE: .nais/deploy-dev.yml,.nais/deploy-q1.yml
+          RESOURCE: .nais/deploy-dev.yml,.nais/deploy-q1.yml,.nais/unleash-apitoken-dev.yaml
 
   deploy-krakend-config-dev:
     name: Deploy KrakenD config to dev

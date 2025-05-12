@@ -21,7 +21,7 @@ open class WebConfiguration(val sporingsloggService: SporingsloggService, privat
             )
         registry.addInterceptor(VedlikeholdsmodusInterceptor(featureToggleService))
             .addPathPatterns(
-                "/api/*",
+                "/api/**",
             )
     }
 }

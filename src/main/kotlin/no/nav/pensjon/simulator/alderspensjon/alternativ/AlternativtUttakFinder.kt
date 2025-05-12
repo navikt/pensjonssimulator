@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.search.SmallestValueSearch
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import java.time.LocalDate
@@ -21,14 +21,14 @@ import java.time.Period
 class AlternativtUttakFinder(
     private val discriminator: UttakAlderDiscriminator,
     private val simuleringSpec: SimuleringSpec,
-    private val normAlderService: NormAlderService,
+    private val normalderService: NormertPensjonsalderService,
     private val heltUttakInntektTomAlderAar: Int? // behøves bare ved helt uttak når fom/tom angis i form av alder
 ) {
     private val foedselsdato: LocalDate by lazy {
         simuleringSpec.pid?.let(discriminator::fetchFoedselsdato) ?: throw InvalidArgumentException("Udefinert PID")
     }
 
-    private val normAlder: Alder by lazy { normAlderService.normAlder(foedselsdato) }
+    private val normalder: Alder by lazy { normalderService.normalder(foedselsdato) }
 
     fun findAlternativtUttak(
         foersteUttakMinAlder: Alder,
@@ -110,10 +110,10 @@ class AlternativtUttakFinder(
      */
     private fun defaultParameters() =
         AlternativSimuleringSpec(
-            gradertUttakFom = uttakDato(foedselsdato, normAlder.minusMaaneder(1)),
+            gradertUttakFom = uttakDato(foedselsdato, normalder.minusMaaneder(1)),
             gradertUttakAlderIndex = null,
             uttakGrad = UttakGradKode.P_20,
-            heltUttakFom = uttakDato(foedselsdato, normAlder),
+            heltUttakFom = uttakDato(foedselsdato, normalder),
             heltUttakAlderIndex = 0
         )
 

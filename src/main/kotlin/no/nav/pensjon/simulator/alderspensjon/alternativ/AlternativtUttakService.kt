@@ -6,13 +6,13 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.HeltUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Service
 
 @Service
 class AlternativtUttakService(
     private val simulator: SimulatorCore,
-    private val normAlderService: NormAlderService
+    private val normalderService: NormertPensjonsalderService
 ) {
     fun findAlternativtUttak(
         spec: SimuleringSpec,
@@ -44,8 +44,8 @@ class AlternativtUttakService(
         andreUttakAngittAlder: Alder?, // null if not gradert
         maxUttaksgrad: UttakGradKode
     ): SimulertPensjonEllerAlternativ {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
-        val finder = AlternativtUttakFinder(simulator, spec, normAlderService, heltUttakInntektTomAlderAar)
+        val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
+        val finder = AlternativtUttakFinder(simulator, spec, normalderService, heltUttakInntektTomAlderAar)
         val foersteUttakMinAlder = foersteUttakAngittAlder.plusMaaneder(1)
 
         val andreUttakMinAlder: Alder? =
@@ -55,7 +55,7 @@ class AlternativtUttakService(
             if (spec.onlyVilkaarsproeving && spec.isGradert())
                 andreUttakMinAlder!!.minusMaaneder(1)
             else
-                normAlder.minusMaaneder(2)
+                normalder.minusMaaneder(2)
 
         // For 'onlyVilkaarsproeving' (tidligst mulig uttak for tjenestepensjonsordninger) gjelder:
         // (1) Alder for andreuttak er konstant
@@ -68,7 +68,7 @@ class AlternativtUttakService(
                 foersteUttakMinAlder,
                 foersteUttakMaxAlder,
                 andreUttakMinAlder,
-                andreUttakMaxAlder = if (spec.onlyVilkaarsproeving) andreUttakMinAlder else normAlder,
+                andreUttakMaxAlder = if (spec.onlyVilkaarsproeving) andreUttakMinAlder else normalder,
                 maxUttaksgrad,
                 keepUttaksgradConstant = spec.onlyVilkaarsproeving
             )

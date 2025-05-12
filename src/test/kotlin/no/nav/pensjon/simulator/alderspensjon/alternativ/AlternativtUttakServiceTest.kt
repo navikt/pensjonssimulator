@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.HeltUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
@@ -23,9 +23,9 @@ class AlternativtUttakServiceTest : FunSpec({
 
     test("findAlternativtUttak should find alternativt uttak") {
         val simulator = mock(SimulatorCore::class.java).also { arrangeSimulator(it) }
-        val normAlderService = mock(NormAlderService::class.java).also { arrangeNormAlder(it) }
+        val normalderService = mock(NormertPensjonsalderService::class.java).also { arrangeNormalder(it) }
 
-        val service = AlternativtUttakService(simulator, normAlderService)
+        val service = AlternativtUttakService(simulator, normalderService)
 
         service.findAlternativtUttak(
             spec = simuleringSpec(
@@ -66,8 +66,8 @@ class AlternativtUttakServiceTest : FunSpec({
     }
 })
 
-private fun arrangeNormAlder(service: NormAlderService) {
-    `when`(service.normAlder(foedselsdato = LocalDate.of(1967, 1, 1))).thenReturn(Alder(67, 0))
+private fun arrangeNormalder(service: NormertPensjonsalderService) {
+    `when`(service.normalder(foedselsdato = LocalDate.of(1967, 1, 1))).thenReturn(Alder(67, 0))
 }
 
 private fun arrangeSimulator(simulator: SimulatorCore) {

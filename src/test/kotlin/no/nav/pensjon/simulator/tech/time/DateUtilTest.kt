@@ -102,4 +102,8 @@ class DateUtilTest : FunSpec({
             start = LocalDate.of(2001, 3, 1)
         ) shouldBe 4 // f.o.m. juni t.o.m. september
     }
+
+    test("foersteDag should return 1. januar for angitt år") {
+        DateUtil.foersteDag(2001) shouldBe LocalDate.of(2001, 1, 1)
+    }
 })

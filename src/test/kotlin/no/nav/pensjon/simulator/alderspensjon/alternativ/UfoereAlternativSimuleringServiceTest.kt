@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
@@ -23,7 +23,7 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
     test("simulerAlternativHvisUtkanttilfelletInnvilges should return no result if utkanttilfellet avslått") {
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeAvslaattUtkanttilfelle(),
-            normAlderService = arrangeNormAlder(),
+            normalderService = arrangeNormalder(),
             alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
         )
 
@@ -44,7 +44,7 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
     test("simulerMedFallendeUttaksgrad for gradert uttak should return: alternativ med lavere grad men samme uttaksdato") {
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeGradertUttakEtterAvslaatt60ProsentUttak(),
-            normAlderService = arrangeNormAlder(),
+            normalderService = arrangeNormalder(),
             alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
         )
 
@@ -66,7 +66,7 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
     test("simulerMedFallendeUttaksgrad for helt uttak should return: alternativ med lavere grad med helt uttak-dato som ny gradert uttak-dato") {
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeGradertUttakEtterAvslaattHeltUttak(),
-            normAlderService = arrangeNormAlder(),
+            normalderService = arrangeNormalder(),
             alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
         )
 
@@ -88,7 +88,7 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
     test("simulerMedFallendeUttaksgrad for ingen innvilgede uttak should throw exception") {
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeIngenInnvilgedeUttak(),
-            normAlderService = arrangeNormAlder(),
+            normalderService = arrangeNormalder(),
             alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
         )
 
@@ -213,9 +213,9 @@ private fun arrangeFoedselsdato(simulator: SimulatorCore) {
     `when`(simulator.fetchFoedselsdato(pid)).thenReturn(foedselsdato())
 }
 
-private fun arrangeNormAlder(): NormAlderService =
-    mock(NormAlderService::class.java).also {
-        `when`(it.normAlder(foedselsdato = foedselsdato())).thenReturn(Alder(67, 0))
+private fun arrangeNormalder(): NormertPensjonsalderService =
+    mock(NormertPensjonsalderService::class.java).also {
+        `when`(it.normalder(foedselsdato = foedselsdato())).thenReturn(Alder(67, 0))
     }
 
 /**

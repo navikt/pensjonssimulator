@@ -16,12 +16,13 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurns67
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.*
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -31,6 +32,7 @@ import java.util.*
 @Component
 class KravhodeUpdater(
     private val context: SimulatorContext,
+    private val normalderService: NormertPensjonsalderService,
     private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning
 ) {
     private val log = KotlinLogging.logger {}
@@ -124,19 +126,26 @@ class KravhodeUpdater(
     }
 
     private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): Date {
-        val sisteDagIManedenSokerBlir67 = lastDayOfMonthUserTurns67(soekerGrunnlag.fodselsdato!!) //TODO normert
+        val sisteDagIMaanedenForNormalder: Date = sisteDagIMaanedenForNormalder(soekerGrunnlag.fodselsdato!!)
 
         return if (spec.type == SimuleringType.ALDER_M_AFP_PRIVAT &&
             isBeforeByDay(
                 thisDate = spec.foersteUttakDato,
-                thatDate = sisteDagIManedenSokerBlir67,
+                thatDate = sisteDagIMaanedenForNormalder,
                 allowSameDay = false
             )
         )
             spec.foersteUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
         else
-            sisteDagIManedenSokerBlir67
+            sisteDagIMaanedenForNormalder
     }
+
+    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
+    private fun sisteDagIMaanedenForNormalder(foedselsdato: Date): Date =
+        lastDayOfMonthUserTurnsGivenAge(
+            foedselsdato,
+            alder = normalderService.normalder(foedselsdato.toNorwegianLocalDate())
+        )
 
     // SimulerFleksibelAPCommand.settTrygdetid
     private fun setTrygdetid(spec: TrygdetidGrunnlagSpec, kravhode: Kravhode): Persongrunnlag {

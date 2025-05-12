@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -17,7 +17,7 @@ import java.time.LocalDate
 @Component
 class Pre2025OffentligAfpUttaksgrad(
     private val kravService: KravService,
-    private val normAlderService: NormAlderService
+    private val normalderService: NormertPensjonsalderService
 ) {
     // SimulerAFPogAPCommand.finnUttaksgradListe
     fun uttaksgradListe(
@@ -45,7 +45,7 @@ class Pre2025OffentligAfpUttaksgrad(
     }
 
     private fun ubetingetUttakDato(foedselsdato: LocalDate): LocalDate =
-        with(normAlderService.normAlder(foedselsdato)) {
+        with(normalderService.normalder(foedselsdato)) {
             foedselsdato
                 .plusYears(this.aar.toLong())
                 .plusMonths(this.maaneder.toLong() + 1)

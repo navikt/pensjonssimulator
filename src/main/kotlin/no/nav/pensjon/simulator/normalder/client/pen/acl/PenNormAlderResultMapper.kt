@@ -1,23 +1,23 @@
 package no.nav.pensjon.simulator.normalder.client.pen.acl
 
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalder
-import no.nav.pensjon.simulator.normalder.PensjonsalderType
+import no.nav.pensjon.simulator.normalder.Aldersgrenser
+import no.nav.pensjon.simulator.normalder.VerdiStatus
 
-object PenNormAlderResultMapper {
+object PenNormalderResultMapper {
 
-    fun fromDto(source: PenNormAlderResult): List<NormertPensjonsalder> =
-        source.normertPensjonsalderListe?.map(::normAlder) ?: throw exception(source)
+    fun fromDto(source: PenNormalderResult): List<Aldersgrenser> =
+        source.normertPensjonsalderListe?.map(::normalder) ?: throw exception(source)
 
-    private fun normAlder(source: PenNormertPensjonsalder) =
-        NormertPensjonsalder(
+    private fun normalder(source: PenNormertPensjonsalder) =
+        Aldersgrenser(
             aarskull = source.aarskull,
-            alder = Alder(source.aar, source.maaned),
             nedreAlder = Alder(source.nedreAar, source.nedreMaaned),
+            normalder = Alder(source.aar, source.maaned),
             oevreAlder = Alder(source.oevreAar, source.oevreMaaned),
-            type = PensjonsalderType.valueOf(source.type)
+            verdiStatus = VerdiStatus.valueOf(source.type)
         )
 
-    private fun exception(source: PenNormAlderResult) =
+    private fun exception(source: PenNormalderResult) =
         RuntimeException("Normalder-feil for årskull ${source.aarskull}: ${source.message}")
 }

@@ -10,7 +10,6 @@ import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
@@ -23,19 +22,18 @@ import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakResultV1
 import no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakSpecV1
 import no.nav.pensjon.simulator.uttak.api.acl.UttakResultMapperV1.resultV1
-import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1.fromSpecV1
+import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.time.LocalDate
 
 @RestController
 @RequestMapping("api")
 @SecurityRequirement(name = "BearerAuthentication")
 class UttakController(
     private val service: UttakService,
-    private val generelleDataHolder: GenerelleDataHolder,
+    private val specMapper: UttakSpecMapperV1,
     private val traceAid: TraceAid,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService,
@@ -72,8 +70,7 @@ class UttakController(
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Ugyldig personId: '${specV1.personId}'")
 
             verifiserAtBrukerTilknyttetTpLeverandoer(pid)
-            val foedselsdato: LocalDate = generelleDataHolder.getPerson(pid).foedselDato
-            val spec: SimuleringSpec = fromSpecV1(specV1, foedselsdato)
+            val spec: SimuleringSpec = specMapper.fromSpecV1(specV1)
             resultV1(timed(service::finnTidligstMuligUttak, spec, FUNCTION_ID))
         } catch (e: BadRequestException) {
             log.warn(e) { "$FUNCTION_ID bad request - $specV1" }

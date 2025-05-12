@@ -47,6 +47,11 @@ data class SimuleringSpec(
     val onlyVilkaarsproeving: Boolean,
     val epsKanOverskrives: Boolean
 ) {
+    init {
+        if (erAnonym) require(foedselAar > 0) { "For anonym simulering må fødselsår være angitt" }
+        else require(pid != null) { "For personlig simulering må person-ID (pid) være angitt" }
+    }
+
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
     val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
 

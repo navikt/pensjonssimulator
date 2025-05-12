@@ -8,15 +8,21 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.generelt.Person
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.*
 
 class NavSimuleringSpecMapperV3Test : FunSpec({
 
-    test("fromNavSimuleringSpecV3") {
-        NavSimuleringSpecMapperV3.fromNavSimuleringSpecV3(
+    test("fromNavSimuleringSpecV3 should fetch foedselsdato and map values") {
+        val personService = arrangeFoedselsdato()
+
+        NavSimuleringSpecMapperV3(personService).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
                 pid.value,
                 sivilstand = NavSivilstandSpecV3.GJPA,
@@ -51,7 +57,6 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
                     )
                 )
             ),
-            foedselsdato = LocalDate.of(1963, 4, 5),
             inntektSisteMaanedOver1G = 30000,
         ) shouldBe SimuleringSpec(
             type = SimuleringType.ENDR_ALDER,
@@ -95,3 +100,13 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
         )
     }
 })
+
+private fun arrangeFoedselsdato(): GenerelleDataHolder =
+    mock(GenerelleDataHolder::class.java).also {
+        `when`(it.getPerson(pid)).thenReturn(
+            Person(
+                foedselDato = LocalDate.of(1963, 4, 5),
+                statsborgerskap = LandkodeEnum.NOR
+            )
+        )
+    }

@@ -68,8 +68,8 @@ class UfoereAlternativSimuleringService(
                 UttakGradKode.P_100 ->
                     withGradertInsteadOfHeltUttak(
                         source = spec,
-                        normAlder = normAlderService.normAlder(spec.foedselDato),
-                        foedselsdato = spec.foedselDato!!
+                        normAlder = normAlderService.normAlder(spec.foedselDato!!),
+                        foedselsdato = spec.foedselDato
                     )
 
                 UttakGradKode.P_20 -> throw exception
@@ -108,11 +108,11 @@ class UfoereAlternativSimuleringService(
      * og uttaket kan tidligst starte ved normalderen.
      */
     fun simulerAlternativHvisUtkanttilfelletInnvilges(spec: SimuleringSpec): SimulertPensjonEllerAlternativ? {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato)
+        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
 
         return try {
             val utkantSpec: SimuleringSpec =
-                utkantSimuleringSpec(spec, normAlder, spec.foedselDato!!, foersteUttakAlderIsConstant = true)
+                utkantSimuleringSpec(spec, normAlder, spec.foedselDato, foersteUttakAlderIsConstant = true)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again

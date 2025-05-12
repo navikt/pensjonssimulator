@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec
 
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 
 /**
  * Maps between data transfer objects (DTOs) and domain objects related to 'anonym simulering'.
@@ -12,6 +13,7 @@ object AnonymSimuleringSpecMapperV1 {
         SimuleringSpec(
             type = AnonymSimuleringTypeSpecV1.fromExternalValue(source.simuleringType).internalValue,
             foedselAar = source.fodselsar ?: 0,
+            foedselDato = source.fodselsar?.let(::foersteDag),
             forventetInntektBeloep = source.forventetInntekt ?: 0,
             inntektOver1GAntallAar = source.antArInntektOverG ?: 0,
             foersteUttakDato = source.forsteUttakDato,
@@ -28,7 +30,6 @@ object AnonymSimuleringSpecMapperV1 {
             ignoreAvslag = false,
             // Resten er irrelevante for anonym simulering:
             pid = null,
-            foedselDato = null,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,

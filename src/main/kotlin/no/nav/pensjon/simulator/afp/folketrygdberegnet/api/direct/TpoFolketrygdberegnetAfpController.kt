@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.result.TpoFolketrygdberegnetAfpResultMapperV0.toResultV0
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.result.TpoFolketrygdberegnetAfpResultV0
-import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec.TpoFolketrygdberegnetAfpSpecMapperV0.fromSimuleringSpecV0
+import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec.TpoFolketrygdberegnetAfpSpecMapperV0
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec.TpoFolketrygdberegnetAfpSpecV0
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.TpoViaPenAlderspensjonController.TpoSimuleringErrorDto
 import no.nav.pensjon.simulator.common.api.ControllerBase
@@ -31,6 +31,7 @@ import java.time.format.DateTimeParseException
 @SecurityRequirement(name = "BearerAuthentication")
 class TpoFolketrygdberegnetAfpController(
     private val simulator: SimulatorCore,
+    private val specMapper: TpoFolketrygdberegnetAfpSpecMapperV0,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -69,7 +70,7 @@ class TpoFolketrygdberegnetAfpController(
         countCall(FUNCTION_ID)
 
         return try {
-            val spec: SimuleringSpec = fromSimuleringSpecV0(specV0)
+            val spec: SimuleringSpec = specMapper.fromSimuleringSpecV0(specV0)
             val output: SimulatorOutput = simulator.simuler(spec)
             toResultV0(output)
         } catch (e: BadRequestException) {

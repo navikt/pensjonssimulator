@@ -67,7 +67,7 @@ class Pre2025OffentligAfpBeregner(
 
         val soekerGrunnlag: Persongrunnlag? = persongrunnlagHavingRolle(persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
         soekerGrunnlag?.inntektsgrunnlagListe?.add(inntektsgrunnlagOneManedBeforeUttak(spec))
-        val normAlder: Alder = normAlderService.normAlder(spec.pid)
+        val normAlder: Alder = normAlderService.normAlder(spec.pid!!)
 
         val simuleringResultat: Simuleringsresultat =
             simulerPensjonsberegning(spec, persongrunnlagListe, normAlder)

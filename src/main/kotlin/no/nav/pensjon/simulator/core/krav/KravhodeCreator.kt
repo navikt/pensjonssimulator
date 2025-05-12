@@ -251,7 +251,7 @@ class KravhodeCreator(
     private fun anonymPersongrunnlag(spec: SimuleringSpec) =
         Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = ANONYM_PERSON_ID }
-            fodselsdato = legacyFoersteDag(spec.foedselAar)
+            fodselsdato = spec.foedselDato?.toNorwegianDateAtNoon()
             antallArUtland = spec.utlandAntallAar
             statsborgerskapEnum = norge
             flyktning = false
@@ -268,7 +268,7 @@ class KravhodeCreator(
         PersonDetalj().apply {
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-            penRolleFom = legacyFoersteDag(spec.foedselAar)
+            penRolleFom = spec.foedselDato?.toNorwegianDateAtNoon()
             sivilstandTypeEnum = anonymSivilstand(spec.sivilstatus)
             bruk = true
         }.also {
@@ -832,9 +832,6 @@ class KravhodeCreator(
 
         private fun aaretEtter(inntekt: FremtidigInntekt) =
             inntekt.fom.year + 1
-
-        private fun legacyFoersteDag(aar: Int) =
-            foersteDag(aar).toNorwegianDateAtNoon()
 
         private fun handleMissingHeltUttakDato(spec: SimuleringSpec): Nothing =
             "Manglende heltUttakDato for 2-fase-simulering".let {

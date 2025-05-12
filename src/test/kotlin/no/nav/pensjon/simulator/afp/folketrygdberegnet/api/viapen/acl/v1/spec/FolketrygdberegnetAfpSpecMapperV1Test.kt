@@ -5,18 +5,25 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.generelt.Person
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.Calendar
 
 class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
 
     test("fromSimuleringSpecV1 should map values including pre2025OffentligAfp") {
-        FolketrygdberegnetAfpSpecMapperV1.fromSimuleringSpecV1(
+        val personService = arrangeFoedselsdato()
+
+        FolketrygdberegnetAfpSpecMapperV1(personService).fromSimuleringSpecV1(
             FolketrygdberegnetAfpSpecV1(
                 simuleringType = FolketrygdberegnetAfpSimuleringTypeSpecV1.AFP_FPP,
                 fnr = pid.value,
@@ -39,7 +46,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
             foersteUttakDato = LocalDate.of(2025, 1, 1),
             heltUttakDato = null,
             pid = pid,
-            foedselDato = null,
+            foedselDato = LocalDate.of(1963, 4, 5),
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,
@@ -71,3 +78,13 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
         )
     }
 })
+
+private fun arrangeFoedselsdato(): GenerelleDataHolder =
+    mock(GenerelleDataHolder::class.java).also {
+        `when`(it.getPerson(pid)).thenReturn(
+            Person(
+                foedselDato = LocalDate.of(1963, 4, 5),
+                statsborgerskap = LandkodeEnum.NOR
+            )
+        )
+    }

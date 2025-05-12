@@ -69,10 +69,10 @@ class AlternativSimuleringService(
         spec: SimuleringSpec,
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ? {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato)
+        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
 
         return try {
-            val utkantSpec: SimuleringSpec = utkantSimuleringSpec(spec, normAlder, spec.foedselDato!!)
+            val utkantSpec: SimuleringSpec = utkantSimuleringSpec(spec, normAlder, spec.foedselDato)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again
@@ -93,12 +93,12 @@ class AlternativSimuleringService(
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder)
             else
-                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato!!, normAlder)
+                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato, normAlder)
         } catch (_: UtilstrekkeligTrygdetidException) {
             if (inkluderPensjonHvisUbetinget)
                 ubetingetUttakResponseMedSimulertPensjon(spec, normAlder)
             else
-                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato!!, normAlder)
+                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato, normAlder)
         }
     }
 

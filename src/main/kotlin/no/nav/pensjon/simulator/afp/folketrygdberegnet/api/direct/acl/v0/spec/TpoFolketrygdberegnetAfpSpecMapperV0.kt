@@ -7,17 +7,22 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.Pid
+import org.springframework.stereotype.Component
 
 /**
  * Maps from received DTO to domain object for specification of 'simulering av folketrygdberegnet AFP'.
  * V0 = Versipn 0 of the API (application programming interface) and DTO (data transfer object)
  * AFP = Avtalefestet pensjon
  */
-object TpoFolketrygdberegnetAfpSpecMapperV0 {
+@Component
+class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GenerelleDataHolder) {
 
-    fun fromSimuleringSpecV0(source: TpoFolketrygdberegnetAfpSpecV0) =
-        SimuleringSpec(
+    fun fromSimuleringSpecV0(source: TpoFolketrygdberegnetAfpSpecV0): SimuleringSpec {
+        val pid = source.fnr?.pid?.let(::Pid)
+
+        return SimuleringSpec(
             type = source.simuleringType?.let { TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.fromExternalValue(it.name).internalValue }
                 ?: SimuleringType.ALDER,
             sivilstatus = source.sivilstatus?.let { TpoFolketrygdberegnetAfpSivilstandSpecV0.fromExternalValue(it.name).internalValue }
@@ -25,8 +30,8 @@ object TpoFolketrygdberegnetAfpSpecMapperV0 {
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = null, //TODO verify
-            pid = source.fnr?.pid?.let(::Pid),
-            foedselDato = null, // used for anonym only
+            pid = pid,
+            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,
@@ -52,6 +57,7 @@ object TpoFolketrygdberegnetAfpSpecMapperV0 {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false,
         )
+    }
 
     private fun pre2025OffentligAfpSpec(simuleringSpec: TpoFolketrygdberegnetAfpSpecV0): Pre2025OffentligAfpSpec? =
         if (simuleringSpec.simuleringType == TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER)

@@ -52,9 +52,8 @@ suspend fun main() {
         if (response.status == HttpStatusCode.OK) {
             val actualJson = Json.parseToJsonElement(response.bodyAsText())
             val result = if (actualJson == expectedJson) "MATCH" else "MISMATCH"
-            log.info("Response comparison result: $result with actualJson:$actualJson" )
-        }
-        else {
+            log.info("Response comparison result: $result with actualJson:$actualJson")
+        } else {
             log.error("Unexpected response status: ${response.status}")
             log.error("Response body: ${response.bodyAsText()}")
         }
@@ -63,6 +62,7 @@ suspend fun main() {
     } finally {
         client.close()
     }
+    log.info("The job has been completed")
 }
 
 fun readResourceAsText(path: String): String {

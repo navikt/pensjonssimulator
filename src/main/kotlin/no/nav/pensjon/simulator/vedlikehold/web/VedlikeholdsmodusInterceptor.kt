@@ -11,7 +11,11 @@ class VedlikeholdsmodusInterceptor(private val featureToggleService: FeatureTogg
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
 
-        log.info { "Interceptor: Vedlikeholdsmodus er aktivert: " + featureToggleService.isEnabled("pensjonskalkulator.vedlikeholdsmodus") }
+        if (featureToggleService.isEnabled("pensjonskalkulator.vedlikeholdsmodus")) {
+            log.info { "Vedlikeholdsmodus er aktivert" }
+            response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Vedlikeholdsmodus er aktivert")
+            return false
+        }
         return true
     }
 }

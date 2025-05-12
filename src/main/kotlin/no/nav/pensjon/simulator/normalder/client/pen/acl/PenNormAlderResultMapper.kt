@@ -12,6 +12,7 @@ object PenNormalderResultMapper {
     private fun normalder(source: PenNormertPensjonsalder) =
         Aldersgrenser(
             aarskull = source.aarskull,
+            alder = Alder(source.aar, source.maaned),
             nedreAlder = Alder(source.nedreAar, source.nedreMaaned),
             normalder = Alder(source.aar, source.maaned),
             oevreAlder = Alder(source.oevreAar, source.oevreMaaned),

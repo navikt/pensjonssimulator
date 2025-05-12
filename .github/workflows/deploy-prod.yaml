@@ -64,7 +64,7 @@ jobs:
         env:
           CLUSTER: prod-gcp
           IMAGE: ${{ needs.build.outputs.image }}
-          RESOURCE: .nais/deploy-prod.yml, .nais/unleash-apitoken-prod.yaml
+          RESOURCE: .nais/deploy-prod.yml,.nais/unleash-apitoken-prod.yaml
 
   deploy-krakend-config-prod:
     name: Deploy KrakenD config to prod

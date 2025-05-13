@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
@@ -41,7 +42,10 @@ suspend fun main() {
 
     try {
         val response = client.post("${pensjonssimulatorConfig.url}/api/v0/simuler-afp-etterfulgt-av-alderspensjon") {
-            headers { append(HttpHeaders.Authorization, "Bearer $token") }
+            headers {
+                bearerAuth(token)
+                log.debug("Request headers: {}", headers.build())
+            }
             contentType(ContentType.Application.Json)
             setBody(requestJson)
         }

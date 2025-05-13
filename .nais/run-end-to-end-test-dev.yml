@@ -35,7 +35,7 @@ spec:
   failedJobsHistoryLimit: 2
   env:
     - name: URL
-      value: https://pensjonssimulator.intern.dev.nav.no
+      value: http://pensjonssimulator
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

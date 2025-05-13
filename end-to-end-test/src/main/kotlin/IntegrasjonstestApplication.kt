@@ -3,10 +3,7 @@ package no.nav.pensjon
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.DEFAULT
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
@@ -59,6 +56,7 @@ suspend fun main() {
         }
     } catch (e: Exception) {
         log.error("Request failed: ${e.message}", e)
+        throw e
     } finally {
         client.close()
     }

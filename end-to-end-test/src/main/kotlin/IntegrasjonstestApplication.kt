@@ -41,7 +41,7 @@ suspend fun main() {
 
     try {
         val response = client.post("${pensjonssimulatorConfig.url}/api/v0/simuler-afp-etterfulgt-av-alderspensjon") {
-            headers { append(HttpHeaders.Authorization, token) }
+            headers { append(HttpHeaders.Authorization, "Bearer $token") }
             contentType(ContentType.Application.Json)
             setBody(requestJson)
         }

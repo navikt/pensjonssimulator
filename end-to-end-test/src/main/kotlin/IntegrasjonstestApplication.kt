@@ -12,7 +12,7 @@ import io.ktor.http.*
 import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
+import no.nav.pensjon.ResponseFormatter.format
 import org.slf4j.LoggerFactory
 
 suspend fun main() {
@@ -20,15 +20,8 @@ suspend fun main() {
     val pensjonssimulatorConfig = loadPensjonssimulatorConfig()
     log.info("Loaded pensjonssimulator config")
 
-    val json = Json {
-        ignoreUnknownKeys = true
-        prettyPrint = false // Ensures consistent formatting
-    }
-
-
     val requestJson = readResourceAsText("afp-etterfulgt-av-alder-request.json")
-    val expectedJson = json.encodeToString(
-        json.parseToJsonElement(readResourceAsText("afp-etterfulgt-av-alder-response.json")))
+    val expectedJson = format(readResourceAsText("afp-etterfulgt-av-alder-response.json"))
 
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -59,7 +52,7 @@ suspend fun main() {
         }
 
         if (response.status == HttpStatusCode.OK) {
-            val actualJson = json.encodeToString(json.parseToJsonElement(response.bodyAsText()))
+            val actualJson = format(response.bodyAsText())
             val result = if (actualJson == expectedJson) "MATCH" else "MISMATCH"
             log.info("Response comparison result: $result with actualJson:$actualJson")
         } else {

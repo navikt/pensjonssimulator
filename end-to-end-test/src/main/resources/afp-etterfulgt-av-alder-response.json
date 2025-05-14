@@ -10,7 +10,7 @@
     "grunnpensjon": {
       "maanedligUtbetaling": 8579,
       "grunnbeloep": 124028,
-      "grunnpensjonsats": 1,
+      "grunnpensjonsats": 1.0,
       "trygdetid": 40
     },
     "tilleggspensjon": {
@@ -32,7 +32,7 @@
         "grunnpensjon": {
           "maanedligUtbetaling": 1854,
           "grunnbeloep": 124028,
-          "grunnpensjonsats": 1,
+          "grunnpensjonsats": 1.0,
           "trygdetid": 40
         },
         "tilleggspensjon": {
@@ -44,7 +44,7 @@
         },
         "pensjonstillegg": {
           "maanedligUtbetaling": 0,
-          "minstepensjonsnivaaSats": 264134
+          "minstepensjonsnivaaSats": 264134.0
         },
         "forholdstall": 1.115
       },
@@ -56,7 +56,7 @@
         },
         "garantipensjon": {
           "maanedligUtbetaling": 0,
-          "garantipensjonssats": 0,
+          "garantipensjonssats": 0.0,
           "trygdetid": 40
         },
         "delingstall": 16.01

@@ -1,15 +1,10 @@
-package no.nav.pensjon
+package no.nav.pensjon.client
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import java.util.TreeMap
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.collections.forEach
-import kotlin.collections.map
-import kotlin.collections.set
 
 object ResponseFormatter{
     val json: Json = Json {

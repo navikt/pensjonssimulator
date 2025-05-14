@@ -8,7 +8,7 @@ on:
       - feature/PEK-PEK-1192-end-to-end-test-prototype
 
 jobs:
-  runIntegrasjonstester:
+  runIntegrationTests:
     permissions:
       contents: "write"
       checks: "write"

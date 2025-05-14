@@ -1,5 +1,6 @@
 package no.nav.pensjon
 
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
@@ -23,7 +24,7 @@ object Evaluator {
             val token = hentToken()
 
             val response: HttpResponse = client.post("${pensjonssimulatorConfig.url}${resource.path}") {
-                headers { append(HttpHeaders.Authorization, token) }
+                headers { bearerAuth(token) }
                 contentType(ContentType.Application.Json)
                 setBody(requestJson)
             }

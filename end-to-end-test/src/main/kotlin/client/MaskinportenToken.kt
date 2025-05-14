@@ -67,7 +67,7 @@ object MaskinportenToken {
 
         val response: MaskinportenTokenResponse = httpResponse.body()
         log.info("Hentet token fra maskinporten med scope(s): ${maskinportenConfig.scope}")
-        return "Bearer ${response.access_token}"
+        return response.access_token
     }
 
     fun getExpireAfter(): Date {

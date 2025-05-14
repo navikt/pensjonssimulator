@@ -41,6 +41,25 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         )
     }
 
+    "toDto haandterer alderspensjon med uten kapittel19" {
+        val foedseldato = LocalDate.of(1963, 2, 22)
+        val nesteMaaned = LocalDate.now().plusMonths(1).withDayOfMonth(1)
+        val simuleringSpec = mockSimuleringSpec(nesteMaaned, foedseldato)
+
+        val simulatorOutput = mockSimulatorOutput(nesteMaaned, foedseldato, kapittel19Andel = 0.0)
+
+        val dto: AfpEtterfulgtAvAlderspensjonResultV0 =
+            AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
+
+        dto.simuleringSuksess shouldBe true
+        dto.aarsakListeIkkeSuksess shouldBe emptyList()
+
+        dto.alderspensjonFraFolketrygden.forEach { alderspensjon ->
+            alderspensjon.alderspensjonKapittel19 shouldBe null
+        }
+    }
+
+
     val alleAarsak = AarsakIkkeSuccessV0::class.companionObject!!
         .memberProperties
         .mapNotNull { it.call(AarsakIkkeSuccessV0) as? AarsakIkkeSuccessV0 }
@@ -141,7 +160,8 @@ private fun afpResultat(
 
 private fun mockSimulatorOutput(
     nesteMaaned: LocalDate,
-    foedseldato: LocalDate
+    foedseldato: LocalDate,
+    kapittel19Andel: Double = 3.0
 ): SimulatorOutput {
     val result = SimulatorOutput()
     result.pre2025OffentligAfp = Simuleringsresultat().apply {
@@ -179,7 +199,7 @@ private fun mockSimulatorOutput(
     }
 
     result.alderspensjon = SimulertAlderspensjon()
-    result.alderspensjon!!.kapittel19Andel = 3.0
+    result.alderspensjon!!.kapittel19Andel = kapittel19Andel
     result.alderspensjon!!.kapittel20Andel = 7.0
     result.alderspensjon!!.addPensjonsperiode(
         PensjonPeriode().apply {

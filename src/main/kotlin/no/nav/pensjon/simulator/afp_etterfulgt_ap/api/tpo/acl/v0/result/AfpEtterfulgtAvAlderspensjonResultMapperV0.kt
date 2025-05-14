@@ -17,8 +17,10 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private val log = KotlinLogging.logger {}
 
     fun toDto(source: SimulatorOutput, spec: SimuleringSpec): AfpEtterfulgtAvAlderspensjonResultV0 {
-        val afp: Beregning = source.pre2025OffentligAfp?.beregning ?: throw ImplementationUnrecoverableException("pre2025OffentligAfp mangler i beregningsresultatet")
-        val alderspensjon = source.alderspensjon ?: throw ImplementationUnrecoverableException("alderspensjon mangler i beregningsresultatet")
+        val afp: Beregning = source.pre2025OffentligAfp?.beregning
+            ?: throw ImplementationUnrecoverableException("pre2025OffentligAfp mangler i beregningsresultatet")
+        val alderspensjon = source.alderspensjon
+            ?: throw ImplementationUnrecoverableException("alderspensjon mangler i beregningsresultatet")
 
         return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = true,
@@ -32,7 +34,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         )
     }
 
-    fun tomResponsMedAarsak(arsakIkkeSuccess: AarsakIkkeSuccessV0) : AfpEtterfulgtAvAlderspensjonResultV0{
+    fun tomResponsMedAarsak(arsakIkkeSuccess: AarsakIkkeSuccessV0): AfpEtterfulgtAvAlderspensjonResultV0 {
         return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = false,
             aarsakListeIkkeSuksess = listOf(arsakIkkeSuccess),
@@ -101,26 +103,29 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
                 fraOgMedDato = simuleringsperiode.fom,
                 sumMaanedligUtbetaling = simuleringsperiode.maanedsbeloep,
                 andelKapittel19 = alderspensjon.kapittel19Andel,
-                alderspensjonKapittel19 = simuleringsperiode.simulertAlderspensjonInfo?.let { AlderspensjonKapittel19V0(
-                    grunnpensjon = GrunnpensjonV0(
-                        maanedligUtbetaling = it.grunnpensjon!!,
-                        grunnbeloep = grunnbeloep,
-                        grunnpensjonsats = it.grunnpensjonsats,
-                        trygdetid = it.trygdetidKap19!!
-                    ),
-                    tilleggspensjon = TilleggspensjonV0(
-                        maanedligUtbetaling = it.tilleggspensjon!!,
-                        grunnbeloep = grunnbeloep,
-                        sluttpoengTall = it.sluttpoengtall!!,
-                        antallPoengaarTilOgMed1991 = it.poengaarFoer92!!,
-                        antallPoengaarFraOgMed1992 = it.poengaarEtter91!!
-                    ),
-                    pensjonstillegg = PensjonstilleggV0(
-                        maanedligUtbetaling = it.pensjonstillegg!!,
-                        minstepensjonsnivaaSats = it.minstepensjonsnivaaSats,
-                    ),
-                    forholdstall = it.forholdstall!!
-                )},
+                alderspensjonKapittel19 = if (alderspensjon.kapittel19Andel == 0.0) null
+                else simuleringsperiode.simulertAlderspensjonInfo?.let {
+                    AlderspensjonKapittel19V0(
+                        grunnpensjon = GrunnpensjonV0(
+                            maanedligUtbetaling = it.grunnpensjon!!,
+                            grunnbeloep = grunnbeloep,
+                            grunnpensjonsats = it.grunnpensjonsats,
+                            trygdetid = it.trygdetidKap19!!
+                        ),
+                        tilleggspensjon = TilleggspensjonV0(
+                            maanedligUtbetaling = it.tilleggspensjon!!,
+                            grunnbeloep = grunnbeloep,
+                            sluttpoengTall = it.sluttpoengtall!!,
+                            antallPoengaarTilOgMed1991 = it.poengaarFoer92!!,
+                            antallPoengaarFraOgMed1992 = it.poengaarEtter91!!
+                        ),
+                        pensjonstillegg = PensjonstilleggV0(
+                            maanedligUtbetaling = it.pensjonstillegg!!,
+                            minstepensjonsnivaaSats = it.minstepensjonsnivaaSats,
+                        ),
+                        forholdstall = it.forholdstall!!
+                    )
+                },
                 andelKapittel20 = alderspensjon.kapittel20Andel,
                 alderspensjonKapittel20 = simuleringsperiode.simulertAlderspensjonInfo?.let {
                     AlderspensjonKapittel20V0(

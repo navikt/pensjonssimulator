@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.normalder.client
 
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalder
+import no.nav.pensjon.simulator.normalder.Aldersgrenser
 
 interface NormertPensjonsalderClient {
 
-    fun fetchNormAlderListe(): List<NormertPensjonsalder>
+    fun fetchNormalderListe(): List<Aldersgrenser>
 }

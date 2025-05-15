@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withGradertInsteadOfHeltUttak
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -30,7 +30,7 @@ import java.time.LocalDate
 @Service
 class UfoereAlternativSimuleringService(
     private val simulator: SimulatorCore,
-    private val normAlderService: NormAlderService,
+    private val normalderService: NormertPensjonsalderService,
     private val alternativtUttakService: UfoereAlternativtUttakService
 ) {
     fun simulerMedNesteLavereUttaksgrad(spec: SimuleringSpec): SimulertPensjonEllerAlternativ {
@@ -68,7 +68,7 @@ class UfoereAlternativSimuleringService(
                 UttakGradKode.P_100 ->
                     withGradertInsteadOfHeltUttak(
                         source = spec,
-                        normAlder = normAlderService.normAlder(spec.foedselDato!!),
+                        normalder = normalderService.normalder(spec.foedselDato!!),
                         foedselsdato = spec.foedselDato
                     )
 
@@ -108,11 +108,11 @@ class UfoereAlternativSimuleringService(
      * og uttaket kan tidligst starte ved normalderen.
      */
     fun simulerAlternativHvisUtkanttilfelletInnvilges(spec: SimuleringSpec): SimulertPensjonEllerAlternativ? {
-        val normAlder: Alder = normAlderService.normAlder(spec.foedselDato!!)
+        val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
 
         return try {
             val utkantSpec: SimuleringSpec =
-                utkantSimuleringSpec(spec, normAlder, spec.foedselDato, foersteUttakAlderIsConstant = true)
+                utkantSimuleringSpec(spec, normalder, spec.foedselDato, foersteUttakAlderIsConstant = true)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again

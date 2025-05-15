@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.normalder.client.pen.acl
 /**
  * Corresponds to NormertPensjonsalderResponse and NormertPensionsalderErrorResponse in PEN
  */
-data class PenNormAlderResult(
+data class PenNormalderResult(
     // Normal response:
     val normertPensjonsalderListe: List<PenNormertPensjonsalder>? = null,
     // Error response:

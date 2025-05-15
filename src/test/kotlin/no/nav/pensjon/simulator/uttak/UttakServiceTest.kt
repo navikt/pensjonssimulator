@@ -1,12 +1,9 @@
 package no.nav.pensjon.simulator.uttak
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
-import no.nav.pensjon.simulator.normalder.NormAlderService
-import no.nav.pensjon.simulator.tech.web.BadRequestException
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import org.mockito.Mockito.mock
 import java.time.LocalDate
@@ -69,7 +66,8 @@ private fun finnTidligstMuligUttak(inntektSpecListe: List<FremtidigInntekt>): Ti
 
     return UttakService(
         simuleringFacade = mock(SimuleringFacade::class.java),
-        normAlderService = mock(NormAlderService::class.java)
+        normalderService = mock(NormertPensjonsalderService::class.java),
+        time = { LocalDate.of(2021, 1, 1) }
     ).finnTidligstMuligUttak(
         simuleringSpec(inntektSpecListe = inntektSpecListe)
     )

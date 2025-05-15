@@ -19,7 +19,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -29,7 +29,7 @@ import java.util.*
 @Component
 class KnekkpunktFinder(
     private val trygdetidFastsetter: TrygdetidFastsetter,
-    private val normAlderService: NormAlderService,
+    private val normalderService: NormertPensjonsalderService,
     private val time: Time
 ) {
 
@@ -44,14 +44,14 @@ class KnekkpunktFinder(
         val avdoedGrunnlag = kravhode.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
         var knekkpunktMap: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> = TreeMap()
 
-        val normAlderDato: LocalDate =
-            normAlderService.normAlderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
+        val normalderDato: LocalDate =
+            normalderService.normalderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
 
         // STEP 1 - Calculate forsteBerDato
         val foersteBeregningDato =
             knekkpunktSpec.forrigeAlderspensjonBeregningResultatVirkningFom?.let {
                 calculateFoersteBeregningDato(
-                    normAlderDato,
+                    normalderDato,
                     foersteUttakDato!!,
                     forrigeBeregningResultatVirkning = it
                 )
@@ -100,7 +100,7 @@ class KnekkpunktFinder(
         // STEP 5 - Add a knekkpunkt the 1st of the month after bruker turns 67 years old
         addKnekkpunkt(
             knekkpunktMap = knekkpunktMap,
-            knekkpunktDato = normAlderDato,
+            knekkpunktDato = normalderDato,
             aarsak = KnekkpunktAarsak.OPPTJBRUKER
         )
 
@@ -112,7 +112,7 @@ class KnekkpunktFinder(
         // a Kap 20 result. The following is part of that "logic". This "hack" should be removed as soon as they're able to
         // receive Kap 20 results.
         if (simuleringSpec.simulerForTp) {
-            knekkpunktMap = trimKnekkpunkterInCaseOfSimulerForTp(normAlderDato, knekkpunktMap)
+            knekkpunktMap = trimKnekkpunkterInCaseOfSimulerForTp(normalderDato, knekkpunktMap)
         }
 
         return knekkpunktMap
@@ -226,7 +226,7 @@ class KnekkpunktFinder(
 
     // FinnKnekkpunkterHelper.calculateForsteBeregningDato
     private fun calculateFoersteBeregningDato(
-        normAlderDato: LocalDate,
+        normalderDato: LocalDate,
         foersteUttakDato: LocalDate,
         forrigeBeregningResultatVirkning: LocalDate
     ): LocalDate {
@@ -251,8 +251,8 @@ class KnekkpunktFinder(
         )
         sortedDates.add(foersteUttakDato.toNorwegianDateAtNoon())
 
-        if (isAfterByDay(normAlderDato, latestOfTodayAndForrigeBeregningResultatVirkning, false)) {
-            sortedDates.add(normAlderDato.toNorwegianDateAtNoon())
+        if (isAfterByDay(normalderDato, latestOfTodayAndForrigeBeregningResultatVirkning, false)) {
+            sortedDates.add(normalderDato.toNorwegianDateAtNoon())
         }
 
         return sortedDates.iterator().next().toNorwegianLocalDate()
@@ -312,10 +312,10 @@ class KnekkpunktFinder(
 
         // FinnKnekkpunkterHelper.trimKnekkpunktListeInCaseOfSimulerForTp
         private fun trimKnekkpunkterInCaseOfSimulerForTp(
-            normAlderDato: LocalDate,
+            normalderDato: LocalDate,
             knekkpunkter: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>>
         ): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
-            var latestRelevantKnekkpunkt: LocalDate = normAlderDato
+            var latestRelevantKnekkpunkt: LocalDate = normalderDato
 
             // If there is a UTG knekkpunkt later than 67m, then use that as latest relevant knekkpunkt date
             for ((key, value) in knekkpunkter) {

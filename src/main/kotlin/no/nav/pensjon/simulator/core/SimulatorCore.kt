@@ -31,7 +31,7 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.normalder.NormAlderService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
@@ -59,7 +59,7 @@ class SimulatorCore(
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService,
-    private val normAlderService: NormAlderService,
+    private val normalderService: NormertPensjonsalderService,
     private val resultPreparer: SimuleringResultPreparer
 ) : UttakAlderDiscriminator {
 
@@ -91,7 +91,7 @@ class SimulatorCore(
             if (initialSpec.gjelderPre2025OffentligAfp())
             // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
                 initialSpec.withHeltUttakDato(foedselsdato?.let {
-                    uttakDato(foedselsdato = it, uttakAlder = normAlderService.normAlder(it))
+                    uttakDato(foedselsdato = it, uttakAlder = normalderService.normalder(it))
                 })
             else
                 initialSpec

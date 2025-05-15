@@ -2,6 +2,10 @@ package no.nav.pensjon.simulator.core.person.eps
 
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import java.util.EnumSet
 
@@ -21,6 +25,31 @@ object EpsUtil {
             spec.epsHarPensjon
         else
             false
+    }
+
+    // VilkarsprovOgBeregnAlderHelper.setEpsMottarPensjonOnForrigeBeregningsresultat
+    fun setEpsMottarPensjon(resultat: AbstraktBeregningsResultat?, spec: SimuleringSpec) {
+        if (!epsMottarPensjon(spec)) return
+
+        when (resultat) {
+            is BeregningsResultatAlderspensjon2011 -> {
+                resultat.beregningsInformasjonKapittel19?.let { it.epsMottarPensjon = true }
+            }
+
+            is BeregningsResultatAlderspensjon2016 -> {
+                resultat.beregningsResultat2011?.beregningsInformasjonKapittel19?.let {
+                    it.epsMottarPensjon = true
+                }
+
+                resultat.beregningsResultat2025?.beregningsInformasjonKapittel20?.let {
+                    it.epsMottarPensjon = true
+                }
+            }
+
+            is BeregningsResultatAlderspensjon2025 -> {
+                resultat.beregningsInformasjonKapittel20?.let { it.epsMottarPensjon = true }
+            }
+        }
     }
 
     fun erEps(sivilstatus: SivilstatusType) =

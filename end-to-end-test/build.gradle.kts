@@ -1,5 +1,3 @@
-val logback_version: String by project
-
 plugins {
     kotlin("jvm") version "2.1.10"
     id("io.ktor.plugin") version "3.1.2"
@@ -15,7 +13,7 @@ application {
 repositories {
     mavenCentral()
 }
-//end-to-end-test.jar
+
 ktor {
     fatJar {
         archiveFileName.set("fat.jar")
@@ -23,7 +21,7 @@ ktor {
 }
 
 dependencies {
-    implementation("ch.qos.logback:logback-classic:$logback_version")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
 
     implementation("io.ktor:ktor-client-cio")

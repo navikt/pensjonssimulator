@@ -1,40 +1,30 @@
-# it-gradle
+# End-to-end tester
 
-This project was created using the [Ktor Project Generator](https://start.ktor.io).
+Applikasjonen kjører end-to-end tester mot **Pensjonssimulator** i dev-miljø.
 
-Here are some useful links to get you started:
+## Nye tester
+1. Legg til JSON-filer for request og forventet response i `src/main/resources/`-mappen.
+2. Legg til en ny `Resource` i `IntegrasjonstestApplication.kt` med URI-path fra **Pensjonssimulator**
+3. Merge ny test til **main** eller **sandbox**-branch
 
-- [Ktor Documentation](https://ktor.io/docs/home.html)
-- [Ktor GitHub page](https://github.com/ktorio/ktor)
-- The [Ktor Slack chat](https://app.slack.com/client/T09229ZC6/C0A974TJ9). You'll need
-  to [request an invite](https://surveys.jetbrains.com/s3/kotlin-slack-sign-up) to join.
+## Teknologi:
+- Kotlin
+- Ktor Client - [Ktor Documentation](https://ktor.io/docs/client-create-new-application.html)
+- Gradle
+- NAIS Job - [NAIS Documentation](https://doc.nav.cloud.nais.io/workloads/job/)
 
-## Features
+## Bygg og kjøring
+| Task                          | Description             |
+|-------------------------------|-------------------------|
+| `./gradlew test`              | Kjører tester           |
+| `./gradlew build`             | Bygger og kjører tester |
 
-Here's a list of features included in this project:
-
-| Name                                               | Description                                                 |
-|----------------------------------------------------|-------------------------------------------------------------|
-| [Routing](https://start.ktor.io/p/routing-default) | Allows to define structured routes and associated handlers. |
-
-## Building & Running
-
-To build or run the project, use one of the following tasks:
-
-| Task                          | Description                                                          |
-|-------------------------------|----------------------------------------------------------------------|
-| `./gradlew test`              | Run the tests                                                        |
-| `./gradlew build`             | Build everything                                                     |
-| `buildFatJar`                 | Build an executable JAR of the server with all dependencies included |
-| `buildImage`                  | Build the docker image to use with the fat JAR                       |
-| `publishImageToLocalRegistry` | Publish the docker image locally                                     |
-| `run`                         | Run the server                                                       |
-| `runDocker`                   | Run using the local docker image                                     |
-
-If the server starts successfully, you'll see the following output:
+## End-to-End tester i NAIS:
+Testen deployes av GitHub-action til NAIS og kjører som NAIS-job etter vellykket deploy av Sandbox-branch til dev-miljø.   
+Feilede tester logges med responser fra **Pensjonssimulator** som ikke stemte overens med forventede responser.    
+Det logges testresultater, og jobben avsluttes.
 
 ```
-2024-12-04 14:32:45.584 [main] INFO  Application - Application started in 0.303 seconds.
-2024-12-04 14:32:45.682 [main] INFO  Application - Responding at http://0.0.0.0:8080
+Test failures: 2, [EvaluationResult(responseIsAsExpected=false, path=/api/v0/simuler-afp-etterfulgt-av-alderspensjon, actualResponse={"aarsakListeIkkeSuksess":[],"alderspensjon...]
+The job has been completed. Tests run: 10, failures: 2
 ```
-

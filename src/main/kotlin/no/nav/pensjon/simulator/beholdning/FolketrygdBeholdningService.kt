@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.beholdning
 
-import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjonNivaa
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonBeholdningPeriode
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.beregn.Tuple2
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
@@ -64,15 +64,14 @@ class FolketrygdBeholdningService(
             throw BadSpecException("uttakFom must be the first day in a month")
         }
 
-        val uttakAlder: Alder = alder(uttakFom, foedselsdato) //TODO use Alder.from
-        val aldersgrenser = normalderService.aldersgrenser(foedselsdato)
+        val alder = convertDatoFomToAlderTuple(uttakFom, foedselsdato)
 
-        if (uttakAlder lessThan aldersgrenser.nedreAlder) {
-            throw BadSpecException("uttakFom cannot be earlier than first month after user turns ${aldersgrenser.nedreAlder}")
+        if (alder.first < MIN_ALDER_AAR) {
+            throw BadSpecException("uttakFom cannot be earlier than first month after user turns $MIN_ALDER_AAR")
         }
 
-        if (uttakAlder greaterThan aldersgrenser.oevreAlder) {
-            throw BadSpecException("uttakFom cannot be later than first month after user turns ${aldersgrenser.oevreAlder}")
+        if (alder.first > MAX_ALDER_AAR || (alder.first == MAX_ALDER_AAR && alder.second > 1)) {
+            throw BadSpecException("uttakFom cannot be later than first month after user turns $MAX_ALDER_AAR")
         }
 
         if (isBeforeByDay(uttakFom, LocalDate.now(), false)) {
@@ -81,16 +80,18 @@ class FolketrygdBeholdningService(
     }
 
     private companion object {
+        private const val MIN_ALDER_AAR = 62 //TODO normert
+        private const val MAX_ALDER_AAR = 75
 
         private fun verifyDateIsFirstInMonth(date: LocalDate) {
             if (date.dayOfMonth != 1)
                 throw BadSpecException("Inntekt in fremtidigInntektListe must have a 'inntektFom' date that is the first day of a month")
         }
 
-        private fun alder(fom: LocalDate, foedselsdato: LocalDate): Alder {
+        private fun convertDatoFomToAlderTuple(fom: LocalDate, foedselsdato: LocalDate): Tuple2<Int, Int> {
             val firstDayOfLastMonth = fom.minusMonths(1L).withDayOfMonth(1)
             val period = Period.between(foedselsdato.withDayOfMonth(1), firstDayOfLastMonth)
-            return Alder(period.years, period.months + 1)
+            return Tuple2(period.years, period.months + 1) //TODO Use Alder
         }
 
         private fun simuleringSpec(

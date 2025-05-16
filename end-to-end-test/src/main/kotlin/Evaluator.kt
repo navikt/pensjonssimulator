@@ -6,15 +6,15 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.http.headers
+import mu.KotlinLogging
 import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.client.MaskinportenToken.hentToken
 import no.nav.pensjon.client.ResponseFormatter.format
 import no.nav.pensjon.domain.Resource
 import no.nav.pensjon.domain.EvaluationResult
-import org.slf4j.LoggerFactory
 
 object Evaluator {
-    val log = LoggerFactory.getLogger(this::class.java)
+    val log = KotlinLogging.logger {}
     val pensjonssimulatorConfig = loadPensjonssimulatorConfig()
 
     suspend fun evaluateResponseAtPath(resource: Resource): EvaluationResult {

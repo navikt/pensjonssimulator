@@ -23,6 +23,7 @@ ktor {
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-core")

@@ -1,12 +1,12 @@
 package no.nav.pensjon
 
+import mu.KotlinLogging
 import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.Evaluator.evaluateResponseAtPath
 import no.nav.pensjon.domain.Resource
-import org.slf4j.LoggerFactory
 
 suspend fun main() {
-    val log = LoggerFactory.getLogger("IntegrasjonstestApplication")
+    val log = KotlinLogging.logger {}
 
     //add your test resources here with json files in main/resources folder
     val resourcesToTest = listOf(

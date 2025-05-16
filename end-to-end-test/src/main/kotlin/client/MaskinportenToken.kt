@@ -7,27 +7,20 @@ import com.nimbusds.jose.crypto.RSASSASigner
 import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import io.ktor.client.call.body
-import io.ktor.client.request.accept
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.Parameters
-import io.ktor.http.contentType
-import io.ktor.http.formUrlEncode
-import io.ktor.http.isSuccess
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import mu.KotlinLogging
 import no.nav.pensjon.MaskinportenConfig
 import no.nav.pensjon.loadMaskinportenConfig
-import org.slf4j.LoggerFactory
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 
 object MaskinportenToken {
     private const val REQUEST_TOKEN_TO_EXPIRE_AFTER_SECONDS: Int = 30
     private val maskinportenConfig: MaskinportenConfig = loadMaskinportenConfig()
-    val log = LoggerFactory.getLogger(this::class.java)
+    val log = KotlinLogging.logger {}
 
     suspend fun hentToken(): String {
         log.info("Bruker følgende conf: $maskinportenConfig")

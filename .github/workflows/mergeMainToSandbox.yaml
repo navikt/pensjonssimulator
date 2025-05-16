@@ -33,7 +33,7 @@ jobs:
     needs: mergeMainToSandbox
     permissions:
       actions: "read"
-      contents: "read"
+      contents: "write"
       checks: "write"
       id-token: "write"
       packages: "write"

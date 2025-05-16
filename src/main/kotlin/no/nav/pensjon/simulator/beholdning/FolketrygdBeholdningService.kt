@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjonN
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonBeholdningPeriode
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.beregn.Tuple2
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
@@ -12,23 +11,21 @@ import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.uttak.UttaksdatoValidator
 import no.nav.pensjon.simulator.vedtak.VedtakService
 import no.nav.pensjon.simulator.vedtak.VedtakStatus
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.time.Period
 
 @Component
 class FolketrygdBeholdningService(
     private val simulator: SimulatorCore,
     private val vedtakService: VedtakService,
-    private val normalderService: NormertPensjonsalderService,
-    private val generelleDataHolder: GenerelleDataHolder
+    private val generelleDataHolder: GenerelleDataHolder,
+    private val validator: UttaksdatoValidator
 ) {
     fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
         val beholdningSpec = spec.sanitised().validated()
@@ -56,42 +53,14 @@ class FolketrygdBeholdningService(
     // PEN: SimuleringRequestConverter.verifyRequest
     private fun verifySpec(spec: FolketrygdBeholdningSpec, foedselsdato: LocalDate) {
         spec.fremtidigInntektListe.forEach { verifyDateIsFirstInMonth(it.inntektFom) }
-        verifyUttakFom(spec.uttakFom, foedselsdato)
-    }
-
-    private fun verifyUttakFom(uttakFom: LocalDate, foedselsdato: LocalDate) {
-        if (uttakFom.dayOfMonth != 1) {
-            throw BadSpecException("uttakFom must be the first day in a month")
-        }
-
-        val alder = convertDatoFomToAlderTuple(uttakFom, foedselsdato)
-
-        if (alder.first < MIN_ALDER_AAR) {
-            throw BadSpecException("uttakFom cannot be earlier than first month after user turns $MIN_ALDER_AAR")
-        }
-
-        if (alder.first > MAX_ALDER_AAR || (alder.first == MAX_ALDER_AAR && alder.second > 1)) {
-            throw BadSpecException("uttakFom cannot be later than first month after user turns $MAX_ALDER_AAR")
-        }
-
-        if (isBeforeByDay(uttakFom, LocalDate.now(), false)) {
-            throw BadSpecException("uttakFom must be after today")
-        }
+        validator.verifyUttakFom(spec.uttakFom, foedselsdato)
     }
 
     private companion object {
-        private const val MIN_ALDER_AAR = 62 //TODO normert
-        private const val MAX_ALDER_AAR = 75
 
         private fun verifyDateIsFirstInMonth(date: LocalDate) {
             if (date.dayOfMonth != 1)
                 throw BadSpecException("Inntekt in fremtidigInntektListe must have a 'inntektFom' date that is the first day of a month")
-        }
-
-        private fun convertDatoFomToAlderTuple(fom: LocalDate, foedselsdato: LocalDate): Tuple2<Int, Int> {
-            val firstDayOfLastMonth = fom.minusMonths(1L).withDayOfMonth(1)
-            val period = Period.between(foedselsdato.withDayOfMonth(1), firstDayOfLastMonth)
-            return Tuple2(period.years, period.months + 1) //TODO Use Alder
         }
 
         private fun simuleringSpec(

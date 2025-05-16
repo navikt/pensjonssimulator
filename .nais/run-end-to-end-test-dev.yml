@@ -17,9 +17,6 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-  azure:
-    application:
-      enabled: true
   maskinporten:
     enabled: true
     scopes:

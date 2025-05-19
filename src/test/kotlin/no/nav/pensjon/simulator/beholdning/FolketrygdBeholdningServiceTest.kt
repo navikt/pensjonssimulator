@@ -35,6 +35,7 @@ class FolketrygdBeholdningServiceTest : FunSpec({
         FolketrygdBeholdningService(
             simulator,
             vedtakService = arrangeVedtak(),
+            time = { LocalDate.of(2025, 1, 1) },
             generelleDataHolder = arrangePerson(foedselsdato),
             validator = mock(UttaksdatoValidator::class.java)
         ).simulerFolketrygdBeholdning(
@@ -94,7 +95,8 @@ class FolketrygdBeholdningServiceTest : FunSpec({
             FolketrygdBeholdningService(
                 simulator = arrangeSimulator(),
                 vedtakService = arrangeVedtak(),
-                generelleDataHolder = arrangePerson(LocalDate.of(1965, 6, 7)),
+                time = { LocalDate.of(2025, 1, 1) },
+                generelleDataHolder = arrangePerson(foedselsdato = LocalDate.of(1965, 6, 7)),
                 validator = arrangeBadSpec() // "feil" i spesifikasjonen
             ).simulerFolketrygdBeholdning(
                 beholdningSpec(uttakFom = LocalDate.of(2030, 1, 1))
@@ -195,6 +197,7 @@ private fun simuleringSpec() =
 private fun simulerFolketrygdBeholdning(inntektSpecListe: List<InntektSpec>): FolketrygdBeholdning =
     FolketrygdBeholdningService(
         simulator = mock(SimulatorCore::class.java),
+        time = { LocalDate.of(2025, 1, 1) },
         vedtakService = mock(VedtakService::class.java),
         generelleDataHolder = mock(GenerelleDataHolder::class.java),
         validator = mock(UttaksdatoValidator::class.java)

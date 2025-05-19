@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Service
 
 // PEN: SimpleSimuleringService
@@ -19,7 +20,8 @@ class SimuleringFacade(
     private val alternativSimulering: AlternativSimuleringService,
     private val ufoereAlternativSimulering: UfoereAlternativSimuleringService,
     private val normalderService: NormertPensjonsalderService,
-    private val ufoereService: UfoereService
+    private val ufoereService: UfoereService,
+    private val time: Time
 ) {
     fun simulerAlderspensjon(
         spec: SimuleringSpec,
@@ -32,8 +34,13 @@ class SimuleringFacade(
 
             return SimulertPensjonEllerAlternativ(
                 pensjon =
-                    if (spec.onlyVilkaarsproeving) null // irrelevant when finding uttak only
-                    else pensjon(result, spec),
+                    if (spec.onlyVilkaarsproeving)
+                        null // irrelevant when finding uttak only
+                    else pensjon(
+                        source = result,
+                        today = time.today(),
+                        inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                    ),
                 alternativ = null
             )
         } catch (e: UtilstrekkeligOpptjeningException) {

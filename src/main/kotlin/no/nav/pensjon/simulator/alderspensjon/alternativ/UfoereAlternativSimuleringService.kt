@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpe
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withGradertInsteadOfHeltUttak
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -31,7 +32,8 @@ import java.time.LocalDate
 class UfoereAlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
-    private val alternativtUttakService: UfoereAlternativtUttakService
+    private val alternativtUttakService: UfoereAlternativtUttakService,
+    private val time: Time
 ) {
     fun simulerMedNesteLavereUttaksgrad(spec: SimuleringSpec): SimulertPensjonEllerAlternativ {
         return try {
@@ -40,7 +42,7 @@ class UfoereAlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result)
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result, time.today())
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -86,7 +88,7 @@ class UfoereAlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result)
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result, time.today())
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {

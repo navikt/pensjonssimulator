@@ -20,7 +20,7 @@ enum class EgressService(
     PENSJONSFAGLIG_KJERNE(
         description = "Pensjonsfaglig kjerne",
         shortName = "PEN",
-        purpose = "Finne tidligst mulig uttak"
+        purpose = "Hente pensjonsdata"
     ),
     PENSJON_REGLER(
         description = "Pensjonsfaglig regelmotor",
@@ -32,6 +32,11 @@ enum class EgressService(
         description = "Pensjonsopptjening",
         shortName = "POPP",
         purpose = "Hente opptjeningsgrunnlag"
+    ),
+    PERSONDATA(
+        description = "Persondata",
+        shortName = "PDL",
+        purpose = "Hente generelle persondata"
     ),
     TP_REGISTERET(
         description = "Tjenestepensjonsregisteret",

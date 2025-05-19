@@ -3,10 +3,8 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.generelt.Person
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
@@ -32,8 +30,8 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
         // When
         val result: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0(personService).fromDto(
             source = dto,
-            inntektSisteMaaned = 100000,
-            hentSisteInntektFraPOPP = { 12345 }
+            inntektSisteMaanedBeloep = 100000,
+            hentSisteInntekt = { 12345 }
         )
 
         // Then
@@ -52,12 +50,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
     }
 })
 
-private fun arrangeFoedselsdato(): GenerelleDataHolder =
-    mock(GenerelleDataHolder::class.java).also {
-        `when`(it.getPerson(pid)).thenReturn(
-            Person(
-                foedselDato = LocalDate.of(1963, 4, 5),
-                statsborgerskap = LandkodeEnum.NOR
-            )
-        )
+private fun arrangeFoedselsdato(): GeneralPersonService =
+    mock(GeneralPersonService::class.java).also {
+        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1963, 4, 5))
     }

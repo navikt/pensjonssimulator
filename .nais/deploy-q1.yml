@@ -99,6 +99,10 @@ spec:
       value: dev-fss:pensjon-q1:pensjon-pen-q1
     - name: PEN_URL
       value: https://pensjon-pen-q1.dev-fss-pub.nais.io
+    - name: PERSONDATA_SERVICE_ID
+      value: dev-fss:pdl:pdl-api-q1
+    - name: PERSONDATA_URL
+      value: https://pdl-api-q1.dev-fss-pub.nais.io
     - name: REGLER_URL
       value: https://pensjon-regler-q1.dev-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID

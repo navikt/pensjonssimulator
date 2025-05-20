@@ -5,12 +5,12 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 
 @Component
-class TpoSimuleringSpecMapperV3(val personService: GenerelleDataHolder) {
+class TpoSimuleringSpecMapperV3(val personService: GeneralPersonService) {
 
     fun fromDto(source: TpoSimuleringSpecV3): SimuleringSpec {
         val pid = source.pid?.let(::Pid)
@@ -22,7 +22,7 @@ class TpoSimuleringSpecMapperV3(val personService: GenerelleDataHolder) {
             foersteUttakDato = source.foersteUttakDato,
             heltUttakDato = source.heltUttakDato,
             pid = pid,
-            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
+            foedselDato = pid?.let(personService::foedselsdato),
             avdoed = null,
             isTpOrigSimulering = true, // true for TPO
             simulerForTp = false,

@@ -8,12 +8,12 @@ import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 
 @Component
-class NavSimuleringSpecMapperV2(val personService: GenerelleDataHolder) {
+class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
 
     fun fromSimuleringSpecV2(
         source: NavSimuleringSpecV2,
@@ -31,7 +31,7 @@ class NavSimuleringSpecMapperV2(val personService: GenerelleDataHolder) {
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate(),
             pid = pid,
-            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
+            foedselDato = pid?.let(personService::foedselsdato),
             avdoed = avdoed(source),
             isTpOrigSimulering = false,
             simulerForTp = false,

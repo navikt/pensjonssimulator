@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import org.mockito.Mockito.mock
 import java.time.LocalDate
@@ -14,6 +15,7 @@ class PersongrunnlagMapperTest : FunSpec({
     test("mapToPersongrunnlag should map only first AFP-historikk item") {
         val mapper = PersongrunnlagMapper(
             generelleDataHolder = mock(GenerelleDataHolder::class.java),
+            personService = mock(GeneralPersonService::class.java),
             time = { LocalDate.of(2021, 1, 1) }
         )
 

@@ -12,21 +12,24 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
+// PEN:
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.PersongrunnlagMapper
 @Component
 class PersongrunnlagMapper(
     private val generelleDataHolder: GenerelleDataHolder,
+    private val personService: GeneralPersonService,
     private val time: Time
 ) {
     fun mapToPersongrunnlag(person: PenPerson, spec: SimuleringSpec) =
         createPersongrunnlag(
-            person = person,
+            person,
             personDetalj = createPersonDetalj(spec),
             utlandAntallAar = spec.utlandAntallAar,
             erFolketrygdMedlem = true,
@@ -73,9 +76,7 @@ class PersongrunnlagMapper(
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-            penRolleFom = soekerPid?.let {
-                generelleDataHolder.getPerson(it).foedselDato.toNorwegianDateAtNoon()
-            }
+            penRolleFom = soekerPid?.let { personService.foedselsdato(it).toNorwegianDateAtNoon() }
             borMedEnum = null
             bruk = true
         }.also {

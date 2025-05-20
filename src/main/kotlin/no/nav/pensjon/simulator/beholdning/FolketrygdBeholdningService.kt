@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.uttak.UttaksdatoValidator
 import no.nav.pensjon.simulator.vedtak.VedtakService
 import no.nav.pensjon.simulator.vedtak.VedtakStatus
@@ -24,12 +24,12 @@ import java.time.LocalDate
 class FolketrygdBeholdningService(
     private val simulator: SimulatorCore,
     private val vedtakService: VedtakService,
-    private val generelleDataHolder: GenerelleDataHolder,
+    private val personService: GeneralPersonService,
     private val validator: UttaksdatoValidator
 ) {
     fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
         val beholdningSpec = spec.sanitised().validated()
-        val foedselsdato = generelleDataHolder.getPerson(beholdningSpec.pid).foedselDato
+        val foedselsdato = personService.foedselsdato(beholdningSpec.pid)
         verifySpec(beholdningSpec, foedselsdato)
         val vedtakInfo = vedtakService.vedtakStatus(beholdningSpec.pid, beholdningSpec.uttakFom)
         checkForGjenlevenderettighet(vedtakInfo)

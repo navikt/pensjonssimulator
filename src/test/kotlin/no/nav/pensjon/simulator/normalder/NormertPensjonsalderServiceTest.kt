@@ -3,8 +3,8 @@ package no.nav.pensjon.simulator.normalder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.normalder.client.NormertPensjonsalderClient
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import java.time.LocalDate
@@ -54,7 +54,7 @@ class NormertPensjonsalderServiceTest : FunSpec({
 private val service =
     NormertPensjonsalderService(
         normalderClient = arrangeClient(),
-        personService = mock(GenerelleDataHolder::class.java)
+        personService = mock(GeneralPersonService::class.java)
     )
 
 private fun arrangeClient(): NormertPensjonsalderClient =

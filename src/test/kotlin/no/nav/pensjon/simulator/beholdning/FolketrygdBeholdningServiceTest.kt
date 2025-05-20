@@ -6,14 +6,12 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.generelt.Person
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
@@ -35,8 +33,8 @@ class FolketrygdBeholdningServiceTest : FunSpec({
         FolketrygdBeholdningService(
             simulator,
             vedtakService = arrangeVedtak(),
+            personService = arrangePerson(foedselsdato),
             time = { LocalDate.of(2025, 1, 1) },
-            generelleDataHolder = arrangePerson(foedselsdato),
             validator = mock(UttaksdatoValidator::class.java)
         ).simulerFolketrygdBeholdning(
             spec = beholdningSpec(uttakFom = LocalDate.of(2030, 1, 2)) // skal bli 2030-02-01
@@ -95,8 +93,8 @@ class FolketrygdBeholdningServiceTest : FunSpec({
             FolketrygdBeholdningService(
                 simulator = arrangeSimulator(),
                 vedtakService = arrangeVedtak(),
+                personService = arrangePerson(LocalDate.of(1965, 6, 7)),
                 time = { LocalDate.of(2025, 1, 1) },
-                generelleDataHolder = arrangePerson(foedselsdato = LocalDate.of(1965, 6, 7)),
                 validator = arrangeBadSpec() // "feil" i spesifikasjonen
             ).simulerFolketrygdBeholdning(
                 beholdningSpec(uttakFom = LocalDate.of(2030, 1, 1))
@@ -110,11 +108,9 @@ private fun arrangeSimulator(): SimulatorCore =
         `when`(it.simuler(any())).thenReturn(SimulatorOutput())
     }
 
-private fun arrangePerson(foedselsdato: LocalDate): GenerelleDataHolder =
-    mock(GenerelleDataHolder::class.java).also {
-        `when`(it.getPerson(pid)).thenReturn(
-            Person(foedselsdato, statsborgerskap = LandkodeEnum.NOR)
-        )
+private fun arrangePerson(foedselsdato: LocalDate): GeneralPersonService =
+    mock(GeneralPersonService::class.java).also {
+        `when`(it.foedselsdato(pid)).thenReturn(foedselsdato)
     }
 
 private fun arrangeVedtak(): VedtakService =
@@ -199,7 +195,7 @@ private fun simulerFolketrygdBeholdning(inntektSpecListe: List<InntektSpec>): Fo
         simulator = mock(SimulatorCore::class.java),
         time = { LocalDate.of(2025, 1, 1) },
         vedtakService = mock(VedtakService::class.java),
-        generelleDataHolder = mock(GenerelleDataHolder::class.java),
+        personService = mock(GeneralPersonService::class.java),
         validator = mock(UttaksdatoValidator::class.java)
     ).simulerFolketrygdBeholdning(
         FolketrygdBeholdningSpec(

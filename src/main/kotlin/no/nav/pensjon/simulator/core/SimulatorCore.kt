@@ -30,11 +30,12 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
@@ -54,13 +55,14 @@ class SimulatorCore(
     private val privatAfpBeregner: PrivatAfpBeregner,
     private val pre2025OffentligAfpBeregner: Pre2025OffentligAfpBeregner,
     private val pre2025OffentligAfpEndringBeregner: Pre2025OffentligAfpEndringBeregner,
-    private val generelleDataHolder: GenerelleDataHolder,
+    private val generalPersonService: GeneralPersonService,
     private val personService: PersonService,
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpService,
     private val normalderService: NormertPensjonsalderService,
-    private val resultPreparer: SimuleringResultPreparer
+    private val resultPreparer: SimuleringResultPreparer,
+    private val time: Time
 ) : UttakAlderDiscriminator {
 
     private val log = KotlinLogging.logger {}
@@ -268,10 +270,10 @@ class SimulatorCore(
     }
 
     override fun fetchFoedselsdato(pid: Pid): LocalDate =
-        generelleDataHolder.getPerson(pid).foedselDato
+        generalPersonService.foedselsdato(pid)
 
     private fun fetchGrunnbeloep(): Int =
-        context.fetchGrunnbeloepListe(LocalDate.now()).satsResultater.firstOrNull()?.verdi?.toInt() ?: 0
+        context.fetchGrunnbeloepListe(time.today()).satsResultater.firstOrNull()?.verdi?.toInt() ?: 0
 
     private companion object {
         private val simuleringTyperSomKreverTermineringAvPre2025OffentligAfp =

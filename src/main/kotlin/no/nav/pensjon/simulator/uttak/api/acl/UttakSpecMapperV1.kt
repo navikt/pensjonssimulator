@@ -5,18 +5,18 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 
 @Component
-class UttakSpecMapperV1(val personService: GenerelleDataHolder) {
+class UttakSpecMapperV1(val personService: GeneralPersonService) {
 
     // PEN: SimuleringUttaksalderSpecToInputMapper.mapSpecToInput
     @OptIn(ExperimentalStdlibApi::class)
     fun fromSpecV1(source: TidligstMuligUttakSpecV1): SimuleringSpec {
         val pid = Pid(source.personId)
-        val foedselsdato = personService.getPerson(pid).foedselDato
+        val foedselsdato = personService.foedselsdato(pid)
 
         return SimuleringSpec(
             type = source.rettTilAfpOffentligDato?.let { SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG }

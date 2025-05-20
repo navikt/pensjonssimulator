@@ -22,10 +22,11 @@ import java.time.LocalDate
 class AlternativtUttakServiceTest : FunSpec({
 
     test("findAlternativtUttak should find alternativt uttak") {
-        val simulator = mock(SimulatorCore::class.java).also { arrangeSimulator(it) }
-        val normalderService = mock(NormertPensjonsalderService::class.java).also { arrangeNormalder(it) }
-
-        val service = AlternativtUttakService(simulator, normalderService)
+        val service = AlternativtUttakService(
+            simulator = arrangeSimulator(),
+            normalderService = arrangeNormalder(),
+            time = { LocalDate.of(2025, 1, 1) }
+        )
 
         service.findAlternativtUttak(
             spec = simuleringSpec(
@@ -66,64 +67,66 @@ class AlternativtUttakServiceTest : FunSpec({
     }
 })
 
-private fun arrangeNormalder(service: NormertPensjonsalderService) {
-    `when`(service.normalder(foedselsdato = LocalDate.of(1967, 1, 1))).thenReturn(Alder(67, 0))
-}
+private fun arrangeNormalder() =
+    mock(NormertPensjonsalderService::class.java).also {
+        `when`(it.normalder(foedselsdato = LocalDate.of(1967, 1, 1))).thenReturn(Alder(67, 0))
+    }
 
-private fun arrangeSimulator(simulator: SimulatorCore) {
-    `when`(simulator.fetchFoedselsdato(pid)).thenReturn(LocalDate.of(1967, 1, 1))
+private fun arrangeSimulator() =
+    mock(SimulatorCore::class.java).also {
+        `when`(it.fetchFoedselsdato(pid)).thenReturn(LocalDate.of(1967, 1, 1))
 
-    // Arrange a series of simulations that converge towards the best alternative:
-    `when`(
-        simulator.simuler(
-            simuleringSpec(
-                foersteUttakDato = LocalDate.of(2032, 2, 1),
-                uttaksgrad = UttakGradKode.P_40,
-                heltUttakDato = LocalDate.of(2033, 2, 1)
+        // Arrange a series of simulations that converge towards the best alternative:
+        `when`(
+            it.simuler(
+                simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2032, 2, 1),
+                    uttaksgrad = UttakGradKode.P_40,
+                    heltUttakDato = LocalDate.of(2033, 2, 1)
+                )
             )
-        )
-    ).thenThrow(UtilstrekkeligOpptjeningException())
+        ).thenThrow(UtilstrekkeligOpptjeningException())
 
-    `when`(
-        simulator.simuler(
-            simuleringSpec(
-                foersteUttakDato = LocalDate.of(2033, 1, 1),
-                uttaksgrad = UttakGradKode.P_40,
-                heltUttakDato = LocalDate.of(2033, 8, 1)
+        `when`(
+            it.simuler(
+                simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2033, 1, 1),
+                    uttaksgrad = UttakGradKode.P_40,
+                    heltUttakDato = LocalDate.of(2033, 8, 1)
+                )
             )
-        )
-    ).thenReturn(SimulatorOutput())
+        ).thenReturn(SimulatorOutput())
 
-    `when`(
-        simulator.simuler(
-            simuleringSpec(
-                foersteUttakDato = LocalDate.of(2032, 7, 1),
-                uttaksgrad = UttakGradKode.P_40,
-                heltUttakDato = LocalDate.of(2033, 5, 1)
+        `when`(
+            it.simuler(
+                simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2032, 7, 1),
+                    uttaksgrad = UttakGradKode.P_40,
+                    heltUttakDato = LocalDate.of(2033, 5, 1)
+                )
             )
-        )
-    ).thenReturn(SimulatorOutput())
+        ).thenReturn(SimulatorOutput())
 
-    `when`(
-        simulator.simuler(
-            simuleringSpec(
-                foersteUttakDato = LocalDate.of(2032, 4, 1),
-                uttaksgrad = UttakGradKode.P_40,
-                heltUttakDato = LocalDate.of(2033, 3, 1)
+        `when`(
+            it.simuler(
+                simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2032, 4, 1),
+                    uttaksgrad = UttakGradKode.P_40,
+                    heltUttakDato = LocalDate.of(2033, 3, 1)
+                )
             )
-        )
-    ).thenReturn(SimulatorOutput())
+        ).thenReturn(SimulatorOutput())
 
-    `when`(
-        simulator.simuler(
-            simuleringSpec(
-                foersteUttakDato = LocalDate.of(2032, 3, 1),
-                uttaksgrad = UttakGradKode.P_40,
-                heltUttakDato = LocalDate.of(2033, 3, 1)
+        `when`(
+            it.simuler(
+                simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2032, 3, 1),
+                    uttaksgrad = UttakGradKode.P_40,
+                    heltUttakDato = LocalDate.of(2033, 3, 1)
+                )
             )
-        )
-    ).thenReturn(SimulatorOutput())
-}
+        ).thenReturn(SimulatorOutput())
+    }
 
 /**
  * IndexBasedSimulering.tryIndex: discriminator.simuler(indexSimulatorSpec)

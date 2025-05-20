@@ -61,32 +61,32 @@ class AlderspensjonService(
             val result: SimulatorOutput = simulator.simuler(spec)
 
             return SimulertPensjonEllerAlternativ(
-                pensjon = SimulatorOutputConverter.pensjon(result, spec), // SimulatorOutput -> SimulertPensjon
+                pensjon = SimulatorOutputConverter.pensjon( // SimulatorOutput -> SimulertPensjon
+                    source = result,
+                    today = time.today(),
+                    inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                ),
                 alternativ = null
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isReducible(spec.uttakGrad))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
-                    spec,
-                    inkluderPensjonHvisUbetinget = true
+                    spec, inkluderPensjonHvisUbetinget = true
                 )
             else
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
-                    spec,
-                    inkluderPensjonHvisUbetinget = true
+                    spec, inkluderPensjonHvisUbetinget = true
                 ) ?: throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
             return if (isReducible(spec.uttakGrad))
                 alternativSimuleringService.simulerMedNesteLavereUttaksgrad(
-                    spec,
-                    inkluderPensjonHvisUbetinget = true
+                    spec, inkluderPensjonHvisUbetinget = true
                 )
             else
                 alternativSimuleringService.simulerAlternativHvisUtkanttilfelletInnvilges(
-                    spec,
-                    inkluderPensjonHvisUbetinget = true
+                    spec, inkluderPensjonHvisUbetinget = true
                 ) ?: throw e
         }
     }

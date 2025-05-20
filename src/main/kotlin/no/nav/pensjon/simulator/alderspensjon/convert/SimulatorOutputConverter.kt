@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
-import no.nav.pensjon.simulator.afp.pre2025.AfpGrad
+import no.nav.pensjon.simulator.afp.pre2025.AfpGrad.beregnAfpGrad
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
@@ -19,7 +19,6 @@ import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.time.Period
@@ -38,7 +37,11 @@ object SimulatorOutputConverter {
 
     private const val ALDER_REPRESENTING_LOPENDE_YTELSER = 0
 
-    fun pensjon(source: SimulatorOutput, simuleringSpec: SimuleringSpec? = null): SimulertPensjon {
+    fun pensjon(
+        source: SimulatorOutput,
+        today: LocalDate,
+        inntektVedFase1Uttak: Int? = null
+    ): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
         val pensjonsperioder: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
         val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
@@ -46,29 +49,36 @@ object SimulatorOutputConverter {
         return SimulertPensjon(
             alderspensjon = pensjonsperioder.map { alderspensjon(it, alderspensjon) },
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
-                .map(SimulatorOutputConverter::alderspensjonFraFolketrygden),
+                .map(::alderspensjonFraFolketrygden),
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
-                pre2025OffentligAfp(it, source.foedselDato, simuleringSpec)
+                pre2025OffentligAfp(
+                    beregning = it,
+                    foedselsdato = source.foedselDato,
+                    inntektVedAfpUttak = inntektVedFase1Uttak
+                )
             },
-            privatAfp = source.privatAfpPeriodeListe.map(SimulatorOutputConverter::privatAfp),
-            livsvarigOffentligAfp = source.livsvarigOffentligAfp.orEmpty().map(SimulatorOutputConverter::livsvarigOffentligAfp),
+            privatAfp = source.privatAfpPeriodeListe.map(::privatAfp),
+            livsvarigOffentligAfp = source.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             pensjonBeholdningPeriodeListe = alderspensjon?.pensjonBeholdningListe.orEmpty()
-                .map(SimulatorOutputConverter::beholdningPeriode),
-            harUttak = alderspensjon?.uttakGradListe.orEmpty().any(SimulatorOutputConverter::harUttakToday),
+                .map(::beholdningPeriode),
+            harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
             harNokTrygdetidForGarantipensjon = trygdetid >= MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR,
             trygdetid = trygdetid,
             opptjeningGrunnlagListe = source.persongrunnlag?.opptjeningsgrunnlagListe.orEmpty()
-                .map(SimulatorOutputConverter::opptjeningGrunnlag).sortedBy { it.aar }
+                .map(::opptjeningGrunnlag).sortedBy { it.aar }
         )
     }
 
     private fun anvendtKapittel20Trygdetid(perioder: List<PensjonPeriode>): Int =
         perioder.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()?.tt_anv_kap20 ?: 0
 
-    private fun alderspensjon(source: PensjonPeriode, simulertAlderspensjon: SimulertAlderspensjon?): SimulertAarligAlderspensjon {
+    private fun alderspensjon(
+        source: PensjonPeriode,
+        simulertAlderspensjon: SimulertAlderspensjon?
+    ): SimulertAarligAlderspensjon {
         val info = source.simulertBeregningInformasjonListe.firstOrNull()
 
-         return SimulertAarligAlderspensjon(
+        return SimulertAarligAlderspensjon(
             alderAar = source.alderAar ?: ALDER_REPRESENTING_LOPENDE_YTELSER,
             beloep = source.beloep ?: 0,
             inntektspensjon = info?.inntektspensjon,
@@ -109,11 +119,7 @@ object SimulatorOutputConverter {
         source.tilleggspensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.TP) }
         source.pensjonstillegg?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.PT) }
         source.individueltMinstenivaaTillegg?.let {
-            addYtelse(
-                it,
-                ytelser,
-                YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV
-            )
+            addYtelse(beloep = it, ytelser, type = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
         }
         source.inntektspensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.IP) }
         source.garantipensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.GAP) }
@@ -122,22 +128,26 @@ object SimulatorOutputConverter {
         return ytelser
     }
 
-    private fun addYtelse(belop: Int, ytelser: MutableList<SimulertDelytelse>, type: YtelseskomponentTypeEnum) {
-        ytelser.add(SimulertDelytelse(type, belop))
+    private fun addYtelse(beloep: Int, ytelser: MutableList<SimulertDelytelse>, type: YtelseskomponentTypeEnum) {
+        ytelser.add(SimulertDelytelse(type, beloep))
     }
 
     private fun privatAfp(source: SimulertPrivatAfpPeriode) =
-        SimulertPrivatAfp(source.alderAar ?: 0, source.aarligBeloep ?: 0, source.maanedligBeloep ?: 0)
+        SimulertPrivatAfp(
+            alderAar = source.alderAar ?: 0,
+            beloep = source.aarligBeloep ?: 0,
+            maanedligBeloep = source.maanedligBeloep ?: 0
+        )
 
     /**
      * Ref. BeregningFormPopulator.createBeregningFormDataFromBeregning in pensjon-pselv
      */
     private fun pre2025OffentligAfp(
         beregning: Beregning,
-        foedselDato: LocalDate?,
-        simuleringSpec: SimuleringSpec?
+        foedselsdato: LocalDate?,
+        inntektVedAfpUttak: Int?
     ): SimulertPre2025OffentligAfp? =
-        if (foedselDato == null)
+        if (foedselsdato == null)
             null
         else
             beregning.virkFom?.let {
@@ -145,7 +155,7 @@ object SimulatorOutputConverter {
                 val poengrekke = sluttpoengtall?.poengrekke
 
                 SimulertPre2025OffentligAfp(
-                    alderAar = alderAar(foedselDato, it),
+                    alderAar = alderAar(foedselsdato, it),
                     totaltAfpBeloep = beregning.netto,
                     tidligereArbeidsinntekt = poengrekke?.tpi ?: 0,
                     grunnbeloep = beregning.g,
@@ -157,7 +167,10 @@ object SimulatorOutputConverter {
                     tilleggspensjon = beregning.tp?.netto ?: 0,
                     afpTillegg = beregning.afpTillegg?.netto ?: 0,
                     saertillegg = beregning.st?.netto ?: 0,
-                    afpGrad = AfpGrad.beregnAfpGrad(simuleringSpec?.inntektUnderGradertUttakBeloep ?: 0, poengrekke?.tpi ?: 0),
+                    afpGrad = beregnAfpGrad(
+                        inntektVedAfpUttak ?: 0,
+                        tidligereInntekt = poengrekke?.tpi ?: 0
+                    ),
                     afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true
                 )
             }
@@ -171,7 +184,7 @@ object SimulatorOutputConverter {
             garantipensjonBeholdning = source.garantipensjonsbeholdning ?: 0.0,
             garantitilleggBeholdning = source.garantitilleggsbeholdning ?: 0.0,
             datoFom = source.datoFom,
-            garantipensjonNivaa = source.garantipensjonsniva?.let(SimulatorOutputConverter::garantipensjonNivaa)
+            garantipensjonNivaa = source.garantipensjonsniva?.let(::garantipensjonNivaa)
                 ?: nullGarantipensjonNivaa()
         )
 
@@ -200,12 +213,11 @@ object SimulatorOutputConverter {
     private fun alderAar(foedselsdato: LocalDate, dato: Date): Int =
         alderDato(foedselsdato, dato.toNorwegianLocalDate()).alder.aar
 
-    private fun harUttakToday(grad: Uttaksgrad) = grad.uttaksgrad > 0 && coversToday(grad.fomDato, grad.tomDato)
+    private fun harUttakToday(grad: Uttaksgrad, today: LocalDate) =
+        grad.uttaksgrad > 0 && coversToday(grad.fomDato, grad.tomDato, today)
 
     // SimulerAlderspensjonResponseV3Converter.isUttaksgradToday
-    private fun coversToday(fom: Date?, tom: Date?): Boolean {
-        val today = LocalDate.now() //TODO use DateProvider
-
+    private fun coversToday(fom: Date?, tom: Date?, today: LocalDate): Boolean {
         if (isAfterByDay(today, fom, true)) {
             return tom == null || isBeforeByDay(today, tom, true)
         }
@@ -220,10 +232,10 @@ object SimulatorOutputConverter {
      * Bakgrunnen for dette er at det i pensjonssammenheng opereres med hele måneder;
      * det er den første dag i påfølgende måned som legges til grunn ved f.eks. uttak av pensjon.
      */
-    private fun alderDato(foedselDato: LocalDate, dato: LocalDate): PensjonAlderDato =
+    private fun alderDato(foedselsdato: LocalDate, dato: LocalDate): PensjonAlderDato =
         with(
             Period.between(
-                foedselDato.plusMonths(1).withDayOfMonth(1),
+                foedselsdato.plusMonths(1).withDayOfMonth(1),
                 dato.withDayOfMonth(1)
             )
         ) {

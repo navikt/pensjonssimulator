@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -31,7 +32,8 @@ import java.time.LocalDate
 class AlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
-    private val alternativtUttakService: AlternativtUttakService
+    private val alternativtUttakService: AlternativtUttakService,
+    private val time: Time
 ) {
     fun simulerMedNesteLavereUttaksgrad(
         spec: SimuleringSpec,
@@ -43,7 +45,15 @@ class AlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else pensjon(result, spec)
+                alternativPensjon =
+                    if (spec.onlyVilkaarsproeving)
+                        null
+                    else
+                        pensjon(
+                            source = result,
+                            today = time.today(),
+                            inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                        )
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -109,7 +119,18 @@ class AlternativSimuleringService(
         try {
             val ubetingetSpec: SimuleringSpec = SimuleringSpecUtil.ubetingetSimuleringSpec(spec, normalder)
             val result: SimulatorOutput = simulator.simuler(ubetingetSpec)
-            alternativResponse(ubetingetSpec, if (spec.onlyVilkaarsproeving) null else pensjon(result, spec))
+            alternativResponse(
+                spec = ubetingetSpec,
+                alternativPensjon =
+                    if (spec.onlyVilkaarsproeving)
+                        null
+                    else
+                        pensjon(
+                            source = result,
+                            today = time.today(),
+                            inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                        )
+            )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Skal ikke kunne skje
             throw RuntimeException("Simulering for ubetinget alder feilet", e)

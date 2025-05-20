@@ -24,7 +24,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeAvslaattUtkanttilfelle(),
             normalderService = arrangeNormalder(),
-            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
+            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java),
+            time = { LocalDate.of(2025, 1, 1) }
         )
 
         service.simulerAlternativHvisUtkanttilfelletInnvilges(
@@ -45,7 +46,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeGradertUttakEtterAvslaatt60ProsentUttak(),
             normalderService = arrangeNormalder(),
-            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
+            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java),
+            time = { LocalDate.of(2025, 1, 1) }
         )
 
         service.simulerMedFallendeUttaksgrad(
@@ -67,7 +69,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeGradertUttakEtterAvslaattHeltUttak(),
             normalderService = arrangeNormalder(),
-            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
+            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java),
+            time = { LocalDate.of(2025, 1, 1) }
         )
 
         service.simulerMedFallendeUttaksgrad(
@@ -89,7 +92,8 @@ class UfoereAlternativSimuleringServiceTest : FunSpec({
         val service = UfoereAlternativSimuleringService(
             simulator = arrangeIngenInnvilgedeUttak(),
             normalderService = arrangeNormalder(),
-            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java)
+            alternativtUttakService = mock(UfoereAlternativtUttakService::class.java),
+            time = { LocalDate.of(2025, 1, 1) }
         )
 
         shouldThrow<UtilstrekkeligOpptjeningException> {

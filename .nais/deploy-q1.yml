@@ -72,6 +72,9 @@ spec:
           cluster: dev-fss
     outbound:
       rules:
+        - application: pdl-api-q1
+          namespace: pdl
+          cluster: dev-fss
         - application: pensjon-pen-q1
           namespace: pensjon-q1
           cluster: dev-fss
@@ -85,6 +88,7 @@ spec:
           namespace: pensjonsamhandling
           cluster: dev-fss
       external:
+        - host: pdl-api-q1.dev-fss-pub.nais.io
         - host: pensjon-pen-q1.dev-fss-pub.nais.io
         - host: pensjon-regler-q1.dev-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway-q1.dev-fss-pub.nais.io

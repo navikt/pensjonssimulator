@@ -43,6 +43,7 @@ class PdlGeneralPersonClient(
 
     private fun fetchFreshData(pid: Pid): LocalDate? {
         val uri = "/$RESOURCE"
+        log.debug { "PDL URI $uri" }
 
         return try {
             webClient

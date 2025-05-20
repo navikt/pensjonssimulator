@@ -67,6 +67,9 @@ spec:
   accessPolicy:
     inbound:
       rules:
+        - application: pdl-api
+          namespace: pdl
+          cluster: dev-fss
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss
@@ -92,6 +95,7 @@ spec:
           cluster: dev-fss
         - application: tjenestepensjon-simulering
       external:
+        - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
         - host: pensjon-popp-q2.dev-fss-pub.nais.io
         - host: pensjon-regler-q2.dev-fss-pub.nais.io

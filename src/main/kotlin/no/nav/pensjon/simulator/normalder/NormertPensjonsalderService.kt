@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.normalder
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.normalder.client.NormertPensjonsalderClient
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Service
@@ -19,7 +19,7 @@ import java.time.LocalDate
 @Service
 class NormertPensjonsalderService(
     private val normalderClient: NormertPensjonsalderClient,
-    private val personService: GenerelleDataHolder
+    private val personService: GeneralPersonService
 ) {
     fun normalder(foedselsdato: LocalDate): Alder =
         aldersgrenser(foedselsdato).normalder
@@ -55,7 +55,7 @@ class NormertPensjonsalderService(
         normalderClient.fetchNormalderListe().first { it.aarskull == foedselsdato.year }
 
     fun normalder(pid: Pid): Alder =
-        normalder(personService.getPerson(pid).foedselDato)
+        normalder(personService.foedselsdato(pid))
 
     fun normalderDato(foedselsdato: LocalDate): LocalDate =
         foedselsdato.let {

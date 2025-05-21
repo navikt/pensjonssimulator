@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
  * AFP = Avtalefestet pensjon
  */
 @Component
-class FolketrygdberegnetAfpSpecMapperV1(val personService: GenerelleDataHolder) {
+class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService) {
 
     fun fromSimuleringSpecV1(source: FolketrygdberegnetAfpSpecV1): SimuleringSpec {
         val pid = source.fnr?.let(::Pid)
@@ -32,7 +32,7 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GenerelleDataHolder) 
             foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
             heltUttakDato = null, // not relevant in this context
             pid = pid,
-            foedselDato = pid?.let(personService::getPerson)?.foedselDato,
+            foedselDato = pid?.let(personService::foedselsdato),
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,

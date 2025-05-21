@@ -72,6 +72,9 @@ spec:
         - application: pensjonskalkulator-backend
     outbound:
       rules:
+        - application: pdl-api
+          namespace: pdl
+          cluster: prod-fss
         - application: pensjon-pen
           namespace: pensjondeployer
           cluster: prod-fss
@@ -87,6 +90,7 @@ spec:
         - application: tjenestepensjon-simulering
       external:
         - host: maskinporten.no
+        - host: pdl-api.prod-fss-pub.nais.io
         - host: pensjon-pen.prod-fss-pub.nais.io
         - host: pensjon-popp.prod-fss-pub.nais.io
         - host: pensjon-regler.prod-fss-pub.nais.io
@@ -102,6 +106,10 @@ spec:
       value: prod-fss:pensjondeployer:pensjon-pen
     - name: PEN_URL
       value: https://pensjon-pen.prod-fss-pub.nais.io
+    - name: PERSONDATA_SERVICE_ID
+      value: prod-fss:pdl:pdl-api
+    - name: PERSONDATA_URL
+      value: https://pdl-api.prod-fss-pub.nais.io
     - name: POPP_SERVICE_ID
       value: prod-fss:pensjonopptjening:pensjon-popp
     - name: POPP_URL

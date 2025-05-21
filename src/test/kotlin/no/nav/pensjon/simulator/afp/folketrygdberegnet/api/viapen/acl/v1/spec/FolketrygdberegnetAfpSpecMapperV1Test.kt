@@ -5,18 +5,16 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.generelt.Person
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import java.time.LocalDate
-import java.util.Calendar
+import java.util.*
 
 class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
 
@@ -79,12 +77,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
     }
 })
 
-private fun arrangeFoedselsdato(): GenerelleDataHolder =
-    mock(GenerelleDataHolder::class.java).also {
-        `when`(it.getPerson(pid)).thenReturn(
-            Person(
-                foedselDato = LocalDate.of(1963, 4, 5),
-                statsborgerskap = LandkodeEnum.NOR
-            )
-        )
+private fun arrangeFoedselsdato(): GeneralPersonService =
+    mock(GeneralPersonService::class.java).also {
+        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1963, 4, 5))
     }

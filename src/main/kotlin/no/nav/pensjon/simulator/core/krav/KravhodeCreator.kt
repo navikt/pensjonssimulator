@@ -26,7 +26,6 @@ import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterToday
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.monthOfYearRange1To12
@@ -552,12 +551,12 @@ class KravhodeCreator(
 
         // Inntekt fram til første uttak:
 
-        if (isAfterToday(spec.foersteUttakDato) && spec.forventetInntektBeloep > 0) {
+        if (spec.foersteUttakDato!!.isAfter(time.today()) && spec.forventetInntektBeloep > 0) {
             inntektsgrunnlagListe.add(
                 inntektsgrunnlagForSoekerOrEps(
                     beloep = spec.forventetInntektBeloep,
                     fom = time.today(),
-                    tom = getRelativeDateByDays(spec.foersteUttakDato!!, -1)
+                    tom = getRelativeDateByDays(spec.foersteUttakDato, -1)
                 )
             )
         }

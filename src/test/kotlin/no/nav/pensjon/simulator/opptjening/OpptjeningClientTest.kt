@@ -29,7 +29,7 @@ import kotlin.time.Duration.Companion.seconds
 
 class OpptjeningClientTest : FunSpec({
 
-    var mockWebServer = MockWebServer()
+    var webServer = MockWebServer()
     var baseUrl: String?
     lateinit var client: OpptjeningClient
 
@@ -45,26 +45,30 @@ class OpptjeningClientTest : FunSpec({
         val httpClient = HttpClient.create()
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
             .responseTimeout(Duration.ofSeconds(3))
-            .doOnConnected { conn ->
-                conn.addHandlerLast(ReadTimeoutHandler(3))
-            }
+            .doOnConnected { it.addHandlerLast(ReadTimeoutHandler(3)) }
 
 
-        mockWebServer = MockWebServer().also {
+        webServer = MockWebServer().also {
             it.start()
             baseUrl = "http://localhost:${it.port}"
 
             val webClient = WebClient.builder()
                 .clientConnector(ReactorClientHttpConnector(httpClient))
-                .baseUrl(baseUrl!!)
+                .baseUrl(baseUrl)
                 .build()
 
-            client = OpptjeningClient(baseUrl!!, "1", webClient.mutate(), mock(TraceAid::class.java))
+            client = OpptjeningClient(
+                baseUrl,
+                retryAttempts = "1",
+                webClientBuilder = webClient.mutate(),
+                traceAid = mock(TraceAid::class.java),
+                time = { LocalDate.of(2025, 1, 1) }
+            )
         }
     }
 
     afterSpec {
-        mockWebServer.shutdown()
+        webServer.shutdown()
     }
 
     test("skal returnere Inntekt fra POPP") {
@@ -80,42 +84,36 @@ class OpptjeningClientTest : FunSpec({
             }
         """.trimIndent()
 
-        mockWebServer.enqueue(
+        webServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
                 .addHeader("Content-Type", "application/json")
                 .setBody(responseBody)
         )
 
-        val result = client.hentSisteLignetInntekt(Pid("12345678910"))
-        result shouldBe Inntekt(123456, LocalDate.of(2025, 1, 1))
+        client.hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(123456, LocalDate.of(2025, 1, 1))
     }
 
     test("skal kaste EgressException ved 500 Internal Server Error") {
-        mockWebServer.enqueue(
+        webServer.enqueue(
             MockResponse()
                 .setResponseCode(500)
                 .setBody("Internal Server Error")
         )
 
-        val exception = shouldThrow<EgressException> {
+        shouldThrow<EgressException> {
             client.hentSisteLignetInntekt(Pid("12345678910"))
-        }
-
-        exception.message shouldBe "Internal Server Error"
+        }.message shouldBe "Internal Server Error"
     }
 
     test("skal kaste EgressException ved timeout").config(timeout = 10.seconds) {
-        mockWebServer.enqueue(
+        webServer.enqueue(
             MockResponse()
                 .setSocketPolicy(SocketPolicy.NO_RESPONSE) // Simulate timeout
         )
 
-        val exception = shouldThrow<EgressException> {
+        shouldThrow<EgressException> {
             client.hentSisteLignetInntekt(Pid("12345678910"))
-        }
-
-        exception.cause.shouldBeInstanceOf<WebClientRequestException>()
+        }.cause.shouldBeInstanceOf<WebClientRequestException>()
     }
-
 })

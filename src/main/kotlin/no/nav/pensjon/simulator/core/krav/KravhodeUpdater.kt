@@ -38,6 +38,7 @@ class KravhodeUpdater(
     private val context: SimulatorContext,
     private val normalderService: NormertPensjonsalderService,
     private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
+    private val trygdetidSetter: TrygdetidSetter,
     private val time: Time
 ) {
     private val log = KotlinLogging.logger {}
@@ -190,7 +191,7 @@ class KravhodeUpdater(
             return persongrunnlag
         }
 
-        return TrygdetidSetter.settTrygdetid(spec)
+        return trygdetidSetter.settTrygdetid(spec)
     }
 
     // SimulerFleksibelAPCommand.setTrygetidKap19

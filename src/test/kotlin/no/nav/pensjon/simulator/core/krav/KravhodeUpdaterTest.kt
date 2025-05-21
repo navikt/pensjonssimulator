@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.trygd.TrygdetidSetter
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
@@ -30,6 +31,7 @@ class KravhodeUpdaterTest : FunSpec({
             context = mock(SimulatorContext::class.java),
             normalderService = arrangeNormertPensjonsalder(),
             pre2025OffentligAfpBeholdning = mock(Pre2025OffentligAfpBeholdning::class.java),
+            trygdetidSetter = mock(TrygdetidSetter::class.java),
             time = { LocalDate.of(2025, 1, 1) } // "dagens dato"
         ).updateKravhodeForFoersteKnekkpunkt(
             spec = KravhodeUpdateSpec(

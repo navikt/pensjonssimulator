@@ -225,10 +225,6 @@ object DateUtil {
     // no.stelvio.common.util.DateUtil.isBeforeToday
     fun isBeforeToday(date: Date?): Boolean = isBeforeDay(date, null as Date?)
 
-    // no.stelvio.common.util.DateUtil.getYesterday + getRelativeDateFromNow
-    fun getYesterday(): Date =
-        getRelativeDateByDays(LocalDate.now().toNorwegianDateAtNoon(), -1)
-
     // SimuleringEtter2011Utils.firstDayOfMonthAfterUserTurnsGivenAge
     fun firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato: Date, alderAar: Int): Date =
         NorwegianCalendar.forNoon(foedselsdato).apply {
@@ -439,17 +435,6 @@ object DateUtil {
             isAfter = true
         )
 
-    fun isAfterToday(date: LocalDate?): Boolean =
-        isAfterToday(date?.toNorwegianDateAtNoon())
-
-    fun isAfterToday(date: Date?): Boolean {
-        if (date == null) {
-            throw IllegalArgumentException("null is a not valid input date")
-        }
-
-        return !isBeforeToday(date) && !isToday(date)
-    }
-
     fun isFirstDayOfMonth(date: LocalDate): Boolean =
         isFirstDayOfMonth(date.toNorwegianDateAtNoon())
 
@@ -470,9 +455,6 @@ object DateUtil {
             this[Calendar.DAY_OF_MONTH] = getActualMinimum(Calendar.DAY_OF_MONTH)
             add(Calendar.DAY_OF_MONTH, -1)
         }.time
-
-    private fun isToday(date: Date?): Boolean =
-        isSameDay(date, LocalDate.now().toNorwegianDateAtNoon())
 
     /**
      * Comparing two dates down to the granularity of days (not milliseconds, which is the default

@@ -15,6 +15,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.uttak.UttaksdatoValidator
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.vedtak.VedtakService
 import no.nav.pensjon.simulator.vedtak.VedtakStatus
 import org.springframework.stereotype.Component
@@ -23,6 +24,7 @@ import java.time.LocalDate
 @Component
 class FolketrygdBeholdningService(
     private val simulator: SimulatorCore,
+    private val time: Time,
     private val vedtakService: VedtakService,
     private val personService: GeneralPersonService,
     private val validator: UttaksdatoValidator
@@ -45,7 +47,7 @@ class FolketrygdBeholdningService(
 
         return FolketrygdBeholdning(
             pensjonBeholdningPeriodeListe =
-                SimulatorOutputConverter.pensjon(result).pensjonBeholdningPeriodeListe
+                SimulatorOutputConverter.pensjon(result, time.today()).pensjonBeholdningPeriodeListe
                     .map(::beholdningPeriode)
         )
     }

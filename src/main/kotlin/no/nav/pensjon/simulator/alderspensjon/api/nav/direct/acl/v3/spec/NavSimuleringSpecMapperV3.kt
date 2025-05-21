@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
@@ -21,14 +21,14 @@ import java.util.*
  * The DTOs are specified by version 3 of the API offered to clients.
  */
 @Component
-class NavSimuleringSpecMapperV3(val personService: GenerelleDataHolder) {
+class NavSimuleringSpecMapperV3(val personService: GeneralPersonService) {
 
     fun fromNavSimuleringSpecV3(
         source: NavSimuleringSpecV3,
         inntektSisteMaanedOver1G: Int?
     ): SimuleringSpec {
         val pid = Pid(source.pid)
-        val foedselsdato = personService.getPerson(pid).foedselDato
+        val foedselsdato = personService.foedselsdato(pid)
         val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselsdato)
         val heltUttak: SimuleringHeltUttak = heltUttak(source, foedselsdato)
         val utlandPeriodeListe: List<UtlandPeriode> = source.utenlandsperiodeListe.orEmpty().map(::utlandPeriode)
@@ -102,7 +102,7 @@ class NavSimuleringSpecMapperV3(val personService: GenerelleDataHolder) {
             .plusYears(tomAlder.aar.toLong())
             .plusMonths(tomAlder.maaneder.toLong())
 
-    private fun heltUttak(source: NavSimuleringSpecV3, foedselDato: LocalDate): SimuleringHeltUttak {
+    private fun heltUttak(source: NavSimuleringSpecV3, foedselsdato: LocalDate): SimuleringHeltUttak {
         val heltUttak = source.heltUttak
         val uttakFomAlderSpec = heltUttak.uttakFomAlder
         val inntektTomAlderSpec = heltUttak.inntektTomAlder
@@ -112,12 +112,12 @@ class NavSimuleringSpecMapperV3(val personService: GenerelleDataHolder) {
         //    heltUttak.uttakFom.dato
         //else
             //TODO V4
-            uttakDato(foedselDato, alder(uttakFomAlderSpec))
+            uttakDato(foedselsdato, alder(uttakFomAlderSpec))
 
         return SimuleringHeltUttak(
             uttakFom = validated(localUttakFom).toNorwegianDateAtNoon(),
             aarligInntekt = heltUttak.aarligInntekt,
-            inntektTom = inntektTomDato(foedselDato, alder(inntektTomAlderSpec)).toNorwegianDateAtNoon(),
+            inntektTom = inntektTomDato(foedselsdato, alder(inntektTomAlderSpec)).toNorwegianDateAtNoon(),
             antallArInntektEtterHeltUttak = inntektTomAlderSpec.aar - uttakFomAlderSpec.aar + 1 // +1, siden fra/til OG MED
         )
     }

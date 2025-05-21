@@ -8,8 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.generelt.Person
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import org.mockito.Mockito.mock
@@ -101,12 +100,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
     }
 })
 
-private fun arrangeFoedselsdato(): GenerelleDataHolder =
-    mock(GenerelleDataHolder::class.java).also {
-        `when`(it.getPerson(pid)).thenReturn(
-            Person(
-                foedselDato = LocalDate.of(1963, 4, 5),
-                statsborgerskap = LandkodeEnum.NOR
-            )
-        )
+private fun arrangeFoedselsdato(): GeneralPersonService =
+    mock(GeneralPersonService::class.java).also {
+        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1963, 4, 5))
     }

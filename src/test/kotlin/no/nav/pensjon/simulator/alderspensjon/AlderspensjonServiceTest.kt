@@ -7,10 +7,8 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.AlternativSimuleringSer
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.generelt.Person
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.vedtak.VedtakService
@@ -89,8 +87,8 @@ private fun simulerAlderspensjon(
     AlderspensjonService(
         simulator = mock(SimulatorCore::class.java),
         alternativSimuleringService = mock(AlternativSimuleringService::class.java),
-        vedtakService = vedtakService(harGjenlevenderettighet),
-        generelleDataHolder = generelleDataHolder(),
+        vedtakService = arrangeVedtak(harGjenlevenderettighet),
+        personService = arrangeFoedselsdato(),
         time = { LocalDate.of(2025, 1, 1) }
     ).simulerAlderspensjon(
         AlderspensjonSpec(
@@ -105,16 +103,14 @@ private fun simulerAlderspensjon(
         )
     )
 
-private fun vedtakService(harGjenlevenderettighet: Boolean): VedtakService =
+private fun arrangeVedtak(harGjenlevenderettighet: Boolean): VedtakService =
     mock(VedtakService::class.java).also {
         `when`(it.vedtakStatus(pid, LocalDate.of(2027, 1, 1))).thenReturn(
             VedtakStatus(harGjeldendeVedtak = false, harGjenlevenderettighet)
         )
     }
 
-private fun generelleDataHolder(): GenerelleDataHolder =
-    mock(GenerelleDataHolder::class.java).also {
-        `when`(it.getPerson(pid)).thenReturn(
-            Person(foedselDato = LocalDate.of(1963, 1, 1), statsborgerskap = LandkodeEnum.NOR)
-        )
+private fun arrangeFoedselsdato(): GeneralPersonService =
+    mock(GeneralPersonService::class.java).also {
+        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1963, 1, 1))
     }

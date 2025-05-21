@@ -6,20 +6,22 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtale
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtaledetaljer
-import java.util.*
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import java.time.LocalDate
 
+// PEN:
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdeavtaleFactory
 object TrygdeavtaleFactory {
 
     private const val AVTALEDATO_NAME_PREFIX = "EOS" // EØS
 
-    fun newTrygdeavtaleForSimuleringUtland() =
+    fun newTrygdeavtaleForSimuleringUtland(avtalelandKravdato: LocalDate) =
         Trygdeavtale().apply {
             avtaledatoEnum = latestAvtaleDato()?.name?.let(AvtaleDatoEnum::valueOf)
             avtaleKriterieEnum = AvtaleKritEnum.YRK_TRYGD
             avtaleTypeEnum = AvtaletypeEnum.EOS_NOR
             bostedslandEnum = LandkodeEnum.NOR
-            kravDatoIAvtaleland = Date()
+            kravDatoIAvtaleland = avtalelandKravdato.toNorwegianDateAtNoon()
             omfattesavAvtalensPersonkrets = true
             //TODO minst12MndMedlemskapFolketrygden = true
         }

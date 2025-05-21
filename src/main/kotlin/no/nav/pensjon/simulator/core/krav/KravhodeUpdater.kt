@@ -19,10 +19,14 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.*
+import no.nav.pensjon.simulator.core.trygd.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
+import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland
+import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -33,7 +37,8 @@ import java.util.*
 class KravhodeUpdater(
     private val context: SimulatorContext,
     private val normalderService: NormertPensjonsalderService,
-    private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning
+    private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
+    private val time: Time
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -176,10 +181,12 @@ class KravhodeUpdater(
                 setKapittel20Trygdetid(persongrunnlag, simuleringSpec)
             }
 
-            persongrunnlag.trygdeavtale = TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland()
-            persongrunnlag.trygdeavtaledetaljer = TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland()
+            persongrunnlag.trygdeavtale = newTrygdeavtaleForSimuleringUtland(avtalelandKravdato = time.today())
+            persongrunnlag.trygdeavtaledetaljer = newTrygdeavtaledetaljerForSimuleringUtland()
+
             persongrunnlag.inngangOgEksportGrunnlag =
-                InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(persongrunnlag, kravhode)
+                newInngangOgEksportGrunnlagForSimuleringUtland(persongrunnlag, kravhode)
+
             return persongrunnlag
         }
 

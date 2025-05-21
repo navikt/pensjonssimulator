@@ -43,6 +43,7 @@ import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -67,7 +68,8 @@ class KravhodeCreator(
     private val endringPersongrunnlag: EndringPersongrunnlag,
     private val endringUttakGrad: EndringUttakGrad,
     private val pre2025OffentligAfpPersongrunnlag: Pre2025OffentligAfpPersongrunnlag,
-    private val pre2025OffentligAfpUttaksgrad: Pre2025OffentligAfpUttaksgrad
+    private val pre2025OffentligAfpUttaksgrad: Pre2025OffentligAfpUttaksgrad,
+    private val time: Time
 ) {
     // OpprettKravhodeHelper.opprettKravhode
     // Personer will be undefined in forenklet simulering (anonymous)
@@ -83,7 +85,7 @@ class KravhodeCreator(
         val gjelderPre2025OffentligAfp = spec.gjelderPre2025OffentligAfp()
 
         val kravhode = Kravhode().apply {
-            kravFremsattDato = Date()
+            kravFremsattDato = time.today().toNorwegianDateAtNoon()
             onsketVirkningsdato = oensketVirkningDato(spec)
             gjelder = null
             sakId = null
@@ -412,7 +414,7 @@ class KravhodeCreator(
         foedselsdato: LocalDate? // null if anonym
     ): MutableList<Inntekt> {
         var veietGrunnbeloepListe: List<VeietSatsResultat> = emptyList()
-        val innevaerendeAar = LocalDate.now().year
+        val innevaerendeAar = time.today().year
         val gjeldendeAar: Int
         val aarSoekerBlirMaxAlder: Int
 
@@ -527,9 +529,76 @@ class KravhodeCreator(
         }
     }
 
+    private fun calculateGrunnbeloepForhold(
+        aar: Int,
+        spec: SimuleringSpec,
+        veietGrunnbeloepListe: List<VeietSatsResultat>,
+        grunnbeloep: Int
+    ): Double {
+        val innevaerendeAar = time.today().year
+
+        return if (spec.erAnonym && aar < innevaerendeAar)
+            findValidForYear(veietGrunnbeloepListe, aar)?.let { it.verdi / grunnbeloep } ?: 1.0
+        else
+            1.0
+    }
+
+    // PEN: OpprettKravHodeHelper.opprettInntektsgrunnlagForBruker
+    private fun opprettInntektGrunnlagForSoeker(
+        spec: SimuleringSpec,
+        existingInntektsgrunnlagList: MutableList<Inntektsgrunnlag>
+    ): MutableList<Inntektsgrunnlag> {
+        val inntektsgrunnlagListe: MutableList<Inntektsgrunnlag> = mutableListOf()
+
+        // Inntekt fram til første uttak:
+
+        if (isAfterToday(spec.foersteUttakDato) && spec.forventetInntektBeloep > 0) {
+            inntektsgrunnlagListe.add(
+                inntektsgrunnlagForSoekerOrEps(
+                    beloep = spec.forventetInntektBeloep,
+                    fom = time.today(),
+                    tom = getRelativeDateByDays(spec.foersteUttakDato!!, -1)
+                )
+            )
+        }
+
+        // Inntekt mellom første og andre uttak:
+
+        val inntektUnderAfpEllerGradertUttak: Int =
+            spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
+
+        val gjelder2FaseSimulering: Boolean = spec.gjelder2FaseSimulering()
+
+        if (gjelder2FaseSimulering && inntektUnderAfpEllerGradertUttak > 0) {
+            inntektsgrunnlagListe.add(
+                inntektsgrunnlagForSoekerOrEps(
+                    beloep = inntektUnderAfpEllerGradertUttak,
+                    fom = spec.foersteUttakDato,
+                    tom = getRelativeDateByDays(spec.heltUttakDato!!, -1)
+                )
+            )
+        }
+
+        // Inntekt etter start av helt uttak:
+
+        val inntektEtterHeltUttakAntallAar: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
+
+        if (spec.inntektEtterHeltUttakBeloep > 0 && inntektEtterHeltUttakAntallAar > 0) {
+            val fom = if (gjelder2FaseSimulering) spec.heltUttakDato else spec.foersteUttakDato
+            val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, inntektEtterHeltUttakAntallAar), -1)
+            inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
+        }
+
+        inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
+            it.bruk == true && !isForventetPensjongivendeInntekt(it)
+        })
+
+        return inntektsgrunnlagListe
+    }
+
     private companion object {
-        private const val MAX_ALDER = 80
-        private const val MAX_OPPTJENING_ALDER = 75
+        private const val MAX_ALDER = 80 // normert?
+        private const val MAX_OPPTJENING_ALDER = 75 // normert?
         private const val MAX_UTTAKSGRAD = 100
         private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
@@ -641,75 +710,8 @@ class KravhodeCreator(
         private fun fjernForventetArbeidsinntektFraInntektGrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
             grunnlagListe.filter { it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum }
 
-        // PEN: OpprettKravHodeHelper.opprettInntektsgrunnlagForBruker
-        private fun opprettInntektGrunnlagForSoeker(
-            spec: SimuleringSpec,
-            existingInntektsgrunnlagList: MutableList<Inntektsgrunnlag>
-        ): MutableList<Inntektsgrunnlag> {
-            val inntektsgrunnlagListe: MutableList<Inntektsgrunnlag> = mutableListOf()
-
-            // Inntekt fram til første uttak:
-
-            if (isAfterToday(spec.foersteUttakDato) && spec.forventetInntektBeloep > 0) {
-                inntektsgrunnlagListe.add(
-                    inntektsgrunnlagForSoekerOrEps(
-                        beloep = spec.forventetInntektBeloep,
-                        fom = LocalDate.now(),
-                        tom = getRelativeDateByDays(spec.foersteUttakDato!!, -1)
-                    )
-                )
-            }
-
-            // Inntekt mellom første og andre uttak:
-
-            val inntektUnderAfpEllerGradertUttak: Int =
-                spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
-
-            val gjelder2FaseSimulering: Boolean = spec.gjelder2FaseSimulering()
-
-            if (gjelder2FaseSimulering && inntektUnderAfpEllerGradertUttak > 0) {
-                inntektsgrunnlagListe.add(
-                    inntektsgrunnlagForSoekerOrEps(
-                        beloep = inntektUnderAfpEllerGradertUttak,
-                        fom = spec.foersteUttakDato,
-                        tom = getRelativeDateByDays(spec.heltUttakDato!!, -1)
-                    )
-                )
-            }
-
-            // Inntekt etter start av helt uttak:
-
-            val inntektEtterHeltUttakAntallAar: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
-
-            if (spec.inntektEtterHeltUttakBeloep > 0 && inntektEtterHeltUttakAntallAar > 0) {
-                val fom = if (gjelder2FaseSimulering) spec.heltUttakDato else spec.foersteUttakDato
-                val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, inntektEtterHeltUttakAntallAar), -1)
-                inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
-            }
-
-            inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
-                it.bruk == true && !isForventetPensjongivendeInntekt(it)
-            })
-
-            return inntektsgrunnlagListe
-        }
-
         private fun isForventetPensjongivendeInntekt(grunnlag: Inntektsgrunnlag): Boolean =
             grunnlag.inntektTypeEnum == InntekttypeEnum.FPI
-
-        private fun calculateGrunnbeloepForhold(
-            aar: Int,
-            spec: SimuleringSpec,
-            veietGrunnbeloepListe: List<VeietSatsResultat>,
-            grunnbeloep: Int
-        ): Double {
-            val innevaerendeAar = LocalDate.now().year
-
-            return if (spec.erAnonym && aar < innevaerendeAar)
-                findValidForYear(veietGrunnbeloepListe, aar)?.let { it.verdi / grunnbeloep } ?: 1.0
-            else
-                1.0
-        }
 
         private fun oensketVirkningDato(spec: SimuleringSpec) =
             if (spec.erAnonym)

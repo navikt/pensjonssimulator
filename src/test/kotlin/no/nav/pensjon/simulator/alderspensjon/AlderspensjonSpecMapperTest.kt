@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -21,7 +21,7 @@ class AlderspensjonSpecMapperTest : FunSpec({
             erFoerstegangsuttak = true
         ) shouldBe
                 simuleringSpec(
-                    type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+                    type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
                     livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)
                 )
     }
@@ -32,7 +32,7 @@ class AlderspensjonSpecMapperTest : FunSpec({
             foedselsdato = LocalDate.of(1964, 1, 1),
             erFoerstegangsuttak = false // => endring
         ) shouldBe
-                simuleringSpec(type = SimuleringType.ENDR_ALDER, livsvarigOffentligAfpRettFom = null)
+                simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER, livsvarigOffentligAfpRettFom = null)
     }
 })
 
@@ -53,7 +53,7 @@ private fun alderspensjonSpec(livsvarigOffentligAfpRettFom: LocalDate?) =
         livsvarigOffentligAfpRettFom
     )
 
-private fun simuleringSpec(type: SimuleringType, livsvarigOffentligAfpRettFom: LocalDate?) =
+private fun simuleringSpec(type: SimuleringTypeEnum, livsvarigOffentligAfpRettFom: LocalDate?) =
     SimuleringSpec(
         type,
         sivilstatus = SivilstatusType.GIFT,

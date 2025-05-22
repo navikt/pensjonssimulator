@@ -3,12 +3,12 @@ package no.nav.pensjon.simulator.core.result
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.findElementOfType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.sortedSubset
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
@@ -461,7 +461,7 @@ class SimuleringResultPreparer(
     private fun findKnekkpunkter(spec: SimuleringSpec, foedselsdato: LocalDate?): SortedSet<LocalDate> {
         val knekkpunkter: SortedSet<LocalDate> = TreeSet()
 
-        if (spec.type != SimuleringType.AFP_ETTERF_ALDER) {
+        if (spec.type != SimuleringTypeEnum.AFP_ETTERF_ALDER) {
             addBeregningsinfoKnekkpunkt(
                 knekkpunkter,
                 spec.foersteUttakDato!!

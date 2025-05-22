@@ -5,8 +5,8 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -133,7 +133,7 @@ private fun arrangeSimulator() =
  */
 private fun simuleringSpec(foersteUttakDato: LocalDate, uttaksgrad: UttakGradKode, heltUttakDato: LocalDate) =
     SimuleringSpec(
-        type = SimuleringType.ALDER_M_AFP_PRIVAT,
+        type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
         sivilstatus = SivilstatusType.UGIF,
         epsHarPensjon = false,
         foersteUttakDato = foersteUttakDato,

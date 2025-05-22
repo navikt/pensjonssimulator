@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.endring
 
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayOfMonth
@@ -51,7 +51,7 @@ object EndringValidator {
             throw InvalidArgumentException("AntallArInntektEtterHeltUttak must be set")
         }*/
 
-        if (simuleringType == SimuleringType.ENDR_ALDER_M_GJEN) {
+        if (simuleringType == SimuleringTypeEnum.ENDR_ALDER_M_GJEN) {
             if (spec.avdoed?.doedDato == null) {
                 throw InvalidArgumentException("avdod.dodsdato must be set for simuleringstype $simuleringType")
             }
@@ -60,19 +60,20 @@ object EndringValidator {
 
     // SimulerEndringAvAPCommand.validateRequestBasedOnLopendeYtelser
     fun validateRequestBasedOnLoependeYtelser(spec: SimuleringSpec, forrigeAlderspensjon: AbstraktBeregningsResultat?) {
-        if (spec.type == SimuleringType.ENDR_ALDER_M_GJEN && !harAlderspensjonMedGjenlevenderett(forrigeAlderspensjon)) {
+        if (spec.type == SimuleringTypeEnum.ENDR_ALDER_M_GJEN &&
+            !harAlderspensjonMedGjenlevenderett(forrigeAlderspensjon)
+        ) {
             validateBasedOnLoependeYtelser(spec)
         }
     }
 
     // SimulerEndringAvAPCommand.hasApWithGjenlevenderett
-    private fun harAlderspensjonMedGjenlevenderett(resultat: AbstraktBeregningsResultat?): Boolean {
-        return when (resultat) {
+    private fun harAlderspensjonMedGjenlevenderett(resultat: AbstraktBeregningsResultat?): Boolean =
+        when (resultat) {
             is BeregningsResultatAlderspensjon2011 -> resultat.beregningsinformasjon?.harGjenlevenderett == true
             is BeregningsResultatAlderspensjon2016 -> resultat.beregningsResultat2011?.beregningsInformasjonKapittel19?.rettPaGjenlevenderett == true
             else -> false
         }
-    }
 
     // SimulerEndringAvAPCommandHelper.validateRequestBasedOnLopendeYtelser
     private fun validateBasedOnLoependeYtelser(spec: SimuleringSpec) {

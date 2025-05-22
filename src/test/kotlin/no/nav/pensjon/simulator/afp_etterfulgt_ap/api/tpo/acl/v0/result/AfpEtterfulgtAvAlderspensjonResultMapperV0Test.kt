@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
@@ -263,7 +263,7 @@ private fun mockSimuleringSpec(
     nesteMaaned: LocalDate,
     foedseldato: LocalDate
 ) = SimuleringSpec(
-    type = SimuleringType.AFP_ETTERF_ALDER,
+    type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
     sivilstatus = SivilstatusType.GIFT,
     epsHarPensjon = true,
     foersteUttakDato = nesteMaaned,

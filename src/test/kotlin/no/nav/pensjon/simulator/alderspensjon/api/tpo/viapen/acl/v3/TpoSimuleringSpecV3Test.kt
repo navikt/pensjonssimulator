@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -16,7 +16,7 @@ class TpoSimuleringSpecV3Test : FunSpec({
             epsPensjon = true,
             eps2G = false,
             utenlandsopphold = 1,
-            simuleringType = SimuleringType.ALDER,
+            simuleringType = SimuleringTypeEnum.ALDER,
             fremtidigInntektList = listOf(
                 InntektSpecLegacyV3(arligInntekt = 2, fomDato = LocalDate.of(2021, 1, 1))
             ),

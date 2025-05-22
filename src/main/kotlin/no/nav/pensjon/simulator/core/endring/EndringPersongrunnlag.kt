@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.Avdoed
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -162,7 +161,7 @@ class EndringPersongrunnlag(
         grunnbeloep: Int
     ): Persongrunnlag =
         relevantPersongrunnlag(eksisterendeEps).also {
-            if (spec.type == SimuleringType.ENDR_ALDER_M_GJEN) {
+            if (spec.type == SimuleringTypeEnum.ENDR_ALDER_M_GJEN) {
                 convertEpsToAvdoed(it, spec.avdoed!!) // assuming non-null avdoed
             } else if (epsPaavirker) {
                 addInntektsgrunnlagForEps(it, foersteUttakDato, grunnbeloep)
@@ -330,7 +329,7 @@ class EndringPersongrunnlag(
 
         // SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun adjustPersondetaljListe(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
-            val medGjenlevenderett: Boolean = spec.type == SimuleringType.ENDR_ALDER_M_GJEN
+            val medGjenlevenderett: Boolean = spec.type == SimuleringTypeEnum.ENDR_ALDER_M_GJEN
 
             if (medGjenlevenderett) {
                 val enke: PersonDetalj = enke(persongrunnlag) ?: enke(spec.avdoed?.doedDato)

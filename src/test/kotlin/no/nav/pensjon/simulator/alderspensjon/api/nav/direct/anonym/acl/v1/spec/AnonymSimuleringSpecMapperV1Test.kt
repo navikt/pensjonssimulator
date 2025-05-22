@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import java.time.LocalDate
@@ -29,7 +29,7 @@ class AnonymSimuleringSpecMapperV1Test : FunSpec({
                 eps2G = true
             )
         ) shouldBe SimuleringSpec(
-            type = SimuleringType.ALDER,
+            type = SimuleringTypeEnum.ALDER,
             foedselAar = 1963,
             foedselDato = LocalDate.of(1963, 1, 1), // January 1
             foersteUttakDato = LocalDate.of(2021, 2, 3),

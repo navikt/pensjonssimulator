@@ -9,9 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeToday
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
@@ -19,16 +17,18 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
-// Corresponds to SimulerAFPogAPCommand (persongrunnlag part)
+// Corresponds to SimulerAFPogAPCommand (persongrunnlag part) in PEN
 @Component
 class Pre2025OffentligAfpPersongrunnlag(
     private val kravService: KravService,
     private val persongrunnlagService: PersongrunnlagService,
-    private val epsService: EpsService
+    private val epsService: EpsService,
+    private val time: Time
 ) {
     // SimulerAFPogAPCommand.opprettPersongrunnlagForBruker
     // + AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForBruker
@@ -99,7 +99,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen()) {
                 retainPersondetaljerHavingVirksomRolle(it)
                 it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-                addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato, grunnbeloep, persongrunnlag = it)
+                addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato!!, grunnbeloep, persongrunnlag = it)
                 kravhode.persongrunnlagListe.add(it)
             }
         }
@@ -122,8 +122,67 @@ class Pre2025OffentligAfpPersongrunnlag(
             this.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
         }
 
+    // PEN: SimulerAFPogAPCommand.addInntektgrunnlagForEPS
+    private fun addEpsInntektGrunnlag(
+        foersteUttakDato: LocalDate,
+        grunnbeloep: Int,
+        persongrunnlag: Persongrunnlag
+    ) {
+        persongrunnlag.inntektsgrunnlagListe.add(
+            epsInntektGrunnlag(
+                grunnbeloep,
+                fomDatoInntekt = inntektFom(foersteUttakDato)
+            )
+        )
+    }
+
+    // PEN: SimulerAFPogAPCommand.findFomDatoInntekt
+    private fun inntektFom(foersteUttakDato: LocalDate): LocalDate {
+        val today = time.today()
+
+        val date: LocalDate =
+            if (foersteUttakDato.isBefore(today)) foersteUttakDato
+            else today
+
+        return foersteDag(date.year)
+    }
+
+    // PEN: SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists
+    private fun beholdKunEnkeHvisEnSlikPersondetaljFinnes(persongrunnlag: Persongrunnlag) {
+        var brukEnkeListe = false
+        val enkeListe: MutableList<PersonDetalj> = mutableListOf()
+
+        persongrunnlag.personDetaljListe.forEach {
+            if (it.bruk == true && gjelderEnke(it) && strengtVirksom(it)) {
+                enkeListe.add(it)
+                brukEnkeListe = true
+            }
+        }
+
+        if (brukEnkeListe) {
+            persongrunnlag.personDetaljListe = enkeListe
+        }
+    }
+
+    // PEN: SimulerAFPogAPCommandHelper.removeAllPersondetaljWithTomDateBeforeToday
+    private fun beholdVirksommePersondetaljer(persongrunnlag: Persongrunnlag) {
+        persongrunnlag.personDetaljListe =
+            persongrunnlag.personDetaljListe.filter {
+                it.bruk == true && virksom(it)
+            }.toMutableList()
+    }
+
+    // Extracted from SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists in PEN
+    private fun strengtVirksom(detalj: PersonDetalj) = virksom(detalj, allowSameDay = false)
+
+    // Extracted from SimulerAFPogAPCommandHelper.removeAllPersondetaljWithTomDateBeforeToday in PEN
+    private fun virksom(detalj: PersonDetalj) = virksom(detalj, allowSameDay = true)
+
+    private fun virksom(detalj: PersonDetalj, allowSameDay: Boolean) =
+        detalj.virkTom == null ||
+                isAfterByDay(detalj.virkTom?.toNorwegianNoon(), time.today().toNorwegianDateAtNoon(), allowSameDay)
+
     companion object {
-        private val today: LocalDate = LocalDate.now()
 
         // SimulerAFPogAPCommandHelper.getPgFromListIfContainsPdForGrunnlagsrolle
         fun persongrunnlagHavingRolle(
@@ -141,62 +200,8 @@ class Pre2025OffentligAfpPersongrunnlag(
             return null
         }
 
-        // SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists
-        private fun beholdKunEnkeHvisEnSlikPersondetaljFinnes(persongrunnlag: Persongrunnlag) {
-            var brukEnkeListe = false
-            val enkeListe: MutableList<PersonDetalj> = mutableListOf()
-
-            persongrunnlag.personDetaljListe.forEach {
-                if (it.bruk == true && gjelderEnke(it) && strengtVirksom(it)) {
-                    enkeListe.add(it)
-                    brukEnkeListe = true
-                }
-            }
-
-            if (brukEnkeListe) {
-                persongrunnlag.personDetaljListe = enkeListe
-            }
-        }
-
         // Extracted from SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists
         private fun gjelderEnke(detalj: PersonDetalj) = SivilstandEnum.ENKE == detalj.sivilstandTypeEnum
-
-        // Extracted from SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists
-        private fun strengtVirksom(detalj: PersonDetalj) = virksom(detalj, allowSameDay = false)
-
-        // Extracted from SimulerAFPogAPCommandHelper.removeAllPersondetaljWithTomDateBeforeToday
-        private fun virksom(detalj: PersonDetalj) = virksom(detalj, allowSameDay = true)
-
-        private fun virksom(detalj: PersonDetalj, allowSameDay: Boolean) =
-            detalj.virkTom == null ||
-                    isAfterByDay(detalj.virkTom?.toNorwegianNoon(), today.toNorwegianDateAtNoon(), allowSameDay)
-
-        // SimulerAFPogAPCommand.addInntektgrunnlagForEPS
-        private fun addEpsInntektGrunnlag(
-            foersteUttakDato: LocalDate?,
-            grunnbeloep: Int,
-            persongrunnlag: Persongrunnlag
-        ) {
-            persongrunnlag.inntektsgrunnlagListe.add(
-                epsInntektGrunnlag(
-                    grunnbeloep,
-                    fomDatoInntekt = inntektFom(foersteUttakDato)
-                )
-            )
-        }
-
-        // SimulerAFPogAPCommand.findFomDatoInntekt
-        private fun inntektFom(foersteUttakDato: LocalDate?): LocalDate {
-            val date1 = foersteUttakDato?.toNorwegianDateAtNoon() //TODO use LocalDate throughout
-
-            val date: Date? =
-                if (isBeforeToday(date1))
-                    date1
-                else
-                    today.toNorwegianDateAtNoon()
-
-            return date?.let { LocalDate.of(getYear(it), 1, 1) } ?: LocalDate.MIN
-        }
 
         // SimulerAFPogAPCommand.createInntektsgrunnlagForEPS
         private fun epsInntektGrunnlag(grunnbeloep: Int, fomDatoInntekt: LocalDate) =
@@ -216,14 +221,6 @@ class Pre2025OffentligAfpPersongrunnlag(
             persongrunnlag.personDetaljListe =
                 persongrunnlag.personDetaljListe.filter {
                     it.bruk == true && it.penRolleTom == null
-                }.toMutableList()
-        }
-
-        // SimulerAFPogAPCommandHelper.removeAllPersondetaljWithTomDateBeforeToday
-        private fun beholdVirksommePersondetaljer(persongrunnlag: Persongrunnlag) {
-            persongrunnlag.personDetaljListe =
-                persongrunnlag.personDetaljListe.filter {
-                    it.bruk == true && virksom(it)
                 }.toMutableList()
         }
 

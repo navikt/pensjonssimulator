@@ -21,9 +21,9 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 /**
  * Handles persongrunnlag in context of 'endring av alderspensjon'.
@@ -35,7 +35,8 @@ class EndringPersongrunnlag(
     private val kravService: KravService,
     private val beholdningService: BeholdningerMedGrunnlagService,
     private val epsService: EpsService,
-    private val persongrunnlagMapper: PersongrunnlagMapper
+    private val persongrunnlagMapper: PersongrunnlagMapper,
+    private val time: Time
 ) {
     // SimulerEndringAvAPCommand.opprettPersongrunnlagForBruker
     fun getPersongrunnlagForSoeker(
@@ -205,6 +206,70 @@ class EndringPersongrunnlag(
         )
     }
 
+    // SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
+    private fun adjustPersondetaljListe(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
+        val medGjenlevenderett: Boolean = spec.type == SimuleringType.ENDR_ALDER_M_GJEN
+
+        if (medGjenlevenderett) {
+            val enke: PersonDetalj = enke(persongrunnlag) ?: enke(spec.avdoed?.doedDato)
+            persongrunnlag.personDetaljListe = mutableListOf(enke) // only a single persondetalj is used when gjenlevenderett
+        } else {
+            beholdRelevantePersondetaljer(persongrunnlag)
+        }
+    }
+
+    // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
+    private fun enke(persongrunnlag: Persongrunnlag): PersonDetalj? =
+        persongrunnlag.personDetaljListe.firstOrNull { it.bruk == true && isEnke(it) && isValidToday(it) }
+
+    // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
+    private fun isValidToday(detalj: PersonDetalj) =
+        isDateInPeriod(
+            dato = time.today().toNorwegianDateAtNoon(),
+            fom = detalj.virkFom,
+            tom = detalj.virkTom
+        ) // NB: Here virkFom|Tom is used (not rolleFom|TomDato)
+    // The relationship between virk- and rolle-dato is described in https://confluence.adeo.no/pages/viewpage.action?pageId=282132550
+    // ("Løsningsbeskrivelse - P17 - Periodisering av persongrunnlag - utbedring av periodebegrep i Familieforhold (PK-52707)")
+    // and in https://jira.adeo.no/browse/PKDRAGE-3031
+
+    // SimulerEndringAvAPCommandHelper.addInntektgrunnlagForEPS
+    private fun addInntektsgrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {
+        val inntektFom: LocalDate = findFomDatoInntekt(foersteUttakDato)
+        eps.inntektsgrunnlagListe.add(epsInntektsgrunnlag(grunnbeloep, inntektFom))
+    }
+
+    // SimulerEndringAvAPCommandHelper.findFomDatoInntekt
+    private fun findFomDatoInntekt(foersteUttakDato: LocalDate?): LocalDate {
+        val today = time.today()
+        val dato = foersteUttakDato?.let { if (it.isBefore(today)) it else today } ?: today
+        return LocalDate.of(dato.year, 1, 1)
+    }
+
+    // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
+    private fun inntekt(avdoed: Avdoed) =
+        Inntekt(
+            inntektAar = time.today().year - 1,
+            beloep = avdoed.inntektFoerDoed.toLong()
+        )
+
+    // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
+    private fun beholdRelevantePersondetaljer(grunnlag: Persongrunnlag) {
+        val iterator = grunnlag.personDetaljListe.iterator()
+
+        while (iterator.hasNext()) {
+            with(iterator.next()) {
+                if (this.bruk != true || isValidInPast(detalj = this)) {
+                    iterator.remove()
+                }
+            }
+        }
+    }
+
+    // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker in PEN
+    private fun isValidInPast(detalj: PersonDetalj): Boolean =
+        detalj.penRolleTom?.let { isBeforeByDay(it, time.today(), allowSameDay = false) } == true
+
     private companion object {
 
         // Extracted from SimulerEndringAvAPCommand.doOpprettPersongrunnlagForEPS
@@ -222,20 +287,6 @@ class EndringPersongrunnlag(
                     GrunnlagsrolleEnum.SAMBO
                 )
             } == true
-
-        // SimulerEndringAvAPCommandHelper.addInntektgrunnlagForEPS
-        private fun addInntektsgrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {
-            val inntektFom: LocalDate = findFomDatoInntekt(foersteUttakDato)
-            eps.inntektsgrunnlagListe.add(epsInntektsgrunnlag(grunnbeloep, inntektFom))
-        }
-
-        // SimulerEndringAvAPCommandHelper.findFomDatoInntekt
-        private fun findFomDatoInntekt(foersteUttakDato: LocalDate?): LocalDate {
-            //val dato = if (isBeforeToday(foersteUttakDato)) foersteUttakDato else LocalDate.now()
-            val now = LocalDate.now()
-            val dato = foersteUttakDato?.let { if (it.isBefore(now)) it else now } ?: now
-            return LocalDate.of(dato.year, 1, 1)
-        }
 
         // SimulerEndringAvAPCommandHelper.createInntektsgrunnlagForEPS
         // Assuming kopiertFraGammeltKrav and registerKilde are not used
@@ -256,13 +307,6 @@ class EndringPersongrunnlag(
                 pi = inntekt.beloep.toInt()
                 opptjeningTypeEnum = type
             }
-
-        // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
-        private fun inntekt(avdoed: Avdoed) =
-            Inntekt(
-                inntektAar = LocalDate.now().year - 1,
-                beloep = avdoed.inntektFoerDoed.toLong()
-            )
 
         // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
         private fun persondetalj(avdoed: Avdoed) =
@@ -328,36 +372,6 @@ class EndringPersongrunnlag(
                 // which seems unnecessary
             }
 
-        // SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun adjustPersondetaljListe(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
-            val medGjenlevenderett: Boolean = spec.type == SimuleringType.ENDR_ALDER_M_GJEN
-
-            if (medGjenlevenderett) {
-                val enke: PersonDetalj = enke(persongrunnlag) ?: enke(spec.avdoed?.doedDato)
-                persongrunnlag.personDetaljListe =
-                    mutableListOf(enke) // only a single persondetalj is used when gjenlevenderett
-            } else {
-                beholdRelevantePersondetaljer(persongrunnlag)
-            }
-        }
-
-        // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun beholdRelevantePersondetaljer(grunnlag: Persongrunnlag) {
-            val iterator = grunnlag.personDetaljListe.iterator()
-
-            while (iterator.hasNext()) {
-                with(iterator.next()) {
-                    if (this.bruk != true || isValidInPast(detalj = this)) {
-                        iterator.remove()
-                    }
-                }
-            }
-        }
-
-        // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun enke(persongrunnlag: Persongrunnlag): PersonDetalj? =
-            persongrunnlag.personDetaljListe.firstOrNull { it.bruk == true && isEnke(it) && isValidToday(it) }
-
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun enke(fom: LocalDate?) =
             PersonDetalj().apply {
@@ -373,21 +387,6 @@ class EndringPersongrunnlag(
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
         private fun isEnke(detalj: PersonDetalj) =
             detalj.sivilstandTypeEnum == SivilstandEnum.ENKE
-
-        // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun isValidInPast(detalj: PersonDetalj): Boolean =
-            detalj.penRolleTom?.let { isBeforeByDay(it, LocalDate.now(), false) } == true
-
-        // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
-        private fun isValidToday(detalj: PersonDetalj) =
-            isDateInPeriod(
-                dato = Date(),
-                fom = detalj.virkFom,
-                tom = detalj.virkTom
-            ) // NB: Here virkFom|Tom is used (not rolleFom|TomDato)
-        // The relationship between virk- and rolle-dato is described in https://confluence.adeo.no/pages/viewpage.action?pageId=282132550
-        // ("Løsningsbeskrivelse - P17 - Periodisering av persongrunnlag - utbedring av periodebegrep i Familieforhold (PK-52707)")
-        // and in https://jira.adeo.no/browse/PKDRAGE-3031
 
         // Extracted from SimulerEndringAvAPCommandHelper.isPersonDetaljValid
         private fun isValidInFuture(detalj: PersonDetalj?) =

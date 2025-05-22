@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningR
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayBeforeSecond
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.NorwegianCalendar
@@ -425,6 +425,14 @@ object BeholdningUpdaterUtil {
             calendar.add(Calendar.YEAR, OPPTJENING_MINIMUM_ALDER)
             calendar[Calendar.YEAR]
         }
+    }
+
+    private fun isBeforeDay(first: Date?, second: Date): Boolean {
+        if (first == null) {
+            return false
+        }
+
+        return isFirstDayBeforeSecond(first, second)
     }
 
     // Extract from OppdaterPensjonsbeholdningerHelper.createEmptyBeholdning + createPersonBeholdning

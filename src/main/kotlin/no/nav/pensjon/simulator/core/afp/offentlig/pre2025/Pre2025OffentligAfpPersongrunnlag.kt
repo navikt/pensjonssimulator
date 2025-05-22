@@ -9,9 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeToday
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
@@ -19,10 +17,10 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 // Corresponds to SimulerAFPogAPCommand (persongrunnlag part) in PEN
 @Component
@@ -101,7 +99,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen()) {
                 retainPersondetaljerHavingVirksomRolle(it)
                 it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-                addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato, grunnbeloep, persongrunnlag = it)
+                addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato!!, grunnbeloep, persongrunnlag = it)
                 kravhode.persongrunnlagListe.add(it)
             }
         }
@@ -126,7 +124,7 @@ class Pre2025OffentligAfpPersongrunnlag(
 
     // PEN: SimulerAFPogAPCommand.addInntektgrunnlagForEPS
     private fun addEpsInntektGrunnlag(
-        foersteUttakDato: LocalDate?,
+        foersteUttakDato: LocalDate,
         grunnbeloep: Int,
         persongrunnlag: Persongrunnlag
     ) {
@@ -139,14 +137,14 @@ class Pre2025OffentligAfpPersongrunnlag(
     }
 
     // PEN: SimulerAFPogAPCommand.findFomDatoInntekt
-    private fun inntektFom(foersteUttakDato: LocalDate?): LocalDate {
-        val date1 = foersteUttakDato?.toNorwegianDateAtNoon() //TODO use LocalDate throughout
+    private fun inntektFom(foersteUttakDato: LocalDate): LocalDate {
+        val today = time.today()
 
-        val date: Date? =
-            if (isBeforeToday(date1)) date1
-            else time.today().toNorwegianDateAtNoon()
+        val date: LocalDate =
+            if (foersteUttakDato.isBefore(today)) foersteUttakDato
+            else today
 
-        return date?.let { LocalDate.of(getYear(it), 1, 1) } ?: LocalDate.MIN
+        return foersteDag(date.year)
     }
 
     // PEN: SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists

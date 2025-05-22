@@ -6,17 +6,14 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeToday
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -88,7 +85,7 @@ class TrygdetidSetter(private val time: Time) {
         if (relevantePerioder.isEmpty()) return
 
         findLatest(periodeListe)?.apply { // NB: Using periodeListe, not relevantePerioder (same as in PEN)
-            this.tom = finalTom(tom?.toNorwegianDateAtNoon())
+            this.tom = limitToYesterday(tom).toNorwegianDateAtNoon()
             this.poengIUtAr = false
         }
     }
@@ -135,15 +132,13 @@ class TrygdetidSetter(private val time: Time) {
     }
 
     // Extracted from SettTrygdetidHelper.conditionallyAdjustLastTrygdetidsgrunnlag in PEN
-    private fun finalTom(tom: Date?): Date {
-        // isBeforeToday applies noon before comparing
-        val validTom: Date = if (tom == null || !isBeforeToday(tom)) yesterday() else tom
-        return validTom.toNorwegianNoon()
-    }
+    private fun limitToYesterday(tom: LocalDate?): LocalDate =
+        if (tom?.isBefore(time.today()) == true) tom
+        else yesterday()
 
     // PEN: no.stelvio.common.util.DateUtil.getYesterday + getRelativeDateFromNow
-    private fun yesterday(): Date =
-        getRelativeDateByDays(time.today().toNorwegianDateAtNoon(), -1)
+    private fun yesterday(): LocalDate =
+        time.today().minusDays(1)
 
     private companion object {
         private const val NEDRE_ALDERSGRENSE = 16

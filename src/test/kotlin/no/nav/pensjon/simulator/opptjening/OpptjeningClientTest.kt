@@ -47,7 +47,6 @@ class OpptjeningClientTest : FunSpec({
             .responseTimeout(Duration.ofSeconds(3))
             .doOnConnected { it.addHandlerLast(ReadTimeoutHandler(3)) }
 
-
         webServer = MockWebServer().also {
             it.start()
             baseUrl = "http://localhost:${it.port}"
@@ -62,7 +61,7 @@ class OpptjeningClientTest : FunSpec({
                 retryAttempts = "1",
                 webClientBuilder = webClient.mutate(),
                 traceAid = mock(TraceAid::class.java),
-                time = { LocalDate.of(2025, 1, 1) }
+                time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
             )
         }
     }
@@ -92,6 +91,19 @@ class OpptjeningClientTest : FunSpec({
         )
 
         client.hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(123456, LocalDate.of(2025, 1, 1))
+    }
+
+    test("skal returnere 0 inntekt med fom lik 1. januar inneværende år") {
+        webServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody("")
+        )
+
+        client.hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(
+            aarligBeloep = 0,
+            fom = LocalDate.of(2024, 1, 1) // "inneværende år" er 2024 siden "dagens dato" er 2024-06-15
+        )
     }
 
     test("skal kaste EgressException ved 500 Internal Server Error") {

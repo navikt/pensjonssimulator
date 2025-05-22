@@ -10,7 +10,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
 import no.nav.pensjon.simulator.core.krav.Inntekt
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.erEps
@@ -18,6 +17,7 @@ import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
@@ -30,7 +30,8 @@ import java.time.LocalDate
  */
 @Service
 class EpsService(
-    private val personService: PersonService,
+    private val pensjonPersonService: PersonService,
+    private val generalPersonService: GeneralPersonService,
     private val persongrunnlagService: PersongrunnlagService,
     private val persongrunnlagMapper: PersongrunnlagMapper,
     private val opptjeningUpdater: OpptjeningUpdater,
@@ -56,7 +57,7 @@ class EpsService(
             val today: LocalDate = time.today()
 
             val foersteUttakDato: LocalDate =
-                spec.foersteUttakDato?.let { if (isBeforeDay(it, today)) it else today } ?: today
+                spec.foersteUttakDato?.let { if (it.isBefore(today)) it else today } ?: today
 
             grunnlag.inntektsgrunnlagListe.add(
                 epsInntektGrunnlag(grunnbeloep, foersteUttakAar = foersteUttakDato.year)
@@ -69,7 +70,7 @@ class EpsService(
     // OpprettKravHodeHelper.createPersongrunnlagInCaseOfGjenlevenderett
     private fun gjenlevenderettPersongrunnlag(avdoed: Avdoed?, soekerPid: Pid?, kravhode: Kravhode): Persongrunnlag {
         // Del 1
-        val avdoedPerson = avdoed?.pid?.let(personService::person)
+        val avdoedPerson = avdoed?.pid?.let(pensjonPersonService::person)
             ?: throw BadSpecException("Gjenlevenderett: Avdød person med PID ${avdoed?.pid} ikke funnet")
 
         val persongrunnlag: Persongrunnlag = persongrunnlagMapper.avdoedPersongrunnlag(
@@ -118,7 +119,7 @@ class EpsService(
     }
 
     private fun foedselsdato(spec: SimuleringSpec): LocalDate =
-        spec.pid?.let(personService::person)?.foedselsdato ?: foersteDag(spec.foedselAar)
+        spec.pid?.let(generalPersonService::foedselsdato) ?: foersteDag(spec.foedselAar)
     // NB: Not using spec.foedselDato here (for unknown reasons)
 
     companion object {

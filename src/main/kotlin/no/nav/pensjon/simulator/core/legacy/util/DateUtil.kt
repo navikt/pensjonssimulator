@@ -24,12 +24,21 @@ object DateUtil {
     fun monthOfYearRange1To12(date: LocalDate): Int =
         monthOfYearRange1To12(date.toNorwegianDateAtNoon())
 
+    fun dateIsValid(fom: Date?, tom: Date?, virkFom: LocalDate?, virkTom: LocalDate?) =
+        intersectsWithPossiblyOpenEndings(
+            o1Start = fom?.toNorwegianLocalDate(),
+            o1End = tom?.toNorwegianLocalDate(),
+            o2Start = virkFom,
+            o2End = virkTom,
+            considerContactByDayAsIntersection = true
+        )
+
     /**
      * Removes the values for HOUR_OF_DAY, MINUTES, SECONDS and MILLISECONDS before the compare such
      * that same day is regarded as intersection if `considerContactByDayAsIntersection` is true. The endings of
      * the respective periods can be NULL, if so these will be set to infinity.
      */
-    fun intersectsWithPossiblyOpenEndings(
+    private fun intersectsWithPossiblyOpenEndings(
         o1Start: LocalDate?, o1End: LocalDate?, o2Start: LocalDate?, o2End: LocalDate?,
         considerContactByDayAsIntersection: Boolean
     ): Boolean =
@@ -176,12 +185,12 @@ object DateUtil {
         if (tom == null) {
             tomOk = true
         } else {
-            if (isBeforeDay(dato, tom) || isSameDay(dato, tom)) {
+            if (isFirstDayBeforeSecond(dato, tom) || isSameDay(dato, tom)) {
                 tomOk = true
             }
         }
 
-        return tomOk && (isBeforeDay(fom, dato) || isSameDay(dato, fom))
+        return tomOk && (isFirstDayBeforeSecond(fom, dato) || isSameDay(dato, fom))
     }
 
     fun isDateInPeriod(dato: LocalDate?, fom: Date?, tom: Date?): Boolean =
@@ -201,29 +210,11 @@ object DateUtil {
     fun isSameDay(a: LocalDate?, b: LocalDate?): Boolean =
         isSameDay(a?.toNorwegianDateAtNoon(), b?.toNorwegianDateAtNoon())
 
-    /**
-     * Checks if one date is before another date.
-     * Only uses the date portion of the input, not taking the time portion in account.
-     */
-    // no.stelvio.common.util.DateUtil.isBeforeDay
-    fun isBeforeDay(first: Date?, second: Date?): Boolean {
-        if (first == null) {
-            return false
-        }
-
+    fun isFirstDayBeforeSecond(first: Date, second: Date): Boolean {
         val firstCalendar: Calendar = NorwegianCalendar.forNoon(first)
-        val secondCalendar: Calendar = NorwegianCalendar.forNoon(second ?: Date())
+        val secondCalendar: Calendar = NorwegianCalendar.forNoon(second)
         return firstCalendar.time.before(secondCalendar.time)
     }
-
-    fun isBeforeDay(first: Date?, second: LocalDate?): Boolean =
-        isBeforeDay(first, second?.toNorwegianDateAtNoon())
-
-    fun isBeforeDay(first: LocalDate?, second: LocalDate?): Boolean =
-        isBeforeDay(first?.toNorwegianDateAtNoon(), second?.toNorwegianDateAtNoon())
-
-    // no.stelvio.common.util.DateUtil.isBeforeToday
-    fun isBeforeToday(date: Date?): Boolean = isBeforeDay(date, null as Date?)
 
     // SimuleringEtter2011Utils.firstDayOfMonthAfterUserTurnsGivenAge
     fun firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato: Date, alderAar: Int): Date =

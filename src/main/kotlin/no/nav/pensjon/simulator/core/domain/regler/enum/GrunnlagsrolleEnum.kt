@@ -1,20 +1,85 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
-// 2025-03-19
+/**
+ * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/GrunnlagsrolleEnum.kt
+ * Copied 2025-05-22
+ * Plus added comments
+ */
 enum class GrunnlagsrolleEnum {
-    BARN,
-    FBARN,
-    SOSKEN,
-    MOR,
-    FAR,
-    EKTEF,
-    PARTNER,
-    SAMBO,
-    SOKER,
-    AVDOD,
+    /**
+     * Avdødes barn
+     */
     ABARN,
+
+    /**
+     * Avdødes ektefelle
+     */
     AEKTEF,
+
+    /**
+     * Avdødes fosterbarn
+     */
     AFBARN,
+
+    /**
+     * Avdødes partner
+     */
     APARTNER,
-    ASAMBO
+
+    /**
+     * Avdødes samboer
+     */
+    ASAMBO,
+
+    /**
+     * Avdød
+     */
+    AVDOD,
+
+    /**
+     * Barn
+     */
+    BARN,
+
+    /**
+     * Ektefelle
+     */
+    EKTEF,
+
+    /**
+     * Far
+     */
+    FAR,
+
+    /**
+     * Fosterbarn
+     */
+    FBARN,
+
+    /**
+     * Mor
+     */
+    MOR,
+
+    /**
+     * Partner
+     */
+    PARTNER,
+
+    /**
+     * Samboer
+     */
+    SAMBO,
+
+    /**
+     * Bruker
+     */
+    SOKER,
+
+    /**
+     * Søsken
+     */
+    SOSKEN
+
+    // NB: PEN GrunnlagRolle also has MEDMOR
 }

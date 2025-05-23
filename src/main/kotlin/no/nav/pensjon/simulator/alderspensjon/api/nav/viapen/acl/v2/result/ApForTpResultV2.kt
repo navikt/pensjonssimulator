@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
-import no.nav.pensjon.simulator.core.domain.SivilstandType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import java.util.*
 
 /**
@@ -11,7 +11,7 @@ data class ApForTpResultV2(
     val ap: ApForTpAlderspensjonV2? = null,
     val afpPrivat: List<ApForTpPrivatAfpPeriodeV2> = emptyList(),
     val afpOffentlig: ApForTpSimuleringResultatV2? = null,
-    val sivilstand: SivilstandType? = null
+    val sivilstand: SivilstandEnum? = null
 )
 
 data class ApForTpAlderspensjonV2(

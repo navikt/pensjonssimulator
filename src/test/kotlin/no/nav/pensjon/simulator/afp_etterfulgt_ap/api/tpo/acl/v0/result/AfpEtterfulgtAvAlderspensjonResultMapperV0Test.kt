@@ -3,9 +3,9 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
@@ -231,7 +231,7 @@ private fun mockSimulatorOutput(
                         minstePensjonsnivaSats = 30.0
                         skjermingstillegg = 31
                         startMaaned = 1
-                        vinnendeBeregning = GrunnlagRolle.SOKER
+                        vinnendeBeregning = GrunnlagsrolleEnum.SOKER
                         uttakGrad = 100.0
                         kapittel20Pensjon = 10
                         vektetKapittel20Pensjon = 11

@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -9,40 +9,40 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
-// Extracts from VilkarsprovOgBeregnAlderHelper + SimpleFpenService
+// Extracts from VilkarsprovOgBeregnAlderHelper + SimpleFpenService in PEN
 object PeriodiseringUtil {
 
-    // VilkarsprovOgBeregnAlderHelper.periodiserGrunnlagAndModifyKravhode
+    // PEN: VilkarsprovOgBeregnAlderHelper.periodiserGrunnlagAndModifyKravhode
     fun periodiserGrunnlagAndModifyKravhode(
-        virkFom: LocalDate,
+        virkningFom: LocalDate,
         kravhode: Kravhode,
         beholdningListe: List<Pensjonsbeholdning>,
-        sakType: SakType?
+        sakType: SakTypeEnum?
     ): Kravhode =
-        periodiserGrunnlag(virkFom, kravhode, sakType).also {
-            retainBeholdningerUpToVirkFom(it, beholdningListe, virkFom)
-            setLivsvarigFulltUttak(it, virkFom)
+        periodiserGrunnlag(virkningFom, kravhode, sakType).also {
+            retainBeholdningerFramTilDato(it, beholdningListe, virkningFom)
+            setLivsvarigFulltUttak(it, virkningFom)
             removeNonAlderspensjonKravlinjer(it)
         }
 
     // SimpleFpenService.periodiserGrunnlag
-    fun periodiserGrunnlag(virkFom: LocalDate, kravhode: Kravhode, sakType: SakType?): Kravhode =
+    fun periodiserGrunnlag(virkningFom: LocalDate, kravhode: Kravhode, sakType: SakTypeEnum?): Kravhode =
         BehandlingPeriodeUtil.periodiserGrunnlag(
-            virkningFom = virkFom,
+            virkningFom,
             virkningTom = null,
             originalKravhode = kravhode,
             periodiserFomTomDatoUtenUnntak = true,
-            sakType = sakType
+            sakType
         )
 
     // VilkarsprovOgBeregnAlderHelper.clearBeholdningslisteOnKravhodeAndAddNewBeholdningerWithFomBeforeOrSameAsVirkDatoFom
-    private fun retainBeholdningerUpToVirkFom(
+    private fun retainBeholdningerFramTilDato(
         kravhode: Kravhode,
         beholdningListe: List<Pensjonsbeholdning>,
-        virkFom: LocalDate
+        dato: LocalDate
     ) {
         val retainedBeholdninger = beholdningListe.filter {
-            isBeforeByDay(it.fom, virkFom, true)
+            isBeforeByDay(it.fom, dato, allowSameDay = true)
         }
 
         kravhode.hentPersongrunnlagForSoker().also {
@@ -58,7 +58,9 @@ object PeriodiseringUtil {
             tomDato = null
             uttaksgrad = 100
             // uttaksgradKopiert = false <----- seemingly unused in simulering context
-        }.also { it.finishInit() }
+        }.also {
+            it.finishInit()
+        }
 
         kravhode.uttaksgradListe = mutableListOf(uttaksgrad)
     }

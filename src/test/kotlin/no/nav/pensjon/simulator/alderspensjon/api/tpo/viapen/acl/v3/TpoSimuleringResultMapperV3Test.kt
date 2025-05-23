@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
@@ -30,7 +30,7 @@ class TpoSimuleringResultMapperV3Test : FunSpec({
                             aarligBeloep = 1
                             maanedligBeloep = 2
                             startMaaned = 3
-                            vinnendeBeregning = GrunnlagRolle.SOKER
+                            vinnendeBeregning = GrunnlagsrolleEnum.SOKER
                             uttakGrad = 1.2
                             kapittel20Pensjon = 4
                             vektetKapittel20Pensjon = 5

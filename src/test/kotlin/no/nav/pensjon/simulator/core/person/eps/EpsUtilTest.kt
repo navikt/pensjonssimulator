@@ -2,12 +2,12 @@ package no.nav.pensjon.simulator.core.person.eps
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 
 /**
@@ -16,7 +16,7 @@ import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 class EpsUtilTest : FunSpec({
 
     test("'epsMottarPensjon' should be false for gjenlevenderett") {
-        val spec = simuleringSpec(type = SimuleringType.ALDER_M_GJEN)
+        val spec = simuleringSpec(type = SimuleringTypeEnum.ALDER_M_GJEN)
         EpsUtil.epsMottarPensjon(spec) shouldBe false
     }
 
@@ -44,11 +44,11 @@ class EpsUtilTest : FunSpec({
     }
 
     test("'gjelderGjenlevenderett' should be false if simuleringtype ikke gjelder gjenlevenderett") {
-        EpsUtil.gjelderGjenlevenderett(SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) shouldBe false
+        EpsUtil.gjelderGjenlevenderett(SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) shouldBe false
     }
 
     test("'gjelderGjenlevenderett' should be true if simuleringtype gjelder gjenlevenderett") {
-        EpsUtil.gjelderGjenlevenderett(SimuleringType.ENDR_ALDER_M_GJEN) shouldBe true
+        EpsUtil.gjelderGjenlevenderett(SimuleringTypeEnum.ENDR_ALDER_M_GJEN) shouldBe true
     }
 
     test("'setEpsMottarPensjon' should not set 'epsMottarPensjon' if EPS ikke mottar pensjon") {
@@ -72,7 +72,7 @@ class EpsUtilTest : FunSpec({
         EpsUtil.setEpsMottarPensjon(
             resultat,
             spec = simuleringSpec(
-                type = SimuleringType.ALDER_M_GJEN, // gjelder gjenlevenderett
+                type = SimuleringTypeEnum.ALDER_M_GJEN, // gjelder gjenlevenderett
                 sivilstatus = SivilstatusType.GIFT,
                 epsHarPensjon = false
             )

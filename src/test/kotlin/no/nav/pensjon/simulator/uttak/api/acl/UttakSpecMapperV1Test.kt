@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.uttak.api.acl
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -34,7 +34,7 @@ class UttakSpecMapperV1Test : FunSpec({
                 arIUtlandetEtter16 = 5
             )
         ) shouldBe SimuleringSpec(
-            type = SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+            type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
             sivilstatus = SivilstatusType.UGIF,
             epsHarPensjon = false,
             foersteUttakDato = null,

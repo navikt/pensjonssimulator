@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.ytelse
 
-import no.nav.pensjon.simulator.core.domain.SimuleringType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.ytelse.client.YtelseClient
@@ -28,7 +28,7 @@ open class YtelseService(private val client: YtelseClient) {
                     alderspensjonFlags = null,
                     endringAlderspensjonFlags = null,
                     pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
-                        gjelderFpp = spec.type == SimuleringType.AFP_FPP,
+                        gjelderFpp = spec.type == SimuleringTypeEnum.AFP_FPP,
                         sivilstatusUdefinert = false //TODO check if this can happen: spec.sivilstatus == null
                     )
                 )
@@ -54,7 +54,7 @@ open class YtelseService(private val client: YtelseClient) {
                     avdoed = spec.avdoed,
                     alderspensjonFlags = null,
                     endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(
-                        inkluderPrivatAfp = spec.type == SimuleringType.ENDR_AP_M_AFP_PRIVAT
+                        inkluderPrivatAfp = spec.type == SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
                     ),
                     pre2025OffentligAfpYtelserFlags = null
                 )
@@ -71,7 +71,7 @@ open class YtelseService(private val client: YtelseClient) {
             )
         }
 
-        if (spec.type == SimuleringType.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.hentLopendeYtelser line 103
+        if (spec.type == SimuleringTypeEnum.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.hentLopendeYtelser line 103
             return LoependeYtelser(
                 soekerVirkningFom = LocalDate.of(1901, 1, 1),
                 avdoedVirkningFom = null,
@@ -90,7 +90,7 @@ open class YtelseService(private val client: YtelseClient) {
                 foersteUttakDato = spec.foersteUttakDato!!,
                 avdoed = spec.avdoed,
                 alderspensjonFlags = AlderspensjonYtelserFlags(
-                    inkluderPrivatAfp = spec.type == SimuleringType.ALDER_M_AFP_PRIVAT
+                    inkluderPrivatAfp = spec.type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
                 ),
                 endringAlderspensjonFlags = null,
                 pre2025OffentligAfpYtelserFlags = null

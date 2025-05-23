@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.legacy
 
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import java.util.*
 
 /**
@@ -31,7 +31,7 @@ data class OutputLegacyBeregningInformasjon(
     /**
      * Angir om det er søkers eller avdødes beregning som ligger til grunn for pensjonsperioden.
      */
-    val vinnendeBeregning: GrunnlagRolle? = null,
+    val vinnendeBeregning: GrunnlagsrolleEnum? = null,
 
     /**
      * Gjeldende uttaksgrad for denne beregningen.

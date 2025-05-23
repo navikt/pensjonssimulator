@@ -75,7 +75,6 @@ data class NavSimuleringSpecV2(
                 "\"epsPensjon\": $epsPensjon, " +
                 "\"eps2G\": $eps2G, " +
                 "\"utenlandsopphold\": $utenlandsopphold, " +
-                "\"simuleringType\": ${textAsString(simuleringType)}, " +
                 "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
                 "\"utenlandsperiodeForSimuleringList\": ${listAsString(utenlandsperiodeForSimuleringList)}, " +
                 "\"forsteUttakDato\": ${textAsString(forsteUttakDato)}, " +

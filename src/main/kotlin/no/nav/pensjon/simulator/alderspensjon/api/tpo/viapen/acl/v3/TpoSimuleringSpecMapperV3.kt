@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3
 
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -16,7 +16,7 @@ class TpoSimuleringSpecMapperV3(val personService: GeneralPersonService) {
         val pid = source.pid?.let(::Pid)
 
         return SimuleringSpec(
-            type = source.simuleringType ?: SimuleringType.ALDER,
+            type = source.simuleringType ?: SimuleringTypeEnum.ALDER,
             sivilstatus = source.sivilstatus ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
             foersteUttakDato = source.foersteUttakDato,

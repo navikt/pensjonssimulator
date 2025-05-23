@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
-import no.nav.pensjon.simulator.core.domain.SimuleringType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -21,7 +21,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(val personService: GeneralPersonS
         val pid = Pid(source.personId)
 
         return SimuleringSpec(
-            type = SimuleringType.AFP_ETTERF_ALDER,
+            type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
             pid = pid,
             sivilstatus = AfpEtterfulgtAvAlderspensjonSivilstandSpecV0.fromExternalValue(source.sivilstandVedPensjonering).internalValue,
             epsHarPensjon = source.epsPensjon,

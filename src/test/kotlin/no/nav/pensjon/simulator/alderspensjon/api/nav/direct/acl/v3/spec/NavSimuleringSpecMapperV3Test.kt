@@ -2,9 +2,9 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
@@ -58,7 +58,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             ),
             inntektSisteMaanedOver1G = 30000,
         ) shouldBe SimuleringSpec(
-            type = SimuleringType.ENDR_ALDER,
+            type = SimuleringTypeEnum.ENDR_ALDER,
             sivilstatus = SivilstatusType.GJPA,
             epsHarPensjon = true,
             foersteUttakDato = LocalDate.of(2025, 8, 1),

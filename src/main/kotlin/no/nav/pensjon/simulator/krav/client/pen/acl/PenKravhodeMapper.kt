@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -53,7 +52,7 @@ object PenKravhodeMapper {
 
     private fun virkningDato(source: PenFoersteVirkningDato) =
         FoersteVirkningDato(
-            sakType = source.sakType?.let(SakType::valueOf),
+            sakType = source.sakType?.let(SakTypeEnum::valueOf),
             kravlinjeType = source.kravlinjeTypeEnum?.let(KravlinjeTypeEnum::valueOf),
             virkningDato = source.virkningsdato?.toNorwegianLocalDate(),
             annenPerson = source.annenPerson?.let(::penPerson)

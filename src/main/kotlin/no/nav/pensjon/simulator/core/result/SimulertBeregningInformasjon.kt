@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.core.result
 
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import java.time.LocalDate
 
 /**
  * Beregningsinformasjon for en beregning av alderspensjon.
- * Dette objektet vil kun finnes på pensjonsperiode dersom det har forekommet en uttaksgradendring i løpet av pensjonsperioden,
- * eller dersom alder = 67 år og bruker har AFP privat.
+ * Dette objektet vil kun finnes på pensjonsperiode dersom det har forekommet en uttaksgradendring
+ * i løpet av pensjonsperioden, eller dersom alder er normalderen og bruker har privat AFP.
  * Objektet beskriver beregningen som kommer som følge av en av disse hendelsene.
  */
 // no.nav.domain.pensjon.kjerne.simulering.SimulertBeregningsinformasjon
@@ -32,7 +32,7 @@ class SimulertBeregningInformasjon {
     /**
      * Angir om det er søkers eller avdødes beregning som ligger til grunn for pensjonsperioden.
      */
-    var vinnendeBeregning: GrunnlagRolle? = null
+    var vinnendeBeregning: GrunnlagsrolleEnum? = null
 
     /**
      * Gjeldende uttaksgrad for denne beregningen.

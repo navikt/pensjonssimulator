@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.testutil
 
 import no.nav.pensjon.simulator.core.domain.Avdoed
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -23,7 +23,7 @@ object TestObjects {
     val simuleringSpec = simuleringSpec()
 
     fun simuleringSpec(
-        type: SimuleringType = SimuleringType.ALDER_M_AFP_PRIVAT,
+        type: SimuleringTypeEnum = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
         sivilstatus: SivilstatusType = SivilstatusType.UGIF,
         epsHarPensjon: Boolean = false,
         foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),

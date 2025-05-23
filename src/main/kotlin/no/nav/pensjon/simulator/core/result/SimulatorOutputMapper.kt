@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.result
 
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
-import no.nav.pensjon.simulator.core.domain.GrunnlagRolle
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
@@ -117,7 +116,9 @@ object SimulatorOutputMapper {
             }
 
             beregningsinfoKapittel19?.let {
-                this.vinnendeBeregning = if (it.gjenlevenderettAnvendt) GrunnlagRolle.AVDOD else GrunnlagRolle.SOKER
+                this.vinnendeBeregning =
+                    if (it.gjenlevenderettAnvendt) GrunnlagsrolleEnum.AVDOD
+                    else GrunnlagsrolleEnum.SOKER
             }
 
             firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), YtelseskomponentTypeEnum.SKJERMT)?.let {

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.uttak
 
-enum class UttakGrad(val prosentsats: Int) {
+enum class Uttaksgrad(val prosentsats: Int) {
     NULL(0),
     TJUE_PROSENT(20),
     FOERTI_PROSENT(40),
@@ -13,6 +13,6 @@ enum class UttakGrad(val prosentsats: Int) {
         @OptIn(ExperimentalStdlibApi::class)
         fun from(prosentsats: Int) =
             entries.singleOrNull { it.prosentsats == prosentsats }
-                ?: throw RuntimeException("Ugyldig prosentsats for uttaksgrad: $prosentsats")
+                ?: throw IllegalArgumentException("Ugyldig prosentsats for uttaksgrad: $prosentsats")
     }
 }

@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 data class TidligstMuligUttak(
     val uttakDato: LocalDate? = null,
-    val uttakGrad: UttakGrad,
+    val uttaksgrad: Uttaksgrad,
     val feil: TidligstMuligUttakFeil? = null
 )
 

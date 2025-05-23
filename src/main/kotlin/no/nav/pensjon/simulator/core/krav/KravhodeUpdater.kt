@@ -3,12 +3,12 @@ package no.nav.pensjon.simulator.core.krav
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
@@ -134,7 +134,7 @@ class KravhodeUpdater(
     private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): Date {
         val sisteDagIMaanedenForNormalder: Date = sisteDagIMaanedenForNormalder(soekerGrunnlag.fodselsdato!!)
 
-        return if (spec.type == SimuleringType.ALDER_M_AFP_PRIVAT &&
+        return if (spec.type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT &&
             isBeforeByDay(
                 thisDate = spec.foersteUttakDato,
                 thatDate = sisteDagIMaanedenForNormalder,

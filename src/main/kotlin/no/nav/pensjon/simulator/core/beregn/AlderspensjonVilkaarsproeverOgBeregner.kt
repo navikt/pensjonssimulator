@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpUtil.getLivsvarigOffentligAfp
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -49,7 +48,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     fun vilkaarsproevOgBeregnAlder(spec: AlderspensjonVilkaarsproeverBeregnerSpec): AlderspensjonBeregnerResult {
         val simuleringSpec = spec.simulering
 
-        if (simuleringSpec.type == SimuleringType.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.vilkarsprovOgBeregnAlder
+        if (simuleringSpec.type == SimuleringTypeEnum.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.vilkarsprovOgBeregnAlder
             return AlderspensjonBeregnerResult(
                 beregningsresultater = mutableListOf(),
                 pensjonsbeholdningPerioder = mutableListOf()

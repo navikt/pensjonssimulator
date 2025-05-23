@@ -36,7 +36,7 @@ class UttakService(
 
         return TidligstMuligUttak(
             uttakDato = tmuAlder.uttakDato,
-            uttakGrad = UttakGrad.from(newSpec.uttakGrad.value.toInt()),
+            uttaksgrad = Uttaksgrad.from(newSpec.uttakGrad.value.toInt()),
             feil = null
         )
     }

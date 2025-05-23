@@ -13,7 +13,7 @@ interface UttakAlderDiscriminator {
         UtilstrekkeligOpptjeningException::class,
         UtilstrekkeligTrygdetidException::class
     )
-    fun simuler(spec: SimuleringSpec): SimulatorOutput
+    fun simuler(initialSpec: SimuleringSpec): SimulatorOutput
 
     fun fetchFoedselsdato(pid: Pid): LocalDate
 }

@@ -5,13 +5,12 @@ import java.time.LocalDate
 
 object OpptjeningsgrunnlagExtractor {
 
-    fun fromDto(source: OpptjeningsgrunnlagResponseDto) : Inntekt? {
-        return source.opptjeningsGrunnlag.inntektListe.filter {
-            it.inntektType == "SUM_PI"
-        }
+    fun fromDto(source: OpptjeningsgrunnlagResponseDto): Inntekt? =
+        source.opptjeningsGrunnlag.inntektListe
+            .filter(::isSumPensjonsgivendeInntekt)
             .maxByOrNull { it.inntektAr }
             ?.let { Inntekt(aarligBeloep = it.belop, fom = LocalDate.of(it.inntektAr, 1, 1)) }
-    }
 
-    fun zeroInntekt() = Inntekt(0, LocalDate.of(LocalDate.now().year, 1, 1))
+    private fun isSumPensjonsgivendeInntekt(inntekt: InntektDto): Boolean =
+        inntekt.inntektType == "SUM_PI"
 }

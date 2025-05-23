@@ -3,26 +3,20 @@ package no.nav.pensjon.simulator.core.beregn
 import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
+import no.nav.pensjon.simulator.core.inntekt.InntektsgrunnlagValidity
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import java.time.LocalDate
 import java.util.*
-import java.util.function.Predicate
 
 // PEN: BehandlingsperiodeUtil
 object BehandlingPeriodeUtil {
@@ -65,7 +59,7 @@ object BehandlingPeriodeUtil {
                 if (detalj.bruk == true
                     && (detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.MOR
                             || detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.FAR
-                            || dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
+                            || DateUtil.dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
                 ) {
                     usePersongrunnlag = true
                 } else {
@@ -94,10 +88,10 @@ object BehandlingPeriodeUtil {
                 newPersongrunnlag.opptjeningsgrunnlagListe.removeIf { !it.bruk }
 
                 newPersongrunnlag.inntektsgrunnlagListe.removeIf(
-                    InntektsgrunnlagIsValidPredicate(
+                    InntektsgrunnlagValidity(
                         sakType,
-                        virkningFom?.toNorwegianDateAtNoon(),
-                        virkningTom?.toNorwegianDateAtNoon(),
+                        virkningFom,
+                        virkningTom,
                         periodiserFomTomDatoUtenUnntak
                     ).negate()
                 )
@@ -150,8 +144,8 @@ object BehandlingPeriodeUtil {
         private val virkTom: Date?
 
         init {
-            this.virkFom = if (virkFom == null) null else Date(virkFom.time)
-            this.virkTom = if (virkTom == null) null else Date(virkTom.time)
+            this.virkFom = virkFom?.let { Date(it.time) }
+            this.virkTom = virkTom?.let { Date(it.time) }
         }
 
         //fun areValid(fom: LocalDate, tom: LocalDate?): Boolean =
@@ -159,32 +153,6 @@ object BehandlingPeriodeUtil {
 
         fun areValid(fom: Date, tom: Date?): Boolean =
             dateIsValid(fom, tom, virkFom, virkTom)
-    }
-
-    internal class InntektsgrunnlagIsValidPredicate(
-        private val sakType: SakType?,
-        virkDatoFom: Date?,
-        virkDatoTom: Date?,
-        periodiserFomTomDatoUtenUnntak: Boolean
-    ) : Predicate<Inntektsgrunnlag> {
-        private val virkDatoFom: Date?
-        private val virkDatoTom: Date?
-        private val periodiserFomTomDatoUtenUnntak: Boolean
-
-        init {
-            this.virkDatoFom = if (virkDatoFom != null) Date(virkDatoFom.time) else null
-            this.virkDatoTom = if (virkDatoTom != null) Date(virkDatoTom.time) else null
-            this.periodiserFomTomDatoUtenUnntak = periodiserFomTomDatoUtenUnntak
-        }
-
-        override fun test(inntektsgrunnlag: Inntektsgrunnlag): Boolean =
-            inntektsgrunnlagIsValid(
-                sakType,
-                inntektsgrunnlag,
-                virkDatoFom?.toNorwegianLocalDate(),
-                virkDatoTom?.toNorwegianLocalDate(),
-                periodiserFomTomDatoUtenUnntak
-            )
     }
 
     /* TODO not used?
@@ -244,8 +212,6 @@ object BehandlingPeriodeUtil {
     private val ALLOW_SAME_DAY_FALSE = false
     */
 
-    private var INNTEKT_IS_RELEVANT_BEFORE_DATE = LocalDate.of(1968, 1, 1)
-
     // This method skips the Persongrunnlag and some other lists of objects (which ones? NB)
     private fun copyKravhodeExceptPersongrunnlag(kravhode: Kravhode, persongrunnlagListe: List<Persongrunnlag>) =
         Kravhode().also {
@@ -296,9 +262,8 @@ object BehandlingPeriodeUtil {
     ): Boolean {
         val relevantTypes =
             EnumSet.of(KravlinjeTypeEnum.GJR, KravlinjeTypeEnum.UT_GJT, KravlinjeTypeEnum.ET, KravlinjeTypeEnum.BT)
-        val currentType = kravlinje.kravlinjeTypeEnum
 
-        return if (relevantTypes.contains(currentType)) {
+        return if (relevantTypes.contains(kravlinje.kravlinjeTypeEnum)) {
             persongrunnlagList
                 .filter { it.penPerson!!.penPersonId == kravlinje.relatertPerson!!.penPersonId }
                 .any { hasRelevantRolleForYtelse(kravlinje, it) }
@@ -313,7 +278,7 @@ object BehandlingPeriodeUtil {
             else -> throw RuntimeException("Unsupported kravlinjetype code " + kravlinje.kravlinjeTypeEnum)
         }
 
-    private fun dateIsValid(fom: Date?, tom: Date?, virkFom: Date?, virkTom: Date?) =
+   private fun dateIsValid(fom: Date?, tom: Date?, virkFom: Date?, virkTom: Date?) =
         intersectsWithPossiblyOpenEndings(
             o1Start = fom,
             o1End = tom,
@@ -321,58 +286,4 @@ object BehandlingPeriodeUtil {
             o2End = virkTom,
             considerContactByDayAsIntersection = true
         )
-
-    private fun dateIsValid(fom: Date?, tom: Date?, virkFom: LocalDate?, virkTom: LocalDate?) =
-        intersectsWithPossiblyOpenEndings(
-            o1Start = fom?.toNorwegianLocalDate(),
-            o1End = tom?.toNorwegianLocalDate(),
-            o2Start = virkFom,
-            o2End = virkTom,
-            considerContactByDayAsIntersection = true
-        )
-
-    private fun inntektsgrunnlagIsValid(
-        sakType: SakType?,
-        grunnlag: Inntektsgrunnlag,
-        virkningFom: LocalDate?,
-        virkningTom: LocalDate?,
-        periodiserFomTomDatoUtenUnntak: Boolean
-    ): Boolean {
-        if (grunnlag.bruk != true) {
-            return false
-        }
-
-        // CR198751: If periodiserFomTomDatoUtenUnntak is true, only fom/tom dates shall be considered.
-        if (periodiserFomTomDatoUtenUnntak) {
-            return dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)
-        }
-
-        if (sakType == SakType.AFP || dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)) {
-            return true
-        }
-
-        // ... or if they are type PGI and have been in use in this year and the two years before (CR201293)
-        val sameDateTwoYearsBefore = getRelativeDateByYear(virkningFom!!, -2)
-        val startofTwoYearBeforeVirkDatoFom = getFirstDateInYear(sameDateTwoYearsBefore)
-        val endOfThisYear = if (virkningTom != null) getLastDateInYear(virkningTom) else null
-        // If type PGI, the Inntektsgrunnlag just has to start sometime after startOfLastYear and before endOfThisYear to be included (CR 72810)
-        if (InntekttypeEnum.PGI == grunnlag.inntektTypeEnum && intersectsWithPossiblyOpenEndings(
-                o1Start = startofTwoYearBeforeVirkDatoFom,
-                o1End = endOfThisYear,
-                o2Start = grunnlag.fom,
-                o2End = grunnlag.tom,
-                considerContactByDayAsIntersection = true
-            )
-        ) {
-            return true
-        }
-
-        return isValidInntektType(grunnlag.inntektTypeEnum) && isValidInntektFom(grunnlag.fom)
-    }
-
-    private fun isValidInntektFom(fom: Date?): Boolean =
-        fom?.let { isBeforeDay(it, INNTEKT_IS_RELEVANT_BEFORE_DATE) } == true
-
-    private fun isValidInntektType(type: InntekttypeEnum?) =
-        InntekttypeEnum.ARBLIGN == type || InntekttypeEnum.AI == type
 }

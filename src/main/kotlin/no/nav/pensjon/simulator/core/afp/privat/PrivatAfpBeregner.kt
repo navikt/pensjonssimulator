@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.core.afp.privat
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -172,7 +172,7 @@ class PrivatAfpBeregner(
          */
         private fun privatAfpKravhode(kravhode: Kravhode) =
             Kravhode().apply {
-                sakType = SakType.AFP_PRIVAT
+                sakType = SakTypeEnum.AFP_PRIVAT
                 regelverkTypeEnum = kravhode.regelverkTypeEnum
                 persongrunnlagListe.add(
                     Persongrunnlag(

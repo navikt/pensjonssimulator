@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravVelgtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
@@ -20,7 +19,7 @@ class PenKravhode {
     var onsketVirkningsdato: Date? = null
     var gjelder: KravGjelder? = null // PEN: KravGjelderCode
     var sakId: Long? = null
-    var sakType: SakType? = null // PEN: SakTypeCode
+    var sakType: SakTypeEnum? = null // PEN: SakTypeCode
     var sakPenPersonFnr: Pid? = null
     var sakForsteVirkningsdatoListe: List<PenFoersteVirkningDato> = emptyList()
     var persongrunnlagListe: MutableList<PenPersongrunnlag> = mutableListOf()

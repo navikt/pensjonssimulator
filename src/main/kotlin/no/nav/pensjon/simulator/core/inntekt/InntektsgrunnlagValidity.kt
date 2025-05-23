@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.inntekt
 
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.dateIsValid
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.util.function.Predicate
 
 class InntektsgrunnlagValidity(
-    private val sakType: SakType?,
+    private val sakType: SakTypeEnum?,
     private val virkDatoFom: LocalDate?,
     private val virkDatoTom: LocalDate?,
     private val periodiserFomTomDatoUtenUnntak: Boolean
@@ -32,7 +32,7 @@ class InntektsgrunnlagValidity(
         private val INNTEKT_IS_RELEVANT_BEFORE_DATE = LocalDate.of(1968, 1, 1)
 
         private fun inntektsgrunnlagIsValid(
-            sakType: SakType?,
+            sakType: SakTypeEnum?,
             grunnlag: Inntektsgrunnlag,
             virkningFom: LocalDate?,
             virkningTom: LocalDate?,
@@ -47,7 +47,7 @@ class InntektsgrunnlagValidity(
                 return dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)
             }
 
-            if (sakType == SakType.AFP || dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)) {
+            if (sakType == SakTypeEnum.AFP || dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)) {
                 return true
             }
 

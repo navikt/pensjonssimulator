@@ -2,9 +2,9 @@ package no.nav.pensjon.simulator.core.krav
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
@@ -73,7 +73,7 @@ private fun simuleringSpecMedOverlappendeUtlandPerioder(): SimuleringSpec =
 
 private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
     SimuleringSpec(
-        type = SimuleringType.ALDER,
+        type = SimuleringTypeEnum.ALDER,
         sivilstatus = SivilstatusType.UGIF,
         epsHarPensjon = false,
         foersteUttakDato = LocalDate.of(2001, 8, 1), // => uttaksperiode 2001 = 1.aug.-31.des., inntektsperiode før uttak = 1.jan.-31.juli

@@ -5,10 +5,10 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
@@ -67,7 +67,7 @@ class KravhodeCreatorTest : FunSpec({
             onsketVirkningsdato shouldBe LocalDate.of(2032, 6, 1) // = heltUttakDato
             gjelder shouldBe null
             sakId shouldBe null
-            sakType shouldBe SakType.ALDER
+            sakType shouldBe SakTypeEnum.ALDER
             regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
         }
     }

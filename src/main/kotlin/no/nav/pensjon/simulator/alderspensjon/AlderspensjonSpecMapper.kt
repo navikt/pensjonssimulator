@@ -2,16 +2,15 @@ package no.nav.pensjon.simulator.alderspensjon
 
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import java.time.LocalDate
 
 /**
- * Maps from particular 'alderspensjon specification'
- * to general 'simulering specification'.
+ * Maps from particular 'alderspensjon specification' to general 'simulering specification'.
  */
 object AlderspensjonSpecMapper {
 
@@ -61,16 +60,16 @@ object AlderspensjonSpecMapper {
     private fun simuleringType(
         livsvarigOffentligAfpRettDato: LocalDate?,
         erFoerstegangsuttak: Boolean
-    ): SimuleringType =
+    ): SimuleringTypeEnum =
         livsvarigOffentligAfpRettDato?.let {
             if (erFoerstegangsuttak)
-                SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG
+                SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG
             else
-                SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+                SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
         } ?: if (erFoerstegangsuttak)
-            SimuleringType.ALDER
+            SimuleringTypeEnum.ALDER
         else
-            SimuleringType.ENDR_ALDER
+            SimuleringTypeEnum.ENDR_ALDER
 
     private fun fremtidigInntekt(source: PensjonInntektSpec) =
         FremtidigInntekt(

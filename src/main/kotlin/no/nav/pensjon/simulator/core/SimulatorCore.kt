@@ -14,9 +14,9 @@ import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.endring.EndringValidator
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
@@ -176,7 +176,7 @@ class SimulatorCore(
             )
             kravhode = pre2025OffentligAfpResult.kravhode
             livsvarigOffentligAfpResult = null
-        } else if (gjelderEndring && spec.type != SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) {
+        } else if (gjelderEndring && spec.type != SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) {
             pre2025OffentligAfpResult =
                 spec.foersteUttakDato?.let { pre2025OffentligAfpEndringBeregner.beregnAfp(kravhode, it) }
             livsvarigOffentligAfpResult = null
@@ -188,8 +188,8 @@ class SimulatorCore(
         } else {
             pre2025OffentligAfpResult = null
             livsvarigOffentligAfpResult =
-                if (spec.type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
-                    spec.type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) // github.com/navikt/pensjon-pen/pull/14792
+                if (spec.type == SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
+                    spec.type == SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG) // github.com/navikt/pensjon-pen/pull/14792
                     foedselsdato?.let {
                         livsvarigOffentligAfpService.beregnAfp(
                             pid = person.pid!!,
@@ -233,7 +233,7 @@ class SimulatorCore(
         log.debug { "Simulator steg 8 - Opprett output" }
 
         val output: SimulatorOutput =
-            if (spec.type == SimuleringType.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
+            if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
                 SimulatorOutput().apply {
                     pre2025OffentligAfp = pre2025OffentligAfpResult?.simuleringResult
                 }
@@ -277,7 +277,7 @@ class SimulatorCore(
 
     private companion object {
         private val simuleringTyperSomKreverTermineringAvPre2025OffentligAfp =
-            EnumSet.of(SimuleringType.ALDER, SimuleringType.ALDER_M_AFP_PRIVAT, SimuleringType.ALDER_M_GJEN)
+            EnumSet.of(SimuleringTypeEnum.ALDER, SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, SimuleringTypeEnum.ALDER_M_GJEN)
 
         private fun mayHavePre2025OffentligAfp(foedselsdato: LocalDate?): Boolean =
             foedselsdato?.let { it.year < OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR } == true

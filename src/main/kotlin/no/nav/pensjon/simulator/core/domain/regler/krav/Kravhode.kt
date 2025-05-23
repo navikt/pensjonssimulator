@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.krav
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -120,7 +119,7 @@ open class Kravhode {
     var sakId: Long? = null
 
     @JsonIgnore
-    var sakType: SakType? = null
+    var sakType: SakTypeEnum? = null
 
     @JsonIgnore
     var sakPenPersonFnr: Pid? = null // sak.penPerson.fnr

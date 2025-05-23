@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.beregn
 
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
@@ -11,10 +11,9 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.inntekt.InntektsgrunnlagValidity
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
+import no.nav.pensjon.simulator.tech.time.Interval
 import java.time.LocalDate
 import java.util.*
 
@@ -27,16 +26,17 @@ object BehandlingPeriodeUtil {
         virkningTom: LocalDate?,
         originalKravhode: Kravhode,
         periodiserFomTomDatoUtenUnntak: Boolean,
-        sakType: SakType?
+        sakType: SakTypeEnum?
     ): Kravhode {
+        val virkningPeriode = Interval(virkningFom, virkningTom)
         val persongrunnlagList = mutableListOf<Persongrunnlag>()
         var usePersongrunnlag: Boolean
 
         for (originalPersongrunnlag in originalKravhode.persongrunnlagListe) {
             usePersongrunnlag = false
 
-            // Trygdetid should always be copied (and sent to preg) since this is the only way that preg can tell us exactly
-            // which trygdetid that has been used by them.
+            // Trygdetid should always be copied (and sent to pensjon-regler), since this is the only way that
+            // pensjon-regler can tell us exactly which trygdetid that has been used by them.
             val newPersongrunnlag =
                 Persongrunnlag(originalPersongrunnlag).apply {
                     gjelderOmsorg = false
@@ -104,22 +104,22 @@ object BehandlingPeriodeUtil {
                     newPersongrunnlag.deleteYrkesskadegrunnlag()
                 }
 
-                val dateValidator = DateValidator(virkningFom?.toNorwegianDateAtNoon(), virkningTom?.toNorwegianDateAtNoon())
-                newPersongrunnlag.utenlandsoppholdListe.removeIf { !dateValidator.areValid(it.fom!!, it.tom) }
+                newPersongrunnlag.utenlandsoppholdListe.removeIf {
+                    virkningPeriode.intersectsWith(it.fom!!, it.tom).not()
+                }
 
                 newPersongrunnlag.instOpphFasteUtgifterperiodeListe.removeIf {
-                    !dateValidator.areValid(it.fom!!, it.tom)
+                    virkningPeriode.intersectsWith(it.fom!!, it.tom).not()
                 }
 
                 newPersongrunnlag.barnetilleggVurderingsperioder.removeIf {
-                    !dateValidator.areValid(it.fomDato!!, it.tomDato)
+                    virkningPeriode.intersectsWith(it.fomDato!!, it.tomDato).not()
                 }
 
-                newPersongrunnlag.beholdninger
-                    .removeIf {
-                        it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B &&
-                                !dateValidator.areValid(it.fom!!, it.tom)
-                    }
+                newPersongrunnlag.beholdninger.removeIf {
+                    it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B &&
+                            virkningPeriode.intersectsWith(it.fom!!, it.tom).not()
+                }
 
                 /* NB Tjenestepensjonsgrunnlag ikke brukt?
                 newPersongrunnlag.tjenestepensjonsgrunnlagList.removeIf(
@@ -137,22 +137,6 @@ object BehandlingPeriodeUtil {
 
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
         return kravhode
-    }
-
-    internal class DateValidator(virkFom: Date?, virkTom: Date?) {
-        private val virkFom: Date?
-        private val virkTom: Date?
-
-        init {
-            this.virkFom = virkFom?.let { Date(it.time) }
-            this.virkTom = virkTom?.let { Date(it.time) }
-        }
-
-        //fun areValid(fom: LocalDate, tom: LocalDate?): Boolean =
-        //    dateIsValid(fom, tom, virkFom, virkTom)
-
-        fun areValid(fom: Date, tom: Date?): Boolean =
-            dateIsValid(fom, tom, virkFom, virkTom)
     }
 
     /* TODO not used?
@@ -277,13 +261,4 @@ object BehandlingPeriodeUtil {
             KravlinjeTypeEnum.BT -> persongrunnlag.isBarnOrFosterbarn()
             else -> throw RuntimeException("Unsupported kravlinjetype code " + kravlinje.kravlinjeTypeEnum)
         }
-
-   private fun dateIsValid(fom: Date?, tom: Date?, virkFom: Date?, virkTom: Date?) =
-        intersectsWithPossiblyOpenEndings(
-            o1Start = fom,
-            o1End = tom,
-            o2Start = virkFom,
-            o2End = virkTom,
-            considerContactByDayAsIntersection = true
-        )
 }

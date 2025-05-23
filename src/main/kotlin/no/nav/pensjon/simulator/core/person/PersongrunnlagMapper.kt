@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.core.person
 
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.Avdoed
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -126,7 +125,7 @@ class PersongrunnlagMapper(
 
     private fun rolleFom(spec: SimuleringSpec): LocalDate? =
         when (spec.type) {
-            SimuleringType.AFP_FPP -> spec.foersteUttakDato?.let(::sisteDagForrigeMaaned)
+            SimuleringTypeEnum.AFP_FPP -> spec.foersteUttakDato?.let(::sisteDagForrigeMaaned)
             else -> time.today()
         }
 
@@ -135,7 +134,7 @@ class PersongrunnlagMapper(
         private val norge = LandkodeEnum.NOR
 
         private val simuleringTyperForGjenlevende =
-            EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN)
+            EnumSet.of(SimuleringTypeEnum.ALDER_M_GJEN, SimuleringTypeEnum.ENDR_ALDER_M_GJEN)
 
         private fun mapToSivilstand(spec: SimuleringSpec): SivilstandEnum {
             if (simuleringTyperForGjenlevende.contains(spec.type)) {

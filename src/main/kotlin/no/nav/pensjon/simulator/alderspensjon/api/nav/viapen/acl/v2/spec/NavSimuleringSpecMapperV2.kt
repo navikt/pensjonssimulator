@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec
 
 import no.nav.pensjon.simulator.core.domain.Avdoed
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -24,7 +24,7 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
 
         return SimuleringSpec(
             type = source.simuleringType?.let { NavSimuleringTypeSpecV2.fromExternalValue(it.name).internalValue }
-                ?: SimuleringType.ALDER,
+                ?: SimuleringTypeEnum.ALDER,
             sivilstatus = source.sivilstatus?.let { NavSivilstandSpecV2.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,

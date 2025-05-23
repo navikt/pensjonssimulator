@@ -4,8 +4,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -167,7 +167,7 @@ private fun simuleringSpec() =
             )
         ),
         brukFremtidigInntekt = true,
-        type = SimuleringType.ALDER,
+        type = SimuleringTypeEnum.ALDER,
         foedselAar = 0, // only for anonym
         forventetInntektBeloep = 0, // inntekt instead given by fremtidigInntektListe
         inntektOver1GAntallAar = 0, // only for anonym

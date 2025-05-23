@@ -4,9 +4,9 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjonN
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonBeholdningPeriode
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
@@ -81,7 +81,7 @@ class FolketrygdBeholdningService(
                 epsHarInntektOver2G = beholdningSpec.epsHarInntektOver2G,
                 fremtidigInntektListe = beholdningSpec.fremtidigInntektListe.map(::fremtidigInntekt).toMutableList(),
                 brukFremtidigInntekt = true,
-                type = if (erFoerstegangsuttak) SimuleringType.ALDER else SimuleringType.ENDR_ALDER, // inkluderAfpPrivat = false
+                type = if (erFoerstegangsuttak) SimuleringTypeEnum.ALDER else SimuleringTypeEnum.ENDR_ALDER, // inkluderAfpPrivat = false
                 foedselAar = 0, // only for anonym
                 forventetInntektBeloep = 0, // inntekt instead given by fremtidigInntektListe
                 inntektOver1GAntallAar = 0, // only for anonym

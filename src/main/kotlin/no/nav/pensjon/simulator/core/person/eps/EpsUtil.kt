@@ -1,11 +1,11 @@
 package no.nav.pensjon.simulator.core.person.eps
 
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import java.util.EnumSet
 
@@ -55,6 +55,6 @@ object EpsUtil {
     fun erEps(sivilstatus: SivilstatusType) =
         EnumSet.of(SivilstatusType.GIFT, SivilstatusType.REPA, SivilstatusType.SAMB).contains(sivilstatus)
 
-    fun gjelderGjenlevenderett(simuleringType: SimuleringType) =
-        EnumSet.of(SimuleringType.ALDER_M_GJEN, SimuleringType.ENDR_ALDER_M_GJEN).contains(simuleringType)
+    fun gjelderGjenlevenderett(simuleringType: SimuleringTypeEnum) =
+        EnumSet.of(SimuleringTypeEnum.ALDER_M_GJEN, SimuleringTypeEnum.ENDR_ALDER_M_GJEN).contains(simuleringType)
 }

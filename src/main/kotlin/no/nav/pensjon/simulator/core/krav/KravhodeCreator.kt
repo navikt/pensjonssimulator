@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpPe
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
-import no.nav.pensjon.simulator.core.domain.SakType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
@@ -88,7 +87,7 @@ class KravhodeCreator(
             onsketVirkningsdato = oensketVirkningDato(spec)
             gjelder = null
             sakId = null
-            sakType = SakType.ALDER
+            sakType = SakTypeEnum.ALDER
             regelverkTypeEnum = regelverkType(foedselAar(person, spec))
         }
 

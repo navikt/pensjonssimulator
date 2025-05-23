@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -19,8 +19,8 @@ class UttakSpecMapperV1(val personService: GeneralPersonService) {
         val foedselsdato = personService.foedselsdato(pid)
 
         return SimuleringSpec(
-            type = source.rettTilAfpOffentligDato?.let { SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG }
-                ?: SimuleringType.ALDER,
+            type = source.rettTilAfpOffentligDato?.let { SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG }
+                ?: SimuleringTypeEnum.ALDER,
             sivilstatus = SivilstatusType.UGIF,
             epsHarPensjon = false,
             foersteUttakDato = null, // ukjent; det er verdien vi ønsker å finne

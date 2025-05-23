@@ -3,8 +3,8 @@ package no.nav.pensjon.simulator.core.spec
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.Avdoed
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
@@ -15,7 +15,7 @@ import java.util.*
 // no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011 &
 // SimuleringSpecAlderspensjon1963Plus
 data class SimuleringSpec(
-    val type: SimuleringType,
+    val type: SimuleringTypeEnum,
     val sivilstatus: SivilstatusType,
     var epsHarPensjon: Boolean,
     val foersteUttakDato: LocalDate?,
@@ -159,10 +159,10 @@ data class SimuleringSpec(
         withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
 
     fun gjelderPre2025OffentligAfp() =
-        EnumSet.of(SimuleringType.AFP_ETTERF_ALDER, SimuleringType.AFP_FPP).contains(type)
+        EnumSet.of(SimuleringTypeEnum.AFP_ETTERF_ALDER, SimuleringTypeEnum.AFP_FPP).contains(type)
 
     fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
-        type == SimuleringType.AFP_ETTERF_ALDER
+        type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 
     /**
      * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak,
@@ -174,21 +174,21 @@ data class SimuleringSpec(
         gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()
 
     fun gjelderPrivatAfpFoersteUttak() =
-        type == SimuleringType.ALDER_M_AFP_PRIVAT
+        type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
 
     //TODO move to SimuleringType?
     fun gjelderEndring() =
-        type == SimuleringType.ENDR_ALDER ||
-                type == SimuleringType.ENDR_AP_M_AFP_PRIVAT ||
-                type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG ||
-                type == SimuleringType.ENDR_ALDER_M_GJEN
+        type == SimuleringTypeEnum.ENDR_ALDER ||
+                type == SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT ||
+                type == SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG ||
+                type == SimuleringTypeEnum.ENDR_ALDER_M_GJEN
 
     //TODO move to SimuleringType?
     fun gjelderAfp() =
-        type == SimuleringType.ALDER_M_AFP_PRIVAT ||
-                type == SimuleringType.ENDR_AP_M_AFP_PRIVAT ||
-                type == SimuleringType.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
-                type == SimuleringType.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+        type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT ||
+                type == SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT ||
+                type == SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
+                type == SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
 
     fun hasSameUttakAs(other: SimuleringSpec) =
         uttakGrad == other.uttakGrad &&

@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
@@ -20,7 +20,7 @@ data class TpoSimuleringSpecV1(
     val epsPensjon: Boolean? = false,
     val eps2G: Boolean? = false,
     val utenlandsopphold: Int? = 0,
-    val simuleringType: SimuleringType? = null,
+    val simuleringType: SimuleringTypeEnum? = null,
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foersteUttakDato: LocalDate? = null,
     val uttakGrad: UttakGradKode? = null,
     @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val heltUttakDato: LocalDate? = null,

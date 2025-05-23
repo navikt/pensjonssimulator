@@ -2,19 +2,67 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
 
 /**
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/SakTypeEnum.kt
- * 2025-01-29
+ * Copied 2025-05-22
+ * Plus added comments
  */
 enum class SakTypeEnum {
-    ALDER,
-    BARNEP,
-    FAM_PL,
-    GJENLEV,
-    KRIGSP,
-    OMSORG,
-    UFOREP,
-    GENRL,
-    GRBL,
-    GAM_YRK,
+    /**
+     * AFP
+     */
     AFP,
-    AFP_PRIVAT
+
+    /**
+     * AFP Privat
+     */
+    AFP_PRIVAT,
+
+    /**
+     * Alderspensjon
+     */
+    ALDER,
+
+    /**
+     * Barnepensjon
+     */
+    BARNEP,
+
+    /**
+     * Familiepleierytelse
+     */
+    FAM_PL,
+
+    /**
+     * Gammel yrkesskade
+     */
+    GAM_YRK,
+
+    /**
+     * Generell
+     */
+    GENRL,
+
+    /**
+     * Gjenlevendeytelse
+     */
+    GJENLEV,
+
+    /**
+     * Grunnblanketter
+     */
+    GRBL,
+
+    /**
+     * Krigspensjon
+     */
+    KRIGSP,
+
+    /**
+     * Omsorgsopptjening
+     */
+    OMSORG,
+
+    /**
+     * Uføretrygd (tidligere kalt "uførepensjon")
+     */
+    UFOREP
 }

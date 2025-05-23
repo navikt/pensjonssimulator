@@ -2,11 +2,11 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.core.domain.SivilstandType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengrekke
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
+import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
@@ -25,7 +25,7 @@ object ApForTpResultMapperV2 {
             ap = source.alderspensjon?.let(::alderspensjon),
             afpPrivat = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
             afpOffentlig = source.pre2025OffentligAfp?.let(::simuleringResultat),
-            sivilstand = SivilstandType.valueOf(source.sivilstand.name)
+            sivilstand = SivilstandEnum.valueOf(source.sivilstand.name)
         )
 
     private fun alderspensjon(source: SimulertAlderspensjon) =

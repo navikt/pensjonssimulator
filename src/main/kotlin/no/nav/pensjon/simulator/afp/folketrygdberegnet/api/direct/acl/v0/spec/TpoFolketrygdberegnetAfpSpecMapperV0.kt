@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec
 
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
-import no.nav.pensjon.simulator.core.domain.SimuleringType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -24,7 +24,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GeneralPersonServi
 
         return SimuleringSpec(
             type = source.simuleringType?.let { TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.fromExternalValue(it.name).internalValue }
-                ?: SimuleringType.ALDER,
+                ?: SimuleringTypeEnum.ALDER,
             sivilstatus = source.sivilstatus?.let { TpoFolketrygdberegnetAfpSivilstandSpecV0.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,

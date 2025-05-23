@@ -13,7 +13,7 @@ object UttakResultMapperV1 {
 
     private fun tidligstMuligUttakListeV1(source: TidligstMuligUttak): List<TidligstMuligUttakV1> =
         source.uttakDato?.let {
-            listOf(TidligstMuligUttakV1(source.uttakGrad.prosentsats, it))
+            listOf(TidligstMuligUttakV1(source.uttaksgrad.prosentsats, it))
         }.orEmpty()
 
 

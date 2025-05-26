@@ -19,9 +19,7 @@ import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAv
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
-import no.nav.pensjon.simulator.opptjening.HentSisteLignetInntektService
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.regel.client.GrunnbeloepService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
@@ -38,8 +36,6 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("api")
 @SecurityRequirement(name = "BearerAuthentication")
 class TpoAfpEtterfulgtAvAlderspensjonController(
-    private val hentSisteLignetInntektService: HentSisteLignetInntektService,
-    private val grunnbeloepService: GrunnbeloepService,
     private val simulator: SimulatorCore,
     private val specMapper: AfpEtterfulgtAvAlderspensjonSpecMapperV0,
     private val traceAid: TraceAid,
@@ -50,14 +46,14 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
 
     @PostMapping("v0/simuler-afp-etterfulgt-av-alderspensjon")
     @Operation(
-        summary = "Simuler afp etterfulgt av alderspensjon",
-        description = "Lager en prognose for utbetaling av afp etterfulgt av alderspensjon.",
+        summary = "Simuler AFP etterfulgt av alderspensjon",
+        description = "Lager en prognose for utbetaling av AFP etterfulgt av alderspensjon.",
     )
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Simulering av afp etterfulgt av alderspensjon utført."
+                description = "Simulering av AFP etterfulgt av alderspensjon utført."
             ),
             ApiResponse(
                 responseCode = "400",
@@ -76,13 +72,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         return try {
             val validatedSpecV0 = validateSpec(specV0)
             verifiserAtBrukerTilknyttetTpLeverandoer(Pid(validatedSpecV0.personId))
-
-            val spec: SimuleringSpec = specMapper.fromDto(
-                validatedSpecV0,
-                grunnbeloepService.hentSisteMaanedsInntektOver1G(validatedSpecV0.inntektSisteMaanedOver1G),
-                hentSisteLignetInntektService::hentSisteLignetInntekt
-            )
-
+            val spec: SimuleringSpec = specMapper.fromDto(validatedSpecV0)
             toDto(simulator.simuler(spec), spec)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
@@ -90,6 +80,9 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
+        } catch (e: IllegalArgumentException) {
+            log.warn(e) { "$FUNCTION_ID ulovlig verdi - ${e.message} - $specV0" }
+            throw e
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
             throw e

@@ -26,6 +26,8 @@ spec:
     outbound:
       rules:
         - application: pensjonssimulator
+      external:
+        - host: hooks.slack.com
   backoffLimit: 5
   completions: 1
   concurrencyPolicy: Allow

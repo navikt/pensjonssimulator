@@ -18,14 +18,17 @@ suspend fun main() {
     )
 
     val results = resourcesToTest.map { evaluateResponseAtPath(it) }.toList()
+    client.close()
 
     log.info("Evaluation results: $results")
 
     val failedTests = results.filter { !it.responseIsAsExpected }.toList()
     if (failedTests.isNotEmpty()) {
-        log.error("Test failures: ${failedTests.size}, $failedTests")
+        val pathsWithDiffs = failedTests.map { "[" + it.path + ", diffs: " + it.diffs + "]" }
+        val errorMessage = "Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs"
+        log.error(errorMessage)
+        throw RuntimeException(errorMessage)
     }
 
-    client.close()
     log.info("The job has been completed. Tests run: ${results.size}, failures: ${failedTests.size}")
 }

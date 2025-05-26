@@ -1,3 +1,5 @@
+val kotestVersion = "5.7.2"
+
 plugins {
     kotlin("jvm") version "2.1.10"
     id("io.ktor.plugin") version "3.1.2"
@@ -20,6 +22,10 @@ ktor {
     }
 }
 
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
 dependencies {
     implementation("ch.qos.logback:logback-classic:1.4.14")
     implementation("net.logstash.logback:logstash-logback-encoder:8.1")
@@ -36,5 +42,9 @@ dependencies {
 
     implementation("com.nimbusds:nimbus-jose-jwt:10.2")
     implementation("com.typesafe:config:1.4.2")
+
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:${kotestVersion}")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:${kotestVersion}")
+    testImplementation("io.kotest:kotest-property-jvm:${kotestVersion}")
 
 }

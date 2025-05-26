@@ -1,10 +1,10 @@
 package no.nav.pensjon
 
 import mu.KotlinLogging
-import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.Evaluator.evaluateResponseAtPath
+import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.domain.Resource
-import kotlin.system.exitProcess
+import no.nav.pensjon.reportfail.SlackReporter
 
 suspend fun main() {
     val log = KotlinLogging.logger {}
@@ -19,7 +19,6 @@ suspend fun main() {
     )
 
     val results = resourcesToTest.map { evaluateResponseAtPath(it) }.toList()
-    client.close()
 
     log.info("Evaluation results: $results")
 
@@ -28,9 +27,11 @@ suspend fun main() {
         val pathsWithDiffs = failedTests.map { "[" + it.path + ", diffs: " + it.diffs + "]" }
         val errorMessage = "Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs"
         log.error(errorMessage)
-        System.err.println(errorMessage)
-        throw RuntimeException(errorMessage)
+        SlackReporter.reportFailures(results)
+        client.close()
+        throw Error(errorMessage)
     }
 
+    client.close()
     log.info("The job has been completed. Tests run: ${results.size}, failures: ${failedTests.size}")
 }

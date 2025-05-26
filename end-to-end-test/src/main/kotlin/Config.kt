@@ -28,9 +28,11 @@ fun loadMaskinportenConfig(): MaskinportenConfig {
 }
 
 fun loadPensjonssimulatorConfig(): PensjonssimulatorConfig {
-    val pensjonssimulatorConfig = ConfigFactory.load().getConfig("pensjonssimulator")
-
     return PensjonssimulatorConfig(
-        url = pensjonssimulatorConfig.getString("url"),
+        url = ConfigFactory.load().getString("pensjonssimulator.url")
     )
+}
+
+fun loadSlackUrl(): String {
+    return ConfigFactory.load().getString("slack.webhook-url")
 }

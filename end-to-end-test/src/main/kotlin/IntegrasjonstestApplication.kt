@@ -29,7 +29,7 @@ suspend fun main() {
         val errorMessage = "Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs"
         log.error(errorMessage)
         System.err.println(errorMessage)
-        exitProcess(1)
+        throw RuntimeException(errorMessage)
     }
 
     log.info("The job has been completed. Tests run: ${results.size}, failures: ${failedTests.size}")

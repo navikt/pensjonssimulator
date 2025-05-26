@@ -28,7 +28,7 @@ spec:
         - application: pensjonssimulator
       external:
         - host: hooks.slack.com
-  backoffLimit: 5
+  backoffLimit: 1
   completions: 1
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 2

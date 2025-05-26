@@ -3,6 +3,9 @@ name: 'Kjør end to end tester i Sandbox'
 on:
   workflow_dispatch:
   workflow_call:
+  push:
+    branches:
+      - feature/PEK-1272-forbedringer-til-end-to-end-tester
 
 jobs:
   runIntegrationTests:

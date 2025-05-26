@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -9,19 +11,19 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.person.GeneralPersonService
+import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.*
 
 class NavSimuleringSpecMapperV3Test : FunSpec({
 
     test("fromNavSimuleringSpecV3 should fetch foedselsdato and map values") {
-        val personService = arrangeFoedselsdato()
-
-        NavSimuleringSpecMapperV3(personService).fromNavSimuleringSpecV3(
+        NavSimuleringSpecMapperV3(
+            personService = arrangeFoedselsdato(),
+            inntektService = arrangeGrunnbeloep()
+        ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
                 pid.value,
                 sivilstand = NavSivilstandSpecV3.GJPA,
@@ -56,7 +58,6 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
                     )
                 )
             ),
-            inntektSisteMaanedOver1G = 30000,
         ) shouldBe SimuleringSpec(
             type = SimuleringTypeEnum.ENDR_ALDER,
             sivilstatus = SivilstatusType.GJPA,
@@ -101,6 +102,11 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
 })
 
 private fun arrangeFoedselsdato(): GeneralPersonService =
-    mock(GeneralPersonService::class.java).also {
-        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1963, 4, 5))
+    mockk<GeneralPersonService>().also {
+        every { it.foedselsdato(pid) } returns LocalDate.of(1963, 4, 5)
+    }
+
+private fun arrangeGrunnbeloep(): InntektService =
+    mockk<InntektService>().also {
+        every { it.hentSisteMaanedsInntektOver1G(false) } returns 100000
     }

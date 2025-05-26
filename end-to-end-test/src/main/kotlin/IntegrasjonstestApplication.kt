@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.Evaluator.evaluateResponseAtPath
 import no.nav.pensjon.domain.Resource
+import kotlin.system.exitProcess
 
 suspend fun main() {
     val log = KotlinLogging.logger {}
@@ -27,7 +28,8 @@ suspend fun main() {
         val pathsWithDiffs = failedTests.map { "[" + it.path + ", diffs: " + it.diffs + "]" }
         val errorMessage = "Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs"
         log.error(errorMessage)
-        throw RuntimeException(errorMessage)
+        System.err.println(errorMessage)
+        exitProcess(1)
     }
 
     log.info("The job has been completed. Tests run: ${results.size}, failures: ${failedTests.size}")

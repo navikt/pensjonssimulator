@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.anonym
 
-import no.nav.pensjon.simulator.core.out.OutputLivsvarigOffentligAfp
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
@@ -53,7 +53,7 @@ object AnonymOutputMapper {
             maanedligBeloep = source.maanedligBeloep
         )
 
-    private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
+    private fun livsvarigOffentligAfp(source: LivsvarigOffentligAfpOutput) =
         AnonymSimulertOffentligAfpPeriode(
             alderAar = source.alderAar,
             aarligBeloep = source.beloep,

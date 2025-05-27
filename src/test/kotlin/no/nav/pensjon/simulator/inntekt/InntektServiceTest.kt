@@ -55,7 +55,7 @@ private fun arrangeInntekt(): SisteLignetInntekt =
 private fun arrangeGrunnbeloep(): RegelClient =
     mockk<RegelClient>().also {
         every {
-            it.fetchGrunnbeloepListe(localDate = LocalDate.of(2025, 1, 1))
+            it.fetchGrunnbeloepListe(dato = LocalDate.of(2025, 1, 1))
         } returns SatsResponse().apply {
             satsResultater = listOf(SatsResultat().apply { verdi = GRUNNBELOEP })
         }

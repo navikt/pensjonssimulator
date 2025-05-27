@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpGrunnlagService
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpUtil.getLivsvarigOffentligAfp
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -41,7 +41,8 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val vilkaarsproever: Vilkaarsproever,
     private val trygdetidFastsetter: TrygdetidFastsetter,
     private val sisteBeregningCreator: SisteBeregningCreator,
-    private val normalderService: NormertPensjonsalderService
+    private val normalderService: NormertPensjonsalderService,
+    private val livsvarigOffentligAfpService: LivsvarigOffentligAfpGrunnlagService
 ) {
     private val log = KotlinLogging.logger { }
 
@@ -107,20 +108,10 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             // Corresponds to part 4
             val gjeldendePrivatAfp = getPrivatAfp(privatAfpBeregningResultatListe, knekkpunktDato)
 
-            val gjeldendeLivsvarigOffentligAfp: AfpOffentligLivsvarig? =
-                getLivsvarigOffentligAfp(
-                    resultatListe = spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe.orEmpty(),
-                    knekkpunktDato
-                )
-
-            val livsvarigOffentligAfpGrunnlag = gjeldendeLivsvarigOffentligAfp?.let {
-                AfpOffentligLivsvarigGrunnlag(
-                    sistRegulertG = it.sistRegulertG ?: CURRENT_GRUNNBELOEP,
-                    bruttoPerAr = it.bruttoPerAr,
-                    uttaksdato = it.uttaksdato
-                    // virkTom only relevant for innvilget AFP
-                )
-            } ?: kravhode.gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag()
+            val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag? =
+                spec.afpOffentligLivsvarigBeregningsresultat?.let {
+                    livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(it, kravhode, knekkpunktDato)
+                }
 
             // Corresponds to part 5
             if (aarsaker.contains(KnekkpunktAarsak.UTG)) { // UTG = 'Endring av uttaksgrad'
@@ -428,7 +419,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     }
 
     private companion object {
-        private const val CURRENT_GRUNNBELOEP = 124028 //TODO get value from tjenestepensjon-simulering
 
         // VilkarsprovOgBeregnAlderHelper.getAfpLivsvarig
         private fun getPrivatAfp(

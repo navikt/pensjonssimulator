@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.out.OutputLivsvarigOffentligAfp
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
@@ -175,7 +175,7 @@ object SimulatorOutputConverter {
                 )
             }
 
-    private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
+    private fun livsvarigOffentligAfp(source: LivsvarigOffentligAfpOutput) =
         SimulertLivsvarigOffentligAfp(source.alderAar, source.beloep, source.maanedligBeloep)
 
     private fun beholdningPeriode(source: BeholdningPeriode) =

@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.benmanes.caffeine.cache.Cache
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.finishOpptjeningInit
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.personOpptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.postprocess
@@ -21,6 +22,8 @@ import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
+import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
+import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -28,8 +31,11 @@ import java.util.*
 @Component
 class SimulatorContext(
     private val regelService: GenericRegelClient,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    cacheManager: CaffeineCacheManager
 ) : RegelClient {
+
+    private val grunnbeloepCache: Cache<LocalDate, SatsResponse> = createCache("grunnbeloep", cacheManager)
 
     // PEN: BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2011FoersteUttak(
@@ -350,20 +356,8 @@ class SimulatorContext(
     }
 
     // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
-    override fun fetchGrunnbeloepListe(localDate: LocalDate): SatsResponse {
-        val date: Date = localDate.toNorwegianDateAtNoon()
-
-        return regelService.makeRegelCall(
-            request = HentGrunnbelopListeRequest().apply {
-                fom = date
-                tom = date
-            },
-            responseClass = SatsResponse::class.java,
-            serviceName = "hentGrunnbelopListe",
-            map = null,
-            sakId = null
-        )
-    }
+    override fun fetchGrunnbeloepListe(dato: LocalDate): SatsResponse =
+        grunnbeloepCache.getIfPresent(dato) ?: fetchFreshGrunnbeloep(dato).also { grunnbeloepCache.put(dato, it) }
 
     // PEN: HentGyldigSatsConsumerCommand.execute
     override fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse =
@@ -386,6 +380,22 @@ class SimulatorContext(
                 sakId = null
             )
         return response //TODO validerOgFerdigstillResponse(response) -> mapRegulerPensjonsbeholdningConsumerResponseToPen
+    }
+
+    // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
+    private fun fetchFreshGrunnbeloep(localDate: LocalDate): SatsResponse {
+        val date: Date = localDate.toNorwegianDateAtNoon()
+
+        return regelService.makeRegelCall(
+            request = HentGrunnbelopListeRequest().apply {
+                fom = date
+                tom = date
+            },
+            responseClass = SatsResponse::class.java,
+            serviceName = "hentGrunnbelopListe",
+            map = null,
+            sakId = null
+        )
     }
 
     // TODO: May be unnecessary, since this is done in PersonDetalj.finishInit

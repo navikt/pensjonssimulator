@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.livsvarig
+package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import no.nav.pensjon.simulator.alder.Alder
 import java.time.LocalDate

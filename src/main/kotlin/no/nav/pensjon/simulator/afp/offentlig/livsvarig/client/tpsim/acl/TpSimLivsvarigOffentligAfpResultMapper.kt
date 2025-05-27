@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.acl
 
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpYtelseMedDelingstall
 
 object TpSimLivsvarigOffentligAfpResultMapper {
 

@@ -1,17 +1,16 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.livsvarig
+package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
-import no.nav.pensjon.simulator.core.out.OutputLivsvarigOffentligAfp
+import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import kotlin.math.roundToInt
 
 object LivsvarigOffentligAfpPeriodeConverter {
 
-    private const val MAANEDER_PER_AAR = 12
     private const val MIN_ANTALL_MAANEDER_FRA_IVERKSETTELSE_TIL_UTTAK = 1
 
-    fun konverterTilArligeAfpOffentligLivsvarigPerioder(
+    fun aarligePerioder(
         result: LivsvarigOffentligAfpResult?,
         foedselMaaned: Int?
-    ): List<OutputLivsvarigOffentligAfp> {
+    ): List<LivsvarigOffentligAfpOutput> {
         if (result == null || result.afpYtelseListe.isEmpty() || foedselMaaned == null) {
             return emptyList()
         }
@@ -22,18 +21,25 @@ object LivsvarigOffentligAfpPeriodeConverter {
 
         return when {
             ytelseListe.size > 1 -> {
-                val maanederMedUttaksSats =
-                    MAANEDER_PER_AAR - uttakMaaned + 1 // uttakMaaned skal inkluderes i antall maaneder med uttakssats
-                opprettPerioder(ytelseListe[0], maanederMedUttaksSats, ytelseListe[1], foedselMaaned)
+                opprettPerioder(
+                    ytelseVedUttak = ytelseListe[0],
+                    maanederMedUttakSats = MAANEDER_PER_AAR - uttakMaaned + 1, // uttakMaaned skal inkluderes i antall måneder med uttakssats
+                    ytelseVedAndreAaret = ytelseListe[1],
+                    maanederMedOppdatertUttakSats = foedselMaaned
+                )
             }
 
             ytelseVedUttak.gjelderFomAlder.maaneder > 0 -> {
-                val maanederMedUttaksSats = maanederFraFoersteUttakTilFyltAar(uttakMaaned, foedselMaaned)
-                opprettPerioder(ytelseListe[0], maanederMedUttaksSats, ytelseListe[0], 0)
+                opprettPerioder(
+                    ytelseVedUttak = ytelseListe[0],
+                    maanederMedUttakSats = maanederFraFoersteUttakTilFyltAar(uttakMaaned, foedselMaaned),
+                    ytelseVedAndreAaret = ytelseListe[0],
+                    maanederMedOppdatertUttakSats = 0
+                )
             }
 
             else -> listOf(
-                OutputLivsvarigOffentligAfp(
+                LivsvarigOffentligAfpOutput(
                     alderAar = ytelseVedUttak.gjelderFomAlder.aar,
                     beloep = ytelseVedUttak.afpYtelsePerAar.toInt(),
                     maanedligBeloep = (ytelseVedUttak.afpYtelsePerAar / MAANEDER_PER_AAR).roundToInt()
@@ -42,33 +48,35 @@ object LivsvarigOffentligAfpPeriodeConverter {
         }
     }
 
-    fun maanederFraFoersteUttakTilFyltAar(uttakMaaned: Int, foedselMaaned: Int): Int {
+    private fun maanederFraFoersteUttakTilFyltAar(uttakMaaned: Int, foedselMaaned: Int): Int {
         val uttakMaanedVedUttaksalderMedHeleAar =
             foedselMaaned + MIN_ANTALL_MAANEDER_FRA_IVERKSETTELSE_TIL_UTTAK
 
         return when {
             uttakMaaned == uttakMaanedVedUttaksalderMedHeleAar -> MAANEDER_PER_AAR
-            uttakMaaned > uttakMaanedVedUttaksalderMedHeleAar -> MAANEDER_PER_AAR - uttakMaaned + 1 + foedselMaaned  // uttakMaaned skal inkluderes i antall maaneder med uttakssats. Periode: [uttakMaaned...aarskifte] + [aarskifte...foedselssmaaned]
+            uttakMaaned > uttakMaanedVedUttaksalderMedHeleAar -> MAANEDER_PER_AAR - uttakMaaned + 1 + foedselMaaned  // uttakMaaned skal inkluderes i antall måneder med uttakssats. Periode: [uttakMaaned...aarskifte] + [aarskifte...foedselssmaaned]
             else -> uttakMaanedVedUttaksalderMedHeleAar - uttakMaaned // periode: [uttakMaaned...uttakMaanedVedUttaksalderMedHeleAr]
         }
     }
 
-    fun opprettPerioder(
+    private fun opprettPerioder(
         ytelseVedUttak: LivsvarigOffentligAfpYtelseMedDelingstall,
         maanederMedUttakSats: Int,
         ytelseVedAndreAaret: LivsvarigOffentligAfpYtelseMedDelingstall,
         maanederMedOppdatertUttakSats: Int,
-    ): List<OutputLivsvarigOffentligAfp> {
+    ): List<LivsvarigOffentligAfpOutput> {
         val alderAarVedUttak = ytelseVedUttak.gjelderFomAlder.aar
         val satsPerMaanedVedUttak = ytelseVedUttak.afpYtelsePerAar / MAANEDER_PER_AAR
         val ytelsePerAarEtterOppdatering = ytelseVedAndreAaret.afpYtelsePerAar
         val satsPerMaanedEtterOppdatering = ytelsePerAarEtterOppdatering / MAANEDER_PER_AAR
-        val belop =
-            satsPerMaanedVedUttak * maanederMedUttakSats + satsPerMaanedEtterOppdatering * maanederMedOppdatertUttakSats
 
         return listOf(
-            OutputLivsvarigOffentligAfp(alderAar = alderAarVedUttak, beloep = belop.roundToInt(), maanedligBeloep = satsPerMaanedVedUttak.roundToInt()),
-            OutputLivsvarigOffentligAfp(
+            LivsvarigOffentligAfpOutput(
+                alderAar = alderAarVedUttak,
+                beloep = (satsPerMaanedVedUttak * maanederMedUttakSats + satsPerMaanedEtterOppdatering * maanederMedOppdatertUttakSats).roundToInt(),
+                maanedligBeloep = satsPerMaanedVedUttak.roundToInt()
+            ),
+            LivsvarigOffentligAfpOutput(
                 alderAar = alderAarVedUttak + 1,
                 beloep = ytelsePerAarEtterOppdatering.roundToInt(),
                 maanedligBeloep = satsPerMaanedEtterOppdatering.roundToInt()

@@ -25,7 +25,7 @@ object TrygdetidGrunnlagFactory {
             this.finishInit()
         }
 
-    // SettTrygdetidHelper.createTrygdetidsgrunnlagNorge + TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
+    // PEN: SettTrygdetidHelper.createTrygdetidsgrunnlagNorge + TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
     fun trygdetidPeriode(fom: Date, tom: Date?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean?) =
         TTPeriode().apply {
             this.fom = fom
@@ -41,7 +41,7 @@ object TrygdetidGrunnlagFactory {
     fun trygdetidPeriode(fom: LocalDate, tom: LocalDate?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean) =
         trygdetidPeriode(fom.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon(), land, ikkeProRata, bruk)
 
-    // TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
+    // PEN: TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
     fun trygdetidPeriode(fom: Date?, tom: Date?, land: LandkodeEnum?) =
         TTPeriode().apply {
             this.fom = fom?.let { Date(it.time) }
@@ -57,7 +57,7 @@ object TrygdetidGrunnlagFactory {
     fun trygdetidPeriode(fom: LocalDate?, tom: LocalDate?, land: LandkodeEnum) =
         trygdetidPeriode(fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon(), land)
 
-    // TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlagForenkletSimulering + createTrygdetidsgrunnlag
+    // PEN: TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlagForenkletSimulering + createTrygdetidsgrunnlag
     fun anonymSimuleringTrygdetidPeriode(fom: Date?, tom: Date?) =
         TTPeriode().apply {
             this.fom = fom?.let { Date(it.time) }
@@ -65,7 +65,7 @@ object TrygdetidGrunnlagFactory {
             this.poengIInnAr = false
             this.poengIUtAr = false
             this.landEnum = LandkodeEnum.NOR
-            this.ikkeProRata = true // true for anony
+            this.ikkeProRata = true // true for anonym
             this.bruk = true
             this.finishInit()
         }

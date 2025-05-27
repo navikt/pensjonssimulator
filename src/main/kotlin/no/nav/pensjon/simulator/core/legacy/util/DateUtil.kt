@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.util.NorwegianCalendar
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
 import java.time.Period
 import java.util.*
@@ -15,7 +16,6 @@ object DateUtil {
 
     val LOCAL_ETERNITY: LocalDate = LocalDate.of(9999, 12, 31)
     val ETERNITY: Date = LOCAL_ETERNITY.toNorwegianDateAtNoon()
-    const val MAANEDER_PER_AAR = 12
 
     // SimuleringEtter2011Utils.monthOfYearRange1To12
     fun monthOfYearRange1To12(date: Date): Int =

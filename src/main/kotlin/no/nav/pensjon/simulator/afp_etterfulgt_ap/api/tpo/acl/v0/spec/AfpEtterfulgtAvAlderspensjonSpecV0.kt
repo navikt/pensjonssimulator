@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
+import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
 
 data class AfpEtterfulgtAvAlderspensjonSpecV0(
     val personId: String?,
@@ -13,7 +14,6 @@ data class AfpEtterfulgtAvAlderspensjonSpecV0(
     val epsPensjon: Boolean?,
     val eps2G: Boolean?,
 ) {
-
     data class AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
         val personId: String,
         val sivilstandVedPensjonering: String,
@@ -26,15 +26,14 @@ data class AfpEtterfulgtAvAlderspensjonSpecV0(
         val eps2G: Boolean,
     )
 
-    override fun toString(): String {
-        return "personId:" + redact(personId) +
-                ", sivilstandVedPensjonering:" + sivilstandVedPensjonering +
-                ", uttakFraOgMedDato:" + uttakFraOgMedDato +
-                ", fremtidigAarligInntektTilUttak:" + fremtidigAarligInntektTilAfpUttak +
-                ", inntektSisteMaanedOver1G:" + inntektSisteMaanedOver1G +
-                ", fremtidigAarligInntektUnderUttak:" + fremtidigAarligInntektUnderAfpUttak +
-                ", aarIUtlandetEtter16:" + aarIUtlandetEtter16 +
-                ", epsPensjon:" + epsPensjon +
-                ", eps2G:" + eps2G
-    }
+    override fun toString() =
+        "{ \"personId\": ${textAsString(redact(personId))}, " +
+                "\"sivilstandVedPensjonering\": ${textAsString(sivilstandVedPensjonering)}, " +
+                "\"uttakFraOgMedDato\": ${textAsString(uttakFraOgMedDato)}, " +
+                "\"fremtidigAarligInntektTilAfpUttak\": $fremtidigAarligInntektTilAfpUttak, " +
+                "\"inntektSisteMaanedOver1G\": $inntektSisteMaanedOver1G, " +
+                "\"fremtidigAarligInntektUnderAfpUttak\": $fremtidigAarligInntektUnderAfpUttak, " +
+                "\"aarIUtlandetEtter16\": $aarIUtlandetEtter16, " +
+                "\"epsPensjon\": $epsPensjon, " +
+                "\"eps2G\": $eps2G }"
 }

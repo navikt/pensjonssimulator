@@ -42,7 +42,7 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
             if (LocalDate.parse(uttakFraOgMedDato).dayOfMonth != 1) {
                 throw BadSpecException("uttakFraOgMedDato må være første dag i en måned")
             }
-        } catch (e: DateTimeParseException) {
+        } catch (_: DateTimeParseException) {
             throw BadSpecException("uttakFraOgMedDato er ikke en gyldig dato")
         }
     }
@@ -60,8 +60,6 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
             requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::eps2G)
         )
 
-    fun <T, R> requireFieldValue(instance: T, field: KProperty1<T, R?>): R {
-        return field.get(instance)
-            ?: throw BadSpecException("${field.name} missing")
-    }
+    fun <T, R> requireFieldValue(instance: T, field: KProperty1<T, R?>): R =
+        field.get(instance) ?: throw BadSpecException("${field.name} missing")
 }

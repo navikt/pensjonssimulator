@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.beholdning.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
 import no.nav.pensjon.simulator.beholdning.client.BeholdningClient
@@ -31,7 +30,6 @@ class PenBeholdningClient(
     private val traceAid: TraceAid,
 ) : ExternalServiceClient(retryAttempts), BeholdningClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
     private val cache: Cache<BeholdningerMedGrunnlagSpec, BeholdningerMedGrunnlagResult> =
@@ -45,7 +43,6 @@ class PenBeholdningClient(
     private fun fetchFreshBeholdninger(spec: BeholdningerMedGrunnlagSpec): BeholdningerMedGrunnlagResult {
         val uri = "$BASE_PATH/$BEHOLDNINGER_MED_GRUNNLAG_PATH"
         val dto = PenBeholdningerMedGrunnlagSpecMapper.toDto(spec)
-        log.debug { "POST to URI: '$uri' with body '$dto'" }
 
         return try {
             webClient

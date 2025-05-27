@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.regel.client.GrunnbeloepService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.RestController
 class NavAlderspensjonController(
     private val service: SimuleringFacade,
     private val specMapper: NavSimuleringSpecMapperV3,
-    private val grunnbeloepService: GrunnbeloepService,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
@@ -68,8 +66,7 @@ class NavAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            val inntektSisteMaanedOver1G = specV3.afpInntektMaanedFoerUttak?.let(grunnbeloepService::hentSisteMaanedsInntektOver1G)
-            val spec: SimuleringSpec = specMapper.fromNavSimuleringSpecV3(specV3, inntektSisteMaanedOver1G)
+            val spec: SimuleringSpec = specMapper.fromNavSimuleringSpecV3(specV3)
 
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
@@ -79,6 +76,8 @@ class NavAlderspensjonController(
             resultWithErrorInfo("simuleringsgrunnlaget", e, specV3)
         } catch (e: ImplementationUnrecoverableException) {
             resultWithErrorInfo("systemet", e, specV3)
+        } catch (e: IllegalArgumentException) {
+            resultWithErrorInfo("argument", e, specV3)
         } catch (e: InvalidArgumentException) {
             resultWithErrorInfo("argument", e, specV3)
         } catch (e: KanIkkeBeregnesException) {

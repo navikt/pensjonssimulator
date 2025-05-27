@@ -7,17 +7,16 @@ import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.inntekt.InntektService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 @Component
-class AfpEtterfulgtAvAlderspensjonSpecMapperV0(val personService: GeneralPersonService) {
-
-    fun fromDto(
-        source: AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0,
-        inntektSisteMaanedBeloep: Int,
-        hentSisteInntekt: (Pid) -> Int
-    ): SimuleringSpec {
+class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
+    private val personService: GeneralPersonService,
+    private val inntektService: InntektService
+) {
+    fun fromDto(source: AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0): SimuleringSpec {
         val pid = Pid(source.personId)
 
         return SimuleringSpec(
@@ -37,7 +36,8 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(val personService: GeneralPersonS
             inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak,
 
             inntektEtterHeltUttakAntallAar = null, //TODO mangler sluttdato
-            forventetInntektBeloep = source.fremtidigAarligInntektTilAfpUttak ?: hentSisteInntekt(pid),
+            forventetInntektBeloep = source.fremtidigAarligInntektTilAfpUttak
+                ?: inntektService.hentSisteLignetInntekt(pid),
             utlandAntallAar = source.aarIUtlandetEtter16,
             simulerForTp = false, // simulerer her ikke for tjenestepensjon
             erAnonym = false,
@@ -52,7 +52,8 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(val personService: GeneralPersonS
             rettTilOffentligAfpFom = null,
             pre2025OffentligAfp = Pre2025OffentligAfpSpec(
                 afpOrdning = AfpOrdningType.AFPSTAT, // ingen praktisk betydning i regelmotoren
-                inntektMaanedenFoerAfpUttakBeloep = inntektSisteMaanedBeloep,
+                inntektMaanedenFoerAfpUttakBeloep =
+                    inntektService.hentSisteMaanedsInntektOver1G(source.inntektSisteMaanedOver1G),
                 inntektUnderAfpUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak
             ),
             foedselDato = personService.foedselsdato(pid),

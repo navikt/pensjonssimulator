@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -21,12 +22,11 @@ import java.util.*
  * The DTOs are specified by version 3 of the API offered to clients.
  */
 @Component
-class NavSimuleringSpecMapperV3(val personService: GeneralPersonService) {
-
-    fun fromNavSimuleringSpecV3(
-        source: NavSimuleringSpecV3,
-        inntektSisteMaanedOver1G: Int?
-    ): SimuleringSpec {
+class NavSimuleringSpecMapperV3(
+    private val personService: GeneralPersonService,
+    private val inntektService: InntektService
+) {
+    fun fromNavSimuleringSpecV3(source: NavSimuleringSpecV3): SimuleringSpec {
         val pid = Pid(source.pid)
         val foedselsdato = personService.foedselsdato(pid)
         val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselsdato)
@@ -65,7 +65,12 @@ class NavSimuleringSpecMapperV3(val personService: GeneralPersonService) {
             rettTilOffentligAfpFom = null,
 
             // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source, gradertUttak?.aarligInntekt, inntektSisteMaanedOver1G),
+            pre2025OffentligAfp = pre2025OffentligAfpSpec(
+                simuleringSpec = source,
+                inntektAarligBeloep = gradertUttak?.aarligInntekt,
+                inntektSisteMaanedOver1G =
+                    source.afpInntektMaanedFoerUttak?.let(inntektService::hentSisteMaanedsInntektOver1G)
+            ),
 
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,

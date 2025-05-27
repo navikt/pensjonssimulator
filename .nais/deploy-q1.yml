@@ -35,8 +35,6 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-      destinations:
-        - id: "grafana-lgtm"
     logging:
       destinations:
         - id: elastic

@@ -1,13 +1,13 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.acl.TpSimLivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.acl.TpSimLivsvarigOffentligAfpResultMapper.fromDto
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.acl.TpSimLivsvarigOffentligAfpSpecMapper.toDto
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid

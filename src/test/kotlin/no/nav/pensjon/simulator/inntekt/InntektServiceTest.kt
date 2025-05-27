@@ -6,10 +6,8 @@ import io.kotest.matchers.ints.shouldBeLessThan
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
-import no.nav.pensjon.simulator.core.domain.regler.to.SatsResponse
+import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.opptjening.SisteLignetInntekt
-import no.nav.pensjon.simulator.regel.client.RegelClient
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -18,8 +16,7 @@ class InntektServiceTest : FunSpec({
 
     val service = InntektService(
         lignetInntektService = arrangeInntekt(),
-        regelClient = arrangeGrunnbeloep(),
-        time = { LocalDate.of(2025, 1, 1) }
+        grunnbeloepService = arrangeGrunnbeloep()
     )
 
     test("hentSisteLignetInntekt should return inntekt") {
@@ -52,11 +49,7 @@ private fun arrangeInntekt(): SisteLignetInntekt =
         )
     }
 
-private fun arrangeGrunnbeloep(): RegelClient =
-    mockk<RegelClient>().also {
-        every {
-            it.fetchGrunnbeloepListe(localDate = LocalDate.of(2025, 1, 1))
-        } returns SatsResponse().apply {
-            satsResultater = listOf(SatsResultat().apply { verdi = GRUNNBELOEP })
-        }
+private fun arrangeGrunnbeloep() =
+    mockk<GrunnbeloepService> {
+        every { naavaerendeGrunnbeloep() } returns 123000
     }

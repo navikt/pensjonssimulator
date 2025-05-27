@@ -16,7 +16,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
@@ -41,6 +40,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
@@ -114,7 +114,12 @@ class SimuleringResultPreparer(
         resultatListe: MutableList<AbstraktBeregningsResultat>
     ) {
         val foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
-        val startAlderAar = calculateStartAlder(spec, foedselsdato, forrigeResultat, handlePre2025OffentligAfpEtterfulgtAvAlderspensjon = true)
+        val startAlderAar = calculateStartAlder(
+            spec,
+            foedselsdato,
+            forrigeResultat,
+            handlePre2025OffentligAfpEtterfulgtAvAlderspensjon = true
+        )
         var forrigeResultatCopy: AbstraktBeregningsResultat? = null
 
         if (forrigeResultat != null) {
@@ -135,9 +140,14 @@ class SimuleringResultPreparer(
             val beloep = maanedsbeloepVedPeriodeStart * MAANEDER_PER_AAR
             simulertAlderspensjon.addPensjonsperiode(
                 pensjonPeriode(
-                    null,
+                    alderAar = null,
                     beloep,
-                    listOf(Maanedsutbetaling(maanedsbeloepVedPeriodeStart, it.virkFom!!.toNorwegianLocalDate()))
+                    maanedsutbetalinger = listOf(
+                        Maanedsutbetaling(
+                            beloep = maanedsbeloepVedPeriodeStart,
+                            fom = it.virkFom!!.toNorwegianLocalDate()
+                        )
+                    )
                 )
             )
         }

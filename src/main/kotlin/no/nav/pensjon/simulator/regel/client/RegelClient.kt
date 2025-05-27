@@ -31,7 +31,7 @@ interface RegelClient {
 
     fun beregnPoengtallBatch(
         opptjeningGrunnlagListe: MutableList<Opptjeningsgrunnlag>,
-        foedselDato: LocalDate?
+        foedselsdato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag>
 
     fun revurderAlderspensjon2011(
@@ -90,7 +90,7 @@ interface RegelClient {
         beholdning: Pensjonsbeholdning? = null
     ): MutableList<Pensjonsbeholdning>
 
-    fun fetchGrunnbeloepListe(localDate: LocalDate): SatsResponse
+    fun fetchGrunnbeloepListe(dato: LocalDate): SatsResponse
 
     fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse
 

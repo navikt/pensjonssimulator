@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result
 
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
-import no.nav.pensjon.simulator.core.out.OutputLivsvarigOffentligAfp
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
@@ -60,7 +60,7 @@ object AnonymSimuleringResultMapperV1 {
             belopMnd = source.maanedligBeloep
         )
 
-    private fun livsvarigOffentligAfp(source: OutputLivsvarigOffentligAfp) =
+    private fun livsvarigOffentligAfp(source: LivsvarigOffentligAfpOutput) =
         AnonymSimulertOffentligAfpPeriodeV1(
             alder = source.alderAar,
             belopArlig = source.beloep,

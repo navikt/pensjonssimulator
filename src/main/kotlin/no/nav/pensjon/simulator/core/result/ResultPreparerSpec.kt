@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.result
 
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.out.OutputLivsvarigOffentligAfp
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
@@ -17,7 +17,7 @@ data class ResultPreparerSpec(
     val forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
     val forrigePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat?,
     val pre2025OffentligAfpBeregningResultat: Simuleringsresultat?,
-    val livsvarigOffentligAfpBeregningResultatListe: List<OutputLivsvarigOffentligAfp>?,
+    val livsvarigOffentligAfpBeregningResultatListe: List<LivsvarigOffentligAfpOutput>?,
     val grunnbeloep: Int,
     val pensjonBeholdningPeriodeListe: List<BeholdningPeriode>,
     val outputSimulertBeregningsInformasjonForAllKnekkpunkter: Boolean,

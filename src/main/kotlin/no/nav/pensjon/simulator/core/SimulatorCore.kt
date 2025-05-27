@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.core
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
 import no.nav.pensjon.simulator.core.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
-import no.nav.pensjon.simulator.core.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
 import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpResult
@@ -248,7 +248,7 @@ class SimulatorCore(
                         forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
                         pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResult?.simuleringResult,
                         livsvarigOffentligAfpBeregningResultatListe =
-                            LivsvarigOffentligAfpPeriodeConverter.konverterTilArligeAfpOffentligLivsvarigPerioder(
+                            LivsvarigOffentligAfpPeriodeConverter.aarligePerioder(
                                 result = livsvarigOffentligAfpResult,
                                 foedselMaaned = foedselsdato?.monthValue
                             ),

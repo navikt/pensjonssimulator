@@ -1,9 +1,10 @@
 package no.nav.pensjon
 
 import mu.KotlinLogging
-import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.Evaluator.evaluateResponseAtPath
+import no.nav.pensjon.client.ClientProvider.client
 import no.nav.pensjon.domain.Resource
+import no.nav.pensjon.reportfail.SlackReporter
 
 suspend fun main() {
     val log = KotlinLogging.logger {}
@@ -28,7 +29,9 @@ suspend fun main() {
 
     val failedTests = results.filter { !it.responseIsAsExpected }.toList()
     if (failedTests.isNotEmpty()) {
-        log.error("Test failures: ${failedTests.size}, $failedTests")
+        val pathsWithDiffs = failedTests.map { "[" + it.path + ", diffs: " + it.diffs + "]" }
+        log.error { "Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs" }
+        SlackReporter.reportFailures(results)
     }
 
     client.close()

@@ -1,5 +1,6 @@
 {
   "aarsakListeIkkeSuksess": [
+
   ],
   "alderspensjonFraFolketrygden": [
     {
@@ -7,13 +8,13 @@
         "forholdstall": 1.115,
         "grunnpensjon": {
           "grunnbeloep": 130160,
-          "grunnpensjonsats": 1,
+          "grunnpensjonsats": 1.0,
           "maanedligUtbetaling": 1946,
           "trygdetid": 40
         },
         "pensjonstillegg": {
           "maanedligUtbetaling": 0,
-          "minstepensjonsnivaaSats": 279933
+          "minstepensjonsnivaaSats": 279933.0
         },
         "tilleggspensjon": {
           "antallPoengaarFraOgMed1992": 26,
@@ -26,7 +27,7 @@
       "alderspensjonKapittel20": {
         "delingstall": 16.01,
         "garantipensjon": {
-          "garantipensjonssats": 0,
+          "garantipensjonssats": 0.0,
           "maanedligUtbetaling": 0,
           "trygdetid": 40
         },
@@ -57,7 +58,7 @@
     "fremtidigAarligInntektTilAfpUttak": 600000,
     "grunnpensjon": {
       "grunnbeloep": 130160,
-      "grunnpensjonsats": 1,
+      "grunnpensjonsats": 1.0,
       "maanedligUtbetaling": 9111,
       "trygdetid": 40
     },

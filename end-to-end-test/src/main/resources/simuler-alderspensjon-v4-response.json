@@ -1,0 +1,217 @@
+{
+  "simuleringSuksess": true,
+  "aarsakListeIkkeSuksess": [],
+  "alderspensjon": [
+    {
+      "fraOgMedDato": "2027-10-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 46393
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 2889
+        }
+      ],
+      "uttaksgrad": 20
+    },
+    {
+      "fraOgMedDato": "2028-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 46393
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 2889
+        }
+      ],
+      "uttaksgrad": 20
+    },
+    {
+      "fraOgMedDato": "2029-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 46393
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 2889
+        }
+      ],
+      "uttaksgrad": 20
+    },
+    {
+      "fraOgMedDato": "2030-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 46393
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 2889
+        }
+      ],
+      "uttaksgrad": 20
+    },
+    {
+      "fraOgMedDato": "2030-03-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 46393
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 2889
+        }
+      ],
+      "uttaksgrad": 20
+    },
+    {
+      "fraOgMedDato": "2031-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2032-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2033-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2034-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2035-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2036-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2037-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2038-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2039-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    },
+    {
+      "fraOgMedDato": "2040-01-01",
+      "delytelseListe": [
+        {
+          "pensjonsType": "inntektsPensjon",
+          "belop": 275686
+        },
+        {
+          "pensjonsType": "garantiPensjon",
+          "belop": 6602
+        }
+      ],
+      "uttaksgrad": 100
+    }
+  ],
+  "harUttak": false
+}

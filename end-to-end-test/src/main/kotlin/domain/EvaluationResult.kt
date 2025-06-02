@@ -5,4 +5,5 @@ data class EvaluationResult(
     val path: String,
     val expectedResponsePath: String,
     val actualResponse: String,
+    val diffs: String? = null,
 )

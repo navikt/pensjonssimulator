@@ -12,6 +12,7 @@ import no.nav.pensjon.client.MaskinportenToken.hentToken
 import no.nav.pensjon.client.ResponseFormatter.format
 import no.nav.pensjon.domain.Resource
 import no.nav.pensjon.domain.EvaluationResult
+import no.nav.pensjon.generated.DiffFinder
 
 object Evaluator {
     val log = KotlinLogging.logger {}
@@ -40,6 +41,7 @@ object Evaluator {
                     path = resource.path,
                     expectedResponsePath = resource.responseResource,
                     actualResponse = actual,
+                    diffs = if (!result) DiffFinder.findDifferences(expected, actual) else null,
                 )
             } else {
                 val actualResponse = "response status: ${response.status}, response body: ${response.bodyAsText()}"

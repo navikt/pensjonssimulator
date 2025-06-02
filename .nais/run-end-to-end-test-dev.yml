@@ -26,7 +26,9 @@ spec:
     outbound:
       rules:
         - application: pensjonssimulator
-  backoffLimit: 5
+      external:
+        - host: hooks.slack.com
+  backoffLimit: 1
   completions: 1
   concurrencyPolicy: Allow
   failedJobsHistoryLimit: 2
@@ -39,3 +41,6 @@ spec:
       value: DEBUG
     - name: JAVA_TOOL_OPTIONS
       value: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+  envFrom:
+    - secret: slack-web-hook-end-to-end-test
+

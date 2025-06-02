@@ -10,6 +10,7 @@ object ResponseFormatter{
     val json: Json = Json {
         ignoreUnknownKeys = true
         prettyPrint = false
+        allowSpecialFloatingPointValues = true
     }
 
     fun format(response: String): String {

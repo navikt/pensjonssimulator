@@ -1,0 +1,22 @@
+{
+  "personId": "14826399482",
+  "gradertUttak": {
+    "fraOgMedDato": "2027-10-01",
+    "uttaksgrad": 20
+  },
+  "heltUttakFraOgMedDato": "2031-01-01",
+  "epsPensjon": true,
+  "eps2G": true,
+  "aarIUtlandetEtter16": 0,
+  "fremtidigInntektListe": [
+    {
+      "aarligInntekt": 600000,
+      "fraOgMedDato": "2022-01-01"
+    },
+    {
+      "aarligInntekt": 0,
+      "fraOgMedDato": "2027-10-01"
+    }
+  ],
+  "rettTilAfpOffentligDato": "2025-03-01"
+}

@@ -3,6 +3,7 @@ package ai_generated
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldContainOnlyOnce
 import no.nav.pensjon.Evaluator.readResourceAsText
 import no.nav.pensjon.generated.DiffFinder
 
@@ -61,8 +62,8 @@ class DiffFinderTest : StringSpec({
             }
         """.trimIndent()
         val resultat = DiffFinder.findDifferences(expected, actual)
-        resultat shouldContain """simuleringSuccess": false"""
-        resultat shouldContain """"alderspensjon": 0.0"""
+        resultat shouldContainOnlyOnce """simuleringSuccess": false"""
+        resultat shouldContainOnlyOnce """"alderspensjon": 0.0"""
     }
 
     "resultat inneholder alle endringer" {

@@ -89,6 +89,7 @@ object DiffFinder {
                 }
             }
             .filterNot { it.isBlank() }
+            .distinct() //Algoritmen kan returnere duplikater
             .joinToString("; ")
     }
 

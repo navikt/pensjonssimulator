@@ -24,7 +24,7 @@ object SlackReporter {
                 "total_tests": $totalTests,
                 "test_failures": $testFailures,
                 "path_failed": ${pathsFailed.toJsonArray()},
-                "detected_changes": ${detectedChanges.distinct().toJsonArray()}
+                "detected_changes": ${detectedChanges.toJsonArray()}
             }
         """.trimIndent()
 

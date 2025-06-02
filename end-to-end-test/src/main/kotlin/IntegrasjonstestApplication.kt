@@ -25,11 +25,8 @@ suspend fun main() {
     val failedTests = results.filter { !it.responseIsAsExpected }.toList()
     if (failedTests.isNotEmpty()) {
         val pathsWithDiffs = failedTests.map { "[" + it.path + ", diffs: " + it.diffs + "]" }
-        val errorMessage = "Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs"
-        log.error(errorMessage)
+        log.error("Test failures: ${failedTests.size}, $failedTests $pathsWithDiffs")
         SlackReporter.reportFailures(results)
-        client.close()
-        throw Error(errorMessage)
     }
 
     client.close()

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringErrorV3
@@ -14,7 +15,6 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavVi
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimuleringSpecV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
-import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.trace.TraceAid

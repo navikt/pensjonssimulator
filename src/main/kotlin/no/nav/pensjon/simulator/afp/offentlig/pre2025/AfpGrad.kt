@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 object AfpGrad {
     fun beregnAfpGrad(inntektVedAfpUttak: Int, tidligereInntekt: Int): Int =

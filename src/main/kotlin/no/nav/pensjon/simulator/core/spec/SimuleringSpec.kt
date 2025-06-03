@@ -41,7 +41,7 @@ data class SimuleringSpec(
     val rettTilOffentligAfpFom: LocalDate?,
     val pre2025OffentligAfp: Pre2025OffentligAfpSpec?,
     val erAnonym: Boolean,
-    val ignoreAvslag: Boolean, //TODO Sett ignoreAvslag = true hvis simulering alderspensjon for folketrygdbeholdning
+    val ignoreAvslag: Boolean,
     val isHentPensjonsbeholdninger: Boolean,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
     val onlyVilkaarsproeving: Boolean,
@@ -158,42 +158,68 @@ data class SimuleringSpec(
     fun withHeltUttakDato(dato: LocalDate?) =
         withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
 
-    fun gjelderPre2025OffentligAfp() =
-        EnumSet.of(SimuleringTypeEnum.AFP_ETTERF_ALDER, SimuleringTypeEnum.AFP_FPP).contains(type)
+    fun gjelderLivsvarigAfp() =
+        gjelderPrivatAfp() || gjelderLivsvarigOffentligAfp()
 
-    fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
-        type == SimuleringTypeEnum.AFP_ETTERF_ALDER
+    fun gjelderLivsvarigOffentligAfp() =
+        EnumSet.of(
+            SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+        ).contains(type)
+
+    fun gjelderPre2025OffentligAfp() =
+        // NB: Simuleringstype AFP_FPP har ingen variant for endring av pensjon
+        gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || type == SimuleringTypeEnum.AFP_FPP
+
+    fun gjelderPrivatAfp() =
+        EnumSet.of(
+            SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
+        ).contains(type)
 
     /**
-     * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak,
-     * separert i tid. Uttrykket brukes for:
+     * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak, separert i tid.
+     * Uttrykket brukes for:
      * - Gradert uttak (eller 0 %) etterfulgt av helt uttak
      * - Offentlig AFP (før 2025) etterfulgt av alderspensjon
      */
     fun gjelder2FaseSimulering() =
         gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()
 
-    fun gjelderPrivatAfpFoersteUttak() =
-        type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
-
-    //TODO move to SimuleringType?
     fun gjelderEndring() =
-        type == SimuleringTypeEnum.ENDR_ALDER ||
-                type == SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT ||
-                type == SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG ||
-                type == SimuleringTypeEnum.ENDR_ALDER_M_GJEN
+        EnumSet.of(
+            SimuleringTypeEnum.ENDR_ALDER,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
+            SimuleringTypeEnum.ENDR_ALDER_M_GJEN
+        ).contains(type)
 
-    //TODO move to SimuleringType?
-    fun gjelderAfp() =
-        type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT ||
-                type == SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT ||
-                type == SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG ||
-                type == SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+    fun gjelderEndringUtenLivsvarigOffentligAfp() =
+        EnumSet.of(
+            SimuleringTypeEnum.ENDR_ALDER,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
+            SimuleringTypeEnum.ENDR_ALDER_M_GJEN
+        ).contains(type)
+
+    /**
+     * Pensjonstyper som ikke kan tas ut sammen med "gammel" (pre-2025) offentlig AFP.
+     * Dersom personen har slik løpende AFP, må denne termineres før annet uttak kan starte.
+     */
+    fun kreverTermineringAvPre2025OffentligAfp() =
+        EnumSet.of(
+            SimuleringTypeEnum.ALDER,
+            SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
+            SimuleringTypeEnum.ALDER_M_GJEN
+        ).contains(type)
 
     fun hasSameUttakAs(other: SimuleringSpec) =
         uttakGrad == other.uttakGrad &&
                 foersteUttakDato == other.foersteUttakDato &&
                 heltUttakDato == other.heltUttakDato
+
+    private fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
+        // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon
+        type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 
     private companion object {
         //TODO move to UttakGradKode?
@@ -209,5 +235,5 @@ data class SimuleringSpec(
 data class Pre2025OffentligAfpSpec(
     val afpOrdning: AfpOrdningType, // Hvilken AFP-ordning bruker er tilknyttet
     val inntektMaanedenFoerAfpUttakBeloep: Int, // Brukers inntekt måneden før uttak av AFP
-    val inntektUnderAfpUttakBeloep: Int,
+    val inntektUnderAfpUttakBeloep: Int
 )

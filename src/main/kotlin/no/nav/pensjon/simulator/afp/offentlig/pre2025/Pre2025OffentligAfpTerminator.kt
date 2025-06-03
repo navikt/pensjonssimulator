@@ -1,6 +1,6 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
-import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpBeregner.Companion.AFP_VIRKNING_TOM_ALDER_AAR
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpFoerstegangBeregner.Companion.AFP_VIRKNING_TOM_ALDER_AAR
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findEarliestDateByDay

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 // PEN: PEN240VilkarsprovingAvAFPOffentligErAvslattException
 // + InternalSimuleringVilkarsprovingAvAFPOffentligErAvslattException

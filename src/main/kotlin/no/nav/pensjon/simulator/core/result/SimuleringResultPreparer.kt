@@ -19,10 +19,8 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersects
@@ -546,7 +544,7 @@ class SimuleringResultPreparer(
             resultatListe: MutableList<T>
         ): BeloepPeriode {
             val periodeStart: Date =
-                getRelativeDateByMonth(getFirstDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar)), 1)
+                foedselsdato.plusYears(alderAar.toLong()).withDayOfMonth(1).plusMonths(1).toNorwegianDateAtNoon()
             val periodeSlutt: Date =
                 getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
             var beloep = 0

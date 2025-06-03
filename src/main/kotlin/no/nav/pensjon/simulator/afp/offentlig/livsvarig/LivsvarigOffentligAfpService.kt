@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
-import no.nav.pensjon.simulator.core.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid

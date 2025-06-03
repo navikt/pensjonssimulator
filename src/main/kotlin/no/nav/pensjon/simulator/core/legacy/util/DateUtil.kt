@@ -242,9 +242,6 @@ object DateUtil {
     fun getFirstDayOfMonth(date: Date): Date =
         getFirstOrLastDayOfMonth(date, true)
 
-    fun getFirstDayOfMonth(date: LocalDate): Date =
-        getFirstOrLastDayOfMonth(date.toNorwegianDateAtNoon(), true)
-
     // no.stelvio.common.util.DateUtil.getFirstOrLastDayOfMonth
     private fun getFirstOrLastDayOfMonth(date: Date, first: Boolean): Date =
         NorwegianCalendar.forNoon(date).apply {

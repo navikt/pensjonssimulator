@@ -38,11 +38,17 @@ class NormertPensjonsalderService(
         foedselsdato.let { normalder(it).oppnaasDato(it) }
 
     /**
+     * Datoen da personen oppnår øvre aldersgrense.
+     */
+    fun oevreAlderOppnaasDato(foedselsdato: LocalDate): LocalDate =
+        foedselsdato.let { oevreAlder(it).oppnaasDato(it) }
+
+    /**
      * Høyeste alder for pensjonsopptjening (måneder tas ikke med).
      * I 2025 er dette 75 år.
      * TODO: Er dette gyldig ved økte aldersgrenser (normert)?
      */
-    fun maxOpptjeningAar(foedselsdato: LocalDate): Int =
+    fun opptjeningMaxAlderAar(foedselsdato: LocalDate): Int =
         PensjonAlderDato(foedselsdato, alder = oevreAlder(foedselsdato)).alder.aar
 
     fun nedreAlder(foedselsdato: LocalDate): Alder =

@@ -11,14 +11,14 @@ import java.time.LocalDate
 
 class NormertPensjonsalderServiceTest : FunSpec({
 
-    test("maxOpptjeningAar med fødselsdag i desember") {
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1964, 12, 31)) shouldBe 75
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1975, 12, 30)) shouldBe 76
+    test("opptjeningMaxAlderAar med fødselsdag i desember") {
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1964, 12, 31)) shouldBe 75
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1975, 12, 30)) shouldBe 76
     }
 
-    test("maxOpptjeningAar med fødselsdag i januar") {
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1965, 1, 2)) shouldBe 75
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1975, 1, 1)) shouldBe 76
+    test("opptjeningMaxAlderAar med fødselsdag i januar") {
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1965, 1, 2)) shouldBe 75
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1975, 1, 1)) shouldBe 76
     }
 
     test("normertPensjoneringsdato med fødselsdag i desember") {
@@ -48,6 +48,18 @@ class NormertPensjonsalderServiceTest : FunSpec({
         service.normalderOppnaasDato(foedselsdato = LocalDate.of(1964, 1, 15)) shouldBe LocalDate.of(2031, 1, 15)
         service.normalderOppnaasDato(foedselsdato = LocalDate.of(1965, 1, 1)) shouldBe LocalDate.of(2032, 2, 1)
         service.normalderOppnaasDato(foedselsdato = LocalDate.of(1975, 1, 31)) shouldBe LocalDate.of(2043, 12, 31)
+    }
+
+    test("oevreAlderOppnaasDato med fødselsdag i desember") {
+        service.oevreAlderOppnaasDato(foedselsdato = LocalDate.of(1964, 12, 31)) shouldBe LocalDate.of(2039, 12, 31)
+        service.oevreAlderOppnaasDato(foedselsdato = LocalDate.of(1965, 12, 30)) shouldBe LocalDate.of(2041, 1, 30)
+        service.oevreAlderOppnaasDato(foedselsdato = LocalDate.of(1975, 12, 1)) shouldBe LocalDate.of(2052, 11, 1)
+    }
+
+    test("oevreAlderOppnaasDato med fødselsdag i januar") {
+        service.oevreAlderOppnaasDato(foedselsdato = LocalDate.of(1964, 1, 15)) shouldBe LocalDate.of(2039, 1, 15)
+        service.oevreAlderOppnaasDato(foedselsdato = LocalDate.of(1965, 1, 1)) shouldBe LocalDate.of(2040, 2, 1)
+        service.oevreAlderOppnaasDato(foedselsdato = LocalDate.of(1975, 1, 31)) shouldBe LocalDate.of(2051, 12, 31)
     }
 })
 

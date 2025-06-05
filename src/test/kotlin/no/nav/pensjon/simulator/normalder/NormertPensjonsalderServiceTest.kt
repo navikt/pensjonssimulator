@@ -11,14 +11,14 @@ import java.time.LocalDate
 
 class NormertPensjonsalderServiceTest : FunSpec({
 
-    test("maxOpptjeningAar med fødselsdag i desember") {
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1964, 12, 31)) shouldBe 75
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1975, 12, 30)) shouldBe 76
+    test("opptjeningMaxAlderAar med fødselsdag i desember") {
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1964, 12, 31)) shouldBe 75
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1975, 12, 30)) shouldBe 76
     }
 
-    test("maxOpptjeningAar med fødselsdag i januar") {
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1965, 1, 2)) shouldBe 75
-        service.maxOpptjeningAar(foedselsdato = LocalDate.of(1975, 1, 1)) shouldBe 76
+    test("opptjeningMaxAlderAar med fødselsdag i januar") {
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1965, 1, 2)) shouldBe 75
+        service.opptjeningMaxAlderAar(foedselsdato = LocalDate.of(1975, 1, 1)) shouldBe 76
     }
 
     test("normertPensjoneringsdato med fødselsdag i desember") {

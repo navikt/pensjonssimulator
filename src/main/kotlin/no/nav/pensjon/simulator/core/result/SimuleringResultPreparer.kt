@@ -3,14 +3,12 @@ package no.nav.pensjon.simulator.core.result
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.findElementOfType
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.sortedSubset
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -48,10 +46,10 @@ import java.util.*
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettOutputHelper
 @Component
 class SimuleringResultPreparer(
+    private val opptjeningAdder: SimulertOpptjeningAdder,
     private val normalderService: NormertPensjonsalderService,
     private val time: Time
 ) {
-
     fun opprettOutput(preparerSpec: ResultPreparerSpec): SimulatorOutput {
         val kravhode = preparerSpec.kravhode
         val simuleringSpec = preparerSpec.simuleringSpec
@@ -66,11 +64,11 @@ class SimuleringResultPreparer(
         val simuleringResult = createAndMapSimuleringEtter2011Resultat(simuleringSpec, soekerGrunnlag, grunnbeloep)
 
         // Del 2
-        createAndMapSimulertOpptjeningListe(
-            simuleringResult,
-            preparerSpec.alderspensjonBeregningResultatListe,
+        opptjeningAdder.addToOpptjeningListe(
+            opptjeningListe = simuleringResult.opptjeningListe,
+            beregningsresultatListe = preparerSpec.alderspensjonBeregningResultatListe,
             soekerGrunnlag,
-            kravhode
+            kravhode.regelverkTypeEnum
         )
 
         // Del 3
@@ -349,7 +347,7 @@ class SimuleringResultPreparer(
             privatAfpBeregningResultatListe.add(forrigeAfpBeregningsresultatKopi)
         }
 
-        for (alder in startAlder..normalderService.maxOpptjeningAar(foedselsdato)) {
+        for (alder in startAlder..normalderService.opptjeningMaxAlderAar(foedselsdato)) {
             val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, privatAfpBeregningResultatListe)
             val afpResultat: BeregningsResultatAfpPrivat? =
                 findEarliestIntersecting(privatAfpBeregningResultatListe, beloepPeriode.start, beloepPeriode.slutt)
@@ -425,47 +423,6 @@ class SimuleringResultPreparer(
         }
     }
 
-    // OpprettOutputHelper.createAndMapSimulertOpptjeningListe
-    private fun createAndMapSimulertOpptjeningListe(
-        simulatorOutput: SimulatorOutput,
-        beregningResultatListe: List<AbstraktBeregningsResultat>,
-        soekerGrunnlag: Persongrunnlag,
-        kravhode: Kravhode
-    ) {
-        if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
-
-        var sisteBeregningsresultat2011: BeregningsResultatAlderspensjon2011? = null
-
-        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ) {
-            sisteBeregningsresultat2011 = findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2011
-        }
-
-        if (kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_N_OPPTJ) {
-            val sisteBeregningsresultat2016 =
-                findLatest(beregningResultatListe) as BeregningsResultatAlderspensjon2016
-            sisteBeregningsresultat2011 = sisteBeregningsresultat2016.beregningsResultat2011
-        }
-
-        val poengtallListe: List<Poengtall>? =
-            sisteBeregningsresultat2011?.beregningsInformasjonKapittel19?.spt?.poengrekke?.poengtallListe
-
-        // Run from the year of the earliest opptjeningsgrunnlag to the year the user turns MAX_OPPTJENING_ALDER years of age
-        val foersteAar: Int = findEarliest(soekerGrunnlag.opptjeningsgrunnlagListe)?.ar ?: return
-        val sisteAar = normalderService.maxOpptjeningAar(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
-
-        for (aar in foersteAar..sisteAar) {
-            simulatorOutput.opptjeningListe.add(
-                SimulatorOutputMapper.mapToSimulertOpptjening(
-                    kalenderAar = aar,
-                    resultatListe = beregningResultatListe,
-                    soekerGrunnlag,
-                    poengtallListe = poengtallListe.orEmpty(),
-                    useNullAsDefaultPensjonspoeng = poengtallListe == null
-                )
-            )
-        }
-    }
-
     private fun findKnekkpunkter(spec: SimuleringSpec, foedselsdato: LocalDate?): SortedSet<LocalDate> {
         val knekkpunkter: SortedSet<LocalDate> = TreeSet()
 
@@ -487,7 +444,7 @@ class SimuleringResultPreparer(
     }
 
     private fun sluttAlderAar(foedselsdato: LocalDate): Int =
-        normalderService.maxOpptjeningAar(foedselsdato) + OPPTJENING_ETTERSLEP_ANTALL_AAR
+        normalderService.opptjeningMaxAlderAar(foedselsdato) + OPPTJENING_ETTERSLEP_ANTALL_AAR
 
     private companion object {
         // TODO: Reconsider necessity for this
@@ -807,23 +764,6 @@ class SimuleringResultPreparer(
                 this.beloep = beloep
                 this.maanedsutbetalinger = maanedsutbetalinger
             }
-
-        // From ArligInformasjonListeUtils
-        private fun findEarliest(list: List<Opptjeningsgrunnlag>): Opptjeningsgrunnlag? {
-            var result: Opptjeningsgrunnlag? = null
-            var earliestAar = Int.MAX_VALUE
-
-            for (element in list) {
-                val aar = element.ar
-
-                if (aar < earliestAar) {
-                    result = element
-                    earliestAar = aar
-                }
-            }
-
-            return result
-        }
 
         // From PeriodisertInformasjonListeUtils
         private fun findEarliestIntersecting(

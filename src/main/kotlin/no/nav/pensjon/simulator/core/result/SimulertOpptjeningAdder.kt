@@ -22,7 +22,6 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
         beregningsresultatListe: List<AbstraktBeregningsResultat>,
         soekerGrunnlag: Persongrunnlag,
         regelverkType: RegelverkTypeEnum?
-        //xkravhode: Kravhode
     ) {
         if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
 
@@ -50,13 +49,16 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
         }
     }
 
-    private fun sisteAlderspensjonBeregningsresultat2011(
-        regelverkType: RegelverkTypeEnum?,
-        resultatListe: List<AbstraktBeregningsResultat>
-    ): BeregningsResultatAlderspensjon2011? =
-        when (regelverkType) {
-            RegelverkTypeEnum.N_REG_G_OPPTJ -> findLatest(resultatListe) as? BeregningsResultatAlderspensjon2011
-            RegelverkTypeEnum.N_REG_G_N_OPPTJ -> (findLatest(resultatListe) as? BeregningsResultatAlderspensjon2016)?.beregningsResultat2011
-            else -> null
-        }
+    private companion object {
+
+        private fun sisteAlderspensjonBeregningsresultat2011(
+            regelverkType: RegelverkTypeEnum?,
+            resultatListe: List<AbstraktBeregningsResultat>
+        ): BeregningsResultatAlderspensjon2011? =
+            when (regelverkType) {
+                RegelverkTypeEnum.N_REG_G_OPPTJ -> findLatest(resultatListe) as? BeregningsResultatAlderspensjon2011
+                RegelverkTypeEnum.N_REG_G_N_OPPTJ -> (findLatest(resultatListe) as? BeregningsResultatAlderspensjon2016)?.beregningsResultat2011
+                else -> null
+            }
+    }
 }

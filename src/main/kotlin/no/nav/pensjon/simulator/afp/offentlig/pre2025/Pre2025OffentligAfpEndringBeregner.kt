@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
@@ -19,7 +19,7 @@ import java.util.*
 @Component
 class Pre2025OffentligAfpEndringBeregner(private val normalderService: NormertPensjonsalderService) {
 
-    // SimulerEndringAvAPCommand.beregnAfpOffentlig
+    // PEN: SimulerEndringAvAPCommand.beregnAfpOffentlig
     fun beregnAfp(kravhode: Kravhode, foersteUttakDato: LocalDate): Pre2025OffentligAfpResult {
         val soekerGrunnlag: Persongrunnlag = kravhode.hentPersongrunnlagForSoker()
 
@@ -42,7 +42,7 @@ class Pre2025OffentligAfpEndringBeregner(private val normalderService: NormertPe
         )
 
         // Remove AFP-historikk if calculated virkningTom is before virkFom:
-        if (historikk.virkFom?.let { isAfterByDay(virkningTom, it, false) } == true) {
+        if (historikk.virkFom?.let { isAfterByDay(virkningTom, it, allowSameDay = false) } == true) {
             historikk.virkTom = virkningTom
         } else {
             soekerGrunnlag.afpHistorikkListe = mutableListOf()

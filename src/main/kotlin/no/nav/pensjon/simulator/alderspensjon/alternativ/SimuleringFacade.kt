@@ -27,7 +27,7 @@ class SimuleringFacade(
         spec: SimuleringSpec,
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ {
-        val gjelderUfoereMedAfp = spec.gjelderAfp() && hasUfoereperiode(spec)
+        val gjelderUfoereMedAfp = spec.gjelderLivsvarigAfp() && hasUfoereperiode(spec)
 
         try {
             val result: SimulatorOutput = simulator.simuler(spec)

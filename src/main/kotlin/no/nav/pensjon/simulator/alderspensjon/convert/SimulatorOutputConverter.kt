@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
-import no.nav.pensjon.simulator.afp.pre2025.AfpGrad.beregnAfpGrad
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad.beregnAfpGrad
 import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode

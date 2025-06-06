@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningService
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningSpec
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultMapperV1.resultV1
@@ -13,7 +14,6 @@ import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecMapperV1.fromSpecV1
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningSpecV1
 import no.nav.pensjon.simulator.common.api.ControllerBase
-import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor

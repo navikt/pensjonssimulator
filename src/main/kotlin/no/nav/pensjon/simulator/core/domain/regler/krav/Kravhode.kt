@@ -71,10 +71,13 @@ open class Kravhode {
      * Flagg som angir om brukerens avdøde E/P/S har bodd eller arbeidet i utlandet.
      */
     var boddArbeidUtlandAvdod = false
+
+    /**
+     * Sorterer på nyeste fomDato - denne blir uttaksgradListe.get(0)
+     */
     var uttaksgradListe: MutableList<Uttaksgrad> = mutableListOf()
         set(value) {
-            field = value
-            sorterUttaksgradListe()
+            field = value.sortedByDescending { it.fomDato }.toMutableList()
         }
 
     var regelverkTypeEnum: RegelverkTypeEnum? = null
@@ -94,13 +97,6 @@ open class Kravhode {
     * Angir om barnetilleggsgrunnlag er på nytt format (Gjelder per i dag uføretrygd).
      */
     var btVurderingsperiodeBenyttet = false
-
-    /**
-     * Sorterer på nyeste fomDato - denne blir uttaksgradListe.get(0)
-     */
-    private fun sorterUttaksgradListe() {
-        Collections.sort(uttaksgradListe, Collections.reverseOrder())
-    }
 
     //--- Extra:
     @JsonIgnore

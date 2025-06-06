@@ -442,7 +442,7 @@ class Persongrunnlag() {
         instOpphReduksjonsperiodeListe = source.instOpphReduksjonsperiodeListe.map(::InstOpphReduksjonsperiode)
 
         for (instOpphFasteUtgifterperiode in source.instOpphFasteUtgifterperiodeListe) {
-            this.instOpphFasteUtgifterperiodeListe.add(InstOpphFasteUtgifterperiode(instOpphFasteUtgifterperiode))
+            this.instOpphFasteUtgifterperiodeListe.add(instOpphFasteUtgifterperiode.copy())
         }
 
         if (source.bosattLandEnum != null) {
@@ -474,11 +474,10 @@ class Persongrunnlag() {
         }
 
         for (afg in source.arbeidsforholdsgrunnlagListe) {
-            this.arbeidsforholdsgrunnlagListe.add(Arbeidsforholdsgrunnlag(afg))
+            this.arbeidsforholdsgrunnlagListe.add(afg.copy())
         }
 
-        arbeidsforholdEtterUforgrunnlagListe =
-            source.arbeidsforholdEtterUforgrunnlagListe.map(::ArbeidsforholdEtterUforgrunnlag)
+        arbeidsforholdEtterUforgrunnlagListe = source.arbeidsforholdEtterUforgrunnlagListe.map { it.copy() }
         overgangsInfoUPtilUT = source.overgangsInfoUPtilUT?.copy()
         utbetalingsgradUTListe = source.utbetalingsgradUTListe.map(::UtbetalingsgradUT)
         trygdetidAlternativ = source.trygdetidAlternativ?.copy()
@@ -494,8 +493,7 @@ class Persongrunnlag() {
         //--- Extra:
         gjelderOmsorg = source.gjelderOmsorg //: Boolean = false
         gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
-        barnetilleggVurderingsperioder =
-            source.barnetilleggVurderingsperioder.map(::BarnetilleggVurderingsperiode).toMutableList()
+        barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder.map { it.copy() }.toMutableList()
         beholdninger = source.beholdninger.map { it.copy() }.toMutableList()
         livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe.map { it.copy() }
         trygdetider = source.trygdetider.map { it.copy() }.toMutableList()

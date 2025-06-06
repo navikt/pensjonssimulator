@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
@@ -35,7 +36,7 @@ class Pre2025OffentligAfpUttaksgrad(
             forrigeAlderspensjonBeregningResultat.kravId?.let(kravService::fetchKravhode)
 
         val uttaksgradListe: MutableList<Uttaksgrad> = mutableListOf()
-        uttaksgradListe.addAll(copy(eksisterendeKravhode?.uttaksgradListe.orEmpty()))
+        uttaksgradListe.addAll(eksisterendeKravhode?.uttaksgradListe.orEmpty().map { it.copy() })
         spec.foersteUttakDato?.let { replaceNullTom(uttaksgradListe, it.minusDays(1)) }
 
         val foersteTom: LocalDate = ubetingetUttakDato.minusDays(1)
@@ -53,29 +54,23 @@ class Pre2025OffentligAfpUttaksgrad(
         }
 
     private companion object {
-        // SimulerAFPogAPCommandHelper.makeCopyOfUttaksgradList
-        private fun copy(liste: List<Uttaksgrad>): List<Uttaksgrad> {
-            val copy: MutableList<Uttaksgrad> = mutableListOf()
-            liste.forEach { copy.add(Uttaksgrad(it)) }
-            return copy
-        }
 
-        // SimulerAFPogAPCommandHelper.updateUttaksgradWithTomDateNull
+        // PEN: SimulerAFPogAPCommandHelper.updateUttaksgradWithTomDateNull
         private fun replaceNullTom(uttaksgradListe: List<Uttaksgrad>, tom: LocalDate) {
             uttaksgradListe.forEach {
                 if (it.tomDato == null) {
                     it.tomDato = tom.toNorwegianDateAtNoon()
-                    it.finishInit()
+                    it.setDatesToNoon()
                 }
             }
         }
 
-        // SimulerAFPogAPCommandHelper.createUttaksgrad
+        // PEN: SimulerAFPogAPCommandHelper.createUttaksgrad
         private fun uttaksgrad(fom: LocalDate?, grad: Int, tom: LocalDate?) =
             Uttaksgrad().apply {
                 fomDato = fom?.toNorwegianDateAtNoon()
-                uttaksgrad = grad
                 tomDato = tom?.toNorwegianDateAtNoon()
-            }.also { it.finishInit() }
+                uttaksgrad = grad
+            }
     }
 }

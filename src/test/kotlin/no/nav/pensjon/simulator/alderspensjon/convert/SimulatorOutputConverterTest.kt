@@ -56,11 +56,11 @@ class SimulatorOutputConverterTest : FunSpec({
                                     skjermingstillegg = 700
                                 })
                             uttakGradListe = listOf(
-                                Uttaksgrad(
-                                    fomDato = dateAtNoon(2030, Calendar.JANUARY, 1),
-                                    tomDato = dateAtNoon(2040, Calendar.DECEMBER, 1),
+                                Uttaksgrad().apply {
+                                    fomDato = dateAtNoon(2030, Calendar.JANUARY, 1)
+                                    tomDato = dateAtNoon(2040, Calendar.DECEMBER, 1)
                                     uttaksgrad = 50
-                                )
+                                }
                             )
                         })
                 }
@@ -116,11 +116,11 @@ class SimulatorOutputConverterTest : FunSpec({
                     pensjonPeriodeListe.add(
                         PensjonPeriode().apply {
                             uttakGradListe = listOf(
-                                Uttaksgrad(
-                                    fomDato = dateAtNoon(2020, Calendar.JANUARY, 1),
-                                    tomDato = dateAtNoon(2030, Calendar.DECEMBER, 1),
+                                Uttaksgrad().apply {
+                                    fomDato = dateAtNoon(2020, Calendar.JANUARY, 1)
+                                    tomDato = dateAtNoon(2030, Calendar.DECEMBER, 1)
                                     uttaksgrad = 50
-                                )
+                                }
                             )
                         })
                 }
@@ -136,11 +136,11 @@ class SimulatorOutputConverterTest : FunSpec({
                     pensjonPeriodeListe.add(
                         PensjonPeriode().apply {
                             uttakGradListe = listOf(
-                                Uttaksgrad(
-                                    fomDato = dateAtNoon(2020, Calendar.JANUARY, 1),
-                                    tomDato = dateAtNoon(2030, Calendar.DECEMBER, 1),
+                                Uttaksgrad().apply {
+                                    fomDato = dateAtNoon(2020, Calendar.JANUARY, 1)
+                                    tomDato = dateAtNoon(2030, Calendar.DECEMBER, 1)
                                     uttaksgrad = 0
-                                )
+                                }
                             )
                         })
                 }

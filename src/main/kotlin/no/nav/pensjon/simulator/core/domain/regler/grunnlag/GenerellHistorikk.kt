@@ -65,7 +65,7 @@ class GenerellHistorikk {
         ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.let(::Ventetilleggsgrunnlag)
         poengtilleggEnum = source.poengtilleggEnum
         eosEkstra = source.eosEkstra?.copy()
-        garantiTrygdetid = source.garantiTrygdetid?.let(::GarantiTrygdetid)
+        garantiTrygdetid = source.garantiTrygdetid?.copy()
         sertillegg1943kull = source.sertillegg1943kull?.copy()
         giftFor2011 = source.giftFor2011
     }

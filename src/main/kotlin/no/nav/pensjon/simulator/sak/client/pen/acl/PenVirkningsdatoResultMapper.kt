@@ -64,11 +64,11 @@ object PenVirkningsdatoResultMapper {
         }
 
     private fun garantiTrygdetid(source: PenGarantiTrygdetid) =
-        GarantiTrygdetid(
-            trygdetid_garanti = source.trygdetid_garanti,
-            fomDato = source.fomDato?.toNorwegianDateAtNoon(),
+        GarantiTrygdetid().apply {
+            trygdetid_garanti = source.trygdetid_garanti
+            fomDato = source.fomDato?.toNorwegianDateAtNoon()
             tomDato = source.tomDato?.toNorwegianDateAtNoon()
-        )
+        }
 
     private fun generellHistorikk(source: PenGenerellHistorikk) =
         GenerellHistorikk().apply {

@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelsetypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseTpOrdTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import java.io.Serializable
 
-class InfoPavirkendeYtelse : Serializable {
+// 2025-06-06
+class InfoPavirkendeYtelse {
     /**
      * Liste av alle vilkårsvedtak for hovedytelse som EPS har løpende.
      */
@@ -19,7 +19,7 @@ class InfoPavirkendeYtelse : Serializable {
      * Hvis vilkarsvedtakEPSListen er tom og det finnes en tjenestepensjon for ektefellen som
      * ikke blir beregnet av PESYS skal denne fylles ut.
      */
-    var tjenestepensjonsordningEpsEnum: YtelsetypeEnum? = null
+    var tjenestepensjonsordningEpsEnum: YtelseTpOrdTypeEnum? = null
 
     /**
      * Satt til true dersom EPS mottar omstillingsstonad (utbetalt beløp > 0).

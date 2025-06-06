@@ -29,7 +29,7 @@ fun Trygdetid.copy() =
         it.tt_fa_F2021 = this.tt_fa_F2021?.copy()
         it.opptjeningsperiode = this.opptjeningsperiode
         it.ttUtlandEos = this.ttUtlandEos?.copy()
-        it.ttUtlandKonvensjon = this.ttUtlandKonvensjon?.let(::TTUtlandKonvensjon)
+        it.ttUtlandKonvensjon = this.ttUtlandKonvensjon?.copy()
         it.ttUtlandTrygdeavtaler = this.ttUtlandTrygdeavtaler.map { it.copy() }
         it.merknadListe = this.merknadListe.map { it.copy() }
         it.garantiTypeEnum = this.garantiTypeEnum
@@ -54,6 +54,21 @@ fun TTUtlandEOS.copy() =
         it.tt_lik_pa = this.tt_lik_pa
         it.tt_konvensjon_ar = this.tt_konvensjon_ar
         it.tt_fa = this.tt_fa
+        it.merknadListe = this.merknadListe.map { it.copy() }
+    }
+
+fun TTUtlandKonvensjon.copy() =
+    TTUtlandKonvensjon().also {
+        it.ftt_A10_brutto = this.ftt_A10_brutto
+        it.ftt_A10_netto = this.ftt_A10_netto
+        it.ftt_A10_redusert = this.ftt_A10_redusert
+        it.ft_ar = this.ft_ar
+        it.tt_A10_fa_mnd = this.tt_A10_fa_mnd
+        it.tt_A10_anv_aar = this.tt_A10_anv_aar
+        it.tt_A10_teller = this.tt_A10_teller
+        it.tt_A10_nevner = this.tt_A10_nevner
+        it.tt_konvensjon_ar = this.tt_konvensjon_ar
+        it.tt_lik_pa = this.tt_lik_pa
         it.merknadListe = this.merknadListe.map { it.copy() }
     }
 

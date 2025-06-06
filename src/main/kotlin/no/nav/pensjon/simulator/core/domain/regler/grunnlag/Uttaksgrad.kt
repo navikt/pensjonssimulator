@@ -14,6 +14,6 @@ class Uttaksgrad {
      */
     fun setDatesToNoon() {
         fomDato = fomDato?.noon()
-        tomDato = fomDato?.noon()
+        tomDato = tomDato?.noon()
     }
 }

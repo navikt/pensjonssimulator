@@ -99,16 +99,16 @@ object PenVirkningsdatoResultMapper {
         }
 
     private fun reguleringInformasjon(source: PenReguleringsInformasjon) =
-        ReguleringsInformasjon(
-            lonnsvekst = source.lonnsvekst,
-            fratrekksfaktor = source.fratrekksfaktor,
-            gammelG = source.gammelG,
-            nyG = source.nyG,
-            reguleringsfaktor = source.reguleringsfaktor,
-            gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr,
-            reguleringsbelop = source.reguleringsbelop,
+        ReguleringsInformasjon().apply {
+            lonnsvekst = source.lonnsvekst
+            fratrekksfaktor = source.fratrekksfaktor
+            gammelG = source.gammelG
+            nyG = source.nyG
+            reguleringsfaktor = source.reguleringsfaktor
+            gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr
+            reguleringsbelop = source.reguleringsbelop
             prisOgLonnsvekst = source.prisOgLonnsvekst
-        )
+        }
 
     private fun saertillegg(source: PenSaertillegg) =
         Sertillegg().apply {
@@ -177,11 +177,11 @@ object PenVirkningsdatoResultMapper {
         }
 
     private fun ventetilleggGrunnlag(source: PenVentetilleggsgrunnlag) =
-        Ventetilleggsgrunnlag(
-            ventetilleggprosent = source.ventetilleggprosent,
-            vt_spt = source.vt_spt,
-            vt_opt = source.vt_opt,
-            vt_pa = source.vt_pa,
+        Ventetilleggsgrunnlag().apply {
+            ventetilleggprosent = source.ventetilleggprosent
+            vt_spt = source.vt_spt
+            vt_opt = source.vt_opt
+            vt_pa = source.vt_pa
             tt_vent = source.tt_vent
-        )
+        }
 }

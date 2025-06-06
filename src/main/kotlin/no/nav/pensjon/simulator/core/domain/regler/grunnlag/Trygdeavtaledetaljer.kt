@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.BarnepensjonEosKapEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 
 // Checked 2025-02-28
 class Trygdeavtaledetaljer {
@@ -64,9 +65,9 @@ class Trygdeavtaledetaljer {
     constructor(source: Trygdeavtaledetaljer) : this() {
         arbeidsinntektMinst1G = source.arbeidsinntektMinst1G
         poengarListe = source.poengarListe.map(::PoengarManuell)
-        ftt_andreEOSLand = source.ftt_andreEOSLand?.let(::AntallArOgMnd)
-        ftt_garanti = source.ftt_garanti?.let(::AntallArOgMnd)
-        ftt_annetNordiskLand = source.ftt_annetNordiskLand?.let(::AntallArOgMnd)
+        ftt_andreEOSLand = source.ftt_andreEOSLand?.copy()
+        ftt_garanti = source.ftt_garanti?.copy()
+        ftt_annetNordiskLand = source.ftt_annetNordiskLand?.copy()
         sumPensjonAndreAvtaleland = source.sumPensjonAndreAvtaleland
         inntektsprovetPensjonAvtaleland = source.inntektsprovetPensjonAvtaleland
         erArt10BruktGP = source.erArt10BruktGP

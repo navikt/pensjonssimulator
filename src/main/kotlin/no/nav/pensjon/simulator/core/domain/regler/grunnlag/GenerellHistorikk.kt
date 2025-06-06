@@ -62,7 +62,7 @@ class GenerellHistorikk {
         generellHistorikkId = source.generellHistorikkId
         fravik_19_3Enum = source.fravik_19_3Enum
         fpp_eos = source.fpp_eos
-        ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.let(::Ventetilleggsgrunnlag)
+        ventetilleggsgrunnlag = source.ventetilleggsgrunnlag?.copy()
         poengtilleggEnum = source.poengtilleggEnum
         eosEkstra = source.eosEkstra?.copy()
         garantiTrygdetid = source.garantiTrygdetid?.copy()

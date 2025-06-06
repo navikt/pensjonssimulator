@@ -110,12 +110,10 @@ fun AvkortingsinformasjonBT.copy() =
         it.fribelopPeriodisert = this.fribelopPeriodisert
         it.avviksjusteringTypeEnum = this.avviksjusteringTypeEnum
         it.barnetilleggPeriodeListe =
-            this.barnetilleggPeriodeListe.filterIsInstance<TidligereBarnetilleggperiode>()
-                .map(::TidligereBarnetilleggperiode).toMutableList()
+            this.barnetilleggPeriodeListe.filterIsInstance<TidligereBarnetilleggperiode>().map { it.copy() }
+                .toMutableList()
         it.barnetilleggPeriodeListe.addAll(
-            this.barnetilleggPeriodeListe.filterIsInstance<FremtidigBarnetilleggperiode>()
-                .map(::FremtidigBarnetilleggperiode)
-        )
+            this.barnetilleggPeriodeListe.filterIsInstance<FremtidigBarnetilleggperiode>().map { it.copy() })
         copyAvkortingsinformasjon(source = this, target = it)
     }
 
@@ -271,6 +269,20 @@ fun FremskrivingsDetaljer.copy() =
         it.teller = this.teller
         it.nevner = this.nevner
         it.arskull = this.arskull
+    }
+
+fun FremtidigBarnetilleggperiode.copy() =
+    FremtidigBarnetilleggperiode().also {
+        it.fradragPerAr = this.fradragPerAr
+        it.nettoPerArForJustering = this.nettoPerArForJustering
+        it.nettoPerAr = this.nettoPerAr
+        it.nettoPerMnd = this.nettoPerMnd
+        it.restTilUtbetaling = this.restTilUtbetaling
+        it.restTilUtbetalingForJustering = this.restTilUtbetalingForJustering
+        it.justeringsbelopUbegrensetPerAr = this.justeringsbelopUbegrensetPerAr
+        it.justeringsbelopPerAr = this.justeringsbelopPerAr
+        it.justeringsbelopPerMnd = this.justeringsbelopPerMnd
+        copyBarnetilleggperiode(source = this, target = it)
     }
 
 fun FtDtArsak.copy() =
@@ -436,6 +448,13 @@ fun TapendeBeregningsmetode.copy() =
         it.beregningMetodeTypeEnum = this.beregningMetodeTypeEnum
     }
 
+fun TidligereBarnetilleggperiode.copy() =
+    TidligereBarnetilleggperiode().also {
+        it.faktiskFradragPerAr = this.faktiskFradragPerAr
+        it.avviksbelop = this.avviksbelop
+        copyBarnetilleggperiode(source = this, target = it)
+    }
+
 fun Uforetrygdberegning.copy() =
     Uforetrygdberegning().also {
         it.bruttoPerAr = this.bruttoPerAr
@@ -505,6 +524,20 @@ fun copyBarnetillegg(
     target.forsorgingstilleggNiva = source.forsorgingstilleggNiva
     target.avkortingsArsakListEnum = source.avkortingsArsakListEnum.map { it }.toMutableList()
     copyYtelseskomponent(source, target)
+}
+
+fun copyBarnetilleggperiode(
+    source: AbstraktBarnetilleggperiode,
+    target: AbstraktBarnetilleggperiode
+) {
+    target.fomDato = source.fomDato?.clone() as? Date
+    target.tomDato = source.tomDato?.clone() as? Date
+    target.lengde = source.lengde
+    target.antallBarn = source.antallBarn
+    target.fribelop = source.fribelop
+    target.bruttoPerAr = source.bruttoPerAr
+    target.reguleringsfaktor = source.reguleringsfaktor?.let(::Brok)
+    target.avkortingsbelopPerAr = source.avkortingsbelopPerAr
 }
 
 private fun copyBarnetilleggUT(

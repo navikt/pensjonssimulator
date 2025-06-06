@@ -58,8 +58,6 @@ object PeriodiseringUtil {
             tomDato = null
             uttaksgrad = 100
             // uttaksgradKopiert = false <----- seemingly unused in simulering context
-        }.also {
-            it.finishInit()
         }
 
         kravhode.uttaksgradListe = mutableListOf(uttaksgrad)

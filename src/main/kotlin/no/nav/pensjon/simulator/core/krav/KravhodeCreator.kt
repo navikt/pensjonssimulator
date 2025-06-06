@@ -632,8 +632,6 @@ class KravhodeCreator(
                     validateGradertUttak(spec)
                     tomDato = spec.heltUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
                 }
-            }.also {
-                it.finishInit()
             }
 
         private fun addFremtidigInntektVedStartAvHvertAar(

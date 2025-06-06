@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseVedDodEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import java.util.*
 
 // 2025-03-10
@@ -87,19 +88,19 @@ class GjenlevendetilleggInformasjon {
         yrkesskadegrad = source.yrkesskadegrad
 
         (source.beregningsgrunnlagAvdodOrdiner as? BeregningsgrunnlagOrdiner)?.let {
-            beregningsgrunnlagAvdodOrdiner = BeregningsgrunnlagOrdiner(it)
+            beregningsgrunnlagAvdodOrdiner = it.copy()
         }
 
         (source.beregningsgrunnlagAvdodOrdiner as? BeregningsgrunnlagKonvertert)?.let {
-            beregningsgrunnlagAvdodOrdiner = BeregningsgrunnlagKonvertert(it)
+            beregningsgrunnlagAvdodOrdiner = it.copy()
         }
 
         (source.beregningsgrunnlagAvdodYrkesskade as? BeregningsgrunnlagYrkesskade)?.let {
-            beregningsgrunnlagAvdodYrkesskade = BeregningsgrunnlagYrkesskade(it)
+            beregningsgrunnlagAvdodYrkesskade = it.copy()
         }
 
         (source.beregningsgrunnlagAvdodYrkesskade as? BeregningsgrunnlagKonvertert)?.let {
-            beregningsgrunnlagAvdodYrkesskade = BeregningsgrunnlagKonvertert(it)
+            beregningsgrunnlagAvdodYrkesskade = it.copy()
         }
     }
 }

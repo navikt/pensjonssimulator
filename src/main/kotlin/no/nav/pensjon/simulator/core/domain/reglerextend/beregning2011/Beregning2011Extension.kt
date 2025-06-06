@@ -158,6 +158,28 @@ fun Basispensjon.copy() =
         it.formelKodeEnum = this.formelKodeEnum
     }
 
+fun BeregningsgrunnlagKonvertert.copy() =
+    BeregningsgrunnlagKonvertert().also {
+        it.skattekompensertbelop = this.skattekompensertbelop?.copy()
+        it.inntektVedSkadetidspunkt = this.inntektVedSkadetidspunkt
+        copyBeregningsgrunnlag(source = this, target = it)
+    }
+
+fun BeregningsgrunnlagOrdiner.copy() =
+    BeregningsgrunnlagOrdiner().also {
+        it.opptjeningUTListe = this.opptjeningUTListe.map(::OpptjeningUT)
+        it.nasjonaltSnitt = this.nasjonaltSnitt
+        it.sluttpoengtall = this.sluttpoengtall
+        copyBeregningsgrunnlag(source = this, target = it)
+    }
+
+fun BeregningsgrunnlagYrkesskade.copy() =
+    BeregningsgrunnlagYrkesskade().also {
+        it.inntektVedSkadetidspunkt = this.inntektVedSkadetidspunkt
+        it.sluttpoengtall = this.sluttpoengtall
+        copyBeregningsgrunnlag(source = this, target = it)
+    }
+
 fun BeregningsInformasjon.copy() =
     BeregningsInformasjon().also {
         it.forholdstallUttak = this.forholdstallUttak
@@ -374,6 +396,14 @@ fun JusteringsInformasjon.copy() =
         it.elementer = this.elementer.map(::copyJustering).toMutableList()
     }
 
+fun Justertbelop.copy() =
+    Justertbelop().also {
+        it.g01052014 = this.g01052014
+        it.gjennomsnittligG2014 = this.gjennomsnittligG2014
+        it.justertbelop = this.justertbelop
+        it.overgangsbelop = this.overgangsbelop?.copy()
+    }
+
 fun JustertGarantipensjonsniva.copy() =
     JustertGarantipensjonsniva().also {
         it.garantipensjonsniva = this.garantipensjonsniva
@@ -410,21 +440,38 @@ fun MinstenivatilleggPensjonistpar.copy() =
         copyYtelseskomponent(source = this, target = it)
     }
 
+fun Overgangsbelop.copy() =
+    Overgangsbelop().also {
+        it.formelKodeEnum = this.formelKodeEnum
+        it.gpBrutto = this.gpBrutto
+        it.gpSats = this.gpSats
+        it.overgangsbelop = this.overgangsbelop
+        it.stBrutto = this.stBrutto
+        it.tpBrutto = this.tpBrutto
+    }
+
 fun OvergangsinfoUPtilUT.copy() =
     OvergangsinfoUPtilUT().also {
         it.ektefelletilleggUT = this.ektefelletilleggUT?.copy()
         it.inntektsgrenseorFriinntektsdato = this.inntektsgrenseorFriinntektsdato
-        it.konvertertBeregningsgrunnlagOrdiner =
-            this.konvertertBeregningsgrunnlagOrdiner?.let(::BeregningsgrunnlagKonvertert)
-        it.konvertertBeregningsgrunnlagYrkesskade =
-            this.konvertertBeregningsgrunnlagYrkesskade?.let(::BeregningsgrunnlagKonvertert)
-        it.konvertertBeregningsgrunnlagGJT = this.konvertertBeregningsgrunnlagGJT?.let(::BeregningsgrunnlagKonvertert)
+        it.konvertertBeregningsgrunnlagOrdiner = this.konvertertBeregningsgrunnlagOrdiner?.copy()
+        it.konvertertBeregningsgrunnlagYrkesskade = this.konvertertBeregningsgrunnlagYrkesskade?.copy()
+        it.konvertertBeregningsgrunnlagGJT = this.konvertertBeregningsgrunnlagGJT?.copy()
         it.anvendtTrygdetidUP = this.anvendtTrygdetidUP?.let(::AnvendtTrygdetid)
         it.anvendtTrygdetidUPHjemme = this.anvendtTrygdetidUPHjemme?.let(::AnvendtTrygdetid)
         it.anvendtTrygdetidUP_egen = this.anvendtTrygdetidUP_egen?.let(::AnvendtTrygdetid)
         it.minstepensjontypeEnum = this.minstepensjontypeEnum
         it.resultatKildeEnum = this.resultatKildeEnum
         it.sertilleggNetto = this.sertilleggNetto
+    }
+
+fun Skattekompensertbelop.copy() =
+    Skattekompensertbelop().also {
+        it.faktor = this.faktor
+        it.formelKodeEnum = this.formelKodeEnum
+        it.arsbelop = this.arsbelop
+        it.justertbelop = this.justertbelop?.copy()
+        it.tillegg = this.tillegg
     }
 
 fun Skjermingstillegg.copy() =
@@ -490,6 +537,12 @@ fun UforetrygdOrdiner.copy() =
         it.fradragPerArUtenArbeidsforsok = this.fradragPerArUtenArbeidsforsok
         it.tidligereBelopAr = this.tidligereBelopAr
         copyYtelseskomponent(source = this, target = it)
+    }
+
+fun UtbetalingsgradUT.copy() =
+    UtbetalingsgradUT().also {
+        it.ar = this.ar
+        it.utbetalingsgrad = this.utbetalingsgrad
     }
 
 private fun copyAvkortingsinformasjon(source: AbstraktAvkortingsinformasjon, target: AbstraktAvkortingsinformasjon) {
@@ -573,6 +626,13 @@ private fun copyBeregning2011(
     if (copyDelberegninger) {
         target.delberegning2011Liste = source.delberegning2011Liste.map(::BeregningRelasjon)
     }
+}
+
+private fun copyBeregningsgrunnlag(source: AbstraktBeregningsgrunnlag, target: AbstraktBeregningsgrunnlag) {
+    target.formelKodeEnum = source.formelKodeEnum
+    target.arsbelop = source.arsbelop
+    target.antattInntektFaktorKap19 = source.antattInntektFaktorKap19
+    target.antattInntektFaktorKap20 = source.antattInntektFaktorKap20
 }
 
 private fun copyBeregningsResultat(source: AbstraktBeregningsResultat, target: AbstraktBeregningsResultat) {

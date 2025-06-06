@@ -4,8 +4,6 @@ import com.github.benmanes.caffeine.cache.Cache
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.GenerelleDataSpec
 import no.nav.pensjon.simulator.generelt.Person
@@ -88,8 +86,6 @@ class PenGenerelleDataClient(
             GenerelleData(
                 person = Person(LocalDate.MIN, LandkodeEnum.NOR),
                 privatAfpSatser = PrivatAfpSatser(),
-                delingstallUtvalg = DelingstallUtvalg(),
-                forholdstallUtvalg = ForholdstallUtvalg(),
                 satsResultatListe = emptyList(),
             )
     }

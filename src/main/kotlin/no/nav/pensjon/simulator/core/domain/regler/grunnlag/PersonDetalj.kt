@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonth
@@ -120,7 +121,7 @@ open class PersonDetalj {
         }
 
         if (source.barnDetalj != null) {
-            this.barnDetalj = BarnDetalj(source.barnDetalj!!)
+            this.barnDetalj = source.barnDetalj?.copy()
         }
 
         this.tillegg = source.tillegg

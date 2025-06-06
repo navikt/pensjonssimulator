@@ -5,8 +5,6 @@ import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.Person
 import java.time.LocalDate
@@ -48,19 +46,6 @@ class PenGenerelleDataResultMapperTest : FunSpec({
                         justeringsbeloep = 0,
                         referansebeloep = 0
                     ),
-                    delingstallUtvalg = DelingstallUtvalg().apply {
-                        dt = 1.2
-                        dt67soker = 0.0 // not mapped, so not 3.4
-                        dt67virk = 0.0 // not mapped, so not 5.6
-                        delingstallListe = mutableListOf()
-                    },
-                    forholdstallUtvalg = ForholdstallUtvalg().apply {
-                        ft = 1.2
-                        forholdstallListe = mutableListOf()
-                        ft67soker = 0.0 // not mapped, so not 3.4
-                        ft67virk = 0.0 // not mapped, so not 5.6
-                        reguleringsfaktor = 0.0 // not mapped, so not 7.8
-                    },
                     satsResultatListe = emptyList()
                 )
     }
@@ -108,20 +93,6 @@ class PenGenerelleDataResultMapperTest : FunSpec({
                 )
             )
         )
-
-        with(result.delingstallUtvalg.delingstallListe[0]) {
-            arskull shouldBe 1970
-            alder shouldBe 55
-            maned shouldBe 9
-            delingstall shouldBe 6.71
-        }
-
-        with(result.forholdstallUtvalg.forholdstallListe[0]) {
-            arskull shouldBe 1960
-            alder shouldBe 65
-            maned shouldBe 11
-            forholdstall shouldBe 6.7
-        }
 
         with(result.satsResultatListe[0]) {
             ar shouldBe 2025

@@ -4,9 +4,6 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.DelingstallUtvalg
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForholdstallUtvalg
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GarantitilleggsbeholdningGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.BadSpecException

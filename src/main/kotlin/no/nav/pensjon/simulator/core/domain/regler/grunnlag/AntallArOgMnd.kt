@@ -1,19 +1,20 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import java.io.Serializable
-
-class AntallArOgMnd(
+// 2025-06-06
+class AntallArOgMnd {
     /**
      * Antall år som skal beskrives.
      */
-    var antallAr: Int = 0,
+    var antallAr = 0
+
     /**
      * Antall måneder som skal beskrives.
      */
-    var antallMnd: Int = 0
-) : Serializable {
-    constructor(antallArOgMnd: AntallArOgMnd) : this() {
-        this.antallAr = antallArOgMnd.antallAr
-        this.antallMnd = antallArOgMnd.antallMnd
+    var antallMnd = 0
+
+    constructor()
+    constructor(antallAr: Int, antallMnd: Int) {
+        this.antallAr = antallAr
+        this.antallMnd = antallMnd
     }
 }

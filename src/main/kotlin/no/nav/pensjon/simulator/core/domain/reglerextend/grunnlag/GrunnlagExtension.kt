@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
+import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -29,6 +30,12 @@ fun AntallArMndDag.copy() =
         it.antallDager = this.antallDager
     }
 
+fun AntallArOgMnd.copy() =
+    AntallArOgMnd().also {
+        it.antallAr = this.antallAr
+        it.antallMnd = this.antallMnd
+    }
+
 fun ArbeidsforholdEtterUforgrunnlag.copy() =
     ArbeidsforholdEtterUforgrunnlag().also {
         it.fomDato = this.fomDato?.clone() as? Date
@@ -43,6 +50,22 @@ fun Arbeidsforholdsgrunnlag.copy() =
         it.stillingsprosent = this.stillingsprosent
         it.arbeidsgiver = this.arbeidsgiver
         it.orgNummer = this.orgNummer
+    }
+
+fun BarnDetalj.copy() =
+    BarnDetalj().also {
+        it.annenForelder = this.annenForelder?.let(::PenPerson)
+        it.borMedBeggeForeldre = this.borMedBeggeForeldre
+        it.borFomDato = this.borFomDato?.clone() as? Date
+        it.borTomDato = this.borTomDato?.clone() as? Date
+        it.inntektOver1G = this.inntektOver1G
+        it.underUtdanning = this.underUtdanning
+    }
+
+fun Barnekull.copy() =
+    Barnekull().also {
+        it.antallBarn = this.antallBarn
+        it.bruk = this.bruk
     }
 
 fun BarnetilleggVilkar.copy() =
@@ -130,6 +153,15 @@ fun Uttaksgrad.copy() =
         it.fomDato = this.fomDato?.clone() as? Date
         it.tomDato = this.tomDato?.clone() as? Date
         it.uttaksgrad = this.uttaksgrad
+    }
+
+fun Ventetilleggsgrunnlag.copy() =
+    Ventetilleggsgrunnlag().also {
+        it.ventetilleggprosent = this.ventetilleggprosent
+        it.vt_spt = this.vt_spt
+        it.vt_opt = this.vt_opt
+        it.vt_pa = this.vt_pa
+        it.tt_vent = this.tt_vent
     }
 
 private fun copyBeholdning(source: Beholdning): Beholdning =

@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
+import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 
 // 2025-03-10
 class EgenopptjentUforetrygd {
@@ -52,19 +53,19 @@ class EgenopptjentUforetrygd {
         formelKodeEnum = source.formelKodeEnum
 
         (source.beregningsgrunnlagOrdiner as? BeregningsgrunnlagOrdiner)?.let {
-            beregningsgrunnlagOrdiner = BeregningsgrunnlagOrdiner(it)
+            beregningsgrunnlagOrdiner = it.copy()
         }
 
         (source.beregningsgrunnlagOrdiner as? BeregningsgrunnlagKonvertert)?.let {
-            beregningsgrunnlagOrdiner = BeregningsgrunnlagKonvertert(it)
+            beregningsgrunnlagOrdiner = it.copy()
         }
 
         (source.beregningsgrunnlagYrkesskade as? BeregningsgrunnlagYrkesskade)?.let {
-            beregningsgrunnlagYrkesskade = BeregningsgrunnlagYrkesskade(it)
+            beregningsgrunnlagYrkesskade = it.copy()
         }
 
         (source.beregningsgrunnlagYrkesskade as? BeregningsgrunnlagKonvertert)?.let {
-            beregningsgrunnlagYrkesskade = BeregningsgrunnlagKonvertert(it)
+            beregningsgrunnlagYrkesskade = it.copy()
         }
 
         anvendtTrygdetid = source.anvendtTrygdetid?.let(::AnvendtTrygdetid)

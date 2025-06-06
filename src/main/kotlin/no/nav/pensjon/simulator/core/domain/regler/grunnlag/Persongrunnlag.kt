@@ -410,7 +410,7 @@ class Persongrunnlag() {
         dodAvYrkesskade = source.dodAvYrkesskade
         source.generellHistorikk?.let { generellHistorikk = GenerellHistorikk(it) }
         afpHistorikkListe = source.afpHistorikkListe.map { it.copy() }.toMutableList()
-        source.barnekull?.let { barnekull = Barnekull(it) }
+        barnekull = source.barnekull?.copy()
         antallArUtland = source.antallArUtland
         medlemIFolketrygdenSiste3Ar = source.medlemIFolketrygdenSiste3Ar
         over60ArKanIkkeForsorgesSelv = source.over60ArKanIkkeForsorgesSelv
@@ -479,7 +479,7 @@ class Persongrunnlag() {
 
         arbeidsforholdEtterUforgrunnlagListe = source.arbeidsforholdEtterUforgrunnlagListe.map { it.copy() }
         overgangsInfoUPtilUT = source.overgangsInfoUPtilUT?.copy()
-        utbetalingsgradUTListe = source.utbetalingsgradUTListe.map(::UtbetalingsgradUT)
+        utbetalingsgradUTListe = source.utbetalingsgradUTListe.map { it.copy() }
         trygdetidAlternativ = source.trygdetidAlternativ?.copy()
         sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
         barnetilleggVurderingsperiode = source.barnetilleggVurderingsperiode

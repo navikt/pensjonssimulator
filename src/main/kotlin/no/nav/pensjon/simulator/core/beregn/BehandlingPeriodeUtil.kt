@@ -6,9 +6,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.inntekt.InntektsgrunnlagValidity
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
@@ -221,10 +221,10 @@ object BehandlingPeriodeUtil {
                 val iterator = list.iterator()
 
                 while (iterator.hasNext()) {
-                    it.uttaksgradListe.add(Uttaksgrad(iterator.next()))
+                    it.uttaksgradListe.add(iterator.next().copy())
                 }
 
-                Collections.sort(it.uttaksgradListe, Collections.reverseOrder())
+                it.uttaksgradListe.sortByDescending { it.fomDato }
             }
 
             it.regelverkTypeEnum = kravhode.regelverkTypeEnum

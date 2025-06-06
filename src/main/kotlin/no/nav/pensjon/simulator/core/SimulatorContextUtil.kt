@@ -62,7 +62,7 @@ object SimulatorContextUtil {
     fun preprocess(spec: VilkarsprovAlderpensjon2016Request) {
         spec.virkFom = spec.virkFom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
-        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.finishInit() }
+        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.setDatesToNoon() }
         spec.afpLivsvarig?.let(::roundNettoPerAar)
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)

@@ -29,10 +29,33 @@ fun AntallArMndDag.copy() =
         it.antallDager = this.antallDager
     }
 
+fun ArbeidsforholdEtterUforgrunnlag.copy() =
+    ArbeidsforholdEtterUforgrunnlag().also {
+        it.fomDato = this.fomDato?.clone() as? Date
+        it.stillingsprosent = this.stillingsprosent
+        it.varigTilrettelagtArbeid = this.varigTilrettelagtArbeid
+    }
+
+fun Arbeidsforholdsgrunnlag.copy() =
+    Arbeidsforholdsgrunnlag().also {
+        it.fomDato = this.fomDato?.clone() as? Date
+        it.tomDato = this.tomDato?.clone() as? Date
+        it.stillingsprosent = this.stillingsprosent
+        it.arbeidsgiver = this.arbeidsgiver
+        it.orgNummer = this.orgNummer
+    }
+
 fun BarnetilleggVilkar.copy() =
     BarnetilleggVilkar().also {
         it.btVilkarTypeEnum = this.btVilkarTypeEnum
         it.vurdertTil = this.vurdertTil
+    }
+
+fun BarnetilleggVurderingsperiode.copy() =
+    BarnetilleggVurderingsperiode().also {
+        it.fomDato = this.fomDato?.clone() as? Date
+        it.tomDato = this.tomDato?.clone() as? Date
+        it.btVilkarListe = this.btVilkarListe.map { it.copy() }
     }
 
 fun Beholdninger.copy() =
@@ -73,6 +96,21 @@ fun Garantitilleggsbeholdning.copy() =
         copyBeholdning(source = this, target = it)
     }
 
+fun GarantiTrygdetid.copy() =
+    GarantiTrygdetid().also {
+        it.trygdetid_garanti = this.trygdetid_garanti
+        it.fomDato = this.fomDato?.clone() as? Date
+        it.tomDato = this.tomDato?.clone() as? Date
+    }
+
+fun InstOpphFasteUtgifterperiode.copy() =
+    InstOpphFasteUtgifterperiode().also {
+        it.instOpphFasteUtgifterperiodeId = this.instOpphFasteUtgifterperiodeId
+        it.fom = this.fom?.clone() as? Date
+        it.tom = this.tom?.clone() as? Date
+        it.fasteUtgifter = this.fasteUtgifter
+    }
+
 fun Pensjonsbeholdning.copy() =
     Pensjonsbeholdning().also {
         it.fom = this.fom?.clone() as? Date
@@ -85,6 +123,13 @@ fun Unntak.copy() =
         it.unntak = this.unntak
         it.unntakTypeEnum = this.unntakTypeEnum
         it.eksportUnntakEnum = this.eksportUnntakEnum
+    }
+
+fun Uttaksgrad.copy() =
+    Uttaksgrad().also {
+        it.fomDato = this.fomDato?.clone() as? Date
+        it.tomDato = this.tomDato?.clone() as? Date
+        it.uttaksgrad = this.uttaksgrad
     }
 
 private fun copyBeholdning(source: Beholdning): Beholdning =

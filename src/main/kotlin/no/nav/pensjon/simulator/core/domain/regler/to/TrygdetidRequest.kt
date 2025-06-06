@@ -48,10 +48,12 @@ class TrygdetidRequest : ServiceRequest() {
      */
     var regelverkTypeEnum: RegelverkTypeEnum? = null
 
+    /**
+     * Sorterer på nyeste fomDato - denne blir uttaksgradListe.get(0)
+     */
     var uttaksgradListe: List<Uttaksgrad> = mutableListOf()
         set(value) {
-            sorterUttaksgradListe()
-            field = value
+            field = value.sortedByDescending { it.fomDato }
         }
 
     var redusertFTTUT: Boolean? = null
@@ -60,12 +62,4 @@ class TrygdetidRequest : ServiceRequest() {
      * Liste av beregningsvilkarPerioder, påkrevd ved uføretrygd.
      */
     var beregningsvilkarPeriodeListe: List<BeregningsvilkarPeriode> = mutableListOf()
-
-    /**
-     * Sorterer på nyeste fomDato - denne blir uttaksgradListe.get(0)
-     */
-    private fun sorterUttaksgradListe() {
-        Collections.sort(uttaksgradListe, Collections.reverseOrder())
-        return
-    }
 }

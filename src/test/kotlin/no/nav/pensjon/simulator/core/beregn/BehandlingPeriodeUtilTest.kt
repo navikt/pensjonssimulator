@@ -21,6 +21,42 @@ class BehandlingPeriodeUtilTest : FunSpec({
         }
     )
 
+    test("periodiserGrunnlag should sort uttaksgrader in reverse start date order") {
+        val kravhode = BehandlingPeriodeUtil.periodiserGrunnlag(
+            virkningFom = null,
+            virkningTom = null,
+            originalKravhode = Kravhode().apply {
+                uttaksgradListe = mutableListOf(
+                        Uttaksgrad().apply {
+                            uttaksgrad = 50
+                            fomDato = dateAtNoon(2022, Calendar.JANUARY, 1) // second
+                        },
+                        Uttaksgrad().apply {
+                            uttaksgrad = 20
+                            fomDato = null // first
+                        },
+                        Uttaksgrad().apply {
+                            uttaksgrad = 80
+                            fomDato = dateAtNoon(2023, Calendar.JANUARY, 1) // third
+                        },
+                        Uttaksgrad().apply {
+                            uttaksgrad = 40
+                            fomDato = dateAtNoon(2024, Calendar.JANUARY, 1) // fourth
+                        }
+                )
+            },
+            periodiserFomTomDatoUtenUnntak = false,
+            sakType = null // sakType has no effect
+        )
+
+        with(kravhode) {
+            uttaksgradListe[0].uttaksgrad shouldBe 40 // fourth
+            uttaksgradListe[1].uttaksgrad shouldBe 80 // third
+            uttaksgradListe[2].uttaksgrad shouldBe 50 // second
+            uttaksgradListe[3].uttaksgrad shouldBe 20 // first
+        }
+    }
+
     test("periodiserGrunnlag should remove trygdetider not covering virkning-start") {
         val kravhode = BehandlingPeriodeUtil.periodiserGrunnlag(
             virkningFom = LocalDate.of(2024, 1, 1), // virkning-start

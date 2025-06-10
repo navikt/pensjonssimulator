@@ -92,7 +92,7 @@ class EndringUttakGrad(private val kravService: KravService) {
             Uttaksgrad().apply {
                 fomDato = fom.toNorwegianDateAtNoon()
                 tomDato = andreUttakFom?.minusDays(1)?.toNorwegianDateAtNoon()
-                uttaksgrad
+                this.uttaksgrad = uttaksgrad
             }
 
         // Extracted from SimulerEndringAvAPCommandHelper.createUttaksgradListe

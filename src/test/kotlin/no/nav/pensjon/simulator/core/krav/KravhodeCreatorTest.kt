@@ -37,7 +37,7 @@ class KravhodeCreatorTest : FunSpec({
             kravService = mockk(),
             ufoereService = mockk(relaxed = true),
             endringPersongrunnlag = mockk(),
-            endringUttakGrad = mockk(),
+            endringUttaksgrad = mockk(),
             pre2025OffentligAfpPersongrunnlag = mockk(),
             pre2025OffentligAfpUttaksgrad = mockk(),
             time = { LocalDate.of(2025, 1, 1) } // "dagens dato"

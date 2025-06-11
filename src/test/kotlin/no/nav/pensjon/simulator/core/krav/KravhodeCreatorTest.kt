@@ -2,28 +2,17 @@ package no.nav.pensjon.simulator.core.krav
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
-import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
-import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
-import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
-import no.nav.pensjon.simulator.core.person.eps.EpsService
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
-import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
-import org.mockito.kotlin.any
 import java.time.LocalDate
 import java.util.*
 
@@ -40,17 +29,17 @@ class KravhodeCreatorTest : FunSpec({
      */
     test("opprettKravhode should opprette kravhode") {
         val kravhode = KravhodeCreator(
-            beholdningUpdater = mock(BeholdningUpdater::class.java),
-            epsService = mock(EpsService::class.java),
+            beholdningUpdater = mockk(relaxed = true),
+            epsService = mockk(relaxed = true),
             persongrunnlagService = arrangePersongrunnlag(),
-            opptjeningUpdater = mock(OpptjeningUpdater::class.java),
-            generelleDataHolder = mock(GenerelleDataHolder::class.java),
-            kravService = mock(KravService::class.java),
-            ufoereService = mock(UfoeretrygdUtbetalingService::class.java),
-            endringPersongrunnlag = mock(EndringPersongrunnlag::class.java),
-            endringUttakGrad = mock(EndringUttakGrad::class.java),
-            pre2025OffentligAfpPersongrunnlag = mock(Pre2025OffentligAfpPersongrunnlag::class.java),
-            pre2025OffentligAfpUttaksgrad = mock(Pre2025OffentligAfpUttaksgrad::class.java),
+            opptjeningUpdater = mockk(relaxed = true),
+            generelleDataHolder = mockk(),
+            kravService = mockk(),
+            ufoereService = mockk(relaxed = true),
+            endringPersongrunnlag = mockk(),
+            endringUttakGrad = mockk(),
+            pre2025OffentligAfpPersongrunnlag = mockk(),
+            pre2025OffentligAfpUttaksgrad = mockk(),
             time = { LocalDate.of(2025, 1, 1) } // "dagens dato"
         ).opprettKravhode(
             kravhodeSpec = KravhodeSpec(
@@ -74,9 +63,8 @@ class KravhodeCreatorTest : FunSpec({
 })
 
 private fun arrangePersongrunnlag(): PersongrunnlagService =
-    mock(PersongrunnlagService::class.java).also {
-        `when`(it.getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any()))
-            .thenReturn(persongrunnlag())
+    mockk<PersongrunnlagService>().apply {
+        every { getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any()) } returns persongrunnlag()
     }
 
 private fun persongrunnlag() =

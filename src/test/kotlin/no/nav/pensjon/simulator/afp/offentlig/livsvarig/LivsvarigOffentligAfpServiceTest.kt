@@ -2,20 +2,18 @@ package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Called
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import org.mockito.Mockito.mock
-import org.mockito.kotlin.any
-import org.mockito.kotlin.never
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
 import java.time.LocalDate
 
 class LivsvarigOffentligAfpServiceTest : FunSpec({
 
-    val client = mock(LivsvarigOffentligAfpClient::class.java)
+    val client = mockk<LivsvarigOffentligAfpClient>(relaxed = true)
     val foedselsdato = LocalDate.of(1964, 1, 2)
     val virkningDato = LocalDate.of(2026, 1, 1)
     val today = LocalDate.of(2025, 1, 15)
@@ -30,7 +28,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             virkningDato
         ) shouldBe null
 
-        verify(client, never()).simuler(any())
+        verify { client wasNot Called }
     }
 
     test("beregnAfp med for tidlig virkning => resultat er 'null'") {
@@ -43,7 +41,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             virkningDato = LocalDate.of(2031, 12, 31)
         ) shouldBe null
 
-        verify(client, never()).simuler(any())
+        verify { client wasNot Called }
     }
 
     test("beregnAfp uten inntektliste => simuler med inntekter basert på forventet inntekt og alder") {
@@ -56,17 +54,19 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             virkningDato
         )
 
-        verify(client, times(1)).simuler(
-            LivsvarigOffentligAfpSpec(
-                pid,
-                foedselsdato,
-                fom = virkningDato,
-                fremtidigInntektListe = listOf(
-                    Inntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
-                    Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
+        verify(exactly = 1) {
+            client.simuler(
+                LivsvarigOffentligAfpSpec(
+                    pid,
+                    foedselsdato,
+                    fom = virkningDato,
+                    fremtidigInntektListe = listOf(
+                        Inntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
+                        Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
+                    )
                 )
             )
-        )
+        }
     }
 
     test("beregnAfp med tom inntektliste => simuler uten inntekter") {
@@ -79,14 +79,16 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             virkningDato
         )
 
-        verify(client, times(1)).simuler(
-            LivsvarigOffentligAfpSpec(
-                pid,
-                foedselsdato,
-                fom = virkningDato,
-                fremtidigInntektListe = emptyList()
+        verify(exactly = 1) {
+            client.simuler(
+                LivsvarigOffentligAfpSpec(
+                    pid,
+                    foedselsdato,
+                    fom = virkningDato,
+                    fremtidigInntektListe = emptyList()
+                )
             )
-        )
+        }
     }
 
     test("beregnAfp med inntektliste => simuler med gitte inntekter") {
@@ -102,16 +104,18 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
             virkningDato
         )
 
-        verify(client, times(1)).simuler(
-            LivsvarigOffentligAfpSpec(
-                pid,
-                foedselsdato,
-                fom = virkningDato,
-                fremtidigInntektListe = listOf(
-                    Inntekt(aarligBeloep = 234000, LocalDate.of(2024, 2, 1)),
-                    Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 3, 1))
+        verify(exactly = 1) {
+            client.simuler(
+                LivsvarigOffentligAfpSpec(
+                    pid,
+                    foedselsdato,
+                    fom = virkningDato,
+                    fremtidigInntektListe = listOf(
+                        Inntekt(aarligBeloep = 234000, LocalDate.of(2024, 2, 1)),
+                        Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 3, 1))
+                    )
                 )
             )
-        )
+        }
     }
 })

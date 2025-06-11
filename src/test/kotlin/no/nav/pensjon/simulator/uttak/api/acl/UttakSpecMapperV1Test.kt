@@ -7,16 +7,14 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.person.GeneralPersonService
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 
 class UttakSpecMapperV1Test : FunSpec({
 
     test("fromSpecV1 should map DTO to domain object representing simulering specification") {
-        val personService = arrangeFoedselsdato()
+        val personService = Arrange.foedselsdato(LocalDate.of(1964, 5, 6))
 
         UttakSpecMapperV1(personService).fromSpecV1(
             source = TidligstMuligUttakSpecV1(
@@ -73,8 +71,3 @@ class UttakSpecMapperV1Test : FunSpec({
         )
     }
 })
-
-private fun arrangeFoedselsdato(): GeneralPersonService =
-    mock(GeneralPersonService::class.java).also {
-        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1964, 5, 6))
-    }

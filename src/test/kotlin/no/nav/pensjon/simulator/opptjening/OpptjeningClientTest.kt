@@ -1,26 +1,25 @@
 package no.nav.pensjon.simulator.opptjening
 
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import io.mockk.mockk
 import io.netty.channel.ChannelOption
 import io.netty.handler.timeout.ReadTimeoutHandler
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
-import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.testutil.TestObjects.jwt
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.SocketPolicy
-import org.mockito.Mockito.mock
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import reactor.netty.http.client.HttpClient
 import java.time.Duration
@@ -60,7 +59,7 @@ class OpptjeningClientTest : FunSpec({
                 baseUrl,
                 retryAttempts = "1",
                 webClientBuilder = webClient.mutate(),
-                traceAid = mock(TraceAid::class.java),
+                traceAid = mockk(relaxed = true),
                 time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
             )
         }

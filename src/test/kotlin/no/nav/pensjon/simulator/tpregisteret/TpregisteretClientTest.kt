@@ -23,6 +23,10 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.reactive.function.client.WebClient
 
+/**
+ * NB: These tests work with Mockito, but not with Mockk.
+ * Reason: Pid and Organisasjonsnummer are @JvmInline value class (which Mockk does not support)
+ */
 class TpregisteretClientTest : FunSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null

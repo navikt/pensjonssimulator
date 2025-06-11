@@ -2,7 +2,8 @@ package no.nav.pensjon.simulator.core.afp.privat
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.SimulatorContext
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatBeregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
@@ -10,11 +11,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
-import java.util.TreeSet
+import java.util.*
 
 class PrivatAfpBeregnerTest : FunSpec({
 
@@ -32,20 +30,13 @@ class PrivatAfpBeregnerTest : FunSpec({
                 }
             }
         }
-        val knekkpunktFinder = mock(PrivatAfpKnekkpunktFinder::class.java).also {
-            `when`(
-                it.findKnekkpunktDatoer(
-                    foersteUttakDato = LocalDate.of(2022, 1, 1),
-                    soekerGrunnlag,
-                    privatAfpFoersteVirkning = LocalDate.of(2021, 1, 1),
-                    gjelderOmsorg = false
-                )
-            ).thenReturn(TreeSet())
+        val knekkpunktFinder = mockk<PrivatAfpKnekkpunktFinder>().apply {
+            every { findKnekkpunktDatoer(any(), any(), any(), any()) } returns TreeSet() // no knekkpunktDatoer
         }
 
         val result = PrivatAfpBeregner(
-            context = mock(SimulatorContext::class.java),
-            generelleDataHolder = mock(GenerelleDataHolder::class.java),
+            context = mockk(),
+            generelleDataHolder = mockk(),
             knekkpunktFinder
         ).beregnPrivatAfp(
             PrivatAfpSpec(

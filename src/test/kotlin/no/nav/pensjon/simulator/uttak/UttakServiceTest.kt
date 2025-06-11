@@ -1,11 +1,9 @@
 package no.nav.pensjon.simulator.uttak
 
 import io.kotest.core.spec.style.FunSpec
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
+import io.mockk.mockk
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
-import org.mockito.Mockito.mock
 import java.time.LocalDate
 
 class UttakServiceTest : FunSpec({
@@ -65,8 +63,8 @@ class UttakServiceTest : FunSpec({
 private fun finnTidligstMuligUttak(inntektSpecListe: List<FremtidigInntekt>): TidligstMuligUttak {
 
     return UttakService(
-        simuleringFacade = mock(SimuleringFacade::class.java),
-        normalderService = mock(NormertPensjonsalderService::class.java),
+        simuleringFacade = mockk(),
+        normalderService = mockk(),
         time = { LocalDate.of(2021, 1, 1) }
     ).finnTidligstMuligUttak(
         simuleringSpec(inntektSpecListe = inntektSpecListe)

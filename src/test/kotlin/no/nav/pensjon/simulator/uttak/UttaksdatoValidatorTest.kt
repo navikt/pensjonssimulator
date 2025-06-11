@@ -3,13 +3,13 @@ package no.nav.pensjon.simulator.uttak
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.normalder.Aldersgrenser
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.normalder.VerdiStatus
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 
 class UttaksdatoValidatorTest : FunSpec({
@@ -64,14 +64,13 @@ class UttaksdatoValidatorTest : FunSpec({
 })
 
 private fun arrangeNormalder(foedselsdato: LocalDate): NormertPensjonsalderService =
-    mock(NormertPensjonsalderService::class.java).also {
-        `when`(it.aldersgrenser(foedselsdato)).thenReturn(
-            Aldersgrenser(
-                aarskull = 1965,
-                nedreAlder = Alder(62, 0),
-                normalder = Alder(67, 0),
-                oevreAlder = Alder(75, 0),
-                verdiStatus = VerdiStatus.FAST
-            )
-        )
+    mockk<NormertPensjonsalderService>().apply {
+        every { aldersgrenser(foedselsdato) } returns
+                Aldersgrenser(
+                    aarskull = 1965,
+                    nedreAlder = Alder(62, 0),
+                    normalder = Alder(67, 0),
+                    oevreAlder = Alder(75, 0),
+                    verdiStatus = VerdiStatus.FAST
+                )
     }

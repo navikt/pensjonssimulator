@@ -2,17 +2,17 @@ package no.nav.pensjon.simulator.tech.security
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.core.Authentication
 
 class ApiAuthenticationManagerResolverTest : FunSpec({
 
-    test("resolve uses Entra ID when path is /api/nav/**") {
-        val (entraProvider, entraAuthentication) = arrangeAuth(isAuthenticated = true)
-        val (maskinportenProvider, _) = arrangeAuth(isAuthenticated = false)
+    test("'resolve' should use Entra ID when path is /api/nav/**") {
+        val (entraProvider, entraAuthentication) = arrangeAuth(authenticated = true)
+        val (maskinportenProvider, _) = arrangeAuth(authenticated = false)
         val request = arrangeRequest(path = "/api/nav/service1")
         val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
 
@@ -21,9 +21,9 @@ class ApiAuthenticationManagerResolverTest : FunSpec({
         authenticationManager.authenticate(entraAuthentication).isAuthenticated shouldBe true
     }
 
-    test("resolve uses Entra ID when path is /api/tpo/**") {
-        val (entraProvider, entraAuthentication) = arrangeAuth(isAuthenticated = true)
-        val (maskinportenProvider, _) = arrangeAuth(isAuthenticated = false)
+    test("'resolve' should use Entra ID when path is /api/tpo/**") {
+        val (entraProvider, entraAuthentication) = arrangeAuth(authenticated = true)
+        val (maskinportenProvider, _) = arrangeAuth(authenticated = false)
         val request = arrangeRequest(path = "/api/tpo/service1")
         val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
 
@@ -32,9 +32,9 @@ class ApiAuthenticationManagerResolverTest : FunSpec({
         authenticationManager.authenticate(entraAuthentication).isAuthenticated shouldBe true
     }
 
-    test("resolve uses Maskinporten when path is /api/v4/simuler-alderspensjon") {
-        val (entraProvider, _) = arrangeAuth(isAuthenticated = false)
-        val (maskinportenProvider, maskinportenAuthentication) = arrangeAuth(isAuthenticated = true)
+    test("'resolve' should use Maskinporten when path is /api/v4/simuler-alderspensjon") {
+        val (entraProvider, _) = arrangeAuth(authenticated = false)
+        val (maskinportenProvider, maskinportenAuthentication) = arrangeAuth(authenticated = true)
         val request = arrangeRequest(path = "/api/v4/simuler-alderspensjon")
         val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
 
@@ -44,19 +44,19 @@ class ApiAuthenticationManagerResolverTest : FunSpec({
     }
 })
 
-private fun arrangeAuth(isAuthenticated: Boolean): Pair<ProviderManager, Authentication> {
-    val authentication = mock(Authentication::class.java).also {
-        `when`(it.isAuthenticated).thenReturn(isAuthenticated)
+private fun arrangeAuth(authenticated: Boolean): Pair<ProviderManager, Authentication> {
+    val authentication = mockk<Authentication>().apply {
+        every { isAuthenticated } returns authenticated
     }
 
-    val provider = mock(ProviderManager::class.java).also {
-        `when`(it.authenticate(authentication)).thenReturn(authentication)
+    val provider = mockk<ProviderManager>().apply {
+        every { authenticate(authentication) } returns authentication
     }
 
     return Pair(provider, authentication)
 }
 
 private fun arrangeRequest(path: String): HttpServletRequest =
-    mock(HttpServletRequest::class.java).also {
-        `when`(it.servletPath).thenReturn(path)
+    mockk<HttpServletRequest>(relaxed = true).apply {
+        every { servletPath } returns path
     }

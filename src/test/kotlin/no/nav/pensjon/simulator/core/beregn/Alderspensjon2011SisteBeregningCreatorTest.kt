@@ -2,12 +2,11 @@ package no.nav.pensjon.simulator.core.beregn
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.beregning.AfpTillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Familietillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.krav.KravService
-import org.mockito.Mockito.mock
 
 class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
 
@@ -17,7 +16,7 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
      */
     test("createBeregning should filter out irrelevante ytelseskomponenter") {
         val beregning =
-            Alderspensjon2011SisteBeregningCreator(mock(KravService::class.java)).createBeregning(
+            Alderspensjon2011SisteBeregningCreator(kravService = mockk()).createBeregning(
                 beregningSpec(
                     ytelseskomponentListe = mutableListOf(
                         Garantipensjon().apply {

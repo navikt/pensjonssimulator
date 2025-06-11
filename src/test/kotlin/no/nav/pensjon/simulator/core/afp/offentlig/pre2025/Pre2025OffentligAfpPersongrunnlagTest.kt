@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
@@ -10,13 +12,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.person.PersongrunnlagService
-import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.*
 
@@ -34,8 +32,8 @@ class Pre2025OffentligAfpPersongrunnlagTest : FunSpec({
     test("getPersongrunnlagForSoeker should remove irrelevante persondetaljer") {
         val persongrunnlag = Pre2025OffentligAfpPersongrunnlag(
             kravService = arrangeKrav(), // med 3 relevante og 2 irrelevante persondetaljer
-            persongrunnlagService = mock(PersongrunnlagService::class.java),
-            epsService = mock(EpsService::class.java),
+            persongrunnlagService = mockk(),
+            epsService = mockk(),
             time = { LocalDate.of(2025, 1, 1) } // "dagens dato"
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
@@ -59,9 +57,8 @@ class Pre2025OffentligAfpPersongrunnlagTest : FunSpec({
 })
 
 private fun arrangeKrav(): KravService =
-    mock(KravService::class.java).also {
-        `when`(it.fetchKravhode(1L)).thenReturn(
-            Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlag()) })
+    mockk<KravService>().apply {
+        every { fetchKravhode(1L) } returns Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlag()) }
     }
 
 private fun persongrunnlag() =

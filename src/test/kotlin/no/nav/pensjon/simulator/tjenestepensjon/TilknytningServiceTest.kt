@@ -2,12 +2,12 @@ package no.nav.pensjon.simulator.tjenestepensjon
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.testutil.TestObjects.organisasjonsnummer
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.springframework.http.HttpStatus
 
 class TilknytningServiceTest : FunSpec({
@@ -23,14 +23,13 @@ class TilknytningServiceTest : FunSpec({
     }
 
     test("erPersonTilknyttetTjenestepensjonsordning should be false when person ikke funnet") {
-        val client = mock(TpregisteretClient::class.java).also {
-            `when`(it.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)).thenThrow(
-                EgressException(
-                    message = "Person ikke funnet.",
-                    cause = null,
-                    statusCode = HttpStatus.NOT_FOUND
-                )
-            )
+        val client = mockk<TpregisteretClient>().apply {
+            every { hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) } throws
+                    EgressException(
+                        message = "Person ikke funnet.",
+                        cause = null,
+                        statusCode = HttpStatus.NOT_FOUND
+                    )
         }
 
         TilknytningService(client).erPersonTilknyttetTjenestepensjonsordning(pid, organisasjonsnummer) shouldBe false
@@ -38,6 +37,6 @@ class TilknytningServiceTest : FunSpec({
 })
 
 private fun client(erTilknyttet: Boolean): TpregisteretClient =
-    mock(TpregisteretClient::class.java).also {
-        `when`(it.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)).thenReturn(erTilknyttet)
+    mockk<TpregisteretClient>().apply {
+        every { hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) } returns erTilknyttet
     }

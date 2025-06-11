@@ -14,7 +14,7 @@ import java.time.LocalDate
 class UttakSpecMapperV1Test : FunSpec({
 
     test("fromSpecV1 should map DTO to domain object representing simulering specification") {
-        val personService = Arrange.foedselsdato(LocalDate.of(1964, 5, 6))
+        val personService = Arrange.foedselsdato(1964, 5, 6)
 
         UttakSpecMapperV1(personService).fromSpecV1(
             source = TidligstMuligUttakSpecV1(

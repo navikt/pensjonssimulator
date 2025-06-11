@@ -21,7 +21,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
 
     test("fromNavSimuleringSpecV3 should fetch foedselsdato and map values") {
         NavSimuleringSpecMapperV3(
-            personService = Arrange.foedselsdato(LocalDate.of(1963, 4, 5)),
+            personService = Arrange.foedselsdato(1963, 4, 5),
             inntektService = arrangeGrunnbeloep()
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
@@ -102,6 +102,6 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
 })
 
 private fun arrangeGrunnbeloep(): InntektService =
-    mockk<InntektService>().also {
-        every { it.hentSisteMaanedsInntektOver1G(false) } returns 100000
+    mockk<InntektService>().apply {
+        every { hentSisteMaanedsInntektOver1G(false) } returns 100000
     }

@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import java.time.LocalDate
 
 class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 
@@ -27,7 +26,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
         )
 
         val result: SimuleringSpec = AfpEtterfulgtAvAlderspensjonSpecMapperV0(
-            personService = Arrange.foedselsdato(LocalDate.of(1963, 4, 5)),
+            personService = Arrange.foedselsdato(1963, 4, 5),
             inntektService = arrangeInntekt()
         ).fromDto(source = dto)
 
@@ -49,7 +48,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 })
 
 private fun arrangeInntekt(): InntektService =
-    mockk<InntektService>().also {
-        every { it.hentSisteLignetInntekt(pid) } returns 12345
-        every { it.hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G = true) } returns 100000
+    mockk<InntektService>().apply {
+        every { hentSisteLignetInntekt(pid) } returns 12345
+        every { hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G = true) } returns 100000
     }

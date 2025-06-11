@@ -27,13 +27,12 @@ import java.time.LocalDate
 class FolketrygdBeholdningServiceTest : FunSpec({
 
     test("simulerFolketrygdBeholdning bruker 1. i denne/neste måned for uttak") {
-        val foedselsdato = LocalDate.of(1965, 6, 7)
         val simulator = arrangeSimulator()
 
         FolketrygdBeholdningService(
             simulator,
             vedtakService = arrangeVedtak(),
-            personService = Arrange.foedselsdato(foedselsdato),
+            personService = Arrange.foedselsdato(1965, 6, 7),
             time = { LocalDate.of(2025, 1, 1) },
             validator = mockk(relaxed = true),
         ).simulerFolketrygdBeholdning(
@@ -93,7 +92,7 @@ class FolketrygdBeholdningServiceTest : FunSpec({
             FolketrygdBeholdningService(
                 simulator = arrangeSimulator(),
                 vedtakService = arrangeVedtak(),
-                personService = Arrange.foedselsdato(LocalDate.of(1965, 6, 7)),
+                personService = Arrange.foedselsdato(1965, 6, 7),
                 time = { LocalDate.of(2025, 1, 1) },
                 validator = arrangeBadSpec() // "feil" i spesifikasjonen
             ).simulerFolketrygdBeholdning(

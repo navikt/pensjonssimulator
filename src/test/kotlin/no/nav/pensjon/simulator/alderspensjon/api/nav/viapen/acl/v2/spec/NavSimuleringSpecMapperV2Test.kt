@@ -20,7 +20,7 @@ import java.util.*
 class NavSimuleringSpecMapperV2Test : FunSpec({
 
     test("fromSimuleringSpecV2 maps from domain to DTO version 2") {
-        val personService = Arrange.foedselsdato(LocalDate.of(1963, 4, 5))
+        val personService = Arrange.foedselsdato(1963, 4, 5)
 
         NavSimuleringSpecMapperV2(personService).fromSimuleringSpecV2(
             source = NavSimuleringSpecV2(

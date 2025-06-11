@@ -17,7 +17,7 @@ import java.util.*
 class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
 
     test("fromSimuleringSpecV1 should map values including pre2025OffentligAfp") {
-        val personService = Arrange.foedselsdato(LocalDate.of(1963, 4, 5))
+        val personService = Arrange.foedselsdato(1963, 4, 5)
 
         FolketrygdberegnetAfpSpecMapperV1(personService).fromSimuleringSpecV1(
             FolketrygdberegnetAfpSpecV1(

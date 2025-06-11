@@ -86,7 +86,7 @@ private fun simulerAlderspensjon(
         simulator = mockk(),
         alternativSimuleringService = mockk(),
         vedtakService = arrangeVedtak(harGjenlevenderettighet),
-        personService = Arrange.foedselsdato(LocalDate.of(1963, 1, 1)),
+        personService = Arrange.foedselsdato(1963, 1, 1),
         time = { LocalDate.of(2025, 1, 1) }
     ).simulerAlderspensjon(
         AlderspensjonSpec(

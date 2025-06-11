@@ -2,16 +2,15 @@ package no.nav.pensjon.simulator.ytelse.client.pen
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
-import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.testutil.TestObjects.jwt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.mockito.Mockito.mock
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
@@ -60,7 +59,7 @@ class PenYtelseClientTest : FunSpec({
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = PenYtelseClient(
-                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mock(TraceAid::class.java)
+                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mockk(relaxed = true)
             )
 
             val result: LoependeYtelserResult =

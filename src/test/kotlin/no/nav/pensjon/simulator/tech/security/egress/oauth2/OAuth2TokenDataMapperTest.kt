@@ -1,45 +1,43 @@
 package no.nav.pensjon.simulator.tech.security.egress.oauth2
 
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import java.time.LocalDateTime
 
-class OAuth2TokenDataMapperTest {
+class OAuth2TokenDataMapperTest : FunSpec({
 
-    private lateinit var dto: OAuth2TokenDto
-
-    @BeforeEach
-    fun initialize() {
-        dto = OAuth2TokenDto()
-    }
-
-    @Test
-    fun `map maps values`() {
-        dto.setAccessToken("access-token")
-        dto.setIdToken("id-token")
-        dto.setRefreshToken("refresh-token")
-        dto.setExpiresIn(1)
+    test("'map' should map values") {
+        val dto = OAuth2TokenDto().apply {
+            setAccessToken("access-token")
+            setIdToken("id-token")
+            setRefreshToken("refresh-token")
+            setExpiresIn(1)
+        }
 
         val tokenData = OAuth2TokenDataMapper.map(dto, LocalDateTime.MIN)
 
-        assertEquals(dto.getAccessToken(), tokenData.accessToken)
-        assertEquals(dto.getIdToken(), tokenData.idToken)
-        assertEquals(dto.getRefreshToken(), tokenData.refreshToken)
-        assertEquals(LocalDateTime.MIN, tokenData.issuedTime)
-        assertEquals(1L, tokenData.expiresInSeconds)
+        with(tokenData) {
+            accessToken shouldBe dto.getAccessToken()
+            idToken shouldBe dto.getIdToken()
+            refreshToken shouldBe dto.getRefreshToken()
+            issuedTime shouldBe LocalDateTime.MIN
+            expiresInSeconds shouldBe 1L
+        }
     }
 
-    @Test
-    fun `map allows null values for ID token and refresh token`() {
-        dto.setIdToken(null)
-        dto.setRefreshToken(null)
-        dto.setAccessToken("access-token")
-        dto.setExpiresIn(1)
+    test("'map' should allow null values for ID token and refresh token") {
+        val dto = OAuth2TokenDto().apply {
+            setIdToken(null)
+            setRefreshToken(null)
+            setAccessToken("access-token")
+            setExpiresIn(1)
+        }
 
         val tokenData = OAuth2TokenDataMapper.map(dto, LocalDateTime.MIN)
 
-        assertEquals("", tokenData.idToken)
-        assertEquals("", tokenData.refreshToken)
+        with(tokenData) {
+            idToken shouldBe ""
+            refreshToken shouldBe ""
+        }
     }
-}
+})

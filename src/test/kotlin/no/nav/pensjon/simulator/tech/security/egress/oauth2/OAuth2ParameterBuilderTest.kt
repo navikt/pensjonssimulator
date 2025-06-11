@@ -1,29 +1,21 @@
 package no.nav.pensjon.simulator.tech.security.egress.oauth2
 
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.tech.security.egress.token.TokenAccessParameter
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
-import org.springframework.util.MultiValueMap
 
-class OAuth2ParameterBuilderTest {
+class OAuth2ParameterBuilderTest : FunSpec({
 
-    @Test
-    fun `buildClientCredentialsTokenRequestMap builds map with client credentials parameters`() {
+    test("buildClientCredentialsTokenRequestMap should build map with client credentials parameters") {
         val map = OAuth2ParameterBuilder()
             .clientId("id1")
             .clientSecret("secret1")
             .tokenAccessParameter(TokenAccessParameter.clientCredentials("scope1"))
             .buildClientCredentialsTokenRequestMap()
 
-        assertMapValue("client_credentials", map, "grant_type")
-        assertMapValue("scope1", map, "scope")
-        assertMapValue("id1", map, "client_id")
-        assertMapValue("secret1", map, "client_secret")
+        map["grant_type"]!![0] shouldBe "client_credentials"
+        map["scope"]!![0] shouldBe "scope1"
+        map["client_id"]!![0] shouldBe "id1"
+        map["client_secret"]!![0] shouldBe "secret1"
     }
-
-    companion object {
-        private fun assertMapValue(expectedValue: String, map: MultiValueMap<String, String>, key: String) {
-            assertEquals(expectedValue, map[key]!![0])
-        }
-    }
-}
+})

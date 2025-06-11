@@ -15,7 +15,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
-import no.nav.pensjon.simulator.core.endring.EndringUttakGrad
+import no.nav.pensjon.simulator.core.endring.EndringUttaksgrad
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
@@ -64,7 +64,7 @@ class KravhodeCreator(
     private val kravService: KravService,
     private val ufoereService: UfoeretrygdUtbetalingService,
     private val endringPersongrunnlag: EndringPersongrunnlag,
-    private val endringUttakGrad: EndringUttakGrad,
+    private val endringUttaksgrad: EndringUttaksgrad,
     private val pre2025OffentligAfpPersongrunnlag: Pre2025OffentligAfpPersongrunnlag,
     private val pre2025OffentligAfpUttaksgrad: Pre2025OffentligAfpUttaksgrad,
     private val time: Time
@@ -122,7 +122,7 @@ class KravhodeCreator(
                     foedselsdato = foedselsdato(person, spec) // NB: More robust than in PEN (which only uses spec.pid)
                 )
 
-                gjelderEndring -> endringUttakGrad.uttakGradListe(
+                gjelderEndring -> endringUttaksgrad.uttaksgradListe(
                     spec,
                     forrigeAlderspensjonKravhodeId = forrigeAlderspensjonBeregningResultat?.kravId
                 )

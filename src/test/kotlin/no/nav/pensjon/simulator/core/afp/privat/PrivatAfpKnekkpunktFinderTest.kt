@@ -2,13 +2,10 @@ package no.nav.pensjon.simulator.core.afp.privat
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.*
 
@@ -21,7 +18,7 @@ class PrivatAfpKnekkpunktFinderTest : FunSpec({
         expected.add(LocalDate.of(2037, 2, 1)) // 1. dag i måneden etter bruker oppnår normert alder
 
         PrivatAfpKnekkpunktFinder(
-            normalderService = arrangeNormalder(),
+            normalderService = Arrange.normalder(foedselsdato = LocalDate.of(1970, 1, 1)),
             time = { LocalDate.of(2025, 1, 1) }
         ).findKnekkpunktDatoer(
             foersteUttakDato = LocalDate.of(2030, 1, 1),
@@ -38,8 +35,3 @@ class PrivatAfpKnekkpunktFinderTest : FunSpec({
         ) shouldBe expected
     }
 })
-
-private fun arrangeNormalder(): NormertPensjonsalderService =
-    mock(NormertPensjonsalderService::class.java).also {
-        `when`(it.normalder(foedselsdato = LocalDate.of(1970, 1, 1))).thenReturn(Alder(67, 0))
-    }

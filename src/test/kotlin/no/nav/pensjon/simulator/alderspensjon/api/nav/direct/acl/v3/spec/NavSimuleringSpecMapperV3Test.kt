@@ -10,8 +10,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
-import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.inntekt.InntektService
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -21,7 +21,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
 
     test("fromNavSimuleringSpecV3 should fetch foedselsdato and map values") {
         NavSimuleringSpecMapperV3(
-            personService = arrangeFoedselsdato(),
+            personService = Arrange.foedselsdato(1963, 4, 5),
             inntektService = arrangeGrunnbeloep()
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
@@ -101,12 +101,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
     }
 })
 
-private fun arrangeFoedselsdato(): GeneralPersonService =
-    mockk<GeneralPersonService>().also {
-        every { it.foedselsdato(pid) } returns LocalDate.of(1963, 4, 5)
-    }
-
 private fun arrangeGrunnbeloep(): InntektService =
-    mockk<InntektService>().also {
-        every { it.hentSisteMaanedsInntektOver1G(false) } returns 100000
+    mockk<InntektService>().apply {
+        every { hentSisteMaanedsInntektOver1G(false) } returns 100000
     }

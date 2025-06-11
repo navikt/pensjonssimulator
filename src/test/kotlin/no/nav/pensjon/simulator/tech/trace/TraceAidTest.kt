@@ -2,17 +2,16 @@ package no.nav.pensjon.simulator.tech.trace
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.Called
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import jakarta.servlet.http.HttpServletRequest
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
 
 class TraceAidTest : FunSpec({
 
     test("'begin' should generate call ID if none supplied") {
-        val callIdGenerator = mock(CallIdGenerator::class.java)
-        `when`(callIdGenerator.newId()).thenReturn("generated")
+        val callIdGenerator = mockk<CallIdGenerator>().apply { every { newId() } returns "generated" }
         val traceAid = TraceAid(callIdGenerator)
 
         traceAid.begin() // none supplied
@@ -21,14 +20,16 @@ class TraceAidTest : FunSpec({
     }
 
     test("'begin' should use supplied call ID") {
-        val callIdGenerator = mock(CallIdGenerator::class.java)
-        val request = mock(HttpServletRequest::class.java)
-        `when`(request.getHeader("x-request-id")).thenReturn("supplied")
+        val callIdGenerator = mockk<CallIdGenerator>()
+        val request = mockk<HttpServletRequest>().apply {
+            every { getHeader("Nav-Call-Id") } returns null
+            every { getHeader("x-request-id") } returns "supplied"
+        }
         val traceAid = TraceAid(callIdGenerator)
 
         traceAid.begin(request)
 
         traceAid.callId() shouldBe "supplied"
-        verify(callIdGenerator, never()).newId()
+        verify { callIdGenerator wasNot Called }
     }
 })

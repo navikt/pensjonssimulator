@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects
-import org.mockito.Mockito.mock
 import java.time.LocalDate
 import java.util.Calendar
 

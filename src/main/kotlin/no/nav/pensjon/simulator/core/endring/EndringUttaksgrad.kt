@@ -6,17 +6,17 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.krav.KravService
-import org.springframework.stereotype.Controller
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 /**
  * Uttaksgrader relatert til simulering av endring av alderspensjon.
  */
-@Controller
-class EndringUttakGrad(private val kravService: KravService) {
+@Component
+class EndringUttaksgrad(private val kravService: KravService) {
 
     // SimulerEndringAvAPCommand.finnUttaksgradListe
-    fun uttakGradListe(spec: SimuleringSpec, forrigeAlderspensjonKravhodeId: Long?): MutableList<Uttaksgrad> {
+    fun uttaksgradListe(spec: SimuleringSpec, forrigeAlderspensjonKravhodeId: Long?): MutableList<Uttaksgrad> {
         val eksisterendeUttaksgradListe: List<Uttaksgrad> =
             forrigeAlderspensjonKravhodeId?.let(kravService::fetchKravhode)?.uttaksgradListe.orEmpty()
 

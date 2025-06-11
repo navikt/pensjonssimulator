@@ -3,6 +3,9 @@ package no.nav.pensjon.simulator.beholdning
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -14,33 +17,29 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.BadRequestException
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.uttak.UttaksdatoValidator
 import no.nav.pensjon.simulator.vedtak.VedtakService
 import no.nav.pensjon.simulator.vedtak.VedtakStatus
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
-import org.mockito.kotlin.any
-import org.mockito.kotlin.verify
 import java.time.LocalDate
 
 class FolketrygdBeholdningServiceTest : FunSpec({
 
     test("simulerFolketrygdBeholdning bruker 1. i denne/neste måned for uttak") {
-        val foedselsdato = LocalDate.of(1965, 6, 7)
         val simulator = arrangeSimulator()
 
         FolketrygdBeholdningService(
             simulator,
             vedtakService = arrangeVedtak(),
-            personService = arrangePerson(foedselsdato),
+            personService = Arrange.foedselsdato(1965, 6, 7),
             time = { LocalDate.of(2025, 1, 1) },
-            validator = mock(UttaksdatoValidator::class.java)
+            validator = mockk(relaxed = true),
         ).simulerFolketrygdBeholdning(
             spec = beholdningSpec(uttakFom = LocalDate.of(2030, 1, 2)) // skal bli 2030-02-01
         )
 
-        verify(simulator).simuler(simuleringSpec()) // foersteUttakDato = 2030-02-01
+        verify { simulator.simuler(simuleringSpec()) } // foersteUttakDato = 2030-02-01
     }
 
     test("simulerFolketrygdBeholdning gir feilmelding for inntekt som ikke starter 1. i måneden") {
@@ -93,7 +92,7 @@ class FolketrygdBeholdningServiceTest : FunSpec({
             FolketrygdBeholdningService(
                 simulator = arrangeSimulator(),
                 vedtakService = arrangeVedtak(),
-                personService = arrangePerson(LocalDate.of(1965, 6, 7)),
+                personService = Arrange.foedselsdato(1965, 6, 7),
                 time = { LocalDate.of(2025, 1, 1) },
                 validator = arrangeBadSpec() // "feil" i spesifikasjonen
             ).simulerFolketrygdBeholdning(
@@ -104,27 +103,19 @@ class FolketrygdBeholdningServiceTest : FunSpec({
 })
 
 private fun arrangeSimulator(): SimulatorCore =
-    mock(SimulatorCore::class.java).also {
-        `when`(it.simuler(any())).thenReturn(SimulatorOutput())
-    }
-
-private fun arrangePerson(foedselsdato: LocalDate): GeneralPersonService =
-    mock(GeneralPersonService::class.java).also {
-        `when`(it.foedselsdato(pid)).thenReturn(foedselsdato)
+    mockk<SimulatorCore>().apply {
+        every { simuler(any()) } returns SimulatorOutput()
     }
 
 private fun arrangeVedtak(): VedtakService =
-    mock(VedtakService::class.java).also {
-        `when`(it.vedtakStatus(pid, uttakFom = LocalDate.of(2030, 2, 1))).thenReturn(
-            VedtakStatus(harGjeldendeVedtak = false, harGjenlevenderettighet = false)
-        )
+    mockk<VedtakService>().apply {
+        every { vedtakStatus(pid, uttakFom = LocalDate.of(2030, 2, 1)) } returns
+                VedtakStatus(harGjeldendeVedtak = false, harGjenlevenderettighet = false)
     }
 
 private fun arrangeBadSpec(): UttaksdatoValidator =
-    mock(UttaksdatoValidator::class.java).also {
-        `when`(it.verifyUttakFom(LocalDate.of(2030, 1, 1), LocalDate.of(1965, 6, 7))).thenThrow(
-            BadSpecException("feil i spesifikasjonen")
-        )
+    mockk<UttaksdatoValidator>().apply {
+        every { verifyUttakFom(LocalDate.of(2030, 1, 1), LocalDate.of(1965, 6, 7)) } throws             BadSpecException("feil i spesifikasjonen")
     }
 
 private fun beholdningSpec(uttakFom: LocalDate) =
@@ -192,11 +183,11 @@ private fun simuleringSpec() =
 
 private fun simulerFolketrygdBeholdning(inntektSpecListe: List<InntektSpec>): FolketrygdBeholdning =
     FolketrygdBeholdningService(
-        simulator = mock(SimulatorCore::class.java),
+        simulator = mockk<SimulatorCore>(),
         time = { LocalDate.of(2025, 1, 1) },
-        vedtakService = mock(VedtakService::class.java),
-        personService = mock(GeneralPersonService::class.java),
-        validator = mock(UttaksdatoValidator::class.java)
+        vedtakService = mockk<VedtakService>(),
+        personService = mockk<GeneralPersonService>(),
+        validator = mockk<UttaksdatoValidator>()
     ).simulerFolketrygdBeholdning(
         FolketrygdBeholdningSpec(
             pid = Pid("12906498357"),

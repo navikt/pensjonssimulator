@@ -15,7 +15,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensjonResultat
-import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.asLegacyPrivatAfp
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
@@ -193,7 +192,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
                 ektefellenMottarPensjon = spec.epsMottarPensjon
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
             }
 
@@ -204,7 +202,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 epsMottarPensjon = spec.epsMottarPensjon
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
             }
 
@@ -215,7 +212,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 epsMottarPensjon = spec.epsMottarPensjon
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
             }
@@ -294,7 +290,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2011
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
             }
 
@@ -306,7 +301,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 epsMottarPensjon = spec.epsMottarPensjon
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
             }.also {
                 it.vilkarsvedtakListe.forEach(::prepareVedtak2016ForReglerCall)
@@ -321,7 +315,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 epsMottarPensjon = spec.epsMottarPensjon
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011 // NB: 2011
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
             }.also {

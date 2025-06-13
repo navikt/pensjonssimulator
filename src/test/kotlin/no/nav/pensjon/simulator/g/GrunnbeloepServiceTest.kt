@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
+import no.nav.pensjon.simulator.core.domain.regler.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.SatsResponse
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import java.time.LocalDate

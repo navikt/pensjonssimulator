@@ -134,6 +134,17 @@ fun InstOpphFasteUtgifterperiode.copy() =
         it.fasteUtgifter = this.fasteUtgifter
     }
 
+fun NormertPensjonsalderGrunnlag.copy() =
+    NormertPensjonsalderGrunnlag(
+        ovreAr = this.ovreAr,
+        ovreMnd = this.ovreMnd,
+        normertAr = this.normertAr,
+        normertMnd = this.normertMnd,
+        nedreAr = this.nedreAr,
+        nedreMnd = this.nedreMnd,
+        erPrognose = this.erPrognose
+    )
+
 fun Pensjonsbeholdning.copy() =
     Pensjonsbeholdning().also {
         it.fom = this.fom?.clone() as? Date

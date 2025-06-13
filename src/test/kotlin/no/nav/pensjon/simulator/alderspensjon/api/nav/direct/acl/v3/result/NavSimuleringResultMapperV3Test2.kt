@@ -152,6 +152,9 @@ class NavSimuleringResultMapperV3Test2 {
                         SimulertPrivatAfp(
                             alderAar = 9,
                             beloep = 10,
+                            kompensasjonstillegg = 8,
+                            kronetillegg = 7,
+                            livsvarig = 6,
                             maanedligBeloep = 1
                         )
                     ),

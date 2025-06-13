@@ -51,6 +51,9 @@ data class NavMaanedsbeloepV3(
 data class NavPrivatAfpV3(
     val alderAar: Int,
     val beloep: Int,
+    val kompensasjonstillegg: Int,
+    val kronetillegg: Int,
+    val livsvarig: Int,
     val maanedligBeloep: Int
 )
 

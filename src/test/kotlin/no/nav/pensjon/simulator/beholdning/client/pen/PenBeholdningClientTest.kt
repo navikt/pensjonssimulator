@@ -2,19 +2,18 @@ package no.nav.pensjon.simulator.beholdning.client.pen
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagPersonSpec
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
-import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.testutil.TestObjects.jwt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
-import org.mockito.Mockito.mock
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
@@ -39,7 +38,7 @@ class PenBeholdningClientTest : FunSpec({
         )
 
         server = MockWebServer().also { it.start() }
-        baseUrl = server.let { "http://localhost:${it?.port}" }
+        baseUrl = server.let { "http://localhost:${it.port}" }
     }
 
     afterSpec {
@@ -61,7 +60,7 @@ class PenBeholdningClientTest : FunSpec({
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
             val client = PenBeholdningClient(
-                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mock(TraceAid::class.java)
+                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mockk(relaxed = true)
             )
 
             val result: BeholdningerMedGrunnlagResult = client.fetchBeholdningerMedGrunnlag(

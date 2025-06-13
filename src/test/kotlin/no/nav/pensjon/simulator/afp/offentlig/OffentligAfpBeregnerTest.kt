@@ -172,16 +172,16 @@ class OffentligAfpBeregnerTest : FunSpec({
 })
 
 private fun arrangeLivsvarig(result: LivsvarigOffentligAfpResult): LivsvarigOffentligAfpService =
-    mockk<LivsvarigOffentligAfpService>().also {
-        every { it.beregnAfp(any(), any(), any(), any(), any(), any()) } returns result
+    mockk<LivsvarigOffentligAfpService>().apply {
+        every { beregnAfp(any(), any(), any(), any(), any(), any()) } returns result
     }
 
 private fun arrangePre2025Foerstegang(result: Pre2025OffentligAfpResult): Pre2025OffentligAfpFoerstegangBeregner =
-    mockk<Pre2025OffentligAfpFoerstegangBeregner>().also {
-        every { it.beregnAfp(any(), any(), any(), any()) } returns result
+    mockk<Pre2025OffentligAfpFoerstegangBeregner>().apply {
+        every { beregnAfp(any(), any(), any(), any()) } returns result
     }
 
 private fun arrangePre2025Endring(result: Pre2025OffentligAfpResult): Pre2025OffentligAfpEndringBeregner =
-    mockk<Pre2025OffentligAfpEndringBeregner>().also {
-        every { it.beregnAfp(any(), any()) } returns result
+    mockk<Pre2025OffentligAfpEndringBeregner>().apply {
+        every { beregnAfp(any(), any()) } returns result
     }

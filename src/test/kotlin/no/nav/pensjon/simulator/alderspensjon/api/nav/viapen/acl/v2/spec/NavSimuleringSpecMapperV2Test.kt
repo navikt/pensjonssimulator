@@ -10,19 +10,17 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtMidnight
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 import java.util.*
 
 class NavSimuleringSpecMapperV2Test : FunSpec({
 
     test("fromSimuleringSpecV2 maps from domain to DTO version 2") {
-        val personService = arrangeFoedselsdato()
+        val personService = Arrange.foedselsdato(1963, 4, 5)
 
         NavSimuleringSpecMapperV2(personService).fromSimuleringSpecV2(
             source = NavSimuleringSpecV2(
@@ -127,8 +125,3 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                 )
     }
 })
-
-private fun arrangeFoedselsdato(): GeneralPersonService =
-    mock(GeneralPersonService::class.java).also {
-        `when`(it.foedselsdato(pid)).thenReturn(LocalDate.of(1963, 4, 5))
-    }

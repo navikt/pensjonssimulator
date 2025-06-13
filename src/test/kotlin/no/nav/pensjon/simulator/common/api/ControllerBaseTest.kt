@@ -13,6 +13,10 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.web.server.ResponseStatusException
 
+/**
+ * NB: These tests work with Mockito, but not with Mockk.
+ * Reason: Pid and Organisasjonsnummer are @JvmInline value class (which Mockk does not support)
+ */
 class ControllerBaseTest : FunSpec({
 
     val pid = Pid("12906498357")

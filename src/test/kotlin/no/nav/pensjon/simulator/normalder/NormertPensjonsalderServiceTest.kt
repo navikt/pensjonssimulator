@@ -2,11 +2,10 @@ package no.nav.pensjon.simulator.normalder
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.normalder.client.NormertPensjonsalderClient
-import no.nav.pensjon.simulator.person.GeneralPersonService
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import java.time.LocalDate
 
 class NormertPensjonsalderServiceTest : FunSpec({
@@ -66,34 +65,33 @@ class NormertPensjonsalderServiceTest : FunSpec({
 private val service =
     NormertPensjonsalderService(
         normalderClient = arrangeClient(),
-        personService = mock(GeneralPersonService::class.java)
+        personService = mockk()
     )
 
 private fun arrangeClient(): NormertPensjonsalderClient =
-    mock(NormertPensjonsalderClient::class.java).also {
-        `when`(it.fetchNormalderListe()).thenReturn(
-            listOf(
-                Aldersgrenser(
-                    aarskull = 1964,
-                    normalder = Alder(67, 0),
-                    nedreAlder = Alder(62, 0),
-                    oevreAlder = Alder(75, 0),
-                    verdiStatus = VerdiStatus.PROGNOSE
-                ),
-                Aldersgrenser(
-                    aarskull = 1965,
-                    normalder = Alder(67, 1),
-                    nedreAlder = Alder(62, 1),
-                    oevreAlder = Alder(75, 1),
-                    verdiStatus = VerdiStatus.PROGNOSE
-                ),
-                Aldersgrenser(
-                    aarskull = 1975,
-                    normalder = Alder(68, 11),
-                    nedreAlder = Alder(63, 11),
-                    oevreAlder = Alder(76, 11),
-                    verdiStatus = VerdiStatus.PROGNOSE
+    mockk<NormertPensjonsalderClient>().apply {
+        every { fetchNormalderListe() } returns
+                listOf(
+                    Aldersgrenser(
+                        aarskull = 1964,
+                        normalder = Alder(67, 0),
+                        nedreAlder = Alder(62, 0),
+                        oevreAlder = Alder(75, 0),
+                        verdiStatus = VerdiStatus.PROGNOSE
+                    ),
+                    Aldersgrenser(
+                        aarskull = 1965,
+                        normalder = Alder(67, 1),
+                        nedreAlder = Alder(62, 1),
+                        oevreAlder = Alder(75, 1),
+                        verdiStatus = VerdiStatus.PROGNOSE
+                    ),
+                    Aldersgrenser(
+                        aarskull = 1975,
+                        normalder = Alder(68, 11),
+                        nedreAlder = Alder(63, 11),
+                        oevreAlder = Alder(76, 11),
+                        verdiStatus = VerdiStatus.PROGNOSE
+                    )
                 )
-            )
-        )
     }

@@ -1,17 +1,15 @@
 package no.nav.pensjon.simulator.beholdning.api.acl
 
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningSpec
 import no.nav.pensjon.simulator.beholdning.InntektSpec
 import no.nav.pensjon.simulator.person.Pid
-import org.junit.jupiter.api.Test
-
 import java.time.LocalDate
 
-class FolketrygdBeholdningSpecMapperV1Test {
+class FolketrygdBeholdningSpecMapperV1Test : FunSpec({
 
-    @Test
-    fun `fromSpecV1 maps from data transfer object to domain object`() {
+    test("'fromSpecV1' maps from data transfer object to domain object") {
         val dto = FolketrygdBeholdningSpecV1(
             personId = "12906498357",
             uttaksdato = "2030-01-02",
@@ -26,7 +24,7 @@ class FolketrygdBeholdningSpecMapperV1Test {
 
         val domainObject: FolketrygdBeholdningSpec = FolketrygdBeholdningSpecMapperV1.fromSpecV1(dto)
 
-        val expected = FolketrygdBeholdningSpec(
+        domainObject shouldBe FolketrygdBeholdningSpec(
             pid = Pid("12906498357"),
             uttakFom = LocalDate.of(2030, 1, 2),
             fremtidigInntektListe = listOf(
@@ -37,7 +35,5 @@ class FolketrygdBeholdningSpecMapperV1Test {
             epsHarPensjon = true,
             epsHarInntektOver2G = false
         )
-
-        domainObject shouldBe expected
     }
-}
+})

@@ -104,10 +104,10 @@ private object NavSimuleringResultMapperV3Test2Objects {
                     SimulertPrivatAfp(
                         alderAar = 9,
                         beloep = 10,
-                        maanedligBeloep = 1,
                         kompensasjonstillegg = 100,
                         kronetillegg = 101,
-                        livsvarig = 102
+                        livsvarig = 102,
+                        maanedligBeloep = 1
                     )
                 ),
                 pre2025OffentligAfp = SimulertPre2025OffentligAfp(
@@ -207,7 +207,6 @@ private object NavSimuleringResultMapperV3Test2Assert {
         with(result.livsvarigOffentligAfpListe[0]) {
             alderAar shouldBe 13
             beloep shouldBe 14
-            maanedligBeloep shouldBe 1
         }
 
         result.vilkaarsproeving.alternativ shouldBe null

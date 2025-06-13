@@ -17,7 +17,8 @@ open class EgressServiceSecurityConfiguration {
         @Value("\${ps.persondata.service-id}") persondataServiceId: String,
         @Value("\${ps.fss-gw.service-id}") fssGatewayServiceId: String,
         @Value("\${tjenestepensjon.service-id}") tpRegisterServiceId: String,
-        @Value("\${ps.tp-simulering.service-id}") tpSimuleringServiceId: String
+        @Value("\${ps.tp-simulering.service-id}") tpSimuleringServiceId: String,
+        @Value("\${ps.popp.service-id}") opptjeningServiceId: String,
     ) =
         EgressServicesByAudience(
             mapOf(
@@ -25,7 +26,8 @@ open class EgressServiceSecurityConfiguration {
                 persondataServiceId to EgressService.PERSONDATA,
                 fssGatewayServiceId to EgressService.FSS_GATEWAY,
                 tpRegisterServiceId to EgressService.TP_REGISTERET,
-                tpSimuleringServiceId to EgressService.TJENESTEPENSJON_SIMULERING
+                tpSimuleringServiceId to EgressService.TJENESTEPENSJON_SIMULERING,
+                opptjeningServiceId to EgressService.PENSJONSOPPTJENING,
             )
         )
 

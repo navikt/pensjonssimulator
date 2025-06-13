@@ -1,40 +1,32 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import com.fasterxml.jackson.annotation.JsonGetter
-import no.nav.pensjon.simulator.core.domain.reglerextend.copy
-
+// 2025-06-13 minus Serializable
 /**
  * Denne klassen representerer en pakkseddel som leveres sammen med resultatet
  * fra en regeltjeneste.
  */
-class Pakkseddel(
+class Pakkseddel {
+    /**
+     * Angir en totalvurdering for innholdet i resultatet som returneres.
+     * Dersom `resultatOK` er `true` betyr dette at pensjon-regler anser resultatet som fullstendig,
+     * og kan brukes videre i prosessflyten. `false` betyr at pensjon-regler anser resultatet som ufullstendig, og at det må
+     * sendes til saksbehandler for manuell behandling.
+     * For PEN vil resultatOK brukes til å avgjøre om resultatet skal lagres eller ikke.
+     */
+    var kontrollTjenesteOk = true
+    var annenTjenesteOk = true
 
     /**
-     * Liste av merknader som beskriver feil og mangler i grunnlaget.
+     * Liste av merknader. Beskriver hvordan pensjon-regler kom frem til `kontrollTjenesteOk`.
      */
-    var merknadListe: MutableList<Merknad> = mutableListOf(),
-) {
-    /**
-     * Er 'true' dersom ingen feilmeldinger er vedlagt pakkseddelen (merknadslisten er tom).
-     */
-    @get:JsonGetter
-    val kontrollTjenesteOk: Boolean
-        get() = merknadListe.isEmpty()
+    var merknadListe: List<Merknad> = mutableListOf()
 
     /**
-     * Er 'true' dersom ingen feilmeldinger er vedlagt pakkseddelen (merknadslisten er tom).
+     * Anvendt satstabell i beregningen.
      */
-    @get:JsonGetter
-    val annenTjenesteOk: Boolean
-        get() = merknadListe.isEmpty()
+    var satstabell: String? = null
 
-    constructor(pakkseddel: Pakkseddel) : this() {
-        //SIMDOM-MOD this.version = pakkseddel.version
-        pakkseddel.merknadListe.forEach { merknadListe.add(it.copy()) }
-    }
-
-    // SIMDOM-ADD
+    //--- Extra:
     fun merknaderAsString(): String =
         merknadListe.joinToString { it.asString() }
-    // end SIMDOM-ADD
 }

@@ -12,6 +12,14 @@ fun Merknad.copy() =
         it.argumentListe = ArrayList(this.argumentListe)
     }
 
+fun Pakkseddel.copy() =
+    Pakkseddel().also {
+        it.kontrollTjenesteOk = this.kontrollTjenesteOk
+        it.annenTjenesteOk = this.annenTjenesteOk
+        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.satstabell = this.satstabell
+    }
+
 fun Trygdetid.copy() =
     Trygdetid().also {
         it.trygdetidId = this.trygdetidId
@@ -84,4 +92,29 @@ fun TTUtlandTrygdeavtale.copy() =
         it.avtalelandEnum = this.avtalelandEnum
         it.tt_fa = this.tt_fa
         it.merknadListe = this.merknadListe.map { it.copy() }
+    }
+
+fun Uforeopptjening.copy() =
+    Uforeopptjening().also {
+        it.belop = this.belop
+        it.proRataBeregnetUP = this.proRataBeregnetUP
+        it.poengtall = this.poengtall
+        it.ufg = this.ufg
+        it.antattInntekt = this.antattInntekt
+        it.antattInntekt_proRata = this.antattInntekt_proRata
+        it.andel_proRata = this.andel_proRata
+        it.poengarTeller_proRata = this.poengarTeller_proRata
+        it.poengarNevner_proRata = this.poengarNevner_proRata
+        it.antFremtidigeAr_proRata = this.antFremtidigeAr_proRata
+        it.yrkesskadeopptjening = this.yrkesskadeopptjening?.copy()
+        it.uforetrygd = this.uforetrygd
+        it.konvertertUFT = this.konvertertUFT
+        it.uforear = this.uforear
+    }
+
+fun Yrkesskadeopptjening.copy() =
+    Yrkesskadeopptjening().also {
+        it.paa = this.paa
+        it.yug = this.yug
+        it.antattInntektYrke = this.antattInntektYrke
     }

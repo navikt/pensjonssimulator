@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
+// 2025-06-13
 @JsonSubTypes(
     JsonSubTypes.Type(value = FremskrivingsDetaljer::class)
 )

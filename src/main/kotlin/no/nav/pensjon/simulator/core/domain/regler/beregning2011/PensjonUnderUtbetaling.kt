@@ -185,9 +185,6 @@ class PensjonUnderUtbetaling {
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggSerkullsbarnUT>(yk)
 
     // AfpLivsvarig:
-    var afpLivsvarig: AfpLivsvarig?
-        get() = ytelseskomponenter.firstIsInstanceOrNull()
-        set(yk) = internalAddOrRemoveIfNull<AfpLivsvarig>(yk)
     var afpOffentligLivsvarig: AfpOffentligLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpOffentligLivsvarig>(yk)
@@ -283,7 +280,6 @@ class PensjonUnderUtbetaling {
                 is TemporarYtelseskomponent -> addYtelseskomponent(komponent.copy())
                 is TilleggTilHjelpIHuset -> addYtelseskomponent(komponent.copy())
                 is UforetilleggTilAlderspensjon -> addYtelseskomponent(komponent.copy())
-                is AfpLivsvarig -> addYtelseskomponent(AfpLivsvarig(komponent))
                 //--- Grunnpensjon:
                 is BasisGrunnpensjon -> addYtelseskomponent(BasisGrunnpensjon(komponent))
                 is Grunnpensjon -> addYtelseskomponent(Grunnpensjon(komponent))

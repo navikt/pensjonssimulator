@@ -34,14 +34,6 @@ fun AfpOffentligLivsvarig.copy() =
         copyAfpLivsvarig(source = this, target = it)
     }
 
-fun AfpLivsvarig.asPrivatAfp() =
-    AfpPrivatLivsvarig().also {
-        it.justeringsbelop = this.justeringsbelop
-        it.afpProsentgrad = this.afpProsentgrad
-        it.afpForholdstall = this.afpForholdstall
-        copyYtelseskomponent(source = this, target = it)
-    }
-
 fun AfpOffentligLivsvarigGrunnlag.copy() =
     AfpOffentligLivsvarigGrunnlag(
         sistRegulertG = this.sistRegulertG,
@@ -52,20 +44,11 @@ fun AfpOffentligLivsvarigGrunnlag.copy() =
 
 fun AfpPrivatBeregning.copy() =
     AfpPrivatBeregning().also {
-        it.afpLivsvarig = this.afpLivsvarig?.let(::AfpLivsvarig)
         it.afpPrivatLivsvarig = this.afpPrivatLivsvarig?.copy()
         it.afpKompensasjonstillegg = this.afpKompensasjonstillegg?.copy()
         it.afpKronetillegg = this.afpKronetillegg?.copy()
         it.afpOpptjening = this.afpOpptjening?.copy()
         copyBeregning2011(source = this, target = it)
-    }
-
-fun AfpPrivatLivsvarig.asLegacyPrivatAfp() =
-    AfpLivsvarig().also {
-        it.justeringsbelop = this.justeringsbelop
-        it.afpProsentgrad = this.afpProsentgrad
-        it.afpForholdstall = this.afpForholdstall
-        copyYtelseskomponent(source = this, target = it)
     }
 
 fun AfpPrivatLivsvarig.copy() =
@@ -231,9 +214,7 @@ fun BeregningsResultatAfpPrivat.copy() =
 
 // PEN: BeregningsresultatAfpPrivat.hentLivsvarigDelIBruk
 fun BeregningsResultatAfpPrivat.privatAfp(): AfpPrivatLivsvarig? =
-    this.pensjonUnderUtbetaling?.ytelseskomponenter.orEmpty().let {
-        privatAfp(it) ?: legacyPrivatAfp(it)?.asPrivatAfp()
-    }
+    this.pensjonUnderUtbetaling?.ytelseskomponenter.orEmpty().let(::privatAfp)
 
 fun BeregningsResultatAlderspensjon2011.copy() =
     BeregningsResultatAlderspensjon2011().also {
@@ -657,14 +638,8 @@ private fun copyJustering(source: IJustering): IJustering =
     when (source) {
         is LonnsvekstDetaljer -> source.copy()
         is FremskrivingsDetaljer -> source.copy()
-        is GReguleringDetaljer -> throw RuntimeException("Deprecated IJustering type: GReguleringDetaljer")
         else -> throw RuntimeException("Unsupported IJustering type: ${source.javaClass.name}")
     }
-
-private fun legacyPrivatAfp(ytelseKomponentListe: List<Ytelseskomponent>): AfpLivsvarig? =
-    ytelseKomponentListe.firstOrNull {
-        it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.AFP_LIVSVARIG
-    } as? AfpLivsvarig
 
 private fun privatAfp(ytelseKomponentListe: List<Ytelseskomponent>): AfpPrivatLivsvarig? =
     ytelseKomponentListe.firstOrNull {

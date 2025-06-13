@@ -72,6 +72,9 @@ object NavSimuleringResultMapperV3 {
         NavPrivatAfpV3(
             alderAar = source.alderAar,
             beloep = source.beloep,
+            kompensasjonstillegg = source.kompensasjonstillegg,
+            kronetillegg = source.kronetillegg,
+            livsvarig = source.livsvarig,
             maanedligBeloep = source.maanedligBeloep
         )
 

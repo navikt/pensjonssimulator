@@ -136,6 +136,9 @@ object SimulatorOutputConverter {
         SimulertPrivatAfp(
             alderAar = source.alderAar ?: 0,
             beloep = source.aarligBeloep ?: 0,
+            kompensasjonstillegg = source.kompensasjonstillegg ?: 0,
+            kronetillegg = source.kronetillegg ?: 0,
+            livsvarig = source.livsvarig ?: 0,
             maanedligBeloep = source.maanedligBeloep ?: 0
         )
 

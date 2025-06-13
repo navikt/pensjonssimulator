@@ -104,6 +104,9 @@ private object NavSimuleringResultMapperV3Test2Objects {
                     SimulertPrivatAfp(
                         alderAar = 9,
                         beloep = 10,
+                        kompensasjonstillegg = 100,
+                        kronetillegg = 101,
+                        livsvarig = 102,
                         maanedligBeloep = 1
                     )
                 ),
@@ -195,6 +198,9 @@ private object NavSimuleringResultMapperV3Test2Assert {
         with(result.privatAfpListe[0]) {
             alderAar shouldBe 9
             beloep shouldBe 10
+            kompensasjonstillegg shouldBe 100
+            kronetillegg shouldBe 101
+            livsvarig shouldBe 102
         }
 
         result.livsvarigOffentligAfpListe.size shouldBe 1

@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.opptjening
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.TpSimuleringLivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.opptjening.dto.OpptjeningsgrunnlagExtractor
@@ -57,7 +58,10 @@ class OpptjeningClient(
     }
 
     private fun setHeaders(headers: HttpHeaders, pid: Pid) {
-        headers.setBearerAuth(EgressAccess.token(service).value)
+        with(EgressAccess.token(service).value) {
+            headers.setBearerAuth(this)
+            log.debug { "Token: $this" }
+        }
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
         headers[CustomHttpHeaders.PID] = pid.value
     }

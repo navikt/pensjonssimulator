@@ -53,7 +53,6 @@ object SimulatorContextUtil {
         spec.tom = spec.tom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
-        spec.afpLivsvarig?.let(::roundNettoPerAar)
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
@@ -63,7 +62,6 @@ object SimulatorContextUtil {
         spec.virkFom = spec.virkFom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.setDatesToNoon() }
-        spec.afpLivsvarig?.let(::roundNettoPerAar)
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
@@ -73,14 +71,12 @@ object SimulatorContextUtil {
         spec.fom = spec.fom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
-        spec.afpLivsvarig?.let(::roundNettoPerAar)
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     fun postprocess(result: BeregningsResultatAfpPrivat) {
         result.virkTom = null
-        result.afpPrivatBeregning?.afpLivsvarig?.let(::roundNettoPerAar)
         result.afpPrivatBeregning?.afpPrivatLivsvarig?.let(::roundNettoPerAar)
     }
 

@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SatsTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.satstabeller.SatsResultat
+import no.nav.pensjon.simulator.core.domain.regler.SatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.to.HentGyldigSatsRequest
 import no.nav.pensjon.simulator.core.domain.regler.to.RegulerPensjonsbeholdningRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate

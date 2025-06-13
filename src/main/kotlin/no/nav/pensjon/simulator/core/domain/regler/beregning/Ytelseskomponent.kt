@@ -51,7 +51,6 @@ import java.math.RoundingMode
     JsonSubTypes.Type(value = UforetilleggTilAlderspensjon::class),
     JsonSubTypes.Type(value = UforetrygdOrdiner::class),
     JsonSubTypes.Type(value = Ventetillegg::class),
-    JsonSubTypes.Type(value = AfpLivsvarig::class),
     JsonSubTypes.Type(value = AbstraktAfpLivsvarig::class),
     JsonSubTypes.Type(value = AbstraktBarnetillegg::class)
 )
@@ -166,9 +165,6 @@ abstract class Ytelseskomponent {
     var brukt: Boolean = true
     @JsonIgnore
     private var unroundedNettoPerAr: Double? = null
-
-    val internNettoPerAr: Double
-        @JsonIgnore get() = unroundedNettoPerAr ?: nettoPerAr
 
     // nettoPerAr in kjerne/PEN is integer
     fun roundNettoPerAr() {

@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import java.util.*
 
-// 2025-03-11
+// 2025-06-13 minus constructor/Serializable
 class FremskrivingsDetaljer : IFremskriving {
     override var justeringTomDato: Date? = null
     override var justeringsfaktor = 0.0

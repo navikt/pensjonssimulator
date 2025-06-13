@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon201
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2025Request
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.asLegacyPrivatAfp
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
@@ -61,7 +60,7 @@ class Vilkaarsproever(
             it.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
         }
 
-    // VilkarsprovOgBeregnAlderHelper.vilkarsprovAlderInRegelmotor
+    // PEN: VilkarsprovOgBeregnAlderHelper.vilkarsprovAlderInRegelmotor
     private fun vilkaarsproevAlderspensjon(spec: VilkaarsproevingSpec): MutableList<VilkarsVedtak> {
         val soekerGrunnlag = spec.kravhode.hentPersongrunnlagForSoker()
         val vedtakListe: MutableList<VilkarsVedtak> = vilkaarsproevAlderspensjon(spec, soekerGrunnlag)
@@ -144,27 +143,25 @@ class Vilkaarsproever(
             vedtakListe: MutableList<VilkarsVedtak>
         ) {
             kravlinjeForGjenlevenderett(kravhode.kravlinjeListe)?.let {
-                addGjenlevenderettVedtak(virkningDato, vedtakListe, it)
+                addManueltInnvilgetVedtak(virkningDato, vedtakListe, kravlinje = it)
             }
         }
 
         // Extracted from VilkarsprovOgBeregnAlderHelper.createGJRVilkarsvedtakIfGJRKravlinjePresent
         private fun kravlinjeForGjenlevenderett(list: List<Kravlinje>): Kravlinje? =
-            list.firstOrNull { KravlinjeTypeEnum.GJR == it.kravlinjeTypeEnum }
+            list.firstOrNull { isGjenlevenderettighet(it.kravlinjeTypeEnum) }
 
         private fun isGjenlevenderettighet(kravlinjeType: KravlinjeTypeEnum?): Boolean =
             KravlinjeTypeEnum.GJR == kravlinjeType
 
-        private fun addGjenlevenderettVedtak(
+        private fun addManueltInnvilgetVedtak(
             virkningDato: LocalDate,
             vedtakListe: MutableList<VilkarsVedtak>,
             kravlinje: Kravlinje
         ) {
-            val vedtak = manueltVedtak(kravlinje, virkningDato).also {
+            vedtakListe.add(manueltVedtak(kravlinje, virkningDato).also {
                 it.anbefaltResultatEnum = VedtakResultatEnum.INNV
-            }
-
-            vedtakListe.add(vedtak)
+            })
         }
 
         // SimpleFpenService.opprettManueltVilkarsvedtak
@@ -177,8 +174,7 @@ class Vilkaarsproever(
                 this.kravlinje = kravlinje
                 this.kravlinjeTypeEnum = kravlinje?.kravlinjeTypeEnum
                 this.penPerson = kravlinje?.relatertPerson
-            }.also {
-                it.finishInit()
+                this.finishInit()
             }
 
         private fun ubetingetVilkaarsproevingRequest(spec: VilkaarsproevingSpec) =
@@ -195,7 +191,6 @@ class Vilkaarsproever(
                 fom = spec.virkningFom.toNorwegianDateAtNoon()
                 tom = null
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011
                 utforVilkarsberegning = true
@@ -205,7 +200,6 @@ class Vilkaarsproever(
             VilkarsprovAlderpensjon2016Request().apply {
                 kravhode = spec.kravhode
                 virkFom = spec.virkningFom.toNorwegianDateAtNoon()
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016
@@ -216,7 +210,6 @@ class Vilkaarsproever(
             VilkarsprovAlderpensjon2025Request().apply {
                 kravhode = spec.kravhode
                 fom = spec.virkningFom.toNorwegianDateAtNoon()
-                afpLivsvarig = spec.privatAfp?.asLegacyPrivatAfp()
                 afpPrivatLivsvarig = spec.privatAfp
                 afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011 // NB: 2011

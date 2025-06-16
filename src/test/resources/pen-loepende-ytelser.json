@@ -68,7 +68,121 @@
         }
     },
     "afpPrivat": {
-        "virkningFom": null,
-        "forrigeBeregningsresultat": null
+        "virkningFom": "2024-05-01T00:00:00+0200",
+        "forrigeBeregningsresultat": {
+            "type": "BeregningsResultatAfpPrivat",
+            "virkFom": "2024-05-01T12:00:00+0200",
+            "pensjonUnderUtbetaling": {
+                "totalbelopNetto": 5896,
+                "totalbelopNettoAr": 70757.45238214353,
+                "totalbelopBrutto": 5896,
+                "totalbelopBruttoAr": 70757.45238214353,
+                "formelKodeEnum": "BPUx",
+                "pubReguleringFratrekk": 0.0075,
+                "ytelseskomponenter": [
+                    {
+                        "type": "AfpPrivatLivsvarig",
+                        "brutto": 3784,
+                        "netto": 3784,
+                        "fradrag": 0,
+                        "bruttoPerAr": 45409.45238214353,
+                        "nettoPerAr": 45409.0,
+                        "fradragPerAr": 0.0,
+                        "merknadListe": [],
+                        "formelKodeEnum": "LivsvD2",
+                        "reguleringsInformasjon": {
+                            "lonnsvekst": 0.0456,
+                            "fratrekksfaktor": 0.0075,
+                            "gammelG": 0,
+                            "nyG": 0,
+                            "reguleringsfaktor": 1.0377580000000002,
+                            "gjennomsnittligUttaksgradSisteAr": 100.0,
+                            "reguleringsbelop": 1652.1868326189579,
+                            "prisOgLonnsvekst": 0.0
+                        },
+                        "fradragsTransaksjon": false,
+                        "opphort": false,
+                        "sakTypeEnum": null,
+                        "brukt": true,
+                        "justeringsbelop": 4228,
+                        "afpProsentgrad": 1.0,
+                        "afpForholdstall": 1.382,
+                        "ytelsekomponentTypeEnum": "AFP_PRIVAT_LIVSVARIG"
+                    }
+                ]
+            },
+            "afpPrivatBeregning": {
+                "type": "AfpPrivatBeregning",
+                "gjelderPerson": {
+                    "penPersonId": 23298532
+                },
+                "grunnbelop": 0,
+                "tt_anv": 0,
+                "resultatTypeEnum": "AFP_PRIVAT",
+                "beregningsMetodeEnum": null,
+                "beregningTypeEnum": null,
+                "delberegning2011Liste": [],
+                "merknadListe": [],
+                "beregningGjelderTypeEnum": null,
+                "afpLivsvarig": {
+                    "type": "AfpLivsvarig",
+                    "brutto": 3784,
+                    "netto": 3784,
+                    "fradrag": 0,
+                    "bruttoPerAr": 45409.45238214353,
+                    "nettoPerAr": 45409.0,
+                    "fradragPerAr": 0.0,
+                    "merknadListe": [],
+                    "formelKodeEnum": "LivsvD2",
+                    "reguleringsInformasjon": {
+                        "lonnsvekst": 0.0456,
+                        "fratrekksfaktor": 0.0075,
+                        "gammelG": 0,
+                        "nyG": 0,
+                        "reguleringsfaktor": 1.0377580000000002,
+                        "gjennomsnittligUttaksgradSisteAr": 100.0,
+                        "reguleringsbelop": 1652.1868326189579,
+                        "prisOgLonnsvekst": 0.0
+                    },
+                    "fradragsTransaksjon": false,
+                    "opphort": false,
+                    "sakTypeEnum": null,
+                    "brukt": true,
+                    "justeringsbelop": 4228,
+                    "afpProsentgrad": 1.0,
+                    "afpForholdstall": 1.382,
+                    "ytelsekomponentTypeEnum": "AFP_LIVSVARIG"
+                },
+                "afpPrivatLivsvarig": {
+                    "type": "AfpPrivatLivsvarig",
+                    "brutto": 3784,
+                    "netto": 3784,
+                    "fradrag": 0,
+                    "bruttoPerAr": 45409.45238214353,
+                    "nettoPerAr": 45409.0,
+                    "fradragPerAr": 0.0,
+                    "merknadListe": [],
+                    "formelKodeEnum": "LivsvD2",
+                    "reguleringsInformasjon": {
+                        "lonnsvekst": 0.0456,
+                        "fratrekksfaktor": 0.0075,
+                        "gammelG": 0,
+                        "nyG": 0,
+                        "reguleringsfaktor": 1.0377580000000002,
+                        "gjennomsnittligUttaksgradSisteAr": 100.0,
+                        "reguleringsbelop": 1652.1868326189579,
+                        "prisOgLonnsvekst": 0.0
+                    },
+                    "fradragsTransaksjon": false,
+                    "opphort": false,
+                    "sakTypeEnum": null,
+                    "brukt": true,
+                    "justeringsbelop": 4228,
+                    "afpProsentgrad": 1.0,
+                    "afpForholdstall": 1.382,
+                    "ytelsekomponentTypeEnum": "AFP_PRIVAT_LIVSVARIG"
+                }
+            }
+        }
     }
 }

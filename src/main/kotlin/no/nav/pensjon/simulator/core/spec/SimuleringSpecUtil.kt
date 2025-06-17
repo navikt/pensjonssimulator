@@ -127,7 +127,8 @@ object SimuleringSpecUtil {
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
             onlyVilkaarsproeving = source.onlyVilkaarsproeving,
-            epsKanOverskrives = source.epsKanOverskrives
+            epsKanOverskrives = source.epsKanOverskrives,
+            registerData = source.registerData
         )
     }
 
@@ -163,7 +164,8 @@ object SimuleringSpecUtil {
             isHentPensjonsbeholdninger = source.isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = source.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
             onlyVilkaarsproeving = source.onlyVilkaarsproeving,
-            epsKanOverskrives = source.epsKanOverskrives
+            epsKanOverskrives = source.epsKanOverskrives,
+            registerData = source.registerData
         )
 
     private fun naermesteLavereUttaksgrad(grad: UttakGradKode) =

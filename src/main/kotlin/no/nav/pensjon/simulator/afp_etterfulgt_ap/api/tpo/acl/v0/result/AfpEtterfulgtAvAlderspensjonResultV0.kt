@@ -1,25 +1,28 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS
 import java.time.LocalDate
 
 /**
  * Ref. API specification: https://confluence.adeo.no/x/hJRHK
  */
-@JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonInclude(ALWAYS)
 data class AfpEtterfulgtAvAlderspensjonResultV0(
     val simuleringSuksess: Boolean,
     val aarsakListeIkkeSuksess: List<AarsakIkkeSuccessV0>,
     val folketrygdberegnetAfp: FolketrygdberegnetAfpV0?,
     val alderspensjonFraFolketrygden: List<AlderspensjonFraFolketrygdenV0>,
 )
-@JsonInclude(JsonInclude.Include.ALWAYS)
+
+@JsonInclude(ALWAYS)
 data class FolketrygdberegnetAfpV0(
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    val fraOgMedDato: LocalDate,
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
     val beregnetTidligereInntekt: Int?,
-    val fremtidigAarligInntektTilAfpUttak: Int,
+    val sisteLignetInntektBrukt: Boolean,
+    val sisteLignetInntektAar: Int?,
     val afpGrad: Int,
     val afpAvkortetTil70Prosent: Boolean,
     val grunnpensjon: GrunnpensjonV0,
@@ -28,7 +31,8 @@ data class FolketrygdberegnetAfpV0(
     val maanedligAfpTillegg: Int,
     val sumMaanedligUtbetaling: Int,
 )
-@JsonInclude(JsonInclude.Include.ALWAYS)
+
+@JsonInclude(ALWAYS)
 data class GrunnpensjonV0(
     val maanedligUtbetaling: Int,
     val grunnbeloep: Int,
@@ -43,15 +47,15 @@ data class TilleggspensjonV0(
     val antallPoengaarTilOgMed1991: Int,
     val antallPoengaarFraOgMed1992: Int,
 )
-@JsonInclude(JsonInclude.Include.ALWAYS)
+
+@JsonInclude(ALWAYS)
 data class SaertilleggV0(
     val maanedligUtbetaling: Int,
-    val saertilleggsats: Double?,
 )
-@JsonInclude(JsonInclude.Include.ALWAYS)
+
+@JsonInclude(ALWAYS)
 data class AlderspensjonFraFolketrygdenV0(
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    val fraOgMedDato: LocalDate,
+    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
     val andelKapittel19: Double?,
     val alderspensjonKapittel19: AlderspensjonKapittel19V0?,
     val andelKapittel20: Double?,
@@ -63,9 +67,9 @@ data class AlderspensjonKapittel19V0(
     val grunnpensjon: GrunnpensjonV0,
     val tilleggspensjon: TilleggspensjonV0,
     val pensjonstillegg: PensjonstilleggV0,
-    val forholdstall: Double,
 )
-@JsonInclude(JsonInclude.Include.ALWAYS)
+
+@JsonInclude(ALWAYS)
 data class PensjonstilleggV0(
     val maanedligUtbetaling: Int,
     val minstepensjonsnivaaSats: Double?,
@@ -74,18 +78,18 @@ data class PensjonstilleggV0(
 data class AlderspensjonKapittel20V0(
     val inntektspensjon: InntektspensjonV0,
     val garantipensjon: GarantipensjonV0,
-    val delingstall: Double,
 )
-@JsonInclude(JsonInclude.Include.ALWAYS)
+
+@JsonInclude(ALWAYS)
 data class GarantipensjonV0(
     val maanedligUtbetaling: Int,
-    val garantipensjonssats: Double?,
+    val garantipensjonsbeholdningForUttak: Int?,
     val trygdetid: Int,
 )
 
 data class InntektspensjonV0(
     val maanedligUtbetaling: Int,
-    val pensjonsbeholdningFoerUttak: Int,
+    val pensjonsbeholdningForUttak: Int,
 )
 
 data class AarsakIkkeSuccessV0(

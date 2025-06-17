@@ -6,9 +6,11 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import java.time.LocalDate
 
 class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 
@@ -41,14 +43,16 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
             inntektEtterHeltUttakAntallAar shouldBe null
             forventetInntektBeloep shouldBe dto.fremtidigAarligInntektTilAfpUttak
             utlandAntallAar shouldBe dto.aarIUtlandetEtter16
-            pre2025OffentligAfp?.inntektUnderAfpUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
-            pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep shouldBe 100000
+            with(pre2025OffentligAfp!!) {
+                inntektUnderAfpUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
+                inntektMaanedenFoerAfpUttakBeloep shouldBe 100000
+            }
         }
     }
 })
 
 private fun arrangeInntekt(): InntektService =
     mockk<InntektService>().apply {
-        every { hentSisteLignetInntekt(pid) } returns 12345
+        every { hentSisteLignetInntekt(pid) } returns Inntekt(aarligBeloep = 12345, fom = LocalDate.of(2025, 1, 1))
         every { hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G = true) } returns 100000
     }

@@ -228,6 +228,7 @@ class SimulatorCore(
                 this.foedselDato = foedselsdato
                 this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
                 this.heltUttakDato = spec.heltUttakDato
+                this.registerData = initialSpec.registerData
             }
     }
 

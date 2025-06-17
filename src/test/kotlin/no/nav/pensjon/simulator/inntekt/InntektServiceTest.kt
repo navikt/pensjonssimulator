@@ -20,7 +20,7 @@ class InntektServiceTest : FunSpec({
     )
 
     test("hentSisteLignetInntekt should return inntekt") {
-        service.hentSisteLignetInntekt(pid) shouldBe 321000
+        service.hentSisteLignetInntekt(pid) shouldBe Inntekt(aarligBeloep = 321000, fom = LocalDate.of(2025, 1, 1))
     }
 
     test("hentSisteMaanedsInntektOver1G should return amount higher than 1G if harInntektSisteMaanedOver1G is true") {

@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
@@ -45,7 +46,8 @@ data class SimuleringSpec(
     val isHentPensjonsbeholdninger: Boolean,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
     val onlyVilkaarsproeving: Boolean,
-    val epsKanOverskrives: Boolean
+    val epsKanOverskrives: Boolean,
+    val registerData: RegisterData? = null
 ) {
     init {
         if (erAnonym) require(foedselAar > 0) { "For anonym simulering må fødselsår være angitt" }
@@ -149,7 +151,8 @@ data class SimuleringSpec(
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
             onlyVilkaarsproeving = onlyVilkaarsproeving,
-            epsKanOverskrives = epsKanOverskrives
+            epsKanOverskrives = epsKanOverskrives,
+            registerData = registerData
         )
 
     fun withFoersteUttakDato(dato: LocalDate?) =

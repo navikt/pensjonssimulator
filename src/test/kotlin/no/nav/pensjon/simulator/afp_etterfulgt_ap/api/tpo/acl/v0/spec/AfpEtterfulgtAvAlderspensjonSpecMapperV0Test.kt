@@ -14,6 +14,13 @@ import java.time.LocalDate
 
 class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 
+    /**
+     * Funksjonen 'fromDto' skal bl.a.:
+     * - mappe fra spesifikasjons-DTO til motsvarende domeneobjekt
+     * - sette isHentPensjonsbeholdninger 'true' (slik at garantipensjonsbeholdning kan utledes)
+     * - sette isOutputSimulertBeregningsinformasjonForAllKnekkpunkter 'true'
+     * - innhente inntekten for måneden før AFP-uttak
+     */
     "fromDto mapper AfpEtterfulgtAvAlderspensjonValidatedSpecV0 korrekt til SimuleringSpec" {
         val dto = AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
             personId = pid.value,
@@ -43,6 +50,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
             inntektEtterHeltUttakAntallAar shouldBe null
             forventetInntektBeloep shouldBe dto.fremtidigAarligInntektTilAfpUttak
             utlandAntallAar shouldBe dto.aarIUtlandetEtter16
+            isHentPensjonsbeholdninger shouldBe true
             with(pre2025OffentligAfp!!) {
                 inntektUnderAfpUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
                 inntektMaanedenFoerAfpUttakBeloep shouldBe 100000

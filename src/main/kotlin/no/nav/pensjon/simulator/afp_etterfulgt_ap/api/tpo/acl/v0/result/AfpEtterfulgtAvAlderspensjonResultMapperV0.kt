@@ -6,11 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Grunnpensjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sertillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.result.Maanedsutbetaling
-import no.nav.pensjon.simulator.core.result.PensjonPeriode
-import no.nav.pensjon.simulator.core.result.SimulatorOutput
-import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
-import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
+import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
@@ -211,7 +207,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         beregningsinfo: SimulertBeregningInformasjon,
         periode: PensjonPeriode,
         maanedsutbetaling: Maanedsutbetaling,
-        pensjon: SimulertAlderspensjon?,
+        pensjon: SimulertAlderspensjon,
         uttakDato: LocalDate
     ) =
         SimulertAlderspensjonInfo(
@@ -221,14 +217,10 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             inntektspensjon = beregningsinfo.inntektspensjonPerMaaned,
             garantipensjon = beregningsinfo.garantipensjonPerMaaned,
             delingstall = beregningsinfo.delingstall,
-            pensjonBeholdningFoerUttak =
-                periode.simulertBeregningInformasjonListe.firstOrNull { it.pensjonBeholdningFoerUttak != null }
-                    ?.pensjonBeholdningFoerUttak,
-            garantipensjonBeholdningFoerUttak =
-                pensjon?.pensjonBeholdningListe?.filter { it.datoFom.isBefore(uttakDato) }
-                    ?.maxByOrNull { it.datoFom }?.garantipensjonsbeholdning?.toInt(),
-            andelsbroekKap19 = pensjon?.kapittel19Andel ?: 0.0,
-            andelsbroekKap20 = pensjon?.kapittel20Andel ?: 0.0,
+            pensjonBeholdningFoerUttak = periode.foerstePensjonsbeholdningFoerUttak,
+            garantipensjonBeholdningFoerUttak = pensjon.garantipensjonsbeholdningVedDato(uttakDato),
+            andelsbroekKap19 = pensjon.kapittel19Andel,
+            andelsbroekKap20 = pensjon.kapittel20Andel,
             sluttpoengtall = beregningsinfo.spt,
             trygdetidKap19 = beregningsinfo.tt_anv_kap19,
             trygdetidKap20 = beregningsinfo.tt_anv_kap20,

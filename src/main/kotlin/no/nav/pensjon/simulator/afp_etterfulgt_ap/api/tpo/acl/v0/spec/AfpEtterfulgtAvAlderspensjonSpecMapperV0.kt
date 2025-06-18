@@ -47,7 +47,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             simulerForTp = false, // simulerer her ikke for tjenestepensjon
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            isHentPensjonsbeholdninger = true, // behøves for garantipensjonsbeholdning
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
             utlandPeriodeListe = mutableListOf(),

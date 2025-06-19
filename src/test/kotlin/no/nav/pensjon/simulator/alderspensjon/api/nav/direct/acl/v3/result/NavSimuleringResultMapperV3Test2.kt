@@ -96,7 +96,8 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         grunnpensjon = 15,
                         tilleggspensjon = 16,
                         pensjonstillegg = 17,
-                        skjermingstillegg = 18
+                        skjermingstillegg = 18,
+                        kapittel19Gjenlevendetillegg = 19
                     )
                 ),
                 alderspensjonFraFolketrygden,
@@ -192,6 +193,7 @@ private object NavSimuleringResultMapperV3Test2Assert {
             tilleggspensjon shouldBe 16
             pensjonstillegg shouldBe 17
             skjermingstillegg shouldBe 18
+            kapittel19Gjenlevendetillegg shouldBe 19
         }
 
         result.privatAfpListe.size shouldBe 1

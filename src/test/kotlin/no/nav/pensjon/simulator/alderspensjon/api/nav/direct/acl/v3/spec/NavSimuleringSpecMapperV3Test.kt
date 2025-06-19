@@ -154,7 +154,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
-            epsKanOverskrives = true
+            epsKanOverskrives = false
         )
     }
 })

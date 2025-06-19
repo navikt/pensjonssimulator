@@ -66,20 +66,34 @@ data class NavSimuleringSpecV2(
     override fun toString() =
         "{ \"fnr\": ${textAsString(redact(fnr))}, " +
                 "\"fnrAvdod\": ${textAsString(redact(fnrAvdod))}, " +
+                "\"fodselsar\": $fodselsar, " +
                 "\"simuleringType\": ${textAsString(simuleringType)}, " +
-                "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
                 "\"forventetInntekt\": $forventetInntekt, " +
+                "\"antArInntektOverG\": $antArInntektOverG, " +
                 "\"inntektUnderGradertUttak\": $inntektUnderGradertUttak, " +
                 "\"inntektEtterHeltUttak\": $inntektEtterHeltUttak, " +
                 "\"antallArInntektEtterHeltUttak\": $antallArInntektEtterHeltUttak, " +
+                "\"sivilstatus\": ${textAsString(sivilstatus)}, " +
+                "\"utenlandsopphold\": $utenlandsopphold, " +
+                "\"flyktning\": $flyktning, " +
                 "\"epsPensjon\": $epsPensjon, " +
                 "\"eps2G\": $eps2G, " +
-                "\"utenlandsopphold\": $utenlandsopphold, " +
+                "\"afpOrdning\": ${textAsString(afpOrdning)}, " +
+                "\"afpInntektMndForUttak\": $afpInntektMndForUttak, " +
                 "\"fremtidigInntektList\": ${listAsString(fremtidigInntektList)}, " +
+                "\"dodsdato\": ${textAsString(dodsdato)}, " +
+                "\"avdodAntallArIUtlandet\": $avdodAntallArIUtlandet, " +
+                "\"avdodInntektForDod\": $avdodInntektForDod, " +
+                "\"inntektAvdodOver1G\": $inntektAvdodOver1G, " +
+                "\"avdodMedlemAvFolketrygden\": $avdodMedlemAvFolketrygden, " +
+                "\"avdodFlyktning\": $avdodFlyktning, " +
+                "\"simulerForTp\": $simulerForTp, " +
+                "\"tpOrigSimulering\": $tpOrigSimulering, " +
                 "\"utenlandsperiodeForSimuleringList\": ${listAsString(utenlandsperiodeForSimuleringList)}, " +
                 "\"forsteUttakDato\": ${textAsString(forsteUttakDato)}, " +
                 "\"utg\": ${textAsString(utg)}, " +
-                "\"heltUttakDato\": ${textAsString(heltUttakDato)} }"
+                "\"heltUttakDato\": ${textAsString(heltUttakDato)}, " +
+                "\"ansettelsessektor\": ${textAsString(ansettelsessektor)} }"
 }
 
 // Maps 1-to-1 with no.nav.pensjon.pen.domain.api.kalkulator.UtenlandsperiodeForSimulering in PEN

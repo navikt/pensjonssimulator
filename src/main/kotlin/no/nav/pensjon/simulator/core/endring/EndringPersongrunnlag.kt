@@ -59,16 +59,16 @@ class EndringPersongrunnlag(
             }
     }
 
-    // SimulerEndringAvAPCommand.opprettPersongrunnlagForEPS
-    // + AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
-    // -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
+    // PEN: SimulerEndringAvAPCommand.opprettPersongrunnlagForEPS
+    //    + AbstraktSimulerAPFra2011Command.opprettPersongrunnlagForEPS
+    //   -> OpprettKravHodeHelper.opprettPersongrunnlagForEPS
     fun addPersongrunnlagForEpsToKravhode(
         spec: SimuleringSpec,
         endringKravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         grunnbeloep: Int
     ): Kravhode {
-        if (spec.isTpOrigSimulering || spec.epsKanOverskrives) {
+        if (spec.isTpOrigSimulering) {
             epsService.addPersongrunnlagForEpsToKravhode(spec, endringKravhode, grunnbeloep)
             return endringKravhode
         }

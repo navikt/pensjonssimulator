@@ -19,7 +19,7 @@ import java.util.*
 
 class NavSimuleringSpecMapperV3Test : FunSpec({
 
-    test("fromNavSimuleringSpecV3 should fetch foedselsdato and map values") {
+    test("fromNavSimuleringSpecV3 should fetch fødselsdato and map values") {
         NavSimuleringSpecMapperV3(
             personService = Arrange.foedselsdato(1963, 4, 5),
             inntektService = arrangeGrunnbeloep()
@@ -96,7 +96,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // to produce månedsbeløp
             onlyVilkaarsproeving = false,
-            epsKanOverskrives = true
+            epsKanOverskrives = false
         )
     }
 

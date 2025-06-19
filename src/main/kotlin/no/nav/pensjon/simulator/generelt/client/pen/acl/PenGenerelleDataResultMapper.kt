@@ -33,8 +33,8 @@ object PenGenerelleDataResultMapper {
         )
 
     private fun veietSatsResultat(source: PenVeietSatsResultat) =
-        VeietSatsResultat(
-            ar = source.aar,
+        VeietSatsResultat().apply {
+            ar = source.aar
             verdi = source.verdi
-        )
+        }
 }

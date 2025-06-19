@@ -3,6 +3,9 @@ package no.nav.pensjon.simulator.ytelse.client.pen
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.simulator.testutil.TestObjects.jwt
@@ -67,6 +70,17 @@ class PenYtelseClientTest : FunSpec({
 
             with(result) {
                 alderspensjon?.sokerVirkningFom shouldBe LocalDate.of(2022, 12, 1)
+                with(afpPrivat!!)
+                {
+                    virkningFom shouldBe LocalDate.of(2024, 5, 1)
+                    with(forrigeBeregningsresultat as BeregningsResultatAfpPrivat) {
+                        afpPrivatBeregning?.afpPrivatLivsvarig?.afpProsentgrad shouldBe 1.0
+                        with(pensjonUnderUtbetaling?.ytelseskomponenter[0] as AfpPrivatLivsvarig) {
+                            ytelsekomponentTypeEnum shouldBe YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG
+                            afpForholdstall shouldBe 1.382
+                        }
+                    }
+                }
             }
         }
     }

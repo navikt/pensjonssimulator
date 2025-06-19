@@ -11,10 +11,9 @@ import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
 import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
 import java.util.*
 
-// PEN: SimuleringSpecDtoAlderspensjon1963Plus
 /**
- * Data transfer object som representerer inn-data (spesifikasjon) for
- * simulering av alderspensjon for brukere født 1963 eller senere.
+ * Data transfer object (DTO) som representerer inn-data (spesifikasjon) for
+ * simulering av alderspensjon "versjon 3" (som brukes av Navs pensjonskalkulator).
  */
 @JsonInclude(NON_NULL)
 data class NavSimuleringSpecV3(
@@ -50,7 +49,7 @@ data class NavSimuleringSpecV3(
                 "\"fremtidigInntektListe\": ${listAsString(fremtidigInntektListe)}, " +
                 "\"utenlandsperiodeListe\": ${listAsString(utenlandsperiodeListe)}, " +
                 "\"afpInntektMaanedFoerUttak\": $afpInntektMaanedFoerUttak, " +
-                "\"afpOrdning\": $afpOrdning }"
+                "\"afpOrdning\": ${textAsString(afpOrdning)} }"
 }
 
 @JsonInclude(NON_NULL)

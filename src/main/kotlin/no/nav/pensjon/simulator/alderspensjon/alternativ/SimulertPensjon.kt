@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import java.time.LocalDate
 
-// PEN: SimulatorSimulertPensjon
 data class SimulertPensjon(
     val alderspensjon: List<SimulertAarligAlderspensjon>,
     val alderspensjonFraFolketrygden: List<SimulertAlderspensjonFraFolketrygden>,
@@ -37,6 +36,7 @@ data class SimulertAarligAlderspensjon(
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
     val skjermingstillegg: Int?,
+    val kapittel19Gjenlevendetillegg: Int?
 )
 
 data class SimulertAlderspensjonFraFolketrygden(

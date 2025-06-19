@@ -54,6 +54,7 @@ class SimulatorOutputConverterTest : FunSpec({
                                     tilleggspensjon = 500
                                     pensjonstillegg = 600
                                     skjermingstillegg = 700
+                                    gjtAPKap19 = 800
                                 })
                             uttakGradListe = listOf(
                                 Uttaksgrad().apply {
@@ -87,7 +88,8 @@ class SimulatorOutputConverterTest : FunSpec({
                     grunnpensjon = 400,
                     tilleggspensjon = 500,
                     pensjonstillegg = 600,
-                    skjermingstillegg = 700
+                    skjermingstillegg = 700,
+                    kapittel19Gjenlevendetillegg = 800
                 )
             ),
             alderspensjonFraFolketrygden = listOf(

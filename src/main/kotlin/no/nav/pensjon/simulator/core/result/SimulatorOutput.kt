@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import java.time.LocalDate
 
-// no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011Resultat
+// PEN: no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011Resultat
 class SimulatorOutput {
     //TODO data class
     var alderspensjon: SimulertAlderspensjon? = null
@@ -25,4 +25,5 @@ class SimulatorOutput {
     var persongrunnlag: Persongrunnlag? = null
 
     var heltUttakDato: LocalDate? = null
+    var registerData: RegisterData? = null
 }

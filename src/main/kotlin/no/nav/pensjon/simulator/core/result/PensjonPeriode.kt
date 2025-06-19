@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.result
 
-// no.nav.domain.pensjon.kjerne.simulering.Pensjonsperiode
+// PEN: no.nav.domain.pensjon.kjerne.simulering.Pensjonsperiode
 class PensjonPeriode {
     //TODO data class
     /**
@@ -20,4 +20,9 @@ class PensjonPeriode {
      * Vil finnes dersom der har skjedd en uttaksgradsendring og/eller bruker blir 67 år i løpet av perioden.
      */
     var simulertBeregningInformasjonListe: MutableList<SimulertBeregningInformasjon> = mutableListOf()
+
+    //--- Extra:
+    val foerstePensjonsbeholdningFoerUttak: Int?
+        get() = simulertBeregningInformasjonListe.firstOrNull { it.pensjonBeholdningFoerUttak != null }
+            ?.pensjonBeholdningFoerUttak
 }

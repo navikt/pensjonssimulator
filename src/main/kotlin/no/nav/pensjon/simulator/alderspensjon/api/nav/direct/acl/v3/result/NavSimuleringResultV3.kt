@@ -3,8 +3,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 
-// Corresponds to SimulatorPersonligSimuleringResult in pensjonskalulator-backend
-// (and previously to SimuleringsresultatAlderspensjon1963Plus in PEN)
+// Corresponds to SimulatorPersonligSimuleringResult in pensjonskalkulator-backend
 @JsonInclude(NON_NULL)
 data class NavSimuleringResultV3(
     val alderspensjonListe: List<NavAlderspensjonV3>,
@@ -16,10 +15,9 @@ data class NavSimuleringResultV3(
     val tilstrekkeligTrygdetidForGarantipensjon: Boolean?,
     val trygdetid: Int,
     val opptjeningGrunnlagListe: List<NavOpptjeningGrunnlagV3>,
-    val error: NavSimuleringErrorV3? = null,
+    val error: NavSimuleringErrorV3? = null
 )
 
-// no.nav.pensjon.pen.domain.api.simulering.dto.SimulertAlderspensjon
 @JsonInclude(NON_NULL)
 data class NavAlderspensjonV3(
     val alderAar: Int,
@@ -40,6 +38,7 @@ data class NavAlderspensjonV3(
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
     val skjermingstillegg: Int?,
+    val kapittel19Gjenlevendetillegg: Int?
 )
 
 @JsonInclude(NON_NULL)
@@ -77,7 +76,7 @@ data class NavPre2025OffentligAfp(
     val afpTillegg: Int,
     val saertillegg: Int,
     val afpGrad: Int,
-    val afpAvkortetTil70Prosent: Boolean,
+    val afpAvkortetTil70Prosent: Boolean
 )
 
 @JsonInclude(NON_NULL)
@@ -86,7 +85,6 @@ data class NavVilkaarsproevingResultatV3(
     val alternativ: NavAlternativtResultatV3?
 )
 
-// PEN: no.nav.pensjon.pen.domain.api.simulering.SimulatorOpptjeningGrunnlag
 data class NavOpptjeningGrunnlagV3(
     val aar: Int,
     val pensjonsgivendeInntektBeloep: Int

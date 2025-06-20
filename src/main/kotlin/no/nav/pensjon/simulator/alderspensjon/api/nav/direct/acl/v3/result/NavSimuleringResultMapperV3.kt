@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result
 
+import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 
@@ -42,12 +43,13 @@ object NavSimuleringResultMapperV3 {
             tilleggspensjon = source.tilleggspensjon,
             pensjonstillegg = source.pensjonstillegg,
             skjermingstillegg = source.skjermingstillegg,
+            kapittel19Gjenlevendetillegg = source.kapittel19Gjenlevendetillegg
         )
 
     private fun maanedsbeloep(source: List<SimulertAlderspensjonFraFolketrygden>) =
         NavMaanedsbeloepV3(
-            gradertUttakBeloep = source.firstOrNull { it.uttakGrad != 100 }?.maanedligBeloep,
-            heltUttakBeloep = source.firstOrNull { it.uttakGrad == 100 }?.maanedligBeloep ?: 0
+            gradertUttakBeloep = source.firstOrNull(::erGradert)?.maanedligBeloep,
+            heltUttakBeloep = source.firstOrNull(::erHel)?.maanedligBeloep ?: 0
         )
 
     private fun pre2025OffentligAfp(source: SimulertPre2025OffentligAfp) =
@@ -112,4 +114,10 @@ object NavSimuleringResultMapperV3 {
             aar = source.alder.aar,
             maaneder = source.alder.maaneder
         )
+
+    private fun erGradert(pensjon: SimulertAlderspensjonFraFolketrygden): Boolean =
+        erHel(pensjon).not()
+
+    private fun erHel(pensjon: SimulertAlderspensjonFraFolketrygden): Boolean =
+        pensjon.uttakGrad == Uttaksgrad.HUNDRE_PROSENT.prosentsats
 }

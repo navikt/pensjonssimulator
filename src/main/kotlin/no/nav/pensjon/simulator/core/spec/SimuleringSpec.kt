@@ -12,17 +12,16 @@ import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 import java.util.*
 
-// no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011 &
-// SimuleringSpecAlderspensjon1963Plus
+// PEN: no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011
 data class SimuleringSpec(
     val type: SimuleringTypeEnum,
     val sivilstatus: SivilstatusType,
     var epsHarPensjon: Boolean,
     val foersteUttakDato: LocalDate?,
-    val heltUttakDato: LocalDate?,
-    val pid: Pid?, // null for forenklet simulering
-    val foedselDato: LocalDate?, // null for forenklet simulering
-    val avdoed: Avdoed?,
+    val heltUttakDato: LocalDate?, // null for ugradert uttak
+    val pid: Pid?, // null for anonym simulering
+    val foedselDato: LocalDate?, // null for anonym simulering
+    val avdoed: Avdoed?, // for ENDR_ALDER_M_GJEN
     val isTpOrigSimulering: Boolean,
     var simulerForTp: Boolean,
     val uttakGrad: UttakGradKode,
@@ -39,9 +38,9 @@ data class SimuleringSpec(
     val flyktning: Boolean?,
     val epsHarInntektOver2G: Boolean,
     val rettTilOffentligAfpFom: LocalDate?,
-    val pre2025OffentligAfp: Pre2025OffentligAfpSpec?,
-    val erAnonym: Boolean,
-    val ignoreAvslag: Boolean,
+    val pre2025OffentligAfp: Pre2025OffentligAfpSpec?, // for "gammel" AFP i offentlig sektor
+    val erAnonym: Boolean, // støtter uinnlogget kalkulator
+    val ignoreAvslag: Boolean, // simulering fullføres selv med for lav opptjening/trygdetid
     val isHentPensjonsbeholdninger: Boolean,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
     val onlyVilkaarsproeving: Boolean,

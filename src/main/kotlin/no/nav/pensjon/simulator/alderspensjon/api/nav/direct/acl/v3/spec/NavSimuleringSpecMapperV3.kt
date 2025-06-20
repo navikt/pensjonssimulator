@@ -9,9 +9,9 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -42,7 +42,7 @@ class NavSimuleringSpecMapperV3(
             uttakGrad = gradertUttak?.let { NavUttakGradSpecV3.fromExternalValue(it.grad.value).internalValue }
                 ?: UttakGradKode.P_100,
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
-            heltUttakDato = heltUttak.uttakFom.toNorwegianLocalDate(),
+            heltUttakDato = gradertUttak?.let { heltUttak.uttakFom.toNorwegianLocalDate() },
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
             inntektEtterHeltUttakAntallAar = heltUttak.antallArInntektEtterHeltUttak,
             utlandAntallAar = 0, // only for anonym

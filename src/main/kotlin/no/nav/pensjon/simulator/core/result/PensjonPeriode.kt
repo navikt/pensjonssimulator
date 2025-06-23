@@ -25,4 +25,11 @@ class PensjonPeriode {
     val foerstePensjonsbeholdningFoerUttak: Int?
         get() = simulertBeregningInformasjonListe.firstOrNull { it.pensjonBeholdningFoerUttak != null }
             ?.pensjonBeholdningFoerUttak
+
+    /**
+     * Ref. pensjon-pselv: BeregningFormDecorator.getLatestSimulertBeregningsinfo
+     */
+    val latestBeregningInformasjon: SimulertBeregningInformasjon?
+        get() = simulertBeregningInformasjonListe.filter { it.startMaaned != null }.maxByOrNull { it.startMaaned!! }
+            ?: simulertBeregningInformasjonListe.firstOrNull()
 }

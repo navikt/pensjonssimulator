@@ -11,8 +11,8 @@ class InntektService(
     private val lignetInntektService: SisteLignetInntekt,
     private val grunnbeloepService: GrunnbeloepService
 ) {
-    fun hentSisteLignetInntekt(pid: Pid): Int =
-        lignetInntektService.hentSisteLignetInntekt(pid).aarligBeloep
+    fun hentSisteLignetInntekt(pid: Pid): Inntekt =
+        lignetInntektService.hentSisteLignetInntekt(pid)
 
     fun hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G: Boolean): Int =
         if (harInntektSisteMaanedOver1G)

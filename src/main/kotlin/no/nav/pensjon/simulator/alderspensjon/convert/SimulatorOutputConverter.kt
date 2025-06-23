@@ -47,7 +47,7 @@ object SimulatorOutputConverter {
         val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
 
         return SimulertPensjon(
-            alderspensjon = pensjonsperioder.map { alderspensjon(it, alderspensjon) },
+            alderspensjon = pensjonsperioder.map { aarligAlderspensjon(it, alderspensjon) },
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
                 .map(::alderspensjonFraFolketrygden),
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
@@ -72,11 +72,11 @@ object SimulatorOutputConverter {
     private fun anvendtKapittel20Trygdetid(perioder: List<PensjonPeriode>): Int =
         perioder.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()?.tt_anv_kap20 ?: 0
 
-    private fun alderspensjon(
+    private fun aarligAlderspensjon(
         source: PensjonPeriode,
-        simulertAlderspensjon: SimulertAlderspensjon?
+        pensjon: SimulertAlderspensjon?
     ): SimulertAarligAlderspensjon {
-        val info = source.simulertBeregningInformasjonListe.firstOrNull()
+        val info = source.latestBeregningInformasjon
 
         return SimulertAarligAlderspensjon(
             alderAar = source.alderAar ?: ALDER_REPRESENTING_LOPENDE_YTELSER,
@@ -85,8 +85,8 @@ object SimulatorOutputConverter {
             garantipensjon = info?.garantipensjon,
             delingstall = info?.delingstall,
             pensjonBeholdningFoerUttak = beholdningFoerUttak(source.simulertBeregningInformasjonListe),
-            andelsbroekKap19 = simulertAlderspensjon?.kapittel19Andel ?: 0.0,
-            andelsbroekKap20 = simulertAlderspensjon?.kapittel20Andel ?: 0.0,
+            andelsbroekKap19 = pensjon?.kapittel19Andel ?: 0.0,
+            andelsbroekKap20 = pensjon?.kapittel20Andel ?: 0.0,
             sluttpoengtall = info?.spt,
             trygdetidKap19 = info?.tt_anv_kap19,
             trygdetidKap20 = info?.tt_anv_kap20,

@@ -97,6 +97,7 @@ object SimulatorOutputConverter {
             tilleggspensjon = info?.tilleggspensjon,
             pensjonstillegg = info?.pensjonstillegg,
             skjermingstillegg = info?.skjermingstillegg,
+            kapittel19Gjenlevendetillegg = info?.gjtAPKap19
         )
     }
 

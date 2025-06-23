@@ -1,77 +1,74 @@
 {
-  "aarsakListeIkkeSuksess": [
-
-  ],
+  "simuleringSuksess": true,
+  "aarsakListeIkkeSuksess": [],
+  "folketrygdberegnetAfp": {
+    "fraOgMedDato": "2025-12-01",
+    "beregnetTidligereInntekt": 905000,
+    "sisteLignetInntektBrukt": false,
+    "sisteLignetInntektAar": null,
+    "afpGrad": 84,
+    "afpAvkortetTil70Prosent": false,
+    "grunnpensjon": {
+      "maanedligUtbetaling": 9111,
+      "grunnbeloep": 130160,
+      "grunnpensjonsats": 1.0,
+      "trygdetid": 40
+    },
+    "tilleggspensjon": {
+      "maanedligUtbetaling": 22593,
+      "grunnbeloep": 130160,
+      "sluttpoengTall": 5.76,
+      "antallPoengaarTilOgMed1991": 14,
+      "antallPoengaarFraOgMed1992": 26
+    },
+    "saertillegg": null,
+    "maanedligAfpTillegg": 1428,
+    "sumMaanedligUtbetaling": 33132
+  },
   "alderspensjonFraFolketrygden": [
     {
+      "fraOgMedDato": "2028-03-01",
+      "andelKapittel19": 0.2,
       "alderspensjonKapittel19": {
-        "forholdstall": 1.115,
         "grunnpensjon": {
+          "maanedligUtbetaling": 1946,
           "grunnbeloep": 130160,
           "grunnpensjonsats": 1.0,
-          "maanedligUtbetaling": 1946,
           "trygdetid": 40
+        },
+        "tilleggspensjon": {
+          "maanedligUtbetaling": 4824,
+          "grunnbeloep": 130160,
+          "sluttpoengTall": 5.76,
+          "antallPoengaarTilOgMed1991": 14,
+          "antallPoengaarFraOgMed1992": 26
         },
         "pensjonstillegg": {
           "maanedligUtbetaling": 0,
           "minstepensjonsnivaaSats": 279933.0
-        },
-        "tilleggspensjon": {
-          "antallPoengaarFraOgMed1992": 26,
-          "antallPoengaarTilOgMed1991": 14,
-          "grunnbeloep": 130160,
-          "maanedligUtbetaling": 4824,
-          "sluttpoengTall": 5.76
         }
       },
+      "andelKapittel20": 0.8,
       "alderspensjonKapittel20": {
-        "delingstall": 16.01,
-        "garantipensjon": {
-          "garantipensjonssats": 0.0,
-          "maanedligUtbetaling": 0,
-          "trygdetid": 40
-        },
         "inntektspensjon": {
           "maanedligUtbetaling": 32415,
-          "pensjonsbeholdningFoerUttak": 7784394
+          "pensjonsbeholdningForUttak": 7784394
+        },
+        "garantipensjon": {
+          "maanedligUtbetaling": 0,
+          "garantipensjonsbeholdningForUttak": -2346403,
+          "trygdetid": 40
         }
       },
-      "andelKapittel19": 0.2,
-      "andelKapittel20": 0.8,
-      "fraOgMedDato": "2028-03-01",
       "sumMaanedligUtbetaling": 39185
     },
     {
-      "alderspensjonKapittel19": null,
-      "alderspensjonKapittel20": null,
-      "andelKapittel19": 0.2,
-      "andelKapittel20": 0.8,
       "fraOgMedDato": "2029-01-01",
+      "andelKapittel19": 0.2,
+      "alderspensjonKapittel19": null,
+      "andelKapittel20": 0.8,
+      "alderspensjonKapittel20": null,
       "sumMaanedligUtbetaling": 39303
     }
-  ],
-  "folketrygdberegnetAfp": {
-    "afpAvkortetTil70Prosent": false,
-    "afpGrad": 84,
-    "beregnetTidligereInntekt": 905000,
-    "fraOgMedDato": "2025-12-01",
-    "fremtidigAarligInntektTilAfpUttak": 600000,
-    "grunnpensjon": {
-      "grunnbeloep": 130160,
-      "grunnpensjonsats": 1.0,
-      "maanedligUtbetaling": 9111,
-      "trygdetid": 40
-    },
-    "maanedligAfpTillegg": 1428,
-    "saertillegg": null,
-    "sumMaanedligUtbetaling": 33132,
-    "tilleggspensjon": {
-      "antallPoengaarFraOgMed1992": 26,
-      "antallPoengaarTilOgMed1991": 14,
-      "grunnbeloep": 130160,
-      "maanedligUtbetaling": 22593,
-      "sluttpoengTall": 5.76
-    }
-  },
-  "simuleringSuksess": true
+  ]
 }

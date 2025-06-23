@@ -6,12 +6,21 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import java.time.LocalDate
 
 class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 
+    /**
+     * Funksjonen 'fromDto' skal bl.a.:
+     * - mappe fra spesifikasjons-DTO til motsvarende domeneobjekt
+     * - sette isHentPensjonsbeholdninger 'true' (slik at garantipensjonsbeholdning kan utledes)
+     * - sette isOutputSimulertBeregningsinformasjonForAllKnekkpunkter 'true'
+     * - innhente inntekten for måneden før AFP-uttak
+     */
     "fromDto mapper AfpEtterfulgtAvAlderspensjonValidatedSpecV0 korrekt til SimuleringSpec" {
         val dto = AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
             personId = pid.value,
@@ -41,14 +50,17 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
             inntektEtterHeltUttakAntallAar shouldBe null
             forventetInntektBeloep shouldBe dto.fremtidigAarligInntektTilAfpUttak
             utlandAntallAar shouldBe dto.aarIUtlandetEtter16
-            pre2025OffentligAfp?.inntektUnderAfpUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
-            pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep shouldBe 100000
+            isHentPensjonsbeholdninger shouldBe true
+            with(pre2025OffentligAfp!!) {
+                inntektUnderAfpUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
+                inntektMaanedenFoerAfpUttakBeloep shouldBe 100000
+            }
         }
     }
 })
 
 private fun arrangeInntekt(): InntektService =
     mockk<InntektService>().apply {
-        every { hentSisteLignetInntekt(pid) } returns 12345
+        every { hentSisteLignetInntekt(pid) } returns Inntekt(aarligBeloep = 12345, fom = LocalDate.of(2025, 1, 1))
         every { hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G = true) } returns 100000
     }

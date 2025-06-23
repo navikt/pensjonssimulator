@@ -21,6 +21,11 @@ class PensjonPeriode {
      */
     var simulertBeregningInformasjonListe: MutableList<SimulertBeregningInformasjon> = mutableListOf()
 
+    //--- Extra:
+    val foerstePensjonsbeholdningFoerUttak: Int?
+        get() = simulertBeregningInformasjonListe.firstOrNull { it.pensjonBeholdningFoerUttak != null }
+            ?.pensjonBeholdningFoerUttak
+
     /**
      * Ref. pensjon-pselv: BeregningFormDecorator.getLatestSimulertBeregningsinfo
      */

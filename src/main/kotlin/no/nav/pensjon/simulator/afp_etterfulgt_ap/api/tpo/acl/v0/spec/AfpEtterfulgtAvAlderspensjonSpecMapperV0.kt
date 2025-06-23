@@ -3,8 +3,10 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.inntekt.InntektService
@@ -18,6 +20,10 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
 ) {
     fun fromDto(source: AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0): SimuleringSpec {
         val pid = Pid(source.personId)
+
+        val sisteLignetInntekt: Inntekt? =
+            if (source.fremtidigAarligInntektTilAfpUttak == null) inntektService.hentSisteLignetInntekt(pid)
+            else null
 
         return SimuleringSpec(
             type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
@@ -36,13 +42,12 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak,
 
             inntektEtterHeltUttakAntallAar = null, //TODO mangler sluttdato
-            forventetInntektBeloep = source.fremtidigAarligInntektTilAfpUttak
-                ?: inntektService.hentSisteLignetInntekt(pid),
+            forventetInntektBeloep = source.fremtidigAarligInntektTilAfpUttak ?: sisteLignetInntekt!!.aarligBeloep,
             utlandAntallAar = source.aarIUtlandetEtter16,
             simulerForTp = false, // simulerer her ikke for tjenestepensjon
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            isHentPensjonsbeholdninger = true, // behøves for garantipensjonsbeholdning
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
             utlandPeriodeListe = mutableListOf(),
@@ -60,6 +65,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             avdoed = null,
             isTpOrigSimulering = true,
             uttakGrad = UttakGradKode.P_100,
+            registerData = RegisterData(sisteLignetInntektAar = sisteLignetInntekt?.fom?.year)
         )
     }
 }

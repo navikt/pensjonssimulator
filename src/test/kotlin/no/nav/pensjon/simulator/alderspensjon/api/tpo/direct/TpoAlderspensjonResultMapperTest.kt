@@ -48,7 +48,8 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                             grunnpensjon = 567,
                             tilleggspensjon = 678,
                             pensjonstillegg = 789,
-                            skjermingstillegg = 890
+                            skjermingstillegg = 890,
+                            kapittel19Gjenlevendetillegg = 321
                         )
                     ),
                     alderspensjonFraFolketrygden = listOf(

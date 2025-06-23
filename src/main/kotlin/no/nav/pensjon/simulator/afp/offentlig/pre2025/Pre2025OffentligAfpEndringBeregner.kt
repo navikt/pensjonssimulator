@@ -3,8 +3,6 @@ package no.nav.pensjon.simulator.afp.offentlig.pre2025
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findEarliestDateByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -14,7 +12,9 @@ import java.time.LocalDate
 import java.util.*
 
 /**
- * Corresponds to SimulerEndringAvAPCommand (AFP offentlig part) in PEN.
+ * Beregner "gammel" (pre-2025) offentlig AFP ved endring av alderspensjon.
+ * -----------------------------
+ * Corresponds to SimulerEndringAvAPCommand ('offentlig AFP' part) in PEN.
  */
 @Component
 class Pre2025OffentligAfpEndringBeregner(private val normalderService: NormertPensjonsalderService) {
@@ -30,16 +30,10 @@ class Pre2025OffentligAfpEndringBeregner(private val normalderService: NormertPe
             return Pre2025OffentligAfpResult(simuleringResult = null, kravhode)
         }
 
-        val normalderDato = normalderService.normalderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
+        val normalderDato: LocalDate =
+            normalderService.normalderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
 
-        //TODO support LocalDate in findEarliestDateByDay:
-        val virkningTom: Date = getRelativeDateByDays(
-            date = findEarliestDateByDay(
-                first = normalderDato.toNorwegianDateAtNoon(),
-                second = foersteUttakDato.toNorwegianDateAtNoon()
-            )!!,
-            days = -1
-        )
+        val virkningTom: Date = earlierOf(normalderDato, foersteUttakDato).minusDays(1).toNorwegianDateAtNoon()
 
         // Remove AFP-historikk if calculated virkningTom is before virkFom:
         if (historikk.virkFom?.let { isAfterByDay(virkningTom, it, allowSameDay = false) } == true) {
@@ -49,5 +43,10 @@ class Pre2025OffentligAfpEndringBeregner(private val normalderService: NormertPe
         }
 
         return Pre2025OffentligAfpResult(simuleringResult = null, kravhode)
+    }
+
+    private companion object {
+        fun earlierOf(a: LocalDate, b: LocalDate): LocalDate =
+            if (a.isBefore(b)) a else b
     }
 }

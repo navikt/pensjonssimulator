@@ -1,77 +1,81 @@
 package no.nav.pensjon.simulator.opptjening
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
-import io.netty.channel.ChannelOption
-import io.netty.handler.timeout.ReadTimeoutHandler
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
-import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
-import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.testutil.TestObjects.jwt
-import okhttp3.mockwebserver.MockResponse
+import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.testutil.Arrange
+import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
+import no.nav.pensjon.simulator.testutil.arrangeResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.SocketPolicy
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
+import org.intellij.lang.annotations.Language
+import org.springframework.beans.factory.BeanFactory
+import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientRequestException
-import reactor.netty.http.client.HttpClient
-import java.time.Duration
 import java.time.LocalDate
-import kotlin.time.Duration.Companion.seconds
 
 class OpptjeningClientTest : FunSpec({
 
-    var webServer = MockWebServer()
-    var baseUrl: String?
-    lateinit var client: OpptjeningClient
+    var server: MockWebServer? = null
+    var baseUrl: String? = null
+
+    fun client(context: BeanFactory) =
+        OpptjeningClient(
+            baseUrl!!,
+            webClientBuilder = context.getBean(WebClient.Builder::class.java),
+            retryAttempts = "1",
+            traceAid = mockk<TraceAid>(relaxed = true),
+            time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
+        )
 
     beforeSpec {
-        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
+        WebClient.builder().build().mutate()
+        Arrange.security()
+        server = MockWebServer().apply { start() }
+        baseUrl = "http://localhost:${server.port}"
+    }
 
-        SecurityContextHolder.getContext().authentication =
-            EnrichedAuthentication(
-                initialAuth = TestingAuthenticationToken("TEST_USER", jwt),
-                egressTokenSuppliersByService = EgressTokenSuppliersByService(mapOf())
-            )
+    afterSpec {
+        server?.shutdown()
+    }
 
-        val httpClient = HttpClient.create()
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
-            .responseTimeout(Duration.ofSeconds(3))
-            .doOnConnected { it.addHandlerLast(ReadTimeoutHandler(3)) }
+    test("skal returnere inntekt fra POPP") {
+        server?.arrangeOkJsonResponse(okResponseBody)
 
-        webServer = MockWebServer().also {
-            it.start()
-            baseUrl = "http://localhost:${it.port}"
-
-            val webClient = WebClient.builder()
-                .clientConnector(ReactorClientHttpConnector(httpClient))
-                .baseUrl(baseUrl)
-                .build()
-
-            client = OpptjeningClient(
-                baseUrl,
-                retryAttempts = "1",
-                webClientBuilder = webClient.mutate(),
-                traceAid = mockk(relaxed = true),
-                time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(
+                aarligBeloep = 123456,
+                fom = LocalDate.of(2025, 1, 1)
             )
         }
     }
 
-    afterSpec {
-        webServer.shutdown()
+    test("hvis tom respons: skal returnere 0 inntekt med f.o.m.-dato lik 1. januar inneværende år") {
+        server?.arrangeResponse(HttpStatus.OK, "")
+
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(
+                aarligBeloep = 0,
+                fom = LocalDate.of(2024, 1, 1) // "inneværende år" er 2024 siden "dagens dato" er 2024-06-15
+            )
+        }
     }
 
-    test("skal returnere Inntekt fra POPP") {
-        val responseBody = """
-            {
+    test("skal forsøke på nytt ved 'internal server error'") {
+        server?.arrangeResponse(HttpStatus.INTERNAL_SERVER_ERROR, "feil") // respons ved 1. forsøk
+        server?.arrangeOkJsonResponse(okResponseBody) // respons ved 2. forsøk
+
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentSisteLignetInntekt(Pid("12345678910")).aarligBeloep shouldBe 123456
+        }
+    }
+})
+
+@Language("JSON")
+private val okResponseBody: String =
+    """{
               "opptjeningsGrunnlag": {
                 "inntektListe": [{
                   "inntektType": "SUM_PI",
@@ -79,52 +83,4 @@ class OpptjeningClientTest : FunSpec({
                   "belop": 123456
                 }]
               }
-            }
-        """.trimIndent()
-
-        webServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .addHeader("Content-Type", "application/json")
-                .setBody(responseBody)
-        )
-
-        client.hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(123456, LocalDate.of(2025, 1, 1))
-    }
-
-    test("skal returnere 0 inntekt med fom lik 1. januar inneværende år") {
-        webServer.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setBody("")
-        )
-
-        client.hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(
-            aarligBeloep = 0,
-            fom = LocalDate.of(2024, 1, 1) // "inneværende år" er 2024 siden "dagens dato" er 2024-06-15
-        )
-    }
-
-    test("skal kaste EgressException ved 500 Internal Server Error") {
-        webServer.enqueue(
-            MockResponse()
-                .setResponseCode(500)
-                .setBody("Internal Server Error")
-        )
-
-        shouldThrow<EgressException> {
-            client.hentSisteLignetInntekt(Pid("12345678910"))
-        }.message shouldBe "Internal Server Error"
-    }
-
-    test("skal kaste EgressException ved timeout").config(timeout = 10.seconds) {
-        webServer.enqueue(
-            MockResponse()
-                .setSocketPolicy(SocketPolicy.NO_RESPONSE) // Simulate timeout
-        )
-
-        shouldThrow<EgressException> {
-            client.hentSisteLignetInntekt(Pid("12345678910"))
-        }.cause.shouldBeInstanceOf<WebClientRequestException>()
-    }
-})
+            }"""

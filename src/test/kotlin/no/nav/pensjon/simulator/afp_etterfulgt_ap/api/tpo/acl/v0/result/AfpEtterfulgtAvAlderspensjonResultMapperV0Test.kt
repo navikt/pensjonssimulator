@@ -2,9 +2,9 @@ package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
@@ -109,7 +109,7 @@ private fun simuleringSpec(uttakDato: LocalDate, foedselsdato: LocalDate) =
         flyktning = false,
         rettTilOffentligAfpFom = null,
         pre2025OffentligAfp = Pre2025OffentligAfpSpec(
-            afpOrdning = AfpOrdningType.AFPSTAT,
+            afpOrdning = AFPtypeEnum.AFPSTAT,
             inntektMaanedenFoerAfpUttakBeloep = 5,
             inntektUnderAfpUttakBeloep = 6
         ),

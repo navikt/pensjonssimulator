@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec
 
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
@@ -62,7 +62,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GeneralPersonServi
     private fun pre2025OffentligAfpSpec(simuleringSpec: TpoFolketrygdberegnetAfpSpecV0): Pre2025OffentligAfpSpec? =
         if (simuleringSpec.simuleringType == TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER)
             Pre2025OffentligAfpSpec(
-                afpOrdning = AfpOrdningType.valueOf(simuleringSpec.afpOrdning!!),
+                afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!),
                 inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
                 // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0

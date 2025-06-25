@@ -1,15 +1,15 @@
 package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
 
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.inntekt.InntektService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -56,7 +56,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             flyktning = false,
             rettTilOffentligAfpFom = null,
             pre2025OffentligAfp = Pre2025OffentligAfpSpec(
-                afpOrdning = AfpOrdningType.AFPSTAT, // ingen praktisk betydning i regelmotoren
+                afpOrdning = AFPtypeEnum.AFPSTAT, // ingen praktisk betydning i regelmotoren
                 inntektMaanedenFoerAfpUttakBeloep =
                     inntektService.hentSisteMaanedsInntektOver1G(source.inntektSisteMaanedOver1G),
                 inntektUnderAfpUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak

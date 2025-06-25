@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
@@ -30,7 +30,7 @@ data class NavSimuleringSpecV3(
     val fremtidigInntektListe: List<NavSimuleringInntektSpecV3>? = null,
     val utenlandsperiodeListe: List<NavSimuleringUtlandSpecV3>? = null,
     val afpInntektMaanedFoerUttak: Boolean? = null,
-    val afpOrdning: AfpOrdningType? = null
+    val afpOrdning: AFPtypeEnum? = null
 ) {
     /**
      * toString with redacted person ID
@@ -78,7 +78,7 @@ data class NavSimuleringHeltUttakSpecV3(
 @JsonInclude(NON_NULL)
 data class NavSimuleringInntektSpecV3(
     val aarligInntekt: Int? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val fom: Date? = null
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val fom: Date? = null
 ) {
     override fun toString() =
         "{ \"aarligInntekt\": $aarligInntekt, " +
@@ -87,8 +87,8 @@ data class NavSimuleringInntektSpecV3(
 
 @JsonInclude(NON_NULL)
 data class NavSimuleringUtlandSpecV3(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val fom: Date,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val tom: Date?,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val fom: Date,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val tom: Date?,
     val land: String,
     val arbeidetUtenlands: Boolean
 ) {

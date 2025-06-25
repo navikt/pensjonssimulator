@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.testutil
 
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -48,14 +48,15 @@ object TestObjects {
         sivilstatus: SivilstatusType = SivilstatusType.UGIF,
         epsHarPensjon: Boolean = false,
         foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),
+        heltUttakDato: LocalDate? = LocalDate.of(2032, 6, 1),
         inntektSpecListe: List<FremtidigInntekt> = emptyList(),
-        afpOrdning: AfpOrdningType? = null
+        afpOrdning: AFPtypeEnum? = null
     ) = SimuleringSpec(
         type,
         sivilstatus,
         epsHarPensjon,
         foersteUttakDato,
-        heltUttakDato = LocalDate.of(2032, 6, 1),
+        heltUttakDato,
         pid = pid,
         foedselDato = null,
         avdoed = Avdoed(

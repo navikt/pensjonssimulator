@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
@@ -24,7 +24,7 @@ class Pre2025OffentligAfpFoerstegangBeregnerTest : FunSpec({
             ufoereService = mockk(),
             grunnbeloepService = arrangeGrunnbeloep()
         ).beregnAfp(
-            spec = simuleringSpec(afpOrdning = AfpOrdningType.AFPSTAT), // foersteUttakDato = 2029-01-01
+            spec = simuleringSpec(afpOrdning = AFPtypeEnum.AFPSTAT), // foersteUttakDato = 2029-01-01
             kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlag) },
             forrigeAlderspensjonBeregningResultat = null
         ).simuleringResult?.statusEnum shouldBe VedtakResultatEnum.INNV

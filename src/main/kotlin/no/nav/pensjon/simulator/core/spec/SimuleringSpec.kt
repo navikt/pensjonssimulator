@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.spec
 
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -216,8 +216,8 @@ data class SimuleringSpec(
 
     fun hasSameUttakAs(other: SimuleringSpec) =
         uttakGrad == other.uttakGrad &&
-                foersteUttakDato == other.foersteUttakDato &&
-                heltUttakDato == other.heltUttakDato
+                (foersteUttakDato?.equals(other.foersteUttakDato) ?: (other.foersteUttakDato == null)) &&
+                (heltUttakDato?.equals(other.heltUttakDato) ?: (other.heltUttakDato == null))
 
     private fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
         // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon
@@ -235,7 +235,7 @@ data class SimuleringSpec(
 }
 
 data class Pre2025OffentligAfpSpec(
-    val afpOrdning: AfpOrdningType, // Hvilken AFP-ordning bruker er tilknyttet
+    val afpOrdning: AFPtypeEnum, // Hvilken AFP-ordning bruker er tilknyttet
     val inntektMaanedenFoerAfpUttakBeloep: Int, // Brukers inntekt måneden før uttak av AFP
     val inntektUnderAfpUttakBeloep: Int
 )

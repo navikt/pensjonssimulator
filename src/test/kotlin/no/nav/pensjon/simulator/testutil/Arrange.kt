@@ -32,6 +32,11 @@ object Arrange {
             every { normalder(foedselsdato) } returns Alder(67, 0)
         }
 
+    fun normalder(): NormertPensjonsalderService =
+        mockk<NormertPensjonsalderService>().apply {
+            every { normalder(pid) } returns Alder(67, 0)
+        }
+
     fun security() {
         SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
 

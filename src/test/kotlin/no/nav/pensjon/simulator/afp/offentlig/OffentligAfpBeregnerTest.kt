@@ -67,7 +67,6 @@ class OffentligAfpBeregnerTest : FunSpec({
             spec = simuleringSpec(type = SimuleringTypeEnum.AFP_ETTERF_ALDER), // pre-2025 offentlig AFP
             kravhode = originalKravhode,
             ytelser = noYtelser,
-            grunnbeloep = 123000,
             foedselsdato = pre2025Foedselsdato,
             pid
         ) shouldBe OffentligAfpResult(
@@ -90,7 +89,6 @@ class OffentligAfpBeregnerTest : FunSpec({
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER), // endring uten livsvarig offentlig AFP
             kravhode,
             ytelser = noYtelser,
-            grunnbeloep = 123000,
             foedselsdato = pre2025Foedselsdato,
             pid
         ) shouldBe OffentligAfpResult(
@@ -111,7 +109,6 @@ class OffentligAfpBeregnerTest : FunSpec({
             spec = simuleringSpec(type = SimuleringTypeEnum.ALDER), // krever terminering av pre-2025 offentlig AFP
             kravhode,
             ytelser = noYtelser,
-            grunnbeloep = 123000,
             foedselsdato = pre2025Foedselsdato,
             pid
         ) shouldBe OffentligAfpResult(
@@ -138,7 +135,6 @@ class OffentligAfpBeregnerTest : FunSpec({
             spec = simuleringSpec(type = SimuleringTypeEnum.ALDER), // => ingen AFP involvert hvis født 1963 eller senere
             kravhode,
             ytelser = noYtelser,
-            grunnbeloep = 123000,
             foedselsdato = LocalDate.of(1963, 1, 1), // => født 1963 eller senere
             pid
         ) shouldBe OffentligAfpResult(
@@ -160,7 +156,6 @@ class OffentligAfpBeregnerTest : FunSpec({
             spec = simuleringSpec(type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG),
             kravhode,
             ytelser = noYtelser,
-            grunnbeloep = 123000,
             foedselsdato = LocalDate.of(1963, 1, 1),
             pid
         ) shouldBe OffentligAfpResult(
@@ -178,7 +173,7 @@ private fun arrangeLivsvarig(result: LivsvarigOffentligAfpResult): LivsvarigOffe
 
 private fun arrangePre2025Foerstegang(result: Pre2025OffentligAfpResult): Pre2025OffentligAfpFoerstegangBeregner =
     mockk<Pre2025OffentligAfpFoerstegangBeregner>().apply {
-        every { beregnAfp(any(), any(), any(), any()) } returns result
+        every { beregnAfp(any(), any(), any()) } returns result
     }
 
 private fun arrangePre2025Endring(result: Pre2025OffentligAfpResult): Pre2025OffentligAfpEndringBeregner =

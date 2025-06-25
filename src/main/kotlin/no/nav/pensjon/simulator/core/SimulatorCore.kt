@@ -25,12 +25,12 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
+import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
-import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
@@ -41,7 +41,6 @@ import java.time.LocalDate
  */
 @Component
 class SimulatorCore(
-    private val context: SimulatorContext,
     private val kravhodeCreator: KravhodeCreator,
     private val kravhodeUpdater: KravhodeUpdater,
     private val knekkpunktFinder: KnekkpunktFinder,
@@ -52,9 +51,9 @@ class SimulatorCore(
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val offentligAfpBeregner: OffentligAfpBeregner,
+    private val grunnbeloepService: GrunnbeloepService,
     private val normalderService: NormertPensjonsalderService,
-    private val resultPreparer: SimuleringResultPreparer,
-    private val time: Time
+    private val resultPreparer: SimuleringResultPreparer
 ) : UttakAlderDiscriminator {
 
     private val log = KotlinLogging.logger {}
@@ -67,7 +66,7 @@ class SimulatorCore(
             EndringValidator.validate(initialSpec)
         }
 
-        val grunnbeloep: Int = fetchGrunnbeloep()
+        val grunnbeloep: Int = grunnbeloepService.naavaerendeGrunnbeloep()
 
         log.debug { "Simulator steg 1 - Hent løpende ytelser" }
 
@@ -160,7 +159,6 @@ class SimulatorCore(
                 spec,
                 kravhode,
                 ytelser,
-                grunnbeloep,
                 foedselsdato,
                 pid = person?.pid
             )
@@ -234,7 +232,4 @@ class SimulatorCore(
 
     override fun fetchFoedselsdato(pid: Pid): LocalDate =
         generalPersonService.foedselsdato(pid)
-
-    private fun fetchGrunnbeloep(): Int =
-        context.fetchGrunnbeloepListe(time.today()).satsResultater.firstOrNull()?.verdi?.toInt() ?: 0
 }

@@ -1,17 +1,25 @@
 package no.nav.pensjon.simulator.testutil
 
+import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import org.springframework.security.oauth2.jwt.Jwt
 import java.time.LocalDate
+import java.util.*
 
 object TestObjects {
     val jwt = Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
@@ -20,6 +28,19 @@ object TestObjects {
 
     val pid = Pid("12345678910")
 
+    val persongrunnlag =
+        Persongrunnlag().apply {
+            penPerson = PenPerson()
+            fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+            personDetaljListe = mutableListOf(
+                PersonDetalj().apply {
+                    bruk = true
+                    grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
+                    penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
+                }
+            )
+        }
+
     val simuleringSpec = simuleringSpec()
 
     fun simuleringSpec(
@@ -27,7 +48,8 @@ object TestObjects {
         sivilstatus: SivilstatusType = SivilstatusType.UGIF,
         epsHarPensjon: Boolean = false,
         foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),
-        inntektSpecListe: List<FremtidigInntekt> = emptyList()
+        inntektSpecListe: List<FremtidigInntekt> = emptyList(),
+        afpOrdning: AfpOrdningType? = null
     ) = SimuleringSpec(
         type,
         sivilstatus,
@@ -73,7 +95,13 @@ object TestObjects {
         flyktning = false,
         epsHarInntektOver2G = true,
         rettTilOffentligAfpFom = null,
-        pre2025OffentligAfp = null,
+        pre2025OffentligAfp = afpOrdning?.let {
+            Pre2025OffentligAfpSpec(
+                afpOrdning = it,
+                inntektMaanedenFoerAfpUttakBeloep = 2000,
+                inntektUnderAfpUttakBeloep = 1000
+            )
+        },
         erAnonym = false,
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,

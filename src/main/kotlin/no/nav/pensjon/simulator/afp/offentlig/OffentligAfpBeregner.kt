@@ -25,7 +25,6 @@ class OffentligAfpBeregner(
         spec: SimuleringSpec,
         kravhode: Kravhode,
         ytelser: LoependeYtelser,
-        grunnbeloep: Int,
         foedselsdato: LocalDate?,
         pid: Pid?
     ): OffentligAfpResult =
@@ -34,8 +33,7 @@ class OffentligAfpBeregner(
                 val result = pre2025FoerstegangBeregner.beregnAfp(
                     spec,
                     kravhode,
-                    ytelser.forrigeAlderspensjonBeregningResultat,
-                    grunnbeloep
+                    ytelser.forrigeAlderspensjonBeregningResultat
                 )
                 OffentligAfpResult(pre2025 = result, livsvarig = null, result.kravhode)
             }

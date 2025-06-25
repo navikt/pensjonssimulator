@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.afp
 
+//TODO replace by AFPtypeEnum
 // no.nav.domain.pensjon.kjerne.kodetabeller.AfpOrdningTypeCode
 enum class AfpOrdningType {
     /**

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
@@ -6,13 +6,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import org.springframework.stereotype.Component
 
-// no.nav.service.pensjon.simulering.support.command.SimulerAFPogAPCommand (beholdning part)
+// no.nav.service.pensjon.simulering.support.command.SimulerAFPogAPCommand (beholdning part) in PEN
 @Component
 class Pre2025OffentligAfpBeholdning(
     val context: SimulatorContext,
@@ -44,12 +43,15 @@ class Pre2025OffentligAfpBeholdning(
             val missingBeholdningListe: MutableList<Beholdning> = mutableListOf()
 
             beholdningListe
-                .filter(Companion::isPensjonsbeholdning)
+                .filter(::isPensjonsbeholdning)
                 .forEach {
                     var match = false
                     // Check if this beholding already exists in persongrunnlag.
                     for (persongrunnlagBeholdning in persongrunnlag.beholdninger) {
-                        val isSameDay = isSameDay(persongrunnlagBeholdning.fom, (it as Pensjonsbeholdning).fom)
+                        val isSameDay = no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay(
+                            persongrunnlagBeholdning.fom,
+                            (it as Pensjonsbeholdning).fom
+                        )
 
                         if (isSameDay && persongrunnlagBeholdning.beholdningsTypeEnum == it.beholdningsTypeEnum) {
                             match = true

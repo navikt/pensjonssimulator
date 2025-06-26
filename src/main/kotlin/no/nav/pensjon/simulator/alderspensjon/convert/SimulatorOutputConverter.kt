@@ -30,8 +30,14 @@ import java.util.*
 object SimulatorOutputConverter {
 
     /**
-     * https://lovdata.no/dokument/NL/lov/1997-02-28-19/KAPITTEL_7-2#KAPITTEL_7-2
-     * § 20-10.Garantipensjon – trygdetid
+     * Folketrygdloven kapittel 19, https://lovdata.no/lov/1997-02-28-19/§19-2:
+     * "Det er et vilkår for rett til alderspensjon at vedkommende har minst fem års trygdetid" (med noen unntak)
+     */
+    private const val KAPITTEL19_MINIMUM_TRYGDETID_ANTALL_AAR = 5
+
+    /**
+     * Folketrygdloven kapittel 20, https://lovdata.no/lov/1997-02-28-19/§20-10:
+     * "Det er et vilkår for rett til garantipensjon at vedkommende har minst fem års trygdetid"
      */
     private const val MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR = 5
 
@@ -44,7 +50,7 @@ object SimulatorOutputConverter {
     ): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
         val pensjonsperioder: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
-        val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
+        val trygdetid: Trygdetid = anvendtTrygdetid(pensjonsperioder)
 
         return SimulertPensjon(
             alderspensjon = pensjonsperioder.map { aarligAlderspensjon(it, alderspensjon) },
@@ -62,15 +68,19 @@ object SimulatorOutputConverter {
             pensjonBeholdningPeriodeListe = alderspensjon?.pensjonBeholdningListe.orEmpty()
                 .map(::beholdningPeriode),
             harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
-            harNokTrygdetidForGarantipensjon = trygdetid >= MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR,
-            trygdetid = trygdetid,
+            harTilstrekkeligTrygdetid = trygdetid.erTilstrekkelig,
+            trygdetid = trygdetid.kapittel19.coerceAtLeast(trygdetid.kapittel20), //TODO sjekk det faglige her
             opptjeningGrunnlagListe = source.persongrunnlag?.opptjeningsgrunnlagListe.orEmpty()
                 .map(::opptjeningGrunnlag).sortedBy { it.aar }
         )
     }
 
-    private fun anvendtKapittel20Trygdetid(perioder: List<PensjonPeriode>): Int =
-        perioder.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()?.tt_anv_kap20 ?: 0
+    private fun anvendtTrygdetid(periodeListe: List<PensjonPeriode>): Trygdetid =
+        firstBeregninginfo(periodeListe)?.let { Trygdetid(it.tt_anv_kap19 ?: 0, it.tt_anv_kap20 ?: 0) }
+            ?: Trygdetid(0, 0)
+
+    private fun firstBeregninginfo(periodeListe: List<PensjonPeriode>): SimulertBeregningInformasjon? =
+        periodeListe.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()
 
     private fun aarligAlderspensjon(
         source: PensjonPeriode,
@@ -248,4 +258,13 @@ object SimulatorOutputConverter {
                 dato = dato
             )
         }
+
+    private data class Trygdetid(
+        val kapittel19: Int,
+        val kapittel20: Int
+    ) {
+        val erTilstrekkelig: Boolean
+            get() = kapittel19 >= KAPITTEL19_MINIMUM_TRYGDETID_ANTALL_AAR ||
+                    kapittel20 >= MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR
+    }
 }

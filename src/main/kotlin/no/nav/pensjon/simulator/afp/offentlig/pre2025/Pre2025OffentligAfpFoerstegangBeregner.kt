@@ -345,9 +345,8 @@ class Pre2025OffentligAfpFoerstegangBeregner(
     companion object {
         const val AFP_VIRKNING_TOM_ALDER_AAR: Int = 67 // TODO use normalder?
         private const val MAX_TRYGDETID: Int = 40
-        private const val MIN_TRYGDETID: Int = 3
+        private const val MIN_TRYGDETID: Int = 3 // TODO verify value 3
         private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51
-        private const val MINSTE_TRYGDETID: String = "MinsteTrygdetid"
 
         private fun populateKravhodeWithAfpHistorikk(
             kravhode: Kravhode,
@@ -357,10 +356,10 @@ class Pre2025OffentligAfpFoerstegangBeregner(
             val persongrunnlag: Persongrunnlag = kravhode.hentPersongrunnlagForSoker()
 
             persongrunnlag.afpHistorikkListe = mutableListOf(AfpHistorikk().apply {
+                // PEN: SimulerAFPogAPCommand.getFppValueFromTilleggspensjonList + SimulerAFPogAPCommandHelper.checkValuesForNullAndReturnFpp
                 // tp = tilleggspensjon, spt = sluttpoengtall, fpp = framtidige pensjonspoeng, pt = poengtall
-                afpFpp = beregning?.tp?.spt?.poengrekke?.fpp?.pt
-                    ?: 0.0 // SimulerAFPogAPCommand.getFppValueFromTilleggspensjonList + SimulerAFPogAPCommandHelper.checkValuesForNullAndReturnFpp
-                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
+                afpFpp = beregning?.tp?.spt?.poengrekke?.fpp?.pt ?: 0.0
+                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
                 virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
                 virkTom = persongrunnlag.fodselsdato?.let {
@@ -497,7 +496,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
             Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.AFP
                 uttaksdato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning?.name?.let(AFPtypeEnum::valueOf)
+                afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning
                 this.persongrunnlagListe = persongrunnlagListe
             }
 
@@ -506,7 +505,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
             persongrunnlagListe: List<Persongrunnlag>,
             rolle: GrunnlagsrolleEnum
         ): Persongrunnlag? =
-            persongrunnlagListe.firstOrNull { hasRolle(it, rolle) }
+            persongrunnlagListe.firstOrNull { hasRolle(persongrunnlag = it, rolle) }
 
         // PEN: Extracted from SimulerPensjonsberegningCommand.findPersongrunnlagWithGivenRole
         private fun hasRolle(persongrunnlag: Persongrunnlag, rolle: GrunnlagsrolleEnum) =
@@ -522,7 +521,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
 
         // PEN: Extracted from SimulerPensjonsberegningCommand.execute
         private fun minsteTrygdetidMerknad() =
-            Merknad().apply { kode = MINSTE_TRYGDETID }
+            Merknad().apply { kode = "MinsteTrygdetid" }
 
         // PEN: SimulerAFPogAPCommandHelper.copyPersongrunnlagList
         private fun copy(persongrunnlagListe: List<Persongrunnlag>): MutableList<Persongrunnlag> =

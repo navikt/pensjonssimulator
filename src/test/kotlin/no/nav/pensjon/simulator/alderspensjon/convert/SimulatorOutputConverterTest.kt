@@ -23,6 +23,7 @@ class SimulatorOutputConverterTest : FunSpec({
      * Also tests that:
      * - harUttak = false if no uttaksgrad covers today's date
      * - harNokTrygdetidForGarantipensjon = false if mindre enn 5 år 'kapittel 20'-trygdetid
+     * - trygdetid = max av kapittel 19-trygdetid og kapittel 20-trygdetid
      */
     test("'pensjon' should map SimulatorOutput to SimulertPensjon") {
         SimulatorOutputConverter.pensjon(
@@ -106,7 +107,7 @@ class SimulatorOutputConverterTest : FunSpec({
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = false,
             harNokTrygdetidForGarantipensjon = false,
-            trygdetid = 4, // NB: Mapped twice (also to trygdetidKap20)
+            trygdetid = 19, // NB: Max of trygdetidKap19 and trygdetidKap20
             opptjeningGrunnlagListe = emptyList()
         )
     }

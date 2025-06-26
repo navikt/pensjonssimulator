@@ -44,7 +44,7 @@ object SimulatorOutputConverter {
     ): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
         val pensjonsperioder: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
-        val trygdetid = anvendtKapittel20Trygdetid(pensjonsperioder)
+        val trygdetid: Trygdetid = anvendtTrygdetid(pensjonsperioder)
 
         return SimulertPensjon(
             alderspensjon = pensjonsperioder.map { aarligAlderspensjon(it, alderspensjon) },
@@ -62,15 +62,19 @@ object SimulatorOutputConverter {
             pensjonBeholdningPeriodeListe = alderspensjon?.pensjonBeholdningListe.orEmpty()
                 .map(::beholdningPeriode),
             harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
-            harNokTrygdetidForGarantipensjon = trygdetid >= MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR,
-            trygdetid = trygdetid,
+            harNokTrygdetidForGarantipensjon = trygdetid.kapittel20 >= MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR,
+            trygdetid = trygdetid.kapittel19.coerceAtLeast(trygdetid.kapittel20), //TODO sjekk det faglige her
             opptjeningGrunnlagListe = source.persongrunnlag?.opptjeningsgrunnlagListe.orEmpty()
                 .map(::opptjeningGrunnlag).sortedBy { it.aar }
         )
     }
 
-    private fun anvendtKapittel20Trygdetid(perioder: List<PensjonPeriode>): Int =
-        perioder.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()?.tt_anv_kap20 ?: 0
+    private fun anvendtTrygdetid(periodeListe: List<PensjonPeriode>): Trygdetid =
+        firstBeregninginfo(periodeListe)?.let { Trygdetid(it.tt_anv_kap19 ?: 0, it.tt_anv_kap20 ?: 0) }
+            ?: Trygdetid(0, 0)
+
+    private fun firstBeregninginfo(periodeListe: List<PensjonPeriode>): SimulertBeregningInformasjon? =
+        periodeListe.firstOrNull()?.simulertBeregningInformasjonListe?.firstOrNull()
 
     private fun aarligAlderspensjon(
         source: PensjonPeriode,
@@ -248,4 +252,9 @@ object SimulatorOutputConverter {
                 dato = dato
             )
         }
+
+    private data class Trygdetid(
+        val kapittel19: Int,
+        val kapittel20: Int
+    )
 }

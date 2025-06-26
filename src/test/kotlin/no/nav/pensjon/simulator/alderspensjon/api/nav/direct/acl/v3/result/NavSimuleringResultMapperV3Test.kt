@@ -101,7 +101,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                         )
                     ),
                     harUttak = true,
-                    harNokTrygdetidForGarantipensjon = true,
+                    harTilstrekkeligTrygdetid = true,
                     trygdetid = 39,
                     opptjeningGrunnlagListe = listOf(OpptjeningGrunnlag(aar = 1999, pensjonsgivendeInntekt = 1002))
                 ),
@@ -217,7 +217,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                     livsvarigOffentligAfp = emptyList(),
                     pensjonBeholdningPeriodeListe = emptyList(),
                     harUttak = true,
-                    harNokTrygdetidForGarantipensjon = true,
+                    harTilstrekkeligTrygdetid = true,
                     trygdetid = 0,
                     opptjeningGrunnlagListe = emptyList()
                 ),

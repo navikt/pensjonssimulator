@@ -80,7 +80,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
                         )
                     ),
                     harUttak = true,
-                    harNokTrygdetidForGarantipensjon = true,
+                    harTilstrekkeligTrygdetid = true,
                     trygdetid = 40,
                     opptjeningGrunnlagListe = listOf(
                         OpptjeningGrunnlag(aar = 2024, pensjonsgivendeInntekt = 50000)
@@ -234,7 +234,7 @@ private fun simulertPensjon(alderspensjonFraFolketrygden: List<SimulertAlderspen
             livsvarigOffentligAfp = emptyList(),
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = true,
-            harNokTrygdetidForGarantipensjon = true,
+            harTilstrekkeligTrygdetid = true,
             trygdetid = 40,
             opptjeningGrunnlagListe = emptyList()
         ),

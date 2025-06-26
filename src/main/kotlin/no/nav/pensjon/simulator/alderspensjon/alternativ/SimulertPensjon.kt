@@ -12,7 +12,13 @@ data class SimulertPensjon(
     val livsvarigOffentligAfp: List<SimulertLivsvarigOffentligAfp>,
     val pensjonBeholdningPeriodeListe: List<SimulertPensjonBeholdningPeriode>,
     val harUttak: Boolean,
-    val harNokTrygdetidForGarantipensjon: Boolean,
+
+    /**
+     * Kapittel 19: Angir om personen har nok trygdetid for alderspensjon
+     * Kapittel 20: Angir om personen har nok trygdetid for garantipensjon
+     */
+    val harTilstrekkeligTrygdetid: Boolean,
+
     val trygdetid: Int,
     val opptjeningGrunnlagListe: List<OpptjeningGrunnlag>
 )

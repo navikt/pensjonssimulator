@@ -12,7 +12,13 @@ data class NavSimuleringResultV3(
     val privatAfpListe: List<NavPrivatAfpV3>,
     val livsvarigOffentligAfpListe: List<NavLivsvarigOffentligAfpV3>,
     val vilkaarsproeving: NavVilkaarsproevingResultatV3,
-    val tilstrekkeligTrygdetidForGarantipensjon: Boolean?,
+
+    /**
+     * Kapittel 19: Angir om nok trygdetid for alderspensjon
+     * Kapittel 20: Angir om nok trygdetid for garantipensjon
+     */
+    val tilstrekkeligTrygdetidForGarantipensjon: Boolean?, //TODO rename to harTilstrekkeligTrygdetid
+
     val trygdetid: Int,
     val opptjeningGrunnlagListe: List<NavOpptjeningGrunnlagV3>,
     val error: NavSimuleringErrorV3? = null

@@ -18,7 +18,7 @@ object NavSimuleringResultMapperV3 {
             privatAfpListe = source?.pensjon?.privatAfp.orEmpty().map(::privatAfp),
             livsvarigOffentligAfpListe = source?.pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             vilkaarsproeving = vilkaarsproevingResultat(source?.alternativ),
-            tilstrekkeligTrygdetidForGarantipensjon = source?.pensjon?.harNokTrygdetidForGarantipensjon,
+            tilstrekkeligTrygdetidForGarantipensjon = source?.pensjon?.harTilstrekkeligTrygdetid,
             trygdetid = source?.pensjon?.trygdetid ?: 0,
             opptjeningGrunnlagListe = source?.pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag)
         )

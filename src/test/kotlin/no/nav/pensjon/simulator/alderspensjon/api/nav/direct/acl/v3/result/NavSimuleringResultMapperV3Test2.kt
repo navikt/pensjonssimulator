@@ -149,7 +149,7 @@ private object NavSimuleringResultMapperV3Test2Objects {
                     )
                 ),
                 harUttak = true,
-                harNokTrygdetidForGarantipensjon = true,
+                harTilstrekkeligTrygdetid = true,
                 trygdetid = 21,
                 opptjeningGrunnlagListe = listOf(
                     OpptjeningGrunnlag(

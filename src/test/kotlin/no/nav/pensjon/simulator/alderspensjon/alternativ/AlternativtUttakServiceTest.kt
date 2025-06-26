@@ -55,7 +55,7 @@ class AlternativtUttakServiceTest : FunSpec({
                 livsvarigOffentligAfp = emptyList(),
                 pensjonBeholdningPeriodeListe = emptyList(),
                 harUttak = false,
-                harNokTrygdetidForGarantipensjon = false,
+                harTilstrekkeligTrygdetid = false,
                 trygdetid = 0,
                 opptjeningGrunnlagListe = emptyList()
             ),

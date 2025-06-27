@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
@@ -61,7 +61,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
             epsHarInntektOver2G = false,
             rettTilOffentligAfpFom = null,
             pre2025OffentligAfp = Pre2025OffentligAfpSpec(
-                afpOrdning = AfpOrdningType.AFPSTAT,
+                afpOrdning = AFPtypeEnum.AFPSTAT,
                 inntektMaanedenFoerAfpUttakBeloep = 567,
                 inntektUnderAfpUttakBeloep = 0 // zero for AFP_FPP
             ),

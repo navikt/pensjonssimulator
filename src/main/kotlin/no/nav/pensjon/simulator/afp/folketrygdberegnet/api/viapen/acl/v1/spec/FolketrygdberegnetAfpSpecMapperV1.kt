@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec
 
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -63,7 +63,7 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
     private fun pre2025OffentligAfpSpec(spec: FolketrygdberegnetAfpSpecV1): Pre2025OffentligAfpSpec =
         spec.afpOrdning?.let {
             Pre2025OffentligAfpSpec(
-                afpOrdning = AfpOrdningType.valueOf(it),
+                afpOrdning = AFPtypeEnum.valueOf(it),
                 inntektMaanedenFoerAfpUttakBeloep = spec.afpInntektMndForUttak ?: 0,
                 inntektUnderAfpUttakBeloep = 0 // ref. PEN ForetaFolketrygdBeregnetAfpHelper
             )

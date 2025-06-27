@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
-import no.nav.pensjon.simulator.core.afp.AfpOrdningType
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
@@ -20,7 +20,7 @@ data class NavSimuleringSpecV2(
     val simuleringId: Long? = null,
     val simuleringType: NavSimuleringTypeSpecV2? = null,
     val simuleringNavn: String? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val lagringstidspunkt: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val lagringstidspunkt: LocalDate? = null,
     val fnr: String? = null,
     val fnrAvdod: String? = null,
     val fodselsar: Int? = null,
@@ -41,7 +41,7 @@ data class NavSimuleringSpecV2(
     val sivilstatus: NavSivilstandSpecV2? = null,
     var epsPensjon: Boolean? = null, // mutable (in AlderspensjonVilkaarsproeverOgBeregner.vilkaarsproevOgBeregnAlder)
     val eps2G: Boolean? = null,
-    val afpOrdning: AfpOrdningType? = null,
+    val afpOrdning: AFPtypeEnum? = null,
     val afpInntektMndForUttak: Int? = null,
     val dodsdato: Date? = null, // epoch value in JSON
     val avdodAntallArIUtlandet: Int? = null,
@@ -52,7 +52,7 @@ data class NavSimuleringSpecV2(
     val simulerForTp: Boolean? = null,
     val tpOrigSimulering: Boolean = false,
     val utenlandsperiodeForSimuleringList: List<NavSimuleringUtlandPeriodeV2> = listOf(),
-    // Not used in PSELV, but included to avoid failing on unknown properties:
+    // Not used in PSELV but included to avoid failing on unknown properties:
     val ansettelsessektor: String? = null,
     val brukerRegTPListe: List<NavSimuleringBrukerRegTjenestepensjonSpecDummyV2> = emptyList(),
     val stillingsprosentOffHeltUttak: String? = null,
@@ -103,10 +103,16 @@ data class NavSimuleringUtlandPeriodeV2(
     val arbeidetIUtland: Boolean = false,
     val periodeFom: Date,
     val periodeTom: Date?
-)
+) {
+    override fun toString() =
+        "{ \"land\": ${textAsString(land)}, " +
+                "\"arbeidetIUtland\": $arbeidetIUtland, " +
+                "\"periodeFom\": ${textAsString(periodeFom)}, " +
+                "\"periodeTom\": ${textAsString(periodeTom)} }"
+}
 
 /**
- * Dummy class required to avoid failing on unknown properties.
+ * Placeholder class required to avoid failing on unknown properties.
  */
 data class NavSimuleringBrukerRegTjenestepensjonSpecDummyV2(
     val navnOrdningTP: String?,
@@ -117,7 +123,7 @@ data class NavSimuleringBrukerRegTjenestepensjonSpecDummyV2(
 )
 
 /**
- * Dummy class required to avoid failing on unknown properties.
+ * Placeholder class required to avoid failing on unknown properties.
  */
 data class NavSimuleringFremtidigInntektSpecDummyV2(
     val datoFom: Date,
@@ -125,7 +131,7 @@ data class NavSimuleringFremtidigInntektSpecDummyV2(
 )
 
 /**
- * Dummy class required to avoid failing on unknown properties.
+ * Placeholder class required to avoid failing on unknown properties.
  */
 data class NavSimuleringChangeStampSpecDummyV2(
     val createdDate: Date,

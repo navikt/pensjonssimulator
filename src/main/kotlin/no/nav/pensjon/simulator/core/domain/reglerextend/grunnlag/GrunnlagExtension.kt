@@ -126,6 +126,39 @@ fun GarantiTrygdetid.copy() =
         it.tomDato = this.tomDato?.clone() as? Date
     }
 
+fun InngangOgEksportGrunnlag.copy() =
+    InngangOgEksportGrunnlag().also {
+        it.treArTrygdetidNorge = this.treArTrygdetidNorge
+        it.femArTrygdetidNorge = this.femArTrygdetidNorge
+        it.unntakFraForutgaendeTT = this.unntakFraForutgaendeTT?.let(::Unntak)
+        it.fortsattMedlemFT = this.fortsattMedlemFT
+        it.minstTyveArBotidNorge = this.minstTyveArBotidNorge
+        it.opptjentRettTilTPEtterFT = this.opptjentRettTilTPEtterFT
+        it.eksportforbud = this.eksportforbud?.let(::Eksportforbud)
+        it.friEksportPgaYrkesskade = this.friEksportPgaYrkesskade
+        it.eksportrettEtterEOSForordning = this.eksportrettEtterEOSForordning?.let(::Eksportrett)
+        it.eksportrettEtterTrygdeavtalerEOS = this.eksportrettEtterTrygdeavtalerEOS?.let(::Eksportrett)
+        it.eksportrettEtterAndreTrygdeavtaler = this.eksportrettEtterAndreTrygdeavtaler?.let(::Eksportrett)
+        it.eksportrettGarantertTP = this.eksportrettGarantertTP?.let(::Unntak)
+        it.minstTreArsFMNorge = this.minstTreArsFMNorge
+        it.minstFemArsFMNorge = this.minstFemArsFMNorge
+        it.minstTreArsFMNorgeVirkdato = this.minstTreArsFMNorgeVirkdato
+        it.unntakFraForutgaendeMedlemskap = this.unntakFraForutgaendeMedlemskap?.let(::Unntak)
+        it.oppfyltEtterGamleRegler = this.oppfyltEtterGamleRegler
+        it.oppfyltVedSammenlegging = this.oppfyltVedSammenlegging?.let(::OppfyltVedSammenlegging)
+        it.oppfyltVedSammenleggingFemAr = this.oppfyltVedSammenleggingFemAr?.let(::OppfyltVedSammenlegging)
+        it.oppfyltVedGjenlevendesMedlemskap = this.oppfyltVedGjenlevendesMedlemskap
+        it.gjenlevendeMedlemFT = this.gjenlevendeMedlemFT
+        it.minstEttArFMNorge = this.minstEttArFMNorge
+        it.foreldreMinstTyveArBotidNorge = this.foreldreMinstTyveArBotidNorge
+        it.friEksportDodsfall = this.friEksportDodsfall
+        it.minstTyveArTrygdetidNorgeKap20 = this.minstTyveArTrygdetidNorgeKap20
+        it.treArTrygdetidNorgeKap20 = this.treArTrygdetidNorgeKap20
+        it.femArTrygdetidNorgeKap20 = this.femArTrygdetidNorgeKap20
+        it.oppfyltVedSammenleggingKap20 = this.oppfyltVedSammenleggingKap20?.let(::OppfyltVedSammenlegging)
+        it.oppfyltVedSammenleggingFemArKap20 = this.oppfyltVedSammenleggingFemArKap20?.let(::OppfyltVedSammenlegging)
+    }
+
 fun InstOpphFasteUtgifterperiode.copy() =
     InstOpphFasteUtgifterperiode().also {
         it.instOpphFasteUtgifterperiodeId = this.instOpphFasteUtgifterperiodeId

@@ -427,10 +427,7 @@ class Persongrunnlag() {
             this.trygdeavtaledetaljer = Trygdeavtaledetaljer(source.trygdeavtaledetaljer!!)
         }
 
-        if (source.inngangOgEksportGrunnlag != null) {
-            this.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag(source.inngangOgEksportGrunnlag!!)
-        }
-
+        this.inngangOgEksportGrunnlag = source.inngangOgEksportGrunnlag?.copy()
         this.arligPGIMinst1G = source.arligPGIMinst1G
         this.artikkel10 = source.artikkel10
 

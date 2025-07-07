@@ -173,7 +173,9 @@ class TpoViaPenAlderspensjonController(
         return try {
             val spec: SimuleringSpec = specMapperV2.fromDto(specV2)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
-            TpoSimuleringResultMapperV2.toDto(result)
+            val toDto = TpoSimuleringResultMapperV2.toDto(result)
+            log.info { "simuler v2 viapen req; $specV2, res:$toDto" }
+            toDto
         } catch (e: BadRequestException) {
             log.warn(e) { "$FUNCTION_ID_V2 bad request - $specV2" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -255,9 +257,9 @@ class TpoViaPenAlderspensjonController(
         return try {
             val spec: SimuleringSpec = specMapperV3.fromDto(specV3)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
-            TpoSimuleringResultMapperV3.toDto(result).also {
-                log.debug { "$FUNCTION_ID_V3 response: $it" }
-            }
+            val toDto = TpoSimuleringResultMapperV3.toDto(result)
+            log.info { "simuler v3 viapen req; $specV3, res:$toDto" }
+            toDto
         } catch (e: BadRequestException) {
             log.warn(e) { "$FUNCTION_ID_V3 bad request - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>

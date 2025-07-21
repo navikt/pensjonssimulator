@@ -7,7 +7,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/> <!-- lookup parent from the repository -->
     </parent>
     <groupId>no.nav.pensjon</groupId>
     <artifactId>pensjonssimulator</artifactId>
@@ -21,7 +21,7 @@
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
         <kotlin.version>2.2.0</kotlin.version>
         <logback.version>1.5.18</logback.version>
-        <okhttp3.version>4.12.0</okhttp3.version>
+        <okhttp3.version>5.1.0</okhttp3.version>
     </properties>
     <build>
         <finalName>pensjonssimulator</finalName>
@@ -85,12 +85,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.14.0</version>
                 <executions>
-                    <!-- Replacing default-compile as it is treated specially by maven -->
+                    <!-- Replacing default-compile due to special treatment by maven -->
                     <execution>
                         <id>default-compile</id>
                         <phase>none</phase>
                     </execution>
-                    <!-- Replacing default-testCompile as it is treated specially by maven -->
+                    <!-- Replacing default-testCompile due to special treatment by maven -->
                     <execution>
                         <id>default-testCompile</id>
                         <phase>none</phase>
@@ -202,7 +202,7 @@
         <dependency>
             <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
-            <version>11.0.0</version>
+            <version>11.0.2</version>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>
@@ -273,13 +273,13 @@
         <dependency>
             <groupId>org.mockito.kotlin</groupId>
             <artifactId>mockito-kotlin</artifactId>
-            <version>5.4.0</version>
+            <version>6.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk-jvm</artifactId>
-            <version>1.14.4</version>
+            <version>1.14.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

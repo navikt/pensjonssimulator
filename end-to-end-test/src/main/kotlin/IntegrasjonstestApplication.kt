@@ -20,6 +20,11 @@ suspend fun main() {
             path = "/api/v4/simuler-alderspensjon",
             requestResource = "simuler-alderspensjon-v4-request.json",
             responseResource = "simuler-alderspensjon-v4-response.json",
+        ),
+        Resource(
+            path = "/api/v1/tidligst-mulig-uttak",
+            requestResource = "tidligst-mulig-uttak-request.json",
+            responseResource = "tidligst-mulig-uttak-response.json",
         )
     )
 

@@ -1,0 +1,13 @@
+{
+  "personId": "01810198296",
+  "fodselsdato": "2001-01-01",
+  "uttaksgrad": 20,
+  "heltUttakFraOgMedDato": "2068-02-01",
+  "rettTilAfpOffentligDato": "2080-01-01",
+  "fremtidigInntektListe": [
+    {
+      "aarligInntekt": 0,
+      "fraOgMedDato": "2023-01-01"
+    }
+  ]
+}

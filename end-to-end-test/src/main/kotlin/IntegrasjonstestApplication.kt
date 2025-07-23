@@ -25,6 +25,11 @@ suspend fun main() {
             path = "/api/v1/tidligst-mulig-uttak",
             requestResource = "tidligst-mulig-uttak-request.json",
             responseResource = "tidligst-mulig-uttak-response.json",
+        ),
+        Resource(
+            path = "/api/v1/simuler-folketrygdbeholdning",
+            requestResource = "simuler-folketrygdbeholdning-request.json",
+            responseResource = "simuler-folketrygdbeholdning-response.json",
         )
     )
 

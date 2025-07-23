@@ -1,0 +1,18 @@
+= Vilkårsprøving og beregning av alderspensjon
+
+Det utføres en vilkårsprøving av søkerens grunnlag for alderspensjon, og alderspensjon beregnes dersom grunnlaget er godkjent.
+
+Det er spesielt opptjening og trygdetid som er avgjørende for resultatet av vilkårsprøvingen.
+
+== Flyt
+
+For hvert knekkpunkt gjøres følgende:
+
+. Sett sluttdato på forrige beregningsresultat (så man unngår beregningsresultat med overlappende perioder)
+. Oppdater trygdetid for søker og eventuell avdød
+. Hent eventuell livsvarig (offentlig eller privat) AFP
+. Vilkårsprøv alderspensjon
+. Beregn alderspensjon
+. Gjør etterarbeid på beregningen
+. Beregn kapittel 20 for eventuell tjenestepensjon
+. Beregn pensjonsbeholdningsperiode

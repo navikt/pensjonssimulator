@@ -1,0 +1,23 @@
+= Opprettelse av kravhode
+
+Når en person søker om alderspensjon, opprettes et _krav_, som så vil saksbehandles. I saksbehandling sjekkes det om vilkårene for pensjonsuttak er oppfylt, og dersom den er det, beregnes pensjonsutbetalingen.
+
+I simuleringssammenheng vil det kun være snakk om et simulert (fiktivt) "krav" med en tilhørende simulert "saksbehandling", bestående av en forenklet automatisk vilkårsprøving og beregning.
+
+Et krav består av et kravhode og én eller flere kravlinjer (detaljer om kravet).
+
+NOTE: I domenemodellen finnes det ikke noe som representerer det overordnede begrepet "krav" - kun _kravhode_ og _kravlinje_ er representert; kravlinjene er en liste på kravhodet.
+
+
+== Flyt
+
+Det opprettes et nytt kravhode, og følgende informasjon angis på det:
+
+. Sak
+. Hvilket regelverk som skal anvendes
+. Persongrunnlag for søker
+. Persongrunnlag for eventuell EPS
+. Eventuelle utenlandsopphold
+. Uttaksgrader
+. Kravlinjer
+. Generelle felter

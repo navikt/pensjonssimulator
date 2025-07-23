@@ -1,0 +1,29 @@
+= Utledning av knekkpunkter
+
+Knekkpunkter utledes for beregning av alderspensjon.
+
+Et knekkpunkt er en dato der det skjer en endring i grunnlaget for pensjon, og er således representert som en dato med tilhørende årsak for endring (knekkpunkttype).
+
+Knekkpunktlisten inneholder unike datoer, og dermed har hvert knekkpunkt en tilhørende _liste_ av knekkpunkttyper (for å kunne håndtere tilfeller der det er mer enn én årsak til at knekkpunktet opprettes på en gitt dato).
+
+Første knekkpunktdato er tidligst datoen for første uttak av alderspensjon fra folketrygden.
+
+== Knekkpunkttyper
+
+Følgende knekkpunkttyper er aktuelle:
+
+* Ny opptjening for søker
+* Ny opptjening for avdød
+* Ny trygdetid for søker
+* Ny trygdetid for avdød
+* Endring av uttaksgrad
+
+== Forhold rundt trygdetid
+
+Antall knekkpunkter som legges til pga. trygdetid er begrenset oppad ved at det ikke legges til flere dersom trygdetiden er maksimal (dvs. 40 år).
+
+== Forhold rundt endring av pensjon
+
+Dersom søker har løpende alderspensjon, reberegnes pensjonen hvert år det er endring i grunnlaget.
+
+Det opprettes ikke knekkpunkter med dato før virkningsdatoen på løpende vedtak.

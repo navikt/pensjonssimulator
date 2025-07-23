@@ -1,0 +1,40 @@
+= Pensjonssimulator
+
+Utfører simulerte pensjonsberegninger (prognoser) for individuelle personer.
+
+== Formål
+
+* Beregne alderspensjon fra folketrygden (Nav).
+* Beregne avtalefestet pensjon (AFP) i offentlig og privat sektor.
+* Beregne pensjon basert på en persons historikk, antatte fremtidige livsbetingelser og  ønskede uttaksbetingelser.
+* Beregne ny pensjon ved endring av betingelser i løpende pensjon.
+* Beregne pensjonsbeholdning i folketrygden.
+* Beregne tidligst mulig uttak av alderspensjon.
+
+== Databehandling
+
+* Applikasjonen har ingen egen persistent lagring av data.
+* Utvalgte anonymiserte data skrives til applikasjonslogg (korttidslagring).
+* Data mottatt og returnert via eksternt API skrives uanonymisert til beskyttet sporingslogg.
+
+== Historikk
+
+Simulatoren var inntil 9. april 2025 en del av https://github.com/navikt/pensjon-pen[PEN], men ble da flyttet til en egen applikasjon, https://github.com/navikt/pensjonssimulator[pensjonssimulator].
+Den delen av PEN som ble flyttet er "FPEN028 abstraktSimulerAPFra2011".
+
+I løpet av flyttingen ble ny funksjonalitet tilført og kildekoden omstrukturert.
+
+=== Ny funksjonalitet
+
+* Tjenester som støtter endringene i offentlig tjenestepensjon fra 2025.
+* Alder for tidligst mulig uttak beregnes med månedsnøyaktighet (mot årsnøyaktighet i gammel kode).
+* Beregning av et "gunstig" alternativt uttak, i tilfelle søkerens foretrukne uttak gir avslag i vilkårsprøvingen (betegnes "Nært angitt uttak", NAU).
+
+=== Omstrukturering av kode
+
+* Skrevet om fra Java til Kotlin.
+* Bruker en speilet variant av domenemodellen til https://github.com/navikt/pensjon-regler-api[pensjon-regler-api], som gjør mapping mellom domener overflødig ved bruk av regeltjenestene.
+* Færre logiske lag, oppsplitting av store klasser/funksjoner.
+* Fjernet bruk av _Command-pattern_ og unødvendige _request/response_-klasser.
+* Bruk av _java.time_ istedenfor _java.util_.
+* Bruk av _enum_ istedenfor CTI-klasser.

@@ -1,0 +1,37 @@
+= Simulatorkjerne
+
+Simulatorkjernen er komponenten som utfører de overordnede stegene for en enkeltsimulering.
+
+Inndata er hovedsakelig:
+
+* Simuleringstype
+* Personopplysninger (fødselsnummer, sivilstand, inntekt, utenlandsopphold, m.m.)
+* Ønsket uttaksdato og uttaksgrad
+* Om personen kommer til å ha rett til offentlig/privat AFP
+
+Utdata er:
+
+* Beregnet alderspensjon fra folketrygden
+* Eventuell beregnet offentlig/privat AFP
+* Pensjonsbeholdning
+
+Kotlin-implementasjonen av simulatorkjernen heter _SimulatorCore_.
+
+== Litt terminologi
+
+Pensjon simuleres for en gitt person, som betegnes som "søker" (simuleringen kan anses som en saksbehandling av en fiktiv søknad om pensjon).
+
+Dersom personen har ektefelle, partner eller samboer, kan det påvirke resultatet. Ektefelle/partner/samboer betegnes som "EPS".
+
+Dersom personens EPS er død, kan det medføre rett til tilleggsytelser. Den avdøde personen betegnes som "avdød".
+
+== Overordnet flyt
+
+Simulering innbefatter følgende overordnede steg:
+
+. xref:opprett-kravhode.adoc[Opprettelse av kravhode]
+. xref:privat-afp.adoc[Beregning av AFP i privat sektor]
+. xref:oppdater-kravhode.adoc[Oppdatering av kravhodet]
+. xref:knekkpunkter.adoc[Utledning av knekkpunkter]
+. xref:offentlig-afp.adoc[Beregning av AFP i offentlig sektor]
+. xref:vilkårsprøv-beregn.adoc[Vilkårsprøving og beregning av alderspensjon]

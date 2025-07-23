@@ -1,0 +1,85 @@
+= Beregning av tidligst mulig uttak
+
+Ordningen med fleksibel alderpensjon betyr at man kan under visse betingelser starte _tidliguttak_, dvs. uttak av pensjon før normert pensjonsalder (som i 2025 er 67 år). Hvor tidlig uttaket kan starte avhenger av bl.a. opptjening og ønsket uttaksgrad.
+
+Når det gjøres en enkeltsimulering for en gitt uttaksalder og uttaksgrad, vil vilkårsprøvingen gi resultatet "innvilget" eller "avslått". Avslag skyldes som regel enten:
+
+* for lav opptjening
+* for kort trygdetid
+
+For å unngå at konsumentene av simuleringtjenestene må gjøre mye prøving of feiling for å finne uttaksvilkår som gir innvilget resultat, har pensjonssimulatoren funksjonalitet for effektivt å finne innvilgede uttaksvilkår. Dette gjøres gjennom en iterativ prosess der det utledes alternative uttaksvilkår som brukes som inndata til en ny enkeltsimulering. De alternative uttaksvilkårene utledes gjennom en algoritme basert på binærsøk, som effektivt begrenser det maksimale antall iterasjoner.
+
+Den overordnede implementasjonen er i Kotlin-klassene _AlderspensjonService_ og _SimuleringFacade_.
+
+Funksjonaliteten brukes i følgende tjenester:
+
+* Simuler alderspensjon for tjenestepensjonsordningen SPK ("V4")
+* Simuler alderspensjon for Navs innloggede pensjonskalkulator
+* Simuler tidligst mulig uttak for tjenestepensjonsordninger
+
+== "Nært angitt uttak"
+
+Ved gradert uttak er det tre størrelser som kan varieres i hver iterasjon (uttaksgrad, dato for gradert uttak, dato for etterfølgende helt uttak). Begrepet "tidligst mulig uttak" (TMU) blir da meningsløst, da noen foretrekker tidlig gradert uttak, andre foretrekker tidlig helt uttak, og atter andre foretrekker høy uttaksgrad. Isteden brukes her begrepet "nært angitt uttak" (NAU).
+
+Tenk deg et 3-dimensjonalt koordinatsystem med følgende akser:
+
+* Uttaksgrad
+* Alder for gradert uttak
+* Alder for helt uttak
+
+De angitte (initielle) uttaksvilkårene vil være et punkt i dette koordinatsystemet. Vilkårsvurderingen for dette punktet har gitt avslag, og vi ønsker å finne et punkt nær dette som gir innvilget resultat. For å sjekke at det i det hele tatt finnes et alternativt punkt, prøves det å simulere med det "dårligst" mulige alternativet for tidliguttak, som er:
+
+* Lavest mulig uttaksgrad (20 %)
+* Maksimal alder for gradert tidliguttak (1 måned før normert pensjonsalder)
+* Alder for helt uttak lik normert pensjonsalder
+
+Hvis det dårligste alternativet gir innvilget resultat, vet vi at det mest sannsynlig finnes et punkt mellom det initielle og det dårligste som vil gi innvilget resultat. Framgangsmåten for å finne dette punktet er:
+
+. La A representere det angitte (initielle) punktet, og la B representere det dårligste punktet.
+. Finn midtpunktet M mellom A og B.
+. Simuler med uttaksvilkårene punktet M representerer.
+.. Hvis "innvilget", finn et nytt midtpunkt M' mellom A og M, sett B = M, M = M', og gjenta steg 3.
+.. Hvis "avslått", finn et nytt midtpunkt M' mellom M og B, sett A = M, M = M', og gjenta steg 3.
+
+Gjentagelsen fortsetter inntil det ikke finnes flere midtpunkter.
+
+Linjen mellom angitte (initielle) punktet og det dårligste punktet deles altså iterativt i 2 (dvs. binærsøk), noe som gjør at antall iterasjoner blir logaritmen (base 2) av antall punkter på linjen.
+
+.Eksempel
+
+La et punkt beskrives med [uttaksgrad, alder for gradert uttak, alder for helt uttak].
+
+Alder angis med i antall fylte år og måneder (md).
+
+Anta følgende verdier for angitt (A) og dårligst (B) uttak:
+
+* A = [50 %, 64 år 0 md, 66 år 0 md]
+* B = [20 %, 66 år 11 md, 67 år 0 md]
+
+Da kan vi f.eks. få følgende scenario:
+
+. Simuler med A: "Avslått" (dermed skal vi finne NAU)
+. Simuler med B: "Innvilget" (det finnes altså et innvilget tidliguttak)
+. Simuler med M = [40 %, 65 år 10 md, 66 år 6 md]: "Innvilget"
+... M' = [40 %, 64 år 11 md, 66 år 3 md]
+... B = [40 %, 65 år 10 md, 66 år 6 md]
+. Simuler med M = [40 %, 64 år 11 md, 66 år 3 md]: "Avslått"
+... M' = [40 %, 65 år 1 md, 66 år 4 md]
+... A = [40 %, 64 år 11 md, 66 år 3 md]
+. Simuler med M = [40 %, 65 år 1 md, 66 år 4 md]: "Avslått"
+... M' = [40 %, 65 år 5 md, 66 år 5 md]
+... A = [40 %, 65 år 1 md, 66 år 4 md]
+. Simuler med M = [40 %, 65 år 5 md, 66 år 5 md]: "Innvilget"
+... M' = [40 %, 65 år 3 md, 66 år 5 md]
+... B = [40 %, 65 år 5 md, 66 år 5 md]
+. Simuler med M = [40 %, 65 år 3 md, 66 år 5 md]: "Avslått"
+... M' = [40 %, 65 år 4 md, 66 år 5 md]
+... A = [40 %, 65 år 3 md, 66 år 5 md]
+. Simuler med M = [40 %, 65 år 4 md, 66 år 5 md]: "Innvilget"
+... Ingen flere punkter igjen mellom A og M
+
+NAU = siste innvilgede M = [40 %, 65 år 4 md, 66 år 5 md]
+
+Antall simuleringer: 8 (2 for å finne A og B, pluss 6 for binærsøket)
+
+Antall punkter på linjen mellom A og B er i dette tilfellet antall måneder mellom angitt alder for gradert uttak (64 år 0 md) og dårligste alder for gradert uttak (66 år 11 md), dvs. 35 (2 år 11 md). Antall iterasjoner i binærsøket er da minste heltall større enn log~2~(35) = 5,12 (altså 6).

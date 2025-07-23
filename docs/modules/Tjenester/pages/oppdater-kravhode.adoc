@@ -1,0 +1,11 @@
+= Oppdatering av kravhodet
+
+Kravhodet oppdateres før første knekkpunkt.
+
+== Flyt
+
+Kravhodet oppdateres ved at følgende informasjon angis på det:
+
+. Trygdetidsgrunnlag for søker og eventuell avdød
+. Pensjonsbeholdning for søker
+. Uførehistorikk for søker og eventuell avdød

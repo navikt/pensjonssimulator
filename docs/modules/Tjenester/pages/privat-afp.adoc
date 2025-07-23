@@ -1,0 +1,17 @@
+= Beregning av AFP i privat sektor
+
+Avtalefestet pensjon i privat sektor ("privat AFP") er en livsvarig ytelse som arbeidstakere i private bedrifter kvalifiserer til under bestemte vilkår.
+
+Mange av vilkårene kan ikke vurderes før personen er tett opptil pensjonsalder, så det er personen selv som må ta stilling til om vedkommende kommer til å kvalifisere for ytelsen ved ønsket uttakstidspunkt.
+
+== Flyt
+
+. Gjør om kravet til 'privat AFP'
+. Hent grunnlagsdata for beregning av AFP
+. Beregn AFP-opptjening
+. Sett innvilget vilkårsvedtak for AFP
+. Beregn AFP for hvert knekkpunkt
+
+== Opptjening til privat AFP
+
+AFP-opptjening omfatter opptjening til og med året bruker blir 61 år. Det vil si at dersom bruker tar ut privat AFP ved 62 år, vil ikke opptjening for det 61. året være innberegnet i opptjeningen. Tjenesten tar derfor høyde for at AFP-beholdningen må beregnes for både det 62. og 63. året.

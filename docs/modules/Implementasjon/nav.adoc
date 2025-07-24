@@ -1,0 +1,8 @@
+.Implementasjon
+*** xref:simulatorkjerne.adoc[Simulatorkjerne]
+*** xref:opprett-kravhode.adoc[Opprettelse av kravhode]
+*** xref:oppdater-kravhode.adoc[Oppdatering av kravhodet]
+*** xref:knekkpunkter.adoc[Utledning av knekkpunkter]
+*** xref:vilkårsprøv-beregn.adoc[Vilkårsprøving og beregning av alderspensjon]
+*** xref:offentlig-afp.adoc[Beregning av AFP i offentlig sektor]
+*** xref:privat-afp.adoc[Beregning av AFP i privat sektor]

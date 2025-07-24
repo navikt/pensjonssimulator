@@ -1,0 +1,3 @@
+.Terminologi
+*** xref:pensjonsbegreper.adoc[Pensjonsbegreper]
+*** xref:personbegreper.adoc[Personbegreper]

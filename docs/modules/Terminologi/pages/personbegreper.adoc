@@ -1,0 +1,17 @@
+= Personbegreper
+
+== Søker
+
+Pensjon simuleres for en gitt person, som betegnes som "søker" (simuleringen kan anses som en "saksbehandling" av en fiktiv søknad om pensjon).
+
+== EPS
+
+Dersom personen har ektefelle, partner eller samboer, kan det påvirke den beregnede pensjonen.
+
+Ektefelle/partner/samboer betegnes med "EPS".
+
+== Avdød
+
+Dersom personens EPS er død, kan det medføre rett til tilleggsytelser (gjenlevenderett).
+
+Den avdøde personen betegnes med "avdød".

@@ -1,0 +1,46 @@
+== Tjenester
+
+Følgende tjenester tilbys av pensjonssimulatoren via dens API:
+
+* Simuler alderspensjon for samhandleren Norsk Pensjon ("V1")
+* Simuler alderspensjon for tjenestepensjonsordninger unntatt SPK ("V3")
+* Simuler alderspensjon for tjenestepensjonsordningen SPK ("V4")
+* Simuler alderspensjon for Navs innloggede pensjonskalkulator
+* Simuler alderspensjon for Navs uinnloggede pensjonskalkulator
+* Simuler alderspensjon for Navs interne pensjonskalkulator for saksbehandlere/veiledere
+* Simuler alderspensjon som grunnlag for simulering av tjenestepensjon
+* Simuler tidligst mulig uttak for tjenestepensjonsordninger
+* Simuler folketrygdberegnet AFP i offentlig sektor (gjelder "gammel" AFP-ordning)
+* Simuler offentlig AFP etterfulgt av alderspensjon (gjelder "gammel" AFP-ordning)
+
+== Versjonering av tjenester for samhandlere
+
+Tjenestene som er laget for eksterne samhandlere har et versjonsnummer som ikke kan endres uten at det avtales med samhandleren.
+Dette gjelder:
+
+* V1: Simuler alderspensjon for samhandleren Norsk Pensjon
+* V3: Simuler alderspensjon for tjenestepensjonsordninger unntatt SPK
+* V4: Simuler alderspensjon for tjenestepensjonsordningen SPK
+
+NOTE: V2 ble tidligere brukt av tjenestepensjonsordningen KLP, men de gikk over til V3 sommeren 2025.
+
+== Simulatorkjerne
+
+Simulatorkjernen orkestrerer funksjonene som inngår i en enkeltsimulering (en simulering for et gitt sett av inndata).
+
+Alle tjenestene benytter den samme simulatorkjernen, der det utføres varierende logikk avhenging av simuleringstype.
+
+Det er betydelige variasjoner i format på inn- og utdata i de forskjellige tjenestevariantene. Disse mappes til en felles inn-/utdatastruktur som brukes av kjernen.
+
+* xref:Implementasjon:simulatorkjerne.adoc[Simulatorkjerne]
+
+== Multisimulering
+
+Pensjonssimulatoren har noen tjenester der ett tjenestekall fører til multiple enkeltsimuleringer. Det gjelder:
+
+* beregning av tidligst mulig uttak
+* utledning av alternative uttaksvilkår i tilfelle tjenestekallets inndata gir avslag i vilkårsprøvingen
+
+I disse tilfellene vil simulatoren generere flere sett av inndata for å finne det settet som gir innvilgelse i vilkårsprøvingen.
+
+* xref:Implementasjon:uttak.adoc[Beregning av tidligst mulig uttak]

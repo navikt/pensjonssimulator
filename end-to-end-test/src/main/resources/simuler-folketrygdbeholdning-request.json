@@ -1,0 +1,17 @@
+{
+  "personId": "01810198296",
+  "uttaksdato": "2068-02-01",
+  "fremtidigInntektListe": [
+    {
+      "arligInntekt": 600000,
+      "fraOgMedDato": "2024-01-01"
+    },
+    {
+      "arligInntekt": 0,
+      "fraOgMedDato": "2068-02-01"
+    }
+  ],
+  "arIUtlandetEtter16": 0,
+  "epsPensjon": true,
+  "eps2G": true
+}

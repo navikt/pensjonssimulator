@@ -17,13 +17,7 @@ Utdata er:
 
 Kotlin-implementasjonen av simulatorkjernen heter _SimulatorCore_.
 
-== Litt terminologi
-
-Pensjon simuleres for en gitt person, som betegnes som "søker" (simuleringen kan anses som en saksbehandling av en fiktiv søknad om pensjon).
-
-Dersom personen har ektefelle, partner eller samboer, kan det påvirke resultatet. Ektefelle/partner/samboer betegnes som "EPS".
-
-Dersom personens EPS er død, kan det medføre rett til tilleggsytelser. Den avdøde personen betegnes som "avdød".
+For en forklaring på noen av begrepene som brukes i implementasjonen, se xref:Terminologi:pensjonsbegreper.adoc[pensjonsbegreper] og xref:Terminologi:personbegreper.adoc[personbegreper].
 
 == Overordnet flyt
 

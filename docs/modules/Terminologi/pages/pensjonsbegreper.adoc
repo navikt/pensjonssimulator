@@ -1,0 +1,39 @@
+= Pensjonsbegreper
+
+== Fase
+
+Simulatoren innfører et eget begrep, "fase", for å modellere abstraksjonen "tidsintervall med samme pensjonstype og uttaksgrad".
+
+Simulatoren støtter pensjonsuttak med én eller to faser.
+
+2-faseuttak kan være:
+
+* Gradert uttak etterfulgt av helt uttak
+* Pre-2025 offentlig AFP etterfulgt av alderspensjon
+
+NOTE: "Fase" må ikke forveksles med "knekkpunkt" eller "periode"; en fase strekker seg typisk over flere knekkpunkter/perioder.
+
+== Knekkpunkt
+
+Et knekkpunkt er en dato der det skjer en endring i grunnlaget for pensjon.
+
+Eksempler på endring:
+
+* Ny opptjening
+* Endret uttaksgrad
+
+== Krav
+
+Når en person søker om alderspensjon, opprettes et _krav_, som så vil saksbehandles.
+
+Et krav består av et _kravhode_ og én eller flere _kravlinjer_ (detaljer om kravet).
+
+Pensjonssimulatoren kan ses på som en "saksbehandler" av fiktive krav.
+
+== Periodisering
+
+Beregning av pensjon gjøres ved å dele opp pensjonsløpet i perioder, der en periode er tiden mellom to knekkpunkter.
+
+Pensjon beregnes så for hver enkelt periode, basert på et pensjonsgrunnlag som er "trimmet" slik at det kun gjelder for den aktuelle perioden.
+
+Denne "periodetrimmingen" av grunnlaget kalles _periodisering_.

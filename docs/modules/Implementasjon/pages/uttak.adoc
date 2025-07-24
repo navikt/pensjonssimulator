@@ -7,7 +7,7 @@ Når det gjøres en enkeltsimulering for en gitt uttaksalder og uttaksgrad, vil 
 * for lav opptjening
 * for kort trygdetid
 
-For å unngå at konsumentene av simuleringtjenestene må gjøre mye prøving of feiling for å finne uttaksvilkår som gir innvilget resultat, har pensjonssimulatoren funksjonalitet for effektivt å finne innvilgede uttaksvilkår. Dette gjøres gjennom en iterativ prosess der det utledes alternative uttaksvilkår som brukes som inndata til en ny enkeltsimulering. De alternative uttaksvilkårene utledes gjennom en algoritme basert på binærsøk, som effektivt begrenser det maksimale antall iterasjoner.
+For å unngå at konsumentene av simuleringtjenestene må gjøre mye prøving of feiling for å finne uttaksvilkår som gir innvilget resultat, har pensjonssimulatoren funksjonalitet for å finne innvilgede uttaksvilkår. Dette gjøres gjennom en iterativ prosess der det utledes alternative uttaksvilkår som brukes som inndata til en ny enkeltsimulering. De alternative uttaksvilkårene utledes gjennom en algoritme basert på binærsøk, som effektivt begrenser det maksimale antall iterasjoner.
 
 Den overordnede implementasjonen er i Kotlin-klassene _AlderspensjonService_ og _SimuleringFacade_.
 

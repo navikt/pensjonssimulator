@@ -90,6 +90,8 @@ spec:
           cluster: dev-fss
         - application: pensjon-regler-q2
           namespace: pensjon-regler
+        - application: pensjon-regler-q2
+          namespace: pensjon-regler
           cluster: dev-fss
         - application: pensjon-selvbetjening-fss-gateway
           namespace: pensjonselvbetjening

@@ -56,9 +56,9 @@ class PensjonReglerGenericRegelClient(
     ): T {
         val uri = "$BASE_PATH/$serviceName"
 
-        if (serviceName == "vilkarsprovAlderspensjon2025") {
+        if (serviceName == "hentGrunnbelopListe" || serviceName == "vilkarsprovAlderspensjon2025") {
             val start = System.currentTimeMillis()
-            val responseBody = webClient
+            val body2 = webClient2
                 .post()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -70,8 +70,8 @@ class PensjonReglerGenericRegelClient(
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
 
-            val start2 = System.currentTimeMillis()
-            val body2 = webClient2
+            val fssStart = System.currentTimeMillis()
+            val responseBody = webClient
                 .post()
                 .uri(uri)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ class PensjonReglerGenericRegelClient(
                 .block()
             val stop = System.currentTimeMillis()
 
-            log.info { "vilkarsprovAlderspensjon2025 - response length ${body2?.length} - fss time ${start2 - start} ms - gcp time ${stop - start2} ms" }
+            log.info { "FSS: ${stop - fssStart} ms - GCP: ${fssStart - start} ms - $serviceName - response length ${body2?.length}" }
             return requireNonNull(objectMapper.readValue(requireNonNull(responseBody), responseClass) as T)
         }
 

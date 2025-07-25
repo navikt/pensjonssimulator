@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.regel.client.pensjonregler
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
@@ -20,12 +21,15 @@ import java.util.Objects.requireNonNull
 @Component
 class PensjonReglerGenericRegelClient(
     @Value("\${ps.regler.url}") baseUrl: String,
+    @Value("\${ps.regler.gcp.url}") gcpBaseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     @Qualifier("regler") private val objectMapper: ObjectMapper,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), GenericRegelClient {
+    val log = KotlinLogging.logger { }
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient2 = webClientBuilder.baseUrl(gcpBaseUrl).build()
 
     // regelServiceApi
     override fun <K, T : Any> makeRegelCall(
@@ -51,6 +55,38 @@ class PensjonReglerGenericRegelClient(
         sakId: String?
     ): T {
         val uri = "$BASE_PATH/$serviceName"
+
+        if (serviceName == "vilkarsprovAlderspensjon2025") {
+            val start = System.currentTimeMillis()
+            val responseBody = webClient
+                .post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .headers(::setHeaders)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .retryWhen(retryBackoffSpec(uri))
+                .block()
+
+            val start2 = System.currentTimeMillis()
+            val body2 = webClient2
+                .post()
+                .uri(uri)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .headers(::setHeaders)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .retryWhen(retryBackoffSpec(uri))
+                .block()
+            val stop = System.currentTimeMillis()
+
+            log.info { "vilkarsprovAlderspensjon2025 - response length ${body2?.length} - fss time ${start2 - start} ms - gcp time ${stop - start2} ms" }
+            return requireNonNull(objectMapper.readValue(requireNonNull(responseBody), responseClass) as T)
+        }
 
         val responseBody = webClient
             .post()

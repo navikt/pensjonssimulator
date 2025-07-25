@@ -21,7 +21,7 @@ import java.util.Objects.requireNonNull
 @Component
 class PensjonReglerGenericRegelClient(
     @Value("\${ps.regler.url}") baseUrl: String,
-    @Value("\${ps.regler.gcp.url}") gcpBaseUrl: String,
+    //@Value("\${ps.regler.gcp.url}") gcpBaseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     @Qualifier("regler") private val objectMapper: ObjectMapper,
@@ -29,7 +29,7 @@ class PensjonReglerGenericRegelClient(
 ) : ExternalServiceClient(retryAttempts), GenericRegelClient {
     val log = KotlinLogging.logger { }
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
-    private val webClient2 = webClientBuilder.baseUrl(gcpBaseUrl).build()
+    //private val webClient2 = webClientBuilder.baseUrl(gcpBaseUrl).build()
 
     // regelServiceApi
     override fun <K, T : Any> makeRegelCall(
@@ -55,7 +55,7 @@ class PensjonReglerGenericRegelClient(
         sakId: String?
     ): T {
         val uri = "$BASE_PATH/$serviceName"
-
+/*
         if (serviceName == "hentGrunnbelopListe" || serviceName == "vilkarsprovAlderspensjon2025") {
             val start = System.currentTimeMillis()
             val body2 = webClient2
@@ -87,7 +87,7 @@ class PensjonReglerGenericRegelClient(
             log.info { "FSS: ${stop - fssStart} ms - GCP: ${fssStart - start} ms - $serviceName - response length ${body2?.length}" }
             return requireNonNull(objectMapper.readValue(requireNonNull(responseBody), responseClass) as T)
         }
-
+*/
         val responseBody = webClient
             .post()
             .uri(uri)

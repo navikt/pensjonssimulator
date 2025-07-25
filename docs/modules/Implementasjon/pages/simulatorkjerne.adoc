@@ -6,7 +6,7 @@ Inndata er hovedsakelig:
 
 * Simuleringstype
 * Personopplysninger (fødselsnummer, sivilstand, inntekt, utenlandsopphold, m.m.)
-* Ønsket uttaksdato og uttaksgrad
+* Ønsket uttaksalder og uttaksgrad
 * Om personen kommer til å ha rett til offentlig/privat AFP
 
 Utdata er:

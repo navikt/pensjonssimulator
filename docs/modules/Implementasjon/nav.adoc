@@ -6,3 +6,4 @@
 *** xref:vilkårsprøv-beregn.adoc[Vilkårsprøving og beregning av alderspensjon]
 *** xref:offentlig-afp.adoc[Beregning av AFP i offentlig sektor]
 *** xref:privat-afp.adoc[Beregning av AFP i privat sektor]
+*** xref:uttak.adoc[Beregning av tidligst mulig uttak]

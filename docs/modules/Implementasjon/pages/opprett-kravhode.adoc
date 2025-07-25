@@ -4,14 +4,9 @@ Når en person søker om alderspensjon, opprettes et _krav_, som så vil saksbeh
 
 Et krav består av et kravhode og én eller flere kravlinjer (detaljer om kravet).
 
-NOTE: I domenemodellen finnes det ikke noe som representerer det overordnede begrepet "krav" - kun _kravhode_ og _kravlinje_ er representert; kravlinjene er en liste på kravhodet.
-
 I simuleringssammenheng vil det kun være snakk om et simulert (fiktivt) "krav" med en tilhørende simulert "saksbehandling", bestående av en forenklet automatisk vilkårsprøving og beregning.
 
-Et krav består av et kravhode og én eller flere kravlinjer (detaljer om kravet).
-
-NOTE: I domenemodellen finnes det ikke noe som representerer det overordnede begrepet "krav" - kun _kravhode_ og _kravlinje_ er representert; kravlinjene er en liste på kravhodet.
-
+NOTE: I domenemodellen finnes det ikke noe som representerer det overordnede begrepet "krav" – kun _kravhode_ og _kravlinje_ er representert; kravlinjene er en liste på kravhodet.
 
 == Flyt
 

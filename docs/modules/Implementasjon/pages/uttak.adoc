@@ -13,15 +13,17 @@ Den overordnede implementasjonen er i Kotlin-klassene _AlderspensjonService_ og 
 
 Funksjonaliteten brukes i følgende tjenester:
 
-* Simuler alderspensjon for tjenestepensjonsordningen SPK ("V4")
-* Simuler alderspensjon for Navs innloggede pensjonskalkulator
-* Simuler tidligst mulig uttak for tjenestepensjonsordninger
+* Simuler alderspensjon V4 (for samhandlere)
+* Simuler alderspensjon for angitt person (for Nav-applikasjoner)
+* Beregn tidligst mulig uttak (for samhandlere)
 
 == "Nært angitt uttak"
 
-Ved gradert uttak er det tre størrelser som kan varieres i hver iterasjon (uttaksgrad, dato for gradert uttak, dato for etterfølgende helt uttak). Begrepet "tidligst mulig uttak" (TMU) blir da meningsløst, da noen foretrekker tidlig gradert uttak, andre foretrekker tidlig helt uttak, og atter andre foretrekker høy uttaksgrad. Isteden brukes her begrepet "nært angitt uttak" (NAU).
+Ved gradert uttak er det tre størrelser som kan varieres i hver iterasjon (uttaksgrad, alder for gradert uttak, og alder for etterfølgende helt uttak). Begrepet "tidligst mulig uttak" (TMU) blir da meningsløst, da noen foretrekker tidlig gradert uttak, andre foretrekker tidlig helt uttak, og atter andre foretrekker høy uttaksgrad. Isteden brukes her begrepet "nært angitt uttak" (NAU).
 
-Tenk deg et 3-dimensjonalt koordinatsystem med følgende akser:
+=== Framgangsmåte
+
+For å forklare framgangsmåten for å finne NAU, forestill deg et 3-dimensjonalt koordinatsystem med følgende akser:
 
 * Uttaksgrad
 * Alder for gradert uttak
@@ -45,7 +47,7 @@ Gjentagelsen fortsetter inntil det ikke finnes flere midtpunkter.
 
 Linjen mellom angitte (initielle) punktet og det dårligste punktet deles altså iterativt i 2 (dvs. binærsøk), noe som gjør at antall iterasjoner blir logaritmen (base 2) av antall punkter på linjen.
 
-.Eksempel
+=== Eksempel
 
 La et punkt beskrives med [uttaksgrad, alder for gradert uttak, alder for helt uttak].
 

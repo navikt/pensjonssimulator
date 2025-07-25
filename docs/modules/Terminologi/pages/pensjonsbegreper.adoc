@@ -1,5 +1,13 @@
 = Pensjonsbegreper
 
+Pensjonsrelaterte begreper som brukes i implementasjonen av simulatoren.
+
+== AFP
+
+Avtalefestet pensjon (AFP) betegner pensjonsordninger som er nedfelt i en tariffavtale mellom arbeidsgiver og arbeidstaker.
+
+AFP finnes både i privat og offentlig sektor, men ordningene er forskjellige.
+
 == Fase
 
 Simulatoren innfører et eget begrep, "fase", for å modellere abstraksjonen "tidsintervall med samme pensjonstype og uttaksgrad".
@@ -20,6 +28,7 @@ Et knekkpunkt er en dato der det skjer en endring i grunnlaget for pensjon.
 Eksempler på endring:
 
 * Ny opptjening
+* Ny trygdetid
 * Endret uttaksgrad
 
 == Krav

@@ -1,5 +1,33 @@
 = Personbegreper
 
+Personsrelaterte begreper som brukes i implementasjonen av simulatoren.
+
+== Alder
+
+I pensjonssammenheng måles alder i år og måneder, dvs. antall helt fylte år og helt fylte måneder (begge verdier er heltall). Måneder-verdien er minimum 0 og maksimum 11.
+
+Eksempel: En person som født for 65 år, 7 måneder og 25 dager siden har alderen 65 år og 7 måneder (siden den 8. måneden ikke er helt fylt).
+
+=== Alder og uttaksdato
+
+Nedre aldergrense for uttak av alderspensjon er normalt 62 år (og 0 måneder). Samtidig er det slik at uttaket starter den første dagen i måneden etter at vedkommende oppnår denne alderen.
+
+Eksempel:
+
+* Fødselsdato 01.06.1970 (fyller dermed 62 år 01.06.2032)
+* Dato for første mulig uttak: 01.07.2032
+
+Personen later da til å være 62 år og 1 måned på uttaksdatoen, noe som strider mot det faktum at nedre aldersgrense er 62 år og 0 måneder.
+
+Denne tvetydigheten i alder kan unngås slik:
+
+Anta at fødselstidspunket er kl 12 på fødselsdatoen og at uttakstidspunktet er kl 00 på uttaksdatoen. Da får vi:
+
+* Fødselstidspunkt 01.06.1970 kl 12 (fyller dermed 62 år 01.06.2032 kl 12)
+* Tidspunkt for første mulig uttak: 01.07.2032 kl 00
+
+Da ser vi at det vil mangle en halv dag (12 timer) på at vedkommnende fyller 62 år og 1 måned. Alderen blir derfor fortsatt 62 år og 0 måneder på uttakstidspunktet, og tvetydigheten er fjernet.
+
 == Søker
 
 Pensjon simuleres for en gitt person, som betegnes som "søker" (simuleringen kan anses som en "saksbehandling" av en fiktiv søknad om pensjon).

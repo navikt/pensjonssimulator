@@ -1,46 +1,55 @@
-== Tjenester
+= Tjenester
 
-Følgende tjenester tilbys av pensjonssimulatoren via dens API:
+Simulatoren tilbyr to hovedkategorier av tjenester:
 
-* Simuler alderspensjon for samhandleren Norsk Pensjon ("V1")
-* Simuler alderspensjon for tjenestepensjonsordninger unntatt SPK ("V3")
-* Simuler alderspensjon for tjenestepensjonsordningen SPK ("V4")
-* Simuler alderspensjon for Navs innloggede pensjonskalkulator
-* Simuler alderspensjon for Navs uinnloggede pensjonskalkulator
-* Simuler alderspensjon for Navs interne pensjonskalkulator for saksbehandlere/veiledere
+* Tjenester for eksterne samhandlere
+* Tjenester for Navs egne applikasjoner
+
+== Tjenester for samhandlere
+
+Disse er tjenester for eksterne samhandlere (Norsk Pensjon og tjenestepensjonsordninger som KLP og SPK).
+
+* Simuler alderspensjon V1 (kun Norsk Pensjon bruker denne)
+* Simuler alderspensjon V3 (for personer født før 1963)
+* Simuler alderspensjon V4 (for personer født 1963 eller senere)
+* Simuler folketrygdberegnet AFP i offentlig sektor ("gammel" AFP-ordning)
+* Simuler offentlig AFP etterfulgt av alderspensjon ("gammel" AFP-ordning)
+* Beregn tidligst mulig uttak
+
+=== Versjonering av samhandlertjenester
+
+Tjenestene som er laget for samhandlere har et "avtalefestet" versjonsnummer (V1, V3 og V4). Endringer i tjenestene må avtales med samhandlerne.
+
+NOTE: V2 ble tidligere brukt av KLP, men de gikk over til V3 sommeren 2025.
+
+== Tjenester for Nav-applikasjoner
+
+Dette er tjenester laget for Navs egne pensjonskalkulatorer.
+
+* Simuler alderspensjon for angitt person
+* Simuler alderspensjon anonymt (for Navs uinnloggede pensjonskalkulator)
+* Simuler alderspensjon som serviceberegning (for saksbehandlere/veiledere)
 * Simuler alderspensjon som grunnlag for simulering av tjenestepensjon
-* Simuler tidligst mulig uttak for tjenestepensjonsordninger
-* Simuler folketrygdberegnet AFP i offentlig sektor (gjelder "gammel" AFP-ordning)
-* Simuler offentlig AFP etterfulgt av alderspensjon (gjelder "gammel" AFP-ordning)
 
-== Versjonering av tjenester for samhandlere
+== Litt om implementasjon
 
-Tjenestene som er laget for eksterne samhandlere har et versjonsnummer som ikke kan endres uten at det avtales med samhandleren.
-Dette gjelder:
+=== Simulatorkjerne
 
-* V1: Simuler alderspensjon for samhandleren Norsk Pensjon
-* V3: Simuler alderspensjon for tjenestepensjonsordninger unntatt SPK
-* V4: Simuler alderspensjon for tjenestepensjonsordningen SPK
-
-NOTE: V2 ble tidligere brukt av tjenestepensjonsordningen KLP, men de gikk over til V3 sommeren 2025.
-
-== Simulatorkjerne
+Alle tjenestene benytter den samme simulatorkjernen, men det utføres varierende logikk avhenging av simuleringstype.
 
 Simulatorkjernen orkestrerer funksjonene som inngår i en enkeltsimulering (en simulering for et gitt sett av inndata).
 
-Alle tjenestene benytter den samme simulatorkjernen, der det utføres varierende logikk avhenging av simuleringstype.
-
 Det er betydelige variasjoner i format på inn- og utdata i de forskjellige tjenestevariantene. Disse mappes til en felles inn-/utdatastruktur som brukes av kjernen.
 
-* xref:Implementasjon:simulatorkjerne.adoc[Simulatorkjerne]
+For detaljer se: xref:Implementasjon:simulatorkjerne.adoc[Simulatorkjerne]
 
-== Multisimulering
+=== Multisimulering
 
 Pensjonssimulatoren har noen tjenester der ett tjenestekall fører til multiple enkeltsimuleringer. Det gjelder:
 
-* beregning av tidligst mulig uttak
-* utledning av alternative uttaksvilkår i tilfelle tjenestekallets inndata gir avslag i vilkårsprøvingen
+* Beregn tidligst mulig uttak
+* Utled alternative uttaksvilkår i tilfeller der kallets inndata gir avslag i vilkårsprøvingen
 
-I disse tilfellene vil simulatoren generere flere sett av inndata for å finne det settet som gir innvilgelse i vilkårsprøvingen.
+I disse tilfellene vil simulatoren generere flere sett av inndata (og simulere med hvert av dem) for å finne det settet som gir innvilgelse i vilkårsprøvingen.
 
-* xref:Implementasjon:uttak.adoc[Beregning av tidligst mulig uttak]
+For detaljer se: xref:Implementasjon:uttak.adoc[Beregning av tidligst mulig uttak]

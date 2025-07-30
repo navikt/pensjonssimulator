@@ -3,6 +3,9 @@ name: 'Kjør end to end tester i Sandbox'
 on:
   workflow_dispatch:
   workflow_call:
+  push:
+    branches:
+      - feature/PEK-1397-feil-feltnavn-i-request-til-tidligst-mulig-uttak-i-ende-til-ende-test
 
 jobs:
   runIntegrationTests:

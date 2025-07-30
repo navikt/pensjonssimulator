@@ -5,7 +5,7 @@ on:
   workflow_call:
   push:
     branches:
-      - feature/PEK-1397-feil-feltnavn-i-request-til-tidligst-mulig-uttak-i-ende-til-ende-test
+      - feature/feature/PEK-1397-feil-i-tmu-api-test
 
 jobs:
   runIntegrationTests:

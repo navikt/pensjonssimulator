@@ -1,5 +1,6 @@
 package no.nav.pensjon
 
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -54,6 +55,16 @@ object Evaluator {
                     tekniskFeil = actualResponse,
                 )
             }
+        } catch (e: HttpRequestTimeoutException) {
+            val tekniskFeilmelding = "${e.message}"
+            log.error(tekniskFeilmelding, e)
+            return EvaluationResult(
+                responseIsAsExpected = false,
+                path = resource.path,
+                expectedResponsePath = resource.responseResource,
+                actualResponse = tekniskFeilmelding,
+                tekniskFeil = tekniskFeilmelding,
+            )
         } catch (e: Exception) {
             val actualResponse = "Exception at ${resource.path}: ${e.message}"
             log.error(actualResponse, e)

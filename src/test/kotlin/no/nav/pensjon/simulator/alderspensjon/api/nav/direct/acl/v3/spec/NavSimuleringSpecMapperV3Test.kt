@@ -18,10 +18,15 @@ import java.time.LocalDate
 import java.util.*
 
 class NavSimuleringSpecMapperV3Test : FunSpec({
+    val foedselsdato = LocalDate.now().minusYears(62).minusMonths(1)
 
     test("fromNavSimuleringSpecV3 should fetch fødselsdato and map values") {
+        val fremtidigInntektListeFraAar = foedselsdato.plusYears(58).year
+        val utenlandsperiodeStartAar = foedselsdato.plusYears(58).year
+        val foersteUttaksdato = foedselsdato.plusYears(62).plusMonths(4).withDayOfMonth(1)
+        val heltUttaksdato = foedselsdato.plusYears(66).plusMonths(8).withDayOfMonth(1)
         NavSimuleringSpecMapperV3(
-            personService = Arrange.foedselsdato(1963, 4, 5),
+            personService = Arrange.foedselsdato(foedselsdato.year, foedselsdato.monthValue, foedselsdato.dayOfMonth),
             inntektService = arrangeGrunnbeloep()
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
@@ -46,13 +51,13 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
                 fremtidigInntektListe = listOf(
                     NavSimuleringInntektSpecV3(
                         aarligInntekt = 6000,
-                        fom = dateAtNoon(2021, Calendar.JANUARY, 1)
+                        fom = dateAtNoon(fremtidigInntektListeFraAar, Calendar.JANUARY, 1)
                     )
                 ),
                 utenlandsperiodeListe = listOf(
                     NavSimuleringUtlandSpecV3(
-                        fom = dateAtNoon(2021, Calendar.JANUARY, 1),
-                        tom = dateAtNoon(2022, Calendar.DECEMBER, 19),
+                        fom = dateAtNoon(utenlandsperiodeStartAar, Calendar.JANUARY, 1),
+                        tom = dateAtNoon(utenlandsperiodeStartAar + 1, Calendar.DECEMBER, 19),
                         land = "ALB",
                         arbeidetUtenlands = true
                     )
@@ -62,10 +67,10 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             type = SimuleringTypeEnum.ENDR_ALDER,
             sivilstatus = SivilstatusType.GJPA,
             epsHarPensjon = true,
-            foersteUttakDato = LocalDate.of(2025, 8, 1),
-            heltUttakDato = LocalDate.of(2029, 12, 1),
+            foersteUttakDato = foersteUttaksdato,
+            heltUttakDato = heltUttaksdato,
             pid = pid,
-            foedselDato = LocalDate.of(1963, 4, 5),
+            foedselDato = foedselsdato,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,
@@ -78,8 +83,8 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             utlandAntallAar = 0, // siden utlandPeriodeListe brukes isteden
             utlandPeriodeListe = mutableListOf(
                 UtlandPeriode(
-                    fom = LocalDate.of(2021, 1, 1),
-                    tom = LocalDate.of(2022, 12, 19),
+                    fom = LocalDate.of(utenlandsperiodeStartAar, 1, 1),
+                    tom = LocalDate.of(utenlandsperiodeStartAar + 1, 12, 19),
                     land = LandkodeEnum.ALB,
                     arbeidet = true
                 )
@@ -101,8 +106,9 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
     }
 
     test("fromNavSimuleringSpecV3 should use heltUttakDato = null if ugradert uttak") {
+        val foersteUttaksdato = foedselsdato.plusYears(66).plusMonths(8).withDayOfMonth(1)
         NavSimuleringSpecMapperV3(
-            personService = Arrange.foedselsdato(1963, 4, 5),
+            personService = Arrange.foedselsdato(foedselsdato.year, foedselsdato.monthValue, foedselsdato.dayOfMonth),
             inntektService = arrangeGrunnbeloep()
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
@@ -127,10 +133,10 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             type = SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
             sivilstatus = SivilstatusType.ENKE,
             epsHarPensjon = false,
-            foersteUttakDato = LocalDate.of(2029, 12, 1), // dato for helt uttak
+            foersteUttakDato = foersteUttaksdato, // dato for helt uttak
             heltUttakDato = null, // siden ugradert uttak
             pid = pid,
-            foedselDato = LocalDate.of(1963, 4, 5),
+            foedselDato = foedselsdato,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,

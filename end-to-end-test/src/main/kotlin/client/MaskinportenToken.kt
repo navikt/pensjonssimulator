@@ -23,7 +23,7 @@ object MaskinportenToken {
     val log = KotlinLogging.logger {}
 
     suspend fun hentToken(): String {
-        log.info("Bruker følgende conf: $maskinportenConfig")
+        log.debug("Bruker følgende conf: {}", maskinportenConfig)
 
         val rsaKey = RSAKey.parse(maskinportenConfig.clientJwk)
         val signedJWT = SignedJWT(

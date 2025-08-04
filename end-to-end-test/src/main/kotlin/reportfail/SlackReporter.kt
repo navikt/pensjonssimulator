@@ -18,13 +18,14 @@ object SlackReporter {
         val testFailures = results.count { !it.responseIsAsExpected }
         val pathsFailed = results.filter { !it.responseIsAsExpected }.map { it.path }
         val detectedChanges = results.filter { !it.responseIsAsExpected }.mapNotNull { it.diffs }
-
+        val tekniskeFeil = results.filter { !it.responseIsAsExpected }.mapNotNull { it.tekniskFeil }
         val payload = """
             {
                 "total_tests": $totalTests,
                 "test_failures": $testFailures,
                 "path_failed": ${pathsFailed.toJsonArray()},
-                "detected_changes": ${detectedChanges.toJsonArray()}
+                "detected_changes": ${detectedChanges.toJsonArray()},
+                "tekniske_feil": ${tekniskeFeil.toJsonArray()}
             }
         """.trimIndent()
 

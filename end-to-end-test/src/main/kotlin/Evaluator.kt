@@ -51,6 +51,7 @@ object Evaluator {
                     path = resource.path,
                     expectedResponsePath = resource.responseResource,
                     actualResponse = actualResponse,
+                    tekniskFeil = actualResponse,
                 )
             }
         } catch (e: Exception) {
@@ -61,6 +62,7 @@ object Evaluator {
                 path = resource.path,
                 expectedResponsePath = resource.responseResource,
                 actualResponse = actualResponse,
+                tekniskFeil = actualResponse,
             )
         }
     }

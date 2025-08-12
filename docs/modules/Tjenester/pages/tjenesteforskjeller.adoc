@@ -1,0 +1,123 @@
+= Viktige forskjeller i tjenestene
+
+== Kallende applikasjoner
+
+Her vises hvilke applikasjoner som pensjonssimulator mottar de forskjellige tjenestekallene fra direkte ("direktekonsument"). I tillegg vises hva som er den endelige applikasjonen som tjenesten er myntet på ("sluttkonsument"), selv om dette i prinsippet er irrelevant for simulatoren.
+
+.Kallende applikasjoner
+|===
+|Tjeneste |Direktekonsument |Sluttkonsument
+
+|Simuler alderspensjon V1
+|PEN
+|Ekstern samhandler
+
+|Simuler alderspensjon V3
+|PEN
+|Ekstern samhandler
+
+|Simuler alderspensjon V4
+|Ekstern samhandler
+|Ekstern samhandler
+
+|Simuler alderspensjon for angitt person
+|pensjonskalkulator-backend
+|pensjonskalkulator-frontend
+
+|Simuler alderspensjon anonymt
+|pensjonskalkulator-backend
+|pensjonskalkulator-uinnlogget-frontend
+
+|Simuler alderspensjon som serviceberegning
+|PEN
+|PSELV
+
+|Simuler alderspensjon som grunnlag for simulering av tjenestepensjon
+|PEN
+|PSELV
+
+|Simuler folketrygdberegnet AFP i offentlig sektor
+|PEN
+|PSELV
+
+|Simuler offentlig AFP etterfulgt av alderspensjon
+|Ekstern samhandler
+|Ekstern samhandler
+
+|Simuler folketrygdbeholdning
+|Ekstern samhandler
+|Ekstern samhandler
+
+|Beregn tidligst mulig uttak
+|Ekstern samhandler
+|Ekstern samhandler
+
+|===
+
+== Simulering av endret pensjon
+
+Pensjonssimulator har støtte for simulering av endret pensjon (endring av løpende uttak), men ikke alle konsumentene av tjenestene benytter seg av denne støtten (og tilbyr derfor kun simulering av førstegangsuttak).
+
+De fleste tjenestene krever at simuleringstype (førstegangsuttak/endring) angis eksplisitt. Unntakene er 'Simuler alderspensjon V4' og 'Simuler folketrygdbeholdning'. Her sjekker pensjonssimulator om personen har løpende pensjon (i så fall simuleres endring). Sjekken baserer seg på vedtaksdata som hentes fra PEN.
+
+.Støtte for simulering av endret pensjon
+|===
+|Tjeneste |Støtter endring? |Simuleringstype angis av
+
+|Simuler alderspensjon V1
+|Nei^1^
+|PEN
+
+|Simuler alderspensjon V3
+|Ja
+|PEN
+
+|Simuler alderspensjon V4
+|Ja
+|pensjonssimulator^3^
+
+|Simuler alderspensjon for angitt person
+|Ja
+|pensjonskalkulator-frontend
+
+|Simuler alderspensjon anonymt
+|Nei^2^
+|pensjonskalkulator-uinnlogget-frontend
+
+|Simuler alderspensjon som serviceberegning
+|Ja
+|PSELV
+
+|Simuler alderspensjon som grunnlag for simulering av tjenestepensjon
+|Ja
+|PSELV
+
+|Simuler folketrygdberegnet AFP i offentlig sektor
+|Ja
+|PSELV
+
+|Simuler offentlig AFP etterfulgt av alderspensjon
+|Nei
+|pensjonssimulator^4^
+
+|Simuler folketrygdbeholdning
+|Ja
+|pensjonssimulator^5^
+
+|Beregn tidligst mulig uttak
+|Nei
+|pensjonssimulator^6^
+
+|===
+
+^1^ Støttes i prinsippet av pensjonssimulator, men PEN angir alltid førstegangsuttak (i klassen _HentSimulertPensjonRequestConverter_ i pensjon-pen).
+
+^2^ Støttes i prinsippet av pensjonssimulator, men pensjonskalkulator-uinnlogget-frontend angir alltid førstegangsuttak.
+
+^3^ Implementert i klassen _AlderspensjonSpecMapper_.
+
+^4^ Implementert i klassen _AfpEtterfulgtAvAlderspensjonSpecMapperV0_.
+
+^5^ Implementert i klassen _FolketrygdBeholdningService_.
+
+^6^ Implementert i klassen _UttakSpecMapperV1_.

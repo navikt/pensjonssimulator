@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.4</version>
         <relativePath/> <!-- lookup parent from the repository -->
     </parent>
     <groupId>no.nav.pensjon</groupId>
@@ -202,7 +202,7 @@
         <dependency>
             <groupId>io.getunleash</groupId>
             <artifactId>unleash-client-java</artifactId>
-            <version>11.0.2</version>
+            <version>11.1.0</version>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>

@@ -1,2 +1,4 @@
 .Tjenester
 *** xref:tjenesteoversikt.adoc[Oversikt]
+*** xref:tjenesteforskjeller.adoc[Viktige forskjeller i tjenestene]
+*** xref:tjenestesammenligning.adoc[Sammenligning av tjenester]

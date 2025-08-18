@@ -1,0 +1,355 @@
+= Sammenligning av tjenester
+
+De forskjellige simuleringstjenestene har forskjellig format på inndata og forskjellig format på utdata. I tillegg er det enkelte forskjeller i simuleringslogikken for tjenestene. Dette gjør det utfordrende å sammenligne simuleringsresultatet fra to forskjellige tjenester.
+
+La oss analysere følgende to tjenester:
+
+* Simuler alderspensjon V4 (brukt av samhandlere)
+
+* Simuler alderspensjon for angitt person (her kalt "Nav-tjenesten", siden den brukes av Navs pensjonskalkulator)
+
+== Forutsetninger
+
+Vi bruker en syntetisk person (fra Test-Norge) med fødselsnummer 14826399482. Vi antar at:
+
+* Fødselsdato er 14.02.1963
+
+* Personen har ikke løpende alderspensjon
+
+* Simuleringen utføres i første halvår 2025 (da vil siste gyldige opptjeningsår være 2023)
+
+== Inndata
+
+Første utfordring er å finne inndata som gir samme beregnede pensjon i de to tjenestene. Vi kan bruke begrepet "ekvivalente inndata" for å beskrive inndata som bør gi samme beregning uansett tjeneste.
+
+Her er et eksempel på ekvivalente inndata for denne personen i de to tjenestene:
+
+V4-tjenesten:
+
+ {
+    "personId": "14826399482",
+    "epsPensjon": false,
+    "eps2G": false,
+    "aarIUtlandetEtter16": 0,
+    "heltUttakFraOgMedDato": "2030-08-01",
+    "fremtidigInntektListe": [
+        {
+            "aarligInntekt": 400000,
+            "fraOgMedDato": "2024-01-01"
+        },
+        {
+            "aarligInntekt": 0,
+            "fraOgMedDato": "2030-08-01"
+        }
+    ]
+ }
+
+Nav-tjenesten:
+
+ {
+    "pid": "14826399482",
+    "epsHarPensjon": false,
+    "epsHarInntektOver2G": false,
+    "utenlandsperiodeListe": [],
+    "sivilstand": "UGIF",
+    "simuleringstype": "ALDER",
+    "sisteInntekt": 400000,
+    "heltUttak": {
+        "uttakFomAlder": {
+            "aar": 67,
+            "maaneder": 5
+        },
+        "aarligInntekt": 0,
+        "inntektTomAlder": {
+            "aar": 70,
+            "maaneder": 0
+        }
+    }
+ }
+
+La oss se hvorfor de forskjellige elementene er ekvivalente.
+
+==== Uttaksstart
+
+Uttaksstart angitt i Nav-tjenesten (_uttakFomAlder_) er alderen 67 år 5 måneder. Med fødselsdato 14.02.1963 oppnår personen denne alderen 14.07.2030. Uttaksstart kan først skje den 1. i måneden etter at personen oppnår denne alderen, dvs. 01.08.2030. Dette stemmer med uttaksdatoen angitt i V4-tjenesten (_heltUttakFraOgMedDato_).
+
+==== Inntekt
+
+I Nav-tjenesten angis 'siste årlige inntekt før simulering' (_sisteInntekt_). Simulatoren antar at denne inntekten gjelder f.o.m. 1. januar året etter siste gyldige opptjeningsår (dvs. 01.01.2024) og fram til uttakstart. Datoen 01.01.2024 stemmer med den første datoen (_fraOgMedDato_) i listen over fremtidige inntekter (_fremtidigInntektListe_) i V4-tjenesten.
+
+Inntekt etter uttaksstart er i Nav-tjenesten angitt som 'årlig inntekt under helt uttak' (_aarligInntekt_ under _heltUttak_). Uttaksstart er 01.08.2030 og inntekten er 0, noe som stemmer med det andre elementet i _fremtidigInntektListe_ i V4-tjenesten.
+
+Merk at siden den inntekten er 0, har ikke 'sluttalder for inntekt' (_inntektTomAlder_) noe å si, og denne alderen har da heller ingen motsats i V4-tjenesten.
+
+==== Sivilstand
+
+I V4-tjenesten angis ikke sivilstand eksplisitt. Isteden antar simulatoren at sivilstand er 'ugift' dersom EPS verken har pensjon (_epsPensjon_) eller har inntekt over 2 ganger grunnbeløpet (_eps2G_). Det stemmer med sivilstanden eksplisitt angitt i Nav-tjenesten (_UGIF_, som er koden for 'ugift').
+
+==== Simuleringstype
+
+I V4-tjenesten brukes simuleringstype 'førsteuttak av alderspensjon' dersom personen ikke har løpende alderspensjon. Det stemmer med simuleringstypen angitt i Nav-tjenesten (_ALDER_, som er koden for 'førsteuttak av alderspensjon').
+
+==== Utenlandsopphold
+
+I Nav-tjenesten angis utenlandsopphold med en liste av perioder (_utenlandsperiodeListe_), mens V4-tjenesten bruker antall år (_aarIUtlandetEtter16_). En tom liste tilsvarer 0 år.
+
+== Beregning
+
+Med inndataene angitt over, får man nøyaktig samme beregnede pensjon ('pensjon under utbetaling') fra regelmotoren for de to tjenestene.
+
+Beregnet pensjon består av en liste av beregningsresultater, ett resultat per knekkpunkt. Et knekkpunkt tilsvarer en endring i pensjonsforløpet (uttaksstart, endret opptjening). I dette tilfellet får man 3 knekkpunkter og dermed 3 beregningsresultater (her kalt "B1"–"B3"):
+
+Regelmotoren regner ut pensjonen og produserer et resultat bestående av brutto- og nettobeløp, års- og månedsbeløp. Tallene fra regelmotoren er vist nedenfor. I dette tilfellet er brutto- og nettobeløpene like, så det er ikke angitt om det er  brutto eller netto. Merk at månedsverdiene er avrundet til heltall, mens årsverdiene ikke er det.
+
+.Beregningsresultat fra regelmotoren
+|===
+|Beregningsresultat |Virkning f.o.m. |Virkning t.o.m. |Årlig inntektspensjon |Årlig garantipensjon |Månedlig totalpensjon
+
+|B1
+|01.08.2030
+|31.12.2030
+|274468,03
+|27890,75
+|25196
+
+|B2
+|01.01.2031
+|31.12.2031
+|279135,99
+|24156,39
+|25274
+
+|B3
+|01.01.2032
+|udefinert
+|282007,05
+|21859,54
+|25323
+
+|===
+
+== Utdata
+
+Simulatoren prosesserer beregningsresultatene fra regelmotoren for å produsere de endelige utdataene.
+
+Utdataenes grunnlag og format er ulikt for for V4-tjenesten og Nav-tjenesten, noe som gjør det utfordrende å sammenligne.
+
+Forskjellene kan oppsummeres slik:
+
+.Forskjeller i utdata
+|===
+|Tjeneste |Dato- eller aldersbasert |Viser individuelle delytelser eller summen av disse |Bruker netto- eller bruttotall |Bruker avrundede grunnlagstall?
+
+|V4-tjenesten
+|Dato
+|Individuelle
+|Brutto
+|Nei
+
+|Nav-tjenesten
+|Alder
+|Summen
+|Netto
+|Ja
+
+|===
+
+=== V4-tjenesten
+
+V4-tjenesten bruker årlig bruttoverdi av ytelseskomponentene 'inntektspensjon' og 'garantipensjon', avrundet nedover til nærmeste heltall.
+
+Utdata for V4-tjenesten blir dermed (med de årlige tallene fra Tabell 1):
+
+ {
+     ...
+     "alderspensjon": [
+         {
+             "fraOgMedDato": "2030-08-01",
+             "delytelseListe": [
+                 {
+                     "pensjonsType": "inntektsPensjon",
+                     "belop": 274468
+                 },
+                 {
+                     "pensjonsType": "garantiPensjon",
+                     "belop": 27890
+                 }
+             ],
+             ...
+         },
+         {
+             "fraOgMedDato": "2031-01-01",
+             "delytelseListe": [
+                 {
+                     "pensjonsType": "inntektsPensjon",
+                     "belop": 279135
+                 },
+                 {
+                     "pensjonsType": "garantiPensjon",
+                     "belop": 24156
+                 }
+             ],
+             ...
+         },
+         {
+             "fraOgMedDato": "2032-01-01",
+             "delytelseListe": [
+                 {
+                     "pensjonsType": "inntektsPensjon",
+                     "belop": 282007
+                 },
+                 {
+                     "pensjonsType": "garantiPensjon",
+                     "belop": 21859
+                 }
+             ],
+             ...
+         },
+         ...
+         {
+             "fraOgMedDato": "2040-01-01",
+             "delytelseListe": [
+                 {
+                     "pensjonsType": "inntektsPensjon",
+                     "belop": 282007
+                 },
+                 {
+                     "pensjonsType": "garantiPensjon",
+                     "belop": 21859
+                 }
+             ],
+             ...
+         }
+     ],
+     ...
+ }
+
+=== Nav-tjenesten
+
+I Nav-tjenesten er utdatene organisert etter alder, ikke dato. Dermed må tallene regnes om slik at de gjelder for den enkelte alder. Start og slutt på hver 12-månedersperiode blir da bestemt av fødselsdatoen og ikke av kalenderårets start/slutt.
+
+Så for f.eks. alder 68 år blir uttaksperiodens start 01.03.2031 (1. dag i måneden etter at personen fyller 68 år), og uttaksperiodens slutt blir ett år senere, minus én dag, dvs. 29.02.2032.
+
+Den første uttaksperioden (67 år) er et unntak; den starter ved dato for første uttak (01.08.2030) og slutter dagen før 68-årsuttaket starter.
+
+For å finne "uttaksalderbeløpet" (det totale beløpet i en aldersbestemt uttaksperiode), må vi finne månedsbeløpet som gjelder for uttaksperioden og multiplisere med antall måneder overlapp mellom uttaksperioden og beregningsperioden.
+
+Tabellen nedenfor viser utregningen (med de månedlige tallene fra Tabell 1):
+
+.Uttaksalderbeløp
+|===
+|Alder (år) |Uttaksperiode |Overlappende beregningsresultat |Utregning |Resultat ('uttaksalderbeløp')
+
+|67
+|01.08.2030–28.02.2031
+|B1 (5 måneder) +
+og +
+B2 (2 måneder)
+|5 * 25196 + +
+2 * 25274
+|176528
+
+|68
+|01.03.2031–29.02.2032
+|B2 (10 måneder) +
+og +
+B3 (2 måneder)
+|10 * 25274 + +
+2 * 25323
+|303386
+
+|69
+|01.03.2032–28.02.2034
+|B3 (12 måneder)
+|12 * 25323
+|303876
+
+|...
+|...
+|...
+|...
+|...
+
+|77
+|01.03.2040–28.02.2041
+|B3 (12 måneder)
+|12 * 25323
+|303876
+
+|===
+
+Utdata for Nav-tjenesten blir dermed:
+
+ {
+    "alderspensjonListe": [
+       {
+           "alderAar": 67,
+           "beloep": 176528,
+           ...
+       },
+       {
+           "alderAar": 68,
+           "beloep": 303386,
+           ...
+       },
+       {
+           "alderAar": 69,
+           "beloep": 303876,
+           ...
+       },
+       ...
+       {
+           "alderAar": 77,
+           "beloep": 303876,
+           ...
+       }
+    ],
+    ...
+ }
+
+=== Differanser pga. avrunding
+
+Vi så at månedsverdiene fra regelmotoren var avrundet til heltall, mens årsverdiene ikke var det. Dette gir opphav til differanser pga. avrunding. La oss sammenligne den årlige totalpensjonen man får med de to tallgrunnlagene.
+
+I V4-tjenesten er resultatet basert på beregningsperiodens _årlige delytelsebeløp_ avrundet nedover til nærmeste heltall. Summen av delytelsebeløpene gir da årlig totalpensjon.
+
+I Nav-tjenesten er resultatet basert på beregningsperiodens _månedlige totalbeløp_. Hvis vi multipliserer disse med 12, får vi årlig totalpensjon.
+
+Vi har da to måter å beregne årlig totalpensjon på, som vist i tabellen under (med tallene fra Tabell 1).
+
+.Differanser
+|===
+|Beregningsresultat |Årlig totalpensjon +
+(V4-tjenesten) |Årlig totalpensjon +
+(Nav-tjenesten) |Differanse
+
+|B1
+|274468 + 27890 +
+= 302358
+|25196 * 12 +
+= 302352
+|6
+
+|B2
+|279135 + 24156 +
+= 303291
+|25274 * 12 +
+= 303288
+|3
+
+|B3
+|282007 + 21859 +
+= 303866
+|25323 * 12 +
+= 303876
+|10
+
+|===
+
+== Litt om domenemodellen
+
+Beregningsresultatet fra regelmotoren for alderspensjon beregnet etter kapittel 20 ligger i _BeregningsResultatAlderspensjon2025_. Hvert beregningsresultat har en virkningsperiode gitt ved _virkFom_–_virkTom_ (virkning fra og med/til og med) og en 'pensjon under utbetaling' (_pensjonUnderUtbetaling_).
+
+'Pensjon under utbetaling' inneholder delytelsene som inngår i pensjonen, samt totalen av disse. Det månedlige totale nettobeløpet heter _totalbelopNetto_, og det er denne verdien som Nav-tjenesten bruker.
+
+Delytelsene er implementert som _ytelseskomponenter_; hver komponent har en type (_ytelsekomponentTypeEnum_) og en årlig bruttoverdi (_bruttoPerAr_). V4-tjenesten bruker denne bruttoverdien for ytelseskomponenttype 'inntektspensjon' (_IP_) og 'garantipensjon' (_GAP_).

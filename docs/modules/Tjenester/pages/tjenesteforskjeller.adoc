@@ -54,6 +54,10 @@ Her vises hvilke applikasjoner som pensjonssimulator mottar de forskjellige tjen
 
 |===
 
+== Inndata, beregning og utdata
+
+Se: xref:tjenestesammenligning.adoc[Sammenligning av tjenester]
+
 == Simulering av endret pensjon
 
 Pensjonssimulator har støtte for simulering av endret pensjon (endring av løpende uttak), men ikke alle konsumentene av tjenestene benytter seg av denne støtten (og tilbyr derfor kun simulering av førstegangsuttak).
@@ -121,3 +125,13 @@ De fleste tjenestene krever at simuleringstype (førstegangsuttak/endring) angis
 ^5^ Implementert i klassen _FolketrygdBeholdningService_.
 
 ^6^ Implementert i klassen _UttakSpecMapperV1_.
+
+== Behandling av EPS
+
+Tjenestene behandler EPS (ektefelle/partner/samboer) forskjellig ved endring av løpende pensjon der EPS inngår i grunnlaget:
+
+* Simuler alderspensjon V1, V3, V4: Bruker ikke EPS når inndata angir sivilstand 'ugift'
+
+* Øvrige tjenester: Bruker EPS selv om inndata angir sivilstand 'ugift'
+
+(Forskjellen er implementert i _addPersongrunnlagForEpsToKravhode_ i _EndringPersongrunnlag_.)

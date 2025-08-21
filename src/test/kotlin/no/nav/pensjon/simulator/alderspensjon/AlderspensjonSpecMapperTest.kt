@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
@@ -18,7 +19,11 @@ class AlderspensjonSpecMapperTest : FunSpec({
         AlderspensjonSpecMapper.simuleringSpec(
             source = alderspensjonSpec(livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)),
             foedselsdato = LocalDate.of(1964, 1, 1),
-            erFoerstegangsuttak = true
+            simuleringstypeDeducer = Arrange.simuleringstype(
+                type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+                uttakFom = LocalDate.of(2031, 2, 3),
+                livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)
+            )
         ) shouldBe
                 simuleringSpec(
                     type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
@@ -30,7 +35,11 @@ class AlderspensjonSpecMapperTest : FunSpec({
         AlderspensjonSpecMapper.simuleringSpec(
             source = alderspensjonSpec(livsvarigOffentligAfpRettFom = null), // => uten AFP
             foedselsdato = LocalDate.of(1964, 1, 1),
-            erFoerstegangsuttak = false // => endring
+            simuleringstypeDeducer = Arrange.simuleringstype(
+                type = SimuleringTypeEnum.ENDR_ALDER,
+                uttakFom = LocalDate.of(2031, 2, 3),
+                livsvarigOffentligAfpRettFom = null
+            )
         ) shouldBe
                 simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER, livsvarigOffentligAfpRettFom = null)
     }

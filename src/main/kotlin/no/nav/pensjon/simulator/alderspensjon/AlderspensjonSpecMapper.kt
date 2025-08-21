@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon
 
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.spec.OffentligSimuleringstypeDeducer
 import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -18,11 +19,11 @@ object AlderspensjonSpecMapper {
     fun simuleringSpec(
         source: AlderspensjonSpec,
         foedselsdato: LocalDate,
-        erFoerstegangsuttak: Boolean
+        simuleringstypeDeducer: OffentligSimuleringstypeDeducer
     ) =
         SimuleringSpec(
-            type = simuleringType(source.livsvarigOffentligAfpRettFom, erFoerstegangsuttak),
-            sivilstatus = if (source.epsHarPensjon || source.epsHarInntektOver2G) SivilstatusType.GIFT else SivilstatusType.UGIF,
+            type = type(simuleringstypeDeducer, source),
+            sivilstatus = sivilstatus(source),
             epsHarPensjon = source.epsHarPensjon,
             foersteUttakDato = foersteUttakFom(source),
             heltUttakDato = if (source.gradertUttak == null) null else source.heltUttakFom,
@@ -48,32 +49,28 @@ object AlderspensjonSpecMapper {
             pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
+            isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in the result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
 
-    private fun foersteUttakFom(source: AlderspensjonSpec): LocalDate =
-        source.gradertUttak?.fom ?: source.heltUttakFom
+    private fun sivilstatus(spec: AlderspensjonSpec): SivilstatusType =
+        if (spec.epsHarPensjon || spec.epsHarInntektOver2G) SivilstatusType.GIFT else SivilstatusType.UGIF
 
-    private fun simuleringType(
-        livsvarigOffentligAfpRettDato: LocalDate?,
-        erFoerstegangsuttak: Boolean
-    ): SimuleringTypeEnum =
-        livsvarigOffentligAfpRettDato?.let {
-            if (erFoerstegangsuttak)
-                SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG
-            else
-                SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
-        } ?: if (erFoerstegangsuttak)
-            SimuleringTypeEnum.ALDER
-        else
-            SimuleringTypeEnum.ENDR_ALDER
+    private fun type(deducer: OffentligSimuleringstypeDeducer, spec: AlderspensjonSpec): SimuleringTypeEnum =
+        deducer.deduceSimuleringstype(
+            pid = spec.pid,
+            uttakFom = spec.gradertUttak?.fom ?: spec.heltUttakFom,
+            livsvarigOffentligAfpRettFom = spec.livsvarigOffentligAfpRettFom
+        )
 
-    private fun fremtidigInntekt(source: PensjonInntektSpec) =
+    private fun foersteUttakFom(spec: AlderspensjonSpec): LocalDate =
+        spec.gradertUttak?.fom ?: spec.heltUttakFom
+
+    private fun fremtidigInntekt(spec: PensjonInntektSpec) =
         FremtidigInntekt(
-            aarligInntektBeloep = source.aarligBeloep,
-            fom = source.fom
+            aarligInntektBeloep = spec.aarligBeloep,
+            fom = spec.fom
         )
 }

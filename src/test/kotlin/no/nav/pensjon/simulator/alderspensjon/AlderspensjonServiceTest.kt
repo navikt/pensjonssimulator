@@ -3,16 +3,13 @@ package no.nav.pensjon.simulator.alderspensjon
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import no.nav.pensjon.simulator.vedtak.VedtakService
-import no.nav.pensjon.simulator.vedtak.VedtakStatus
 import java.time.LocalDate
 
 class AlderspensjonServiceTest : FunSpec({
@@ -65,28 +62,18 @@ class AlderspensjonServiceTest : FunSpec({
 
         exception.message shouldBe "En fremtidig inntekt har negativt beløp"
     }
-
-    test("simulerAlderspensjon gir feilmelding hvis gjenlevenderettighet") {
-        val exception = shouldThrow<FeilISimuleringsgrunnlagetException> {
-            simulerAlderspensjon(
-                inntektSpecListe = emptyList(),
-                harGjenlevenderettighet = true
-            )
-        }
-
-        exception.message shouldBe "Kan ikke simulere bruker med gjenlevenderettigheter"
-    }
 })
 
-private fun simulerAlderspensjon(
-    inntektSpecListe: List<PensjonInntektSpec>,
-    harGjenlevenderettighet: Boolean = false
-): AlderspensjonResult =
+private fun simulerAlderspensjon(inntektSpecListe: List<PensjonInntektSpec>): AlderspensjonResult =
     AlderspensjonService(
         simulator = mockk(),
         alternativSimuleringService = mockk(),
-        vedtakService = arrangeVedtak(harGjenlevenderettighet),
         personService = Arrange.foedselsdato(1963, 1, 1),
+        simuleringstypeDeducer = Arrange.simuleringstype(
+            type = SimuleringTypeEnum.ALDER,
+            uttakFom = LocalDate.of(2027, 1, 1),
+            livsvarigOffentligAfpRettFom = null
+        ),
         time = { LocalDate.of(2025, 1, 1) }
     ).simulerAlderspensjon(
         AlderspensjonSpec(
@@ -100,9 +87,3 @@ private fun simulerAlderspensjon(
             livsvarigOffentligAfpRettFom = null
         )
     )
-
-private fun arrangeVedtak(harGjenlevenderettighet: Boolean): VedtakService =
-    mockk<VedtakService>().apply {
-        every { vedtakStatus(pid, LocalDate.of(2027, 1, 1)) } returns
-                VedtakStatus(harGjeldendeVedtak = false, harGjenlevenderettighet)
-    }

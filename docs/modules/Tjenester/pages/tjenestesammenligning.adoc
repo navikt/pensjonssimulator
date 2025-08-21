@@ -226,7 +226,7 @@ Utdata for V4-tjenesten blir dermed (med de årlige tallene fra Tabell 1):
 
 === Nav-tjenesten
 
-I Nav-tjenesten er utdatene organisert etter alder, ikke dato. Dermed må tallene regnes om slik at de gjelder for den enkelte alder. Start og slutt på hver 12-månedersperiode blir da bestemt av fødselsdatoen og ikke av kalenderårets start/slutt.
+I Nav-tjenesten er utdataene organisert etter alder, ikke dato. Dermed må tallene regnes om slik at de gjelder for den enkelte alder. Start og slutt på hver 12-månedersperiode blir da bestemt av fødselsdatoen og ikke av kalenderårets start/slutt.
 
 Så for f.eks. alder 68 år blir uttaksperiodens start 01.03.2031 (1. dag i måneden etter at personen fyller 68 år), og uttaksperiodens slutt blir ett år senere, minus én dag, dvs. 29.02.2032.
 

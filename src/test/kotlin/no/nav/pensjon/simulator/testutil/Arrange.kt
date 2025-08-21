@@ -3,6 +3,8 @@ package no.nav.pensjon.simulator.testutil
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alderspensjon.spec.OffentligSimuleringstypeDeducer
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
@@ -25,6 +27,15 @@ object Arrange {
     fun foedselsdato(year: Int, month: Int, dayOfMonth: Int): GeneralPersonService =
         mockk<GeneralPersonService>().apply {
             every { foedselsdato(pid) } returns LocalDate.of(year, month, dayOfMonth)
+        }
+
+    fun simuleringstype(
+        type: SimuleringTypeEnum,
+        uttakFom: LocalDate,
+        livsvarigOffentligAfpRettFom: LocalDate?
+    ): OffentligSimuleringstypeDeducer =
+        mockk<OffentligSimuleringstypeDeducer>().apply {
+            every { deduceSimuleringstype(pid, uttakFom, livsvarigOffentligAfpRettFom) } returns type
         }
 
     fun normalder(foedselsdato: LocalDate): NormertPensjonsalderService =

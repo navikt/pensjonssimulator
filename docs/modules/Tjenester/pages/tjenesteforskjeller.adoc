@@ -100,17 +100,17 @@ De fleste tjenestene krever at simuleringstype (førstegangsuttak/endring) angis
 |Ja
 |PSELV
 
+|Simuler folketrygdbeholdning
+|Ja
+|pensjonssimulator^3^
+
 |Simuler offentlig AFP etterfulgt av alderspensjon
 |Nei
 |pensjonssimulator^4^
 
-|Simuler folketrygdbeholdning
-|Ja
-|pensjonssimulator^5^
-
 |Beregn tidligst mulig uttak
 |Nei
-|pensjonssimulator^6^
+|pensjonssimulator^5^
 
 |===
 
@@ -118,13 +118,11 @@ De fleste tjenestene krever at simuleringstype (førstegangsuttak/endring) angis
 
 ^2^ Støttes i prinsippet av pensjonssimulator, men pensjonskalkulator-uinnlogget-frontend angir alltid førstegangsuttak.
 
-^3^ Implementert i klassen _AlderspensjonSpecMapper_.
+^3^ Implementert i klassen _OffentligSimuleringstypeDeducer_.
 
 ^4^ Implementert i klassen _AfpEtterfulgtAvAlderspensjonSpecMapperV0_.
 
-^5^ Implementert i klassen _FolketrygdBeholdningService_.
-
-^6^ Implementert i klassen _UttakSpecMapperV1_.
+^5^ Implementert i klassen _UttakSpecMapperV1_.
 
 == Behandling av EPS
 

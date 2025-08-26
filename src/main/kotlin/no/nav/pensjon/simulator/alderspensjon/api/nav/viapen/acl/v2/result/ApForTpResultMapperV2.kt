@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
-import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengrekke
@@ -34,7 +34,7 @@ object ApForTpResultMapperV2 {
             simulertBeregningsinformasjonListe = source.simulertBeregningInformasjonListe.map(::beregningInformasjon),
         )
 
-    private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
+    private fun privatAfpPeriode(source: PrivatAfpPeriode) =
         ApForTpPrivatAfpPeriodeV2(
             afpOpptjening = source.afpOpptjening,
             alder = source.alderAar,

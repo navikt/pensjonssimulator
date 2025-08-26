@@ -4,6 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpKnekkpunktFinder
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatBeregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat

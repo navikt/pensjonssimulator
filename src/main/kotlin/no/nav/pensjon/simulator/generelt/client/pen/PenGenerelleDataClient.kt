@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.generelt.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.GenerelleDataSpec

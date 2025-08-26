@@ -1,6 +1,6 @@
-package no.nav.pensjon.simulator.core.afp.privat
+package no.nav.pensjon.simulator.afp.privat
 
-import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpBeregner.Companion.AFP_ALDER
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner.Companion.AFP_ALDER
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
@@ -21,17 +21,19 @@ class PrivatAfpKnekkpunktFinder(
     private val normalderService: NormertPensjonsalderService,
     private val time: Time
 ) {
-
-     fun findKnekkpunktDatoer(
+    fun findKnekkpunktDatoer(
         foersteUttakDato: LocalDate?,
         soekerGrunnlag: Persongrunnlag,
         privatAfpFoersteVirkning: LocalDate?,
         gjelderOmsorg: Boolean
     ): SortedSet<LocalDate> {
-        // A knekkpunkt should be created for the year the user turns 63 years of age if and only if the user had opptjening the
-        // year he turned 61 years, and hence we need to find that opptjening.
+        // A knekkpunkt should be created for the year the user turns 63 years of age if and only if the user had
+        // opptjening the year he turned 61 years old, and hence we need to find that opptjening.
         val relevantOpptjeningAar =
-            yearUserTurnsGivenAge(soekerGrunnlag.fodselsdato!!, AFP_ALDER - OPPTJENING_ETTERSLEP_ANTALL_AAR)
+            yearUserTurnsGivenAge(
+                foedselsdato = soekerGrunnlag.fodselsdato!!,
+                age = AFP_ALDER - OPPTJENING_ETTERSLEP_ANTALL_AAR
+            )
 
         val relevantOpptjeningGrunnlag =
             soekerGrunnlag.opptjeningsgrunnlagListe.firstOrNull { it.ar == relevantOpptjeningAar }

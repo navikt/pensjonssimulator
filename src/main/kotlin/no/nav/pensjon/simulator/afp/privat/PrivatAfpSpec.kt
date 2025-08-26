@@ -1,10 +1,12 @@
-package no.nav.pensjon.simulator.core.afp.privat
+package no.nav.pensjon.simulator.afp.privat
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import java.time.LocalDate
 
-// no.nav.service.pensjon.simulering.abstractsimulerapfra2011.BeregnAfpPrivatRequest
+/**
+ * PEN: no.nav.service.pensjon.simulering.abstractsimulerapfra2011.BeregnAfpPrivatRequest
+ */
 data class PrivatAfpSpec(
     val kravhode: Kravhode,
     val virkningFom: LocalDate,

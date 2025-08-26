@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result
 
-import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
@@ -11,6 +11,10 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.util.concurrent.atomic.AtomicLong
 
+/**
+ * Anti-corruption layer (ACL).
+ * Maps simuleringsresultat from domain to DTO for 'Nav V2' service.
+ */
 object NavSimuleringResultMapperV2 {
 
     fun toSimuleringResultV2(source: SimulatorOutput) =
@@ -40,7 +44,7 @@ object NavSimuleringResultMapperV2 {
             simulertBeregningsinformasjonListe = source.simulertBeregningInformasjonListe.map(::beregningInformasjon)
         )
 
-    private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
+    private fun privatAfpPeriode(source: PrivatAfpPeriode) =
         SimulertPrivatAfpPeriodeV2(
             alder = source.alderAar?.let { if (it == 0) null else it },
             belopArlig = source.aarligBeloep,

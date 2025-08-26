@@ -316,5 +316,8 @@ class PensjonUnderUtbetaling {
             }
         }
     }
+
+    override fun toString(): String =
+        "totalbelopNetto: $totalbelopNetto, totalbelopBruttoAr: $totalbelopBruttoAr"
     // end SIMDOM-MOD
 }

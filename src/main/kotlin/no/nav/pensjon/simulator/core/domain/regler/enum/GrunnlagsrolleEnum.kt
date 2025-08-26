@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
 
 /**
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/GrunnlagsrolleEnum.kt
- * Copied 2025-05-22
+ * Copied 2025-08-26
  * Plus added comments
  */
 enum class GrunnlagsrolleEnum {
@@ -72,7 +72,7 @@ enum class GrunnlagsrolleEnum {
     SAMBO,
 
     /**
-     * Bruker
+     * Bruker ("søker")
      */
     SOKER,
 

@@ -49,5 +49,8 @@ abstract class AbstraktBeregningsResultat {
 
     protected constructor() : super()
 
+    override fun toString(): String =
+        "virk: $virkFom-$virkTom, pensjonUnderUtbetaling: [$pensjonUnderUtbetaling]"
+
     // end extra
 }

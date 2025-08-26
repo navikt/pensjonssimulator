@@ -2,12 +2,15 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
 
 /**
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/GrunnlagkildeEnum.kt
- * Copied 2025-05-22
+ * Copied 2025-08-26
  * Plus added comments
  */
 enum class GrunnlagkildeEnum {
-    /** AA-registeret */
+    /** Arbeidstaker- og arbeidsgiverregisteret */
     AA,
+
+    /** Barnetrygd-systemet */
+    BA,
 
     /** Batch */
     BATCH,
@@ -20,6 +23,9 @@ enum class GrunnlagkildeEnum {
 
     /** Brukeroppgitt */
     BRUKER_OPP,
+
+    /** Electronic Exchange of Social Security Information */
+    EESSI,
 
     /** G-omregning */
     GOMR,
@@ -57,6 +63,9 @@ enum class GrunnlagkildeEnum {
     /** Minste Pensjonsnivå - Omregning */
     MPNOMR,
 
+    /** Omsorgsopptjening */
+    OMSORGSOPPTJENING,
+
     /** Øvrig */
     OVRIG,
 
@@ -78,12 +87,6 @@ enum class GrunnlagkildeEnum {
     /** Simulering */
     SIMULERING,
 
-    /** Personregister */
-    TPS,
-
-    /** Barnetrygd Systemet */
-    BA,
-
-    /** Omsorgsopptjening */
-    OMSORGSOPPTJENING
+    /** Tjenestebasert persondatasystem (det gamle personregisteret) */
+    TPS
 }

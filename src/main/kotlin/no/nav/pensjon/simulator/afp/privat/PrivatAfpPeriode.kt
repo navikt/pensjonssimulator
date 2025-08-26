@@ -1,15 +1,15 @@
-package no.nav.pensjon.simulator.core.afp.privat
+package no.nav.pensjon.simulator.afp.privat
 
 /**
- * Resultat av simulering av AFP Privat for en gitt periode.
+ * Resultat av simulering av privat AFP for en gitt periode.
+ * PEN: no.nav.domain.pensjon.kjerne.simulering.SimulertAfpPrivatperiode
  */
-// no.nav.domain.pensjon.kjerne.simulering.SimulertAfpPrivatperiode
-data class SimulertPrivatAfpPeriode(
-    val afpOpptjening: Int? = null, // Brukers opptjening for AFP privat fram til og med denne perioden
+data class PrivatAfpPeriode(
+    val afpOpptjening: Int? = null, // Brukers opptjening for privat AFP fram til og med denne perioden
     val alderAar: Int? = null, // Brukers alder i perioden
     val aarligBeloep: Int? = null, // Beregnet årlig AFP
     val maanedligBeloep: Int? = null, // Beregnet månedlig AFP
-    val livsvarig: Int? = null, // Den livsvarige delen av AFP privat for perioden
+    val livsvarig: Int? = null, // Den livsvarige delen av privat AFP for perioden
     val kronetillegg: Int? = null, // Kronetillegget i perioden
     val kompensasjonstillegg: Int? = null, // Beregnet kompensasjonstillegg i perioden
     val afpForholdstall: Double? = null, // Forholdstall brukt i beregningen av AFP

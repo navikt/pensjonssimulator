@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.afp.privat
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpKnekkpunktFinder
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.testutil.Arrange

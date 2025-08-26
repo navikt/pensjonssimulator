@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.privat
+package no.nav.pensjon.simulator.afp.privat
 
 /**
  * PEN: no.nav.service.pensjon.fpen.HentSatserAFPPrivatResponse

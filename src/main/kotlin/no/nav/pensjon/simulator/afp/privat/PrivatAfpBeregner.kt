@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.privat
+package no.nav.pensjon.simulator.afp.privat
 
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -23,7 +23,9 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 
-// PEN: no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.BeregnAfpPrivatHelper
+/**
+ * PEN: no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.BeregnAfpPrivatHelper
+ */
 @Component
 class PrivatAfpBeregner(
     private val context: SimulatorContext,

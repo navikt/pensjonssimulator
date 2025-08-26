@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3
 
-import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
@@ -27,7 +27,7 @@ object TpoSimuleringResultMapperV3 {
             simulertBeregningsinformasjonListe = source.simulertBeregningInformasjonListe.map(::beregningInformasjon)
         )
 
-    private fun privatAfpPeriode(source: SimulertPrivatAfpPeriode) =
+    private fun privatAfpPeriode(source: PrivatAfpPeriode) =
         TpoPrivatAfpPeriodeV3(
             afpOpptjening = source.afpOpptjening,
             // The remaining values are strictly not returned to TPO, but included for comparison purposes:

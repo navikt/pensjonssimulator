@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.result
 
-import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
@@ -19,7 +19,9 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
 
-// PEN: no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011ResultatMapper
+/**
+ * PEN: no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011ResultatMapper
+ */
 object SimulatorOutputMapper {
 
     // SimuleringEtter2011ResultatMapper.mapToSimuleringEtter2011Resultat
@@ -40,14 +42,14 @@ object SimulatorOutputMapper {
         aarligBeloep: Int,
         resultat: BeregningsResultatAfpPrivat,
         alder: Int?
-    ): SimulertPrivatAfpPeriode {
+    ): PrivatAfpPeriode {
         val privatAfpUnderUtbetaling = resultat.pensjonUnderUtbetaling
         val ytelseKomponentListe = privatAfpUnderUtbetaling?.ytelseskomponenter.orEmpty()
         val privatAfp: AfpPrivatLivsvarig? = resultat.privatAfp()
         val afpKronetillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KRONETILLEGG)
         val afpKompensasjonstillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KOMP_TILLEGG)
 
-        return SimulertPrivatAfpPeriode(
+        return PrivatAfpPeriode(
             alderAar = alder,
             aarligBeloep = aarligBeloep,
             maanedligBeloep = privatAfpUnderUtbetaling?.totalbelopNetto,

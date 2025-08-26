@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad.beregnAfpGrad
-import no.nav.pensjon.simulator.core.afp.privat.SimulertPrivatAfpPeriode
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
@@ -143,7 +143,7 @@ object SimulatorOutputConverter {
         ytelser.add(SimulertDelytelse(type, beloep))
     }
 
-    private fun privatAfp(source: SimulertPrivatAfpPeriode) =
+    private fun privatAfp(source: PrivatAfpPeriode) =
         SimulertPrivatAfp(
             alderAar = source.alderAar ?: 0,
             beloep = source.aarligBeloep ?: 0,

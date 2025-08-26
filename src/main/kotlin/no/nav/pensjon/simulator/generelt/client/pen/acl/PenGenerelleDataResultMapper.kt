@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.generelt.client.pen.acl
 
-import no.nav.pensjon.simulator.core.afp.privat.PrivatAfpSatser
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.generelt.GenerelleData

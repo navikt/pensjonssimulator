@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.privat
+package no.nav.pensjon.simulator.afp.privat
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 

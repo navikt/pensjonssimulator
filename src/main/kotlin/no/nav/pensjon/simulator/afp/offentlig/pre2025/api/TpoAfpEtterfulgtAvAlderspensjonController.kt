@@ -8,22 +8,15 @@ import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AarsakIkkeSuccessV0
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecValidator
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.BadSpecException
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
-import no.nav.pensjon.simulator.core.exception.PersonForGammelException
-import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
-import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
+import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.person.Pid
@@ -33,11 +26,7 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 /**
  * REST-controller for simulering av "gammel" (pre-2025) offentlig AFP etterfulgt av alderspensjon (kapittel 19).
@@ -84,13 +73,13 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             val validatedSpecV0 = AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec(specV0)
             verifiserAtBrukerTilknyttetTpLeverandoer(Pid(validatedSpecV0.personId))
             val spec: SimuleringSpec = specMapper.fromDto(validatedSpecV0)
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulator.simuler(spec), spec)
+            toDto(simulator.simuler(spec), spec)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
             throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: IllegalArgumentException) {
             log.warn(e) { "$FUNCTION_ID ulovlig verdi - ${e.message} - $specV0" }
             throw e
@@ -99,25 +88,25 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID person for ung - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_LAV_ALDER)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_LAV_ALDER)
         } catch (e: Pre2025OffentligAfpAvslaattException) {
             log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.AFP_ER_AVSLAATT)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.AFP_ER_AVSLAATT)
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV0" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
             log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_OPPTJENING)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
             log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
+            tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!
         } finally {

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
+package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
@@ -19,7 +19,7 @@ data class AfpEtterfulgtAvAlderspensjonResultV0(
 
 @JsonInclude(ALWAYS)
 data class FolketrygdberegnetAfpV0(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
     val beregnetTidligereInntekt: Int?,
     val sisteLignetInntektBrukt: Boolean,
     val sisteLignetInntektAar: Int?,
@@ -55,7 +55,7 @@ data class SaertilleggV0(
 
 @JsonInclude(ALWAYS)
 data class AlderspensjonFraFolketrygdenV0(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
     val andelKapittel19: Double?,
     val alderspensjonKapittel19: AlderspensjonKapittel19V0?,
     val andelKapittel20: Double?,

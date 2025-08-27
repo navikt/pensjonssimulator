@@ -1,8 +1,7 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpTerminator
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj

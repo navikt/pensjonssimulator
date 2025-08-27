@@ -1,12 +1,15 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
+package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec
 
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import kotlin.reflect.KProperty1
 
+/**
+ * Validates the specification for the 'pre-2025 offentlig AFP etterfulgt av alderspensjon' service.
+ */
 object AfpEtterfulgtAvAlderspensjonSpecValidator {
 
     fun validateSpec(dto: AfpEtterfulgtAvAlderspensjonSpecV0) =
@@ -31,7 +34,7 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
         if (valid == null) {
             throw BadSpecException(
                 "$sivilstandVedPensjonering er ukjent sivilstand. Tillate verdier: ${
-                    AfpEtterfulgtAvAlderspensjonSivilstandSpecV0.values().joinToString { it.name }
+                    AfpEtterfulgtAvAlderspensjonSivilstandSpecV0.entries.joinToString { it.name }
                 }"
             )
         }
@@ -47,7 +50,7 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
         }
     }
 
-    private fun validateMissingFields(dto: AfpEtterfulgtAvAlderspensjonSpecV0): AfpEtterfulgtAvAlderspensjonValidatedSpecV0 =
+    private fun validateMissingFields(dto: AfpEtterfulgtAvAlderspensjonSpecV0) =
         AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
             requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::personId),
             requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::sivilstandVedPensjonering),

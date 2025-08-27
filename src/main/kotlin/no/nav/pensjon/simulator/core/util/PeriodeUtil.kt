@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.util
 
-import no.nav.pensjon.simulator.core.afp.offentlig.pre2025.Pre2025OffentligAfpVedtak
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpVedtak
 import no.nav.pensjon.simulator.core.domain.Vedtak
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat

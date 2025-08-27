@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
+package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result
+package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
@@ -11,6 +11,10 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
+/**
+ * Anti-corruption layer (ACL).
+ * Maps from the domain model to version 0 of the external API model.
+ */
 object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
 
     fun toDto(source: SimulatorOutput, spec: SimuleringSpec) =

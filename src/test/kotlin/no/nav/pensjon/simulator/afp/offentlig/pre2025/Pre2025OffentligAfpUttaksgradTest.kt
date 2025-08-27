@@ -13,7 +13,7 @@ class Pre2025OffentligAfpUttaksgradTest : FunSpec({
 
     /**
      * Tester at uttaksgrad-listen ved førstegangsuttak inneholder 100 % grad f.o.m. 1. dag i måneden etter at
-     * søker oppnår normert pensjonalder. Uttaksgraden skal være tidsubegrenset.
+     * søker oppnår normert pensjonsalder. Uttaksgraden skal være tidsubegrenset.
      * --------------
      * Med fødselsdato 1963-01-15 og normalder 67 år, så oppnås normalder 2030-01-15.
      * 1. dag i måneden etter dette er 2030-02-01.

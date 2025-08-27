@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec
 
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0
 import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
@@ -50,7 +51,7 @@ object AfpEtterfulgtAvAlderspensjonSpecValidator {
     }
 
     private fun validateMissingFields(dto: AfpEtterfulgtAvAlderspensjonSpecV0) =
-        AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
+        AfpEtterfulgtAvAlderspensjonValidatedSpecV0(
             requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::personId),
             requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::sivilstandVedPensjonering),
             requireFieldValue(dto, AfpEtterfulgtAvAlderspensjonSpecV0::uttakFraOgMedDato),

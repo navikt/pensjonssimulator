@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtter
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecValidator
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
@@ -70,7 +70,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, specV0.personId)
 
         return try {
-            val validatedSpecV0 = AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec(specV0)
+            val validatedSpecV0 = validateSpec(specV0)
             verifiserAtBrukerTilknyttetTpLeverandoer(Pid(validatedSpecV0.personId))
             val spec: SimuleringSpec = specMapper.fromDto(validatedSpecV0)
             toDto(simulator.simuler(spec), spec)

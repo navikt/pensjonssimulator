@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl
+package no.nav.pensjon.simulator.afp.offentlig.pre2025.api
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AarsakIkkeSuccessV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
-import no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AarsakIkkeSuccessV0
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecValidator.validateSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
@@ -29,7 +29,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 /**
- * REST-controller for simulering av afp etterfulgt alderspensjon Kap. 19.
+ * REST-controller for simulering av "gammel" (pre-2025) offentlig AFP etterfulgt av alderspensjon (kapittel 19).
  * Tjenesten er ment å brukes av tjenestepensjonsordninger (TPO).
  */
 @RestController

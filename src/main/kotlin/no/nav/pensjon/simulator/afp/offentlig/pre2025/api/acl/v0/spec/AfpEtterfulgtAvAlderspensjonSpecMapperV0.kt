@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp_etterfulgt_ap.api.tpo.acl.v0.spec
+package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -13,6 +13,10 @@ import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
+/**
+ * Anti-corruption layer (ACL).
+ * Maps from version 0 of the external API model to the domain model.
+ */
 @Component
 class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
     private val personService: GeneralPersonService,

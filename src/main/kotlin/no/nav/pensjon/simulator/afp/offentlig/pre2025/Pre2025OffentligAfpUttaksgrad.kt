@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.afp.offentlig.pre2025
+package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 /**
  * Uttaksgrader relatert til 'pre-2025' avtalefestet pensjon (AFP) i offentlig sektor
- * (dvs. 'gammel' offentlig AFP, som erstattes av ny ordning fra 2025).
+ * (dvs. 'gammel' offentlig AFP), som var enerådende AFP-ordning i offentlig sektor fram til 2025.
  */
 @Component
 class Pre2025OffentligAfpUttaksgrad(

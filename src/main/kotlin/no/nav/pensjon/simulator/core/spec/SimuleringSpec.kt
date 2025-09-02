@@ -56,6 +56,12 @@ data class SimuleringSpec(
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
     val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
 
+    val limitedUtenlandsoppholdAntallAar: Int =
+        if (utlandAntallAar < 1 && utlandPeriodeListe.isNotEmpty() && foedselDato != null)
+            UtlandPeriodeConverter.limitedAntallAar(utlandPeriodeListe, foedselDato)
+        else
+            utlandAntallAar
+
     fun isGradert() = isGradert(uttakGrad)
 
     fun uttakErGradertEllerNull() = isGradertOrZero(uttakGrad)

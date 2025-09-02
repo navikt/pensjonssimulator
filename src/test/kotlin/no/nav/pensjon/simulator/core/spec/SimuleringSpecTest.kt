@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.core.spec
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
 
@@ -74,4 +76,27 @@ class SimuleringSpecTest : FunSpec({
             )
         ) shouldBe false
     }
+
+    test("limitedUtenlandsoppholdAntallAar skal bruke 'utland antall år' hvis ingen utenlandsperioder") {
+        simuleringSpec(
+            utlandAntallAar = 2,
+            utlandPeriodeListe = emptyList()
+        ).limitedUtenlandsoppholdAntallAar shouldBe 2
+    }
+
+    test("limitedUtenlandsoppholdAntallAar skal bruke utenlandsperiodene hvis 'utland antall år' er 0") {
+        simuleringSpec(
+            utlandAntallAar = 0,
+            utlandPeriodeListe = listOf(
+                utlandPeriode(
+                    fom = LocalDate.of(2010, 1, 1),
+                    tom = LocalDate.of(2010, 12, 31)
+                )
+            ),
+            foedselsdato = LocalDate.of(1963, 1, 15)
+        ).limitedUtenlandsoppholdAntallAar shouldBe 1
+    }
 })
+
+private fun utlandPeriode(fom: LocalDate, tom: LocalDate?) =
+    UtlandPeriode(fom, tom, land = LandkodeEnum.ALB, arbeidet = false)

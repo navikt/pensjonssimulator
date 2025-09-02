@@ -4,7 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
+import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
 
@@ -32,4 +34,31 @@ class PersongrunnlagMapperTest : FunSpec({
             this[0].afpPensjonsgrad shouldBe 2
         }
     }
+
+    test("mapToPersongrunnlag skal bruke utenlandsperioder") {
+        val mapper = PersongrunnlagMapper(
+            generelleDataHolder = mockk(),
+            personService = mockk(),
+            time = { LocalDate.of(2021, 1, 1) }
+        )
+
+        val result = mapper.mapToPersongrunnlag(
+            person = PenPerson(),
+            spec = simuleringSpec(
+                utlandAntallAar = 0,
+                utlandPeriodeListe = listOf(
+                    utlandPeriode(
+                        fom = LocalDate.of(2025, 7, 1),
+                        tom = LocalDate.of(2026, 6, 30)
+                    )
+                ),
+                foedselsdato = LocalDate.of(1963, 1, 15)
+            )
+        )
+
+        result.antallArUtland shouldBe 1
+    }
 })
+
+private fun utlandPeriode(fom: LocalDate, tom: LocalDate?) =
+    UtlandPeriode(fom, tom, land = LandkodeEnum.ALB, arbeidet = false)

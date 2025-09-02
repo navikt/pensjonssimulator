@@ -47,9 +47,12 @@ object TestObjects {
         type: SimuleringTypeEnum = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
         sivilstatus: SivilstatusType = SivilstatusType.UGIF,
         epsHarPensjon: Boolean = false,
+        foedselsdato: LocalDate? = null,
         foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),
         heltUttakDato: LocalDate? = LocalDate.of(2032, 6, 1),
         inntektSpecListe: List<FremtidigInntekt> = emptyList(),
+        utlandPeriodeListe: List<UtlandPeriode> = utlandPeriodeListe(),
+        utlandAntallAar: Int = 3,
         afpOrdning: AFPtypeEnum? = null
     ) = SimuleringSpec(
         type,
@@ -58,7 +61,7 @@ object TestObjects {
         foersteUttakDato,
         heltUttakDato,
         pid = pid,
-        foedselDato = null,
+        foedselDato = foedselsdato,
         avdoed = Avdoed(
             pid = Pid("04925398980"),
             antallAarUtenlands = 1,
@@ -75,21 +78,8 @@ object TestObjects {
         inntektEtterHeltUttakBeloep = 67500,
         inntektEtterHeltUttakAntallAar = 5,
         foedselAar = 1963,
-        utlandAntallAar = 3,
-        utlandPeriodeListe = mutableListOf(
-            UtlandPeriode(
-                fom = LocalDate.of(2010, 1, 1),
-                tom = LocalDate.of(2010, 12, 31),
-                land = LandkodeEnum.ALB,
-                arbeidet = false
-            ),
-            UtlandPeriode(
-                fom = LocalDate.of(2011, 1, 1),
-                tom = LocalDate.of(2020, 5, 31),
-                land = LandkodeEnum.BDI,
-                arbeidet = true
-            )
-        ),
+        utlandAntallAar,
+        utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
         fremtidigInntektListe = inntektSpecListe.toMutableList(),
         brukFremtidigInntekt = true,
         inntektOver1GAntallAar = 0,
@@ -110,4 +100,20 @@ object TestObjects {
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false
     )
+
+    private fun utlandPeriodeListe(): MutableList<UtlandPeriode> =
+        mutableListOf(
+            UtlandPeriode(
+                fom = LocalDate.of(2010, 1, 1),
+                tom = LocalDate.of(2010, 12, 31),
+                land = LandkodeEnum.ALB,
+                arbeidet = false
+            ),
+            UtlandPeriode(
+                fom = LocalDate.of(2011, 1, 1),
+                tom = LocalDate.of(2020, 5, 31),
+                land = LandkodeEnum.BDI,
+                arbeidet = true
+            )
+        )
 }

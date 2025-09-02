@@ -26,11 +26,11 @@ class PersongrunnlagMapper(
     private val personService: GeneralPersonService,
     private val time: Time
 ) {
-    fun mapToPersongrunnlag(person: PenPerson, spec: SimuleringSpec) =
+    fun mapToPersongrunnlag(person: PenPerson, spec: SimuleringSpec): Persongrunnlag =
         createPersongrunnlag(
             person,
             personDetalj = createPersonDetalj(spec),
-            utlandAntallAar = spec.utlandAntallAar,
+            utlandAntallAar = spec.limitedUtenlandsoppholdAntallAar,
             erFolketrygdMedlem = true,
             erFlyktning = spec.flyktning
         ).also {

@@ -67,11 +67,12 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
     ): AfpEtterfulgtAvAlderspensjonResultV0 {
         traceAid.begin(request)
         countCall(FUNCTION_ID)
-        request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, specV0.personId)
 
         return try {
             val validatedSpecV0 = validateSpec(specV0)
-            verifiserAtBrukerTilknyttetTpLeverandoer(Pid(validatedSpecV0.personId))
+            val pid = Pid(validatedSpecV0.personId)
+            verifiserAtBrukerTilknyttetTpLeverandoer(pid)
+            request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, pid)
             val spec: SimuleringSpec = specMapper.fromDto(validatedSpecV0)
             toDto(simulator.simuler(spec), spec)
         } catch (e: BadSpecException) {

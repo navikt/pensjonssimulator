@@ -69,11 +69,11 @@ Nav-tjenesten:
 
 La oss se hvorfor de forskjellige elementene er ekvivalente.
 
-==== Uttaksstart
+=== Uttaksstart
 
 Uttaksstart angitt i Nav-tjenesten (_uttakFomAlder_) er alderen 67 år 5 måneder. Med fødselsdato 14.02.1963 oppnår personen denne alderen 14.07.2030. Uttaksstart kan først skje den 1. i måneden etter at personen oppnår denne alderen, dvs. 01.08.2030. Dette stemmer med uttaksdatoen angitt i V4-tjenesten (_heltUttakFraOgMedDato_).
 
-==== Inntekt
+=== Inntekt
 
 I Nav-tjenesten angis 'siste årlige inntekt før simulering' (_sisteInntekt_). Simulatoren antar at denne inntekten gjelder f.o.m. 1. januar året etter siste gyldige opptjeningsår (dvs. 01.01.2024) og fram til uttakstart. Datoen 01.01.2024 stemmer med den første datoen (_fraOgMedDato_) i listen over fremtidige inntekter (_fremtidigInntektListe_) i V4-tjenesten.
 
@@ -81,15 +81,15 @@ Inntekt etter uttaksstart er i Nav-tjenesten angitt som 'årlig inntekt under he
 
 Merk at siden den inntekten er 0, har ikke 'sluttalder for inntekt' (_inntektTomAlder_) noe å si, og denne alderen har da heller ingen motsats i V4-tjenesten.
 
-==== Sivilstand
+=== Sivilstand
 
 I V4-tjenesten angis ikke sivilstand eksplisitt. Isteden antar simulatoren at sivilstand er 'ugift' dersom EPS verken har pensjon (_epsPensjon_) eller har inntekt over 2 ganger grunnbeløpet (_eps2G_). Det stemmer med sivilstanden eksplisitt angitt i Nav-tjenesten (_UGIF_, som er koden for 'ugift').
 
-==== Simuleringstype
+=== Simuleringstype
 
 I V4-tjenesten brukes simuleringstype 'førsteuttak av alderspensjon' dersom personen ikke har løpende alderspensjon. Det stemmer med simuleringstypen angitt i Nav-tjenesten (_ALDER_, som er koden for 'førsteuttak av alderspensjon').
 
-==== Utenlandsopphold
+=== Utenlandsopphold
 
 I Nav-tjenesten angis utenlandsopphold med en liste av perioder (_utenlandsperiodeListe_), mens V4-tjenesten bruker antall år (_aarIUtlandetEtter16_). En tom liste tilsvarer 0 år.
 

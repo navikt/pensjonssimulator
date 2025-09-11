@@ -1,18 +1,19 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
 import no.nav.pensjon.simulator.testutil.TestDateUtil.atNoon
 import java.time.LocalDate
 
-class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
+class InnlandTrygdetidUtilTest : FunSpec({
 
-    test("createTrygdeTidGrunnlagForInnlandPerioder when closed utenlandsperiode: should add open norsk periode") {
+    test("addInnlandOpphold when closed utenlandsperiode: should add open norsk periode") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
-                trygdetidGrunnlagListe = listOf(
+            InnlandTrygdetidUtil.addInnlandOpphold(
+                oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
                             landEnum = LandkodeEnum.LTU
@@ -40,10 +41,10 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
         }
     }
 
-    test("createTrygdeTidGrunnlagForInnlandPerioder when open utenlandsperiode after fødselsdato: should add norsk periode between fødselsdato and utenlandsperiode") {
+    test("addInnlandOpphold when open utenlandsperiode after fødselsdato: should add norsk periode between fødselsdato and utenlandsperiode") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
-                trygdetidGrunnlagListe = listOf(
+            InnlandTrygdetidUtil.addInnlandOpphold(
+                oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
                             landEnum = LandkodeEnum.LTU
@@ -71,10 +72,10 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
         }
     }
 
-    test("createTrygdeTidGrunnlagForInnlandPerioder handles unsorted open perioder") {
+    test("addInnlandOpphold handles unsorted open perioder") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
-                trygdetidGrunnlagListe = listOf(
+            InnlandTrygdetidUtil.addInnlandOpphold(
+                oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
                             landEnum = LandkodeEnum.FRA
@@ -116,10 +117,10 @@ class InnlandTrygdetidGrunnlagInserterTest : FunSpec({
         }
     }
 
-    test("createTrygdeTidGrunnlagForInnlandPerioder inserts missing perioder") {
+    test("addInnlandOpphold inserts missing perioder") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
-                trygdetidGrunnlagListe = listOf(
+            InnlandTrygdetidUtil.addInnlandOpphold(
+                oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
                             landEnum = LandkodeEnum.FRA

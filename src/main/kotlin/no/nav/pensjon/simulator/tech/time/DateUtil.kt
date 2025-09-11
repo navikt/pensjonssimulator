@@ -7,6 +7,7 @@ import java.time.ZonedDateTime
 object DateUtil {
 
     const val MAANEDER_PER_AAR = 12
+    private const val DAGER_I_AARETS_SISTE_MAANED = 31
     private const val TIME_ZONE_ID = "Europe/Oslo"
 
     fun toLocalDate(dateTime: ZonedDateTime): LocalDate =
@@ -16,7 +17,7 @@ object DateUtil {
         LocalDate.of(aar, 1, 1)
 
     fun sisteDag(aar: Int) =
-        LocalDate.of(aar, 12, 31)
+        LocalDate.of(aar, MAANEDER_PER_AAR, DAGER_I_AARETS_SISTE_MAANED)
 
     fun foersteDagNesteMaaned(dato: LocalDate): LocalDate =
         dato

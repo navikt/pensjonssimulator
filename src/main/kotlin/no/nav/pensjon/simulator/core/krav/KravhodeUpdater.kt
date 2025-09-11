@@ -6,10 +6,8 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -18,15 +16,18 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.*
 import no.nav.pensjon.simulator.core.trygd.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
 import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland
 import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
+import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagSpec
+import no.nav.pensjon.simulator.core.trygd.TrygdetidSetter
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe
+import no.nav.pensjon.simulator.trygdetid.Kapittel20TrygdetidsgrunnlagCreator.kapittel20TrygdetidperiodeListe
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -159,9 +160,10 @@ class KravhodeUpdater(
         val simuleringSpec = spec.simuleringSpec
 
         if (simuleringSpec.erAnonym) {
-            val trygdetidGrunnlag: TTPeriode = anonymSimuleringTrygdetidPeriode(spec)
-            persongrunnlag.trygdetidPerioder.add(trygdetidGrunnlag)
-            persongrunnlag.trygdetidPerioderKapittel20.add(trygdetidGrunnlag)
+            with(anonymSimuleringTrygdetidPeriode(spec)) {
+                persongrunnlag.trygdetidPerioder.add(this)
+                persongrunnlag.trygdetidPerioderKapittel20.add(this)
+            }
             return persongrunnlag
         }
 
@@ -170,16 +172,16 @@ class KravhodeUpdater(
             val regelverkType = kravhode.regelverkTypeEnum!!
 
             if (regelverkType.isAlderspensjon2011) {
-                setKapittel19Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel19Trygdetid(persongrunnlag, simuleringSpec)
             }
 
             if (regelverkType.isAlderspensjon2016) {
-                setKapittel19Trygdetid(persongrunnlag, simuleringSpec)
-                setKapittel20Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel19Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel20Trygdetid(persongrunnlag, simuleringSpec)
             }
 
             if (regelverkType.isAlderspensjon2025) {
-                setKapittel20Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel20Trygdetid(persongrunnlag, simuleringSpec)
             }
 
             persongrunnlag.trygdeavtale = newTrygdeavtaleForSimuleringUtland(avtalelandKravdato = time.today())
@@ -194,63 +196,24 @@ class KravhodeUpdater(
         return trygdetidSetter.settTrygdetid(spec)
     }
 
-    // SimulerFleksibelAPCommand.setTrygetidKap19
-    private fun setKapittel19Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
-        val trygdetidGrunnlagMedPensjonspoengListe =
-            mapOpptjeningGrunnlagToTrygdetid(persongrunnlag.opptjeningsgrunnlagListe)
-        val utlandPeriodeListe = spec.utlandPeriodeListe
-
-        val trygdetidGrunnlagUtlandOppholdListe =
-            if (trygdetidGrunnlagMedPensjonspoengListe.isEmpty())
-                UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(utlandPeriodeListe)
-            else
-                UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(
-                    utlandPeriodeListe,
-                    trygdetidGrunnlagMedPensjonspoengListe
-                )
-
-        val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
-            trygdetidGrunnlagUtlandOppholdListe,
-            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
-            spec.foersteUttakDato
+    private fun addKapittel19Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
+        val periodeListe = kapittel19TrygdetidsperiodeListe(
+            spec,
+            opptjeningsgrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
+            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate()
         )
 
-        trygdetidGrunnlagListe.forEach { persongrunnlag.trygdetidPerioder.add(it) }
+        periodeListe.forEach { persongrunnlag.trygdetidPerioder.add(it) }
     }
 
     // SimulerFleksibelAPCommand.setTrygdetidKap20
-    private fun setKapittel20Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
-        val trygdetidGrunnlagUtlandOppholdListe =
-            UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(spec.utlandPeriodeListe)
-
-        val trygdetidGrunnlagListe = createTrygdetidsgrunnlagList(
-            trygdetidGrunnlagUtlandOppholdListe,
-            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
-            spec.foersteUttakDato
+    private fun addKapittel20Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
+        val periodeListe = kapittel20TrygdetidperiodeListe(
+            spec,
+            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate()
         )
 
-        trygdetidGrunnlagListe.forEach { persongrunnlag.trygdetidPerioderKapittel20.add(it) }
-    }
-
-    private fun mapOpptjeningGrunnlagToTrygdetid(opptjeningListe: List<Opptjeningsgrunnlag>): List<TrygdetidOpphold> {
-        val trygdetidListe: MutableList<TrygdetidOpphold> = mutableListOf()
-        val addedAarListe: MutableSet<Int> = HashSet()
-
-        for (opptjening in opptjeningListe) {
-            val aar = opptjening.ar
-            if (addedAarListe.contains(aar) || opptjening.pp <= 0) continue
-
-            val trygdetidGrunnlag = TrygdetidGrunnlagFactory.trygdetidPeriode(
-                fom = LocalDate.of(aar, 1, 1),
-                tom = LocalDate.of(aar, 12, 31),
-                land = LandkodeEnum.NOR
-            )
-
-            trygdetidListe.add(TrygdetidOpphold(periode = trygdetidGrunnlag, arbeidet = true))
-            addedAarListe.add(aar)
-        }
-
-        return trygdetidListe
+        periodeListe.forEach { persongrunnlag.trygdetidPerioderKapittel20.add(it) }
     }
 
     private companion object {
@@ -269,35 +232,6 @@ class KravhodeUpdater(
             )
 
             return anonymSimuleringTrygdetidPeriode(fom, spec.tom)
-        }
-
-        // SimulerFleksibelAPCommand.createTrygdetidsgrunnlagList
-        private fun createTrygdetidsgrunnlagList(
-            trygdetidGrunnlagUtlandOppholdListe: List<TrygdetidOpphold>,
-            foedselsdato: LocalDate,
-            foersteUttakDato: LocalDate?
-        ): List<TTPeriode> {
-            // Step 2 Gap-fill domestic basis for pension
-            val trygdetidGrunnlagMedInnlandBasisListe: List<TrygdetidOpphold> =
-                InnlandTrygdetidGrunnlagInserter.createTrygdetidGrunnlagForInnlandPerioder(
-                    trygdetidGrunnlagUtlandOppholdListe,
-                    foedselsdato
-                )
-
-            // Step 3 Remove periods of non-contributing countries (ikkeAvtaleLand)
-            val trygdetidGrunnlagOpptjeningListe: List<TTPeriode> =
-                TrygdetidTrimmer.removeIkkeAvtaleland(trygdetidGrunnlagMedInnlandBasisListe)
-
-            // Step 4a Remove periods before age of adulthood
-            val trygdetidGrunnlagPendingEndListe: List<TTPeriode> =
-                TrygdetidTrimmer.removePeriodBeforeAdulthood(trygdetidGrunnlagOpptjeningListe, foedselsdato)
-
-            // Step 4b Remove periods after obtained pension age
-            return TrygdetidTrimmer.removePeriodAfterPensionAge(
-                trygdetidPeriodeListe = trygdetidGrunnlagPendingEndListe.toMutableList(),
-                foersteUttakDato!!,
-                foedselsdato
-            )
         }
     }
 }

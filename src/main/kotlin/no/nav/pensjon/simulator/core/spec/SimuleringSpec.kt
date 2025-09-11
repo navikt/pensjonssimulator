@@ -225,7 +225,7 @@ data class SimuleringSpec(
                 (foersteUttakDato?.equals(other.foersteUttakDato) ?: (other.foersteUttakDato == null)) &&
                 (heltUttakDato?.equals(other.heltUttakDato) ?: (other.heltUttakDato == null))
 
-    private fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
+    fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
         // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon
         type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 

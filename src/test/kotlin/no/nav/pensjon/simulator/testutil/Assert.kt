@@ -2,13 +2,23 @@ package no.nav.pensjon.simulator.testutil
 
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import java.util.Calendar
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import java.time.LocalDate
 
 object Assert {
 
     fun trygdetidsperiode(periode: TTPeriode, expectedFomAar: Int, expectedTomAar: Int) {
-        periode.fom shouldBe dateAtNoon(expectedFomAar, Calendar.JANUARY, 1)
-        periode.tom shouldBe dateAtNoon(expectedTomAar, Calendar.DECEMBER, 31)
+        trygdetidsperiode(
+            periode,
+            expectedFom = LocalDate.of(expectedFomAar, 1, 1),
+            expectedTom = LocalDate.of(expectedTomAar, 12, 31)
+        )
+    }
+
+    fun trygdetidsperiode(periode: TTPeriode, expectedFom: LocalDate, expectedTom: LocalDate) {
+        periode.fom shouldBe expectedFom.toNorwegianDateAtNoon()
+        periode.tom shouldBe expectedTom.toNorwegianDateAtNoon()
+        periode.landEnum shouldBe LandkodeEnum.NOR
     }
 }

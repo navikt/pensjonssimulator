@@ -10,9 +10,9 @@ import java.time.LocalDate
 
 class InnlandTrygdetidUtilTest : FunSpec({
 
-    test("addInnlandOpphold when closed utenlandsperiode: should add open norsk periode") {
+    test("addInnenlandsopphold when closed utenlandsperiode: should add open norsk periode") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidUtil.addInnlandOpphold(
+            InnlandTrygdetidUtil.addInnenlandsopphold(
                 oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
@@ -41,9 +41,9 @@ class InnlandTrygdetidUtilTest : FunSpec({
         }
     }
 
-    test("addInnlandOpphold when open utenlandsperiode after fødselsdato: should add norsk periode between fødselsdato and utenlandsperiode") {
+    test("addInnenlandsopphold when open utenlandsperiode after fødselsdato: should add norsk periode between fødselsdato and utenlandsperiode") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidUtil.addInnlandOpphold(
+            InnlandTrygdetidUtil.addInnenlandsopphold(
                 oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
@@ -72,9 +72,9 @@ class InnlandTrygdetidUtilTest : FunSpec({
         }
     }
 
-    test("addInnlandOpphold handles unsorted open perioder") {
+    test("addInnenlandsopphold handles unsorted open perioder") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidUtil.addInnlandOpphold(
+            InnlandTrygdetidUtil.addInnenlandsopphold(
                 oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
@@ -117,9 +117,9 @@ class InnlandTrygdetidUtilTest : FunSpec({
         }
     }
 
-    test("addInnlandOpphold inserts missing perioder") {
+    test("addInnenlandsopphold inserts missing perioder") {
         val grunnlagListe: List<TrygdetidOpphold> =
-            InnlandTrygdetidUtil.addInnlandOpphold(
+            InnlandTrygdetidUtil.addInnenlandsopphold(
                 oppholdListe = listOf(
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {

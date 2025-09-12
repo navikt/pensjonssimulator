@@ -9,7 +9,7 @@ import java.time.LocalDate
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.InsertTrygdetidsgrunnlagForDomesticPeriods
 object InnlandTrygdetidUtil {
 
-    fun addInnlandOpphold(
+    fun addInnenlandsopphold(
         oppholdListe: List<TrygdetidOpphold>,
         foedselsdato: LocalDate?
     ): List<TrygdetidOpphold> {

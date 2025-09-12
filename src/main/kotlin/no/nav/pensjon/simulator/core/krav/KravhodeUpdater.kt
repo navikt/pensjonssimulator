@@ -27,7 +27,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe
-import no.nav.pensjon.simulator.trygdetid.Kapittel20TrygdetidsgrunnlagCreator.kapittel20TrygdetidperiodeListe
+import no.nav.pensjon.simulator.trygdetid.Kapittel20TrygdetidsgrunnlagCreator.kapittel20TrygdetidsperiodeListe
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -196,11 +196,13 @@ class KravhodeUpdater(
         return trygdetidSetter.settTrygdetid(spec)
     }
 
+    // SimulerFleksibelAPCommand.setTrygetidKap19
     private fun addKapittel19Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
         val periodeListe = kapittel19TrygdetidsperiodeListe(
-            spec,
             opptjeningsgrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
-            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate()
+            utlandPeriodeListe = spec.utlandPeriodeListe,
+            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
+            foersteUttakDato = spec.foersteAlderspensjonUttaksdato()
         )
 
         periodeListe.forEach { persongrunnlag.trygdetidPerioder.add(it) }
@@ -208,9 +210,10 @@ class KravhodeUpdater(
 
     // SimulerFleksibelAPCommand.setTrygdetidKap20
     private fun addKapittel20Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
-        val periodeListe = kapittel20TrygdetidperiodeListe(
-            spec,
-            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate()
+        val periodeListe = kapittel20TrygdetidsperiodeListe(
+            utlandPeriodeListe = spec.utlandPeriodeListe,
+            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
+            foersteUttakDato = spec.foersteAlderspensjonUttaksdato()
         )
 
         periodeListe.forEach { persongrunnlag.trygdetidPerioderKapittel20.add(it) }

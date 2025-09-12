@@ -225,7 +225,19 @@ data class SimuleringSpec(
                 (foersteUttakDato?.equals(other.foersteUttakDato) ?: (other.foersteUttakDato == null)) &&
                 (heltUttakDato?.equals(other.heltUttakDato) ?: (other.heltUttakDato == null))
 
-    fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
+    /**
+     * For 'pre-2025 offentlig AFP etterfulgt av alderspensjon' gjelder:
+     * - foersteUttakDato = uttak av AFP
+     * - heltUttakDato = uttak av alderspensjon
+     * Det er alderspensjonsuttaket (og dermed heltUttakDato) som er relevant for trygdetiden her
+     */
+     fun foersteAlderspensjonUttaksdato(): LocalDate? =
+        if (gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon())
+            heltUttakDato ?: foersteUttakDato // bruker foersteUttakDato som 'backup'-dato
+        else
+            foersteUttakDato
+
+    private fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
         // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon
         type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 

@@ -3,11 +3,9 @@ package no.nav.pensjon.simulator.trygdetid
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.Assert
-import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
 
 class Kapittel19TrygdetidsgrunnlagCreatorTest : FunSpec({
@@ -22,20 +20,6 @@ class Kapittel19TrygdetidsgrunnlagCreatorTest : FunSpec({
      */
     test("kapittel19TrygdetidsperiodeListe") {
         val result = Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe(
-            spec = simuleringSpec(
-                type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
-                foersteUttakDato = null,
-                heltUttakDato = LocalDate.of(2029, 6, 1),
-                utlandPeriodeListe = listOf(
-                    UtlandPeriode(
-                        fom = LocalDate.of(1962, 5, 29),
-                        tom = LocalDate.of(1999, 12, 31),
-                        // trygdetid starter dermed 2000-01-01
-                        land = LandkodeEnum.LUX,
-                        arbeidet = false
-                    )
-                )
-            ),
             opptjeningsgrunnlagListe = mutableListOf(
                 Opptjeningsgrunnlag().apply {
                     ar = 2021
@@ -49,7 +33,17 @@ class Kapittel19TrygdetidsgrunnlagCreatorTest : FunSpec({
                     ar = 2023
                     pp = 1.3
                 }),
-            foedselsdato = LocalDate.of(1962, 5, 29)
+            utlandPeriodeListe = mutableListOf(
+                UtlandPeriode(
+                    fom = LocalDate.of(1962, 5, 29),
+                    tom = LocalDate.of(1999, 12, 31),
+                    // trygdetid starter dermed 2000-01-01
+                    land = LandkodeEnum.LUX,
+                    arbeidet = false
+                )
+            ),
+            foedselsdato = LocalDate.of(1962, 5, 29),
+            foersteUttakDato = LocalDate.of(2029, 6, 1)
         )
 
         result.size shouldBe 5

@@ -3,50 +3,41 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
 import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
+import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.trygdetid.TrygdetidsgrunnlagCreator.trygdetidsperiodeListe
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag
 import java.time.LocalDate
 
+/**
+ * NB: Denne brukes bare i forbindelse med utenlandsopphold.
+ */
 object Kapittel19TrygdetidsgrunnlagCreator {
 
     // SimulerFleksibelAPCommand.setTrygetidKap19
     fun kapittel19TrygdetidsperiodeListe(
-        spec: SimuleringSpec,
-        opptjeningsgrunnlagListe: MutableList<Opptjeningsgrunnlag>,
-        foedselsdato: LocalDate
+        opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
+        utlandPeriodeListe: MutableList<UtlandPeriode>,
+        foedselsdato: LocalDate,
+        foersteUttakDato: LocalDate?
     ): List<TTPeriode> {
         val trygdetidsgrunnlagMedPensjonspoengListe = mapOpptjeningToTrygdetid(opptjeningsgrunnlagListe)
-        val utlandPeriodeListe = spec.utlandPeriodeListe
 
-        val trygdetidsgrunnlagUtlandOppholdListe =
+        val utlandTrygdetidsgrunnlag =
             if (trygdetidsgrunnlagMedPensjonspoengListe.isEmpty())
                 utlandTrygdetidsgrunnlag(utlandPeriodeListe)
             else
                 utlandTrygdetidsgrunnlag(utlandPeriodeListe, trygdetidsgrunnlagMedPensjonspoengListe)
 
         val trygdetidsgrunnlagListe = trygdetidsperiodeListe(
-            utlandOppholdListe = trygdetidsgrunnlagUtlandOppholdListe,
+            utenlandsoppholdListe = utlandTrygdetidsgrunnlag,
             foedselsdato,
-            foersteUttakDato = foersteUttakDato(spec)
+            foersteUttakDato!!
         )
 
         return trygdetidsgrunnlagListe
     }
-
-    /**
-     * For 'pre-2025 offentlig AFP etterfulgt av alderspensjon' gjelder:
-     * - foersteUttakDato = uttak av AFP
-     * - heltUttakDato = uttak av alderspensjon
-     * Det er alderspensjonsuttaket (og dermed heltUttakDato) som er relevant for trygdetiden her
-     */
-    private fun foersteUttakDato(spec: SimuleringSpec): LocalDate? =
-        if (spec.gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon())
-            spec.heltUttakDato ?: spec.foersteUttakDato // bruker foersteUttakDato som 'backup'-dato
-        else
-            spec.foersteUttakDato
 
     private fun mapOpptjeningToTrygdetid(opptjeningListe: List<Opptjeningsgrunnlag>): List<TrygdetidOpphold> {
         val trygdetidListe: MutableList<TrygdetidOpphold> = mutableListOf()

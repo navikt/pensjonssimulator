@@ -1,7 +1,8 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
+import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
+import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
+import java.time.LocalDate
 import java.util.*
 
 object TrygdetidUtil {
@@ -10,11 +11,11 @@ object TrygdetidUtil {
     fun antallAarMedOpptjening(
         opptjeningAarSet: SortedSet<Int>,
         aarSoekerFikkMinstealderForTrygdetid: Int,
-        dagensDato: Date
+        dagensDato: LocalDate
     ): Int {
         if (opptjeningAarSet.size < 1) return 0
 
-        val forrigeAar = getYear(getRelativeDateByYear(dagensDato, -1))
+        val forrigeAar = dagensDato.year - 1
 
         return if (aarSoekerFikkMinstealderForTrygdetid > forrigeAar)
             0

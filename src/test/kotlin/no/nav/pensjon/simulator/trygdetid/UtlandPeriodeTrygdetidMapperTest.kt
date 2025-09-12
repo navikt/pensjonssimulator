@@ -1,9 +1,11 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
+import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
 import java.util.*
@@ -16,7 +18,7 @@ import java.util.Calendar.MAY
 class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
     test("utlandTrygdetidGrunnlag removes overlap") {
-        val result = UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(
+        val result = UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag(
             mutableListOf(
                 UtlandPeriode(
                     fom = LocalDate.of(2024, 1, 1),
@@ -46,7 +48,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
     }
 
     test("utlandTrygdetidGrunnlag sorts list") {
-        val result = UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(
+        val result = UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag(
             mutableListOf(
                 UtlandPeriode(
                     fom = LocalDate.of(2024, 2, 1),
@@ -77,7 +79,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
     }
 
     test("utlandTrygdetidGrunnlag handles list with 1 item") {
-        val result = UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(
+        val result = UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag(
             mutableListOf(
                 UtlandPeriode(
                     fom = LocalDate.of(2024, 1, 1),
@@ -98,7 +100,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
     test("utlandTrygdetidGrunnlag when closed utenlandsperiode") {
         val result: List<TrygdetidOpphold> =
-            UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(
+            UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag(
                 utlandPeriodeListe = mutableListOf(
                     UtlandPeriode(
                         fom = LocalDate.of(1971, 1, 1),
@@ -107,7 +109,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
                         arbeidet = false
                     )
                 ),
-                trygdetidGrunnlagMedPensjonspoengListe = norskTrygdetid(1981, 1980, 1986, 1983, 1987, 1982)
+                trygdetidsgrunnlagMedPensjonspoengListe = norskTrygdetid(1981, 1980, 1986, 1983, 1987, 1982)
             )
 
         result.size shouldBe 9
@@ -124,7 +126,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
     test("utlandTrygdetidGrunnlag when open utenlandsperiode") {
         val result: List<TrygdetidOpphold> =
-            UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(
+            UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag(
                 utlandPeriodeListe = mutableListOf(
                     UtlandPeriode(
                         fom = LocalDate.of(1971, 1, 1),
@@ -133,7 +135,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
                         arbeidet = true
                     )
                 ),
-                trygdetidGrunnlagMedPensjonspoengListe = norskTrygdetid(1981, 1980, 1986, 1983, 1984, 1982)
+                trygdetidsgrunnlagMedPensjonspoengListe = norskTrygdetid(1981, 1980, 1986, 1983, 1984, 1982)
             )
 
         result.size shouldBe 9
@@ -149,7 +151,7 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
     }
 
     test("utlandTrygdetidGrunnlag handles empty list") {
-        UtlandPeriodeTrygdetidMapper.utlandTrygdetidGrunnlag(mutableListOf()).size shouldBe 0
+        UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag(mutableListOf()).size shouldBe 0
     }
 })
 

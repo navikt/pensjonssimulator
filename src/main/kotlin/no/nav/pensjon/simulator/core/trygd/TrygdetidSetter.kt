@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.antallAarMedOpptjening
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.Time
@@ -124,10 +125,10 @@ class TrygdetidSetter(private val time: Time) {
             }
         }
 
-        return TrygdetidUtil.antallAarMedOpptjening(
+        return antallAarMedOpptjening(
             opptjeningAarSet = aarMedOpptjeningSet,
             aarSoekerFikkMinstealderForTrygdetid = yearUserTurnsGivenAge(foedselsdato!!, NEDRE_ALDERSGRENSE),
-            dagensDato = time.today().toNorwegianDateAtNoon()
+            dagensDato = time.today()
         )
     }
 

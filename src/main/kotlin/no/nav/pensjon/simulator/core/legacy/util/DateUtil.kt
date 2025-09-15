@@ -272,9 +272,6 @@ object DateUtil {
             this[Calendar.DAY_OF_MONTH] = getActualMaximum(Calendar.DAY_OF_MONTH)
         }.time
 
-    fun getLastDateInYear(date: LocalDate): LocalDate =
-        getLastDateInYear(date.toNorwegianDateAtNoon()).toNorwegianLocalDate()
-
     // SimuleringEtter2011Utils.yearUserTurnsGivenAge
     fun yearUserTurnsGivenAge(foedselsdato: Date, age: Int): Int =
         NorwegianCalendar.forNoon(foedselsdato).apply {

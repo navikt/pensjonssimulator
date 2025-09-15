@@ -1,8 +1,10 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
+import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
+import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.util.*
@@ -11,28 +13,28 @@ import java.util.*
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdetidsgrunnlagForUtenlandsperioderMapper
 object UtlandPeriodeTrygdetidMapper {
 
-    fun utlandTrygdetidGrunnlag(periodeListe: MutableList<UtlandPeriode>): List<TrygdetidOpphold> {
+    fun utlandTrygdetidsgrunnlag(periodeListe: MutableList<UtlandPeriode>): List<TrygdetidOpphold> {
         val oppholdListe = mutableListOf<TrygdetidOpphold>()
         val sortedList = periodeListe.sortedBy { it.fom }
 
         sortedList.forEachIndexed { index, periode ->
             if (index + 1 < periodeListe.size)
-                oppholdListe.add(trygdetidGrunnlag(periode, sortedList[index + 1]))
+                oppholdListe.add(trygdetidsgrunnlag(periode, sortedList[index + 1]))
             else
-                oppholdListe.add(trygdetidGrunnlag(periode))
+                oppholdListe.add(trygdetidsgrunnlag(periode))
         }
 
         return oppholdListe
     }
 
     // PEN: createTrygdetidsgrunnlagForUtenlandsperioder
-    fun utlandTrygdetidGrunnlag(
+    fun utlandTrygdetidsgrunnlag(
         utlandPeriodeListe: MutableList<UtlandPeriode>,
-        trygdetidGrunnlagMedPensjonspoengListe: List<TrygdetidOpphold>
+        trygdetidsgrunnlagMedPensjonspoengListe: List<TrygdetidOpphold>
     ): List<TrygdetidOpphold> =
         merge(
-            outerList = utlandPeriodeListe.map(::trygdetidGrunnlag).sortedBy { it.periode.fom },
-            innerList = trygdetidGrunnlagMedPensjonspoengListe.sortedBy { it.periode.fom }
+            outerList = utlandPeriodeListe.map(::trygdetidsgrunnlag).sortedBy { it.periode.fom },
+            innerList = trygdetidsgrunnlagMedPensjonspoengListe.sortedBy { it.periode.fom }
         )
 
     // PEN: extract from createTrygdetidsgrunnlagForUtenlandsperioder
@@ -79,11 +81,15 @@ object UtlandPeriodeTrygdetidMapper {
 
     private fun copy(source: TrygdetidOpphold, newPeriodeTom: Date?) =
         TrygdetidOpphold(
-            periode = trygdetidPeriode(fom = source.periode.fom, tom = newPeriodeTom, land = source.periode.landEnum),
+            periode = trygdetidPeriode(
+                fom = source.periode.fom,
+                tom = newPeriodeTom,
+                land = source.periode.landEnum
+            ),
             arbeidet = source.arbeidet
         )
 
-    private fun trygdetidGrunnlag(periode: UtlandPeriode, nestePeriode: UtlandPeriode) =
+    private fun trygdetidsgrunnlag(periode: UtlandPeriode, nestePeriode: UtlandPeriode) =
         TrygdetidOpphold(
             periode = trygdetidPeriode(
                 fom = periode.fom,
@@ -95,7 +101,7 @@ object UtlandPeriodeTrygdetidMapper {
             arbeidet = periode.arbeidet
         )
 
-    private fun trygdetidGrunnlag(periode: UtlandPeriode) =
+    private fun trygdetidsgrunnlag(periode: UtlandPeriode) =
         TrygdetidOpphold(
             periode = trygdetidPeriode(
                 fom = periode.fom,

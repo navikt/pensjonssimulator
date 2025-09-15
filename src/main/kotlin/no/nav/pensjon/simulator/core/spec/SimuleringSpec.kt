@@ -56,6 +56,12 @@ data class SimuleringSpec(
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
     val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
 
+    val limitedUtenlandsoppholdAntallAar: Int =
+        if (utlandAntallAar < 1 && utlandPeriodeListe.isNotEmpty() && foedselDato != null)
+            UtlandPeriodeConverter.limitedAntallAar(utlandPeriodeListe, foedselDato)
+        else
+            utlandAntallAar
+
     fun isGradert() = isGradert(uttakGrad)
 
     fun uttakErGradertEllerNull() = isGradertOrZero(uttakGrad)
@@ -218,6 +224,18 @@ data class SimuleringSpec(
         uttakGrad == other.uttakGrad &&
                 (foersteUttakDato?.equals(other.foersteUttakDato) ?: (other.foersteUttakDato == null)) &&
                 (heltUttakDato?.equals(other.heltUttakDato) ?: (other.heltUttakDato == null))
+
+    /**
+     * For 'pre-2025 offentlig AFP etterfulgt av alderspensjon' gjelder:
+     * - foersteUttakDato = uttak av AFP
+     * - heltUttakDato = uttak av alderspensjon
+     * Det er alderspensjonsuttaket (og dermed heltUttakDato) som er relevant for trygdetiden her
+     */
+     fun foersteAlderspensjonUttaksdato(): LocalDate? =
+        if (gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon())
+            heltUttakDato ?: foersteUttakDato // bruker foersteUttakDato som 'backup'-dato
+        else
+            foersteUttakDato
 
     private fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
         // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon

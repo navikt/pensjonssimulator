@@ -37,6 +37,7 @@ class SpkTjenestepensjonClientPre2025(
         val response: HentPrognoseResponseDto? = webClient
             .post()
             .uri(PATH)
+            .headers(::setHeaders)
             .bodyValue(request)
             .retrieve()
             .bodyToMono<HentPrognoseResponseDto>()

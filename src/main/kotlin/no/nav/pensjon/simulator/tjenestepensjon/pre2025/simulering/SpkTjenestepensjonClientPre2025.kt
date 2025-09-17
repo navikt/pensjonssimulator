@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.FnrDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service

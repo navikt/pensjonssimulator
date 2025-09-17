@@ -10,8 +10,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentProgn
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper.toDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.acl.TPOrdningIdDto
+import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Component
 

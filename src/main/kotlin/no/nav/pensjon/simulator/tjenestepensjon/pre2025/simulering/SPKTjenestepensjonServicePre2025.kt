@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentProgn
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.TpForholdDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.OpptjeningsperiodeService
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils

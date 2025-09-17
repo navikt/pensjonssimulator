@@ -9,14 +9,15 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tpregisteret.acl.BrukerTilknyttetTpLeverandoerResponse
+import no.nav.pensjon.simulator.tpregisteret.acl.HentAlleTPForholdResponseDto
+import no.nav.pensjon.simulator.tpregisteret.acl.TpForhold
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientRequestException
-import org.springframework.web.reactive.function.client.WebClientResponseException
-import kotlin.collections.orEmpty
+import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Mono
 
 @Component
 class TpregisteretClient(
@@ -57,23 +58,38 @@ class TpregisteretClient(
         return webClient.get()
             .uri(FORHOLD_PATH)
             .headers { setHeaders(it); it["fnr"] = fnr }
-            .retrieve()
-            .bodyToMono(object : ParameterizedTypeReference<List<TpForhold>>() {})
-            .block().orEmpty()
+            .exchangeToMono(::handleAlleTpForholdResponse)
+            .block()
+            .orEmpty()
     }
 
     fun findTssId(tpId: String): String? {
-        return try{
+        return try {
             webClient.get()
                 .uri("$TSS_PATH$tpId")
                 .retrieve()
                 .bodyToMono(String::class.java)
                 .block()
-        }
-        catch (_: WebClientResponseException.NotFound) {
+        } catch (_: WebClientResponseException.NotFound) {
             null
         }
     }
+
+    private fun handleAlleTpForholdResponse(response: ClientResponse): Mono<List<TpForhold>> =
+        when (response.statusCode()) {
+            HttpStatus.OK -> response.bodyToMono<HentAlleTPForholdResponseDto>().map {
+                it.forhold.map { forhold ->
+                    TpForhold(
+                        tpNr = forhold.tpNr,
+                        navn = forhold.tpOrdningNavn ?: forhold.tpNr,
+                        datoSistOpptjening = forhold.datoSistOpptjening
+                    )
+                }
+            }
+
+            HttpStatus.NOT_FOUND -> Mono.empty()
+            else -> Mono.error(RuntimeException("Error fetching data from TP: Received status code ${response.statusCode()} fra tpregisteret"))
+        }
 
     private fun logAndReturnFalse(
         feilmelding: String,

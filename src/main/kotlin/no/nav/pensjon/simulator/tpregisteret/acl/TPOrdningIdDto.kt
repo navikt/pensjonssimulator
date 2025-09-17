@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tpregisteret
+package no.nav.pensjon.simulator.tpregisteret.acl
 
 data class TPOrdningIdDto(
     var tssId: String, var tpId: String

@@ -68,6 +68,8 @@ spec:
             - orgno: "927613298" # Aksio
             - orgno: "940380014" # Arendal kommunale pensjonskasse
             - orgno: "980650383" # Drammen kommunale pensjonskasse
+      consumes:
+        - name: "spk:nav"
   accessPolicy:
     inbound:
       rules:

@@ -47,5 +47,11 @@ enum class EgressService(
         description = "Tjenestepensjon-simulering",
         shortName = "TP-S",
         purpose = "Simulere offentlig tjenestepensjon"
-    )
+    ),
+    SPK(
+        description = "Statens Pensjonskasse",
+        shortName = "SPK",
+        purpose = "Simulere offentlig tjenestepensjon",
+        authType = AuthType.MACHINE_OUTSIDE_NAV
+    ),
 }

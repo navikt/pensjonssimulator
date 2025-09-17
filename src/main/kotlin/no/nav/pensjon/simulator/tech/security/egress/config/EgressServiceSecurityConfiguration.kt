@@ -19,6 +19,7 @@ open class EgressServiceSecurityConfiguration {
         @Value("\${tjenestepensjon.service-id}") tpRegisterServiceId: String,
         @Value("\${ps.tp-simulering.service-id}") tpSimuleringServiceId: String,
         @Value("\${ps.popp.service-id}") opptjeningServiceId: String,
+        @Value("\${ps.maskinporten.scope.3}") spkServiceId: String,
     ) =
         EgressServicesByAudience(
             mapOf(
@@ -28,6 +29,7 @@ open class EgressServiceSecurityConfiguration {
                 tpRegisterServiceId to EgressService.TP_REGISTERET,
                 tpSimuleringServiceId to EgressService.TJENESTEPENSJON_SIMULERING,
                 opptjeningServiceId to EgressService.PENSJONSOPPTJENING,
+                spkServiceId to EgressService.SPK,
             )
         )
 

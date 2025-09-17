@@ -119,6 +119,8 @@ spec:
       value: dev-fss:pensjonsamhandling:tp-q1
     - name: TJENESTEPENSJON_URL
       value: https://tp-api-q1.dev-fss-pub.nais.io
+    - name: SPK_STILLINGSPROSENT_URL
+      value: https://partner-gw.test.spk.no/nav/SimulereTjenestepensjon
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

@@ -135,6 +135,8 @@ spec:
       value: dev-gcp:pensjonskalkulator:tjenestepensjon-simulering
     - name: TP_SIMULERING_URL
       value: http://tjenestepensjon-simulering
+    - name: SPK_STILLINGSPROSENT_URL
+      value: https://partner-gw.test.spk.no/nav/SimulereTjenestepensjon
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

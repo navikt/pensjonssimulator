@@ -10,11 +10,13 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import kotlin.collections.orEmpty
 
 @Component
 class TpregisteretClient(
@@ -51,6 +53,28 @@ class TpregisteretClient(
         }
     }
 
+    fun findAlleTPForhold(fnr: String): List<TpForhold> {
+        return webClient.get()
+            .uri(FORHOLD_PATH)
+            .headers { setHeaders(it); it["fnr"] = fnr }
+            .retrieve()
+            .bodyToMono(object : ParameterizedTypeReference<List<TpForhold>>() {})
+            .block().orEmpty()
+    }
+
+    fun findTssId(tpId: String): String? {
+        return try{
+            webClient.get()
+                .uri("$TSS_PATH$tpId")
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .block()
+        }
+        catch (_: WebClientResponseException.NotFound) {
+            null
+        }
+    }
+
     private fun logAndReturnFalse(
         feilmelding: String,
         organisasjonsnummer: Organisasjonsnummer,
@@ -77,6 +101,8 @@ class TpregisteretClient(
 
     companion object {
         private const val PATH = "/api/tjenestepensjon"
+        private const val FORHOLD_PATH = "/api/intern/tjenestepensjon/forhold/"
+        private const val TSS_PATH = "/api/tpconfig/tssnr/"
         private val service = EgressService.TP_REGISTERET
     }
 }

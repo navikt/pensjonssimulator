@@ -23,7 +23,7 @@ import java.time.LocalDate
 
 @Service
 class SpkTjenestepensjonClientPre2025(
-    @Value("\${ps.pen.url}") baseUrl: String,
+    @Value("\${spk.tp-simulering.pre-2025.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
     private val traceAid: TraceAid,

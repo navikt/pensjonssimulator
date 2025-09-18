@@ -36,7 +36,7 @@ open class SoapClientConfig(
                 AuthAttachingHttpRequestInterceptor(),
             )
             setMessageSender(HttpUrlConnectionMessageSender())
-            setCheckConnectionForFault(true)
+            setCheckConnectionForFault(false)
             setCheckConnectionForError(true)
         }
 

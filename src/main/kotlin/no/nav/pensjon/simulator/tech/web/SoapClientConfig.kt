@@ -31,13 +31,13 @@ open class SoapClientConfig(
             defaultUri = "$baseUrl$PATH"
             marshaller = jaxb2Marshaller
             unmarshaller = jaxb2Marshaller
-            faultMessageResolver = SoapFaultHandler(jaxb2Marshaller)
+            //faultMessageResolver = SoapFaultHandler(jaxb2Marshaller)
             interceptors = arrayOf(
                 AuthAttachingHttpRequestInterceptor(),
             )
             setMessageSender(HttpUrlConnectionMessageSender())
-            setCheckConnectionForFault(false)
-            setCheckConnectionForError(true)
+            setCheckConnectionForFault(true)
+            setCheckConnectionForError(false)
         }
 
     companion object {

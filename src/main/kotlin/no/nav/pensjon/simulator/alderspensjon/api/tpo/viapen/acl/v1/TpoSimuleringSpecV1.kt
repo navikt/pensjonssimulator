@@ -21,14 +21,14 @@ data class TpoSimuleringSpecV1(
     val eps2G: Boolean? = false,
     val utenlandsopphold: Int? = 0,
     val simuleringType: SimuleringTypeEnum? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foersteUttakDato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foersteUttakDato: LocalDate? = null,
     val uttakGrad: UttakGradKode? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val heltUttakDato: LocalDate? = null,
-    val antallArInntektEtterHeltUttak: Int? = null, // V1, V2 only
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val heltUttakDato: LocalDate? = null,
+    val antallArInntektEtterHeltUttak: Int? = null, // V1 only
     val forventetInntekt: Int? = null, // V1 only
     val inntektUnderGradertUttak: Int? = null, // V1 only
     val inntektEtterHeltUttak: Int? = null // V1 only
-    // fremtidigInntektList: V2, V3 only
+    // fremtidigInntektList: V3 only
 ) {
     /**
      * toString with redacted person ID

@@ -22,7 +22,7 @@ object TpoSimuleringResultMapperV1 {
     private fun alderspensjon(source: SimulertAlderspensjon) =
         TpoAlderspensjonV1(
             pensjonsperiodeListe = source.pensjonPeriodeListe.map(TpoSimuleringResultMapperV1::pensjonPeriode)
-            // pensjonsbeholdningListe: V2, V3 only
+            // pensjonsbeholdningListe: V3 only
             // uttaksgradListe: V3 only
             // simulertBeregningsinformasjonListe: V3 only
         )
@@ -44,7 +44,7 @@ object TpoSimuleringResultMapperV1 {
 
     private fun beregningInformasjon(source: SimulertBeregningInformasjon) =
         TpoBeregningInformasjonV1(
-            startMnd = source.startMaaned, // V1, V2 only
+            startMnd = source.startMaaned, // V1 only
             uttaksgrad = source.uttakGrad,
             // datoFom, delytelser, simuleringsdata: V3 only
         )

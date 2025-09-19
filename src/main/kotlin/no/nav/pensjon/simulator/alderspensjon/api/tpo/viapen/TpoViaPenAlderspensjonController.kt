@@ -10,10 +10,6 @@ import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimulerin
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringResultV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecMapperV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecV1
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringResultMapperV2
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringResultV2
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecMapperV2
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v2.TpoSimuleringSpecV2
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringResultMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v3.TpoSimuleringSpecMapperV3
@@ -43,7 +39,6 @@ import java.time.format.DateTimeParseException
 class TpoViaPenAlderspensjonController(
     private val simulatorCore: SimulatorCore,
     private val specMapperV1: TpoSimuleringSpecMapperV1,
-    private val specMapperV2: TpoSimuleringSpecMapperV2,
     private val specMapperV3: TpoSimuleringSpecMapperV3,
     private val traceAid: TraceAid
 ) : ControllerBase(traceAid) {
@@ -137,88 +132,6 @@ class TpoViaPenAlderspensjonController(
         } catch (e: PersonIkkeFunnetLokaltException) {
             handleExceptionV1(e)
             */
-        } catch (e: EgressException) {
-            handle(e)!!
-        } finally {
-            traceAid.end()
-        }
-    }
-
-    @PostMapping("v2/simuler-alderspensjon")
-    @Operation(
-        summary = "Simuler alderspensjon for tjenestepensjonsordning (V2)",
-        description = "Lager en prognose for utbetaling av alderspensjon (versjon 2 av tjenesten).",
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Simulering av alderspensjon utført."
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
-                        " (1) helt uttak ikke etter gradert uttak," +
-                        " (2) inntekt ikke 1. i måneden," +
-                        " (3) inntekter har lik startdato, " +
-                        " (4) negativ inntekt."
-            )
-        ]
-    )
-    fun simulerAlderspensjonV2(@RequestBody specV2: TpoSimuleringSpecV2): TpoSimuleringResultV2 {
-        traceAid.begin()
-        log.debug { "$FUNCTION_ID_V2 request: $specV2" }
-        countCall(FUNCTION_ID_V2)
-
-        return try {
-            val spec: SimuleringSpec = specMapperV2.fromDto(specV2)
-            val result: SimulatorOutput = simulatorCore.simuler(spec)
-            TpoSimuleringResultMapperV2.toDto(result)
-        } catch (e: BadRequestException) {
-            log.warn(e) { "$FUNCTION_ID_V2 bad request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID_V2 bad spec - ${extractMessageRecursively(e)} - $specV2" } // not log.warn(e)
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: DateTimeParseException) {
-            log.warn { "$FUNCTION_ID_V2 feil datoformat (forventet yyyy-mm-dd) - ${extractMessageRecursively(e)} - request: $specV2" }
-            throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID_V2 feil i simuleringsgrunnlaget - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID_V2 unrecoverable error - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: InvalidArgumentException) {
-            log.warn(e) { "$FUNCTION_ID_V2 invalid argument - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: InvalidEnumValueException) {
-            log.warn(e) { "$FUNCTION_ID_V2 invalid enum value - request - $specV2" }
-            throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$FUNCTION_ID_V2 kan ikke beregnes - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID_V2 inkonsistent grunnlag - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: PersonForGammelException) {
-            log.warn(e) { "$FUNCTION_ID_V2 person for gammel - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: PersonForUngException) {
-            log.warn(e) { "$FUNCTION_ID_V2 person for ung - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$FUNCTION_ID_V2 pre-2025 offentlig AFP avslått - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: RegelmotorValideringException) {
-            log.warn(e) { "$FUNCTION_ID_V2 regelmotorvalideringsfeil - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID_V2 utilstrekkelig opptjening - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID_V2 utilstrekkelig trygdetid - request - $specV2" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
             handle(e)!!
         } finally {
@@ -363,7 +276,6 @@ class TpoViaPenAlderspensjonController(
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon for TPO via PEN"
         private const val FUNCTION_ID_V1 = "tpo-ap-v1"
-        private const val FUNCTION_ID_V2 = "tpo-ap-v2"
         private const val FUNCTION_ID_V3 = "tpo-ap-v3"
 
         private fun errorDto(e: RuntimeException) =

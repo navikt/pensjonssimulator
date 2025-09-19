@@ -29,11 +29,11 @@ class TpoSimuleringSpecMapperV1(val personService: GeneralPersonService) {
             forventetInntektBeloep = source.forventetInntekt ?: 0, // V1 only
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0, // V1 only
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0, // V1 only
-            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak, // V1, V2 only
+            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak, // V1 only
             foedselAar = 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = mutableListOf(),
-            fremtidigInntektListe = mutableListOf(), // V2, V3 only
+            fremtidigInntektListe = mutableListOf(), // V3 only
             brukFremtidigInntekt = false,
             inntektOver1GAntallAar = 0,
             flyktning = null,

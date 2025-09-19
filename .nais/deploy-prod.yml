@@ -103,6 +103,7 @@ spec:
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
         - host: tp-api.prod-fss-pub.nais.io
         - host: pensjonskalkulator-unleash-api.nav.cloud.nais.io
+        - host: api.prod.spk.no
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway

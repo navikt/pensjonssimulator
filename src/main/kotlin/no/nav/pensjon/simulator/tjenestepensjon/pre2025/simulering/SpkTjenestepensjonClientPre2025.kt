@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.FnrDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
@@ -33,7 +32,7 @@ class SpkTjenestepensjonClientPre2025(
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
     fun getResponse(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): HentPrognoseResponseDto {
-        sporingsloggService.log(Pid(request.fnr.fnr), request.toString(), "")
+        sporingsloggService.log(Pid(request.fnr), request.toString(), "")
         val response: HentPrognoseResponseDto? = webClient
             .post()
             .uri(PATH)
@@ -56,7 +55,7 @@ class SpkTjenestepensjonClientPre2025(
         .block() ?: "No body received"
 
     private fun dummyRequest(fnr: String = "01015512345") = HentPrognoseRequestDto(
-        fnr = FnrDto(fnr),
+        fnr = fnr,
         fodselsdato = LocalDate.of(1955, 1, 1),
         sisteTpnr = "3010",
         sivilstandkode = SivilstandCodeEnumDto.UGIF,

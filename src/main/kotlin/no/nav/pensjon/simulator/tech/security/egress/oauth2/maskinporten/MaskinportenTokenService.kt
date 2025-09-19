@@ -12,17 +12,17 @@ import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.security.egress.token.EgressTokenGetter
 import no.nav.pensjon.simulator.tech.security.egress.token.RawJwt
+import no.nav.pensjon.simulator.tech.security.egress.token.TokenAccessParameter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.util.retry.Retry
-import java.util.Calendar
-import java.util.Date
+import java.util.*
 import java.util.concurrent.TimeUnit
 
-//TODO Implementere CacheAwareTokenClient og bruke cache og henting av token derifra
+//TODO Fullføre implementasjon av CacheAwareTokenClient og bruke cache og henting av token derifra
 
 @Service
 class MaskinportenTokenService(
@@ -31,6 +31,7 @@ class MaskinportenTokenService(
     @param:Value("\${maskinporten.client-jwk}") val clientJwk: String,
     @param:Value("\${maskinporten.issuer}") val issuer: String,
     @param:Value("\${maskinporten.token-endpoint-url}") val endpoint: String,
+    val maskinportenClient: MaskinportenRequestClient,
 ) : EgressTokenGetter {
     private val log = KotlinLogging.logger {}
     private val webClient: WebClient = webClientBuilder.build()
@@ -46,7 +47,14 @@ class MaskinportenTokenService(
             }
         }
 
-    override fun getEgressToken(
+    override fun getEgressToken(ingressToken: String, audience: String, user: String): RawJwt {
+        val accessParameter = TokenAccessParameter.jwtBearer("urn:ietf:params:oauth:grant-type:jwt-bearer")
+        val tokenValue = maskinportenClient.getTokenData(accessParameter = accessParameter, scope = audience, user = user)
+            .accessToken
+        return RawJwt(tokenValue)
+    }
+
+    fun getEgressTokenGammel(
         ingressToken: String,
         audience: String,
         user: String

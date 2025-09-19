@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
 data class SimulerOffentligTjenestepensjonResultV1(
@@ -15,13 +16,28 @@ data class SimulerOffentligTjenestepensjonResultV1(
     data class UtbetalingsperiodeV1(
         var uttaksgrad: Int,
         var arligUtbetaling: Double,
-        var datoFom: LocalDate,
-        var datoTom: LocalDate?,
+        @field:JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd",
+            timezone = "CET"
+        ) var datoFom: LocalDate,
+        @field:JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd",
+            timezone = "CET"
+        ) var datoTom: LocalDate?,
         var ytelsekode: String
     )
 
     companion object {
-        fun Companion.ikkeMedlem() = SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErIkkeMedlemAvTPOrdning = true)
-        fun Companion.tpOrdningStoettesIkke() = SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErMedlemAvTPOrdningSomIkkeStoettes = true)
+        fun Companion.ikkeMedlem() =
+            SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErIkkeMedlemAvTPOrdning = true)
+
+        fun Companion.tpOrdningStoettesIkke() = SimulerOffentligTjenestepensjonResultV1(
+            "",
+            "",
+            emptyList(),
+            brukerErMedlemAvTPOrdningSomIkkeStoettes = true
+        )
     }
 }

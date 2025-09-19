@@ -37,12 +37,12 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             isTpOrigSimulering = false,
             simulerForTp = false,
             uttakGrad = UttakGradKode.P_100, // not relevant in this context
-            forventetInntektBeloep = source.forventetInntekt ?: 0,
-            inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
-            inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0,
-            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0,
+            forventetInntektBeloep = validatedInntekt(source.forventetInntekt),
+            inntektUnderGradertUttakBeloep = validatedInntekt(source.inntektUnderGradertUttak),
+            inntektEtterHeltUttakBeloep = validatedInntekt(source.inntektEtterHeltUttak),
+            inntektEtterHeltUttakAntallAar = validatedAntallAar(source.antallArInntektEtterHeltUttak),
             foedselAar = 0,
-            utlandAntallAar = source.utenlandsopphold ?: 0,
+            utlandAntallAar = validatedAntallAar(source.utenlandsopphold),
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
@@ -60,14 +60,31 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
         )
     }
 
-    private fun pre2025OffentligAfpSpec(spec: FolketrygdberegnetAfpSpecV1): Pre2025OffentligAfpSpec =
-        spec.afpOrdning?.let {
-            Pre2025OffentligAfpSpec(
-                afpOrdning = AFPtypeEnum.valueOf(it),
-                inntektMaanedenFoerAfpUttakBeloep = spec.afpInntektMndForUttak ?: 0,
-                inntektUnderAfpUttakBeloep = 0 // ref. PEN ForetaFolketrygdBeregnetAfpHelper
-            )
-        } ?: throw BadSpecException("afpOrdning mangler")
+    private companion object {
+        private const val MAX_INNTEKT = 999_999_999 // less than half of Int.MAX_VALUE
+        private const val MAX_ANTALL_AAR = 999
+
+        private fun validatedAntallAar(antall: Int?): Int =
+            antall?.also {
+                if (it > MAX_ANTALL_AAR)
+                    throw BadSpecException(message = "for høyt antall år: $it - max er $MAX_ANTALL_AAR")
+            } ?: 0
+
+        private fun validatedInntekt(inntekt: Int?): Int =
+            inntekt?.also {
+                if (it > MAX_INNTEKT)
+                    throw BadSpecException(message = "for høy inntekt: $it - max er $MAX_INNTEKT")
+            } ?: 0
+
+        private fun pre2025OffentligAfpSpec(spec: FolketrygdberegnetAfpSpecV1): Pre2025OffentligAfpSpec =
+            spec.afpOrdning?.let {
+                Pre2025OffentligAfpSpec(
+                    afpOrdning = AFPtypeEnum.valueOf(it),
+                    inntektMaanedenFoerAfpUttakBeloep = spec.afpInntektMndForUttak ?: 0,
+                    inntektUnderAfpUttakBeloep = 0 // ref. PEN ForetaFolketrygdBeregnetAfpHelper
+                )
+            } ?: throw BadSpecException("afpOrdning mangler")
+    }
 
     /* The mapping is based on code in PEN: ForetaFolketrygdBeregnetAfpHelper.folketrygdberegnetAfpSimuleringSpec
        (in turn based on deleted PEN legacy code - see github.com/navikt/pensjon-pen/pull/15225)

@@ -41,7 +41,7 @@ open class SecurityConfiguration {
                         HttpMethod.GET,
                         "/internal/**",
                         "/api/v1/status",
-                        "/api/devenv",
+                        "/api/devenv/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/error"

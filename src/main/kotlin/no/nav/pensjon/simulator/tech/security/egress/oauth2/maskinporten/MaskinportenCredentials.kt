@@ -10,7 +10,7 @@ class MaskinportenCredentials(
     @param:Value("\${maskinporten.client-jwk}") private val clientJwk: String,
     @param:Value("\${maskinporten.issuer}") val issuer: String,
 ){
-    private val rsaKey = RSAKey.parse(clientJwk)
-    val keyId = rsaKey.keyID
-    val privateKey = rsaKey.toRSAPrivateKey()
+    private val rsaKey by lazy { RSAKey.parse(clientJwk) }
+    val keyId by lazy { rsaKey.keyID }
+    val privateKey by lazy { rsaKey.toRSAPrivateKey() }
 }

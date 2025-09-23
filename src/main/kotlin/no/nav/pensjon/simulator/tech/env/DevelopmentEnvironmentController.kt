@@ -15,7 +15,7 @@ class DevelopmentEnvironmentController {
 
     @GetMapping("devenv/maskinporten/client-jwk")
     @Hidden
-    fun maskinportenEnvironment(): String = environmentVariable("MASKINPORTEN_CLIENT_JWK") //MASKINPORTEN_CLIENT_ID
+    fun maskinportenEnvironment(): String = environmentVariable("MASKINPORTEN_CLIENT_JWK")
 
     @GetMapping("devenv/maskinporten/client-id")
     @Hidden

@@ -22,7 +22,7 @@ object SimulerOffentligTjenestepensjonMapper {
                     kompensasjonstillegg = it.kompensasjonstillegg
                 )
             },
-            sivilstand = SivilstandKode.valueOf(specV1.sivilstandkode.name),
+            sivilstand = SivilstandKode.fromDto(specV1.sivilstandkode),
             inntekter = specV1.inntektListe.map {
                 Inntekt(
                     fom = it.datoFom,
@@ -76,9 +76,5 @@ object SimulerOffentligTjenestepensjonMapper {
                 )
             } ?: emptyList(),
         )
-    }
-
-    fun toDto(result: String): SimulerOffentligTjenestepensjonResultV1 {
-        TODO("Not yet implemented")
     }
 }

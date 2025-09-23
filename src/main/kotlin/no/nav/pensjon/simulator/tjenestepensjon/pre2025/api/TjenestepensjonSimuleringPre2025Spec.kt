@@ -36,7 +36,9 @@ enum class SivilstandKode(val dtoSivilstand: SivilstandCodeEnumV1, val remoteDto
     SKILT(SivilstandCodeEnumV1.SKIL, SivilstandCodeEnumDto.SKIL),
     UGIFT(SivilstandCodeEnumV1.UGIF, SivilstandCodeEnumDto.UGIF);
 
-    fun fromDto(dto: SivilstandCodeEnumV1) = entries.firstOrNull { it.dtoSivilstand == dto } ?: throw IllegalArgumentException("Unknown dtoSivilstand: $dto")
+    companion object {
+        fun fromDto(dto: SivilstandCodeEnumV1) = entries.firstOrNull { it.dtoSivilstand == dto } ?: throw IllegalArgumentException("Unknown dtoSivilstand: $dto")
+    }
 }
 
 data class Inntekt(

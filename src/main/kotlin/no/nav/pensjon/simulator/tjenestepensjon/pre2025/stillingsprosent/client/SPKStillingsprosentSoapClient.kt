@@ -46,26 +46,6 @@ class SPKStillingsprosentSoapClient(
         } catch (ex: SoapFaultClientException) {
             // Handle SOAP faults returned from the server
             log.warn(ex) { "SOAP fault occurred at getStillingsprosenter: ${ex.faultStringOrReason}" }
-            val fault = ex.soapFault
-            val reason = ex.faultStringOrReason
-
-            val detailXml = fault.faultDetail?.detailEntries?.asSequence()?.joinToString("") { entry ->
-                java.io.StringWriter().use { sw ->
-                    javax.xml.transform.TransformerFactory.newInstance()
-                        .newTransformer().transform(entry.source, javax.xml.transform.stream.StreamResult(sw))
-                    sw.toString()
-                }
-            }
-
-            // optional: extract <errorMessage> text
-            val errorMessage = detailXml?.let {
-                val db = javax.xml.parsers.DocumentBuilderFactory.newInstance().apply { isNamespaceAware = true }.newDocumentBuilder()
-                val doc = db.parse(org.xml.sax.InputSource(java.io.StringReader(it)))
-                javax.xml.xpath.XPathFactory.newInstance().newXPath().evaluate("//*[local-name()='errorMessage']/text()", doc)
-            }?.takeIf { it.isNotBlank() }
-
-            log.warn { "SOAP fault: $reason${errorMessage?.let { " | errorMessage=$it" } ?: ""}" }
-            // Optionally, return a custom response or throw a custom exception
         } catch (ex: WebServiceIOException) {
             // Handle IO exceptions related to SOAP calls (e.g., timeout)
             log.warn(ex) { "IO error occurred while calling getStillingsprosenter: ${ex.message}" }

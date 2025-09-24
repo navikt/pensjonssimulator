@@ -51,8 +51,6 @@ class SPKTjenestepensjonServicePre2025(
         }
     }
 
-    fun ping() : String = spkTjenestepensjonClientPre2025.ping()
-
     private fun buildTpForhold(tpOrdningOpptjeningsperiodeMap: Map<TpOrdningFullDto, List<OpptjeningsperiodeDto>>) =
         tpOrdningOpptjeningsperiodeMap.map { entry -> TpForholdDto(entry.key.tpNr, entry.value) }
 

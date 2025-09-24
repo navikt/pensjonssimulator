@@ -3,13 +3,9 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.mockk.clearMocks
-import io.mockk.every
-import io.mockk.just
-import io.mockk.mockk
-import io.mockk.runs
-import io.mockk.verify
+import io.mockk.*
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
@@ -31,12 +27,13 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
     val client = SPKStillingsprosentSoapClient(webServiceTemplate, samlTokenClient, sporingsloggService, "some-url")
 
     val fnr = "12345678901"
+    val orgnummer = Organisasjoner.SPK
     val tpOrdning = TpOrdningFullDto("pensjonskasse", "1234", LocalDate.now(), "867530")
 
     beforeEach {
         clearMocks(webServiceTemplate, samlTokenClient, sporingsloggService)
         every { samlTokenClient.samlAccessToken } returns SamlToken("token", 1L, "type")
-        every { sporingsloggService.log(any(), any(), any()) } just runs
+        every { sporingsloggService.logUtgaaendeRequest(orgnummer, any(), any()) } just runs
     }
 
     "getStillingsprosenter should return stillingsprosenter on success" {
@@ -54,29 +51,42 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
         val responseWrapper = XMLHentStillingsprosentListeResponseWrapper(
         ).apply {
             response = XMLHentStillingsprosentListeResponse().apply {
-                stillingsprosentListe = expectedStillingsprosenter.map { XMLStillingsprosent().apply {
-                    stillingsprosent = it.stillingsprosent
-                    datoFom = javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar(it.datoFom.toString())
-                    datoTom = it.datoTom?.let { dt -> javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.toString()) }
-                    faktiskHovedlonn = it.faktiskHovedlonn
-                    stillingsuavhengigTilleggslonn = it.stillingsuavhengigTilleggslonn
-                    aldersgrense = it.aldersgrense
-                } }
+                stillingsprosentListe = expectedStillingsprosenter.map {
+                    XMLStillingsprosent().apply {
+                        stillingsprosent = it.stillingsprosent
+                        datoFom = javax.xml.datatype.DatatypeFactory.newInstance()
+                            .newXMLGregorianCalendar(it.datoFom.toString())
+                        datoTom = it.datoTom?.let { dt ->
+                            javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.toString())
+                        }
+                        faktiskHovedlonn = it.faktiskHovedlonn
+                        stillingsuavhengigTilleggslonn = it.stillingsuavhengigTilleggslonn
+                        aldersgrense = it.aldersgrense
+                    }
+                }
             }
         }
 
-        every { webServiceTemplate.marshalSendAndReceive(any<Any>(),
-            any<org.springframework.ws.client.core.WebServiceMessageCallback>()) } returns responseWrapper
+        every {
+            webServiceTemplate.marshalSendAndReceive(
+                any<Any>(),
+                any<org.springframework.ws.client.core.WebServiceMessageCallback>()
+            )
+        } returns responseWrapper
 
         val result = client.getStillingsprosenter(fnr, tpOrdning)
 
         result shouldBe expectedStillingsprosenter
-        verify { sporingsloggService.log(Pid(fnr), "", any()) }
+        verify { sporingsloggService.logUtgaaendeRequest(Organisasjoner.SPK, Pid(fnr), any()) }
     }
 
     "getStillingsprosenter should return empty list on WebServiceTransportException" {
-        every { webServiceTemplate.marshalSendAndReceive(any<Any>(),
-            any<org.springframework.ws.client.core.WebServiceMessageCallback>()) } throws WebServiceTransportException("Transport error")
+        every {
+            webServiceTemplate.marshalSendAndReceive(
+                any<Any>(),
+                any<org.springframework.ws.client.core.WebServiceMessageCallback>()
+            )
+        } throws WebServiceTransportException("Transport error")
 
         val result = client.getStillingsprosenter(fnr, tpOrdning)
 
@@ -86,8 +96,12 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
     "getStillingsprosenter should return empty list on SoapFaultClientException" {
         val soapMessage = mockk<org.springframework.ws.soap.SoapMessage>(relaxed = true)
         val faultException = SoapFaultClientException(soapMessage)
-        every { webServiceTemplate.marshalSendAndReceive(any<Any>(),
-            any<org.springframework.ws.client.core.WebServiceMessageCallback>()) } throws faultException
+        every {
+            webServiceTemplate.marshalSendAndReceive(
+                any<Any>(),
+                any<org.springframework.ws.client.core.WebServiceMessageCallback>()
+            )
+        } throws faultException
 
         val result = client.getStillingsprosenter(fnr, tpOrdning)
 
@@ -95,8 +109,12 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
     }
 
     "getStillingsprosenter should return empty list on WebServiceIOException" {
-        every { webServiceTemplate.marshalSendAndReceive(any<Any>(),
-            any<org.springframework.ws.client.core.WebServiceMessageCallback>()) } throws WebServiceIOException("IO error")
+        every {
+            webServiceTemplate.marshalSendAndReceive(
+                any<Any>(),
+                any<org.springframework.ws.client.core.WebServiceMessageCallback>()
+            )
+        } throws WebServiceIOException("IO error")
 
         val result = client.getStillingsprosenter(fnr, tpOrdning)
 
@@ -104,8 +122,12 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
     }
 
     "getStillingsprosenter should return empty list on generic Exception" {
-        every { webServiceTemplate.marshalSendAndReceive(any<Any>(),
-            any<org.springframework.ws.client.core.WebServiceMessageCallback>()) } throws RuntimeException("Generic error")
+        every {
+            webServiceTemplate.marshalSendAndReceive(
+                any<Any>(),
+                any<org.springframework.ws.client.core.WebServiceMessageCallback>()
+            )
+        } throws RuntimeException("Generic error")
 
         val result = client.getStillingsprosenter(fnr, tpOrdning)
 

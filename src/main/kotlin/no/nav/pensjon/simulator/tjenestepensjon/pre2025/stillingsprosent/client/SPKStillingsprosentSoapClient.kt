@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.SOAPAdapter
@@ -33,7 +34,7 @@ class SPKStillingsprosentSoapClient(
         fnr: String, tpOrdning: TpOrdningFullDto
     ): List<Stillingsprosent> {
         val dto = HentStillingsprosentListeRequest(FNR(fnr), tpOrdning)
-        sporingsloggService.log(Pid(fnr), "", dto.toString()) //request ble sendt for å hente data
+        sporingsloggService.logUtgaaendeRequest(SPK, Pid(fnr), dto.toString())
         log.info { "Henter stillingsprosenter for fnr $fnr fra $url" }
         try {
             val requestPayload: XMLHentStillingsprosentListeRequestWrapper = dto.let(SOAPAdapter::marshal)

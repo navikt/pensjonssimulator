@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.runs
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
@@ -33,7 +34,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
         every { value } returns "token123"
     }
     every { traceAid.callId() } returns "call-123"
-    every { sporingslogg.log(any<Pid>(), any(), any()) } just runs
+    every { sporingslogg.logUtgaaendeRequest(Organisasjoner.SPK,any<Pid>(), any<String>()) } just runs
 
     val client = SpkTjenestepensjonClientPre2025(
         baseUrl = baseUrl,
@@ -115,28 +116,6 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
 
         // Fallback is constructed as HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr)
         res.tpnr shouldBe "3010"
-    }
-
-    "3) ping returns body string" {
-        server.enqueue(
-            MockResponse()
-                .setResponseCode(200)
-                .setHeader("Content-Type", "text/plain")
-                .setBody("pong")
-        )
-
-        client.ping() shouldBe "pong"
-
-        val call = server.takeRequest()
-        call.path shouldBe "/nav/pensjon/prognose/v1"
-        call.getHeader("Authorization") shouldBe "Bearer token123"
-        call.getHeader(CustomHttpHeaders.CALL_ID) shouldBe "call-123"
-    }
-
-    "4) ping returns fallback when body is empty" {
-        server.enqueue(MockResponse().setResponseCode(204))
-
-        client.ping() shouldBe "No body received"
     }
 }) {
     companion object {

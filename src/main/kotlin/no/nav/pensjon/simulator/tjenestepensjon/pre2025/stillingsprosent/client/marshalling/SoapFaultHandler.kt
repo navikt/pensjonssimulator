@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client
 import jakarta.xml.bind.JAXBElement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.error.SoapFaultException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.error.StelvioFault
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.error.SoapFaultElement
 import org.springframework.oxm.jaxb.Jaxb2Marshaller
 import org.springframework.stereotype.Component
 import org.springframework.ws.WebServiceMessage
@@ -19,7 +19,7 @@ class SoapFaultHandler(private val jaxb2Marshaller: Jaxb2Marshaller) : FaultMess
                 try {
                     faultDetail.detailEntries.next().source.let {
                         @Suppress("UNCHECKED_CAST")
-                        jaxb2Marshaller.unmarshal(it) as JAXBElement<StelvioFault>
+                        jaxb2Marshaller.unmarshal(it) as JAXBElement<SoapFaultElement>
                     }.run {
                         SoapFaultException(value::class.qualifiedName!!, value.errorMessage).also {
                             log.warn { "Resolved known fault from SoapFaultDetail: $it" }
@@ -27,7 +27,7 @@ class SoapFaultHandler(private val jaxb2Marshaller: Jaxb2Marshaller) : FaultMess
                     }
                 } catch (ex: Exception) {
                     SoapFaultException(faultCode.toString(), faultStringOrReason).also {
-                        log.warn { "Could not resolve known error from SoapFaultDetail. Resolved from SoapFault: $it" }
+                        log.warn(ex) { "Could not resolve known error from SoapFaultDetail. Resolved from SoapFault: $it" }
                     }
                 }
             }

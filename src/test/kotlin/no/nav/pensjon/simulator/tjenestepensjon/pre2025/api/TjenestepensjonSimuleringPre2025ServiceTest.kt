@@ -30,8 +30,8 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
         Pid(fnr),
         foedselsdato = LocalDate.of(1990, 1, 1),
         sisteTpOrdningsTpNummer = "3010",
-        simulertAfpOffentlig = null,
-        simulertAFPPrivat = null,
+        simulertOffentligAfp = null,
+        simulertPrivatAfp = null,
         sivilstand = SivilstandKode.ENKE,
         inntekter = emptyList(),
         pensjonsbeholdningsperioder = emptyList(),
@@ -42,7 +42,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
         )
 
     "returns ikkeMedlem when no TP-forhold found" {
-        every { tpClient.findAlleTPForhold(fnr) } returns emptyList()
+        every { tpClient.findAlleTpForhold(fnr) } returns emptyList()
 
         val result = service.simuler(spec)
 
@@ -51,7 +51,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
     "returns tpOrdningStoettesIkke when no SPK ordning present" {
         val forhold = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold("9999", "MPK", LocalDate.now())
-        every { tpClient.findAlleTPForhold(fnr) } returns listOf(forhold)
+        every { tpClient.findAlleTpForhold(fnr) } returns listOf(forhold)
         every { tpClient.findTssId("9999") } returns "123456"
 
         val result = service.simuler(spec)
@@ -61,7 +61,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
     "throws RuntimeException when stillingsprosent list is empty" {
         val spk = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold("SPK", "3010", LocalDate.now())
-        every { tpClient.findAlleTPForhold(fnr) } returns listOf(spk)
+        every { tpClient.findAlleTpForhold(fnr) } returns listOf(spk)
         every { tpClient.findTssId("3010") } returns "123321"
         every { stillingsprosentService.getStillingsprosentListe(fnr, any()) } returns emptyList()
 
@@ -77,7 +77,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             spkFullDto.navn,
             spkFullDto.datoSistOpptjening
         )
-        every { tpClient.findAlleTPForhold(fnr) } returns listOf(spk)
+        every { tpClient.findAlleTpForhold(fnr) } returns listOf(spk)
         every { tpClient.findTssId(spkFullDto.tpNr) } returns spkFullDto.tssId
         every { stillingsprosentService.getStillingsprosentListe(fnr, spkFullDto) } returns listOf(mockk())
         every {
@@ -124,7 +124,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             spkFullDto.navn,
             spkFullDto.datoSistOpptjening
         )
-        every { tpClient.findAlleTPForhold(fnr) } returns listOf(spk)
+        every { tpClient.findAlleTpForhold(fnr) } returns listOf(spk)
         every { tpClient.findTssId("3010") } returns "123321"
         every { stillingsprosentService.getStillingsprosentListe(fnr, spkFullDto) } returns listOf(mockk())
         every {
@@ -144,7 +144,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             spkFullDto.navn,
             spkFullDto.datoSistOpptjening
         )
-        every { tpClient.findAlleTPForhold(fnr) } returns listOf(spk)
+        every { tpClient.findAlleTpForhold(fnr) } returns listOf(spk)
         every { tpClient.findTssId("3010") } returns "123321"
         every { stillingsprosentService.getStillingsprosentListe(fnr, spkFullDto) } returns listOf(mockk())
         every {

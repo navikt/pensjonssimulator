@@ -35,7 +35,7 @@ class SPKTjenestepensjonServicePre2025(
         log.debug { "Populated request: $requestWithFilteredFnr" }
         log.debug { "Populated request JSON: ${objectMapper.writeValueAsString(request)}" } //OBS: request logges som debug i dev, fnr må maskeres for logging i prod
         return try {
-            spkTjenestepensjonClientPre2025.getResponse(request = request, tpOrdning = tpOrdning)
+            spkTjenestepensjonClientPre2025.getPrognose(request = request, tpOrdning = tpOrdning)
         } catch (e: WebClientResponseException) {
             val responseBody = e.responseBodyAsString.let { StringUtils.replace(it, "Ã¥", "å") }
                 .let { StringUtils.replace(it, "Ã\u0083Â¥", "å") }

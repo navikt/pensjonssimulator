@@ -54,7 +54,7 @@ class TpregisteretClient(
         }
     }
 
-    fun findAlleTPForhold(fnr: String): List<TpForhold> {
+    fun findAlleTpForhold(fnr: String): List<TpForhold> {
         return webClient.get()
             .uri(FORHOLD_PATH)
             .headers { setHeaders(it); it["fnr"] = fnr }

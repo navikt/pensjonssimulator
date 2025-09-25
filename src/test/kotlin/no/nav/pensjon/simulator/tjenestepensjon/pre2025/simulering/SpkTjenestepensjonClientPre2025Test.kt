@@ -69,7 +69,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
                 .setBody(RESPONSE_BODY)
         )
 
-        val res = client.getResponse(req, tpDto)
+        val res = client.getPrognose(req, tpDto)
 
         res.tpnr shouldBe "3010"
         res.utbetalingsperiodeListe.size shouldBe 5
@@ -112,7 +112,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
     "2) getResponse returns fallback when body is empty (204)" {
         server.enqueue(MockResponse().setResponseCode(204)) // Mono.empty -> block() returns null
 
-        val res = client.getResponse(req, tpDto)
+        val res = client.getPrognose(req, tpDto)
 
         // Fallback is constructed as HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr)
         res.tpnr shouldBe "3010"

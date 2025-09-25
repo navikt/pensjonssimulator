@@ -28,7 +28,7 @@ class TjenestepensjonSimuleringPre2025Service(
         try {
 
             val fnr = spec.pid.value
-            val alleForhold: List<TpOrdningFullDto> = tpregisteretClient.findAlleTPForhold(fnr)
+            val alleForhold: List<TpOrdningFullDto> = tpregisteretClient.findAlleTpForhold(fnr)
                 .mapNotNull { forhold ->
                     tpregisteretClient.findTssId(forhold.tpNr)
                         ?.let { TPOrdningIdDto(tpId = forhold.tpNr, tssId = it) }

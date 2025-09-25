@@ -86,10 +86,10 @@ class SimulerOffentligTjenestepensjonMapperTest : StringSpec({
         result.sivilstand shouldBe SivilstandKode.GIFT
 
         // simulert AFPer
-        result.simulertAfpOffentlig!!.brutto shouldBe 123
-        result.simulertAfpOffentlig.tidligerePensjonsgivendeInntekt shouldBe 456
-        result.simulertAFPPrivat!!.totalAfpBeholdning shouldBe 789
-        result.simulertAFPPrivat.kompensasjonstillegg shouldBe 0.12
+        result.simulertOffentligAfp!!.brutto shouldBe 123
+        result.simulertOffentligAfp.tidligerePensjonsgivendeInntekt shouldBe 456
+        result.simulertPrivatAfp!!.totalAfpBeholdning shouldBe 789
+        result.simulertPrivatAfp.kompensasjonstillegg shouldBe 0.12
 
         // lists -> sizes + first element spot-checks
         result.inntekter.size shouldBe 1
@@ -143,8 +143,8 @@ class SimulerOffentligTjenestepensjonMapperTest : StringSpec({
         val result = SimulerOffentligTjenestepensjonMapper.fromDto(specV1)
 
         result.sisteTpOrdningsTpNummer shouldBe ""
-        result.simulertAfpOffentlig shouldBe null
-        result.simulertAFPPrivat shouldBe null
+        result.simulertOffentligAfp shouldBe null
+        result.simulertPrivatAfp shouldBe null
         result.tpForhold.shouldBeEmpty()
     }
 

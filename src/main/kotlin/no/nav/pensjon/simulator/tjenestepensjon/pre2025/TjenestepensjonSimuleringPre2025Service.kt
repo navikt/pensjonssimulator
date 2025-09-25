@@ -1,18 +1,16 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.tpOrdningStoettesIkke
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper.fromDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper.toDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tpregisteret.acl.TPOrdningIdDto
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
+import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Component
 
 @Component
@@ -37,13 +35,13 @@ class TjenestepensjonSimuleringPre2025Service(
 
             if (alleForhold.isEmpty()) {
                 log.debug { "No TP-forhold found for person" }
-                return SimulerOffentligTjenestepensjonResultV1.ikkeMedlem()
+                return ikkeMedlem()
             }
 
             val spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
             if (spkMedlemskap == null) {
                 log.warn { "No supported TP-Ordning found" }
-                return SimulerOffentligTjenestepensjonResultV1.tpOrdningStoettesIkke()
+                return tpOrdningStoettesIkke()
             }
 
             val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(fnr, spkMedlemskap)
@@ -54,13 +52,13 @@ class TjenestepensjonSimuleringPre2025Service(
             }
 
             log.debug { "Request simulation from SPK using REST" }
-            val response: HentPrognoseResponseDto = spkTjenestepensjonServicePre2025.simulerOffentligTjenestepensjon(
-                toDto(spec),
+            val response = spkTjenestepensjonServicePre2025.simulerOffentligTjenestepensjon(
+                spec,
                 stillingsprosentListe,
                 spkMedlemskap,
             )
             log.debug { "Returning response: ${filterFnr(response.toString())}" }
-            return fromDto(response)
+            return response
         } catch (e: BrukerKvalifisererIkkeTilTjenestepensjonException) {
             log.warn { "Bruker kvalifiserer ikke til tjenestepensjon. ${e.message}" }
             throw e
@@ -75,4 +73,3 @@ class TjenestepensjonSimuleringPre2025Service(
         fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
     }
 }
-

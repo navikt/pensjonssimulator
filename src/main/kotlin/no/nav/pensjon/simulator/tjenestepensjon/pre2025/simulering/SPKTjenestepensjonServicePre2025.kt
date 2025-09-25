@@ -2,14 +2,15 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Service
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.OpptjeningsperiodeService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.TpForholdDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.OpptjeningsperiodeService
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
 import org.springframework.web.reactive.function.client.WebClientResponseException
@@ -23,15 +24,16 @@ class SPKTjenestepensjonServicePre2025(
     private val log = KotlinLogging.logger {}
 
     fun simulerOffentligTjenestepensjon(
-        request: HentPrognoseRequestDto,
+        spec: TjenestepensjonSimuleringPre2025Spec,
         stillingsprosentListe: List<Stillingsprosent>,
         tpOrdning: TpOrdningFullDto,
-    ): HentPrognoseResponseDto {
+    ): SimulerOffentligTjenestepensjonResultV1 {
+        val request = HentPrognoseMapper.toDto(spec)
         val opptjeningsperiodeResponse = opptjeningsperiodeService.getOpptjeningsperiodeListe(tpOrdning, stillingsprosentListe)
 
         request.tpForholdListe = buildTpForhold(opptjeningsperiodeResponse.tpOrdningOpptjeningsperiodeMap)
         request.sisteTpnr = tpOrdning.tpNr
-        val requestWithFilteredFnr = TjenestepensjonSimuleringPre2025Service.Companion.filterFnr(request.toString())
+        val requestWithFilteredFnr = TjenestepensjonSimuleringPre2025Service.filterFnr(request.toString())
         log.debug { "Populated request: $requestWithFilteredFnr" }
         log.debug { "Populated request JSON: ${objectMapper.writeValueAsString(request)}" } //OBS: request logges som debug i dev, fnr må maskeres for logging i prod
         return try {

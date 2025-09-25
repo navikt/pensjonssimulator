@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SPKStillingsprosentSoapClient
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Service
 import kotlin.system.measureTimeMillis
 

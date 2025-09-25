@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlToken
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.ws.client.WebServiceIOException
 import org.springframework.ws.client.WebServiceTransportException
 import org.springframework.ws.client.core.WebServiceTemplate

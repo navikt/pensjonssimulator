@@ -30,10 +30,10 @@ data class SimulerOffentligTjenestepensjonResultV1(
     )
 
     companion object {
-        fun Companion.ikkeMedlem() =
+        fun ikkeMedlem() =
             SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErIkkeMedlemAvTPOrdning = true)
 
-        fun Companion.tpOrdningStoettesIkke() = SimulerOffentligTjenestepensjonResultV1(
+        fun tpOrdningStoettesIkke() = SimulerOffentligTjenestepensjonResultV1(
             "",
             "",
             emptyList(),

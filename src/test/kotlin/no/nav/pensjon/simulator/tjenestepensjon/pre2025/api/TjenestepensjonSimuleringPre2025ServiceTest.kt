@@ -6,16 +6,16 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.tpOrdningStoettesIkke
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
+import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
@@ -50,7 +50,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     }
 
     "returns tpOrdningStoettesIkke when no SPK ordning present" {
-        val forhold = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold("9999", "MPK", LocalDate.now())
+        val forhold = TpForhold("9999", "MPK", LocalDate.now())
         every { tpClient.findAlleTpForhold(fnr) } returns listOf(forhold)
         every { tpClient.findTssId("9999") } returns "123456"
 
@@ -60,7 +60,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     }
 
     "throws RuntimeException when stillingsprosent list is empty" {
-        val spk = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold("SPK", "3010", LocalDate.now())
+        val spk = TpForhold("SPK", "3010", LocalDate.now())
         every { tpClient.findAlleTpForhold(fnr) } returns listOf(spk)
         every { tpClient.findTssId("3010") } returns "123321"
         every { stillingsprosentService.getStillingsprosentListe(fnr, any()) } returns emptyList()
@@ -72,7 +72,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
     "delegates to SPK service and returns mapped result on success" {
         val spkFullDto = TpOrdningFullDto("SPK", "3010", LocalDate.now(), "123321")
-        val spk = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold(
+        val spk = TpForhold(
             spkFullDto.tpNr,
             spkFullDto.navn,
             spkFullDto.datoSistOpptjening
@@ -82,13 +82,13 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
         every { stillingsprosentService.getStillingsprosentListe(fnr, spkFullDto) } returns listOf(mockk())
         every {
             spkService.simulerOffentligTjenestepensjon(any(), any(), spkFullDto)
-        } returns HentPrognoseResponseDto(
+        } returns SimulerOffentligTjenestepensjonResultV1(
             tpnr = spkFullDto.tpNr,
             navnOrdning = spkFullDto.navn,
             inkluderteOrdningerListe = listOf(spkFullDto.navn),
             leverandorUrl = "spk.no",
             utbetalingsperiodeListe = listOf(
-                Utbetalingsperiode(
+                SimulerOffentligTjenestepensjonResultV1.UtbetalingsperiodeV1(
                     uttaksgrad = 100,
                     arligUtbetaling = 120000.0,
                     datoFom = LocalDate.of(2055, 1, 1),
@@ -119,7 +119,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     "rethrows BrukerKvalifisererIkkeTilTjenestepensjonException" {
         val tssId = "123321"
         val spkFullDto = TpOrdningFullDto("SPK", "3010", LocalDate.now(), tssId)
-        val spk = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold(
+        val spk = TpForhold(
             spkFullDto.tpNr,
             spkFullDto.navn,
             spkFullDto.datoSistOpptjening
@@ -139,7 +139,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     "rethrows other exceptions" {
         val tssId = "123321"
         val spkFullDto = TpOrdningFullDto("SPK", "3010", LocalDate.now(), tssId)
-        val spk = no.nav.pensjon.simulator.tpregisteret.acl.TpForhold(
+        val spk = TpForhold(
             spkFullDto.tpNr,
             spkFullDto.navn,
             spkFullDto.datoSistOpptjening

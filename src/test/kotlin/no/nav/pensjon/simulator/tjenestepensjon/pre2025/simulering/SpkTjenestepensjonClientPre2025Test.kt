@@ -14,7 +14,7 @@ import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.web.reactive.function.client.WebClient

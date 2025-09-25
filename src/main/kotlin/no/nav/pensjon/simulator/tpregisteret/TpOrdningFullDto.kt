@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tpregisteret.acl
+package no.nav.pensjon.simulator.tpregisteret
 
 import java.time.LocalDate
 

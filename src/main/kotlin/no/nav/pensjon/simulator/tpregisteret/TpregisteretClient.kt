@@ -10,8 +10,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tpregisteret.acl.BrukerTilknyttetTpLeverandoerResponse
-import no.nav.pensjon.simulator.tpregisteret.acl.HentAlleTPForholdResponseDto
-import no.nav.pensjon.simulator.tpregisteret.acl.TpForhold
+import no.nav.pensjon.simulator.tpregisteret.acl.HentAlleTpForholdResponseDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -77,7 +76,7 @@ class TpregisteretClient(
 
     private fun handleAlleTpForholdResponse(response: ClientResponse): Mono<List<TpForhold>> =
         when (response.statusCode()) {
-            HttpStatus.OK -> response.bodyToMono<HentAlleTPForholdResponseDto>().map {
+            HttpStatus.OK -> response.bodyToMono<HentAlleTpForholdResponseDto>().map {
                 it.forhold.map { forhold ->
                     TpForhold(
                         tpNr = forhold.tpNr,

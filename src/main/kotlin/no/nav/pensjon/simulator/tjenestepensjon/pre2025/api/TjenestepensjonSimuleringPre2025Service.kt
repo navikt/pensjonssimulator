@@ -25,7 +25,6 @@ class TjenestepensjonSimuleringPre2025Service(
 
     fun simuler(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResultV1 {
         log.info { "Simulering av tjenestepensjon pre 2025: $spec" }
-        //metrics.incrementCounter(APP_NAME, APP_TOTAL_SIMULERING_CALLS)
         try {
 
             val fnr = spec.pid.value
@@ -43,13 +42,9 @@ class TjenestepensjonSimuleringPre2025Service(
 
             val spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
             if (spkMedlemskap == null) {
-                val firstTPOrdningPaaListen = alleForhold.first()
-                val tpNr = firstTPOrdningPaaListen.tpNr
-                val name = firstTPOrdningPaaListen.navn
                 log.warn { "No supported TP-Ordning found" }
                 return SimulerOffentligTjenestepensjonResultV1.tpOrdningStoettesIkke()
             }
-            //metrics.incrementCounterWithTag(AppMetrics.Metrics.TP_REQUESTED_LEVERANDOR, "${spkMedlemskap.tpNr} $PROVIDER")
 
             val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(fnr, spkMedlemskap)
 
@@ -57,7 +52,6 @@ class TjenestepensjonSimuleringPre2025Service(
                 log.warn { "No stillingsprosent found" }
                 throw RuntimeException("No stillingsprosent found for person")
             }
-            //metrics.incrementCounter(APP_NAME, APP_TOTAL_STILLINGSPROSENT_OK)
 
             log.debug { "Request simulation from SPK using REST" }
             val response: HentPrognoseResponseDto = spkTjenestepensjonServicePre2025.simulerOffentligTjenestepensjon(
@@ -65,21 +59,14 @@ class TjenestepensjonSimuleringPre2025Service(
                 stillingsprosentListe,
                 spkMedlemskap,
             )
-            //metrics.incrementRestCounter(PROVIDER, "OK")
             log.debug { "Returning response: ${filterFnr(response.toString())}" }
             return fromDto(response)
         } catch (e: BrukerKvalifisererIkkeTilTjenestepensjonException) {
-            //metrics.incrementCounter(APP_TOTAL_SIMULERING_BRUKER_KVALIFISERER_IKKE)
             log.warn { "Bruker kvalifiserer ikke til tjenestepensjon. ${e.message}" }
             throw e
         } catch (e: Throwable) {
             log.error(e) { "Unable to simulate offentlig tjenestepensjon pre 2025: ${e.message}" }
             throw e
-//                if (e is SimuleringException) {
-//                    metrics.incrementCounter(APP_NAME, APP_TOTAL_SIMULERING_FEIL)
-//                } else {
-//                    metrics.incrementCounter(APP_NAME, APP_TOTAL_STILLINGSPROSENT_ERROR)
-//                }
         }
     }
 

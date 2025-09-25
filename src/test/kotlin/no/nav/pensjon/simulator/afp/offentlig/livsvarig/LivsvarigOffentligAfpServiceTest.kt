@@ -14,12 +14,13 @@ import java.time.LocalDate
 class LivsvarigOffentligAfpServiceTest : FunSpec({
 
     val client = mockk<LivsvarigOffentligAfpClient>(relaxed = true)
+    val afpService = mockk<AFPOffentligLivsvarigSimuleringService>(relaxed = true)
     val foedselsdato = LocalDate.of(1964, 1, 2)
     val virkningDato = LocalDate.of(2026, 1, 1)
     val today = LocalDate.of(2025, 1, 15)
 
     test("beregnAfp med for ung person => resultat er 'null'") {
-        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+        LivsvarigOffentligAfpService(client, afpService) { today }.beregnAfp(
             pid,
             foedselsdato = LocalDate.of(1962, 12, 31),
             forventetAarligInntektBeloep = 0,
@@ -32,7 +33,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
     }
 
     test("beregnAfp med for tidlig virkning => resultat er 'null'") {
-        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+        LivsvarigOffentligAfpService(client, afpService) { today }.beregnAfp(
             pid,
             foedselsdato = LocalDate.of(1970, 1, 1),
             forventetAarligInntektBeloep = 0,
@@ -45,7 +46,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
     }
 
     test("beregnAfp uten inntektliste => simuler med inntekter basert på forventet inntekt og alder") {
-        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+        LivsvarigOffentligAfpService(client, afpService) { today }.beregnAfp(
             pid,
             foedselsdato,
             forventetAarligInntektBeloep = 123000,
@@ -70,7 +71,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
     }
 
     test("beregnAfp med tom inntektliste => simuler uten inntekter") {
-        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+        LivsvarigOffentligAfpService(client, afpService) { today }.beregnAfp(
             pid,
             foedselsdato,
             forventetAarligInntektBeloep = 123000,
@@ -92,7 +93,7 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
     }
 
     test("beregnAfp med inntektliste => simuler med gitte inntekter") {
-        LivsvarigOffentligAfpService(client) { today }.beregnAfp(
+        LivsvarigOffentligAfpService(client, afpService) { today }.beregnAfp(
             pid,
             foedselsdato,
             forventetAarligInntektBeloep = 0,

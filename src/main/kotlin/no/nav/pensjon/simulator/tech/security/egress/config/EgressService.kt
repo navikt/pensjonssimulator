@@ -47,5 +47,10 @@ enum class EgressService(
         description = "Tjenestepensjon-simulering",
         shortName = "TP-S",
         purpose = "Simulere offentlig tjenestepensjon"
-    )
+    ),
+    AFP_BEHOLDNING_API(
+        description = "AFP Beholdning API",
+        shortName = "AFP-BEHOLDNING-API",
+        purpose = "Hente simulert AFP-beholdninger"
+    ),
 }

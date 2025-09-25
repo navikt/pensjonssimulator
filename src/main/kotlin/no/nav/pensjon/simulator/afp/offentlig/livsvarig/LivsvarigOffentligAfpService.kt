@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.AFPBeholdningClient
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.LivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.inntekt.Inntekt
@@ -15,6 +16,7 @@ import java.util.stream.Stream
 @Service
 class LivsvarigOffentligAfpService(
     private val client: LivsvarigOffentligAfpClient,
+    private val afpOffentlig: AFPOffentligLivsvarigSimuleringService,
     private val time: Time
 ) {
     val log = KotlinLogging.logger {}
@@ -35,6 +37,13 @@ class LivsvarigOffentligAfpService(
         val fremtidigInntektListe: List<Inntekt> =
             if (brukFremtidigInntekt) fremtidigeInntekter.map { Inntekt(it.aarligInntektBeloep, it.fom) }
             else forventedeInntekter(fom, til, forventetAarligInntektBeloep)
+
+        val test = afpOffentlig.simuler(LivsvarigOffentligAfpSpec(
+            pid,
+            foedselsdato,
+            fom = virkningDato,
+            fremtidigInntektListe
+        ))
 
         return client.simuler(
             LivsvarigOffentligAfpSpec(

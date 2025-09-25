@@ -71,8 +71,8 @@ class TjenestepensjonSimuleringPre2025Service(
     }
 
     companion object {
-        private val fnrFilterRegex = "(?<=\\d{6})\\d{5}".toRegex()
-        fun filterFnr(s: String) = fnrFilterRegex.replace(s, "*****")
+        private val FNR_REGEX = """[0-9]{11}""".toRegex()
+        fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
     }
 }
 

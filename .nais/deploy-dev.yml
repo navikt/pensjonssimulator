@@ -98,6 +98,8 @@ spec:
           namespace: pensjonsamhandling
           cluster: dev-fss
         - application: tjenestepensjon-simulering
+        - application: pensjon-opptjening-afp-api
+          namespace: pensjonopptjening
       external:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-pen-q2.dev-fss-pub.nais.io

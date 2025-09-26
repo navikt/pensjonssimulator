@@ -27,3 +27,22 @@ Antall knekkpunkter som legges til pga. trygdetid er begrenset oppad ved at det 
 Dersom søker har løpende alderspensjon, reberegnes pensjonen hvert år det er endring i grunnlaget.
 
 Det opprettes ikke knekkpunkter med dato før virkningsdatoen på løpende vedtak.
+
+== Beregningsinformasjon-knekkpunkter
+
+I kildekoden opptrer begrepet "knekkpunkt" også i forbindelse med produksjon av utdata, men da er betydningen noe annerledes enn det som er beskrevet over.
+
+Disse knekkpunktene brukes for simulert beregningsinformasjon og er rene datoer (de har ingen assosiert type).
+
+For hvert av disse knekkpunktene lages det et beregningsinformasjon-element som inngår i en liste i utdataene.
+
+Følgende knekkpunkter lages i denne sammenheng:
+
+* Dato for første uttak
+* Dato for helt uttak (hvis første uttak er gradert)
+* Dato for personens normerte pensjonsalder
+* 1. januar i alle år mellom dato for første uttak og siste opptjeningsår
+
+Siste opptjeningsår er 2 år etter at året personen oppnår øvre aldergrense (siden det er 2 år etterslep i skatteoppgjøret for inntekt). Øvre aldersgrense er 8 år etter normert pensjonsalder. Med 2025-regler er derfor personen 67 + 8 + 2 = 77 år i siste opptjeningsår.
+
+Dette er implementert i funksjonen _createSimulertBeregningsinfoForAlleKnekkpunkter_ i _SimuleringResultPreparer_.

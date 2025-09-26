@@ -47,14 +47,13 @@ class SPKStillingsprosentSoapClient(
         } catch (ex: SoapFaultClientException) {
             // Handle SOAP faults returned from the server
             log.warn(ex) { "SOAP fault occurred at getStillingsprosenter: ${ex.faultStringOrReason}" }
+        } catch (ex: WebServiceTransportException) {
+            log.warn(ex) { "Transport error occurred while calling getStillingsprosenter: ${ex.message} ${ex.mostSpecificCause.message}" }
         } catch (ex: WebServiceIOException) {
             // Handle IO exceptions related to SOAP calls (e.g., timeout)
             log.warn(ex) { "IO error occurred while calling getStillingsprosenter: ${ex.message}" }
         } catch (ex: Exception) {
             log.warn(ex) { "Unexpected error occurred while calling getStillingsprosenter: ${ex.message}" }
-        }
-        catch (ex: WebServiceTransportException) {
-            log.warn (ex) { "Transport error occurred while calling getStillingsprosenter: ${ex.message} ${ex.mostSpecificCause.message}" }
         }
         return emptyList()
     }

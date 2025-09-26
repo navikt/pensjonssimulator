@@ -20,4 +20,8 @@ object Organisasjoner {
 
     fun navn(organisasjonsnummer: Organisasjonsnummer): String =
         organisasjonNavnForNummer[organisasjonsnummer.value] ?: "?$organisasjonsnummer"
+
+    val SPK: Organisasjonsnummer = organisasjonNavnForNummer
+        .entries.first { it.value.equals("SPK", ignoreCase = true) }
+        .let { Organisasjonsnummer(it.key) }
 }

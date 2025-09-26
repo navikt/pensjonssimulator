@@ -9,9 +9,17 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("api")
 class DevelopmentEnvironmentController {
 
-    @GetMapping("devenv")
+    @GetMapping("devenv/entra")
     @Hidden
     fun entraEnvironment(): String = environmentVariable("AZURE_APP_CLIENT_SECRET")
+
+    @GetMapping("devenv/maskinporten/client-jwk")
+    @Hidden
+    fun maskinportenEnvironment(): String = environmentVariable("MASKINPORTEN_CLIENT_JWK")
+
+    @GetMapping("devenv/maskinporten/client-id")
+    @Hidden
+    fun maskinportenClientIdEnvironment(): String = environmentVariable("MASKINPORTEN_CLIENT_ID")
 
     private companion object {
         private fun environmentVariable(name: String) =

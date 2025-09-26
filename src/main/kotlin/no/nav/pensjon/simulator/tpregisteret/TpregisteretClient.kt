@@ -9,12 +9,14 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tpregisteret.acl.BrukerTilknyttetTpLeverandoerResponse
+import no.nav.pensjon.simulator.tpregisteret.acl.HentAlleTpForholdResponseDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientRequestException
-import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Mono
 
 @Component
 class TpregisteretClient(
@@ -51,6 +53,43 @@ class TpregisteretClient(
         }
     }
 
+    fun findAlleTpForhold(fnr: String): List<TpForhold> {
+        return webClient.get()
+            .uri(FORHOLD_PATH)
+            .headers { setHeaders(it); it["fnr"] = fnr }
+            .exchangeToMono(::handleAlleTpForholdResponse)
+            .block()
+            .orEmpty()
+    }
+
+    fun findTssId(tpId: String): String? {
+        return try {
+            webClient.get()
+                .uri("$TSS_PATH$tpId")
+                .retrieve()
+                .bodyToMono(String::class.java)
+                .block()
+        } catch (_: WebClientResponseException.NotFound) {
+            null
+        }
+    }
+
+    private fun handleAlleTpForholdResponse(response: ClientResponse): Mono<List<TpForhold>> =
+        when (response.statusCode()) {
+            HttpStatus.OK -> response.bodyToMono<HentAlleTpForholdResponseDto>().map {
+                it.forhold.map { forhold ->
+                    TpForhold(
+                        tpNr = forhold.tpNr,
+                        navn = forhold.tpOrdningNavn ?: forhold.tpNr,
+                        datoSistOpptjening = forhold.datoSistOpptjening
+                    )
+                }
+            }
+
+            HttpStatus.NOT_FOUND -> Mono.empty()
+            else -> Mono.error(RuntimeException("Error fetching data from TP: Received status code ${response.statusCode()} fra tpregisteret"))
+        }
+
     private fun logAndReturnFalse(
         feilmelding: String,
         organisasjonsnummer: Organisasjonsnummer,
@@ -77,6 +116,8 @@ class TpregisteretClient(
 
     companion object {
         private const val PATH = "/api/tjenestepensjon"
+        private const val FORHOLD_PATH = "/api/intern/tjenestepensjon/forhold/"
+        private const val TSS_PATH = "/api/tpconfig/tssnr/"
         private val service = EgressService.TP_REGISTERET
     }
 }

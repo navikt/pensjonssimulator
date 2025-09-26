@@ -48,6 +48,8 @@ spec:
   maskinporten:
     enabled: true
     scopes:
+      consumes:
+        - name: "spk:nav"
       exposes:
         - name: "simulering"
           enabled: true
@@ -77,8 +79,6 @@ spec:
               orgno: "940380014"
             - name: Drammen kommunale pensjonskasse
               orgno: "980650383"
-      consumes:
-        - name: "spk:nav"
   accessPolicy:
     inbound:
       rules:

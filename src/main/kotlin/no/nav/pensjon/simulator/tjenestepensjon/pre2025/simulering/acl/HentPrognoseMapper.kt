@@ -11,13 +11,13 @@ object HentPrognoseMapper {
             fodselsdato = spec.foedselsdato,
             sisteTpnr = spec.sisteTpOrdningsTpNummer,
             sprak = "norsk",
-            simulertAFPOffentlig = spec.simulertAfpOffentlig?.let {
+            simulertAFPOffentlig = spec.simulertOffentligAfp?.let {
                 SimulertAFPOffentligDto(
                     it.brutto,
                     it.tidligerePensjonsgivendeInntekt
                 )
             },
-            simulertAFPPrivat = spec.simulertAFPPrivat?.let {
+            simulertAFPPrivat = spec.simulertPrivatAfp?.let {
                 SimulertAFPPrivatDto(
                     it.totalAfpBeholdning,
                     it.kompensasjonstillegg

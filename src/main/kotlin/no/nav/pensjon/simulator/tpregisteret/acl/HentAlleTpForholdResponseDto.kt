@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.time.LocalDate
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class HentAlleTPForholdResponseDto(
+data class HentAlleTpForholdResponseDto(
     val fnr: String,
-    val forhold: List<TPForholdResponseDto>,
+    val forhold: List<TpForholdResponseDto>,
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class TPForholdResponseDto(
+data class TpForholdResponseDto(
     val tpNr: String,
     val tpOrdningNavn: String?,
     val datoSistOpptjening: LocalDate?,

@@ -9,8 +9,8 @@ data class TjenestepensjonSimuleringPre2025Spec(
     val pid: Pid,
     val foedselsdato: LocalDate,
     val sisteTpOrdningsTpNummer: String,
-    val simulertAfpOffentlig: SimulertAfpOffentlig?,
-    val simulertAFPPrivat: SimulertAFPPrivat?,
+    val simulertOffentligAfp: SimulertOffentligAfp?,
+    val simulertPrivatAfp: SimulertPrivatAfp?,
     val sivilstand: SivilstandKode,
     val inntekter: List<Inntekt>,
     val pensjonsbeholdningsperioder: List<Pensjonsbeholdningsperiode>,
@@ -19,12 +19,12 @@ data class TjenestepensjonSimuleringPre2025Spec(
     val tpForhold: List<TpForhold>,
     )
 
-data class SimulertAfpOffentlig(
+data class SimulertOffentligAfp(
     val brutto: Int,
     val tidligerePensjonsgivendeInntekt: Int
 )
 
-data class SimulertAFPPrivat(
+data class SimulertPrivatAfp(
     val totalAfpBeholdning: Int,
     val kompensasjonstillegg: Double
 )

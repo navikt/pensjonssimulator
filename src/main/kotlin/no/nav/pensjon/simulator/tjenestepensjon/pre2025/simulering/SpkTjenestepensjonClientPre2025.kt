@@ -10,16 +10,16 @@ import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.bodyToMono
-import java.time.LocalDate
 
 @Service
 class SpkTjenestepensjonClientPre2025(
@@ -32,7 +32,7 @@ class SpkTjenestepensjonClientPre2025(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    fun getResponse(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): HentPrognoseResponseDto {
+    fun getPrognose(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): SimulerOffentligTjenestepensjonResultV1 {
         sporingsloggService.logUtgaaendeRequest(SPK, Pid(request.fnr), request.toString())
         val response: HentPrognoseResponseDto? = webClient
             .post()
@@ -42,8 +42,8 @@ class SpkTjenestepensjonClientPre2025(
             .retrieve()
             .bodyToMono<HentPrognoseResponseDto>()
             .block()
-        return response
-            ?: HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr)
+        return response?.let { HentPrognoseMapper.fromDto(it) }
+            ?: HentPrognoseMapper.fromDto(HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr))
     }
 
     private fun setHeaders(headers: HttpHeaders) {

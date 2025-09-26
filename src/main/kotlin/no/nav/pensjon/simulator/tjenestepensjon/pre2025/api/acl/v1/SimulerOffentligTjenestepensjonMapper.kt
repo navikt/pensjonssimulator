@@ -10,14 +10,14 @@ object SimulerOffentligTjenestepensjonMapper {
             pid = Pid(specV1.fnr),
             foedselsdato = specV1.fodselsdato,
             sisteTpOrdningsTpNummer = specV1.sisteTpnr ?: "",
-            simulertAfpOffentlig = specV1.simulertAFPOffentlig?.let {
-                SimulertAfpOffentlig(
+            simulertOffentligAfp = specV1.simulertAFPOffentlig?.let {
+                SimulertOffentligAfp(
                     brutto = it.simulertAFPOffentligBrutto,
                     tidligerePensjonsgivendeInntekt = it.tpi
                 )
             },
-            simulertAFPPrivat = specV1.simulertAFPPrivat?.let {
-                SimulertAFPPrivat(
+            simulertPrivatAfp = specV1.simulertAFPPrivat?.let {
+                SimulertPrivatAfp(
                     totalAfpBeholdning = it.afpOpptjeningTotalbelop,
                     kompensasjonstillegg = it.kompensasjonstillegg
                 )

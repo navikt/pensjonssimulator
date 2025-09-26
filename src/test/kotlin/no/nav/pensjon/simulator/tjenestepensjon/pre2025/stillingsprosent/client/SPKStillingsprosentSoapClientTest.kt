@@ -13,12 +13,13 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlToken
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.ws.client.WebServiceIOException
 import org.springframework.ws.client.WebServiceTransportException
 import org.springframework.ws.client.core.WebServiceTemplate
 import org.springframework.ws.soap.client.SoapFaultClientException
 import java.time.LocalDate
+import javax.xml.datatype.DatatypeFactory
 
 class SPKStillingsprosentSoapClientTest : StringSpec({
     val webServiceTemplate = mockk<WebServiceTemplate>()
@@ -54,10 +55,10 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
                 stillingsprosentListe = expectedStillingsprosenter.map {
                     XMLStillingsprosent().apply {
                         stillingsprosent = it.stillingsprosent
-                        datoFom = javax.xml.datatype.DatatypeFactory.newInstance()
+                        datoFom = DatatypeFactory.newInstance()
                             .newXMLGregorianCalendar(it.datoFom.toString())
                         datoTom = it.datoTom?.let { dt ->
-                            javax.xml.datatype.DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.toString())
+                            DatatypeFactory.newInstance().newXMLGregorianCalendar(dt.toString())
                         }
                         faktiskHovedlonn = it.faktiskHovedlonn
                         stillingsuavhengigTilleggslonn = it.stillingsuavhengigTilleggslonn

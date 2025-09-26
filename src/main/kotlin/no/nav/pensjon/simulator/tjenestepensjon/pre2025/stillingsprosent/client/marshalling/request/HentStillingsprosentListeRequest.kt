@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request
 
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 
 data class HentStillingsprosentListeRequest(
         val tssEksternId: String? = null,

@@ -1,7 +1,7 @@
 package no.nav.tjenestepensjon.simulering.v2.service
 
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
-import no.nav.pensjon.simulator.tpregisteret.acl.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import java.util.concurrent.ExecutionException
 
 class OpptjeningsperiodeResponse(

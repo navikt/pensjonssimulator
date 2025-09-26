@@ -16,6 +16,12 @@ object Metrics {
             .counter("$PREFIX-ingress-call", "org", organisasjonId, "call", callId)
             .increment()
     }
+
+    fun countSimuleringstype(type: String) {
+        Metrics
+            .counter("$PREFIX-simuleringstype", "type", type)
+            .increment()
+    }
 }
 
 object MetricResult {

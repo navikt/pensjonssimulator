@@ -53,20 +53,30 @@ spec:
           enabled: true
           product: "pensjonssimulator"
           consumers:
-            - orgno: "916833520" # Gabler Pensjonstjenester
-            - orgno: "938708606" # KLP
-            - orgno: "982759412" # Oslo Pensjonsforsikring
-            - orgno: "982583462" # SPK
-            - orgno: "931936492" # Storebrand Pensjonstjenester
+            - name: Gabler Pensjonstjenester
+              orgno: "916833520"
+            - name: KLP
+              orgno: "938708606"
+            - name: Oslo Pensjonsforsikring
+              orgno: "982759412"
+            - name: SPK
+              orgno: "982583462"
+            - name: Storebrand Livsforsikring
+              orgno: "958995369"
+            - name: Storebrand Pensjonstjenester
+              orgno: "931936492"
         - name: simulering.read
           enabled: true
           product: pensjon
           separator: "/"
           delegationSource: altinn
           consumers:
-            - orgno: "927613298" # Aksio
-            - orgno: "940380014" # Arendal kommunale pensjonskasse
-            - orgno: "980650383" # Drammen kommunale pensjonskasse
+            - name: Aksio
+              orgno: "927613298"
+            - name: Arendal kommunale pensjonskasse
+              orgno: "940380014"
+            - name: Drammen kommunale pensjonskasse
+              orgno: "980650383"
   accessPolicy:
     inbound:
       rules:

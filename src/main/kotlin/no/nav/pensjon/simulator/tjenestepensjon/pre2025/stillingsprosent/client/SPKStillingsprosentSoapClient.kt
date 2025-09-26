@@ -44,12 +44,11 @@ class SPKStillingsprosentSoapClient(
             ).let {
                 SOAPAdapter.unmarshal(it as XMLHentStillingsprosentListeResponseWrapper)
             }.stillingsprosentListe
-        } catch (ex: WebServiceTransportException) {
-            log.warn (ex) { "Transport error occurred while calling getStillingsprosenter: ${ex.message}" }
         } catch (ex: SoapFaultClientException) {
             // Handle SOAP faults returned from the server
             log.warn(ex) { "SOAP fault occurred at getStillingsprosenter: ${ex.faultStringOrReason}" }
-            // Optionally, return a custom response or throw a custom exception
+        } catch (ex: WebServiceTransportException) {
+            log.warn(ex) { "Transport error occurred while calling getStillingsprosenter: ${ex.message} ${ex.mostSpecificCause.message}" }
         } catch (ex: WebServiceIOException) {
             // Handle IO exceptions related to SOAP calls (e.g., timeout)
             log.warn(ex) { "IO error occurred while calling getStillingsprosenter: ${ex.message}" }

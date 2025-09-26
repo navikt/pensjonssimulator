@@ -39,6 +39,7 @@ class SPKTjenestepensjonServicePre2025(
         return try {
             spkTjenestepensjonClientPre2025.getPrognose(request = request, tpOrdning = tpOrdning)
         } catch (e: WebClientResponseException) {
+            val rawResponseBody = e.responseBodyAsString
             val responseBody = e.responseBodyAsString.let { StringUtils.replace(it, "Ã¥", "å") }
                 .let { StringUtils.replace(it, "Ã\u0083Â¥", "å") }
                 .let { StringUtils.replace(it, "Ã¦", "æ") }
@@ -46,6 +47,7 @@ class SPKTjenestepensjonServicePre2025(
                 .let { StringUtils.replace(it, "Ã\u0083Â¸", "ø") }
 
             log.warn(e) { "Error <$responseBody> while calling SPK with request: $requestWithFilteredFnr" }
+            log.warn { "Raw responseBody <$rawResponseBody> while calling SPK with request: $requestWithFilteredFnr" }
             if (responseBody.contains("Validation problem")) {
                 throw BrukerKvalifisererIkkeTilTjenestepensjonException(responseBody)
             }

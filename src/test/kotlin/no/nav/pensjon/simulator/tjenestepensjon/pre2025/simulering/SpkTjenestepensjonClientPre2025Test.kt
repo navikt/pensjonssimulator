@@ -61,7 +61,6 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
     }
 
     "1) getResponse returns body from server" {
-        // NOTE: Adjust JSON field names to match your HentPrognoseResponseDto
         server.enqueue(
             MockResponse()
                 .setResponseCode(200)
@@ -73,29 +72,41 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
 
         res.tpnr shouldBe "3010"
         res.utbetalingsperiodeListe.size shouldBe 5
-        res.utbetalingsperiodeListe.get(0)?.arligUtbetaling shouldBe 333043.0
-        res.utbetalingsperiodeListe.get(0)?.datoFom?.toString() shouldBe "2026-08-01"
-        res.utbetalingsperiodeListe.get(0)?.datoTom?.toString() shouldBe "2027-07-31"
-        res.utbetalingsperiodeListe.get(0)?.uttaksgrad shouldBe 92
-        res.utbetalingsperiodeListe.get(0)?.ytelsekode shouldBe "AFP"
-        res.utbetalingsperiodeListe.get(1)?.arligUtbetaling shouldBe 485760.0
-        res.utbetalingsperiodeListe.get(1)?.datoFom?.toString() shouldBe "2027-08-01"
-        res.utbetalingsperiodeListe.get(1)?.datoTom?.toString() shouldBe "2029-07-31"
-        res.utbetalingsperiodeListe.get(1)?.uttaksgrad shouldBe 92
-        res.utbetalingsperiodeListe.get(1)?.ytelsekode shouldBe "AFP"
-        res.utbetalingsperiodeListe.get(2)?.arligUtbetaling shouldBe 181332.0
-        res.utbetalingsperiodeListe.get(2)?.datoFom?.toString() shouldBe "2029-08-01"
-        res.utbetalingsperiodeListe.get(2)?.datoTom?.toString() shouldBe "2029-12-31"
-        res.utbetalingsperiodeListe.get(2)?.uttaksgrad shouldBe 100
-        res.utbetalingsperiodeListe.get(2)?.ytelsekode shouldBe "AP"
-        res.utbetalingsperiodeListe.get(3)?.arligUtbetaling shouldBe 180828.0
-        res.utbetalingsperiodeListe.get(3)?.datoFom?.toString() shouldBe "2030-01-01"
-        res.utbetalingsperiodeListe.get(3)?.datoTom?.toString() shouldBe "2030-12-31"
-        res.utbetalingsperiodeListe.get(3)?.uttaksgrad shouldBe 100
-        res.utbetalingsperiodeListe.get(3)?.ytelsekode shouldBe "AP"
-        res.utbetalingsperiodeListe.get(4)?.arligUtbetaling shouldBe 180504.0
-        res.utbetalingsperiodeListe.get(4)?.datoFom?.toString() shouldBe "2031-01-01"
-        res.utbetalingsperiodeListe.get(4)?.datoTom shouldBe null
+        with (res.utbetalingsperiodeListe[0]!!) {
+            arligUtbetaling shouldBe 333043.0
+            datoFom.toString() shouldBe "2026-08-01"
+            datoTom?.toString() shouldBe "2027-07-31"
+            uttaksgrad shouldBe 92
+            ytelsekode shouldBe "AFP"
+        }
+        with (res.utbetalingsperiodeListe[1]!!) {
+            arligUtbetaling shouldBe 485760.0
+            datoFom.toString() shouldBe "2027-08-01"
+            datoTom?.toString() shouldBe "2029-07-31"
+            uttaksgrad shouldBe 92
+            ytelsekode shouldBe "AFP"
+        }
+        with (res.utbetalingsperiodeListe[2]!!) {
+            arligUtbetaling shouldBe 181332.0
+            datoFom.toString() shouldBe "2029-08-01"
+            datoTom?.toString() shouldBe "2029-12-31"
+            uttaksgrad shouldBe 100
+            ytelsekode shouldBe "AP"
+        }
+        with (res.utbetalingsperiodeListe[3]!!) {
+            arligUtbetaling shouldBe 180828.0
+            datoFom.toString() shouldBe "2030-01-01"
+            datoTom?.toString() shouldBe "2030-12-31"
+            uttaksgrad shouldBe 100
+            ytelsekode shouldBe "AP"
+        }
+        with (res.utbetalingsperiodeListe[4]!!) {
+            arligUtbetaling shouldBe 180504.0
+            datoFom.toString() shouldBe "2031-01-01"
+            datoTom shouldBe null
+            uttaksgrad shouldBe 100
+            ytelsekode shouldBe "AP"
+        }
         res.leverandorUrl shouldBe null
         res.navnOrdning shouldBe "Statens pensjonskasse"
         res.inkluderteOrdningerListe shouldBe listOf("3010")

@@ -1,5 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-import no.nav.pensjon.simulator.core.domain.regler.Delingstall
+import Delingstall
 
-data class HentDelingstallResponse(val arskull:Int, val delingstall: List<Delingstall> = mutableListOf())
+data class HentDelingstallResponse(
+    val arskull: Int? = null,
+    val delingstall: List<Delingstall> = emptyList()
+)

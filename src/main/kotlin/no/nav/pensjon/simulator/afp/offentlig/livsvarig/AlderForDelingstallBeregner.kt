@@ -1,7 +1,7 @@
 package no.nav.tjenestepensjon.simulering.v2025.afp.v1
 
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.AlderForDelingstall
-import no.nav.pensjon.simulator.core.domain.regler.Alder
+import no.nav.pensjon.simulator.alder.Alder
 import java.time.LocalDate
 import java.time.Period
 

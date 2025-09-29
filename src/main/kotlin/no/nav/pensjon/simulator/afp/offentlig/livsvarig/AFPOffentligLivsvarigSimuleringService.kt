@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.livsvarig
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.AFPBeholdningClient
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.to.HentDelingstallRequest
 
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service
 @Service
 class AFPOffentligLivsvarigSimuleringService(val simulerAFPBeholdningGrunnlag: AFPBeholdningClient, val simulatorContext: SimulatorContext) {
     private val log = KotlinLogging.logger {}
-    fun simuler(request: LivsvarigOffentligAfpSpec): List<AfpOffentligLivsvarigYtelseMedDelingstall> {
+    fun simuler(request: LivsvarigOffentligAfpSpec): LivsvarigOffentligAfpResult {
         val aldreForDelingstall: List<AlderForDelingstall> = bestemAldreForDelingstall(request.foedselsdato, request.fom)
 
         val requestToAFPBeholdninger = SimulerAFPBeholdningGrunnlagRequest(request.pid, request.fom, request.fremtidigInntektListe.map { InntektPeriode(it.fom, it.aarligBeloep) })
@@ -28,13 +29,15 @@ class AFPOffentligLivsvarigSimuleringService(val simulerAFPBeholdningGrunnlag: A
                 AfpBeregningsgrunnlag(
                     it.pensjonsbeholdning,
                     it.alderForDelingstall,
-                    delingstallListe.first { dt -> dt.alder == it.alderForDelingstall.alder }.delingstall
+                    delingstallListe.first { dt -> it.alderForDelingstall.alder.let {alder -> alder.aar == dt.alder.aar && alder.maaneder == dt.alder.maaneder } }.delingstall
                 )
             }
         log.info { "Request for beregning av AFP: ${request.fremtidigInntektListe}\n" +
                 "${request.fom}" }
         log.info { "Beregningsgrunnlag for AFP: $beregningsgrunnlag" }
 
-        return beregnAfpOffentligLivsvarigYtelser(beregningsgrunnlag)
+        val afpoffentligytelser = beregnAfpOffentligLivsvarigYtelser(beregningsgrunnlag)
+
+        return LivsvarigOffentligAfpResult(request.pid.value, afpoffentligytelser)
     }
 }

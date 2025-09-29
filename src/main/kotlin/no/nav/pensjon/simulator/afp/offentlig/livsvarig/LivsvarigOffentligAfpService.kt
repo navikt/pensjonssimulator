@@ -15,7 +15,6 @@ import java.util.stream.Stream
 
 @Service
 class LivsvarigOffentligAfpService(
-    private val client: LivsvarigOffentligAfpClient,
     private val afpOffentlig: AFPOffentligLivsvarigSimuleringService,
     private val time: Time
 ) {
@@ -38,16 +37,7 @@ class LivsvarigOffentligAfpService(
             if (brukFremtidigInntekt) fremtidigeInntekter.map { Inntekt(it.aarligInntektBeloep, it.fom) }
             else forventedeInntekter(fom, til, forventetAarligInntektBeloep)
 
-        val result = client.simuler(
-            LivsvarigOffentligAfpSpec(
-                pid,
-                foedselsdato,
-                fom = virkningDato,
-                fremtidigInntektListe
-            )
-        )
-
-        val test = afpOffentlig.simuler(LivsvarigOffentligAfpSpec(
+        val result = afpOffentlig.simuler(LivsvarigOffentligAfpSpec(
             pid,
             foedselsdato,
             fom = virkningDato,

@@ -22,7 +22,7 @@ class TjenestepensjonSimuleringPre2025Service(
     val log = KotlinLogging.logger { }
 
     fun simuler(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResultV1 {
-        log.info { "Simulering av tjenestepensjon pre 2025: $spec" }
+        log.info { "Simulering av tjenestepensjon pre 2025: ${filterFnr(spec.toString())}" }
         try {
 
             val fnr = spec.pid.value

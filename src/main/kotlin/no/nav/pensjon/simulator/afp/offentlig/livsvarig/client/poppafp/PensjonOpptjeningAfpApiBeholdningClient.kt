@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.beholdning
+package no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.poppafp
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.AFPGrunnlagBeholdningPeriode
@@ -21,7 +21,7 @@ import reactor.util.retry.Retry
 import java.time.Duration
 
 @Component
-class WebClientAFPBeholdningClient(
+class PensjonOpptjeningAfpApiBeholdningClient(
     @Value("\${ps.pensjon-opptjening-afp-api.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     private val traceAid: TraceAid,
@@ -37,7 +37,7 @@ class WebClientAFPBeholdningClient(
         return try {
             afpBeholdningWebClient.post()
                 .uri("/api/simuler")
-                .headers { setHeaders(it) }
+                .headers(::setHeaders)
                 .bodyValue(request)
                 .retrieve()
                 .toEntity(SimulerAFPBeholdningGrunnlagResponse::class.java)

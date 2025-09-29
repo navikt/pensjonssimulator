@@ -4,8 +4,6 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.AFPBeholdningClient
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.to.HentDelingstallRequest
-import no.nav.pensjon.simulator.core.domain.regler.to.HentDelingstallResponse
-import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 
 import no.nav.tjenestepensjon.simulering.v2025.afp.v1.AlderForDelingstallBeregner.bestemAldreForDelingstall
 import no.nav.tjenestepensjon.simulering.v2025.afp.v1.OffentligAFPYtelseBeregner.beregnAfpOffentligLivsvarigYtelser

@@ -38,14 +38,7 @@ class LivsvarigOffentligAfpService(
             if (brukFremtidigInntekt) fremtidigeInntekter.map { Inntekt(it.aarligInntektBeloep, it.fom) }
             else forventedeInntekter(fom, til, forventetAarligInntektBeloep)
 
-        val test = afpOffentlig.simuler(LivsvarigOffentligAfpSpec(
-            pid,
-            foedselsdato,
-            fom = virkningDato,
-            fremtidigInntektListe
-        ))
-
-        return client.simuler(
+        val result = client.simuler(
             LivsvarigOffentligAfpSpec(
                 pid,
                 foedselsdato,
@@ -53,6 +46,15 @@ class LivsvarigOffentligAfpService(
                 fremtidigInntektListe
             )
         )
+
+        val test = afpOffentlig.simuler(LivsvarigOffentligAfpSpec(
+            pid,
+            foedselsdato,
+            fom = virkningDato,
+            fremtidigInntektListe
+        ))
+
+        return result
     }
 
     private fun forventedeInntekter(fom: LocalDate, til: LocalDate, forventetAarligBeloep: Int): List<Inntekt> =

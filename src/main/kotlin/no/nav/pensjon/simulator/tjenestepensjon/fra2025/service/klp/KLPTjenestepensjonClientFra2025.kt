@@ -37,13 +37,14 @@ class KLPTjenestepensjonClientFra2025(
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
     private val sammenligner: SammenlignAFPService,
+    private val clusterName: () -> String = { System.getenv("NAIS_CLUSTER_NAME") ?: "" },
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
     override fun simuler(spec: SimulerTjenestepensjonRequestDto, tpNummer: String): Result<SimulertTjenestepensjon> {
         val request: KLPSimulerTjenestepensjonRequest = mapToRequest(spec)
-        val response = if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp") {
+        val response = if (clusterName() == "dev-gcp") {
             provideMockResponse(spec)
         } else {
             sporingslogg.logUtgaaendeRequest(Organisasjoner.KLP, Pid(spec.pid), request.toString())

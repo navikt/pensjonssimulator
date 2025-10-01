@@ -1,15 +1,10 @@
-package no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto
+package no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.response.ResultatTypeDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.response.SimulerTjenestepensjonResponseDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.response.SimuleringsResultatDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.response.SimuleringsResultatStatusDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.response.UtbetalingPerAlder
 
-object Tjenestepensjon2025Aggregator {
+object TjenestepensjonFra2025Aggregator {
 
     fun aggregerVellykketRespons(simulertTjenestepensjon: SimulertTjenestepensjonMedMaanedsUtbetalinger, tpOrdninger: List<String>) =
         SimulerTjenestepensjonResponseDto(

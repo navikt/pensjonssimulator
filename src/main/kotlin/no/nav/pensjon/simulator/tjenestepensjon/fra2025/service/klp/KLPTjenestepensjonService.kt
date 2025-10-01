@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService.Companion.SIMULER_KLP
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoettesIkkeException

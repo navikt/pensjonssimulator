@@ -11,14 +11,14 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonV2025Client
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKMapper.mapToRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKMapper.mapToResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.SPKSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.SPKSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -35,7 +35,7 @@ class SPKTjenestepensjonClientFra2025(
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
     private val sammenligner: SammenlignAFPService
-) : ExternalServiceClient(retryAttempts), TjenestepensjonV2025Client {
+) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 

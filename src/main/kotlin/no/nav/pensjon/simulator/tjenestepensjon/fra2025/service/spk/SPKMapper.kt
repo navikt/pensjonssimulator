@@ -4,12 +4,12 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.FremtidigInntekt
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.SPKSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.SPKSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.SPKYtelse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto.Uttak
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.FremtidigInntekt
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKYtelse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Uttak
 import java.time.LocalDate
 
 object SPKMapper {

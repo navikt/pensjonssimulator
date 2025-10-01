@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 

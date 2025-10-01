@@ -6,15 +6,16 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringF
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoettesIkkeException
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpregisteretException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.FinnSisteTpOrdningService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKTjenestepensjonService
 import org.springframework.stereotype.Service
 
 @Service
-class TjenestepensjonV2025Service(
+class TjenestepensjonFra2025Service(
     private val tpregisteretClient: TpregisteretClient,
     private val spk: SPKTjenestepensjonService,
     private val klp: KLPTjenestepensjonService,

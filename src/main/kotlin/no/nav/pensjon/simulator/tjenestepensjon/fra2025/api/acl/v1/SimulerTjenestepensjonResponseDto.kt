@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.response
+package no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1
 
 import no.nav.pensjon.simulator.alder.Alder
 

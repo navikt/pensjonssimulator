@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
+package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning
 
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.stereotype.Service

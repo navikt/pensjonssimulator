@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request
+package no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1
 
 import java.time.LocalDate
 

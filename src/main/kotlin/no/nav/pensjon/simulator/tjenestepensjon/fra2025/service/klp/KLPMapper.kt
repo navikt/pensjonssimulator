@@ -4,12 +4,12 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.FremtidigInntekt
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.KLPSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.KLPSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.KLPYtelse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.Uttak
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.FremtidigInntekt
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPYtelse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Uttak
 import java.time.LocalDate
 
 object KLPMapper {

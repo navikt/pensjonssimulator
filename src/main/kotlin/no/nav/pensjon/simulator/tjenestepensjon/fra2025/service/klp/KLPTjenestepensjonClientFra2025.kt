@@ -11,16 +11,16 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.dto.request.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonV2025Client
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.mapToRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.mapToResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.InkludertOrdning
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.KLPSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.KLPSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.dto.Utbetaling
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.InkludertOrdning
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Utbetaling
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -37,7 +37,7 @@ class KLPTjenestepensjonClientFra2025(
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
     private val sammenligner: SammenlignAFPService,
-) : ExternalServiceClient(retryAttempts), TjenestepensjonV2025Client {
+) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 

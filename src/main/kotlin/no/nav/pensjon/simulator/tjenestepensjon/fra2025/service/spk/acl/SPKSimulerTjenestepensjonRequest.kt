@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.dto
+package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl
 
 import java.time.LocalDate
 

@@ -54,4 +54,10 @@ enum class EgressService(
         purpose = "Simulere offentlig tjenestepensjon",
         authType = AuthType.MACHINE_OUTSIDE_NAV
     ),
+    KLP(
+        description = "Kommunal Landspensjonskasse",
+        shortName = "KLP",
+        purpose = "Simulere offentlig tjenestepensjon",
+        authType = AuthType.MACHINE_OUTSIDE_NAV
+    ),
 }

@@ -66,6 +66,15 @@ spec:
               orgno: "958995369"
             - name: Storebrand Pensjonstjenester
               orgno: "931936492"
+        - name: simulering/alderspensjonogprivatafp
+          enabled: true
+          product: pensjon
+          separator: "/"
+          consumers:
+            - name: Nav # NB: dev only
+              orgno: "889640782"
+            - name: Norsk Pensjon
+              orgno: "890050212"
         - name: simulering.read
           enabled: true
           product: pensjon

@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
@@ -42,7 +42,7 @@ class KLPTjenestepensjonClientFra2025(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    override fun simuler(spec: SimulerTjenestepensjonRequestDto, tpNummer: String): Result<SimulertTjenestepensjon> {
+    override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
         val request: KLPSimulerTjenestepensjonRequest = mapToRequest(spec)
         val response = if (clusterName() == "dev-gcp") {
             provideMockResponse(spec)
@@ -76,7 +76,7 @@ class KLPTjenestepensjonClientFra2025(
 
     private fun success(
         request: KLPSimulerTjenestepensjonRequest,
-        spec: SimulerTjenestepensjonRequestDto,
+        spec: SimulerOffentligTjenestepensjonFra2025SpecV1,
         response: KLPSimulerTjenestepensjonResponse
     ): Result<SimulertTjenestepensjon> =
         Result.success(
@@ -100,7 +100,7 @@ class KLPTjenestepensjonClientFra2025(
         private const val SIMULER_PATH = "/api/oftp/simulering"
         private val service = EgressService.KLP
 
-        fun provideMockResponse(spec: SimulerTjenestepensjonRequestDto) =
+        fun provideMockResponse(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) =
             KLPSimulerTjenestepensjonResponse(
                 inkludertOrdningListe = listOf(InkludertOrdning("3100")),
                 utbetalingsListe = listOf(

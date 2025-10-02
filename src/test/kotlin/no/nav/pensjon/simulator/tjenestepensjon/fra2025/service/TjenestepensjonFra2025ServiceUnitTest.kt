@@ -8,7 +8,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
@@ -165,7 +165,7 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
             foedselsdato: String,
             brukerBaOmAfp: Boolean = false,
             erApoteker: Boolean = false
-        ) = SimulerTjenestepensjonRequestDto(
+        ) = SimulerOffentligTjenestepensjonFra2025SpecV1(
             pid = "12345678910",
             foedselsdato = LocalDate.parse(foedselsdato),
             uttaksdato = LocalDate.parse("2025-03-01"),

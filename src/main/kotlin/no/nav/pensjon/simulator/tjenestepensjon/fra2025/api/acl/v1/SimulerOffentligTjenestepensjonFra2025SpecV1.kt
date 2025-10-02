@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1
 
 import java.time.LocalDate
 
-data class SimulerTjenestepensjonRequestDto(
+data class SimulerOffentligTjenestepensjonFra2025SpecV1(
     val pid: String,
     val foedselsdato: LocalDate,
     val uttaksdato: LocalDate,

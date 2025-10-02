@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1
 
 import no.nav.pensjon.simulator.alder.Alder
 
-data class SimulerTjenestepensjonResponseDto(
+data class SimulerOffentligTjenestepensjonFra2025ResultV1(
     val simuleringsResultatStatus: SimuleringsResultatStatusDto,
     val simuleringsResultat: SimuleringsResultatDto? = null,
     val relevanteTpOrdninger: List<String> = emptyList(),

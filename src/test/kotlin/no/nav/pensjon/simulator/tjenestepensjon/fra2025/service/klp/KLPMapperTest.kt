@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonFremtidigInntektDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.ANNEN_TP_ORDNING_BURDE_SIMULERE
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.*
@@ -86,7 +86,7 @@ class KLPMapperTest{
     @Test
     fun `map request to klp request with fremtidigeInntekter`() {
         val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerTjenestepensjonRequestDto(
+        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
             pid = "12345678901",
             sisteInntekt = 100000,
             aarIUtlandetEtter16 = 3,
@@ -132,7 +132,7 @@ class KLPMapperTest{
     @Test
     fun `map request to klp request without fremtidigeInntekter`() {
         val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerTjenestepensjonRequestDto(
+        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
             pid = "12345678901",
             sisteInntekt = 100000,
             aarIUtlandetEtter16 = 3,

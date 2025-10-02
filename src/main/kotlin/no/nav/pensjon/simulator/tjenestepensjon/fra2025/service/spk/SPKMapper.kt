@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.FremtidigInntekt
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonResponse
@@ -17,13 +17,13 @@ object SPKMapper {
 
     const val PROVIDER_FULLT_NAVN = "Statens pensjonskasse"
 
-    fun mapToRequest(request: SimulerTjenestepensjonRequestDto): SPKSimulerTjenestepensjonRequest {
+    fun mapToRequest(request: SimulerOffentligTjenestepensjonFra2025SpecV1): SPKSimulerTjenestepensjonRequest {
         return request.fremtidigeInntekter
             ?.let { mapToRequestV2(request) }
             ?: mapToRequestV1(request)
     }
 
-    private fun mapToRequestV1(request: SimulerTjenestepensjonRequestDto) = SPKSimulerTjenestepensjonRequest(
+    private fun mapToRequestV1(request: SimulerOffentligTjenestepensjonFra2025SpecV1) = SPKSimulerTjenestepensjonRequest(
         personId = request.pid,
         uttaksListe = opprettUttaksliste(request),
         fremtidigInntektListe = listOf(
@@ -38,7 +38,7 @@ object SPKMapper {
         eps2G = request.eps2G,
     )
 
-    private fun mapToRequestV2(request: SimulerTjenestepensjonRequestDto): SPKSimulerTjenestepensjonRequest {
+    private fun mapToRequestV2(request: SimulerOffentligTjenestepensjonFra2025SpecV1): SPKSimulerTjenestepensjonRequest {
         val fremtidigeInntekter: MutableList<FremtidigInntekt> = mutableListOf(opprettNaaverendeInntektFoerUttak(request))
         fremtidigeInntekter.addAll(request.fremtidigeInntekter?.map {
             FremtidigInntekt(
@@ -56,7 +56,7 @@ object SPKMapper {
         )
     }
 
-    private fun opprettNaaverendeInntektFoerUttak(request: SimulerTjenestepensjonRequestDto) = FremtidigInntekt(
+    private fun opprettNaaverendeInntektFoerUttak(request: SimulerOffentligTjenestepensjonFra2025SpecV1) = FremtidigInntekt(
         fraOgMedDato = fjorAarSomManglerOpptjeningIPopp(),
         aarligInntekt = request.sisteInntekt
     )
@@ -79,7 +79,7 @@ object SPKMapper {
         )
     }
 
-    fun opprettUttaksliste(request: SimulerTjenestepensjonRequestDto): List<Uttak> {
+    fun opprettUttaksliste(request: SimulerOffentligTjenestepensjonFra2025SpecV1): List<Uttak> {
         return SPKYtelse.hentAlleUnntattType(if (request.brukerBaOmAfp) SPKYtelse.BTP else SPKYtelse.OAFP)
             .map {
                 Uttak(

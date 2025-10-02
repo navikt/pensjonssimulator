@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringF
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoettesIkkeException
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpregisteretException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPTjenestepensjonService
@@ -23,7 +23,7 @@ class TjenestepensjonFra2025Service(
     ) {
     private val log = KotlinLogging.logger {}
 
-    fun simuler(request: SimulerTjenestepensjonRequestDto): Pair<List<String>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> {
+    fun simuler(request: SimulerOffentligTjenestepensjonFra2025SpecV1): Pair<List<String>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> {
         val tpOrdninger = try {
             tpregisteretClient.findAlleTpForhold(request.pid)
         }

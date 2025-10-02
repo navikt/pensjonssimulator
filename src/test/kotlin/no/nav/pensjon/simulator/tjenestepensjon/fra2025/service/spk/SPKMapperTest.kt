@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonFremtidigInntektDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
@@ -45,7 +45,7 @@ class SPKMapperTest {
     @Test
     fun `map request hvor bruker ber om aa beregne AFP`() {
         val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerTjenestepensjonRequestDto(
+        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
             pid = "12345678901",
             sisteInntekt = 100000,
             aarIUtlandetEtter16 = 3,
@@ -83,7 +83,7 @@ class SPKMapperTest {
     @Test
     fun `map request hvor bruker IKKE ber om aa beregne AFP`() {
         val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerTjenestepensjonRequestDto(
+        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
             pid = "12345678901",
             sisteInntekt = 100000,
             aarIUtlandetEtter16 = 3,
@@ -121,7 +121,7 @@ class SPKMapperTest {
     @Test
     fun `map request hvor bruker har ulike fremtidige inntekter`() {
         val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerTjenestepensjonRequestDto(
+        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
             pid = "12345678901",
             sisteInntekt = 100000,
             aarIUtlandetEtter16 = 3,

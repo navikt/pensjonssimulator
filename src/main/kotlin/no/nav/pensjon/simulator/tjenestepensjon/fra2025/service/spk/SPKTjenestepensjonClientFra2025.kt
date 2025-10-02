@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
@@ -39,7 +39,7 @@ class SPKTjenestepensjonClientFra2025(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl).build()
 
-    override fun simuler(spec: SimulerTjenestepensjonRequestDto, tpNummer: String): Result<SimulertTjenestepensjon> {
+    override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
         val request: SPKSimulerTjenestepensjonRequest = mapToRequest(spec)
         log.debug { "Simulating tjenestepensjon 2025 with ${service.shortName} with request $request" }
         sporingslogg.logUtgaaendeRequest(Organisasjoner.SPK, Pid(spec.pid), request.toString())
@@ -69,7 +69,7 @@ class SPKTjenestepensjonClientFra2025(
     }
 
     private fun success(
-        spec: SimulerTjenestepensjonRequestDto,
+        spec: SimulerOffentligTjenestepensjonFra2025SpecV1,
         request: SPKSimulerTjenestepensjonRequest,
         response: SPKSimulerTjenestepensjonResponse
     ): Result<SimulertTjenestepensjon> =

@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 object TjenestepensjonFra2025Aggregator {
 
     fun aggregerVellykketRespons(simulertTjenestepensjon: SimulertTjenestepensjonMedMaanedsUtbetalinger, tpOrdninger: List<String>) =
-        SimulerTjenestepensjonResponseDto(
+        SimulerOffentligTjenestepensjonFra2025ResultV1(
             relevanteTpOrdninger = tpOrdninger,
             simuleringsResultatStatus = SimuleringsResultatStatusDto(ResultatTypeDto.SUCCESS),
             simuleringsResultat = SimuleringsResultatDto(

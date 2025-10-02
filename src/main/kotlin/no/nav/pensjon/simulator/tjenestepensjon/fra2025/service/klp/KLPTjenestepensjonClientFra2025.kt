@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
+import io.netty.handler.timeout.ReadTimeoutHandler
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.person.Pid
@@ -23,11 +24,13 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimul
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Utbetaling
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.netty.http.client.HttpClient
 
 @Service
 class KLPTjenestepensjonClientFra2025(
@@ -40,7 +43,13 @@ class KLPTjenestepensjonClientFra2025(
     private val clusterName: () -> String = { System.getenv("NAIS_CLUSTER_NAME") ?: "" },
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
     private val log = KotlinLogging.logger {}
-    private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient = webClientBuilder.baseUrl(baseUrl)
+        .clientConnector(
+            ReactorClientHttpConnector(
+                HttpClient
+                    .create()
+                    .doOnConnected { it.addHandlerLast(ReadTimeoutHandler(ON_CONNECTED_READ_TIMEOUT_SECONDS)) })
+        ).build()
 
     override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
         val request: KLPSimulerTjenestepensjonRequest = mapToRequest(spec)
@@ -99,6 +108,7 @@ class KLPTjenestepensjonClientFra2025(
     companion object {
         private const val SIMULER_PATH = "/api/oftp/simulering"
         private val service = EgressService.KLP
+        private const val ON_CONNECTED_READ_TIMEOUT_SECONDS = 45
 
         fun provideMockResponse(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) =
             KLPSimulerTjenestepensjonResponse(

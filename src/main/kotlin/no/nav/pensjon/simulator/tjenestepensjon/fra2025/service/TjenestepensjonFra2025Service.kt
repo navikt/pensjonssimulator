@@ -10,7 +10,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpregisteretException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.FinnSisteTpOrdningService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
 import org.springframework.stereotype.Service
 
@@ -19,7 +19,7 @@ class TjenestepensjonFra2025Service(
     private val tpregisteretClient: TpregisteretClient,
     private val spk: SpkTjenestepensjonService,
     private val klp: KlpTjenestepensjonService,
-    private val finnSisteTpOrdningService: FinnSisteTpOrdningService,
+    private val sisteTpOrdningService: SisteTpOrdningService,
     ) {
     private val log = KotlinLogging.logger {}
 
@@ -34,7 +34,7 @@ class TjenestepensjonFra2025Service(
 
         val tpOrdningerNavn = tpOrdninger.map { it.navn }
 
-        val sisteOrdningerNr = finnSisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
+        val sisteOrdningerNr = sisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
         if (sisteOrdningerNr.isEmpty()) {
             return emptyList<String>() to Result.failure(BrukerErIkkeMedlemException())
         }

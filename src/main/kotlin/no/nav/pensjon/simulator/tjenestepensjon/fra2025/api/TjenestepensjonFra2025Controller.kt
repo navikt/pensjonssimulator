@@ -72,19 +72,14 @@ class TjenestepensjonFra2025Controller(
                         is TjenestepensjonSimuleringException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.TEKNISK_FEIL_FRA_TP_ORDNING, e.message, relevanteTpOrdninger)
                         is TomSimuleringFraTpOrdningException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING, "Simulering fra ${e.tpOrdning} inneholder ingen utbetalingsperioder", relevanteTpOrdninger)
                         is IkkeSisteOrdningException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING, "Simulering fra ${e.tpOrdning} inneholder ingen utbetalingsperioder", relevanteTpOrdninger)
-                        is TpregisteretException -> loggOgReturnerTekniskFeil(e)
-                        else -> loggOgReturnerTekniskFeil(RuntimeException(e))
+                        is TpregisteretException -> { log.error(e) { "Simulering feilet pga feil fra tpregisteret: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)}
+                        else -> { log.error(e) { "Simulering feilet: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)}
                     }
                 })
         }
         finally {
             traceAid.end()
         }
-    }
-
-    private fun loggOgReturnerTekniskFeil(e: RuntimeException): SimulerOffentligTjenestepensjonFra2025ResultV1 {
-        log.error(e) { "Simulering feilet: ${e.message}" }
-        throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)
     }
 
     override fun errorMessage() = ERROR_MESSAGE

@@ -18,7 +18,7 @@ class SpkTjenestepensjonService(private val client: SpkTjenestepensjonClientFra2
 
     fun simuler(request: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> {
         if (!featureToggleService.isEnabled(PEN_715_SIMULER_SPK)) {
-            return loggOgReturn()
+            return failure()
         }
 
         return client.simuler(request, tpNummer)
@@ -34,7 +34,7 @@ class SpkTjenestepensjonService(private val client: SpkTjenestepensjonClientFra2
                                 tpLeverandoer = SpkMapper.PROVIDER_FULLT_NAVN,
                                 tpNummer = tpNummer,
                                 ordningsListe = it.ordningsListe,
-                                utbetalingsperioder = TpUtil.grupperMedDatoFra(fjerneAfp(it.utbetalingsperioder), request.foedselsdato),
+                                utbetalingsperioder = TpUtil.grupperMedDatoFra(fjernAfp(it.utbetalingsperioder), request.foedselsdato),
                                 betingetTjenestepensjonErInkludert = it.betingetTjenestepensjonErInkludert,
                                 serviceData = it.serviceData
                             )
@@ -44,13 +44,13 @@ class SpkTjenestepensjonService(private val client: SpkTjenestepensjonClientFra2
             )
     }
 
-    private fun loggOgReturn(): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> {
+    private fun failure(): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> {
         val message = "Simulering av tjenestepensjon hos ${client.service().shortName} er slått av"
         log.warn { message }
         return Result.failure(TjenestepensjonSimuleringException(message))
     }
 
-    fun fjerneAfp(utbetalingsliste: List<Utbetalingsperiode>) : List<Utbetalingsperiode> {
+    fun fjernAfp(utbetalingsliste: List<Utbetalingsperiode>) : List<Utbetalingsperiode> {
         val afp = utbetalingsliste.filter { it.ytelseType == "OAFP" }
         if (afp.isNotEmpty()){
             log.info { "AFP fra ${client.service().shortName}: $afp" }

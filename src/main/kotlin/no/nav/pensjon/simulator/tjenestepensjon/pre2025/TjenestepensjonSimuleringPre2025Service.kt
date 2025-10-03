@@ -69,7 +69,7 @@ class TjenestepensjonSimuleringPre2025Service(
     }
 
     companion object {
-        private val FNR_REGEX = """[0-9]{11}""".toRegex()
+        val FNR_REGEX = """[0-9]{11}""".toRegex()
         fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
     }
 }

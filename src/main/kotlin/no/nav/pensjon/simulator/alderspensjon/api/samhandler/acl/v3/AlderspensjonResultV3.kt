@@ -7,14 +7,14 @@ import kotlin.String
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.SimulerAlderspensjonResponseV3
  */
 data class AlderspensjonResultV3(
-    val pensjonsperioder: List<PensjonsperiodeResultV3>? = null,
-    val simuleringsdataListe: List<SimuleringsdataResultV3>? = null,
-    val pensjonsbeholdningsperioder: List<PensjonsbeholdningPeriodeResultV3>? = null,
-    val alderspensjonFraFolketrygden: List<AlderspensjonFraFolketrygdenResultV3>? = null,
-    val harUttak: Boolean = false,
-    val harTidligereUttak: Boolean = false,
-    val afpPrivatBeholdningVedUttak: Int? = null,
-    val sisteGyldigeOpptjeningsAr: Int? = null
+    val pensjonsperioder: List<PensjonsperiodeResultV3>?,
+    val simuleringsdataListe: List<SimuleringsdataResultV3>?,
+    val pensjonsbeholdningsperioder: List<PensjonsbeholdningPeriodeResultV3>?,
+    val alderspensjonFraFolketrygden: List<AlderspensjonFraFolketrygdenResultV3>?,
+    val harUttak: Boolean,
+    val harTidligereUttak: Boolean,
+    val afpPrivatBeholdningVedUttak: Int?,
+    val sisteGyldigeOpptjeningsAr: Int?
 )
 
 /**
@@ -36,24 +36,13 @@ data class DelytelseResultV3(
     val belop: Int?
 )
 
-data class DelytelseResultV3T(
-    val pensjonstype: String?,
-    val belop: Int?
-) {
-    //override fun from(pensjonstype: String?, belop: Int?) = DelytelseResultV3T(pensjonstype, belop)
-}
-
-interface DelytelseResultV3I {
-    //fun from(pensjonstype: String?, belop: Int?): DelytelseResultV3I
-}
-
 /**
  * Version 3 of 'pensjonsperiode' in result of 'simuler alderspensjon'.
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.Pensjonsperiode
  */
 data class PensjonsperiodeResultV3(
-    val arligUtbetaling: Int? = null,
-    val datoFom: String? = null
+    val arligUtbetaling: Int?,
+    val datoFom: String?
 )
 
 /**
@@ -61,11 +50,11 @@ data class PensjonsperiodeResultV3(
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.PensjonsbeholdningPeriode
  */
 data class PensjonsbeholdningPeriodeResultV3(
-    val pensjonsbeholdning: Double? = null,
-    val garantipensjonsbeholdning: Double? = null,
-    val garantitilleggsbeholdning: Double? = null,
-    val datoFom: String? = null,
-    val garantipensjonsniva: GarantipensjonsnivaaResultV3? = null
+    val pensjonsbeholdning: Double?,
+    val garantipensjonsbeholdning: Double?,
+    val garantitilleggsbeholdning: Double?,
+    val datoFom: String?,
+    val garantipensjonsniva: GarantipensjonsnivaaResultV3?
 )
 
 /**
@@ -73,17 +62,17 @@ data class PensjonsbeholdningPeriodeResultV3(
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.Simuleringsdata
  */
 data class SimuleringsdataResultV3(
-    val poengArTom1991: Int? = null,
-    val poengArFom1992: Int? = null,
-    val sluttpoengtall: Double? = null,
-    val anvendtTrygdetid: Int? = null,
-    val basisgp: Double? = null,
-    val basistp: Double? = null,
-    val basispt: Double? = null,
-    val forholdstallUttak: Double? = null,
-    val delingstallUttak: Double? = null,
-    val uforegradVedOmregning: Int? = null,
-    val datoFom: String? = null
+    val poengArTom1991: Int?,
+    val poengArFom1992: Int?,
+    val sluttpoengtall: Double?,
+    val anvendtTrygdetid: Int?,
+    val basisgp: Double?,
+    val basistp: Double?,
+    val basispt: Double?,
+    val forholdstallUttak: Double?,
+    val delingstallUttak: Double?,
+    val uforegradVedOmregning: Int?,
+    val datoFom: String?
 )
 
 /**
@@ -91,8 +80,8 @@ data class SimuleringsdataResultV3(
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.Garantipensjonsniva
  */
 data class GarantipensjonsnivaaResultV3(
-    val belop: Double? = null,
-    val satsType: String? = null,
-    val sats: Double? = null,
-    val tt_anv: Int? = null
+    val belop: Double?,
+    val satsType: String?,
+    val sats: Double?,
+    val tt_anv: Int?
 )

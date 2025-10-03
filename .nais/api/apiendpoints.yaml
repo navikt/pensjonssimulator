@@ -15,6 +15,7 @@ spec:
     scopes:
       - nav:pensjonssimulator:simulering
       - nav:pensjon/simulering.read
+      - nav:pensjon/simulering/alderspensjonogprivatafp
   endpoints:
     - path: /pensjonssimulator/v0/simuler-afp-etterfulgt-av-alderspensjon
       method: POST

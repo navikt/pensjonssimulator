@@ -25,6 +25,15 @@ spec:
       backendHost: http://pensjonssimulator
       backendPath: /api/v0/simuler-afp-etterfulgt-av-alderspensjon
       timeout: 20s
+    - path: /pensjonssimulator/v3/simuler-alderspensjon-privat-afp
+      method: POST
+      forwardHeaders:
+        - Authorization
+        - Content-Type
+        - X-Request-Id
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v3/simuler-alderspensjon-privat-afp
+      timeout: 20s
     - path: /pensjonssimulator/v4/simuler-alderspensjon
       method: POST
       forwardHeaders:

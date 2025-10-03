@@ -15,9 +15,9 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.BrukerErIkkeMedlemException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoettesIkkeException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.FinnSisteTpOrdningNavService
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.http.HttpStatus
@@ -28,8 +28,8 @@ import java.time.LocalDate
 class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
 
     val tp = mockk<TpregisteretClient>(relaxed = true)
-    val spk = mockk<SPKTjenestepensjonService>(relaxed = true)
-    val klp = mockk<KLPTjenestepensjonService>(relaxed = true)
+    val spk = mockk<SpkTjenestepensjonService>(relaxed = true)
+    val klp = mockk<KlpTjenestepensjonService>(relaxed = true)
     val fstos = FinnSisteTpOrdningNavService()
 
     val service = TjenestepensjonFra2025Service(tp, spk, klp, fstos)

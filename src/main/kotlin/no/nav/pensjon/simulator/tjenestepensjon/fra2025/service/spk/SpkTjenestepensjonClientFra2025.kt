@@ -16,10 +16,10 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKMapper.mapToRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKMapper.mapToResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.mapToRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.mapToResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
@@ -31,7 +31,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.netty.http.client.HttpClient
 
 @Service
-class SPKTjenestepensjonClientFra2025(
+class SpkTjenestepensjonClientFra2025(
     @Value("\${spk.tp-simulering.fra-2025.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
@@ -49,7 +49,7 @@ class SPKTjenestepensjonClientFra2025(
         ).build()
 
     override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
-        val request: SPKSimulerTjenestepensjonRequest = mapToRequest(spec)
+        val request: SpkSimulerTjenestepensjonRequest = mapToRequest(spec)
         log.debug { "Simulating tjenestepensjon 2025 with ${service.shortName} with request $request" }
         sporingslogg.logUtgaaendeRequest(Organisasjoner.SPK, Pid(spec.pid), request.toString())
 
@@ -60,7 +60,7 @@ class SPKTjenestepensjonClientFra2025(
                 .bodyValue(request)
                 .headers(::setHeaders)
                 .retrieve()
-                .bodyToMono<SPKSimulerTjenestepensjonResponse>()
+                .bodyToMono<SpkSimulerTjenestepensjonResponse>()
                 .block()
                 ?.let { success(spec, request, response = it) }
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body"))
@@ -79,8 +79,8 @@ class SPKTjenestepensjonClientFra2025(
 
     private fun success(
         spec: SimulerOffentligTjenestepensjonFra2025SpecV1,
-        request: SPKSimulerTjenestepensjonRequest,
-        response: SPKSimulerTjenestepensjonResponse
+        request: SpkSimulerTjenestepensjonRequest,
+        response: SpkSimulerTjenestepensjonResponse
     ): Result<SimulertTjenestepensjon> =
         Result.success(
             mapToResponse(response, request)

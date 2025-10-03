@@ -6,24 +6,24 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.FremtidigInntekt
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKYtelse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Uttak
 import java.time.LocalDate
 
-object SPKMapper {
+object SpkMapper {
     private val log = KotlinLogging.logger {}
 
     const val PROVIDER_FULLT_NAVN = "Statens pensjonskasse"
 
-    fun mapToRequest(request: SimulerOffentligTjenestepensjonFra2025SpecV1): SPKSimulerTjenestepensjonRequest {
+    fun mapToRequest(request: SimulerOffentligTjenestepensjonFra2025SpecV1): SpkSimulerTjenestepensjonRequest {
         return request.fremtidigeInntekter
             ?.let { mapToRequestV2(request) }
             ?: mapToRequestV1(request)
     }
 
-    private fun mapToRequestV1(request: SimulerOffentligTjenestepensjonFra2025SpecV1) = SPKSimulerTjenestepensjonRequest(
+    private fun mapToRequestV1(request: SimulerOffentligTjenestepensjonFra2025SpecV1) = SpkSimulerTjenestepensjonRequest(
         personId = request.pid,
         uttaksListe = opprettUttaksliste(request),
         fremtidigInntektListe = listOf(
@@ -38,7 +38,7 @@ object SPKMapper {
         eps2G = request.eps2G,
     )
 
-    private fun mapToRequestV2(request: SimulerOffentligTjenestepensjonFra2025SpecV1): SPKSimulerTjenestepensjonRequest {
+    private fun mapToRequestV2(request: SimulerOffentligTjenestepensjonFra2025SpecV1): SpkSimulerTjenestepensjonRequest {
         val fremtidigeInntekter: MutableList<FremtidigInntekt> = mutableListOf(opprettNaaverendeInntektFoerUttak(request))
         fremtidigeInntekter.addAll(request.fremtidigeInntekter?.map {
             FremtidigInntekt(
@@ -46,7 +46,7 @@ object SPKMapper {
                 aarligInntekt = it.aarligInntekt
             )
         } ?: emptyList())
-        return SPKSimulerTjenestepensjonRequest(
+        return SpkSimulerTjenestepensjonRequest(
             personId = request.pid,
             uttaksListe = opprettUttaksliste(request),
             fremtidigInntektListe = fremtidigeInntekter,
@@ -63,7 +63,7 @@ object SPKMapper {
 
     private fun fjorAarSomManglerOpptjeningIPopp(): LocalDate = LocalDate.now().minusYears(1).withDayOfYear(1)
 
-    fun mapToResponse(response: SPKSimulerTjenestepensjonResponse, dto: SPKSimulerTjenestepensjonRequest? = null): SimulertTjenestepensjon {
+    fun mapToResponse(response: SpkSimulerTjenestepensjonResponse, dto: SpkSimulerTjenestepensjonRequest? = null): SimulertTjenestepensjon {
         log.info { "Mapping response from SPK $response" }
         return SimulertTjenestepensjon(
             tpLeverandoer = PROVIDER_FULLT_NAVN,

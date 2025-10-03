@@ -22,12 +22,12 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.Tjenestepensjo
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
 import java.time.LocalDate
 
-class SPKTjenestepensjonServiceUnitTest : FunSpec({
+class SpkTjenestepensjonServiceUnitTest : FunSpec({
 
-    val client = mockk<SPKTjenestepensjonClientFra2025>(relaxed = true)
+    val client = mockk<SpkTjenestepensjonClientFra2025>(relaxed = true)
     val featureToggleService = mockk<FeatureToggleService>(relaxed = true)
 
-    val service = SPKTjenestepensjonService(
+    val service = SpkTjenestepensjonService(
         client = client,
         featureToggleService = featureToggleService
     )
@@ -46,7 +46,7 @@ class SPKTjenestepensjonServiceUnitTest : FunSpec({
 
         res.isSuccess.shouldBeTrue()
         val tp = res.getOrNull().shouldNotBeNull()
-        tp.tpLeverandoer shouldBe SPKMapper.PROVIDER_FULLT_NAVN
+        tp.tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
         tp.betingetTjenestepensjonErInkludert.shouldBeFalse()
         tp.ordningsListe shouldHaveSize 1
         tp.utbetalingsperioder shouldHaveSize 2
@@ -97,7 +97,7 @@ class SPKTjenestepensjonServiceUnitTest : FunSpec({
 
         res.isSuccess.shouldBeTrue()
         val tp = res.getOrNull().shouldNotBeNull()
-        tp.tpLeverandoer shouldBe SPKMapper.PROVIDER_FULLT_NAVN
+        tp.tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
         tp.betingetTjenestepensjonErInkludert.shouldBeFalse()
         tp.ordningsListe shouldHaveSize 1
         tp.utbetalingsperioder.shouldBeEmpty()

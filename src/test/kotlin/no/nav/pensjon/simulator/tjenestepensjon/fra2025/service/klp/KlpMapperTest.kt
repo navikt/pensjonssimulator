@@ -3,17 +3,17 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonFremtidigInntektDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.ANNEN_TP_ORDNING_BURDE_SIMULERE
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.ANNEN_TP_ORDNING_BURDE_SIMULERE
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class KLPMapperTest{
+class KlpMapperTest{
 
     @Test
     fun `map klp response`() {
-        val resp = KLPSimulerTjenestepensjonResponse(
+        val resp = KlpSimulerTjenestepensjonResponse(
             listOf(InkludertOrdning("1000")),
             listOf(
                 Utbetaling(LocalDate.of(2025, 2, 6), manedligUtbetaling = 1, arligUtbetaling = 12, ytelseType = "BTP"),
@@ -39,7 +39,7 @@ class KLPMapperTest{
             ), true
         )
 
-        val result = KLPMapper.mapToResponse(resp)
+        val result = KlpMapper.mapToResponse(resp)
 
         assertEquals(1, result.ordningsListe.size)
         assertEquals("1000", result.ordningsListe[0].tpNummer)
@@ -65,13 +65,13 @@ class KLPMapperTest{
     fun `map klp response med ikke siste ordning`() {
         val statusBeskrivelse = "Ikke siste ordning. Statens pensjonskasse er siste ordning"
         val ytelseType = "ALLE"
-        val resp = KLPSimulerTjenestepensjonResponse(
+        val resp = KlpSimulerTjenestepensjonResponse(
             listOf(InkludertOrdning("1000")),
             listOf(),
             listOf(ArsakIngenUtbetaling(statusKode = ANNEN_TP_ORDNING_BURDE_SIMULERE, statusBeskrivelse = statusBeskrivelse, ytelseType = ytelseType)), false
         )
 
-        val result: SimulertTjenestepensjon = KLPMapper.mapToResponse(resp)
+        val result: SimulertTjenestepensjon = KlpMapper.mapToResponse(resp)
 
         assertEquals(1, result.ordningsListe.size)
         assertEquals("1000", result.ordningsListe[0].tpNummer)
@@ -103,7 +103,7 @@ class KLPMapperTest{
             erApoteker = false
         )
 
-        val result: KLPSimulerTjenestepensjonRequest = KLPMapper.mapToRequest(request)
+        val result: KlpSimulerTjenestepensjonRequest = KlpMapper.mapToRequest(request)
 
         assertEquals(request.pid, result.personId)
         assertEquals(1, result.uttaksListe.size)
@@ -145,7 +145,7 @@ class KLPMapperTest{
             erApoteker = false
         )
 
-        val result: KLPSimulerTjenestepensjonRequest = KLPMapper.mapToRequest(request)
+        val result: KlpSimulerTjenestepensjonRequest = KlpMapper.mapToRequest(request)
 
         assertEquals(request.pid, result.personId)
         assertEquals(1, result.uttaksListe.size)

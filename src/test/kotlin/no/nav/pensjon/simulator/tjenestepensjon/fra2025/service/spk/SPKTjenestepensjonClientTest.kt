@@ -20,11 +20,11 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKMapper.PROVIDER_FULLT_NAVN
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.PROVIDER_FULLT_NAVN
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.AarsakIngenUtbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Delytelse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.InkludertOrdning
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Utbetaling
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -84,7 +84,7 @@ class SPKTjenestepensjonClientTest : FunSpec({
             val sammenligner = mockk<SammenlignAFPService>()
             every { sammenligner.sammenlignOgLoggAfp(any(), any()) } just Runs
 
-            val spkClient = SPKTjenestepensjonClientFra2025(
+            val spkClient = SpkTjenestepensjonClientFra2025(
                 baseUrl = baseUrl!!,
                 retryAttempts = "0",
                 webClientBuilder = webClientBuilder,
@@ -147,7 +147,7 @@ class SPKTjenestepensjonClientTest : FunSpec({
             val sammenligner = mockk<SammenlignAFPService>()
             every { sammenligner.sammenlignOgLoggAfp(any(), any()) } just Runs
 
-            val spkClient = SPKTjenestepensjonClientFra2025(
+            val spkClient = SpkTjenestepensjonClientFra2025(
                 baseUrl = baseUrl!!,
                 retryAttempts = "0",
                 webClientBuilder = webClientBuilder,
@@ -171,7 +171,7 @@ class SPKTjenestepensjonClientTest : FunSpec({
     private companion object {
         private const val SIMULER_PATH = "/nav/v2/tjenestepensjon/simuler"
 
-        fun spkSimulerTjenestepensjonResponse() = SPKSimulerTjenestepensjonResponse(
+        fun spkSimulerTjenestepensjonResponse() = SpkSimulerTjenestepensjonResponse(
             inkludertOrdningListe = listOf(InkludertOrdning("3010")),
             utbetalingListe = listOf(
                 Utbetaling(LocalDate.parse("2025-03-01"), listOf(Delytelse("OAFP", 1))),

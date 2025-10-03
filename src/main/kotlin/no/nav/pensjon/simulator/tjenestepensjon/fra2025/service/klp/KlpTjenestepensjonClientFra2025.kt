@@ -16,11 +16,11 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.mapToRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.mapToResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.mapToRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.mapToResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.InkludertOrdning
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Utbetaling
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -33,7 +33,7 @@ import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.netty.http.client.HttpClient
 
 @Service
-class KLPTjenestepensjonClientFra2025(
+class KlpTjenestepensjonClientFra2025(
     @Value("\${klp.tp-simulering.fra-2025.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBuilder: WebClient.Builder,
@@ -52,7 +52,7 @@ class KLPTjenestepensjonClientFra2025(
         ).build()
 
     override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
-        val request: KLPSimulerTjenestepensjonRequest = mapToRequest(spec)
+        val request: KlpSimulerTjenestepensjonRequest = mapToRequest(spec)
         val response = if (clusterName() == "dev-gcp") {
             provideMockResponse(spec)
         } else {
@@ -65,7 +65,7 @@ class KLPTjenestepensjonClientFra2025(
                     .bodyValue(request)
                     .headers(::setHeaders)
                     .retrieve()
-                    .bodyToMono<KLPSimulerTjenestepensjonResponse>()
+                    .bodyToMono<KlpSimulerTjenestepensjonResponse>()
                     .block()
             } catch (e: WebClientResponseException) {
                 "Failed to simulate tjenestepensjon 2025 hos ${service.shortName} ${e.responseBodyAsString}".let {
@@ -84,9 +84,9 @@ class KLPTjenestepensjonClientFra2025(
     }
 
     private fun success(
-        request: KLPSimulerTjenestepensjonRequest,
+        request: KlpSimulerTjenestepensjonRequest,
         spec: SimulerOffentligTjenestepensjonFra2025SpecV1,
-        response: KLPSimulerTjenestepensjonResponse
+        response: KlpSimulerTjenestepensjonResponse
     ): Result<SimulertTjenestepensjon> =
         Result.success(
             mapToResponse(response, request)
@@ -111,7 +111,7 @@ class KLPTjenestepensjonClientFra2025(
         private const val ON_CONNECTED_READ_TIMEOUT_SECONDS = 45
 
         fun provideMockResponse(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) =
-            KLPSimulerTjenestepensjonResponse(
+            KlpSimulerTjenestepensjonResponse(
                 inkludertOrdningListe = listOf(InkludertOrdning("3100")),
                 utbetalingsListe = listOf(
                     Utbetaling(fraOgMedDato = spec.uttaksdato, manedligUtbetaling = 3576, arligUtbetaling = 42914, ytelseType = "PAASLAG"),

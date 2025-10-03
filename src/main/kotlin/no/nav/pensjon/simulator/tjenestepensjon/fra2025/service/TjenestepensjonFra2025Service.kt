@@ -9,16 +9,16 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpregisteretException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.FinnSisteTpOrdningService
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SPKTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
 import org.springframework.stereotype.Service
 
 @Service
 class TjenestepensjonFra2025Service(
     private val tpregisteretClient: TpregisteretClient,
-    private val spk: SPKTjenestepensjonService,
-    private val klp: KLPTjenestepensjonService,
+    private val spk: SpkTjenestepensjonService,
+    private val klp: KlpTjenestepensjonService,
     private val finnSisteTpOrdningService: FinnSisteTpOrdningService,
     ) {
     private val log = KotlinLogging.logger {}

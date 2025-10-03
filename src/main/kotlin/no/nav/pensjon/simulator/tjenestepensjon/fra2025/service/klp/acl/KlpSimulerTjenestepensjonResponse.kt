@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl
 
 import java.time.LocalDate
 
-data class KLPSimulerTjenestepensjonResponse(
+data class KlpSimulerTjenestepensjonResponse(
     val inkludertOrdningListe: List<InkludertOrdning>,
     val utbetalingsListe: List<Utbetaling>,
     val arsakIngenUtbetaling: List<ArsakIngenUtbetaling>,

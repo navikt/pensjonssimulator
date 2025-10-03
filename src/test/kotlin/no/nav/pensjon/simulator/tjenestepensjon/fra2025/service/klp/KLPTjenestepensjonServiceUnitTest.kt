@@ -21,9 +21,9 @@ import java.time.LocalDate
 class KLPTjenestepensjonServiceUnitTest : FunSpec({
 
     val featureToggleService = mockk<FeatureToggleService>(relaxed = true)
-    val klpClient = mockk<KLPTjenestepensjonClientFra2025>(relaxed = true)
+    val klpClient = mockk<KlpTjenestepensjonClientFra2025>(relaxed = true)
 
-    val service = KLPTjenestepensjonService(
+    val service = KlpTjenestepensjonService(
         client = klpClient,
         featureToggleService = featureToggleService,
     )

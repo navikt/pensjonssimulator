@@ -76,7 +76,6 @@ class TpoAlderspensjonController(
             )
         ]
     )
-    //fun simulerAlderspensjonV3(@RequestBody specV3: TpoSimuleringSpecV3): TpoSimuleringResultV3 {
     fun simulerAlderspensjonV3(@RequestBody specV3: AlderspensjonSpecV3): AlderspensjonResultV3 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }

@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.FremtidigInntekt
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SPKYtelse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkYtelse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Uttak
 import java.time.LocalDate
 
@@ -80,7 +80,7 @@ object SpkMapper {
     }
 
     fun opprettUttaksliste(request: SimulerOffentligTjenestepensjonFra2025SpecV1): List<Uttak> {
-        return SPKYtelse.hentAlleUnntattType(if (request.brukerBaOmAfp) SPKYtelse.BTP else SPKYtelse.OAFP)
+        return SpkYtelse.hentAlleUnntattType(if (request.brukerBaOmAfp) SpkYtelse.BTP else SpkYtelse.OAFP)
             .map {
                 Uttak(
                     ytelseType = it,

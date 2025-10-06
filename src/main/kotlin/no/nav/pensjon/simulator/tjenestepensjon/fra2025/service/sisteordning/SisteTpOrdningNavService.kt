@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.stereotype.Service
 
 @Service
-class FinnSisteTpOrdningNavService : FinnSisteTpOrdningService {
+class SisteTpOrdningNavService : SisteTpOrdningService {
     override fun finnSisteOrdningKandidater(tpOrdninger: List<TpForhold>): List<String> {
         return tpOrdninger
             .sortedWith(

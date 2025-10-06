@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
 
-data class SPKSimulerTjenestepensjonResponse(
+data class SpkSimulerTjenestepensjonResponse(
     val inkludertOrdningListe: List<InkludertOrdning>,
     val utbetalingListe: List<Utbetaling>,
     val aarsakIngenUtbetaling: List<AarsakIngenUtbetaling>,

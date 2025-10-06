@@ -2,15 +2,15 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.FinnSisteTpOrdningNavService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningNavService
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import java.time.LocalDate
 
-class FinnSisteTpOrdningNavServiceTest : FunSpec({
-    val finnSisteTpOrdningNavService = FinnSisteTpOrdningNavService()
+class SisteTpOrdningNavServiceTest : FunSpec({
+    val sisteTpOrdningNavService = SisteTpOrdningNavService()
 
     test("finn siste ordning fra tom liste returnerer tom liste") {
-        finnSisteTpOrdningNavService.finnSisteOrdningKandidater(emptyList()) shouldBe emptyList()
+        sisteTpOrdningNavService.finnSisteOrdningKandidater(emptyList()) shouldBe emptyList()
     }
 
     test("finn siste ordning sorterer med siste dato foerst") {
@@ -29,7 +29,7 @@ class FinnSisteTpOrdningNavServiceTest : FunSpec({
                 datoSistOpptjening = LocalDate.now().minusYears(3)
             )
         )
-        finnSisteTpOrdningNavService.finnSisteOrdningKandidater(tpOrdninger) shouldBe listOf("tpNr1", "tpNr2", "tpNr3")
+        sisteTpOrdningNavService.finnSisteOrdningKandidater(tpOrdninger) shouldBe listOf("tpNr1", "tpNr2", "tpNr3")
     }
 
     test("finn siste ordning returnerer tp-ordninger uten dato foerst") {
@@ -52,7 +52,7 @@ class FinnSisteTpOrdningNavServiceTest : FunSpec({
                 datoSistOpptjening = null
             )
         )
-        finnSisteTpOrdningNavService.finnSisteOrdningKandidater(tpOrdninger) shouldBe listOf("tpNr4", "tpNr1", "tpNr2", "tpNr3")
+        sisteTpOrdningNavService.finnSisteOrdningKandidater(tpOrdninger) shouldBe listOf("tpNr4", "tpNr1", "tpNr2", "tpNr3")
     }
 
     test("finn siste ordning tolererer flere tp-ordninger uten dato") {
@@ -67,7 +67,7 @@ class FinnSisteTpOrdningNavServiceTest : FunSpec({
                 datoSistOpptjening = null
             )
         )
-        finnSisteTpOrdningNavService.finnSisteOrdningKandidater(tpOrdninger) shouldBe listOf("tpNr4", "tpNr5")
+        sisteTpOrdningNavService.finnSisteOrdningKandidater(tpOrdninger) shouldBe listOf("tpNr4", "tpNr5")
     }
 
 })

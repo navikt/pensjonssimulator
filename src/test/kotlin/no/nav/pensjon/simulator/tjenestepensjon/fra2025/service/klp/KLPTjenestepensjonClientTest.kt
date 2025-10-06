@@ -21,10 +21,10 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KLPMapper.PROVIDER_FULLT_NAVN
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.PROVIDER_FULLT_NAVN
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.ArsakIngenUtbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.InkludertOrdning
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Utbetaling
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -82,7 +82,7 @@ class KLPTjenestepensjonClientFunSpec : FunSpec({
 
             val sammenligner = mockk<SammenlignAFPService>()
             every { sammenligner.sammenlignOgLoggAfp(any(), any()) } just Runs
-            val klpClient = KLPTjenestepensjonClientFra2025(
+            val klpClient = KlpTjenestepensjonClientFra2025(
                 baseUrl!!,
                 retryAttempts = "0",
                 webClientBuilder,
@@ -151,7 +151,7 @@ class KLPTjenestepensjonClientFunSpec : FunSpec({
             val sammenligner = mockk<SammenlignAFPService>()
             every { sammenligner.sammenlignOgLoggAfp(any(), any()) } just Runs
 
-            val klpClient = KLPTjenestepensjonClientFra2025(
+            val klpClient = KlpTjenestepensjonClientFra2025(
                 baseUrl!!,
                 retryAttempts = "0",
                 webClientBuilder,
@@ -177,7 +177,7 @@ class KLPTjenestepensjonClientFunSpec : FunSpec({
         val request = dummyRequest("1963-02-07", brukerBaOmAfp = true)
         val tpNummer = "3100"
 
-        val mockExpectedResponse = KLPTjenestepensjonClientFra2025.provideMockResponse(request)
+        val mockExpectedResponse = KlpTjenestepensjonClientFra2025.provideMockResponse(request)
 
         server!!.enqueue(MockResponse().setResponseCode(500))
 
@@ -188,7 +188,7 @@ class KLPTjenestepensjonClientFunSpec : FunSpec({
 
             val sammenligner = mockk<SammenlignAFPService>()
             every { sammenligner.sammenlignOgLoggAfp(any(), any()) } just Runs
-            val klpClient = KLPTjenestepensjonClientFra2025(
+            val klpClient = KlpTjenestepensjonClientFra2025(
                 baseUrl!!,
                 retryAttempts = "0",
                 webClientBuilder,
@@ -230,7 +230,7 @@ class KLPTjenestepensjonClientFunSpec : FunSpec({
 
     private companion object {
         private const val SIMULER_PATH = "/api/oftp/simulering"
-        fun klpSimulerTjenestepensjonResponse() = KLPSimulerTjenestepensjonResponse(
+        fun klpSimulerTjenestepensjonResponse() = KlpSimulerTjenestepensjonResponse(
             inkludertOrdningListe = listOf(InkludertOrdning("995566")),
             utbetalingsListe = listOf(
                 Utbetaling(LocalDate.parse("2025-03-01"), 1, 12, "OAFP"),

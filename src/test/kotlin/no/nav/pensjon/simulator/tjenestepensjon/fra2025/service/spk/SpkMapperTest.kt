@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class SPKMapperTest {
+class SpkMapperTest {
     @Test
     fun mapToResponse() {
-        val resp = SPKSimulerTjenestepensjonResponse(
+        val resp = SpkSimulerTjenestepensjonResponse(
             listOf(InkludertOrdning("3010")),
             listOf(
                 Utbetaling(LocalDate.of(2025, 2, 1), listOf(Delytelse("BTP", 141), Delytelse("PAASLAG", 268))),
@@ -19,7 +19,7 @@ class SPKMapperTest {
             listOf(AarsakIngenUtbetaling("IKKE_STOETTET", "Ikke stoettet", "SAERALDERSPAASLAG"))
         )
 
-        val result = SPKMapper.mapToResponse(resp)
+        val result = SpkMapper.mapToResponse(resp)
 
         assertEquals(1, result.ordningsListe.size)
         assertEquals("3010", result.ordningsListe[0].tpNummer)
@@ -57,7 +57,7 @@ class SPKMapperTest {
             erApoteker = false
         )
 
-        val result: SPKSimulerTjenestepensjonRequest = SPKMapper.mapToRequest(request)
+        val result: SpkSimulerTjenestepensjonRequest = SpkMapper.mapToRequest(request)
 
         assertEquals("12345678901", result.personId)
         assertEquals(5, result.uttaksListe.size)
@@ -95,7 +95,7 @@ class SPKMapperTest {
             erApoteker = false
         )
 
-        val result: SPKSimulerTjenestepensjonRequest = SPKMapper.mapToRequest(request)
+        val result: SpkSimulerTjenestepensjonRequest = SpkMapper.mapToRequest(request)
 
         assertEquals("12345678901", result.personId)
         assertEquals(5, result.uttaksListe.size)
@@ -138,7 +138,7 @@ class SPKMapperTest {
             erApoteker = false
         )
 
-        val result: SPKSimulerTjenestepensjonRequest = SPKMapper.mapToRequest(request)
+        val result: SpkSimulerTjenestepensjonRequest = SpkMapper.mapToRequest(request)
 
         assertEquals("12345678901", result.personId)
         assertEquals(4, result.fremtidigInntektListe.size)
@@ -155,7 +155,7 @@ class SPKMapperTest {
 
     @Test
     fun `map response som er siste ordning`() {
-        val resp = SPKSimulerTjenestepensjonResponse(
+        val resp = SpkSimulerTjenestepensjonResponse(
             listOf(InkludertOrdning("3010")),
             listOf(
                 Utbetaling(LocalDate.of(2025, 2, 1), listOf(Delytelse("BTP", 141), Delytelse("PAASLAG", 268))),
@@ -164,14 +164,14 @@ class SPKMapperTest {
             listOf(AarsakIngenUtbetaling("IKKE_STOETTET", "Ikke stoettet", "SAERALDERSPAASLAG"))
         )
 
-        val result = SPKMapper.mapToResponse(resp)
+        val result = SpkMapper.mapToResponse(resp)
 
         assertTrue(result.erSisteOrdning)
     }
 
     @Test
     fun `map response som ikke er siste ordning`() {
-        val resp = SPKSimulerTjenestepensjonResponse(
+        val resp = SpkSimulerTjenestepensjonResponse(
             listOf(InkludertOrdning("3010")),
             listOf(
                 Utbetaling(LocalDate.of(2025, 2, 1), listOf(Delytelse("BTP", 141), Delytelse("PAASLAG", 268))),
@@ -180,7 +180,7 @@ class SPKMapperTest {
             listOf(AarsakIngenUtbetaling("IKKE_SISTE_ORDNING", "Ikke siste ordning", ""))
         )
 
-        val result = SPKMapper.mapToResponse(resp)
+        val result = SpkMapper.mapToResponse(resp)
 
         assertFalse(result.erSisteOrdning)
 

@@ -6,19 +6,19 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.FremtidigInntekt
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KLPYtelse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Uttak
 import java.time.LocalDate
 
-object KLPMapper {
+object KlpMapper {
 
     private val log = KotlinLogging.logger {}
     const val PROVIDER_FULLT_NAVN = "Kommunal Landspensjonskasse"
     const val ANNEN_TP_ORDNING_BURDE_SIMULERE = "IKKE_SISTE_ORDNING"
 
-    fun mapToRequest(request: SimulerOffentligTjenestepensjonFra2025SpecV1): KLPSimulerTjenestepensjonRequest {
+    fun mapToRequest(request: SimulerOffentligTjenestepensjonFra2025SpecV1): KlpSimulerTjenestepensjonRequest {
         val fremtidigInntektsListe = mutableListOf(
             opprettNaaverendeInntektFoerUttak(request)
         )
@@ -31,7 +31,7 @@ object KLPMapper {
             } ?: emptyList()
         )
 
-        return KLPSimulerTjenestepensjonRequest(
+        return KlpSimulerTjenestepensjonRequest(
             personId = request.pid,
             uttaksListe = listOf(
                 Uttak(
@@ -52,9 +52,7 @@ object KLPMapper {
         arligInntekt = request.sisteInntekt
     )
 
-    private fun aarUtenRegistrertInntektHosSkatteetaten(): LocalDate = LocalDate.now().minusYears(2).withDayOfYear(1)
-
-    fun mapToResponse(response: KLPSimulerTjenestepensjonResponse, dto: KLPSimulerTjenestepensjonRequest? = null): SimulertTjenestepensjon {
+    fun mapToResponse(response: KlpSimulerTjenestepensjonResponse, dto: KlpSimulerTjenestepensjonRequest? = null): SimulertTjenestepensjon {
         log.info { "Mapping response from KLP $response" }
         return SimulertTjenestepensjon(
             tpLeverandoer = PROVIDER_FULLT_NAVN,

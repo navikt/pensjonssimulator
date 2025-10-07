@@ -19,3 +19,5 @@ spec:
         paths:
           - path: /pensjonssimulator/
             pathType: ImplementationSpecific
+          - path: /simuler/alderspensjon/
+            pathType: ImplementationSpecific

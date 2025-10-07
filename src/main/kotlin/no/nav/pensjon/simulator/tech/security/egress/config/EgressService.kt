@@ -51,6 +51,6 @@ enum class EgressService(
     AFP_BEHOLDNING_API(
         description = "AFP Beholdning API",
         shortName = "AFP-BEHOLDNING-API",
-        purpose = "Hente simulert AFP-beholdninger"
+        purpose = "Hente simulerte AFP-beholdninger"
     ),
 }

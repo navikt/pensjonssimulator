@@ -92,6 +92,8 @@ spec:
           namespace: pensjonsamhandling
           cluster: prod-fss
         - application: tjenestepensjon-simulering
+        - application: pensjon-opptjening-afp-api
+          namespace: pensjonopptjening
       external:
         - host: maskinporten.no
         - host: pdl-api.prod-fss-pub.nais.io
@@ -118,6 +120,10 @@ spec:
       value: prod-fss:pensjonopptjening:pensjon-popp
     - name: POPP_URL
       value: https://pensjon-popp.prod-fss-pub.nais.io
+    - name: PENSJON_OPPTJENING_AFP_API_SERVICE_ID
+      value: prod-gcp:pensjonopptjening:pensjon-opptjening-afp-api
+    - name: PENSJON_OPPTJENING_AFP_API_URL
+      value: http://pensjon-opptjening-afp-api.pensjonopptjening
     - name: REGLER_URL
       value: https://pensjon-regler.prod-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID

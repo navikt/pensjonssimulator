@@ -125,6 +125,10 @@ spec:
       value: dev-fss:pensjonopptjening:pensjon-popp-q2
     - name: POPP_URL
       value: https://pensjon-popp-q2.dev-fss-pub.nais.io
+    - name: PENSJON_OPPTJENING_AFP_API_SERVICE_ID
+      value: dev-gcp:pensjonopptjening:pensjon-opptjening-afp-api
+    - name: PENSJON_OPPTJENING_AFP_API_URL
+      value: http://pensjon-opptjening-afp-api.pensjonopptjening
     - name: REGLER_URL
       value: https://pensjon-regler-q2.dev-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID

@@ -78,11 +78,15 @@ open class SecurityConfiguration {
         @Value("\${maskinporten.issuer}") issuer: String,
         @Value("\${ps.maskinporten.scope.1}") scope1: String,
         @Value("\${ps.maskinporten.scope.2}") scope2: String,
-        @Value("\${ps.maskinporten.scope.3}") scope3: String
+        @Value("\${ps.maskinporten.scope.3}") scope3: String,
+        @Value("\${ps.maskinporten.scope.4}") scope4: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
-                jwtDecoder(issuer, tokenValidator = TokenScopeValidator(listOf(scope1, scope2, scope3))),
+                jwtDecoder(
+                    issuer,
+                    tokenValidator = TokenScopeValidator(listOf(scope1, scope2, scope3, scope4))
+                ),
             )
         )
 

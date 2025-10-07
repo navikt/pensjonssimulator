@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -12,8 +12,8 @@ import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.Alderspensjo
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecV3
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.*
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
@@ -29,11 +29,7 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.time.format.DateTimeParseException
 
 /**
@@ -44,7 +40,7 @@ import java.time.format.DateTimeParseException
 @RestController
 @RequestMapping("api")
 @SecurityRequirement(name = "BearerAuthentication")
-class TpoAlderspensjonController(
+class SamhandlerAlderspensjonController(
     private val service: AlderspensjonService,
     private val simulatorCore: SimulatorCore,
     private val specMapper: AlderspensjonSpecMapperV3,
@@ -58,7 +54,8 @@ class TpoAlderspensjonController(
     @PostMapping("v3/simuler-alderspensjon")
     @Operation(
         summary = "Simuler alderspensjon for tjenestepensjonsordning (V3)",
-        description = "Lager en prognose for utbetaling av alderspensjon (versjon 3 av tjenesten).",
+        description = "Lager en prognose for utbetaling av alderspensjon (versjon 3 av tjenesten)." +
+                "\\\n\\\n*Scope*: **nav:pensjon/v3/alderspensjon**"
     )
     @ApiResponses(
         value = [
@@ -68,26 +65,31 @@ class TpoAlderspensjonController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
-                        " (1) helt uttak ikke etter gradert uttak," +
-                        " (2) inntekt ikke 1. i måneden," +
-                        " (3) inntekter har lik startdato, " +
-                        " (4) negativ inntekt."
+                description = "Simulering kunne ikke utføres pga. uakseptable inndata. Det kan være:" +
+                        "\\\n(1) helt uttak ikke etter gradert uttak," +
+                        "\\\n(2) inntekt ikke 1. i måneden," +
+                        "\\\n(3) inntekter har lik startdato, " +
+                        "\\\n(4) negativ inntekt."
             )
         ]
     )
-    fun simulerAlderspensjonV3(@RequestBody specV3: AlderspensjonSpecV3): AlderspensjonResultV3 {
+    fun simulerAlderspensjonV3(
+        @RequestBody specV3: AlderspensjonSpecV3,
+        request: HttpServletRequest
+    ): AlderspensjonResultV3 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
 
         return try {
             val spec: SimuleringSpec = specMapper.fromDtoV3(specV3)
+            request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
+            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid!!)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
 
             resultMapper.map(
                 simuleringResult = result,
-                pid = spec.pid!!,
+                pid = spec.pid,
                 foersteUttakFom = spec.foersteUttakDato,
                 heltUttakFom = spec.heltUttakDato
             ).also {
@@ -161,8 +163,11 @@ class TpoAlderspensjonController(
 
     @PostMapping("v4/simuler-alderspensjon")
     @Operation(
-        summary = "Simuler alderspensjon",
-        description = "Lager en prognose for utbetaling av alderspensjon.",
+        summary = "Simuler alderspensjon for personer født i 1963 eller senere.",
+        description = "Lager en prognose for utbetaling av alderspensjon for personer født i 1963 eller senere." +
+                "\\\n\\\n*Scope*:" +
+                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
+                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
     )
     @ApiResponses(
         value = [
@@ -172,11 +177,11 @@ class TpoAlderspensjonController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
-                        " (1) helt uttak ikke etter gradert uttak," +
-                        " (2) inntekt ikke 1. i måneden," +
-                        " (3) inntekter har lik startdato, " +
-                        " (4) negativ inntekt."
+                description = "Simulering kunne ikke utføres pga. uakseptable inndata. Det kan være:" +
+                        "\\\n(1) helt uttak ikke etter gradert uttak," +
+                        "\\\n(2) inntekt ikke 1. i måneden," +
+                        "\\\n(3) inntekter har lik startdato, " +
+                        "\\\n(4) negativ inntekt."
             )
         ]
     )

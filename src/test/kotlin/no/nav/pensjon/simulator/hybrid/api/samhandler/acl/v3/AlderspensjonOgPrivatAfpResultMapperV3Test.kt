@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3
+package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -21,13 +21,13 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
         AlderspensjonOgPrivatAfpResultMapperV3(
             personService = mockk(relaxed = true),
             time = mockk(relaxed = true)
-        ).map(
+        ).toDto(
             simuleringResult = SimulatorOutput(),
             pid
         ) shouldBe AlderspensjonOgPrivatAfpResultV3(
             alderspensjonsperioder = emptyList(),
             privatAfpPerioder = emptyList(),
-            harUttak = false,
+            harNaavaerendeUttak = false,
             harTidligereUttak = false
         )
     }
@@ -36,7 +36,7 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
         val result = AlderspensjonOgPrivatAfpResultMapperV3(
             personService = mockk(relaxed = true),
             time = mockk<Time>().apply { every { today() } returns today }
-        ).map(
+        ).toDto(
             simuleringResult = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     uttakGradListe = listOf(
@@ -51,7 +51,7 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
         )
 
         with(result) {
-            harUttak shouldBe true
+            harNaavaerendeUttak shouldBe true
             harTidligereUttak shouldBe false
         }
     }
@@ -60,7 +60,7 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
         val result = AlderspensjonOgPrivatAfpResultMapperV3(
             personService = mockk(relaxed = true),
             time = mockk<Time>().apply { every { today() } returns today }
-        ).map(
+        ).toDto(
             simuleringResult = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     uttakGradListe = listOf(
@@ -82,7 +82,7 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
         )
 
         with(result) {
-            harUttak shouldBe false
+            harNaavaerendeUttak shouldBe false
             harTidligereUttak shouldBe true
         }
     }
@@ -91,7 +91,7 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
         val result = AlderspensjonOgPrivatAfpResultMapperV3(
             personService = mockk(relaxed = true),
             time = mockk(relaxed = true)
-        ).map(
+        ).toDto(
             simuleringResult = SimulatorOutput().apply {
                 privatAfpPeriodeListe.add(PrivatAfpPeriode(alderAar = 64, aarligBeloep = 1))
                 privatAfpPeriodeListe.add(PrivatAfpPeriode(alderAar = 65, aarligBeloep = 2))
@@ -103,11 +103,11 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : FunSpec({
             size shouldBe 2
             with(this[0]) {
                 alder shouldBe 64
-                belop shouldBe 1
+                beloep shouldBe 1
             }
             with(this[1]) {
                 alder shouldBe 65
-                belop shouldBe 2
+                beloep shouldBe 2
             }
         }
     }

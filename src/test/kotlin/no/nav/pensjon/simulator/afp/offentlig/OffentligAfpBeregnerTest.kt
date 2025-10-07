@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpResult
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpService
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpFoerstegangBeregner
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpResult

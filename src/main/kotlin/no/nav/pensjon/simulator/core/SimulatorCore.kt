@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpBeregner
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR

@@ -19,7 +19,8 @@ open class OpenApiConfiguration {
             .info(
                 Info()
                     .title("Pensjonssimulator API")
-                    .description("For å kunne bruke tjenestene må scope i autentiseringen mot Maskinporten settes til nav:pensjonssimulator:simulering (hvis delegering ikke brukes) eller nav:pensjon/simulering.read (hvis delegering brukes). Dette er simuleringstjenester for tjenestepensjonsordninger i offentlig sektor, og benyttes for å kunne simulere alderspensjon fra folketrygden for brukere med tjenestepensjonsforhold.")
+                    .description("Tjenester for simulering av pensjon (prognose for pensjonsutbetaling).\\\n" +
+                            "Klienter må autentisere seg via Maskinporten – se hver enkelt tjeneste for hvilket *scope* som skal brukes.")
                     .version("v1.1.0")
             ).components(
                 Components()
@@ -30,7 +31,7 @@ open class OpenApiConfiguration {
                             .type(SecurityScheme.Type.HTTP)
                             .scheme("bearer")
                             .bearerFormat("JWT")
-                            .description("Nav-intern informasjon: For å anskaffe et token i dev kan du bruke https://pensjon-maskinporten-test.intern.dev.nav.no/")
+                            .description("Nav-intern informasjon:\\\nFor å anskaffe et token i dev kan du bruke [pensjon-maskinporten-test](https://pensjon-maskinporten-test.intern.dev.nav.no/)")
                     )
             )
 }

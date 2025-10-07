@@ -39,7 +39,10 @@ class BeholdningController(
     @PostMapping("v1/simuler-folketrygdbeholdning")
     @Operation(
         summary = "Simuler folketrygdbeholdning",
-        description = "Lager en prognose for pensjonsbeholdning i folketrygden",
+        description = "Lager en prognose for pensjonsbeholdning i folketrygden." +
+                "\\\n\\\n*Scope*:" +
+                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
+                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
     )
     @ApiResponses(
         value = [

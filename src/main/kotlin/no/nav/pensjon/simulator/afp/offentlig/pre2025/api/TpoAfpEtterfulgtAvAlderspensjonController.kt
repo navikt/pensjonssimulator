@@ -47,7 +47,10 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
     @PostMapping("v0/simuler-afp-etterfulgt-av-alderspensjon")
     @Operation(
         summary = "Simuler AFP etterfulgt av alderspensjon",
-        description = "Lager en prognose for utbetaling av AFP etterfulgt av alderspensjon.",
+        description = "Lager en prognose for utbetaling av avtalefestet pensjon (AFP) i offentlig sektor, etterfulgt av alderspensjon." +
+                "\\\n\\\n*Scope*:" +
+                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
+                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
     )
     @ApiResponses(
         value = [

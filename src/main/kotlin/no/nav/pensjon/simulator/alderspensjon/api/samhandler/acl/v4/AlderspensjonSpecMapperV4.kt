@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4
 
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.GradertUttakSpec
@@ -9,11 +9,15 @@ import no.nav.pensjon.simulator.tech.web.BadRequestException
 import java.time.LocalDate
 
 /**
- * Maps from V4 data transfer objects (received from the API)
- * to domain objects that represent specification for 'simuler alderspensjon'
+ * Anti-corruption layer (ACL).
+ * Maps from version 4 of the externally constrained data transfer object to the 'free' internal domain object.
+ * The object represents a specification for the 'simuler alderspensjon' service.
  */
 object AlderspensjonSpecMapperV4 {
 
+    /**
+     * Takes a specification in the form of a data transfer object (DTO) and maps it to a domain object.
+     */
     fun fromDto(source: AlderspensjonSpecV4) =
         AlderspensjonSpec(
             pid = source.personId?.let(::Pid) ?: missing("personId"),

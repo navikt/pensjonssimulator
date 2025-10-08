@@ -48,6 +48,18 @@ enum class EgressService(
         shortName = "TP-S",
         purpose = "Simulere offentlig tjenestepensjon"
     ),
+    SPK(
+        description = "Statens Pensjonskasse",
+        shortName = "SPK",
+        purpose = "Simulere offentlig tjenestepensjon",
+        authType = AuthType.MACHINE_OUTSIDE_NAV
+    ),
+    KLP(
+        description = "Kommunal Landspensjonskasse",
+        shortName = "KLP",
+        purpose = "Simulere offentlig tjenestepensjon",
+        authType = AuthType.MACHINE_OUTSIDE_NAV
+    ),
     AFP_BEHOLDNING_API(
         description = "AFP Beholdning API",
         shortName = "AFP-BEHOLDNING-API",

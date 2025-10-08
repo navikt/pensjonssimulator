@@ -47,27 +47,42 @@ spec:
   maskinporten:
     enabled: true
     scopes:
+      consumes:
+        - name: "spk:nav"
+        - name: "klp:oftp/simulering"
       exposes:
         - name: "simulering"
           enabled: true
           product: "pensjonssimulator"
           consumers:
-            - orgno: "889640782" # Nav (NB: dev only)
-            - orgno: "916833520" # Gabler Pensjonstjenester
-            - orgno: "938708606" # KLP
-            - orgno: "982759412" # Oslo Pensjonsforsikring
-            - orgno: "982583462" # SPK
-            - orgno: "931936492" # Storebrand Pensjonstjenester
+            - name: Nav # NB: dev only
+              orgno: "889640782"
+            - name: Gabler Pensjonstjenester
+              orgno: "916833520"
+            - name: KLP
+              orgno: "938708606"
+            - name: Oslo Pensjonsforsikring
+              orgno: "982759412"
+            - name: SPK
+              orgno: "982583462"
+            - name: Storebrand Livsforsikring
+              orgno: "958995369"
+            - name: Storebrand Pensjonstjenester
+              orgno: "931936492"
         - name: simulering.read
           enabled: true
           product: pensjon
           separator: "/"
           delegationSource: altinn
           consumers:
-            - orgno: "889640782" # Nav (NB: dev only)
-            - orgno: "927613298" # Aksio
-            - orgno: "940380014" # Arendal kommunale pensjonskasse
-            - orgno: "980650383" # Drammen kommunale pensjonskasse
+            - name: Nav # NB: dev only
+              orgno: "889640782"
+            - name: Aksio
+              orgno: "927613298"
+            - name: Arendal kommunale pensjonskasse
+              orgno: "940380014"
+            - name: Drammen kommunale pensjonskasse
+              orgno: "980650383"
   accessPolicy:
     inbound:
       rules:
@@ -98,6 +113,7 @@ spec:
         - host: pensjon-selvbetjening-fss-gateway-q1.dev-fss-pub.nais.io
         - host: tp-api-q1.dev-fss-pub.nais.io
         - host: pensjonskalkulator-unleash-api.nav.cloud.nais.io
+        - host: api.test.spk.no
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: dev-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway-q1
@@ -117,6 +133,14 @@ spec:
       value: dev-fss:pensjonsamhandling:tp-q1
     - name: TJENESTEPENSJON_URL
       value: https://tp-api-q1.dev-fss-pub.nais.io
+    - name: SPK_STILLINGSPROSENT_PRE_2025_URL
+      value: https://partner-gw.test.spk.no/nav/SimulereTjenestepensjon
+    - name: SPK_TP_SIMULERING_PRE_2025_URL
+      value: https://api.test.spk.no
+    - name: SPK_TP_SIMULERING_FRA_2025_URL
+      value: https://api.test.spk.no
+    - name: KLP_TP_SIMULERING_FRA_2025_URL
+      value: https://api-test.klp.no
     - name: STDOUT_LOG_OUTPUT
       value: JSON
     - name: PS_LOGGING_LEVEL

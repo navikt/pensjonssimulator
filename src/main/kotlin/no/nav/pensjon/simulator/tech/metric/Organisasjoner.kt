@@ -14,9 +14,18 @@ object Organisasjoner {
             "938708606" to "KLP", // Kommunal Landspensjonskasse
             "982759412" to "OPF", // Oslo Pensjonsforsikring
             "982583462" to "SPK", // Statens pensjonskasse
-            "931936492" to "Stb"  // Storebrand Pensjonstjenester
+            "958995369" to "StL", // Storebrand Livsforsikring
+            "931936492" to "StP"  // Storebrand Pensjonstjenester
         )
 
     fun navn(organisasjonsnummer: Organisasjonsnummer): String =
         organisasjonNavnForNummer[organisasjonsnummer.value] ?: "?$organisasjonsnummer"
+
+    val SPK: Organisasjonsnummer = organisasjonNavnForNummer
+        .entries.first { it.value.equals("SPK", ignoreCase = true) }
+        .let { Organisasjonsnummer(it.key) }
+
+    val KLP: Organisasjonsnummer = organisasjonNavnForNummer
+        .entries.first { it.value.equals("KLP", ignoreCase = true) }
+        .let { Organisasjonsnummer(it.key) }
 }

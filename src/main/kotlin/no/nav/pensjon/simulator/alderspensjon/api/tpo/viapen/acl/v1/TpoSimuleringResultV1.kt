@@ -13,7 +13,7 @@ data class TpoSimuleringResultV1(
 // SimulertAlderspensjonV1 in PEN
 data class TpoAlderspensjonV1(
     val pensjonsperiodeListe: List<TpoPensjonPeriodeV1>? = emptyList(),
-    // pensjonsbeholdningListe: V2, V3 only
+    // pensjonsbeholdningListe: V3 only
     // uttaksgradListe: V3 only
     // simulertBeregningsinformasjonListe: V3 only
 )
@@ -29,12 +29,12 @@ data class TpoPrivatAfpPeriodeV1(
 data class TpoPensjonPeriodeV1(
     val alder: Int? = null,
     val belop: Int? = null,
-    val simulertBeregningsinformasjonListe: List<TpoBeregningInformasjonV1>? = emptyList() // V1, V2 only
+    val simulertBeregningsinformasjonListe: List<TpoBeregningInformasjonV1>? = emptyList() // V1 only
 )
 
 // SimulertBeregningsinformasjonV1 in PEN
 data class TpoBeregningInformasjonV1(
-    val startMnd: Int? = null, // V1, V2 only
+    val startMnd: Int? = null, // V1 only
     val uttaksgrad: Double? = null
     // datoFom, delytelser, simuleringsdata: V3 only
 )

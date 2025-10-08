@@ -31,6 +31,7 @@ import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
+import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
@@ -60,6 +61,7 @@ class SimulatorCore(
 
     // AbstraktSimulerAPFra2011Command.execute + overrides in SimulerFleksibelAPCommand & SimulerAFPogAPCommand & SimulerEndringAvAPCommand
     override fun simuler(initialSpec: SimuleringSpec): SimulatorOutput {
+        Metrics.countSimuleringstype(type = initialSpec.type.toString())
         val gjelderEndring = initialSpec.gjelderEndring()
 
         if (gjelderEndring) {

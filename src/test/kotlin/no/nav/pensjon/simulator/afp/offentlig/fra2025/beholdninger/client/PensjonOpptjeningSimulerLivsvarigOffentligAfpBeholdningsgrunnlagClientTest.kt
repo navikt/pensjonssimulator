@@ -1,22 +1,19 @@
 package no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.krav.client.pen.PenKravClient
-import no.nav.pensjon.simulator.krav.client.pen.PenKravhodeResponse
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.intellij.lang.annotations.Language
 import org.springframework.boot.autoconfigure.AutoConfigurations
 import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
 import org.springframework.boot.test.context.runner.ApplicationContextRunner
-import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -24,7 +21,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.reactive.function.client.WebClient
-import java.util.Calendar
+import java.time.LocalDate
 
 class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClientTest : FunSpec({
     var server: MockWebServer? = null
@@ -57,29 +54,89 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClientTest
         server!!.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setResponseCode(HttpStatus.OK.value()).setBody(PenKravhodeResponse.KRAVHODE)
+                .setResponseCode(HttpStatus.OK.value()).setBody(AfpBeholdingAPIResponse.BEHOLDNINGER)
         )
 
         contextRunner.run {
             val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenKravClient(
+            val client = PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
                 baseUrl!!,
                 retryAttempts = "0",
+                traceAid = mockk(relaxed = true),
                 webClientBuilder,
-                cacheManager = CaffeineCacheManager(),
-                traceAid = mockk(relaxed = true)
             )
 
-            val result: Kravhode = client.fetchKravhode(123L)
+            val result: List<SimulerLivsvarigOffentligAfpBeholdningsperiode> = client.simulerAfpBeholdningGrunnlag(
+                LivsvarigOffentligAfpSpec(
+                    pid = Pid("12345678901"),
+                    foedselsdato = LocalDate.now(),
+                    fom = LocalDate.parse("2035-02-01"),
+                    fremtidigInntektListe = emptyList(),
+                )
+            )
 
-            result.persongrunnlagListe.size shouldBe 1
-            with(result.persongrunnlagListe[0]) {
-                personDetaljListe.size shouldBe 1
-                personDetaljListe[0].bruk shouldBe true
-                fodselsdato shouldBe dateAtNoon(year = 1974, zeroBasedMonth = Calendar.MARCH, day = 30)
+            result.size shouldBe 2
+            with(result[0]) {
+                pensjonsbeholdning shouldBe 123456
+                fom shouldBe LocalDate.parse("2035-02-01")
             }
-            result.kravlinjeListe.size shouldBe 1
-            result.kravlinjeListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.UT
+            with(result[1]) {
+                pensjonsbeholdning shouldBe 199999
+                fom shouldBe LocalDate.parse("2036-01-01")
+            }
         }
     }
+
+    test("haandterer tom response fra afp-opptjening-api ") {
+        val contextRunner = ApplicationContextRunner().withConfiguration(
+            AutoConfigurations.of(WebClientAutoConfiguration::class.java)
+        )
+
+        server!!.enqueue(
+            MockResponse()
+                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .setResponseCode(HttpStatus.OK.value()).setBody("{\"afpBeholdningsgrunnlag\": [] }")
+        )
+
+        contextRunner.run {
+            val webClientBuilder = it.getBean(WebClient.Builder::class.java)
+            val client = PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
+                baseUrl!!,
+                retryAttempts = "0",
+                traceAid = mockk(relaxed = true),
+                webClientBuilder,
+            )
+
+            val result: List<SimulerLivsvarigOffentligAfpBeholdningsperiode> = client.simulerAfpBeholdningGrunnlag(
+                LivsvarigOffentligAfpSpec(
+                    pid = Pid("12345678901"),
+                    foedselsdato = LocalDate.now(),
+                    fom = LocalDate.parse("2035-02-01"),
+                    fremtidigInntektListe = emptyList(),
+                )
+            )
+
+            result.size shouldBe 0
+        }
+    }
+
 })
+
+object AfpBeholdingAPIResponse {
+
+    @Language("json")
+    const val BEHOLDNINGER = """
+{
+  "afpBeholdningsgrunnlag": [
+    {
+      "fraOgMedDato": "2035-02-01",
+      "belop": 123456
+    },
+    {
+      "fraOgMedDato": "2036-01-01",
+      "belop": 199999
+    }
+  ]
+}
+    """
+}

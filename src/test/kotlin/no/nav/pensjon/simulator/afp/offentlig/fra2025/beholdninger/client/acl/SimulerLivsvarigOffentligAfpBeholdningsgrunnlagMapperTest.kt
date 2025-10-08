@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerAfpOffentligLivsvarigBeholdningsperiode
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
@@ -57,7 +57,7 @@ class SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapperTest : FunSpec({
             )
         )
 
-        val periods: List<SimulerAfpOffentligLivsvarigBeholdningsperiode> =
+        val periods: List<SimulerLivsvarigOffentligAfpBeholdningsperiode> =
             SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto(response)
 
         periods shouldHaveSize 2

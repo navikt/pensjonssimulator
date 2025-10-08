@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerAfpOffentligLivsvarigBeholdningsperiode
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto
@@ -36,25 +36,17 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
 
     override fun simulerAfpBeholdningGrunnlag(
         spec: LivsvarigOffentligAfpSpec
-    ): List<SimulerAfpOffentligLivsvarigBeholdningsperiode> {
+    ): List<SimulerLivsvarigOffentligAfpBeholdningsperiode> {
+        val uri = "/api/simuler"
+
         return try {
             afpBeholdningWebClient.post()
-                .uri("/api/simuler")
+                .uri(uri)
                 .headers(::setHeaders)
                 .bodyValue(toDto(spec))
                 .retrieve()
                 .toEntity<SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult>()
-                .retryWhen(
-                    Retry.backoff(4, Duration.ofSeconds(2))
-                        .maxBackoff(Duration.ofSeconds(10))
-                        .jitter(0.3) // 30% tilfeldig forsinkelse
-                        .doBeforeRetry { retrySignal ->
-                            log.warn {
-                                "Retrying henting av AFP Beholdninger due to: ${retrySignal.failure().message}, attempt: ${retrySignal.totalRetries() + 1}"
-                            }
-                        }
-                        .onRetryExhaustedThrow { _, _ -> RuntimeException("Failed to get AFP Beholdninger after all retries") }
-                )
+                .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.body?.let { fromDto(it) }
                 ?: emptyList()

@@ -38,8 +38,7 @@ class LivsvarigOffentligAfpBeregningService(val simulerAfpBeholdningGrunnlag: Si
                     delingstallListe.first { dt -> it.alderForDelingstall.alder.let { alder -> alder.aar == dt.alder.aar && alder.maaneder == dt.alder.maaneder } }.delingstall
                 )
             }
-        log.info { "Request for beregning av AFP: ${request.fremtidigInntektListe}\n" +
-                "${request.fom}" }
+        log.info { "Request for beregning av AFP: ${request.fremtidigInntektListe} fom:${request.fom}" }
         log.info { "Beregningsgrunnlag for AFP: $beregningsgrunnlag" }
 
         val afpoffentligYtelser = LivsvarigOffentligAfpYtelseBeregner.beregnYtelser(beregningsgrunnlag)

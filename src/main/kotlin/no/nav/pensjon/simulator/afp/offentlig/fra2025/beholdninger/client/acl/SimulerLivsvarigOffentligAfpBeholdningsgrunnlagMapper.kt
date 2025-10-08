@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl
 
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerAfpOffentligLivsvarigBeholdningsperiode
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
 
 object SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper {
 
@@ -12,8 +12,8 @@ object SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper {
             spec.fremtidigInntektListe.map { Inntektsperiode(it.fom, it.aarligBeloep) })
 
 
-    fun fromDto(response: SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult): List<SimulerAfpOffentligLivsvarigBeholdningsperiode> =
+    fun fromDto(response: SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult): List<SimulerLivsvarigOffentligAfpBeholdningsperiode> =
         response.afpBeholdningsgrunnlag.map {
-            SimulerAfpOffentligLivsvarigBeholdningsperiode(it.belop, it.fraOgMedDato)
+            SimulerLivsvarigOffentligAfpBeholdningsperiode(it.belop, it.fraOgMedDato)
         }
 }

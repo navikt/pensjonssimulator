@@ -58,6 +58,13 @@ data class Alder(val aar: Int, val maaneder: Int) {
             Alder(aar = alderAar, maaneder = alderMaaneder)
     }
 
+    override fun toString(): String =
+        when (maaneder) {
+            0 -> "$aar år"
+            1 -> "$aar år 1 måned"
+            else -> "$aar år $maaneder måneder"
+        }
+
     companion object {
 
         /**

@@ -17,7 +17,7 @@ spec:
     hosts:
       - host: pensjon-gw.ekstern.dev.nav.no
         paths:
-          - path: /pensjonssimulator/
-            pathType: ImplementationSpecific
           - path: /simuler/alderspensjon/
+            pathType: ImplementationSpecific
+          - path: /pensjonssimulator/
             pathType: ImplementationSpecific

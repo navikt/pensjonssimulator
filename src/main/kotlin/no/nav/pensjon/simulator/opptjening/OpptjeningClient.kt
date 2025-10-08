@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.opptjening
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.client.tpsim.TpSimuleringLivsvarigOffentligAfpClient
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.opptjening.dto.OpptjeningsgrunnlagExtractor

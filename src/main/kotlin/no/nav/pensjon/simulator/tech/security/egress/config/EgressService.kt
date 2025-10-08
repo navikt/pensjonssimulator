@@ -43,11 +43,6 @@ enum class EgressService(
         shortName = "TP",
         purpose = "Hente tjenestepensjonsforhold"
     ),
-    TJENESTEPENSJON_SIMULERING(
-        description = "Tjenestepensjon-simulering",
-        shortName = "TP-S",
-        purpose = "Simulere offentlig tjenestepensjon"
-    ),
     SPK(
         description = "Statens Pensjonskasse",
         shortName = "SPK",

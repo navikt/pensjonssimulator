@@ -23,7 +23,7 @@ class LivsvarigOffentligAfpGrunnlagService(private val grunnbeloepService: Grunn
 
     private fun grunnlag(ytelse: LivsvarigOffentligAfpYtelseMedDelingstall) =
         AfpOffentligLivsvarigGrunnlag(
-            sistRegulertG = grunnbeloepService.naavaerendeGrunnbeloep(),//TODO get sistRegulertG from tjenestepensjon-simulering?
+            sistRegulertG = grunnbeloepService.naavaerendeGrunnbeloep(),
             bruttoPerAr = ytelse.afpYtelsePerAar,
             uttaksdato = ytelse.gjelderFom
             // virkTom only relevant for innvilget AFP

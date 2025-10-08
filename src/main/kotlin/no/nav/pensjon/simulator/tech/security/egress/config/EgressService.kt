@@ -60,4 +60,9 @@ enum class EgressService(
         purpose = "Simulere offentlig tjenestepensjon",
         authType = AuthType.MACHINE_OUTSIDE_NAV
     ),
+    AFP_BEHOLDNING_API(
+        description = "AFP Beholdning API",
+        shortName = "AFP-BEHOLDNING-API",
+        purpose = "Hente simulerte AFP-beholdninger"
+    ),
 }

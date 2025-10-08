@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.out
 
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
 
 data class OutputPensjon(
     val alderspensjon: List<OutputAlderspensjon>,

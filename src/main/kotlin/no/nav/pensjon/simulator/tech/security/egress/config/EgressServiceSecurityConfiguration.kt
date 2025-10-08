@@ -21,6 +21,7 @@ open class EgressServiceSecurityConfiguration {
         @Value("\${ps.popp.service-id}") opptjeningServiceId: String,
         @Value("\${ps.maskinporten.consume.spk.scope}") spkServiceId: String,
         @Value("\${ps.maskinporten.consume.klp.scope}") klpServiceId: String,
+        @Value("\${ps.pensjon-opptjening-afp-api.service-id}") pensjonOpptjeningAfpApiServiceId: String,
     ) =
         EgressServicesByAudience(
             mapOf(
@@ -32,6 +33,7 @@ open class EgressServiceSecurityConfiguration {
                 opptjeningServiceId to EgressService.PENSJONSOPPTJENING,
                 spkServiceId to EgressService.SPK,
                 klpServiceId to EgressService.KLP,
+                pensjonOpptjeningAfpApiServiceId to EgressService.AFP_BEHOLDNING_API
             )
         )
 

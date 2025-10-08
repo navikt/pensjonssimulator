@@ -95,4 +95,6 @@ interface RegelClient {
     fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse
 
     fun regulerPensjonsbeholdning(request: RegulerPensjonsbeholdningRequest): RegulerPensjonsbeholdningResponse
+
+    fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse
 }

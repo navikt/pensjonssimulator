@@ -16,6 +16,7 @@ spec:
       - nav:pensjonssimulator:simulering
       - nav:pensjon/simulering.read
       - nav:pensjon/simulering/alderspensjonogprivatafp
+      - nav:pensjon/v3/alderspensjon
   endpoints:
     - path: /pensjonssimulator/v0/simuler-afp-etterfulgt-av-alderspensjon
       method: POST
@@ -35,6 +36,17 @@ spec:
       backendHost: http://pensjonssimulator
       backendPath: /api/v3/simuler-alderspensjon-privat-afp
       timeout: 20s
+    - path: /simuler/alderspensjon/v3
+      method: POST
+      timeout: 60s
+      forwardHeaders:
+        - Authorization
+        - Content-Type
+        - X-Request-Id
+        - tp-nr
+        - hentFullAPListe
+      backendHost: http://pensjonssimulator
+      backendPath: /api/v3/simuler-alderspensjon
     - path: /pensjonssimulator/v4/simuler-alderspensjon
       method: POST
       forwardHeaders:
@@ -80,35 +92,3 @@ spec:
       method: GET
       backendHost: http://pensjonssimulator
       backendPath: /v3/api-docs
----
-apiVersion: krakend.nais.io/v1
-kind: ApiEndpoints
-metadata:
-  name: pensjonssimulator
-  namespace: pensjonskalkulator
-  labels:
-    team: pensjonskalkulator
-spec:
-  appName: pensjonssimulator
-  krakend: pensjonssimulator
-  auth:
-    name: maskinporten
-    cache: true
-    scopes:
-      - nav:pensjon/v3/alderspensjon
-  rateLimit:
-    maxRate: 400
-    clientMaxRate: 200
-    every: 60s
-  endpoints:
-    - path: /simuler/alderspensjon/v3
-      method: POST
-      timeout: 60s
-      forwardHeaders:
-        - Authorization
-        - Content-Type
-        - X-Request-Id
-        - tp-nr
-        - hentFullAPListe
-      backendHost: http://pensjonssimulator
-      backendPath: /api/v3/simuler-alderspensjon

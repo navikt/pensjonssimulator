@@ -69,6 +69,15 @@ spec:
               orgno: "958995369"
             - name: Storebrand Pensjonstjenester
               orgno: "931936492"
+        - name: simulering/alderspensjonogprivatafp
+          enabled: true
+          product: pensjon
+          separator: "/"
+          consumers:
+            - name: Nav # NB: dev only
+              orgno: "889640782"
+            - name: Norsk Pensjon
+              orgno: "890050212"
         - name: simulering.read
           enabled: true
           product: pensjon
@@ -83,6 +92,37 @@ spec:
               orgno: "940380014"
             - name: Drammen kommunale pensjonskasse
               orgno: "980650383"
+        - name: v3/alderspensjon
+          product: pensjon
+          enabled: true
+          allowedIntegrations:
+            - maskinporten
+          delegationSource: altinn
+          separator: /
+          atMaxAge: 120
+          consumers:
+            - name: Nav # NB: dev only
+              orgno: "889640782"
+            - name: Arendal kommunale pensjonskasse
+              orgno: "940380014"
+            - name: Drammen kommunale pensjonskasse
+              orgno: "980650383"
+            - name: Gabler Pensjonstjenester
+              orgno: "916833520"
+            - name: KLP
+              orgno: "938708606"
+            - name: Oslo Pensjonsforsikring
+              orgno: "982759412"
+            - name: Pensjonsordningen for apotekvirksomhet
+              orgno: "940291380"
+            - name: SPK
+              orgno: "982583462"
+            - name: Storebrand Livsforsikring
+              orgno: "958995369"
+            - name: Storebrand Pensjonstjenester
+              orgno: "931936492"
+            - name: Viken
+              orgno: "974358603"
   accessPolicy:
     inbound:
       rules:

@@ -1,10 +1,5 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler
 
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlderspensjonFraFolketrygden
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlternativ
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertDelytelse
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
 import no.nav.pensjon.simulator.alderspensjon.ForslagVedForLavOpptjening
@@ -13,13 +8,17 @@ import no.nav.pensjon.simulator.alderspensjon.PensjonDelytelse
 import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatus
 import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatusKode
 import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlderspensjonFraFolketrygden
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlternativ
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertDelytelse
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjon
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
 import java.time.LocalDate
 
 /**
- * Maps simuleringsresultat from core domain to TPO result domain.
- * TPO = tjenestepensjonsordning
+ * Maps result of 'simulering' from core domain to 'samhandler' domain.
  */
-object TpoAlderspensjonResultMapper {
+object SamhandlerAlderspensjonResultMapper {
 
     fun mapPensjonEllerAlternativ(
         source: SimulertPensjonEllerAlternativ?,

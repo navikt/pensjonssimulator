@@ -35,7 +35,7 @@ class UttaksdatoValidatorTest : FunSpec({
                 uttakFom = LocalDate.of(2030, 2, 1), // alder 60 år 0 måneder (mangler "noen timer" på 1 måned)
                 foedselsdato = LocalDate.of(1970, 1, 1)
             )
-        }.message shouldBe "uttakFom cannot be earlier than first month after user turns Alder(aar=62, maaneder=0)"
+        }.message shouldBe "uttakFom cannot be earlier than first month after user turns 62 år"
     }
 
     test("verifyUttakFom: uttakFom cannot be later than first month after user turns 75") {
@@ -47,7 +47,7 @@ class UttaksdatoValidatorTest : FunSpec({
                 uttakFom = LocalDate.of(2045, 3, 1), // alder 75 år 1 måned (mangler "noen timer" på 2 måneder)
                 foedselsdato = LocalDate.of(1970, 1, 1)
             )
-        }.message shouldBe "uttakFom cannot be later than first month after user turns Alder(aar=75, maaneder=0)"
+        }.message shouldBe "uttakFom cannot be later than first month after user turns 75 år"
     }
 
     test("verifyUttakFom: uttakFom must be after today") {

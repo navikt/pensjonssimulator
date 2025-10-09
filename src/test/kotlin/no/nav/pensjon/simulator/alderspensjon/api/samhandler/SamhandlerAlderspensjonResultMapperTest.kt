@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -8,10 +8,10 @@ import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import java.time.LocalDate
 
-class TpoAlderspensjonResultMapperTest : FunSpec({
+class SamhandlerAlderspensjonResultMapperTest : FunSpec({
 
     test("mapPensjonEllerAlternativ for null should resultere i tomt resultat") {
-        TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+        SamhandlerAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = null,
             angittFoersteUttakFom = LocalDate.of(2030, 1, 1),
             angittAndreUttakFom = null,
@@ -26,7 +26,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
     }
 
     test("mapPensjonEllerAlternativ for innvilget should return alderspensjon result") {
-        TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+        SamhandlerAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = SimulertPensjonEllerAlternativ(
                 SimulertPensjon(
                     alderspensjon = listOf(
@@ -107,7 +107,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
     }
 
     test("mapPensjonEllerAlternativ should return alle perioder when onlyIncludeEntriesForUttakDatoer = false") {
-        TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+        SamhandlerAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simulertPensjon(
                 datoFomAar1 = LocalDate.of(2031, 1, 1), // matches angittFoersteUttakFom
                 datoFomAar2 = LocalDate.of(2032, 1, 1) // no match with angittFoersteUttakFom/angittAndreUttakFom
@@ -136,7 +136,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
     }
 
     test("mapPensjonEllerAlternativ should plukke ut pensjon for første uttaksdato when onlyIncludeEntriesForUttakDatoer = true") {
-        TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+        SamhandlerAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simulertPensjon(
                 datoFomAar1 = LocalDate.of(2032, 1, 1), // matches angittFoersteUttakFom
                 datoFomAar2 = LocalDate.of(2033, 1, 1) // no match with angittFoersteUttakFom/angittAndreUttakFom
@@ -160,7 +160,7 @@ class TpoAlderspensjonResultMapperTest : FunSpec({
     }
 
     test("mapPensjonEllerAlternativ should plukke ut pensjon for begge uttaksdatoer når gradert when onlyIncludeEntriesForUttakDatoer = true") {
-        TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+        SamhandlerAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simulertPensjon(
                 alderspensjonFraFolketrygden = listOf(
                     SimulertAlderspensjonFraFolketrygden(

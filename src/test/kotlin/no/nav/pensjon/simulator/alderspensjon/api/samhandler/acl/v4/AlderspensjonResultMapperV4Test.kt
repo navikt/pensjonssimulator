@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

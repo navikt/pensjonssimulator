@@ -54,7 +54,7 @@ class AlderspensjonSpecValidatorV3(
         if (alder greaterThan oevreAlder)
             throw InvalidArgumentException(message = "$fieldName.datoFom kan ikke være etter måneden etter at personen oppnår $oevreAlder")
 
-        if (fom.isAfter( time.today()).not())
+        if (fom.isAfter(time.today()).not())
             throw InvalidArgumentException(message = "$fieldName.datoFom må være etter dagens dato")
     }
 

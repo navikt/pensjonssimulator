@@ -41,9 +41,21 @@ class AlderspensjonSpecValidatorV3Test : FunSpec({
                 normalderService = arrangeNormalder(), // nedre aldersgrense 62 år oppnås 2032-01-15
                 time = idag
             ).validate(
-                spec(uttakFom = LocalDate.of(2032, 1, 1)) // før 2032-01-15
+                spec(uttakFom = LocalDate.of(2032, 1, 1)) // før 2032-02-01
             )
         }.message shouldBe "forsteUttak.datoFom kan ikke være før måneden etter at personen oppnår 62 år"
+    }
+
+    test("start av første uttak kan ikke være etter måneden etter at personen oppnår øvre aldersgrense") {
+        shouldThrow<InvalidArgumentException> {
+            AlderspensjonSpecValidatorV3(
+                personService = Arrange.foedselsdato(1970, 1, 15),
+                normalderService = arrangeNormalder(), // øvre aldersgrense 75 år oppnås 2045-01-15
+                time = idag
+            ).validate(
+                spec(uttakFom = LocalDate.of(2045, 3, 1)) // etter 2045-02-01
+            )
+        }.message shouldBe "forsteUttak.datoFom kan ikke være etter måneden etter at personen oppnår 75 år"
     }
 
     test("start av første uttak må være etter dagens dato") {

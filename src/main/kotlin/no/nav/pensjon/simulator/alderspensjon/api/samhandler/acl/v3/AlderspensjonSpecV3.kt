@@ -14,13 +14,13 @@ import java.util.*
  */
 data class AlderspensjonSpecV3(
     val fnr: String, // required
-    val sivilstandVedPensjonering: SivilstatusSpecV3, // required
+    val sivilstandVedPensjonering: SivilstatusSpecV3, // required - NB: this is really 'sivilstatus'
     val forsteUttak: UttaksperiodeSpecV3, // required
-    val heltUttak: UttaksperiodeSpecV3? = null, //TODO verifyUttaksperiode, verifyForsteUttakAndHeltUttakCombination
-    val arIUtlandetEtter16: Int? = null,
-    val epsPensjon: Boolean? = null, //TODO required for GIFT/REPA/SAMB
-    val eps2G: Boolean? = null, //TODO required for GIFT/REPA/SAMB
-    val fremtidigInntektListe: List<InntektSpecV3>? = null, //TODO verifyFieldsInFremtidigInntekt
+    val heltUttak: UttaksperiodeSpecV3? = null,
+    val arIUtlandetEtter16: Int? = null, // note spelling
+    val epsPensjon: Boolean? = null,
+    val eps2G: Boolean? = null,
+    val fremtidigInntektListe: List<InntektSpecV3>? = null,
     val simulerMedAfpPrivat: Boolean? = null
 ) {
     override fun toString() = asRedactedJson()
@@ -43,7 +43,7 @@ data class AlderspensjonSpecV3(
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.FremtidigInntekt
  */
 data class InntektSpecV3(
-    val arligInntekt: Int, // required
+    val arligInntekt: Int, // required, note spelling
     @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val fomDato: Date // required
 ) {
     override fun toString() = asJson()
@@ -60,6 +60,7 @@ data class InntektSpecV3(
  * PEN: no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.UttaksperiodeV3
  */
 data class UttaksperiodeSpecV3(
+    // NB: Field name is 'datoFom' here, but 'fomDato' in InntektSpecV3
     @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val datoFom: Date, // required
     val grad: Int // required
 ) {

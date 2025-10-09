@@ -140,20 +140,35 @@ class SamhandlerAlderspensjonController(
         } catch (e: UtilstrekkeligTrygdetidException) {
             log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
             throw e
-            /* TODO ref. PEN DefaultSimulerePensjonProvider.simulerFleksibelAp
-        } catch (e: BrukerHarIkkeLopendeAlderspensjonException) {
-            handleExceptionV3(e)
-        } catch (e: BrukerHarLopendeAPPaGammeltRegelverkException) {
-            handleExceptionV3(e)
-            */
-            /* TODO ref. PEN ThrowableExceptionMapper.handleException
-        } catch (e: IllegalArgumentException) {
-            handleExceptionV3(e)
-        } catch (e: PidValidationException) {
-            handleExceptionV3(e)
-        } catch (e: PersonIkkeFunnetLokaltException) {
-            handleExceptionV3(e)
-            */
+            /* Ref. error handling in PEN SimulerAlderspensjonController.simuler:
+        } catch (PEN222BeregningstjenesteFeiletException e) {
+            return ResponseEntity.internalServerError().body(createErrorEntity(e.getMessage()));
+        } catch (PEN223BrukerHarIkkeLopendeAlderspensjonException |
+                PEN228BrukerErFodtFor1943Exception |
+                PEN226BrukerHarLopendeAPPaGammeltRegelverkException |
+                PEN225AvslagVilkarsprovingForLavtTidligUttakException |
+                PEN224AvslagVilkarsprovingForKortTrygdetidException |
+                PEN071FeilISimuleringsgrunnlagetException |
+                InvalidArgumentException e) {
+            return ResponseEntity.badRequest().body(createErrorEntity(e.getMessage()));
+        } catch (Exception e) {
+            // ThrowableExceptionMapper.handleException:
+            if (throwable is RecoverableDtoException) {
+                return ResponseEntity.internalServerError().body(JsonErrorEntityBuilder.createErrorEntity(throwable.message, throwable.javaClass.getSimpleName()))
+            }
+            val cause = if (throwable.cause == null) throwable else NestedExceptionUtils.getRootCause(throwable)
+            when (cause) {
+                is IllegalArgumentException -> return ResponseEntity.badRequest().body(JsonErrorEntityBuilder.createErrorEntity(throwable.message))
+                is InvalidArgumentException -> return ResponseEntity.badRequest().body(JsonErrorEntityBuilder.createErrorEntity(throwable.message))
+                is PidValidationException -> return ResponseEntity.badRequest().body("Ugyldig fødselsnummer")
+                is PEN029PersonIkkeFunnetLokaltException -> return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Personen finnes ikke i den lokale oversikten")
+                else -> {
+                    val message = if (throwable.message != null) throwable.message else "Something went wrong. This might be caused either by the application or the supplied request"
+                    return ResponseEntity.internalServerError().body(JsonErrorEntityBuilder.createErrorEntity(message))
+                }
+            }
+        }
+             */
         } catch (e: EgressException) {
             handle(e)!!
         } finally {
@@ -248,7 +263,7 @@ class SamhandlerAlderspensjonController(
             UtilstrekkeligTrygdetidException::class
         ]
     )
-    private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorV3> =
+    private fun handleBadRequest(e: RuntimeException): ResponseEntity<FeilWrapper> =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorV3(e))
 
     @ExceptionHandler(
@@ -256,7 +271,7 @@ class SamhandlerAlderspensjonController(
             ImplementationUnrecoverableException::class
         ]
     )
-    fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorV3> =
+    fun handleInternalServerError(e: RuntimeException): ResponseEntity<FeilWrapper> =
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorV3(e))
 
     override fun errorMessage() = ERROR_MESSAGE
@@ -283,11 +298,12 @@ class SamhandlerAlderspensjonController(
                 harUttak = false
             )
 
+        /**
+         * PEN: JsonErrorEntityBuilder.createErrorEntity
+         */
         private fun errorV3(e: RuntimeException) =
-            TpoSimuleringErrorV3(
-                feil = e.javaClass.simpleName
-            )
+            FeilWrapper(feil = e.message ?: "No errormessage")
     }
 
-    data class TpoSimuleringErrorV3(val feil: String)
+    data class FeilWrapper(val feil: String)
 }

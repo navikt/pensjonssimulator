@@ -71,21 +71,10 @@ class AlderspensjonOgPrivatAfpSpecMapperV3(
     }
 
     private fun sivilstatus(source: AlderspensjonOgPrivatAfpSpecV3): SivilstatusType =
-        SivilstatusType.entries.firstOrNull { it.name == source.sivilstatusVedPensjonering?.name }
+        SivilstatusType.entries.firstOrNull { it.name == source.sivilstatusVedPensjonering.name }
             ?: SivilstatusType.UGIF
 
     private fun uttaksgrad(source: AlderspensjonOgPrivatAfpSpecV3): UttakGradKode =
         UttakGradKode.entries.firstOrNull { it.value == source.foersteUttak.grad.toString() }
             ?: UttakGradKode.P_100
-/*
-    private fun inntekt(source: ApOgPrivatAfpInntektSpecV3) =
-        FremtidigInntekt(
-            aarligInntektBeloep = source.arligInntekt ?: missing("arligInntekt in fremtidigInntektListe"),
-            fom = source.fomDato?.toNorwegianLocalDate()
-                ?: missing("fomDato in fremtidigInntektListe")
-        )
-
-    private fun missing(something: String): Nothing {
-        throw BadRequestException("missing $something")
-    }*/
 }

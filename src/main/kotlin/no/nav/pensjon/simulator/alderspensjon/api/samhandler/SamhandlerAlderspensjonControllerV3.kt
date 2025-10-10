@@ -7,14 +7,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
-import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.*
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.AlderspensjonResultMapperV4.resultV4
-import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.BadRequestReasonV3
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.InternalServerErrorReasonV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
@@ -33,15 +31,14 @@ import org.springframework.web.bind.annotation.*
 import java.time.format.DateTimeParseException
 
 /**
- * REST-controller for simulering av alderspensjon.
- * Tjenestene er ment å brukes av tjenestepensjonsordninger (TPO).
- * TPO gjør kall til pensjonssimulator "direkte", dvs. ikke via PEN (men via API-gateway).
+ * REST-controller for simulering av alderspensjon for personer født før 1963.
+ * Tjenestene er ment å brukes av samhandlere (tjenestepensjonsordninger).
+ * Samhandlere gjør kall til pensjonssimulator via API-gateway.
  */
 @RestController
 @RequestMapping("api")
 @SecurityRequirement(name = "BearerAuthentication")
-class SamhandlerAlderspensjonController(
-    private val service: AlderspensjonService,
+class SamhandlerAlderspensjonControllerV3(
     private val simulatorCore: SimulatorCore,
     private val specMapper: AlderspensjonSpecMapperV3,
     private val resultMapper: AlderspensjonResultMapperV3,
@@ -140,106 +137,8 @@ class SamhandlerAlderspensjonController(
         } catch (e: UtilstrekkeligTrygdetidException) {
             log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
             throw e
-            /* Ref. error handling in PEN SimulerAlderspensjonController.simuler:
-        } catch (PEN222BeregningstjenesteFeiletException e) {
-            return ResponseEntity.internalServerError().body(createErrorEntity(e.getMessage()));
-        } catch (PEN223BrukerHarIkkeLopendeAlderspensjonException |
-                PEN228BrukerErFodtFor1943Exception |
-                PEN226BrukerHarLopendeAPPaGammeltRegelverkException |
-                PEN225AvslagVilkarsprovingForLavtTidligUttakException |
-                PEN224AvslagVilkarsprovingForKortTrygdetidException |
-                PEN071FeilISimuleringsgrunnlagetException |
-                InvalidArgumentException e) {
-            return ResponseEntity.badRequest().body(createErrorEntity(e.getMessage()));
-        } catch (Exception e) {
-            // ThrowableExceptionMapper.handleException:
-            if (throwable is RecoverableDtoException) {
-                return ResponseEntity.internalServerError().body(JsonErrorEntityBuilder.createErrorEntity(throwable.message, throwable.javaClass.getSimpleName()))
-            }
-            val cause = if (throwable.cause == null) throwable else NestedExceptionUtils.getRootCause(throwable)
-            when (cause) {
-                is IllegalArgumentException -> return ResponseEntity.badRequest().body(JsonErrorEntityBuilder.createErrorEntity(throwable.message))
-                is InvalidArgumentException -> return ResponseEntity.badRequest().body(JsonErrorEntityBuilder.createErrorEntity(throwable.message))
-                is PidValidationException -> return ResponseEntity.badRequest().body("Ugyldig fødselsnummer")
-                is PEN029PersonIkkeFunnetLokaltException -> return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Personen finnes ikke i den lokale oversikten")
-                else -> {
-                    val message = if (throwable.message != null) throwable.message else "Something went wrong. This might be caused either by the application or the supplied request"
-                    return ResponseEntity.internalServerError().body(JsonErrorEntityBuilder.createErrorEntity(message))
-                }
-            }
-        }
-             */
         } catch (e: EgressException) {
             handle(e)!!
-        } finally {
-            traceAid.end()
-        }
-    }
-
-    @PostMapping("v4/simuler-alderspensjon")
-    @Operation(
-        summary = "Simuler alderspensjon for personer født i 1963 eller senere.",
-        description = "Lager en prognose for utbetaling av alderspensjon for personer født i 1963 eller senere." +
-                "\\\n\\\n*Scope*:" +
-                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
-                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Simulering av alderspensjon utført."
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Simulering kunne ikke utføres pga. uakseptable inndata. Det kan være:" +
-                        "\\\n(1) helt uttak ikke etter gradert uttak," +
-                        "\\\n(2) inntekt ikke 1. i måneden," +
-                        "\\\n(3) inntekter har lik startdato, " +
-                        "\\\n(4) negativ inntekt."
-            )
-        ]
-    )
-    fun simulerAlderspensjon(
-        @RequestBody specV4: AlderspensjonSpecV4,
-        request: HttpServletRequest
-    ): AlderspensjonResultV4 {
-        traceAid.begin(request)
-        countCall(FUNCTION_ID_V4)
-
-        return try {
-            val spec: AlderspensjonSpec = AlderspensjonSpecMapperV4.fromDto(specV4)
-            request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
-            verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
-            resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID_V4))
-        } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID_V4 feil i spesifikasjonen - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: DateTimeParseException) {
-            log.warn { "$FUNCTION_ID_V4 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn { "$FUNCTION_ID_V4 feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: InvalidArgumentException) {
-            log.warn { "$FUNCTION_ID_V4 invalid argument - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: InvalidEnumValueException) {
-            log.warn { "$FUNCTION_ID_V4 invalid enum value - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: RegelmotorValideringException) {
-            log.warn { "$FUNCTION_ID_V4 feil i regelmotorvalidering - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn { "$FUNCTION_ID_V4 utilstrekkelig opptjening - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
-        } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn { "$FUNCTION_ID_V4 utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
-        } catch (e: EgressException) {
-            handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
         } finally {
             traceAid.end()
         }
@@ -261,49 +160,37 @@ class SamhandlerAlderspensjonController(
             RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
+            //TODO PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
+            //TODO Kopier ThrowableExceptionMapper fra PEN - Jira TPP-45
         ]
     )
-    private fun handleBadRequest(e: RuntimeException): ResponseEntity<FeilWrapper> =
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorV3(e))
+    private fun handleBadRequest(e: RuntimeException): ResponseEntity<BadRequestReasonV3> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestReason(e))
 
     @ExceptionHandler(
         value = [
             ImplementationUnrecoverableException::class
         ]
     )
-    fun handleInternalServerError(e: RuntimeException): ResponseEntity<FeilWrapper> =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorV3(e))
+    private fun handleInternalServerError(e: RuntimeException): ResponseEntity<InternalServerErrorReasonV3> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(internalServerErrorReason(e))
 
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
-        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
-        private const val FUNCTION_ID_V4 = "apv4"
+        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon V3"
         private const val FUNCTION_ID_V3 = "tpo-ap-v3"
-
-        private fun feilInfoResultV4(
-            e: Exception,
-            status: PensjonSimuleringStatusKodeV4 = PensjonSimuleringStatusKodeV4.ANNET
-        ) =
-            AlderspensjonResultV4(
-                simuleringSuksess = false,
-                aarsakListeIkkeSuksess = listOf(
-                    PensjonSimuleringStatusV4(
-                        statusKode = status.externalValue,
-                        statusBeskrivelse = e.message ?: e.javaClass.simpleName
-                    )
-                ),
-                alderspensjon = emptyList(),
-                forslagVedForLavOpptjening = null,
-                harUttak = false
-            )
 
         /**
          * PEN: JsonErrorEntityBuilder.createErrorEntity
          */
-        private fun errorV3(e: RuntimeException) =
-            FeilWrapper(feil = e.message ?: "No errormessage")
-    }
+        private fun badRequestReason(e: RuntimeException) =
+            BadRequestReasonV3(
+                feil = e.message ?: "No errormessage",
+                kode = e.javaClass.simpleName
+            )
 
-    data class FeilWrapper(val feil: String)
+        private fun internalServerErrorReason(e: RuntimeException) =
+            InternalServerErrorReasonV3(feil = e.message ?: "No errormessage")
+    }
 }

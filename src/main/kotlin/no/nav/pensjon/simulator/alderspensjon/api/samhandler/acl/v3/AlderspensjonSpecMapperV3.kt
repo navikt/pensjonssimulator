@@ -14,11 +14,9 @@ import java.time.LocalDate
 @Component
 class AlderspensjonSpecMapperV3(
     private val personService: GeneralPersonService,
-    private val simuleringstypeDeducer: SimuleringstypeDeducer,
-    private val validator: AlderspensjonSpecValidatorV3
+    private val simuleringstypeDeducer: SimuleringstypeDeducer
 ) {
     fun fromDtoV3(source: AlderspensjonSpecV3): SimuleringSpec {
-        validator.validate(spec = source)
         val pid = Pid(source.fnr)
         val foersteUttak = source.forsteUttak
         val foersteUttakDato: LocalDate = foersteUttak.datoFom.toNorwegianLocalDate()

@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.Alderspensjo
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecMapperV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecV3
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecValidatorV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.BadRequestReasonV3
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.InternalServerErrorReasonV3
 import no.nav.pensjon.simulator.common.api.ControllerBase
@@ -40,6 +41,7 @@ import java.time.format.DateTimeParseException
 @SecurityRequirement(name = "BearerAuthentication")
 class SamhandlerAlderspensjonControllerV3(
     private val simulatorCore: SimulatorCore,
+    private val validator: AlderspensjonSpecValidatorV3,
     private val specMapper: AlderspensjonSpecMapperV3,
     private val resultMapper: AlderspensjonResultMapperV3,
     private val traceAid: TraceAid,
@@ -79,6 +81,7 @@ class SamhandlerAlderspensjonControllerV3(
         countCall(FUNCTION_ID_V3)
 
         return try {
+            validator.validate(specV3)
             val spec: SimuleringSpec = specMapper.fromDtoV3(specV3)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid!!)

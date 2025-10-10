@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpGrunnlagService
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpGrunnlagService
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.beregn.PeriodiseringUtil.periodiserGrunnlagAndModifyKravhode
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*

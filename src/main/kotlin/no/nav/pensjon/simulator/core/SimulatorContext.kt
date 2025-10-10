@@ -382,6 +382,16 @@ class SimulatorContext(
         return response //TODO validerOgFerdigstillResponse(response) -> mapRegulerPensjonsbeholdningConsumerResponseToPen
     }
 
+    override fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse {
+        val response : HentDelingstallResponse = regelService.makeRegelCall(
+            request,
+            HentDelingstallResponse::class.java,
+            "delingstall",
+            null,
+            null)
+        return response
+    }
+
     // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
     private fun fetchFreshGrunnbeloep(localDate: LocalDate): SatsResponse {
         val date: Date = localDate.toNorwegianDateAtNoon()

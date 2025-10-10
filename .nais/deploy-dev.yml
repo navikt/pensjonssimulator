@@ -112,7 +112,8 @@ spec:
         - application: tp-q2
           namespace: pensjonsamhandling
           cluster: dev-fss
-        - application: tjenestepensjon-simulering
+        - application: pensjon-opptjening-afp-api
+          namespace: pensjonopptjening
       external:
         - host: pdl-api.dev-fss-pub.nais.io
         - host: pensjon-pen-q2.dev-fss-pub.nais.io
@@ -139,16 +140,16 @@ spec:
       value: dev-fss:pensjonopptjening:pensjon-popp-q2
     - name: POPP_URL
       value: https://pensjon-popp-q2.dev-fss-pub.nais.io
+    - name: PENSJON_OPPTJENING_AFP_API_SERVICE_ID
+      value: dev-gcp:pensjonopptjening:pensjon-opptjening-afp-api
+    - name: PENSJON_OPPTJENING_AFP_API_URL
+      value: http://pensjon-opptjening-afp-api.pensjonopptjening
     - name: REGLER_URL
       value: https://pensjon-regler-q2.dev-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID
       value: dev-fss:pensjonsamhandling:tp-q2
     - name: TJENESTEPENSJON_URL
       value: https://tp-api-q2.dev-fss-pub.nais.io
-    - name: TP_SIMULERING_SERVICE_ID
-      value: dev-gcp:pensjonskalkulator:tjenestepensjon-simulering
-    - name: TP_SIMULERING_URL
-      value: http://tjenestepensjon-simulering
     - name: SPK_STILLINGSPROSENT_PRE_2025_URL
       value: https://partner-gw.test.spk.no/nav/SimulereTjenestepensjon
     - name: SPK_TP_SIMULERING_PRE_2025_URL

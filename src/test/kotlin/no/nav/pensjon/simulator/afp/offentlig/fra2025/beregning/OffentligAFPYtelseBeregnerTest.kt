@@ -10,7 +10,7 @@ import java.time.LocalDate
 class OffentligAFPYtelseBeregnerTest {
 
     @Test
-    fun `beregn AFP Offentlig ytelse`() {
+    fun `beregn AFP Offentlig ytelse per aar avhengig av beholdning og delingstall`() {
         assertEquals(48_787.97, LivsvarigOffentligAfpYtelseBeregner.beregn(4_000_000, 19.07), 0.1)
         assertEquals(49785.24, LivsvarigOffentligAfpYtelseBeregner.beregn(2_500_000, 11.68), 0.1)
         assertEquals(17677.019, LivsvarigOffentligAfpYtelseBeregner.beregn(2_150_000, 28.29), 0.1)

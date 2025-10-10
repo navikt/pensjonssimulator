@@ -20,8 +20,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.toEntity
-import reactor.util.retry.Retry
-import java.time.Duration
 
 @Component
 class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
@@ -48,7 +46,7 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
                 .toEntity<SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?.body?.let { fromDto(it) }
+                ?.body?.let(::fromDto)
                 ?: emptyList()
         } catch (e: WebClientRequestException) {
             val errorMessage = "Request to get AFP Beholdninger failed: ${e.message}"

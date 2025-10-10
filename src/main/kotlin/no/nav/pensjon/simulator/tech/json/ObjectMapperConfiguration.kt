@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
@@ -27,9 +26,9 @@ open class ObjectMapperConfiguration {
      */
     @Bean
     open fun httpMessageConverter(): HttpMessageConverter<Any> =
-         MappingJackson2HttpMessageConverter().apply {
+        MappingJackson2HttpMessageConverter().apply {
             objectMapper = strictObjectMapper()
-    }
+        }
 
     @Bean
     @Primary
@@ -45,10 +44,10 @@ open class ObjectMapperConfiguration {
     // PEN: ConsPenReglerContextBeans.pensjonReglerObjectMapper
     @Bean("regler")
     open fun reglerObjectMapper(): ObjectMapper =
-        ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).apply {
+        jacksonObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+            configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false).apply {
 
                 configOverride(MutableMap::class.java).include =
                     JsonInclude.Value.construct(Include.NON_NULL, Include.NON_NULL)
@@ -66,7 +65,7 @@ open class ObjectMapperConfiguration {
 
                 registerModule(JavaTimeModule())
             }
-            .registerKotlinModule()
+        }
 
     /**
      * Mapper that fails on unknown properties.

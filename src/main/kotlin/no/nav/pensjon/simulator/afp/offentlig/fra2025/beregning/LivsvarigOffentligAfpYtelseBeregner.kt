@@ -24,7 +24,7 @@ object LivsvarigOffentligAfpYtelseBeregner {
 
         if (grunnlag.size == 2) {
             val afpBeregningsgrunnlagEtterAarskifteTil63 = grunnlag[1]
-            val andreArsYtelse = LivsvarigOffentligAfpYtelseMedDelingstall(
+            val andreAarsYtelse = LivsvarigOffentligAfpYtelseMedDelingstall(
                 pensjonBeholdning = afpBeregningsgrunnlagEtterAarskifteTil63.pensjonsbeholdning,
                 afpYtelsePerAar = beregn(
                     afpBeregningsgrunnlagEtterAarskifteTil63.pensjonsbeholdning - afpBeregningsgrunnlagVedUttak.pensjonsbeholdning,
@@ -34,7 +34,7 @@ object LivsvarigOffentligAfpYtelseBeregner {
                 gjelderFom = afpBeregningsgrunnlagEtterAarskifteTil63.alderForDelingstall.datoVedAlder,
                 gjelderFomAlder = afpBeregningsgrunnlagEtterAarskifteTil63.alderForDelingstall.alder
             )
-            return listOf(ytelseFraOnsketUttaksdato, andreArsYtelse)
+            return listOf(ytelseFraOnsketUttaksdato, andreAarsYtelse)
         }
 
         return listOf(ytelseFraOnsketUttaksdato)

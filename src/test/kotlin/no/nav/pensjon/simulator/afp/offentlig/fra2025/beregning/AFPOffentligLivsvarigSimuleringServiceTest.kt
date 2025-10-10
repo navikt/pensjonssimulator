@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning
 
-import Delingstall
+import no.nav.pensjon.simulator.core.domain.regler.sats.Delingstall
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.regler.Alder
 import no.nav.pensjon.simulator.core.domain.regler.to.HentDelingstallResponse
 import no.nav.pensjon.simulator.person.Pid
 import org.junit.jupiter.api.Assertions.assertEquals

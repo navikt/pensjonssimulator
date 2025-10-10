@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-import Delingstall
+import no.nav.pensjon.simulator.core.domain.regler.sats.Delingstall
 
 data class HentDelingstallResponse(
     val arskull: Int,

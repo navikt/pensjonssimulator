@@ -181,7 +181,7 @@ class SimulertBeregningInformasjon {
     var forholdstall: Double? = null
 
     /**
-     * Delingstall (for gitt alderskull ved gitt alder) som er lagt til grunn for beregningen.
+     * no.nav.pensjon.simulator.core.domain.regler.sats.Delingstall (for gitt alderskull ved gitt alder) som er lagt til grunn for beregningen.
      */
     var delingstall: Double? = null
 

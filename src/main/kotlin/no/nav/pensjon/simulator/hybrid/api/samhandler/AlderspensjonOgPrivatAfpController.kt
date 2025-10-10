@@ -13,25 +13,23 @@ import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
-import no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3.AlderspensjonOgPrivatAfpResultMapperV3
-import no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3.AlderspensjonOgPrivatAfpResultV3
-import no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3.AlderspensjonOgPrivatAfpSpecMapperV3
-import no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3.AlderspensjonOgPrivatAfpSpecV3
+import no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3.*
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.time.format.DateTimeParseException
 
 /**
  * REST-controller for simulering av alderspensjon og privat AFP ("hybrid" av disse to pensjonstypene).
  * Tjenesten er ment å brukes av samhandlere.
+ * Samhandlere gjør kall til pensjonssimulator via API-gateway.
  */
 @RestController
 @RequestMapping("api")
@@ -133,10 +131,76 @@ class AlderspensjonOgPrivatAfpController(
         }
     }
 
+    /**
+     * PEN: DefaultSimulerePensjonProvider.simulerFleksibelAp
+     *   + no.nav.tjeneste.ekstern.simulerepensjon.v1.feil.ForretningsmessigUnntak
+     */
+    @ExceptionHandler(
+        value = [
+            PersonForGammelException::class, // PEN: FoedtFoer1943
+            UtilstrekkeligOpptjeningException::class, // PEN: ForLavtTidligUttak
+            UtilstrekkeligTrygdetidException::class, // PEN: ForKortTrygdetid
+            //TODO: PEN: UgyldigInput - Jira TPP-47
+            BadRequestException::class,
+            BadSpecException::class,
+            DateTimeParseException::class,
+            FeilISimuleringsgrunnlagetException::class,
+            InvalidArgumentException::class,
+            InvalidEnumValueException::class,
+            KanIkkeBeregnesException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            RegelmotorValideringException::class
+            //TODO PEN222BeregningstjenesteFeiletException, PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
+            //TODO Kopier ThrowableExceptionMapper fra PEN - Jira TPP-45
+        ]
+    )
+    private fun forretningsmessigUnntak(e: RuntimeException): ResponseEntity<ForretningsmessigUnntakReasonV3> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(forretningsmessigUnntakReason(e))
+
+    @ExceptionHandler(
+        value = [
+            ImplementationUnrecoverableException::class
+        ]
+    )
+    private fun handleInternalServerError(e: RuntimeException): ResponseEntity<InternalServerErrorReasonV3> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(internalServerErrorReason(e))
+
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
-        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
+        private const val TJENESTE = "simulering av alderspensjon/privat AFP"
+        private const val ERROR_MESSAGE = "feil ved $TJENESTE"
         private const val FUNCTION_ID_V3 = "sam-ap-pafp"
+
+        /**
+         * PEN: DefaultSimulerePensjonProvider.createForretningsmessigUnntakWith
+         */
+        private fun forretningsmessigUnntakReason(e: RuntimeException) =
+            ForretningsmessigUnntakReasonV3(
+                feilkilde = TJENESTE,
+                feilaarsak = "${e.javaClass.simpleName}: ${e.message}",
+                feilmelding = feilmelding(e),
+                tidspunkt = LocalDateTime.now()
+            )
+
+        private fun internalServerErrorReason(e: RuntimeException) =
+            InternalServerErrorReasonV3(
+                feilkilde = TJENESTE,
+                feilmelding = "intern feil i tjenesten",
+                tidspunkt = LocalDateTime.now()
+            )
+
+        /**
+         * PEN: DefaultSimulerePensjonProvider.simulerFleksibelAp
+         */
+        private fun feilmelding(e: RuntimeException) =
+            when (e) {
+                is PersonForGammelException -> "Bruker er født før 1943"
+                is UtilstrekkeligOpptjeningException -> "Avslag på vilkårsprøving grunnet for lavt tidlig uttak"
+                is UtilstrekkeligTrygdetidException -> "Avslag på vilkårsprøving grunnet for kort trygdetid"
+                else -> "Annen årsak"
+            }
     }
 }

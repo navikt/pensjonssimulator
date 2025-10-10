@@ -165,7 +165,7 @@ class AlderspensjonOgPrivatAfpController(
         ]
     )
     private fun handleInternalServerError(e: RuntimeException): ResponseEntity<InternalServerErrorReasonV3> =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(internalServerErrorReason(e))
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(internalServerErrorReason())
 
     override fun errorMessage() = ERROR_MESSAGE
 
@@ -185,7 +185,7 @@ class AlderspensjonOgPrivatAfpController(
                 tidspunkt = LocalDateTime.now()
             )
 
-        private fun internalServerErrorReason(e: RuntimeException) =
+        private fun internalServerErrorReason() =
             InternalServerErrorReasonV3(
                 feilkilde = TJENESTE,
                 feilmelding = "intern feil i tjenesten",

@@ -77,6 +77,7 @@ class SamhandlerAlderspensjonControllerV3(
         request: HttpServletRequest
     ): AlderspensjonResultV3 {
         traceAid.begin()
+        log.info { "direct V3 call" }
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
 
@@ -185,7 +186,7 @@ class SamhandlerAlderspensjonControllerV3(
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon V3"
-        private const val FUNCTION_ID_V3 = "tpo-ap-v3"
+        private const val FUNCTION_ID_V3 = "sam-ap-v3"
 
         /**
          * PEN: JsonErrorEntityBuilder.createErrorEntity

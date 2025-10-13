@@ -83,7 +83,7 @@ jobs:
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: .nais/api/apiendpoints.yaml
+          RESOURCE: .nais/api/apiendpoints-prod.yaml
 
   trivy-imagescan:
     name: Scan Docker image

@@ -141,7 +141,8 @@ class SamhandlerAlderspensjonControllerV3(
             log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
             throw e
         } catch (e: EgressException) {
-            handle(e)!!
+            log.error(e) { "$FUNCTION_ID_V3 egress error - request - $specV3" }
+            throw e
         } finally {
             traceAid.end()
         }
@@ -172,7 +173,9 @@ class SamhandlerAlderspensjonControllerV3(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class
+            ImplementationUnrecoverableException::class,
+            EgressException::class,
+            Exception::class
         ]
     )
     private fun handleInternalServerError(e: RuntimeException): ResponseEntity<InternalServerErrorReasonV3> =

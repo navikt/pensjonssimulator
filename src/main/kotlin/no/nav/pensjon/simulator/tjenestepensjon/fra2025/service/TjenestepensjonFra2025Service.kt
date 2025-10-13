@@ -31,7 +31,6 @@ class TjenestepensjonFra2025Service(
             return emptyList<String>() to Result.failure(e)
         }
 
-
         val tpOrdningerNavn = tpOrdninger.map { it.navn }
 
         val sisteOrdningerNr = sisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
@@ -40,11 +39,6 @@ class TjenestepensjonFra2025Service(
         }
 
         log.info { "Fant tp ordninger med nummere: $sisteOrdningerNr" }
-
-        // Apotekere og brukere fodt for 1963 vil ikke kunne simulere tjenestepensjon enda
-        if (request.erApoteker || request.foedselsdato.year < 1963) return tpOrdningerNavn to Result.failure(
-            TpOrdningStoettesIkkeException("Apoteker")
-        )
 
         val simulertTpListe = sisteOrdningerNr.map { ordning ->
             when (ordning) {

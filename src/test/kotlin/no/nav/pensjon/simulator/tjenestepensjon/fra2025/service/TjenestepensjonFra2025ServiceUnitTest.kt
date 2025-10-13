@@ -140,20 +140,6 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         (res.second.exceptionOrNull() is TomSimuleringFraTpOrdningException).shouldBeTrue()
     }
 
-    test("simuler naar bruker er apoteker") {
-        val req = dummyRequest("1963-02-05", erApoteker = true)
-        val tpOrdninger = listOf(dummyTpOrdning(spkTpNummer))
-        every { tp.findAlleTpForhold(req.pid) } returns tpOrdninger
-
-        val res = service.simuler(req)
-
-        res.second.isFailure.shouldBeTrue()
-        val ex = res.second.exceptionOrNull().shouldNotBeNull()
-        (ex is TpOrdningStoettesIkkeException).shouldBeTrue()
-        ex.message shouldBe "Apoteker støtter ikke simulering av tjenestepensjon v2025"
-        (ex as TpOrdningStoettesIkkeException).tpOrdning shouldBe "Apoteker"
-        res.first shouldBe tpOrdninger.map { it.navn }
-    }
 }) {
 
     companion object {

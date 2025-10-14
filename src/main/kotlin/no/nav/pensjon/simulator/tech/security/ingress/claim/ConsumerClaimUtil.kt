@@ -22,7 +22,7 @@ object ConsumerClaimUtil {
      * "0192" implies "Organisasjonsnummer" (to 'identify entities registered in the Central Coordinating Register
      * for Legal Entities in Norway', ref. docs.peppol.eu/poacc/billing/3.0/codelist/ICD)
      */
-    private const val ICD_CODE = "0192" //
+    private const val ICD_CODE = "0192"
 
     fun organisasjonsnummer(consumerClaim: Map<String, Any>): String =
         try {

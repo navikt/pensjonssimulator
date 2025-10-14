@@ -1,10 +1,9 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4
 
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
 
 /**
- * Version 4 of specification for 'simuler alderspensjon'.
- * NB: Versions 1 to 3 are services offered by PEN.
+ * Version 4 of the data transfer object representing a specification for the 'simuler alderspensjon' service.
  */
 data class AlderspensjonSpecV4(
     val personId: String? = null,

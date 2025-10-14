@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.server.RequestPath
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.core.Authentication
 
@@ -57,6 +58,8 @@ private fun arrangeAuth(authenticated: Boolean): Pair<ProviderManager, Authentic
 }
 
 private fun arrangeRequest(path: String): HttpServletRequest =
-    mockk<HttpServletRequest>(relaxed = true).apply {
-        every { servletPath } returns path
+    mockk<HttpServletRequest>().apply {
+       every {
+           getAttribute("org.springframework.web.util.ServletRequestPathUtils.PATH")
+       } returns RequestPath.parse(path, "")
     }

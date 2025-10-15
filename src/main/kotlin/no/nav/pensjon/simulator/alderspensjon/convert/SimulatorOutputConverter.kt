@@ -2,10 +2,12 @@ package no.nav.pensjon.simulator.alderspensjon.convert
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad.beregnAfpGrad
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
+import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alder.PensjonAlderDato
+import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
-import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
@@ -17,8 +19,6 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.alder.PensjonAlderDato
-import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.time.Period
@@ -75,6 +75,21 @@ object SimulatorOutputConverter {
         )
     }
 
+    // SimulerAlderspensjonResponseV3Converter.getDelytelserFromSimulertBeregningsinformasjon
+    fun delytelser(source: SimulertBeregningInformasjon): List<SimulertDelytelse> =
+        mutableListOf<SimulertDelytelse>().apply {
+            source.grunnpensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.GP, beloep = it)) }
+            source.tilleggspensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.TP, beloep = it)) }
+            source.pensjonstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.PT, beloep = it)) }
+            source.individueltMinstenivaaTillegg?.let {
+                add(ytelse(type = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV, beloep = it))
+            }
+            source.inntektspensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.IP, beloep = it)) }
+            source.garantipensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.GAP, beloep = it)) }
+            source.garantitillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.GAT, beloep = it)) }
+            source.skjermingstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.SKJERMT, beloep = it)) }
+        }
+
     private fun anvendtTrygdetid(periodeListe: List<PensjonPeriode>): Trygdetid =
         firstBeregninginfo(periodeListe)?.let { Trygdetid(it.tt_anv_kap19 ?: 0, it.tt_anv_kap20 ?: 0) }
             ?: Trygdetid(0, 0)
@@ -123,25 +138,8 @@ object SimulatorOutputConverter {
             maanedligBeloep = source.maanedligBeloep ?: 0
         )
 
-    // SimulerAlderspensjonResponseV3Converter.getDelytelserFromSimulertBeregningsinformasjon
-    private fun delytelser(source: SimulertBeregningInformasjon): List<SimulertDelytelse> {
-        val ytelser: MutableList<SimulertDelytelse> = mutableListOf()
-        source.grunnpensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.GP) }
-        source.tilleggspensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.TP) }
-        source.pensjonstillegg?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.PT) }
-        source.individueltMinstenivaaTillegg?.let {
-            addYtelse(beloep = it, ytelser, type = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV)
-        }
-        source.inntektspensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.IP) }
-        source.garantipensjon?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.GAP) }
-        source.garantitillegg?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.GAT) }
-        source.skjermingstillegg?.let { addYtelse(it, ytelser, YtelseskomponentTypeEnum.SKJERMT) }
-        return ytelser
-    }
-
-    private fun addYtelse(beloep: Int, ytelser: MutableList<SimulertDelytelse>, type: YtelseskomponentTypeEnum) {
-        ytelser.add(SimulertDelytelse(type, beloep))
-    }
+    private fun ytelse(type: YtelseskomponentTypeEnum, beloep: Int) =
+        SimulertDelytelse(type, beloep)
 
     private fun privatAfp(source: PrivatAfpPeriode) =
         SimulertPrivatAfp(

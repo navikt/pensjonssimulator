@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon
 
 import no.nav.pensjon.simulator.alderspensjon.alternativ.AlternativSimuleringService
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.TpoAlderspensjonResultMapper
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.SamhandlerAlderspensjonResultMapper
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.OffentligSimuleringstypeDeducer
@@ -41,7 +41,7 @@ class AlderspensjonService(
         validate(simuleringSpec, time.today())
         val simuleringResultat = simulerMedMuligAlternativ(simuleringSpec)
 
-        return TpoAlderspensjonResultMapper.mapPensjonEllerAlternativ(
+        return SamhandlerAlderspensjonResultMapper.mapPensjonEllerAlternativ(
             source = simuleringResultat,
             angittFoersteUttakFom = foersteUttakFom(simuleringSpec),
             angittAndreUttakFom = andreUttakFom(simuleringSpec),

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.*
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4.AlderspensjonResultMapperV4.resultV4
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.*
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.*
@@ -26,14 +26,14 @@ import org.springframework.web.bind.annotation.RestController
 import java.time.format.DateTimeParseException
 
 /**
- * REST-controller for simulering av alderspensjon.
- * Tjenestene er ment å brukes av tjenestepensjonsordninger (TPO).
- * TPO gjør kall til pensjonssimulator "direkte", dvs. ikke via PEN (men via API-gateway).
+ * REST-controller for simulering av alderspensjon for personer født 1963 eller senere.
+ * Tjenestene er ment å brukes av samhandlere (tjenestepensjonsordninger).
+ * Samhandlere gjør kall til pensjonssimulator via API-gateway.
  */
 @RestController
 @RequestMapping("api")
 @SecurityRequirement(name = "BearerAuthentication")
-class TpoAlderspensjonController(
+class SamhandlerAlderspensjonControllerV4(
     private val service: AlderspensjonService,
     private val traceAid: TraceAid,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
@@ -43,8 +43,11 @@ class TpoAlderspensjonController(
 
     @PostMapping("v4/simuler-alderspensjon")
     @Operation(
-        summary = "Simuler alderspensjon",
-        description = "Lager en prognose for utbetaling av alderspensjon.",
+        summary = "Simuler alderspensjon for personer født i 1963 eller senere.",
+        description = "Lager en prognose for utbetaling av alderspensjon for personer født i 1963 eller senere." +
+                "\\\n\\\n*Scope*:" +
+                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
+                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
     )
     @ApiResponses(
         value = [
@@ -54,11 +57,11 @@ class TpoAlderspensjonController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
-                        " (1) helt uttak ikke etter gradert uttak," +
-                        " (2) inntekt ikke 1. i måneden," +
-                        " (3) inntekter har lik startdato, " +
-                        " (4) negativ inntekt."
+                description = "Simulering kunne ikke utføres pga. uakseptable inndata. Det kan være:" +
+                        "\\\n(1) helt uttak ikke etter gradert uttak," +
+                        "\\\n(2) inntekt ikke 1. i måneden," +
+                        "\\\n(3) inntekter har lik startdato, " +
+                        "\\\n(4) negativ inntekt."
             )
         ]
     )
@@ -67,36 +70,36 @@ class TpoAlderspensjonController(
         request: HttpServletRequest
     ): AlderspensjonResultV4 {
         traceAid.begin(request)
-        countCall(FUNCTION_ID)
+        countCall(FUNCTION_ID_V4)
 
         return try {
             val spec: AlderspensjonSpec = AlderspensjonSpecMapperV4.fromDto(specV4)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
-            resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID))
+            resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID_V4))
         } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID feil i spesifikasjonen - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 feil i spesifikasjonen - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: DateTimeParseException) {
-            log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn { "$FUNCTION_ID feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: InvalidArgumentException) {
-            log.warn { "$FUNCTION_ID invalid argument - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 invalid argument - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: InvalidEnumValueException) {
-            log.warn { "$FUNCTION_ID invalid enum value - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 invalid enum value - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: RegelmotorValideringException) {
-            log.warn { "$FUNCTION_ID feil i regelmotorvalidering - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 feil i regelmotorvalidering - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn { "$FUNCTION_ID utilstrekkelig opptjening - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 utilstrekkelig opptjening - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn { "$FUNCTION_ID utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            log.warn { "$FUNCTION_ID_V4 utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!
@@ -110,8 +113,8 @@ class TpoAlderspensjonController(
     override fun errorMessage() = ERROR_MESSAGE
 
     private companion object {
-        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon"
-        private const val FUNCTION_ID = "apv4"
+        private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon V4"
+        private const val FUNCTION_ID_V4 = "apv4"
 
         private fun feilInfoResultV4(
             e: Exception,

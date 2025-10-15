@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4
 
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
@@ -8,8 +8,16 @@ import no.nav.pensjon.simulator.alderspensjon.PensjonDelytelse
 import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatus
 import no.nav.pensjon.simulator.alderspensjon.PensjonType
 
+/**
+ * Anti-corruption layer (ACL).
+ * Maps from the 'free' internal domain object to version 4 of the externally constrained data transfer object.
+ * The object represents a result of the 'simuler alderspensjon' service.
+ */
 object AlderspensjonResultMapperV4 {
 
+    /**
+     * Takes a result in the form of a domain object and maps it to a data transfer object (DTO).
+     */
     fun resultV4(source: AlderspensjonResult) =
         AlderspensjonResultV4(
             simuleringSuksess = source.simuleringSuksess,

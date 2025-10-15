@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v4
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatusKode
@@ -6,9 +6,8 @@ import no.nav.pensjon.simulator.alderspensjon.PensjonType
 import java.time.LocalDate
 
 /**
- * Version 4 of result for 'simuler alderspensjon'.
+ * Version 4 of the data transfer object representing a result of the 'simuler alderspensjon' service.
  * Ref. API specification: https://confluence.adeo.no/pages/viewpage.action?pageId=583317319
- * NB: Versions 1 to 3 are services offered by PEN.
  */
 data class AlderspensjonResultV4(
     val simuleringSuksess: Boolean,
@@ -19,18 +18,18 @@ data class AlderspensjonResultV4(
 )
 
 data class AlderspensjonFraFolketrygdenV4(
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
     val delytelseListe: List<PensjonDelytelseV4>,
     val uttaksgrad: Int
 )
 
 data class ForslagVedForLavOpptjeningV4(
     val gradertUttak: GradertUttakV4?,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val heltUttakFraOgMedDato: LocalDate
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val heltUttakFraOgMedDato: LocalDate
 )
 
 data class GradertUttakV4(
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
+    @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
     val uttaksgrad: Int
 )
 

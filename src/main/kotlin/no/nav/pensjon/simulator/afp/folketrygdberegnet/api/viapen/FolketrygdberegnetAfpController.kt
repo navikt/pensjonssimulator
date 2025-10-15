@@ -40,8 +40,11 @@ class FolketrygdberegnetAfpController(
      */
     @PostMapping("v1/simuler-folketrygdberegnet-afp")
     @Operation(
-        summary = "Simuler folketrygdberegnet AFP V1",
-        description = "Lager en prognose for folketrygdberegnet AFP, basert på Nav-lagret info og input fra bruker.",
+        summary = "Simuler folketrygdberegnet AFP",
+        description = "Lager en prognose for folketrygdberegnet avtalefestet pensjon (AFP) i offentlig sektor." +
+                "\\\n\\\n*Scope*:" +
+                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
+                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
     )
     @ApiResponses(
         value = [
@@ -51,11 +54,7 @@ class FolketrygdberegnetAfpController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Simulering kunne ikke utføres pga. uakseptabel input. Det kan være: " +
-                        " (1) helt uttak ikke etter gradert uttak," +
-                        " (2) inntekt ikke 1. i måneden," +
-                        " (3) inntekter har lik startdato, " +
-                        " (4) negativ inntekt."
+                description = "Simulering kunne ikke utføres pga. uakseptabel input."
             )
         ]
     )

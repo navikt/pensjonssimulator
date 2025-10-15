@@ -43,7 +43,10 @@ class UttakController(
     @PostMapping("v1/tidligst-mulig-uttak")
     @Operation(
         summary = "Tidligst mulig uttak",
-        description = "Finner den tidligst mulige dato for uttak av alderspensjon",
+        description = "Finner den tidligst mulige dato for uttak av alderspensjon." +
+                "\\\n\\\n*Scope*:" +
+                "\\\n– Uten delegering: **nav:pensjonssimulator:simulering**" +
+                "\\\n– Med delegering: **nav:pensjon/simulering.read**"
     )
     @ApiResponses(
         value = [

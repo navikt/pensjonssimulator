@@ -26,8 +26,4 @@ private fun Jwt.collectionClaim(claimName: String): Collection<String> =
     }
 
 private fun Jwt.organisasjonsnummer(claimName: String): String? =
-    try {
-        this.getClaimAsMap(claimName)?.let(ConsumerClaimUtil::organisasjonsnummer)
-    } catch (e: RuntimeException) {
-        throw object : AuthenticationException(e.message, e) {}
-    }
+    this.getClaimAsMap(claimName)?.let(ConsumerClaimUtil::organisasjonsnummer)

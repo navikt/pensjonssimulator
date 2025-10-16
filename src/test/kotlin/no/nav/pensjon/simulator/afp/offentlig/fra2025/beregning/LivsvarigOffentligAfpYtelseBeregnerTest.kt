@@ -25,7 +25,7 @@ class LivsvarigOffentligAfpYtelseBeregnerTest : ShouldSpec({
                     AfpBeregningsgrunnlag(
                         pensjonsbeholdning = 3_000_000,
                         alderForDelingstall = AlderForDelingstall(
-                            alder = Alder(62, 0),
+                            alder = Alder(aar = 62, maaneder = 0),
                             datoVedAlder = LocalDate.of(2029, 1, 1)
                         ),
                         delingstall = 20.75
@@ -33,7 +33,7 @@ class LivsvarigOffentligAfpYtelseBeregnerTest : ShouldSpec({
                     AfpBeregningsgrunnlag(
                         pensjonsbeholdning = 3_150_000,
                         alderForDelingstall = AlderForDelingstall(
-                            alder = Alder(63, 0),
+                            alder = Alder(aar = 63, maaneder = 0),
                             datoVedAlder = LocalDate.of(2030, 1, 1)
                         ),
                         delingstall = 19.93
@@ -43,8 +43,8 @@ class LivsvarigOffentligAfpYtelseBeregnerTest : ShouldSpec({
                 val resultat = LivsvarigOffentligAfpYtelseBeregner.beregnYtelser(grunnlag)
 
                 resultat shouldHaveSize 2
-                resultat[0].afpYtelsePerAar shouldBe 33628.43.plusOrMinus( 0.1)
-                resultat[1].afpYtelsePerAar shouldBe 35379.03.plusOrMinus( 0.1)
+                resultat[0].afpYtelsePerAar shouldBe 33628.43.plusOrMinus(0.1)
+                resultat[1].afpYtelsePerAar shouldBe 35379.03.plusOrMinus(0.1)
             }
 
             should("beregne livsvarig offentlig AFP-ytelser for brukere eldre enn 62 år") {
@@ -52,17 +52,17 @@ class LivsvarigOffentligAfpYtelseBeregnerTest : ShouldSpec({
                     AfpBeregningsgrunnlag(
                         pensjonsbeholdning = 2_658_000,
                         alderForDelingstall = AlderForDelingstall(
-                            alder = Alder(64, 2),
+                            alder = Alder(aar = 64, maaneder = 2),
                             datoVedAlder = LocalDate.of(2045, 6, 3)
                         ),
                         delingstall = 20.88
-                    ),
+                    )
                 )
 
                 val resultat = LivsvarigOffentligAfpYtelseBeregner.beregnYtelser(grunnlag)
 
                 resultat shouldHaveSize 1
-                resultat[0].afpYtelsePerAar shouldBe 29609.29.plusOrMinus( 0.1)
+                resultat[0].afpYtelsePerAar shouldBe 29609.29.plusOrMinus(0.1)
             }
         }
     }

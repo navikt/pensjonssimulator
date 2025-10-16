@@ -1,14 +1,12 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
 
-class SkjermingstilleggTest : FunSpec({
+class SkjermingstilleggTest : ShouldSpec({
 
-    test("'copy' should copy base class values") {
+    should("copy base class values") {
         val source = Skjermingstillegg().apply {
             brutto = 1
             netto = 2

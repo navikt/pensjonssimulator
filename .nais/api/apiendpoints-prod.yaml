@@ -25,7 +25,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v0/simuler-afp-etterfulgt-av-alderspensjon
-      timeout: 20s
+      timeout: 40s
     - path: /simuler/alderspensjon/v3
       method: POST
       timeout: 60s
@@ -45,7 +45,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v4/simuler-alderspensjon
-      timeout: 20s
+      timeout: 40s
     - path: /pensjonssimulator/v1/simuler-folketrygdbeholdning
       method: POST
       forwardHeaders:
@@ -54,7 +54,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v1/simuler-folketrygdbeholdning
-      timeout: 20s
+      timeout: 40s
     - path: /pensjonssimulator/v0/simuler-folketrygdberegnet-afp
       method: POST
       forwardHeaders:
@@ -63,7 +63,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v0/simuler-folketrygdberegnet-afp
-      timeout: 20s
+      timeout: 40s
     - path: /pensjonssimulator/v1/tidligst-mulig-uttak
       method: POST
       forwardHeaders:
@@ -72,7 +72,7 @@ spec:
         - X-Request-Id
       backendHost: http://pensjonssimulator
       backendPath: /api/v1/tidligst-mulig-uttak
-      timeout: 20s
+      timeout: 40s
   openEndpoints:
     - path: /pensjonssimulator/v1/status
       method: GET

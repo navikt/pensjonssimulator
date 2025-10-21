@@ -1,16 +1,11 @@
-package no.nav.pensjon.simulator.alderspensjon.api.tpo.direct.acl.v3
+package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonFraFolketrygdenResultV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultMapperV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.DelytelseResultV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.SimuleringsdataResultV3
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
@@ -22,7 +17,7 @@ import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class AlderspensjonResultMapperV3Test : FunSpec({
+class AlderspensjonResultMapperV3Test : ShouldSpec({
 
     val today = LocalDate.of(2025, 1, 1)
 
@@ -32,7 +27,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
      * - hvis alderspensjon mangler, inkluderes et 'default' tomt alderspensjonFraFolketrygden-objekt
      * - øvrige manglende lister mappes til tomme lister
      */
-    test("sisteGyldigeOpptjeningAar og default alderspensjonFraFolketrygden") {
+    should("map sisteGyldigeOpptjeningAar og default alderspensjonFraFolketrygden") {
         AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
@@ -66,7 +61,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
      * - når foersteUttakFom < normertPensjoneringsdato, så brukes normertPensjoneringsdato som foersteSimuleringsdataDato
      * - når SimulertBeregningInformasjon.datoFom >= foersteSimuleringsdataDato, så mappes elementet
      */
-    test("simuleringsdataListe for ikke-gradert uttak - normertPensjoneringsdato") {
+    should("map simuleringsdataListe for ikke-gradert uttak - normertPensjoneringsdato") {
         val normertPensjoneringsdato = LocalDate.of(2037, 3, 1)
 
         AlderspensjonResultMapperV3(
@@ -119,7 +114,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
      * - når foersteUttakFom >= normertPensjoneringsdato, så brukes foersteUttakFom som foersteSimuleringsdataDato
      * - når SimulertBeregningInformasjon.datoFom >= foersteSimuleringsdataDato, så mappes elementet
      */
-    test("simuleringsdataListe for ikke-gradert uttak - foersteUttakFom") {
+    should("map simuleringsdataListe for ikke-gradert uttak - foersteUttakFom") {
         val normertPensjoneringsdato = LocalDate.of(2037, 2, 1)
         val foersteUttakFom = normertPensjoneringsdato.plusYears(1) // > normertPensjoneringsdato
 
@@ -155,7 +150,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
         }
     }
 
-    test("harUttak should be true if fomDato <= today and uttaksgrad > 0") {
+    should("make 'har uttak' true if fomDato <= today and uttaksgrad > 0") {
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
@@ -182,7 +177,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
         }
     }
 
-    test("harTidligereUttak should be true if tomDato < today and uttaksgrad > 0") {
+    should("make 'har tidligere uttak' true if tomDato < today and uttaksgrad > 0") {
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
@@ -216,7 +211,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
         }
     }
 
-    test("alderspensjonFraFolketrygden - ikke-gradert should give one element") {
+    should("give 1 element in 'alderspensjon fra folketrygden' when ikke gradert") {
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
@@ -261,7 +256,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
         }
     }
 
-    test("alderspensjonFraFolketrygden - gradert should give two elements") {
+    should("give 2 elements in 'alderspensjon fra folketrygden' when gradert") {
         val foersteUttakFom = LocalDate.of(2036, 2, 1)
         val heltUttakFom = LocalDate.of(2037, 2, 1)
 
@@ -314,7 +309,7 @@ class AlderspensjonResultMapperV3Test : FunSpec({
         }
     }
 
-    test("privatAfpBeholdningVedUttak uses first element in list") {
+    should("use first element in list for 'privat AFP-beholdning ved uttak'") {
         AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),

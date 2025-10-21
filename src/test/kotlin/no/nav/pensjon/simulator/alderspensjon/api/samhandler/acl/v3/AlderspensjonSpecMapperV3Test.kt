@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -15,9 +15,9 @@ import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class AlderspensjonSpecMapperV3Test : FunSpec({
+class AlderspensjonSpecMapperV3Test : ShouldSpec({
 
-    test("'fromDto' med privat AFP, ikke gradert") {
+    should("map DTO med privat AFP, ikke gradert") {
         AlderspensjonSpecMapperV3(
             personService = Arrange.foedselsdato(1963, 1, 15),
             simuleringstypeDeducer = arrangeSimuleringstype()

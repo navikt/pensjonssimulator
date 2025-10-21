@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -16,13 +16,13 @@ import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class AlderspensjonSpecValidatorV3Test : FunSpec({
+class AlderspensjonSpecValidatorV3Test : StringSpec({
 
     val idag = mockk<Time>().apply {
         every { today() } returns LocalDate.of(2025, 1, 1)
     }
 
-    test("start av første uttak må være første dag i måneden") {
+    "start av første uttak må være første dag i måneden" {
         shouldThrow<InvalidArgumentException> {
             AlderspensjonSpecValidatorV3(
                 personService = Arrange.foedselsdato(1962, 1, 15),
@@ -34,7 +34,7 @@ class AlderspensjonSpecValidatorV3Test : FunSpec({
         }.message shouldBe "forsteUttak.datoFom må være første dag i måneden"
     }
 
-    test("start av første uttak kan ikke være før måneden etter at personen oppnår nedre aldersgrense") {
+    "start av første uttak kan ikke være før måneden etter at personen oppnår nedre aldersgrense" {
         shouldThrow<InvalidArgumentException> {
             AlderspensjonSpecValidatorV3(
                 personService = Arrange.foedselsdato(1970, 1, 15),
@@ -46,7 +46,7 @@ class AlderspensjonSpecValidatorV3Test : FunSpec({
         }.message shouldBe "forsteUttak.datoFom kan ikke være før måneden etter at personen oppnår 62 år"
     }
 
-    test("start av første uttak kan ikke være etter måneden etter at personen oppnår øvre aldersgrense") {
+    "start av første uttak kan ikke være etter måneden etter at personen oppnår øvre aldersgrense" {
         shouldThrow<InvalidArgumentException> {
             AlderspensjonSpecValidatorV3(
                 personService = Arrange.foedselsdato(1970, 1, 15),
@@ -58,7 +58,7 @@ class AlderspensjonSpecValidatorV3Test : FunSpec({
         }.message shouldBe "forsteUttak.datoFom kan ikke være etter måneden etter at personen oppnår 75 år"
     }
 
-    test("start av første uttak må være etter dagens dato") {
+    "start av første uttak må være etter dagens dato" {
         shouldThrow<InvalidArgumentException> {
             AlderspensjonSpecValidatorV3(
                 personService = Arrange.foedselsdato(1962, 1, 15),
@@ -70,7 +70,7 @@ class AlderspensjonSpecValidatorV3Test : FunSpec({
         }.message shouldBe "forsteUttak.datoFom må være etter dagens dato"
     }
 
-    test("når sivilstatus ved pensjonering er 'gift' må det angis om EPS har pensjon") {
+    "når sivilstatus ved pensjonering er 'gift' må det angis om EPS har pensjon" {
         shouldThrow<InvalidArgumentException> {
             AlderspensjonSpecValidatorV3(
                 personService = Arrange.foedselsdato(1963, 1, 15),
@@ -82,7 +82,7 @@ class AlderspensjonSpecValidatorV3Test : FunSpec({
         }.message shouldBe "epsPensjon må være angitt når sivilstandVedPensjonering er GIFT"
     }
 
-    test("når sivilstatus ved pensjonering er 'samboer' må det angis om EPS har inntekt over 2G") {
+    "når sivilstatus ved pensjonering er 'samboer' må det angis om EPS har inntekt over 2G" {
         shouldThrow<InvalidArgumentException> {
             AlderspensjonSpecValidatorV3(
                 personService = Arrange.foedselsdato(1963, 1, 15),

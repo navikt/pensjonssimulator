@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tech.env
 
 import io.swagger.v3.oas.annotations.Hidden
+import no.nav.pensjon.simulator.tech.env.EnvironmentUtil.isDevelopment
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -23,8 +24,7 @@ class DevelopmentEnvironmentController {
 
     private companion object {
         private fun environmentVariable(name: String) =
-            if (System.getenv("NAIS_CLUSTER_NAME") == "dev-gcp")
-                System.getenv(name)
+            if (isDevelopment()) System.getenv(name)
             else "forbidden"
     }
 }

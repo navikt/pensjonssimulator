@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
@@ -15,7 +16,6 @@ import java.time.LocalDate
 object KlpMapper {
 
     private val log = KotlinLogging.logger {}
-    const val PROVIDER_FULLT_NAVN = "Kommunal Landspensjonskasse"
     const val ANNEN_TP_ORDNING_BURDE_SIMULERE = "IKKE_SISTE_ORDNING"
 
     fun mapToRequest(request: SimulerOffentligTjenestepensjonFra2025SpecV1): KlpSimulerTjenestepensjonRequest {
@@ -55,7 +55,7 @@ object KlpMapper {
     fun mapToResponse(response: KlpSimulerTjenestepensjonResponse, dto: KlpSimulerTjenestepensjonRequest? = null): SimulertTjenestepensjon {
         log.info { "Mapping response from KLP $response" }
         return SimulertTjenestepensjon(
-            tpLeverandoer = PROVIDER_FULLT_NAVN,
+            tpLeverandoer = EgressService.KLP.description,
             ordningsListe = response.inkludertOrdningListe.map { Ordning(it.tpnr) },
             utbetalingsperioder = response.utbetalingsListe.map { Utbetalingsperiode(it.fraOgMedDato, it.manedligUtbetaling, it.ytelseType) },
             aarsakIngenUtbetaling = response.arsakIngenUtbetaling.map { it.statusBeskrivelse + ": " + it.ytelseType },
@@ -65,6 +65,4 @@ object KlpMapper {
             serviceData = listOf("Request: ${dto?.toString()}", "Response: $response")
         }
     }
-
-
 }

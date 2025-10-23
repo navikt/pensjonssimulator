@@ -4,6 +4,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.env.EnvironmentUtil
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -11,8 +12,9 @@ import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
+import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
@@ -40,7 +42,7 @@ class KlpTjenestepensjonClientFra2025(
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
     private val sammenligner: SammenlignAFPService,
-    private val clusterName: () -> String = { System.getenv("NAIS_CLUSTER_NAME") ?: "" },
+    private val isDevelopment: () -> Boolean = { EnvironmentUtil.isDevelopment() },
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBuilder.baseUrl(baseUrl)
@@ -51,34 +53,43 @@ class KlpTjenestepensjonClientFra2025(
                     .doOnConnected { it.addHandlerLast(ReadTimeoutHandler(ON_CONNECTED_READ_TIMEOUT_SECONDS)) })
         ).build()
 
-    override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
+    override fun simuler(
+        spec: SimulerOffentligTjenestepensjonFra2025SpecV1,
+        tpNummer: String
+    ): Result<SimulertTjenestepensjon> {
         val request: KlpSimulerTjenestepensjonRequest = mapToRequest(spec)
-        val response = if (clusterName() == "dev-gcp") {
-            provideMockResponse(spec)
-        } else {
-            sporingslogg.logUtgaaendeRequest(Organisasjoner.KLP, Pid(spec.pid), request.toString())
 
-            try {
-                webClient
-                    .post()
-                    .uri("$SIMULER_PATH/$tpNummer")
-                    .bodyValue(request)
-                    .headers(::setHeaders)
-                    .retrieve()
-                    .bodyToMono<KlpSimulerTjenestepensjonResponse>()
-                    .block()
-            } catch (e: WebClientResponseException) {
-                "Failed to simulate tjenestepensjon 2025 hos ${service.shortName} ${e.responseBodyAsString}".let {
-                    log.error(e) { it }
-                    return Result.failure(TjenestepensjonSimuleringException(it))
-                }
-            } catch (e: WebClientRequestException) {
-                "Failed to send request to simulate tjenestepensjon 2025 hos ${service.shortName}".let {
-                    log.error(e) { "$it med url ${e.uri}" }
-                    return Result.failure(TjenestepensjonSimuleringException(it))
-                }
+        if (isDevelopment())
+            return success(request, spec, mockResponse(spec))
+
+        sporingslogg.logUtgaaendeRequest(Organisasjoner.KLP, Pid(spec.pid), request.toString())
+
+        val response = try {
+            webClient
+                .post()
+                .uri("$SIMULER_PATH/$tpNummer")
+                .bodyValue(request)
+                .headers(::setHeaders)
+                .retrieve()
+                .bodyToMono<KlpSimulerTjenestepensjonResponse>()
+                .block()
+        } catch (e: WebClientResponseException) {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} ${e.responseBodyAsString}".let {
+                log.error(e) { it }
+                return Result.failure(TjenestepensjonSimuleringException(it))
+            }
+        } catch (e: WebClientRequestException) {
+            "Failed to send request to simulate tjenestepensjon 2025 at ${service.shortName}".let {
+                log.error(e) { "$it med url ${e.uri}" }
+                return Result.failure(TjenestepensjonSimuleringException(it))
+            }
+        } catch (e: EgressException) {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
+                log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
+                return Result.failure(TjenestepensjonSimuleringException(it))
             }
         }
+
         return response?.let { success(request, spec, it) }
             ?: Result.failure(TjenestepensjonSimuleringException("No response body"))
     }
@@ -110,16 +121,31 @@ class KlpTjenestepensjonClientFra2025(
         private val service = EgressService.KLP
         private const val ON_CONNECTED_READ_TIMEOUT_SECONDS = 45
 
-        fun provideMockResponse(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) =
+        private fun mockResponse(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) =
             KlpSimulerTjenestepensjonResponse(
                 inkludertOrdningListe = listOf(InkludertOrdning("3100")),
                 utbetalingsListe = listOf(
-                    Utbetaling(fraOgMedDato = spec.uttaksdato, manedligUtbetaling = 3576, arligUtbetaling = 42914, ytelseType = "PAASLAG"),
-                    Utbetaling(fraOgMedDato = spec.uttaksdato.plusYears(5), manedligUtbetaling = 2232, arligUtbetaling = 26779, ytelseType = "APOF2020"),
-                    Utbetaling(fraOgMedDato = spec.uttaksdato, manedligUtbetaling = 884, arligUtbetaling = 10609, ytelseType = "BTP"),
+                    Utbetaling(
+                        fraOgMedDato = spec.uttaksdato,
+                        manedligUtbetaling = 3576,
+                        arligUtbetaling = 42914,
+                        ytelseType = TjenestepensjonYtelseType.PAASLAG.kode
+                    ),
+                    Utbetaling(
+                        fraOgMedDato = spec.uttaksdato.plusYears(5),
+                        manedligUtbetaling = 2232,
+                        arligUtbetaling = 26779,
+                        ytelseType = TjenestepensjonYtelseType.ALDERSPENSJON_OPPTJENT_FOER_2020.kode
+                    ),
+                    Utbetaling(
+                        fraOgMedDato = spec.uttaksdato,
+                        manedligUtbetaling = 884,
+                        arligUtbetaling = 10609,
+                        ytelseType = TjenestepensjonYtelseType.BETINGET_TJENESTEPENSJON.kode
+                    ),
                 ),
                 arsakIngenUtbetaling = emptyList(),
-                betingetTjenestepensjonErInkludert = false,
+                betingetTjenestepensjonErInkludert = false
             )
     }
 }

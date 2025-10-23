@@ -84,7 +84,7 @@ object HentPrognoseMapper {
                     arligUtbetaling = utbetalingsperiode.arligUtbetaling,
                     datoFom = utbetalingsperiode.datoFom,
                     datoTom = utbetalingsperiode.datoTom,
-                    ytelsekode = utbetalingsperiode.ytelsekode
+                    ytelsekode = SimulerOffentligTjenestepensjonResultV1.YtelseCode.valueOf(utbetalingsperiode.ytelsekode)
                 )
             },
             brukerErIkkeMedlemAvTPOrdning = dto.brukerErIkkeMedlemAvTPOrdning,

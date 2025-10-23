@@ -26,8 +26,15 @@ data class SimulerOffentligTjenestepensjonResultV1(
             pattern = "yyyy-MM-dd",
             timezone = "CET"
         ) var datoTom: LocalDate?,
-        var ytelsekode: String
+        var ytelsekode: YtelseCode?
     )
+
+    enum class YtelseCode {
+        AP,
+        AFP,
+        SERALDER
+    }
+
 
     companion object {
         fun ikkeMedlem() =

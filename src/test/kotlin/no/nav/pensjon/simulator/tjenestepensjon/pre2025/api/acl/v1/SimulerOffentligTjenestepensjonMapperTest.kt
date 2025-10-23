@@ -77,7 +77,7 @@ class SimulerOffentligTjenestepensjonMapperTest : StringSpec({
         )
 
         val result: TjenestepensjonSimuleringPre2025Spec =
-            SimulerOffentligTjenestepensjonMapper.fromDto(specV1)
+            SimulerOffentligTjenestepensjonMapperV1.fromDto(specV1)
 
         // scalars
         result.pid shouldBe Pid(fnr)
@@ -140,7 +140,7 @@ class SimulerOffentligTjenestepensjonMapperTest : StringSpec({
             sprak = "NO"
         )
 
-        val result = SimulerOffentligTjenestepensjonMapper.fromDto(specV1)
+        val result = SimulerOffentligTjenestepensjonMapperV1.fromDto(specV1)
 
         result.sisteTpOrdningsTpNummer shouldBe ""
         result.simulertOffentligAfp shouldBe null
@@ -164,7 +164,7 @@ class SimulerOffentligTjenestepensjonMapperTest : StringSpec({
             sprak = "NO"
         )
 
-        val result = SimulerOffentligTjenestepensjonMapper.fromDto(specV1)
+        val result = SimulerOffentligTjenestepensjonMapperV1.fromDto(specV1)
 
         result.sivilstand shouldBe SivilstandKode.ENKE
     }

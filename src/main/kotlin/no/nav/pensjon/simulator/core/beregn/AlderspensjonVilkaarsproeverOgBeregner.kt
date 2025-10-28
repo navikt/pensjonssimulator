@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.beholdning
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
-import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -26,6 +25,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -39,7 +39,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val context: SimulatorContext,
     private val beregner: AlderspensjonBeregner,
     private val vilkaarsproever: Vilkaarsproever,
-    private val trygdetidFastsetter: TrygdetidFastsetter,
+    private val trygdetidBeregner: TrygdetidBeregnerProxy,
     private val sisteBeregningCreator: SisteBeregningCreator,
     private val normalderService: NormertPensjonsalderService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpGrunnlagService
@@ -315,7 +315,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         sakId: Long?
     ) {
         val response =
-            trygdetidFastsetter.fastsettTrygdetidForPeriode(spec, grunnlagRolle, kravGjelderUfoeretrygd, sakId)
+            trygdetidBeregner.fastsettTrygdetidForPeriode(spec, grunnlagRolle, kravGjelderUfoeretrygd, sakId)
 
         spec.persongrunnlag?.let {
             it.trygdetid = response.kapittel19

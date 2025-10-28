@@ -3,16 +3,16 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
 import no.nav.pensjon.simulator.trygdetid.InnlandTrygdetidUtil.addInnenlandsopphold
-import no.nav.pensjon.simulator.trygdetid.TrygdetidTrimmer.removeIkkeAvtaleland
 import no.nav.pensjon.simulator.trygdetid.TrygdetidTrimmer.aldersbegrens
+import no.nav.pensjon.simulator.trygdetid.TrygdetidTrimmer.removeIkkeAvtaleland
 import java.time.LocalDate
 
 /**
+ * PEN: SimulerFleksibelAPCommand.createTrygdetidsgrunnlagList
  * NB: Denne brukes bare i forbindelse med utenlandsopphold.
  */
 object TrygdetidsgrunnlagCreator {
 
-    // SimulerFleksibelAPCommand.createTrygdetidsgrunnlagList
     fun trygdetidsperiodeListe(
         utenlandsoppholdListe: List<TrygdetidOpphold>,
         foedselsdato: LocalDate,

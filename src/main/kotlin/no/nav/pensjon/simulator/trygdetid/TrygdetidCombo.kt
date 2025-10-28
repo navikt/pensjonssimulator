@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.knekkpunkt
+package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 

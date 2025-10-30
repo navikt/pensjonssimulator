@@ -15,10 +15,17 @@ data class PenAlderspensjonYtelser(
     val avdodVirkningFom: Date?,
     val sisteBeregning: SisteBeregning?,
     val forrigeBeregningsresultat: AbstraktBeregningsResultat?,
-    val forrigeVilkarsvedtakListe: List<VilkarsVedtak>?
+    val forrigeVilkarsvedtakListe: List<VilkarsVedtak>?,
+    val avdoed: PenAvdoedYtelser?
 )
 
 data class PenPrivatAfpYtelser(
     val virkningFom: Date? = null,
     val forrigeBeregningsresultat: AbstraktBeregningsResultat? = null
+)
+
+data class PenAvdoedYtelser (
+    val pid: String? = null,
+    val doedsdato: Date? = null,
+    val foersteVirkningsdato: Date? = null
 )

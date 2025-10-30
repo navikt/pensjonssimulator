@@ -48,7 +48,7 @@ class SimulatorCore(
     private val alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner,
     private val privatAfpBeregner: PrivatAfpBeregner,
     private val generalPersonService: GeneralPersonService,
-    private val personService: PersonService,
+    private val personService: PersonService, // pensjonsrelaterte persondata
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val offentligAfpBeregner: OffentligAfpBeregner,
@@ -68,8 +68,6 @@ class SimulatorCore(
             EndringValidator.validate(initialSpec)
         }
 
-        val grunnbeloep: Int = grunnbeloepService.naavaerendeGrunnbeloep()
-
         log.debug { "Simulator steg 1 - Hent løpende ytelser" }
 
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
@@ -82,14 +80,18 @@ class SimulatorCore(
         val foedselsdato: LocalDate? = person?.foedselsdato
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 
+        val specWithAvdoed = ytelser.avdoed?.let {
+            initialSpec.withAvdoed(avdoedPid = it.pid, doedsdato = it.doedsdato)
+        } ?: initialSpec
+
         val spec: SimuleringSpec =
-            if (initialSpec.gjelderPre2025OffentligAfp())
+            if (specWithAvdoed.gjelderPre2025OffentligAfp())
             // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
-                initialSpec.withHeltUttakDato(foedselsdato?.let {
+                specWithAvdoed.withHeltUttakDato(foedselsdato?.let {
                     uttakDato(foedselsdato = it, uttakAlder = normalderService.normalder(it))
                 })
             else
-                initialSpec
+                specWithAvdoed
 
 
         if (gjelderEndring) {
@@ -97,6 +99,8 @@ class SimulatorCore(
         }
 
         log.debug { "Simulator steg 2 - Opprett kravhode" }
+
+        val grunnbeloep: Int = grunnbeloepService.naavaerendeGrunnbeloep()
 
         var kravhode: Kravhode = kravhodeCreator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(
@@ -148,7 +152,7 @@ class SimulatorCore(
                 kravhode,
                 simulering = spec,
                 soekerVirkningFom = ytelser.soekerVirkningFom,
-                avdoedVirkningFom = ytelser.avdoedVirkningFom,
+                avdoedVirkningFom = ytelser.avdoed?.foersteVirkningsdato,
                 forrigeAlderspensjonBeregningResultatVirkningFom =
                     ytelser.forrigeAlderspensjonBeregningResultat?.virkFom?.toNorwegianLocalDate(),
                 sakId = kravhode.sakId
@@ -175,7 +179,7 @@ class SimulatorCore(
                     knekkpunkter = knekkpunktMap,
                     simulering = spec,
                     sokerForsteVirk = ytelser.soekerVirkningFom,
-                    avdodForsteVirk = ytelser.avdoedVirkningFom,
+                    avdodForsteVirk = ytelser.avdoed?.foersteVirkningsdato,
                     forrigeVilkarsvedtakListe = ytelser.forrigeVedtakListe,
                     forrigeAlderBeregningsresultat = ytelser.forrigeAlderspensjonBeregningResultat,
                     sisteBeregning = ytelser.sisteBeregning,

@@ -13,26 +13,26 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.time.LocalDate
 
 @Component
 class PdlGeneralPersonClient(
-    @Value("\${ps.persondata.url}") private val baseUrl: String,
-    webClientBuilder: WebClient.Builder,
+    @param:Value("\${ps.persondata.url}") private val baseUrl: String,
+    webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String
 ) : ExternalServiceClient(retryAttempts), GeneralPersonClient {
 
-    private val webClient: WebClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val cache: Cache<Pid, LocalDate> = createCache("foedselsdato", cacheManager)
     private val log = KotlinLogging.logger {}
 

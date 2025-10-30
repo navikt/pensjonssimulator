@@ -5,41 +5,36 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
-import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
+import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.WebClientBase
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
-import org.springframework.boot.autoconfigure.AutoConfigurations
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
-import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 
 class PenKravClientTest : FunSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
-    beforeSpec {
-        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
-
-        SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
-            TestingAuthenticationToken(
-                "TEST_USER",
-                Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
-            ),
-            EgressTokenSuppliersByService(mapOf())
+    fun client(context: BeanFactory) =
+        PenKravClient(
+            baseUrl!!,
+            retryAttempts = "0",
+            webClientBase = context.getBean(WebClientBase::class.java),
+            cacheManager = CaffeineCacheManager(),
+            traceAid = mockk<TraceAid>(relaxed = true),
         )
 
-        server = MockWebServer().also { it.start() }
+    beforeSpec {
+        Arrange.security()
+        server = MockWebServer().apply { start() }
         baseUrl = "http://localhost:${server.port}"
     }
 
@@ -48,27 +43,14 @@ class PenKravClientTest : FunSpec({
     }
 
     test("fetchKravhode deserializes response") {
-        val contextRunner = ApplicationContextRunner().withConfiguration(
-            AutoConfigurations.of(WebClientAutoConfiguration::class.java)
-        )
-
         server!!.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setResponseCode(HttpStatus.OK.value()).setBody(PenKravhodeResponse.KRAVHODE)
         )
 
-        contextRunner.run {
-            val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenKravClient(
-                baseUrl!!,
-                retryAttempts = "0",
-                webClientBuilder,
-                cacheManager = CaffeineCacheManager(),
-                traceAid = mockk(relaxed = true)
-            )
-
-            val result: Kravhode = client.fetchKravhode(123L)
+        Arrange.webClientContextRunner().run {
+            val result: Kravhode = client(context = it).fetchKravhode(123L)
 
             result.persongrunnlagListe.size shouldBe 1
             with(result.persongrunnlagListe[0]) {

@@ -9,21 +9,21 @@ import no.nav.pensjon.simulator.tech.security.egress.token.TokenData
 import no.nav.pensjon.simulator.tech.security.egress.token.TokenDataGetter
 import no.nav.pensjon.simulator.tech.security.egress.token.validation.ExpirationChecker
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.http.MediaType
 import org.springframework.util.MultiValueMap
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
 abstract class OAuth2TokenClient(
     private val tokenEndpoint: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     retryAttempts: String,
     private val expirationChecker: ExpirationChecker
 ) : ExternalServiceClient(retryAttempts), TokenDataGetter {
 
     private val log = KotlinLogging.logger {}
-    private val webClient = webClientBuilder.baseUrl(tokenEndpoint).build()
+    private val webClient = webClientBase.withBaseUrl(tokenEndpoint)
 
     override fun service() = service
 

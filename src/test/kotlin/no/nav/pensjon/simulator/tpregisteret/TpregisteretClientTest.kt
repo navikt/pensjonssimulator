@@ -2,48 +2,36 @@ package no.nav.pensjon.simulator.tpregisteret
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
-import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
+import io.mockk.mockk
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.testutil.TestObjects.jwt
+import no.nav.pensjon.simulator.tech.web.WebClientBase
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.organisasjonsnummer
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
-import org.mockito.Mockito.mock
-import org.springframework.boot.autoconfigure.AutoConfigurations
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
-import org.springframework.boot.test.context.assertj.AssertableApplicationContext
-import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.reactive.function.client.WebClient
 
-/**
- * NB: These tests work with Mockito, but not with Mockk.
- * Reason: Pid and Organisasjonsnummer are @JvmInline value class (which Mockk does not support)
- */
 class TpregisteretClientTest : FunSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
+    fun client(context: BeanFactory) =
+        TpregisteretClient(
+            baseUrl!!,
+            retryAttempts = "0",
+            webClientBase = context.getBean(WebClientBase::class.java),
+            traceAid = mockk<TraceAid>(relaxed = true),
+        )
+
     beforeSpec {
-        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
-
-        SecurityContextHolder.getContext().authentication =
-            EnrichedAuthentication(
-                initialAuth = TestingAuthenticationToken("TEST_USER", jwt),
-                egressTokenSuppliersByService = EgressTokenSuppliersByService(mapOf())
-            )
-
-        server = MockWebServer().also {
-            it.start()
-            baseUrl = "http://localhost:${it.port}"
-        }
+        Arrange.security()
+        server = MockWebServer().apply { start() }
+        baseUrl = "http://localhost:${server.port}"
     }
 
     afterSpec {
@@ -53,9 +41,8 @@ class TpregisteretClientTest : FunSpec({
     test("should have PID as request body") {
         arrangeForhold(server, harForhold = true)
 
-        arrangeContextRunner().run {
-            val client = client(baseUrl, arrangeWebClient(it))
-            client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer)
             server?.takeRequest()?.let(::assertBodyIsPid)
         }
     }
@@ -63,55 +50,35 @@ class TpregisteretClientTest : FunSpec({
     test("should return true when response has forhold as true") {
         arrangeForhold(server, harForhold = true)
 
-        arrangeContextRunner().run {
-            val client = client(baseUrl, arrangeWebClient(it))
-            client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe true
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe true
         }
     }
 
     test("should return false when response has forhold as false") {
         arrangeForhold(server, harForhold = false)
 
-        arrangeContextRunner().run {
-            val client = client(baseUrl, arrangeWebClient(it))
-            client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe false
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe false
         }
     }
 
     test("should return false when response is null") {
         arrangeForhold(server, harForhold = null)
 
-        arrangeContextRunner().run {
-            val client = client(baseUrl, arrangeWebClient(it))
-            client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe false
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe false
         }
     }
 
     test("should return false when tpregisteret has internal server error") {
         arrangeInternalError(server)
 
-        arrangeContextRunner().run {
-            val client = client(baseUrl, arrangeWebClient(it))
-            client.hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe false
+        Arrange.webClientContextRunner().run {
+            client(context = it).hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) shouldBe false
         }
     }
 })
-
-private fun client(baseUrl: String?, webClientBuilder: WebClient.Builder) =
-    TpregisteretClient(
-        baseUrl = baseUrl ?: throw RuntimeException("baseUrl is null"),
-        retryAttempts = "0",
-        webClientBuilder,
-        traceAid = mock(TraceAid::class.java)
-    )
-
-private fun arrangeContextRunner() =
-    ApplicationContextRunner().withConfiguration(
-        AutoConfigurations.of(WebClientAutoConfiguration::class.java)
-    )
-
-private fun arrangeWebClient(context: AssertableApplicationContext): WebClient.Builder =
-    context.getBean(WebClient.Builder::class.java)
 
 private fun arrangeForhold(server: MockWebServer?, harForhold: Boolean?) {
     server?.enqueue(

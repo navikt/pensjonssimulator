@@ -1,12 +1,11 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.booleans.shouldBeFalse
-import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -22,62 +21,62 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.Tjenestepensjo
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
 import java.time.LocalDate
 
-class SpkTjenestepensjonServiceUnitTest : FunSpec({
+class SpkTjenestepensjonServiceTest : FunSpec({
 
     val client = mockk<SpkTjenestepensjonClientFra2025>(relaxed = true)
     val featureToggleService = mockk<FeatureToggleService>(relaxed = true)
-
-    val service = SpkTjenestepensjonService(
-        client = client,
-        featureToggleService = featureToggleService
-    )
+    val service = SpkTjenestepensjonService(client, featureToggleService)
 
     beforeTest {
         clearMocks(client, featureToggleService)
         every { client.service() } returns EgressService.SPK
     }
 
-    test("simuler gruppering og sortering av tjenestepensjon fra spk") {
-        val req = dummyRequest("1963-02-05")
-        every { client.simuler(req, "3010") } returns dummyResult()
-        every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns true
+    test("simuler gruppering og sortering av tjenestepensjon fra SPK") {
+        val request = dummyRequest("1963-02-05")
+        every { client.simuler(request, tpNummer = "3010") } returns dummyResult()
+        every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns true
 
-        val res: Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> = service.simuler(req, "3010")
+        val result: Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> = service.simuler(request, tpNummer = "3010")
 
-        res.isSuccess.shouldBeTrue()
-        val tp = res.getOrNull().shouldNotBeNull()
-        tp.tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
-        tp.betingetTjenestepensjonErInkludert.shouldBeFalse()
-        tp.ordningsListe shouldHaveSize 1
-        tp.utbetalingsperioder shouldHaveSize 2
-
-        tp.utbetalingsperioder[0].fraOgMedDato shouldBe LocalDate.parse("2026-01-01")
-        tp.utbetalingsperioder[0].maanedsBeloep shouldBe 3000
-        tp.utbetalingsperioder[0].fraOgMedAlder.aar shouldBe 62
-        tp.utbetalingsperioder[0].fraOgMedAlder.maaneder shouldBe 10
-
-        tp.utbetalingsperioder[1].fraOgMedDato shouldBe LocalDate.parse("2026-03-01")
-        tp.utbetalingsperioder[1].maanedsBeloep shouldBe 7000
-        tp.utbetalingsperioder[1].fraOgMedAlder.aar shouldBe 63
-        tp.utbetalingsperioder[1].fraOgMedAlder.maaneder shouldBe 0
+        result.isSuccess shouldBe true
+        with(result.getOrNull().shouldNotBeNull()) {
+            tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
+            betingetTjenestepensjonErInkludert shouldBe false
+            ordningsListe shouldHaveSize 1
+            utbetalingsperioder shouldHaveSize 2
+            with(utbetalingsperioder[0]) {
+                fraOgMedDato shouldBe LocalDate.parse("2026-01-01")
+                maanedsBeloep shouldBe 3000
+                fraOgMedAlder.aar shouldBe 62
+                fraOgMedAlder.maaneder shouldBe 10
+            }
+            with(utbetalingsperioder[1]) {
+                fraOgMedDato shouldBe LocalDate.parse("2026-03-01")
+                maanedsBeloep shouldBe 7000
+                fraOgMedAlder.aar shouldBe 63
+                fraOgMedAlder.maaneder shouldBe 0
+            }
+        }
     }
 
-    test("simuler med BTP fra spk") {
-        val req = dummyRequest("1963-02-05")
-        every { client.simuler(req, "3010") } returns dummyResult(inkluderBTP = true)
-        every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns true
+    test("simuler med betinget tjenestepensjon fra SPK") {
+        val request = dummyRequest("1963-02-05")
+        every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns true
+        every {
+            client.simuler(spec = request, tpNummer = "3010")
+        } returns dummyResult(inkluderBetingetTjenestepensjon = true)
 
-        val res = service.simuler(req, "3010")
+        val result = service.simuler(request, "3010")
 
-        res.isSuccess.shouldBeTrue()
-        val tp = res.getOrNull().shouldNotBeNull()
-        tp.betingetTjenestepensjonErInkludert.shouldBeTrue()
+        result.isSuccess shouldBe true
+        result.getOrNull().shouldNotBeNull().betingetTjenestepensjonErInkludert shouldBe true
     }
 
-    test("afp fjernes fra utbetalingsperioder fra spk") {
-        val req = dummyRequest("1963-02-05")
+    test("AFP fjernes fra utbetalingsperioder fra SPK") {
+        val request = dummyRequest("1963-02-05")
         every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns true
-        every { client.simuler(req, "3010") } returns Result.success(
+        every { client.simuler(request, "3010") } returns Result.success(
             SimulertTjenestepensjon(
                 tpLeverandoer = "spk",
                 ordningsListe = listOf(Ordning("3010")),
@@ -93,33 +92,38 @@ class SpkTjenestepensjonServiceUnitTest : FunSpec({
             )
         )
 
-        val res = service.simuler(req, "3010")
+        val result = service.simuler(request, tpNummer = "3010")
 
-        res.isSuccess.shouldBeTrue()
-        val tp = res.getOrNull().shouldNotBeNull()
-        tp.tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
-        tp.betingetTjenestepensjonErInkludert.shouldBeFalse()
-        tp.ordningsListe shouldHaveSize 1
-        tp.utbetalingsperioder.shouldBeEmpty()
+        result.isSuccess shouldBe true
+        with(result.getOrNull().shouldNotBeNull()) {
+            tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
+            betingetTjenestepensjonErInkludert shouldBe false
+            ordningsListe shouldHaveSize 1
+            utbetalingsperioder.shouldBeEmpty()
+        }
     }
 
     test("simulering skal ikke gjoeres if feature toggle er av") {
-        val req = dummyRequest("1963-02-05")
-        every { client.simuler(req, "3010") } returns dummyResult(inkluderBTP = true)
-        every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns false
+        val request = dummyRequest("1963-02-05")
+        every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns false
+        every {
+            client.simuler(spec = request, tpNummer = "3010")
+        } returns dummyResult(inkluderBetingetTjenestepensjon = true)
 
-        val res = service.simuler(req, "3010")
+        val result = service.simuler(request, tpNummer = "3010")
 
-        res.isFailure.shouldBeTrue()
-        val ex = res.exceptionOrNull().shouldNotBeNull()
-        (ex is TjenestepensjonSimuleringException).shouldBeTrue()
-        ex.message!!.contains("Simulering av tjenestepensjon hos SPK er slått av").shouldBeTrue()
+        with(result) {
+            isFailure shouldBe true
+            exceptionOrNull()
+                .shouldBeInstanceOf<TjenestepensjonSimuleringException>()
+                .message.contains("Simulering av tjenestepensjon hos SPK er slått av") shouldBe true
+        }
     }
 
     test("result skal vaere failure hvis ikke siste ordning") {
-        val req = dummyRequest("1963-02-05")
-        every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns true
-        every { client.simuler(req, "3010") } returns Result.success(
+        val request = dummyRequest("1963-02-05")
+        every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns true
+        every { client.simuler(spec = request, tpNummer = "3010") } returns Result.success(
             SimulertTjenestepensjon(
                 tpLeverandoer = "spk",
                 ordningsListe = listOf(Ordning("3010")),
@@ -135,15 +139,13 @@ class SpkTjenestepensjonServiceUnitTest : FunSpec({
             )
         )
 
-        val res = service.simuler(req, "3010")
-
-        res.isFailure.shouldBeTrue()
+        service.simuler(request, tpNummer = "3010").isFailure shouldBe true
     }
 
     test("result should be failure with IkkeSisteOrdningException if not the last arrangement") {
-        val req = dummyRequest("1963-02-05")
+        val request = dummyRequest("1963-02-05")
         every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns true
-        every { client.simuler(req, "3010") } returns Result.success(
+        every { client.simuler(request, "3010") } returns Result.success(
             SimulertTjenestepensjon(
                 tpLeverandoer = "spk",
                 ordningsListe = listOf(Ordning("3010")),
@@ -153,17 +155,18 @@ class SpkTjenestepensjonServiceUnitTest : FunSpec({
             )
         )
 
-        val res = service.simuler(req, "3010")
+        val result = service.simuler(request, tpNummer = "3010")
 
-        res.isFailure.shouldBeTrue()
-        val ex = res.exceptionOrNull().shouldNotBeNull()
-        (ex is IkkeSisteOrdningException).shouldBeTrue()
-        (ex as IkkeSisteOrdningException).tpOrdning shouldBe "SPK"
+        with(result) {
+            isFailure shouldBe true
+            exceptionOrNull()
+                .shouldBeInstanceOf<IkkeSisteOrdningException>()
+                .tpOrdning shouldBe "SPK"
+        }
     }
 }) {
-
     companion object {
-        fun dummyResult(inkluderBTP: Boolean = false): Result<SimulertTjenestepensjon> =
+        fun dummyResult(inkluderBetingetTjenestepensjon: Boolean = false): Result<SimulertTjenestepensjon> =
             Result.success(
                 SimulertTjenestepensjon(
                     tpLeverandoer = "spk",
@@ -190,7 +193,7 @@ class SpkTjenestepensjonServiceUnitTest : FunSpec({
                             ytelseType = "APOF2020"
                         ),
                     ),
-                    betingetTjenestepensjonErInkludert = inkluderBTP,
+                    betingetTjenestepensjonErInkludert = inkluderBetingetTjenestepensjon,
                     erSisteOrdning = true
                 )
             )

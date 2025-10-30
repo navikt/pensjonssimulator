@@ -5,38 +5,36 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
-import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
-import no.nav.pensjon.simulator.testutil.TestObjects.jwt
+import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.WebClientBase
+import no.nav.pensjon.simulator.testutil.Arrange
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
-import org.springframework.boot.autoconfigure.AutoConfigurations
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
-import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDate
 
 class PenPersonClientTest : FunSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
-    beforeSpec {
-        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
-
-        SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
-            TestingAuthenticationToken("TEST_USER", jwt),
-            EgressTokenSuppliersByService(mapOf())
+    fun client(context: BeanFactory) =
+        PenPersonClient(
+            baseUrl!!,
+            retryAttempts = "0",
+            webClientBase = context.getBean(WebClientBase::class.java),
+            cacheManager = CaffeineCacheManager(),
+            traceAid = mockk<TraceAid>(relaxed = true),
         )
 
-        server = MockWebServer().also { it.start() }
-        baseUrl = server.let { "http://localhost:${it.port}" }
+    beforeSpec {
+        Arrange.security()
+        server = MockWebServer().apply { start() }
+        baseUrl = "http://localhost:${server.port}"
     }
 
     afterSpec {
@@ -44,23 +42,14 @@ class PenPersonClientTest : FunSpec({
     }
 
     test("fetchPersonerVedPid") {
-        val contextRunner = ApplicationContextRunner().withConfiguration(
-            AutoConfigurations.of(WebClientAutoConfiguration::class.java)
-        )
-
         server?.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setResponseCode(HttpStatus.OK.value()).setBody(PenPersonHistorikkResponse.BODY)
         )
 
-        contextRunner.run {
-            val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenPersonClient(
-                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mockk(relaxed = true)
-            )
-
-            val result: Map<Pid, PenPerson> = client.fetchPersonerVedPid(listOf(Pid("22426305678")))
+        Arrange.webClientContextRunner().run {
+            val result: Map<Pid, PenPerson> = client(context = it).fetchPersonerVedPid(listOf(Pid("22426305678")))
 
            with(result[Pid("22426305678")]!!) {
                penPersonId shouldBe 123456L

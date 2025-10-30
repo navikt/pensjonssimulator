@@ -5,24 +5,19 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
-import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
-import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
+import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.WebClientBase
+import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import no.nav.pensjon.simulator.testutil.TestObjects.jwt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
-import org.springframework.boot.autoconfigure.AutoConfigurations
-import org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
-import org.springframework.boot.test.context.runner.ApplicationContextRunner
+import org.springframework.beans.factory.BeanFactory
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 
 class PenSakClientTest : FunSpec({
@@ -30,16 +25,19 @@ class PenSakClientTest : FunSpec({
     var baseUrl: String? = null
     val defaultTimeZone = TimeZone.getDefault()
 
-    beforeSpec {
-        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext())
-
-        SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
-            TestingAuthenticationToken("TEST_USER", jwt),
-            EgressTokenSuppliersByService(mapOf())
+    fun client(context: BeanFactory) =
+        PenSakClient(
+            baseUrl!!,
+            retryAttempts = "0",
+            webClientBase = context.getBean(WebClientBase::class.java),
+            cacheManager = CaffeineCacheManager(),
+            traceAid = mockk<TraceAid>(relaxed = true),
         )
 
-        server = MockWebServer().also { it.start() }
-        baseUrl = server.let { "http://localhost:${it.port}" }
+    beforeSpec {
+        Arrange.security()
+        server = MockWebServer().apply { start() }
+        baseUrl = "http://localhost:${server.port}"
         TimeZone.setDefault(TimeZone.getTimeZone("CET"))
     }
 
@@ -49,23 +47,14 @@ class PenSakClientTest : FunSpec({
     }
 
     test("fetchPersonVirkningDato") {
-        val contextRunner = ApplicationContextRunner().withConfiguration(
-            AutoConfigurations.of(WebClientAutoConfiguration::class.java)
-        )
-
         server?.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .setResponseCode(HttpStatus.OK.value()).setBody(PenPersonVirkningDatoResponse.RESPONSE_BODY)
         )
 
-        contextRunner.run {
-            val webClientBuilder = it.getBean(WebClient.Builder::class.java)
-            val client = PenSakClient(
-                baseUrl!!, retryAttempts = "0", webClientBuilder, CaffeineCacheManager(), mockk(relaxed = true)
-            )
-
-            val result: FoersteVirkningDatoCombo = client.fetchPersonVirkningDato(pid)
+        Arrange.webClientContextRunner().run {
+            val result: FoersteVirkningDatoCombo = client(context = it).fetchPersonVirkningDato(pid)
 
             with(result) {
                 foersteVirkningDatoGrunnlagListe.size shouldBe 2

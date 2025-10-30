@@ -6,6 +6,7 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
 import no.nav.pensjon.simulator.testutil.arrangeResponse
@@ -24,8 +25,8 @@ class OpptjeningClientTest : FunSpec({
     fun client(context: BeanFactory) =
         OpptjeningClient(
             baseUrl!!,
-            webClientBuilder = context.getBean(WebClient.Builder::class.java),
             retryAttempts = "1",
+            webClientBase = context.getBean(WebClientBase::class.java),
             traceAid = mockk<TraceAid>(relaxed = true),
             time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
         )

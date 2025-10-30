@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.tech.security.egress.token
 
 import no.nav.pensjon.simulator.tech.security.egress.oauth2.OAuth2TokenClient
 import no.nav.pensjon.simulator.tech.security.egress.token.validation.ExpirationChecker
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.util.StringUtils.hasLength
-import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
 
 /**
@@ -14,12 +14,12 @@ import java.util.*
  */
 abstract class CacheAwareTokenClient(
     tokenEndpoint: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     retryAttempts: String,
     expirationChecker: ExpirationChecker
 ) : OAuth2TokenClient(
     tokenEndpoint,
-    webClientBuilder,
+    webClientBase,
     retryAttempts,
     expirationChecker
 ) {

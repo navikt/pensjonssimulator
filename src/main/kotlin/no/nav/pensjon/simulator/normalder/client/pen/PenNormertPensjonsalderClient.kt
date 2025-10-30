@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
@@ -25,12 +26,12 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 class PenNormertPensjonsalderClient(
     @Value("\${ps.pen.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid,
 ) : ExternalServiceClient(retryAttempts), NormertPensjonsalderClient {
 
-    private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
 
     private val cache: Cache<Int, List<Aldersgrenser>> =
         createCache("normertPensjonsalder", cacheManager)

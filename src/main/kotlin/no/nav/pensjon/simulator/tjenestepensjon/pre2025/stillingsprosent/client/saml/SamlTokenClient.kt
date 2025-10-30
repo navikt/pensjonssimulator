@@ -3,19 +3,19 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
-@Service
+@Component
 class SamlTokenClient(
     @param:Value("\${ps.sts.url}") private val baseUrl: String,
-    webClientBuilder: WebClient.Builder,
-    ) {
-    private val webClient: WebClient = webClientBuilder.baseUrl(baseUrl).build()
+    webClientBase: WebClientBase
+) {
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val log = KotlinLogging.logger {}
 
     var samlAccessToken: SamlToken = SamlToken("", expiresIn = -1)
@@ -36,19 +36,20 @@ class SamlTokenClient(
                 .retrieve()
                 .bodyToMono(SamlToken::class.java)
                 .block()
-                .also { log.info { "Hentet SAML token fra fss-gateway" } } ?: throw RuntimeException("Failed to fetch SAML token from fss-gateway")
+                .also { log.debug { "Hentet SAML token fra fss-gateway" } }
+                ?: throw RuntimeException("Failed to fetch SAML token from fss-gateway")
         } catch (e: WebClientRequestException) {
             log.error(e) { "Failed to fetch SAML, WebClientRequestException" }
-            throw RuntimeException(DEFAULT_ERROR_MSG, e)
+            throw RuntimeException(DEFAULT_ERROR_MESSAGE, e)
         } catch (e: WebClientResponseException) {
             log.error(e) { "Failed to fetch SAML, WebClientResponseException" }
-            throw RuntimeException(DEFAULT_ERROR_MSG, e)
+            throw RuntimeException(DEFAULT_ERROR_MESSAGE, e)
         }
     }
 
     companion object {
-        private const val DEFAULT_ERROR_MSG = "Failed to fetch SAML token from fss-gateway"
-        const val TOKEN_EXCHANGE_PATH = "/rest/v1/sts/token/exchange?serviceUserId=3"
+        private const val DEFAULT_ERROR_MESSAGE = "Failed to fetch SAML token from fss-gateway"
+        private const val TOKEN_EXCHANGE_PATH = "/rest/v1/sts/token/exchange?serviceUserId=3"
 
         private fun body(token: String) =
             BodyInserters

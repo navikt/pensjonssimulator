@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
@@ -33,7 +34,7 @@ class KlpTjenestepensjonServiceTest : ShouldSpec({
         result.isSuccess shouldBe true
         with(result.getOrNull().shouldNotBeNull()) {
             betingetTjenestepensjonErInkludert shouldBe false
-            utbetalingsperioder.size shouldBe 2
+            utbetalingsperioder shouldHaveSize 2
         }
     }
 

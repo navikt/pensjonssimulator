@@ -9,11 +9,11 @@ import no.nav.pensjon.simulator.tech.sporing.client.samhandling.acl.SamhandlingS
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
@@ -21,11 +21,11 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 class SamhandlingSporingsloggClient(
     @Value("\${ps.sporingslogg.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     private val traceAid: TraceAid,
 ) : ExternalServiceClient(retryAttempts), SporingsloggClient {
 
-    private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
 
     override fun service() = service
 

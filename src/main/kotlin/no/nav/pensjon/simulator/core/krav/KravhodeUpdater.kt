@@ -20,14 +20,14 @@ import no.nav.pensjon.simulator.core.trygd.InngangOgEksportGrunnlagFactory.newIn
 import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland
 import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland
 import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagSpec
-import no.nav.pensjon.simulator.core.trygd.TrygdetidSetter
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe
 import no.nav.pensjon.simulator.trygdetid.Kapittel20TrygdetidsgrunnlagCreator.kapittel20TrygdetidsperiodeListe
+import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagSpec
+import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*

@@ -32,6 +32,7 @@ import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.tech.metric.Metrics
+import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
@@ -80,8 +81,11 @@ class SimulatorCore(
         val foedselsdato: LocalDate? = person?.foedselsdato
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
 
-        val specWithAvdoed = ytelser.avdoed?.let {
-            initialSpec.withAvdoed(avdoedPid = it.pid, doedsdato = it.doedsdato)
+        val specWithAvdoed = ytelser.avdoed?.pid?.let {
+            initialSpec.withAvdoed(
+                avdoedPid = it,
+                doedsdato = ytelser.avdoed.doedsdato ?: throw EgressException("Missing dødsdato in PEN response")
+            )
         } ?: initialSpec
 
         val spec: SimuleringSpec =

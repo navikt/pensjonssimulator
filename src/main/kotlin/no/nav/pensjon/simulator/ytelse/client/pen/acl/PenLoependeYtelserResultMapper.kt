@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.ytelse.client.pen.acl
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelser
 import no.nav.pensjon.simulator.ytelse.AvdoedYtelser
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
@@ -40,10 +39,9 @@ object PenLoependeYtelserResultMapper {
 
     private fun avdoedYtelser(source: PenAvdoedYtelser) =
         AvdoedYtelser(
-            pid = source.pid?.let(::Pid) ?: throw EgressException("Missing PID for avdød in PEN response"),
-            doedsdato = source.doedsdato?.toNorwegianLocalDate()
-                ?: throw EgressException("Missing dødsdato in PEN response"),
-            foersteVirkningsdato = source.foersteVirkningsdato?.toNorwegianLocalDate() // may be null
+            pid = source.pid?.let(::Pid),
+            doedsdato = source.doedsdato?.toNorwegianLocalDate(),
+            foersteVirkningsdato = source.foersteVirkningsdato?.toNorwegianLocalDate()
         )
 
     private fun setErHovedkrav(vedtak: VilkarsVedtak): VilkarsVedtak {

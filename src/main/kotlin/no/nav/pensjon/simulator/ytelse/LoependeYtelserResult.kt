@@ -26,7 +26,7 @@ data class PrivatAfpYtelser(
 )
 
 data class AvdoedYtelser (
-    val pid: Pid,
-    val doedsdato: LocalDate,
+    val pid: Pid?,
+    val doedsdato: LocalDate?,
     val foersteVirkningsdato: LocalDate?
 )

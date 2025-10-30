@@ -1,12 +1,14 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
@@ -15,6 +17,8 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensjonResultat
+import no.nav.pensjon.simulator.core.exception.BadSpecException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
@@ -67,7 +71,11 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 simuleringSpec
             )
 
-            beregnRevurdering(revurderingSpec, sakId)
+            try {
+                return beregnRevurdering(revurderingSpec, sakId)
+            } catch (e: RegelmotorValideringException) {
+                handleException(e, simuleringSpec.type, vedtakListe)
+            }
         }
     }
 
@@ -121,6 +129,14 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         private const val EPS_PEN_PERSON_ID = -2L
         private val innvilgetResultat = VedtakResultatEnum.INNV
 
+        /**
+         * Feilmeldingskoder fra pensjon-regler.
+         */
+        private val feilmeldingerSomSammenIndikererGjenlevendeInvolvering = listOf(
+            "VILKARSVEDTAK_KontrollerVilkarsVedtakLogiskSammenhengRS.VilkarsVedtakKravlinjeMangler",
+            "VILKARSVEDTAK_KontrollerVilkarsVedtakLogiskSammenhengRS.VilkarsVedtakRelatertPersonFinnesIkke"
+        )
+
         // VilkarsprovOgBeregnAlderHelper.createInnvilgetVilkarsvedtak
         private fun innvilgetVedtak(kravlinje: Kravlinje, virkningFom: LocalDate): VilkarsVedtak {
             val vedtakResultat = VedtakResultatEnum.INNV
@@ -134,8 +150,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
                 this.penPerson = kravlinje.relatertPerson
                 this.forsteVirk = virkningFom.toNorwegianDateAtNoon()
-            }.also {
-                it.finishInit()
+                this.finishInit()
             }
         }
 
@@ -159,7 +174,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakResultatEnum = innvilgetResultat
                 begrunnelseEnum = null
                 merknadListe = mutableListOf()
-            } //.also { log.warn { "MUTATED VilkarsVedtak - innvilget" } }
+            }
 
         // PEN: VilkarsprovOgBeregnAlderHelper.buildBeregnApRequest
         private fun beregningCommonSpec(
@@ -393,5 +408,27 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         private fun clearFormelMap(pensjon: Basispensjon) {
             pensjon.tp?.formelMap?.clear()
         }
+
+        private fun handleException(
+            e: RegelmotorValideringException,
+            simuleringType: SimuleringTypeEnum,
+            vedtakListe: List<VilkarsVedtak>
+        ): Nothing {
+            if (indikererGjenlevendeInvolvering(e.merknadListe) && involvererGjenlevende(vedtakListe))
+                throw BadSpecException("Pensjonen involverer gjenlevenderett, noe som ikke støttes for simuleringstype $simuleringType")
+            else
+                throw e
+        }
+
+        private fun indikererGjenlevendeInvolvering(merknadListe: List<Merknad>): Boolean =
+            feilmeldingerSomSammenIndikererGjenlevendeInvolvering.all {
+                anyMatchingKode(merknadListe, kode = it)
+            }
+
+        private fun involvererGjenlevende(vedtakListe: List<VilkarsVedtak>): Boolean =
+            vedtakListe.any { it.kravlinje?.kravlinjeTypeEnum == KravlinjeTypeEnum.GJR }
+
+        private fun anyMatchingKode(merknadListe: List<Merknad>, kode: String): Boolean =
+            merknadListe.any { it.kode == kode }
     }
 }

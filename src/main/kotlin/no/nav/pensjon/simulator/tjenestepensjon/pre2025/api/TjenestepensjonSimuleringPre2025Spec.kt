@@ -21,7 +21,7 @@ data class TjenestepensjonSimuleringPre2025Spec(
 
 data class SimulertOffentligAfp(
     val brutto: Int,
-    val tidligerePensjonsgivendeInntekt: Int
+    val tidligerePensjonsgivendeInntekt: Int = 0
 )
 
 data class SimulertPrivatAfp(

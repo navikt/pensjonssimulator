@@ -8,14 +8,13 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.tpOrdningStoettesIkke
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.YtelseCode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
@@ -93,7 +92,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
                     arligUtbetaling = 120000.0,
                     datoFom = LocalDate.of(2055, 1, 1),
                     datoTom = null,
-                    ytelsekode = "123"
+                    ytelsekode = YtelseCode.AP
                 )
             ),
             brukerErIkkeMedlemAvTPOrdning = false,
@@ -111,7 +110,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
         result.utbetalingsperiodeListe[0]?.arligUtbetaling shouldBe 120000.0
         result.utbetalingsperiodeListe[0]?.datoFom shouldBe LocalDate.of(2055, 1, 1)
         result.utbetalingsperiodeListe[0]?.datoTom shouldBe null
-        result.utbetalingsperiodeListe[0]?.ytelsekode shouldBe "123"
+        result.utbetalingsperiodeListe[0]?.ytelsekode shouldBe YtelseCode.AP
         result.brukerErIkkeMedlemAvTPOrdning shouldBe false
         result.brukerErMedlemAvTPOrdningSomIkkeStoettes shouldBe false
     }

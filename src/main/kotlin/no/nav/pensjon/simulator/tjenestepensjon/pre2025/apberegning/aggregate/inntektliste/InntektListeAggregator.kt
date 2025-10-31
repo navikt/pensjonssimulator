@@ -8,14 +8,17 @@ import java.time.LocalDate
 
 object InntektListeAggregator {
 
-    fun aggregate(spec: InntektListeSpec): List<Inntekt> {
+    fun aggregate(spec: InntektListeSpec,
+                  actualTime: LocalDate = LocalDate.now(),
+                  sisteGyldigeOpptjeningsaar: Int = SISTE_GYLDIGE_OPPTJENING_AAR): List<Inntekt> {
+
         val inntektList: MutableList<Inntekt> = ArrayList()
 
         // First inntekt before uttak
         val inntektFoerFoersteUttak = spec.inntektFoerFoersteUttak
         inntektList.add(
             Inntekt(
-                LocalDate.now().withYear(SISTE_GYLDIGE_OPPTJENING_AAR + 1).withDayOfYear(1),
+                actualTime.withYear(sisteGyldigeOpptjeningsaar + 1).withDayOfYear(1),
                 inntektFoerFoersteUttak.toDouble()
             )
         )

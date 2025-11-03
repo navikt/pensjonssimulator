@@ -36,12 +36,12 @@ open class YtelseService(private val client: YtelseClient) {
 
             return LoependeYtelser(
                 soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
-                avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
                 privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
                 forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
-                forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList()
+                forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList(),
+                avdoed = ytelser.alderspensjon.avdoed
             )
         }
 
@@ -62,24 +62,24 @@ open class YtelseService(private val client: YtelseClient) {
 
             return LoependeYtelser(
                 soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
-                avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
                 privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
                 sisteBeregning = ytelser.alderspensjon.sisteBeregning,
                 forrigeAlderspensjonBeregningResultat = ytelser.alderspensjon.forrigeBeregningsresultat,
                 forrigePrivatAfpBeregningResultat = ytelser.afpPrivat?.forrigeBeregningsresultat,
-                forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList()
+                forrigeVedtakListe = ytelser.alderspensjon.forrigeVilkarsvedtakListe.toMutableList(),
+                avdoed = ytelser.alderspensjon.avdoed
             )
         }
 
         if (spec.type == SimuleringTypeEnum.AFP_FPP) { // ref. PEN: SimulerAFPogAPCommand.hentLopendeYtelser line 103
             return LoependeYtelser(
                 soekerVirkningFom = LocalDate.of(1901, 1, 1),
-                avdoedVirkningFom = null,
                 privatAfpVirkningFom = null,
                 sisteBeregning = null,
                 forrigeAlderspensjonBeregningResultat = null,
                 forrigePrivatAfpBeregningResultat = null,
-                forrigeVedtakListe = mutableListOf()
+                forrigeVedtakListe = mutableListOf(),
+                avdoed = null
             )
         }
 
@@ -99,12 +99,12 @@ open class YtelseService(private val client: YtelseClient) {
 
         return LoependeYtelser(
             soekerVirkningFom = ytelser.alderspensjon?.sokerVirkningFom!!,
-            avdoedVirkningFom = ytelser.alderspensjon.avdodVirkningFom,
             privatAfpVirkningFom = ytelser.afpPrivat?.virkningFom,
             sisteBeregning = null,
             forrigeAlderspensjonBeregningResultat = null,
             forrigePrivatAfpBeregningResultat = null,
-            forrigeVedtakListe = mutableListOf() //TODO use value in ytelser?
+            forrigeVedtakListe = mutableListOf(), //TODO use value in ytelser?
+            avdoed = ytelser.alderspensjon.avdoed
         )
     }
 }

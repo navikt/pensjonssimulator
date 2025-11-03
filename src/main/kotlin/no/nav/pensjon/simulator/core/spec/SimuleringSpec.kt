@@ -119,6 +119,49 @@ data class SimuleringSpec(
         )
     }
 
+    fun withAvdoed(avdoedPid: Pid, doedsdato: LocalDate) =
+        SimuleringSpec(
+            type = if (type == SimuleringTypeEnum.ENDR_ALDER) SimuleringTypeEnum.ENDR_ALDER_M_GJEN else type,
+            sivilstatus = sivilstatus,
+            epsHarPensjon = epsHarPensjon,
+            foersteUttakDato = foersteUttakDato,
+            heltUttakDato = heltUttakDato,
+            pid = pid,
+            foedselDato = foedselDato,
+            avdoed = Avdoed(
+                pid = avdoedPid,
+                antallAarUtenlands = 0,
+                inntektFoerDoed = 0,
+                doedDato = doedsdato,
+                erMedlemAvFolketrygden = false,
+                harInntektOver1G = false
+            ),
+            isTpOrigSimulering = isTpOrigSimulering,
+            simulerForTp = simulerForTp,
+            uttakGrad = uttakGrad,
+            forventetInntektBeloep = forventetInntektBeloep,
+            inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
+            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+            foedselAar = foedselAar,
+            utlandAntallAar = utlandAntallAar,
+            utlandPeriodeListe = utlandPeriodeListe,
+            fremtidigInntektListe = fremtidigInntektListe,
+            brukFremtidigInntekt = brukFremtidigInntekt,
+            inntektOver1GAntallAar = inntektOver1GAntallAar,
+            flyktning = flyktning,
+            epsHarInntektOver2G = epsHarInntektOver2G,
+            rettTilOffentligAfpFom = rettTilOffentligAfpFom,
+            pre2025OffentligAfp = pre2025OffentligAfp,
+            erAnonym = erAnonym,
+            ignoreAvslag = ignoreAvslag,
+            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+            onlyVilkaarsproeving = onlyVilkaarsproeving,
+            epsKanOverskrives = epsKanOverskrives,
+            registerData = registerData
+        )
+
     fun withUttak(
         foersteUttakDato: LocalDate?,
         uttaksgrad: UttakGradKode,
@@ -231,7 +274,7 @@ data class SimuleringSpec(
      * - heltUttakDato = uttak av alderspensjon
      * Det er alderspensjonsuttaket (og dermed heltUttakDato) som er relevant for trygdetiden her
      */
-     fun foersteAlderspensjonUttaksdato(): LocalDate? =
+    fun foersteAlderspensjonUttaksdato(): LocalDate? =
         if (gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon())
             heltUttakDato ?: foersteUttakDato // bruker foersteUttakDato som 'backup'-dato
         else

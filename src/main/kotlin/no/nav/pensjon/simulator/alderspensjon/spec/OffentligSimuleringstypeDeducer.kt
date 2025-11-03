@@ -1,10 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.spec
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.vedtak.VedtakService
-import no.nav.pensjon.simulator.vedtak.VedtakStatus
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -20,7 +18,8 @@ class OffentligSimuleringstypeDeducer(private val vedtakService: VedtakService) 
         uttakFom: LocalDate,
         livsvarigOffentligAfpRettFom: LocalDate? = null
     ): SimuleringTypeEnum {
-        val vedtakInfo = vedtakService.vedtakStatus(pid, uttakFom).also(::checkForGjenlevenderettighet)
+        val vedtakInfo = vedtakService.vedtakStatus(pid, uttakFom)
+        // NB: I PEN ble simulering med gjenlevenderett hindret, mens her støttes det
 
         return deduceSimuleringstype(
             erFoerstegangsuttak = vedtakInfo.harGjeldendeVedtak.not(),
@@ -29,11 +28,6 @@ class OffentligSimuleringstypeDeducer(private val vedtakService: VedtakService) 
     }
 
     private companion object {
-        // PEN: SimuleringServiceBase.checkForGjenlevenderettighet
-        private fun checkForGjenlevenderettighet(vedtakInfo: VedtakStatus) {
-            if (vedtakInfo.harGjenlevenderettighet)
-                throw FeilISimuleringsgrunnlagetException("Kan ikke simulere bruker med gjenlevenderettigheter")
-        }
 
         private fun deduceSimuleringstype(
             erFoerstegangsuttak: Boolean,

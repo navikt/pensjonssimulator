@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.extensions.spring.SpringExtension
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,8 +15,6 @@ class PensjonssimulatorApplicationTest : FunSpec() {
     lateinit var context: ApplicationContext
 
     init {
-        extension(SpringExtension)
-
         test("context loads") {
             context.id shouldBe "application"
         }

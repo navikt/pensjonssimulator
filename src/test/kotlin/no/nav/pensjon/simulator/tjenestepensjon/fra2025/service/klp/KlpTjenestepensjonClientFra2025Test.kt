@@ -30,7 +30,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Utbetali
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.http.HttpStatus
-import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDate
 
 class KlpTjenestepensjonClientFra2025Test : FunSpec({
@@ -59,8 +58,6 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         )
 
     beforeSpec {
-        WebClient.builder().build().mutate()
-        Arrange.security()
         server = MockWebServer().apply { start() }
         baseUrl = "http://localhost:${server.port}"
     }
@@ -74,6 +71,7 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         val serverResponse = simulerTjenestepensjonResponse()
         server?.arrangeOkJsonResponse(body = objectMapper.writeValueAsString(serverResponse))
 
+        Arrange.security()
         Arrange.webClientContextRunner().run {
             val receivedResponse = client(context = it, retryAttempts = 1).simuler(
                 spec = spec(foedselsdato = LocalDate.of(1963, 2, 5)),
@@ -98,6 +96,7 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
     test("send request og få error fra KLP") {
         server?.arrangeResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, body = "feil")
 
+        Arrange.security()
         Arrange.webClientContextRunner().run {
             val receivedResponse = client(context = it).simuler(
                 spec = spec(foedselsdato = LocalDate.of(1963, 2, 6)),
@@ -114,6 +113,7 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         val tpNummer = "3100"
         val spec = spec(foedselsdato = LocalDate.of(1963, 2, 7))
 
+        Arrange.security()
         Arrange.webClientContextRunner().run {
             val receivedResponse = client(context = it, isDevelopment = true).simuler(spec, tpNummer)
 

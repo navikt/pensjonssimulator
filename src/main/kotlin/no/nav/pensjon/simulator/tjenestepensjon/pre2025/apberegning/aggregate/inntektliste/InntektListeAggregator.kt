@@ -8,37 +8,39 @@ import java.time.LocalDate
 
 object InntektListeAggregator {
 
-    fun aggregate(spec: InntektListeSpec): List<Inntekt> {
+    fun aggregate(spec: InntektListeSpec,
+                  actualTime: LocalDate = LocalDate.now(),
+                  sisteGyldigeOpptjeningsaar: Int = SISTE_GYLDIGE_OPPTJENING_AAR): List<Inntekt> {
+
         val inntektList: MutableList<Inntekt> = ArrayList()
 
         // First inntekt before uttak
         val inntektFoerFoersteUttak = spec.inntektFoerFoersteUttak
         inntektList.add(
             Inntekt(
-                LocalDate.now().withYear(SISTE_GYLDIGE_OPPTJENING_AAR + 1).withDayOfYear(1),
+                actualTime.withYear(sisteGyldigeOpptjeningsaar + 1).withDayOfYear(1),
                 inntektFoerFoersteUttak.toDouble()
             )
         )
 
         // inntekt from forsteUttaksDato
-        val inntektUnderUttak =
+        val inntektUnderGradertEllerHeltUttak =
             if (spec.gradertUttak || spec.simuleringTypeErAfpEtterfAlder) {
                 spec.inntektUnderGradertUttakBeloep
             } else {
                 spec.inntektEtterHeltUttakBeloep
             }
 
-        if (inntektUnderUttak != inntektFoerFoersteUttak) {
+        if (inntektUnderGradertEllerHeltUttak != inntektFoerFoersteUttak) {
             addInntektToListIfPreviuslyIsNotSameAmount(
-                inntektList, spec.foersteUttakDato, inntektUnderUttak.toDouble()
+                inntektList, spec.foersteUttakDato, inntektUnderGradertEllerHeltUttak.toDouble()
             )
         }
 
         var date: LocalDate? = spec.heltUttakDato
 
         // Inntekt from heltUttak (optional)
-        // Compenstating for bad front-end data, should be unnecesary
-        if (spec.simuleringTypeErAfpEtterfAlder) { // this one must be coded checked
+        if (spec.simuleringTypeErAfpEtterfAlder) {
             date = fromAlder(foedselDato = spec.foedselsdato, alder = Alder(67, 0))
         }
 
@@ -91,8 +93,8 @@ object InntektListeAggregator {
             date.plusYears(spec.inntektEtterHeltUttakAntallAar?.toLong() ?: 0L)
 
         // Check the ending of the final Inntekt, added option to ending before 75 or sett to 75.
-        return if (spec.inntektEtterHeltUttakBeloep > 0 && (spec.inntektEtterHeltUttakAntallAar
-                ?: 0) > 0 && dateWithAddedAntallArInntektEtterHeltUttak.isBefore(dateWithUserAt75AndFirstDayAtNextMonth)
+        return if (spec.inntektEtterHeltUttakBeloep > 0 && (spec.inntektEtterHeltUttakAntallAar ?: 0) > 0
+            && dateWithAddedAntallArInntektEtterHeltUttak.isBefore(dateWithUserAt75AndFirstDayAtNextMonth)
         ) {
             dateWithAddedAntallArInntektEtterHeltUttak
         } else {

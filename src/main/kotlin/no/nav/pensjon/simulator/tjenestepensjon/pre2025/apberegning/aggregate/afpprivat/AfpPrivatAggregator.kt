@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SimulertPrivatAfp
 
 object AfpPrivatAggregator {
 
-    fun aggregate(privatAfpPeriodeListe: MutableList<PrivatAfpPeriode>, afpEtterfAlder: Boolean): SimulertPrivatAfp? {
+    fun aggregate(privatAfpPeriodeListe: List<PrivatAfpPeriode>, afpEtterfAlder: Boolean): SimulertPrivatAfp? {
         return if (afpEtterfAlder){
             null
         }

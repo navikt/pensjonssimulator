@@ -12,13 +12,13 @@ object SimuleringsperioderSpecMapper {
                    stillingsprosentSpec: StillingsprosentSpec,
                    foedselsdato: LocalDate,
     ) = SimuleringsperioderSpec(
-        etterfulgtAvALderListe = offentligAfp?.brutto != null,
+        afpEtterfulgtAvAlder = offentligAfp?.brutto != null,
         foedselsdato = foedselsdato,
         stillingsprosentSpec = stillingsprosentSpec,
-        uttaksgrad = simuleringSpec.uttakGrad.value.toInt(),
+        folketrygdUttaksgrad = simuleringSpec.uttakGrad.value.toInt(),
         simuleringType = simuleringSpec.type,
         foersteUttakDato = simuleringSpec.foersteUttakDato!!,
-        heltUttakDato = simuleringSpec.heltUttakDato,
+        heltUttakDato = simuleringSpec.heltUttakDato ?: simuleringSpec.foersteUttakDato,
         inntektEtterHeltUttakAntallAar = simuleringSpec.inntektEtterHeltUttakAntallAar?.toLong() ?: 0L,
     )
 }

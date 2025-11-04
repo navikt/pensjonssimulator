@@ -15,6 +15,7 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
 import no.nav.pensjon.simulator.testutil.arrangeResponse
@@ -50,7 +51,7 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         KlpTjenestepensjonClientFra2025(
             baseUrl!!,
             retryAttempts = retryAttempts.toString(),
-            webClientBuilder = context.getBean(WebClient.Builder::class.java),
+            webClientBase = context.getBean(WebClientBase::class.java),
             traceAid = mockk<TraceAid>(relaxed = true),
             sporingslogg,
             sammenligner,
@@ -87,9 +88,8 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
                 utbetalingsperioder shouldHaveSize 4
                 assertUtbetalingsperioder(actual = utbetalingsperioder, expected = serverResponse.utbetalingsListe)
                 aarsakIngenUtbetaling shouldHaveSize 1
-                aarsakIngenUtbetaling.first().contains(
-                    serverResponse.arsakIngenUtbetaling.first().ytelseType
-                ) shouldBe true
+                aarsakIngenUtbetaling.first()
+                    .contains(serverResponse.arsakIngenUtbetaling.first().ytelseType) shouldBe true
             }
             server?.takeRequest()?.path?.startsWith("$SIMULER_PATH/$tpNummer") shouldBe true
         }

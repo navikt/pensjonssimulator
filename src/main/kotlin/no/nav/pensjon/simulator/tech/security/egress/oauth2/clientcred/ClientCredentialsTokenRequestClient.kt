@@ -4,25 +4,24 @@ import no.nav.pensjon.simulator.tech.security.egress.oauth2.OAuth2ParameterBuild
 import no.nav.pensjon.simulator.tech.security.egress.token.CacheAwareTokenClient
 import no.nav.pensjon.simulator.tech.security.egress.token.TokenAccessParameter
 import no.nav.pensjon.simulator.tech.security.egress.token.validation.ExpirationChecker
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
-import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class ClientCredentialsTokenRequestClient(
     @Value("\${azure.openid-config.token-endpoint}") tokenEndpoint: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     expirationChecker: ExpirationChecker,
     private val credentials: ClientCredentials,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String
 ) : CacheAwareTokenClient(
     tokenEndpoint,
-    webClientBuilder,
+    webClientBase,
     retryAttempts,
     expirationChecker
 ) {
-
     override fun prepareTokenRequestBody(
         accessParameter: TokenAccessParameter,
         audience: String

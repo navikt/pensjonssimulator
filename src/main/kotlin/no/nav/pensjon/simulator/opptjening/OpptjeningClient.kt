@@ -13,24 +13,24 @@ import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import java.time.LocalDate
 
 @Component
 class OpptjeningClient(
-    @Value("\${ps.popp.url}") private val baseUrl: String,
+    @param:Value("\${ps.popp.url}") private val baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val time: Time
 ) : ExternalServiceClient(retryAttempts), SisteLignetInntekt {
 
-    private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val log = KotlinLogging.logger {}
 
     override fun hentSisteLignetInntekt(pid: Pid): Inntekt {
@@ -73,7 +73,6 @@ class OpptjeningClient(
 
     companion object {
         private const val OPPTJENINGSGRUNNLAG_PATH = "popp/api/opptjeningsgrunnlag"
-        private const val PING_PATH = "$OPPTJENINGSGRUNNLAG_PATH/ping"
         private val service = EgressService.PENSJONSOPPTJENING
     }
 }

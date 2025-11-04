@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
@@ -26,11 +27,11 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
     @Value("\${ps.pensjon-opptjening-afp-api.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     private val traceAid: TraceAid,
-    webClientBuilder: WebClient.Builder
+    webClientBase: WebClientBase
 ) : ExternalServiceClient(retryAttempts), SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient {
 
     private val log = KotlinLogging.logger {}
-    private val afpBeholdningWebClient: WebClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val afpBeholdningWebClient: WebClient = webClientBase.withBaseUrl(baseUrl)
 
     override fun simulerAfpBeholdningGrunnlag(
         spec: LivsvarigOffentligAfpSpec

@@ -55,7 +55,6 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
         )
 
     beforeSpec {
-        Arrange.security()
         server = MockWebServer().apply { start() }
         baseUrl = "http://localhost:${server.port}"
     }
@@ -75,6 +74,7 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
                 .setBody(objectMapper.writeValueAsString(mockResponse))
         )
 
+        Arrange.security()
         Arrange.webClientContextRunner().run {
             val result: Result<SimulertTjenestepensjon> =
                 client(context = it).simuler(
@@ -99,6 +99,7 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
     test("send request og få error fra SPK") {
         server?.arrangeResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, body = "feil")
 
+        Arrange.security()
         Arrange.webClientContextRunner().run {
             // unique request to avoid cache hit
             val response: Result<SimulertTjenestepensjon> =

@@ -1,19 +1,20 @@
-package no.nav.pensjon.simulator.core.knekkpunkt
+package no.nav.pensjon.simulator.trygdetid.cache
 
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
 
-// Corresponds to FastsettTrygdetidCache
-class TrygdetidCache(val context: SimulatorContext) {
+// PEN: FastsettTrygdetidCache
+class RollebasertTrygdetidCache(val context: SimulatorContext) {
 
-    private val uberCache: MutableMap<GrunnlagsrolleEnum, TrygdetidInternalCache> = mutableMapOf()
+    private val uberCache: MutableMap<GrunnlagsrolleEnum, AarsbasertTrygdetidCache> = mutableMapOf()
 
     // FastsettTrygdetidCache.createCacheForGrunnlagsRolleCodes
     fun createCacheForGrunnlagsroller(vararg grunnlagsroller: GrunnlagsrolleEnum) {
         for (grunnlagsrolle in grunnlagsroller) {
-            uberCache[grunnlagsrolle] = TrygdetidInternalCache()
+            uberCache[grunnlagsrolle] = AarsbasertTrygdetidCache()
         }
     }
 
@@ -40,7 +41,7 @@ class TrygdetidCache(val context: SimulatorContext) {
     }
 
     // FastsettTrygdetidCache.getTrygdetidCacheFromGrunnlagsrolle
-    private fun trygdetidCache(grunnlagsrolle: GrunnlagsrolleEnum): TrygdetidInternalCache? =
+    private fun trygdetidCache(grunnlagsrolle: GrunnlagsrolleEnum): AarsbasertTrygdetidCache? =
         if (uberCache.containsKey(grunnlagsrolle))
             uberCache[grunnlagsrolle]
         else
@@ -53,22 +54,26 @@ class TrygdetidCache(val context: SimulatorContext) {
         sakId: Long?
     ): TrygdetidCombo =
         context.refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId)
-            .let { TrygdetidCombo(it.trygdetid, it.trygdetidKapittel20) }
+            .let { TrygdetidCombo(kapittel19 = it.trygdetid, kapittel20 = it.trygdetidKapittel20) }
 
     private fun fastsettTrygdetidWithCache(
-        cache: TrygdetidInternalCache,
+        cache: AarsbasertTrygdetidCache,
         parameters: TrygdetidRequest,
-        kravIsUforetrygd: Boolean,
+        gjelderUfoeretrygd: Boolean,
         sakId: Long?
     ): TrygdetidCombo? {
-        val year = parameters.virkFom?.let(::getYear)!!
+        val year: Int = parameters.virkFom!!.let(DateUtil::getYear)
 
         return when {
             cache.containsTrygdetid(year) -> cache.trygdetid(year)!!
-            cache.isLatestTrygdetidMaxTrygdetidBeforeYear(year) -> cache.latestTrygdetidBeforeYear(year)
-                ?.also { cache.addTrygdetid(year, it) }
 
-            else -> refreshFastsettTrygdetid(parameters, kravIsUforetrygd, sakId).also { cache.addTrygdetid(year, it) }
+            cache.isLatestTrygdetidMaxTrygdetidBeforeYear(year) -> cache.latestTrygdetidBeforeYear(year)?.also {
+                cache.addTrygdetid(year, trygdetid = it)
+            }
+
+            else -> refreshFastsettTrygdetid(parameters, gjelderUfoeretrygd, sakId).also {
+                cache.addTrygdetid(year, trygdetid = it)
+            }
         }
     }
 

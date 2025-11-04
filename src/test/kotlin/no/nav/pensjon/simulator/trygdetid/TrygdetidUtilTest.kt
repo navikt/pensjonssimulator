@@ -9,7 +9,7 @@ class TrygdetidUtilTest : FunSpec({
 
     test("antallAarMedOpptjening gir 0 hvis ingen opptjening") {
         TrygdetidUtil.antallAarMedOpptjening(
-            opptjeningAarSet = TreeSet(), // ingen opptjening
+            registrerteAarMedOpptjening = TreeSet(), // ingen opptjening
             aarSoekerFikkMinstealderForTrygdetid = 1990,
             dagensDato = LocalDate.of(2025, 1, 1)
         ) shouldBe 0
@@ -25,7 +25,7 @@ class TrygdetidUtilTest : FunSpec({
         }
 
         TrygdetidUtil.antallAarMedOpptjening(
-            opptjeningAarSet = opptjeningAarSet,
+            registrerteAarMedOpptjening = opptjeningAarSet,
             aarSoekerFikkMinstealderForTrygdetid = 1990,
             dagensDato = LocalDate.of(2025, 1, 1)
         ) shouldBe 3
@@ -40,7 +40,7 @@ class TrygdetidUtilTest : FunSpec({
         }
 
         TrygdetidUtil.antallAarMedOpptjening(
-            opptjeningAarSet = opptjeningAarSet,
+            registrerteAarMedOpptjening = opptjeningAarSet,
             aarSoekerFikkMinstealderForTrygdetid = 1990,
             dagensDato = LocalDate.of(2025, 12, 15) // fjoråret er 2024
         ) shouldBe 2
@@ -54,7 +54,7 @@ class TrygdetidUtilTest : FunSpec({
         }
 
         TrygdetidUtil.antallAarMedOpptjening(
-            opptjeningAarSet = opptjeningAarSet,
+            registrerteAarMedOpptjening = opptjeningAarSet,
             aarSoekerFikkMinstealderForTrygdetid = 2026,
             dagensDato = LocalDate.of(2025, 1, 1) // forrige år er 2024
         ) shouldBe 0

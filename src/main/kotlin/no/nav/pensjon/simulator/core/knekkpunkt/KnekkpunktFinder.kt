@@ -21,6 +21,8 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
+import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -28,7 +30,7 @@ import java.util.*
 // Corresponds to FinnKnekkpunkterHelper + FastsettTrygdetidCache
 @Component
 class KnekkpunktFinder(
-    private val trygdetidFastsetter: TrygdetidFastsetter,
+    private val trygdetidBeregner: TrygdetidBeregnerProxy,
     private val normalderService: NormertPensjonsalderService,
     private val time: Time
 ) {
@@ -130,7 +132,7 @@ class KnekkpunktFinder(
             val persongrunnlag =
                 kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
 
-            return trygdetidFastsetter.fastsettTrygdetidForPeriode(
+            return trygdetidBeregner.fastsettTrygdetidForPeriode(
                 spec = trygdetidFastsetterInput(
                     kravhode = kravhode,
                     persongrunnlag = persongrunnlag,
@@ -148,7 +150,7 @@ class KnekkpunktFinder(
         val persongrunnlag =
             kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)!!
 
-        return trygdetidFastsetter.fastsettTrygdetidForPeriode(
+        return trygdetidBeregner.fastsettTrygdetidForPeriode(
             spec = trygdetidFastsetterInput(
                 kravhode = kravhode,
                 persongrunnlag = persongrunnlag,
@@ -200,7 +202,7 @@ class KnekkpunktFinder(
                 kravlinjeType,
                 boddEllerArbeidetUtenlands
             )
-            val trygdetid = trygdetidFastsetter.fastsettTrygdetidForPeriode(
+            val trygdetid = trygdetidBeregner.fastsettTrygdetidForPeriode(
                 trygdetidInput,
                 grunnlagRolle,
                 persongrunnlag.gjelderUforetrygd,

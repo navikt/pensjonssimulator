@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
-import io.netty.handler.timeout.ReadTimeoutHandler
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.person.Pid
@@ -11,8 +10,9 @@ import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
@@ -20,33 +20,25 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.ma
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.mapToResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
-import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
-import reactor.netty.http.client.HttpClient
 
 @Service
 class SpkTjenestepensjonClientFra2025(
     @Value("\${spk.tp-simulering.fra-2025.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
-    webClientBuilder: WebClient.Builder,
+    @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
     private val sammenligner: SammenlignAFPService
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
     private val log = KotlinLogging.logger {}
-    private val webClient = webClientBuilder.baseUrl(baseUrl)
-        .clientConnector(
-            ReactorClientHttpConnector(
-                HttpClient
-                    .create()
-                    .doOnConnected { it.addHandlerLast(ReadTimeoutHandler(ON_CONNECTED_READ_TIMEOUT_SECONDS)) })
-        ).build()
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
 
     override fun simuler(spec: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjon> {
         val request: SpkSimulerTjenestepensjonRequest = mapToRequest(spec)
@@ -73,6 +65,11 @@ class SpkTjenestepensjonClientFra2025(
             "Failed to send request to simulate tjenestepensjon 2025 with ${service.shortName}".let {
                 log.error(e) { "$it med url ${e.uri}" }
                 Result.failure(TjenestepensjonSimuleringException(it))
+            }
+        } catch (e: EgressException) {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
+                log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
+                return Result.failure(TjenestepensjonSimuleringException(it))
             }
         }
     }
@@ -103,6 +100,5 @@ class SpkTjenestepensjonClientFra2025(
     companion object {
         private const val SIMULER_PATH = "/nav/v2/tjenestepensjon/simuler"
         private val service = EgressService.SPK
-        private const val ON_CONNECTED_READ_TIMEOUT_SECONDS = 45
     }
 }

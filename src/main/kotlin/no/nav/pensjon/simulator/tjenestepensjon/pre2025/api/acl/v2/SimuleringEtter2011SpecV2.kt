@@ -25,9 +25,6 @@ data class SimuleringEtter2011SpecV2(
     @param:Schema(description = "Brukers fødselsår. Benyttes dersom bruker ikke er innlogget.")
     var fodselsar: Int? = null,
 
-    @param:Schema(description = "Brukeroppgitt ansettelsessektor. Benyttes ikke ved simulering, kun ved lagring/henting. Eksempel: ANNET, OFFENTLIG, PRIVAT")
-    var ansettelsessektor: AnsattTypeCodeV2? = null,
-
     @param:Schema(description = "Brukeroppgitt rett til AFP i offentlig sektor. Benyttes ikke ved simulering, kun ved lagring/henting.")
     var offentligAfpRett: Boolean? = null,
 
@@ -85,15 +82,6 @@ data class SimuleringEtter2011SpecV2(
     @param:Schema(description = "Inntekt måneden før AFP-uttak (offentlig AFP).")
     var afpInntektMndForUttak: Int? = null,
 
-    @param:Schema(description = "Egenregistrerte TP-er (lagring/visning).")
-    var brukerRegTPListe: MutableList<BrukerRegTjenestepensjonV2?> = mutableListOf(),
-
-    @param:Schema(description = "Offentlig stillingsprosent ved helt uttak.")
-    var stillingsprosentOffHeltUttak: StillingsprOffCodeV2? = null,
-
-    @param:Schema(description = "Offentlig stillingsprosent ved gradert uttak.")
-    var stillingsprosentOffGradertUttak: StillingsprOffCodeV2? = null,
-
     @param:Schema(description = "Ektefelles dødsdato.")
     var dodsdato: LocalDate? = null,
 
@@ -116,10 +104,23 @@ data class SimuleringEtter2011SpecV2(
     var simulerForTp: Boolean? = null,
 
     @param:Schema(description = "Utenlandsperioder brukt i simulering.")
-    var utenlandsperiodeForSimuleringList: MutableList<UtenlandsperiodeForSimuleringV2?> = mutableListOf(),
+    var utenlandsperiodeForSimuleringList: List<UtenlandsperiodeForSimuleringV2> = listOf(),
 
+    // Not used in PSELV but included to avoid failing on unknown properties:
     @param:Schema(description = "Fremtidige inntekter brukt i simulering.")
-    var fremtidigInntektList: MutableList<FremtidigInntektV2?> = mutableListOf()
+    var fremtidigInntektList: List<FremtidigInntektV2> = listOf(),
+
+    @param:Schema(description = "Egenregistrerte TP-er (lagring/visning).")
+    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2> = listOf(),
+
+    @param:Schema(description = "Brukeroppgitt ansettelsessektor. Benyttes ikke ved simulering, kun ved lagring/henting. Eksempel: ANNET, OFFENTLIG, PRIVAT")
+    var ansettelsessektor: AnsattTypeCodeV2? = null,
+
+    @param:Schema(description = "Offentlig stillingsprosent ved helt uttak.")
+    var stillingsprosentOffHeltUttak: StillingsprOffCodeV2? = null,
+
+    @param:Schema(description = "Offentlig stillingsprosent ved gradert uttak.")
+    var stillingsprosentOffGradertUttak: StillingsprOffCodeV2? = null,
 )
 
 data class Fnr(val pid: String) {

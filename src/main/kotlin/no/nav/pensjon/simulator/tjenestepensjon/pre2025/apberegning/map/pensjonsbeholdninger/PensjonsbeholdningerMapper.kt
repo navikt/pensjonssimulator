@@ -9,9 +9,9 @@ object PensjonsbeholdningerMapper {
         return pensjonBeholdningListe?.map {
             Pensjonsbeholdningsperiode(
                 fom = it.datoFom,
-                pensjonsbeholdning = it.pensjonsbeholdning!!, //TODO kan 0.0 brukes?
-                garantipensjonsbeholdning = it.garantipensjonsbeholdning!!, //TODO kan 0.0 brukes?
-                garantitilleggsbeholdning = it.garantitilleggsbeholdning!! //TODO kan 0.0 brukes?
+                pensjonsbeholdning = it.pensjonsbeholdning, //TODO kan 0.0 brukes?
+                garantipensjonsbeholdning = it.garantipensjonsbeholdning, //TODO kan 0.0 brukes?
+                garantitilleggsbeholdning = it.garantitilleggsbeholdning //TODO kan 0.0 brukes?
             )
         } ?: emptyList()
     }

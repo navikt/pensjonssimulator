@@ -48,9 +48,9 @@ data class Inntekt(
 
 data class Pensjonsbeholdningsperiode(
     val fom: LocalDate,
-    val pensjonsbeholdning: Double,
-    val garantipensjonsbeholdning: Double,
-    val garantitilleggsbeholdning: Double
+    val pensjonsbeholdning: Double?,
+    val garantipensjonsbeholdning: Double?,
+    val garantitilleggsbeholdning: Double?
 )
 
 data class Simuleringsperiode(

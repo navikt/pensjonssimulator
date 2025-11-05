@@ -11,6 +11,6 @@ data class SimuleringsperioderSpec(
     val folketrygdUttaksgrad: Int,
     val simuleringType: SimuleringTypeEnum,
     val foersteUttakDato: LocalDate,
-    val heltUttakDato: LocalDate,
+    val heltUttakDato: LocalDate?,
     val inntektEtterHeltUttakAntallAar: Long,
 )

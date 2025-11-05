@@ -14,9 +14,17 @@ class OffentligAfpAggregatorTest : StringSpec({
         OffentligAfpAggregator.aggregate(null, true) shouldBe null
     }
 
-    ("aggregate skal returnere null hvis type ikk er afp etterfulgt av alderspensjon") {
+    ("aggregate skal returnere null hvis type ikke er afp etterfulgt av alderspensjon") {
         val pre2025OffentligAfp = mockOffentligAfp(1, 2)
         OffentligAfpAggregator.aggregate(pre2025OffentligAfp, false) shouldBe null
+    }
+
+    ("aggregate skal returnere null ved manglende beregning") {
+        OffentligAfpAggregator.aggregate(Simuleringsresultat(), false) shouldBe null
+    }
+
+    ("aggregate skal returnere null ved manglende simulert Afp") {
+        OffentligAfpAggregator.aggregate(null, false) shouldBe null
     }
 
     ("aggregate skal returnere afp etterfulgt av alderspensjon") {
@@ -29,6 +37,14 @@ class OffentligAfpAggregatorTest : StringSpec({
 
     ("aggregate skal returnere afp etterfulgt av alderspensjon med tpi=0") {
         val pre2025OffentligAfp = mockOffentligAfp(1)
+        val result = OffentligAfpAggregator.aggregate(pre2025OffentligAfp, true)
+
+        result?.brutto shouldBe 1
+        result?.tidligerePensjonsgivendeInntekt shouldBe 0
+    }
+
+    ("aggregate skal tpi=0 ved manglende tillegspensjon") {
+        val pre2025OffentligAfp =  Simuleringsresultat().apply { beregning = Beregning().apply { brutto = 1 } }
         val result = OffentligAfpAggregator.aggregate(pre2025OffentligAfp, true)
 
         result?.brutto shouldBe 1

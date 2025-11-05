@@ -14,7 +14,7 @@ object SimulerBeregningsinformasjonAggregator {
         foersteUttakDato: LocalDate?,
         simulertBeregningInformasjonListe: List<SimulertBeregningInformasjon>?
     ): List<Simuleringsdata> {
-        val datoVedNormAlder: LocalDate = fromAlder(foedselsdato, Alder(67, 0)) //TODO normalder
+        val datoVedNormAlder: LocalDate = fromAlder(foedselsdato, Alder(67, 0))
 
         val firstSimuleringsdataDato = if (DateUtil.isBeforeByDay(foersteUttakDato, datoVedNormAlder, true)) {
             datoVedNormAlder

@@ -18,7 +18,7 @@ object SimuleringsperioderSpecMapper {
         folketrygdUttaksgrad = simuleringSpec.uttakGrad.value.toInt(),
         simuleringType = simuleringSpec.type,
         foersteUttakDato = simuleringSpec.foersteUttakDato!!,
-        heltUttakDato = simuleringSpec.heltUttakDato ?: simuleringSpec.foersteUttakDato,
+        heltUttakDato = simuleringSpec.heltUttakDato,
         inntektEtterHeltUttakAntallAar = simuleringSpec.inntektEtterHeltUttakAntallAar?.toLong() ?: 0L,
     )
 }

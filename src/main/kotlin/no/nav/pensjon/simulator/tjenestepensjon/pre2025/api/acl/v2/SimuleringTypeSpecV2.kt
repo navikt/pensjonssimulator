@@ -1,8 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import org.springframework.util.StringUtils.hasLength
 
 //Kopi av NavSimuleringTypeSpecV2
 enum class SimuleringTypeSpecV2(val externalValue: String, val internalValue: SimuleringTypeEnum) {
@@ -65,18 +63,4 @@ enum class SimuleringTypeSpecV2(val externalValue: String, val internalValue: Si
      * Gjenlevendepensjon
      */
     //GJENLEVENDE("GJENLEVENDE", SimuleringTypeEnum.GJENLEVENDE);
-
-    companion object {
-        private val log = KotlinLogging.logger {}
-
-        @OptIn(ExperimentalStdlibApi::class)
-        fun fromExternalValue(value: String?): SimuleringTypeSpecV2 =
-            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
-
-        private fun default(externalValue: String?): SimuleringTypeSpecV2 =
-            if (hasLength(externalValue))
-                ALDER.also { log.warn { "Unknown SimuleringTypeSpecV2: '$externalValue'" } }
-            else
-                ALDER
-    }
 }

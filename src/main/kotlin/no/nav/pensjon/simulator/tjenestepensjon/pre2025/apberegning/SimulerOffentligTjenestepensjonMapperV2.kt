@@ -43,7 +43,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak,
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
-            utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.filterNotNull().map(::utlandPeriode)
+            utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map(::utlandPeriode)
                 .toMutableList(),
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,

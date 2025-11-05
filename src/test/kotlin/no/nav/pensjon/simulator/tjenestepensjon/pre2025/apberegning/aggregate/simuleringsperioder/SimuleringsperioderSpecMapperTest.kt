@@ -31,9 +31,19 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
                 this.inntektEtterHeltUttakAntallAar shouldBe 5L
             }
     }
+
+    ("afp etterfulgt av alder satt til false ved manglende simulert afp") {
+        val foedselsdato = LocalDate.now()
+        val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
+        val stillingsprosentSpec = StillingsprosentSpec(StillingsprOffCodeV2.P_80, StillingsprOffCodeV2.P_50)
+        SimuleringsperioderSpecMapper.createSpec(simSpec, null, stillingsprosentSpec, foedselsdato)
+            .apply {
+                afpEtterfulgtAvAlder shouldBe false
+            }
+    }
 })
 
-fun simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak: Int) = SimuleringSpec(
+fun simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak: Int?) = SimuleringSpec(
     type = SimuleringTypeEnum.ALDER,
     sivilstatus = SivilstatusType.GIFT,
     epsHarPensjon = false,

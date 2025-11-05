@@ -1,9 +1,8 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import org.springframework.util.StringUtils.hasLength
 
+//Kopi av NavSimuleringTypeSpecV2
 enum class OftpSimuleringTypeSpec(val externalValue: String, val internalValue: SimuleringTypeEnum) {
     /**
      * AFP
@@ -66,16 +65,8 @@ enum class OftpSimuleringTypeSpec(val externalValue: String, val internalValue: 
     //GJENLEVENDE("GJENLEVENDE", SimuleringTypeEnum.GJENLEVENDE);
 
     companion object {
-        private val log = KotlinLogging.logger {}
-
         @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): OftpSimuleringTypeSpec =
-            OftpSimuleringTypeSpec.entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
-
-        private fun default(externalValue: String?): OftpSimuleringTypeSpec =
-            if (hasLength(externalValue))
-                ALDER.also { log.warn { "Unknown OftpSimuleringTypeSpec: '$externalValue'" } }
-            else
-                ALDER
+            OftpSimuleringTypeSpec.entries.single { it.externalValue.equals(value, true) }
     }
 }

@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import org.springframework.util.StringUtils.hasLength
 
 // no.nav.domain.pensjon.kjerne.kodetabeller.SivilstatusTypeCode
 enum class OftpSimuleringSivilstandSpec(val externalValue: String, val internalValue: SivilstatusType) {
@@ -86,12 +85,6 @@ enum class OftpSimuleringSivilstandSpec(val externalValue: String, val internalV
 
         @OptIn(ExperimentalStdlibApi::class)
         fun fromExternalValue(value: String?): OftpSimuleringSivilstandSpec =
-            entries.singleOrNull { it.externalValue.equals(value, true) } ?: default(value)
-
-        private fun default(externalValue: String?): OftpSimuleringSivilstandSpec =
-            if (hasLength(externalValue))
-                UGIF.also { log.warn { "Unknown OftpSimuleringSivilstandSpec: '$externalValue'" } }
-            else
-                UGIF
+            entries.single { it.externalValue.equals(value, true) }
     }
 }

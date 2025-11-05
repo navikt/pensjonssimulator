@@ -64,7 +64,7 @@ object SimuleringperioderListeAggregator {
 
             simuleringsperiodeList.add(
                 createSimuleringsperiode(
-                    spec.heltUttakDato,
+                    spec.heltUttakDato!!, //utfylt ved gradert uttak
                     100,
                     stillingsprosent,
                     spec.afpEtterfulgtAvAlder

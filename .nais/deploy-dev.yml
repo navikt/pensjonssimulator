@@ -132,6 +132,12 @@ spec:
         - application: pensjon-pen-q2
           namespace: pensjon-q2
           cluster: dev-fss
+        - application: pensjon-pselv-q2
+          namespace: teampensjon
+          cluster: dev-fss
+        - application: pensjon-pselv-q2
+          namespace: teampensjon
+          cluster: dev-gcp
         - application: pensjonskalkulator-backend
         - application: azure-token-generator # dev only
           namespace: nais

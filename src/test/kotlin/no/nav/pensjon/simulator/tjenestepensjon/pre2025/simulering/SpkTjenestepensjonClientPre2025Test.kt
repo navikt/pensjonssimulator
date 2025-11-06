@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.Fnr
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
@@ -65,7 +66,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
     }
 
     val request = HentPrognoseRequestDto(
-        fnr = "12345678901",
+        fnr = Fnr("12345678901"),
         fodselsdato = LocalDate.of(1955, 1, 1),
         sisteTpnr = "3010",
         sivilstandkode = SivilstandCodeEnumDto.UGIF,

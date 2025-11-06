@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpPeriodeConverter
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -26,6 +25,7 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.g.GrunnbeloepService
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
@@ -55,6 +55,7 @@ class SimulatorCore(
     private val offentligAfpBeregner: OffentligAfpBeregner,
     private val grunnbeloepService: GrunnbeloepService,
     private val normalderService: NormertPensjonsalderService,
+    private val generelleDataHolder: GenerelleDataHolder,
     private val resultPreparer: SimuleringResultPreparer
 ) : UttakAlderDiscriminator {
 
@@ -225,7 +226,7 @@ class SimulatorCore(
                         grunnbeloep = grunnbeloep,
                         pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
                         outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-                        sisteGyldigeOpptjeningAar = SISTE_GYLDIGE_OPPTJENING_AAR
+                        sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
                     )
                 )
 

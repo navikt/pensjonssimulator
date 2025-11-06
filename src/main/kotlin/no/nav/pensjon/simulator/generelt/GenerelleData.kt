@@ -6,5 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 data class GenerelleData(
     val person: Person,
     val privatAfpSatser: PrivatAfpSatser,
-    val satsResultatListe: List<VeietSatsResultat>
+    val satsResultatListe: List<VeietSatsResultat>,
+    val sisteGyldigeOpptjeningsaar: Int
 )

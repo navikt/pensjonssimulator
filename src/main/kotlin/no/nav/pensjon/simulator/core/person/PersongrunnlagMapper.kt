@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.person
 
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -35,7 +34,7 @@ class PersongrunnlagMapper(
             erFlyktning = spec.flyktning
         ).also {
             it.over60ArKanIkkeForsorgesSelv = false
-            it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+            it.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
             it.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
         }
 
@@ -43,7 +42,7 @@ class PersongrunnlagMapper(
         Persongrunnlag().apply {
             gjelderOmsorg = false
             gjelderUforetrygd = false
-            penPerson = PenPerson(EPS_PERSON_ID)
+            penPerson = PenPerson(penPersonId = EPS_PERSON_ID)
             fodselsdato = foedselsdato.toNorwegianDateAtNoon()
             antallArUtland = 0
             dodsdato = null

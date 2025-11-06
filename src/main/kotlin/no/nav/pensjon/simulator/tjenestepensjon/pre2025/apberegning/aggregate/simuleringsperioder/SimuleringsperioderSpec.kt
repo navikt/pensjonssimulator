@@ -12,5 +12,5 @@ data class SimuleringsperioderSpec(
     val simuleringType: SimuleringTypeEnum,
     val foersteUttakDato: LocalDate,
     val heltUttakDato: LocalDate?,
-    val inntektEtterHeltUttakAntallAar: Long,
+    val inntektEtterHeltUttakAntallAar: Int,
 )

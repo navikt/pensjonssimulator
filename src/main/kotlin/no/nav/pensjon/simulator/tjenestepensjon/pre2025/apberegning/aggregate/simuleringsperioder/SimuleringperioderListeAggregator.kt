@@ -75,7 +75,7 @@ object SimuleringperioderListeAggregator {
                 simuleringsperiodeList.add(
                     createSimuleringsperiode(
                         spec.heltUttakDato.plusYears(
-                            spec.inntektEtterHeltUttakAntallAar
+                            spec.inntektEtterHeltUttakAntallAar.toLong()
                         ),
                         100,
                         0,
@@ -97,7 +97,7 @@ object SimuleringperioderListeAggregator {
                 simuleringsperiodeList.add(
                     createSimuleringsperiode(
                         spec.foersteUttakDato.plusYears(
-                            spec.inntektEtterHeltUttakAntallAar
+                            spec.inntektEtterHeltUttakAntallAar.toLong()
                         ),
                         spec.folketrygdUttaksgrad,
                         0,

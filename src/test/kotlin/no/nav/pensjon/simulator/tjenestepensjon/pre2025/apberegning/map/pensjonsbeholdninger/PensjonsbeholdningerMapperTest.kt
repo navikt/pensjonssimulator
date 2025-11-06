@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 class PensjonsbeholdningerMapperTest : StringSpec({
 
-    ("mapper fungerer som forventet") {
+    "mapper fungerer som forventet" {
         val beholdningListe = listOf(
             BeholdningPeriode(
                 datoFom = LocalDate.of(2025, 1, 1),
@@ -43,7 +43,7 @@ class PensjonsbeholdningerMapperTest : StringSpec({
         }
     }
 
-    ("mapper håndterer null i felter til Pensjonsbeholdningsperiode") {
+    "mapper håndterer null i felter til Pensjonsbeholdningsperiode" {
         val result = PensjonsbeholdningerMapper.map(listOf(BeholdningPeriode(
             datoFom = LocalDate.of(2026, 1, 1),
             pensjonsbeholdning = null,
@@ -61,7 +61,7 @@ class PensjonsbeholdningerMapperTest : StringSpec({
         }
     }
 
-    ("mapper null liste til tom liste") {
+    "mapper null liste til tom liste" {
         val result = PensjonsbeholdningerMapper.map(null)
         result.size shouldBe 0
     }

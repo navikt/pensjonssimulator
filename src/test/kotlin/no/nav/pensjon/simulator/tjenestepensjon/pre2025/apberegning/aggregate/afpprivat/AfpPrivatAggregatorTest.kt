@@ -6,17 +6,17 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 
 class AfpPrivatAggregatorTest : StringSpec({
 
-    ("Afp etterfulgt av AP blir ikke brukt i aggregasjon") {
+    "Afp etterfulgt av AP blir ikke brukt i aggregasjon" {
         val list = listOf<PrivatAfpPeriode>()
         AfpPrivatAggregator.aggregate(list, true) shouldBe null
     }
 
-    ("aggregator tåler tom liste når afp ikke er etterfulgt av alderpensjon") {
+    "aggregator tåler tom liste når afp ikke er etterfulgt av alderpensjon" {
         val list = listOf<PrivatAfpPeriode>()
         AfpPrivatAggregator.aggregate(list, false) shouldBe null
     }
 
-    ("aggregator tåler en liste med en afp privat periode") {
+    "aggregator tåler en liste med en afp privat periode" {
         val list = listOf(PrivatAfpPeriode(
             afpOpptjening = 1,
             kompensasjonstillegg = 2,
@@ -27,7 +27,7 @@ class AfpPrivatAggregatorTest : StringSpec({
         result?.kompensasjonstillegg shouldBe 2.0
     }
 
-    ("aggregator gir periode med minst alder") {
+    "aggregator gir periode med minst alder" {
         val list = listOf(PrivatAfpPeriode(
             afpOpptjening = 1,
             kompensasjonstillegg = 2,
@@ -49,7 +49,7 @@ class AfpPrivatAggregatorTest : StringSpec({
         result?.kompensasjonstillegg shouldBe 5.0
     }
 
-    ("aggregator gir periode med minst alder og tåler null i alderAar") {
+    "aggregator gir periode med minst alder og tåler null i alderAar" {
         val list = listOf(PrivatAfpPeriode(
             afpOpptjening = 1,
             kompensasjonstillegg = 2,

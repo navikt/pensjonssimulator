@@ -31,13 +31,13 @@ object SimulerBeregningsinformasjonAggregator {
     fun toSimuleringsdata(info: SimulertBeregningInformasjon) = Simuleringsdata(
         fom = info.datoFom!!,
         andvendtTrygdetid = info.tt_anv_kap19!!,
-        poengAarTom1991 = info.pa_f92!!,
-        poengAarFom1992 = info.pa_e91!!,
+        poengAarTom1991 = info.pa_f92,
+        poengAarFom1992 = info.pa_e91,
         ufoeregradVedOmregning = info.ufoereGrad ?: 0,
         basisGrunnpensjon = info.basisGrunnpensjon,
         basisPensjonstillegg = info.basisPensjonstillegg,
         basisTilleggspensjon = info.basisTilleggspensjon,
-        delingstallUttak = info.delingstall!!,
+        delingstallUttak = info.delingstall,
         forholdstallUttak = info.forholdstall!!,
         sluttpoengtall = info.spt,
     )

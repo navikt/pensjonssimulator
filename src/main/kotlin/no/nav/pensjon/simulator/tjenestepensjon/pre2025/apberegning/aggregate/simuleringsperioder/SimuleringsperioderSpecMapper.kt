@@ -19,6 +19,6 @@ object SimuleringsperioderSpecMapper {
         simuleringType = simuleringSpec.type,
         foersteUttakDato = simuleringSpec.foersteUttakDato!!,
         heltUttakDato = simuleringSpec.heltUttakDato,
-        inntektEtterHeltUttakAntallAar = simuleringSpec.inntektEtterHeltUttakAntallAar?.toLong() ?: 0L,
+        inntektEtterHeltUttakAntallAar = simuleringSpec.inntektEtterHeltUttakAntallAar ?: 0,
     )
 }

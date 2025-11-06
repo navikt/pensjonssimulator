@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 class InntektListeAggregatorTest : StringSpec({
 
-    ("skal opprette inntekter for alle perioder"){
+    "skal opprette inntekter for alle perioder"{
     val actualTime = LocalDate.now()
     val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
     val inntektListeSpec = InntektListeSpec(
@@ -43,7 +43,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("skal opprette inntekter frem til helt uttak"){
+    "skal opprette inntekter frem til helt uttak"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -74,7 +74,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("skal opprette inntekter frem til første uttak"){
+    "skal opprette inntekter frem til første uttak"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -101,7 +101,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("skal opprette 0-inntekt hvis ingen inntekter speisifisert"){
+    "skal opprette 0-inntekt hvis ingen inntekter speisifisert"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -124,7 +124,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("skal opprette inntekter frem til 75 år selv om brukeren har oppgitt flere år"){
+    "skal opprette inntekter frem til 75 år selv om brukeren har oppgitt flere år"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -159,7 +159,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("heltuttaksdato skal ikke overskrives ved andre simuleringstyper enn AFP_ETTERF_ALDER"){
+    "heltuttaksdato skal ikke overskrives ved andre simuleringstyper enn AFP_ETTERF_ALDER"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -182,7 +182,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("skal bruke inntektEtterHeltUttakBeloep etter uttak ved annen simuleringstype enn AFP_ETTERF_ALDER og ikke gradertUttak"){
+    "skal bruke inntektEtterHeltUttakBeloep etter uttak ved annen simuleringstype enn AFP_ETTERF_ALDER og ikke gradertUttak"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -205,7 +205,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("skal IKKE legge til like beløp i inntektliste i sammenhengende periode"){
+    "skal IKKE legge til like beløp i inntektliste i sammenhengende periode"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(
@@ -232,7 +232,7 @@ class InntektListeAggregatorTest : StringSpec({
         }
     }
 
-    ("inntekt skal stoppes ved 75 år ved manglende heltuttaksdato og annen simuleringstype enn AFP_ETTERF_ALDER"){
+    "inntekt skal stoppes ved 75 år ved manglende heltuttaksdato og annen simuleringstype enn AFP_ETTERF_ALDER"{
         val actualTime = LocalDate.now()
         val sisteGyldigeOpptjeningsaar = actualTime.minusYears(2).year
         val inntektListeSpec = InntektListeSpec(

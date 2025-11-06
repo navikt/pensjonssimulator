@@ -16,7 +16,7 @@ import java.time.LocalDate
 
 class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
 
-    ("alle mulige felter blir brukt i mapping mot til simuleringSpec") {
+    "alle mulige felter blir brukt i mapping mot til simuleringSpec" {
         val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {
             every { foedselsdato(any()) } returns LocalDate.of(1960, 1, 1)
         })
@@ -84,7 +84,7 @@ class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
         }
     }
 
-    ("offentlig AFP blir ikke mappet ved andre simuleringstype enn AFP_ETTERF_ALDER") {
+    "offentlig AFP blir ikke mappet ved andre simuleringstype enn AFP_ETTERF_ALDER" {
         val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {
             every { foedselsdato(any()) } returns LocalDate.of(1960, 1, 1)
         })
@@ -94,7 +94,7 @@ class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
         simSpec.pre2025OffentligAfp shouldBe null
     }
 
-    ("mapping tåler default verdier fra spec") {
+    "mapping tåler default verdier fra spec" {
         val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {
             every { foedselsdato(any()) } returns LocalDate.of(1960, 1, 1)
         })
@@ -135,7 +135,7 @@ class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
         }
     }
 
-    ("land konverteres til enum") {
+    "land konverteres til enum" {
         val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk())
 
         mapper.mapLand("NOR") shouldBe LandkodeEnum.NOR

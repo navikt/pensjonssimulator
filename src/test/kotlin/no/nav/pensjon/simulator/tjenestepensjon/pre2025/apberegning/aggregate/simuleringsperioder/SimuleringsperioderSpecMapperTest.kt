@@ -14,7 +14,7 @@ import java.time.LocalDate
 
 class SimuleringsperioderSpecMapperTest : StringSpec({
 
-    ("mapper bruker alle felter i SimuleringsperioderSpec") {
+    "mapper bruker alle felter i SimuleringsperioderSpec" {
         val foedselsdato = LocalDate.now()
         val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
         val offentligAfpSpec = SimulertOffentligAfp(1, 2)
@@ -32,7 +32,7 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
             }
     }
 
-    ("afp etterfulgt av alder satt til false ved manglende simulert afp") {
+    "afp etterfulgt av alder satt til false ved manglende simulert afp" {
         val foedselsdato = LocalDate.now()
         val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
         val stillingsprosentSpec = StillingsprosentSpec(StillingsprOffCodeV2.P_80, StillingsprOffCodeV2.P_50)

@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning
 
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
@@ -23,7 +24,7 @@ import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
 
-    ("Offentlig Afp etterfulgt av alderpensjon blir aggregert til spec") {
+    "Offentlig Afp etterfulgt av alderpensjon blir aggregert til spec" {
         val simResultat = mockSimulatorOutput(afpEtterfAvAlder = true)
         val spec: SimuleringSpec = mockSimuleringSpec()
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
@@ -61,7 +62,7 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
         }
     }
 
-    ("Privat Afp blir aggregert til spec") {
+    "Privat Afp blir aggregert til spec" {
         val simResultat = mockSimulatorOutput(afpEtterfAvAlder = false)
         val spec: SimuleringSpec = mockSimuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, helt = LocalDate.of(2029, 11, 1))
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
@@ -76,7 +77,7 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
             totalAfpBeholdning shouldBe 20
         }
         result.sivilstand.name shouldBe spec.sivilstatus.name
-        result.inntekter.size shouldBe 3
+        result.inntekter shouldHaveSize 3
         result.inntekter[0].beloep shouldBe 500_000.0
         result.inntekter[1].beloep shouldBe 400_000.0
         result.inntekter[2].beloep shouldBe 0.0

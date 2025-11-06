@@ -33,7 +33,7 @@ object SimulerBeregningsinformasjonAggregator {
         andvendtTrygdetid = info.tt_anv_kap19!!,
         poengAarTom1991 = info.pa_f92!!,
         poengAarFom1992 = info.pa_e91!!,
-        ufoeregradVedOmregning = info.ufoereGrad,
+        ufoeregradVedOmregning = info.ufoereGrad ?: 0,
         basisGrunnpensjon = info.basisGrunnpensjon,
         basisPensjonstillegg = info.basisPensjonstillegg,
         basisTilleggspensjon = info.basisTilleggspensjon,

@@ -24,7 +24,7 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
         ) shouldBe emptyList()
     }
 
-    ("aggregate skal fylle alle felter i beregningsinformasjon") {
+    ("aggregate skal fylle alle felter i simuleringsdata") {
         val list = listOf(
             SimulertBeregningInformasjon().apply {
                 datoFom = LocalDate.of(2027, 3, 1)
@@ -58,6 +58,43 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
             delingstallUttak shouldBe 8.0
             forholdstallUttak shouldBe 9.0
             sluttpoengtall shouldBe 10.0
+        }
+    }
+
+    ("aggregate skal sette null eller default verdi i feltene til simuleringsdata") {
+        val list = listOf(
+            SimulertBeregningInformasjon().apply {
+                datoFom = LocalDate.of(2027, 3, 1)
+                tt_anv_kap19 = 1
+                pa_f92 = 2
+                pa_e91 = 3
+                ufoereGrad = null
+                basisGrunnpensjon = null
+                basisPensjonstillegg = null
+                basisTilleggspensjon = null
+                delingstall = 8.0
+                forholdstall = 9.0
+                spt = null
+            },
+        )
+        val result = SimulerBeregningsinformasjonAggregator.aggregate(
+            foedselsdato = LocalDate.of(1960, 2, 2),
+            foersteUttakDato = LocalDate.of(2027, 3, 1),
+            simulertBeregningInformasjonListe = list
+        )
+        result.size shouldBe 1
+        with(result[0]) {
+            fom shouldBe LocalDate.of(2027, 3, 1)
+            andvendtTrygdetid shouldBe 1
+            poengAarTom1991 shouldBe 2
+            poengAarFom1992 shouldBe 3
+            ufoeregradVedOmregning shouldBe 0
+            basisGrunnpensjon shouldBe null
+            basisPensjonstillegg shouldBe null
+            basisTilleggspensjon shouldBe null
+            delingstallUttak shouldBe 8.0
+            forholdstallUttak shouldBe 9.0
+            sluttpoengtall shouldBe null
         }
     }
 

@@ -65,7 +65,7 @@ data class Simuleringsdata(
     val andvendtTrygdetid: Int,
     val poengAarTom1991: Int,
     val poengAarFom1992: Int,
-    val ufoeregradVedOmregning: Int?,
+    val ufoeregradVedOmregning: Int,
     val basisGrunnpensjon: Double? ,
     val basisPensjonstillegg: Double?,
     val basisTilleggspensjon: Double?,

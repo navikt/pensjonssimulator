@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 class SimuleringperioderListeAggregatorTest : StringSpec({
 
-    ("Aggregate simuleringsperioder for alderspensjon med gradert uttak") {
+    "Aggregate simuleringsperioder for alderspensjon med gradert uttak" {
         SimuleringperioderListeAggregator.aggregate(
             SimuleringsperioderSpec(
                 afpEtterfulgtAvAlder = false,
@@ -21,7 +21,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
-                inntektEtterHeltUttakAntallAar = 3L
+                inntektEtterHeltUttakAntallAar = 3
             )
         ) shouldBe
                 listOf(
@@ -46,7 +46,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 )
     }
 
-    ("Aggregate simuleringsperioder uten stillingsprosenter for alderspensjon med gradert uttak") {
+    "Aggregate simuleringsperioder uten stillingsprosenter for alderspensjon med gradert uttak" {
         SimuleringperioderListeAggregator.aggregate(
             SimuleringsperioderSpec(
                 afpEtterfulgtAvAlder = false,
@@ -59,7 +59,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
-                inntektEtterHeltUttakAntallAar = 0L
+                inntektEtterHeltUttakAntallAar = 0
             )
         ) shouldBe
                 listOf(
@@ -78,7 +78,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 )
     }
 
-    ("Aggregate simuleringsperioder for alderspensjon med helt uttak") {
+    "Aggregate simuleringsperioder for alderspensjon med helt uttak" {
         SimuleringperioderListeAggregator.aggregate(
             SimuleringsperioderSpec(
                 afpEtterfulgtAvAlder = false,
@@ -91,7 +91,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2027, 2, 1),
                 heltUttakDato = null,
-                inntektEtterHeltUttakAntallAar = 0L
+                inntektEtterHeltUttakAntallAar = 0
             )
         ) shouldBe
                 listOf(
@@ -104,7 +104,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 )
     }
 
-    ("Aggregate simuleringsperioder for alderspensjon med helt uttak og høy stillingsprosent") {
+    "Aggregate simuleringsperioder for alderspensjon med helt uttak og høy stillingsprosent" {
         SimuleringperioderListeAggregator.aggregate(
             SimuleringsperioderSpec(
                 afpEtterfulgtAvAlder = false,
@@ -117,7 +117,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2027, 2, 1),
                 heltUttakDato = null,
-                inntektEtterHeltUttakAntallAar = 1L
+                inntektEtterHeltUttakAntallAar = 1
             )
         ) shouldBe
                 listOf(
@@ -136,7 +136,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 )
     }
 
-    ("aggregate simuleringsperioder for afp etterfulgt av alderspensjon") {
+    "aggregate simuleringsperioder for afp etterfulgt av alderspensjon" {
         SimuleringperioderListeAggregator.aggregate(
             SimuleringsperioderSpec(
                 afpEtterfulgtAvAlder = true,
@@ -149,7 +149,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.AFP_ETTERF_ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
-                inntektEtterHeltUttakAntallAar = 0L
+                inntektEtterHeltUttakAntallAar = 0
             )
         ) shouldBe
                 listOf(
@@ -166,7 +166,5 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                         simulerAFPOffentligEtterfulgtAvAlder = true
                     ),
                 )
-
     }
-
 })

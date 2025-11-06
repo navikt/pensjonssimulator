@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SivilstandKode
 
 class SivilstandMapperTest : StringSpec({
 
-    ("Alle sivilstatuser blir mappet til sivilstand"){
+    "Alle sivilstatuser blir mappet til sivilstand"{
         SivilstandMapper.map(SivilstatusType.ENKE) shouldBe SivilstandKode.ENKE
         SivilstandMapper.map(SivilstatusType.GJPA) shouldBe SivilstandKode.ENKE
         SivilstandMapper.map(SivilstatusType.GIFT) shouldBe SivilstandKode.GIFT

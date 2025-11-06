@@ -11,7 +11,7 @@ import java.time.LocalDate
 
 class InntektListeSpecMapperTest : StringSpec({
 
-    ("createSpec skal mappe alle felter i InntektListeSpec") {
+    "createSpec skal mappe alle felter i InntektListeSpec" {
     val foedselsdato = LocalDate.of(1960, 1, 1)
         val simSpec = simuleringSpecInntekter(
             inntektUnderGradertUttakBeloep = 1,
@@ -31,7 +31,7 @@ class InntektListeSpecMapperTest : StringSpec({
         inntektSpec.heltUttakDato shouldBe simSpec.heltUttakDato
     }
 
-    ("100% uttakgrad skal mappes til helt uttak") {
+    "100% uttakgrad skal mappes til helt uttak" {
         val foedselsdato = LocalDate.of(1960, 1, 1)
         val simSpec = simuleringSpecInntekter(uttaksgrad = UttakGradKode.P_100)
         val inntektSpec = InntektListeSpecMapper.createSpec(simSpec, foedselsdato)
@@ -39,7 +39,7 @@ class InntektListeSpecMapperTest : StringSpec({
         inntektSpec.gradertUttak shouldBe false
     }
 
-    ("kun AFP_ETTERF_ALDER skal føre til simuleringTypeErAfpEtterfAlder=true") {
+    "kun AFP_ETTERF_ALDER skal føre til simuleringTypeErAfpEtterfAlder=true" {
         val foedselsdato = LocalDate.of(1960, 1, 1)
         for (simuleringType: SimuleringTypeEnum in SimuleringTypeEnum.entries){
             if (simuleringType == SimuleringTypeEnum.AFP_ETTERF_ALDER) continue

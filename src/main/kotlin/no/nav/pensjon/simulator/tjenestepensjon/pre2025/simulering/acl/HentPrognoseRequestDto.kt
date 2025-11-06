@@ -59,13 +59,13 @@ data class SimuleringsperiodeDto(
 data class SimuleringsdataDto(
     val datoFom: LocalDate,
     val andvendtTrygdetid: Int,
-    val poengArTom1991: Int,
-    val poengArFom1992: Int,
+    val poengArTom1991: Int?,
+    val poengArFom1992: Int?,
     val uforegradVedOmregning: Int?,
     val basisgp: Double? ,
     val basispt: Double?,
     val basistp: Double?,
-    val delingstallUttak: Double,
+    val delingstallUttak: Double?,
     val forholdstallUttak: Double,
     val sluttpoengtall: Double?
 )

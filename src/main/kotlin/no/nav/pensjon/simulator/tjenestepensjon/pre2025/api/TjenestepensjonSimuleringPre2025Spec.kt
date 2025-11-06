@@ -63,13 +63,13 @@ data class Simuleringsperiode(
 data class Simuleringsdata(
     val fom: LocalDate,
     val andvendtTrygdetid: Int,
-    val poengAarTom1991: Int,
-    val poengAarFom1992: Int,
+    val poengAarTom1991: Int?,
+    val poengAarFom1992: Int?,
     val ufoeregradVedOmregning: Int,
     val basisGrunnpensjon: Double? ,
     val basisPensjonstillegg: Double?,
     val basisTilleggspensjon: Double?,
-    val delingstallUttak: Double,
+    val delingstallUttak: Double?,
     val forholdstallUttak: Double,
     val sluttpoengtall: Double?
 )

@@ -10,24 +10,24 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 
 class OffentligAfpAggregatorTest : StringSpec({
 
-    ("aggregate skal returnere null hvis ingen offentlig afp er simulert") {
+    "aggregate skal returnere null hvis ingen offentlig afp er simulert" {
         OffentligAfpAggregator.aggregate(null, true) shouldBe null
     }
 
-    ("aggregate skal returnere null hvis type ikke er afp etterfulgt av alderspensjon") {
+    "aggregate skal returnere null hvis type ikke er afp etterfulgt av alderspensjon" {
         val pre2025OffentligAfp = mockOffentligAfp(1, 2)
         OffentligAfpAggregator.aggregate(pre2025OffentligAfp, false) shouldBe null
     }
 
-    ("aggregate skal returnere null ved manglende beregning") {
+    "aggregate skal returnere null ved manglende beregning" {
         OffentligAfpAggregator.aggregate(Simuleringsresultat(), false) shouldBe null
     }
 
-    ("aggregate skal returnere null ved manglende simulert Afp") {
+    "aggregate skal returnere null ved manglende simulert Afp" {
         OffentligAfpAggregator.aggregate(null, false) shouldBe null
     }
 
-    ("aggregate skal returnere afp etterfulgt av alderspensjon") {
+    "aggregate skal returnere afp etterfulgt av alderspensjon" {
         val pre2025OffentligAfp = mockOffentligAfp(1, 2)
         val result = OffentligAfpAggregator.aggregate(pre2025OffentligAfp, true)
 
@@ -35,7 +35,7 @@ class OffentligAfpAggregatorTest : StringSpec({
         result?.tidligerePensjonsgivendeInntekt shouldBe 2
     }
 
-    ("aggregate skal returnere afp etterfulgt av alderspensjon med tpi=0") {
+    "aggregate skal returnere afp etterfulgt av alderspensjon med tpi=0" {
         val pre2025OffentligAfp = mockOffentligAfp(1)
         val result = OffentligAfpAggregator.aggregate(pre2025OffentligAfp, true)
 
@@ -43,7 +43,7 @@ class OffentligAfpAggregatorTest : StringSpec({
         result?.tidligerePensjonsgivendeInntekt shouldBe 0
     }
 
-    ("aggregate skal tpi=0 ved manglende tillegspensjon") {
+    "aggregate skal tpi=0 ved manglende tillegspensjon" {
         val pre2025OffentligAfp =  Simuleringsresultat().apply { beregning = Beregning().apply { brutto = 1 } }
         val result = OffentligAfpAggregator.aggregate(pre2025OffentligAfp, true)
 

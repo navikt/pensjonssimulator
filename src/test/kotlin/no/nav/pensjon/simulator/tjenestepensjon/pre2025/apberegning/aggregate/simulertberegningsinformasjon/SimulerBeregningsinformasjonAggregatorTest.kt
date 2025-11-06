@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
 
-    ("Ingen simuleringsinformasjon skal bli en tom liste") {
+    "Ingen simuleringsinformasjon skal bli en tom liste" {
         val list = listOf<SimulertBeregningInformasjon>()
         SimulerBeregningsinformasjonAggregator.aggregate(
             foedselsdato = LocalDate.of(1960, 2, 2),
@@ -16,7 +16,7 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
         ) shouldBe emptyList()
     }
 
-    ("aggragate skal returnere en tom liste når ingen alderspensjon er beregnet") {
+    "aggragate skal returnere en tom liste når ingen alderspensjon er beregnet" {
         SimulerBeregningsinformasjonAggregator.aggregate(
             foedselsdato = LocalDate.of(1960, 2, 2),
             foersteUttakDato = LocalDate.of(2027, 3, 1),
@@ -24,7 +24,7 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
         ) shouldBe emptyList()
     }
 
-    ("aggregate skal fylle alle felter i simuleringsdata") {
+    "aggregate skal fylle alle felter i simuleringsdata" {
         val list = listOf(
             SimulertBeregningInformasjon().apply {
                 datoFom = LocalDate.of(2027, 3, 1)
@@ -61,7 +61,7 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
         }
     }
 
-    ("aggregate skal sette null eller default verdi i feltene til simuleringsdata") {
+    "aggregate skal sette null eller default verdi i feltene til simuleringsdata" {
         val list = listOf(
             SimulertBeregningInformasjon().apply {
                 datoFom = LocalDate.of(2027, 3, 1)
@@ -98,7 +98,7 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
         }
     }
 
-    ("aggregate skal returnere beregningsinformasjonsperioder senere enn brukers fylte 67 år") {
+    "aggregate skal returnere beregningsinformasjonsperioder senere enn brukers fylte 67 år" {
         val list = listOf(
             SimulertBeregningInformasjon().apply {
                 datoFom = LocalDate.of(2030, 3, 1)
@@ -125,7 +125,7 @@ class SimulerBeregningsinformasjonAggregatorTest : StringSpec({
         }
     }
 
-    ("aggregate skal returnere beregningsinformasjonsperioder senere enn første uttaksdato") {
+    "aggregate skal returnere beregningsinformasjonsperioder senere enn første uttaksdato" {
         val list = listOf(
             SimulertBeregningInformasjon().apply {
                 datoFom = LocalDate.of(2030, 3, 1)

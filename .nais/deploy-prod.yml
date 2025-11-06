@@ -116,6 +116,12 @@ spec:
           namespace: pensjondeployer
           cluster: prod-fss
         - application: pensjonskalkulator-backend
+        - application: pensjon-pselv
+          namespace: pensjondeployer
+          cluster: prod-fss
+        - application: pensjon-pselv
+          namespace: pensjondeployer
+          cluster: prod-gcp
     outbound:
       rules:
         - application: pdl-api

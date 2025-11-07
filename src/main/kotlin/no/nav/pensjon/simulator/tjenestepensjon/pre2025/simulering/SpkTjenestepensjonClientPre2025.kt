@@ -33,7 +33,7 @@ class SpkTjenestepensjonClientPre2025(
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
     fun getPrognose(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): SimulerOffentligTjenestepensjonResultV1 {
-        sporingsloggService.logUtgaaendeRequest(SPK, Pid(request.fnr.fnr), request.toString())
+        sporingsloggService.logUtgaaendeRequest(SPK, Pid(request.fnr), request.toString())
         val response: HentPrognoseResponseDto? = webClient
             .post()
             .uri(PATH)

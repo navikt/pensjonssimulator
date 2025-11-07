@@ -7,7 +7,7 @@ object HentPrognoseMapper {
 
     fun toDto(spec: TjenestepensjonSimuleringPre2025Spec): HentPrognoseRequestDto {
         return HentPrognoseRequestDto(
-            fnr = Fnr(spec.pid.value),
+            fnr = spec.pid.value,
             fodselsdato = spec.foedselsdato,
             sisteTpnr = spec.sisteTpOrdningsTpNummer,
             sprak = "norsk",

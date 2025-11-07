@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl
 import java.time.LocalDate
 
 data class HentPrognoseRequestDto(
-    var fnr: Fnr,
+    var fnr: String,
     var fodselsdato: LocalDate,
     var sisteTpnr: String,
     var sprak: String? = null,
@@ -16,8 +16,6 @@ data class HentPrognoseRequestDto(
     var simuleringsdataListe: List<SimuleringsdataDto>,
     var tpForholdListe: List<TpForholdDto> = emptyList()
 )
-
-data class Fnr(val fnr: String)
 
 data class SimulertAFPOffentligDto(
     val simulertAFPOffentligBrutto: Int,

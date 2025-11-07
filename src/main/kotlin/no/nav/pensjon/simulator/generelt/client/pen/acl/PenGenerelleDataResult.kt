@@ -1,9 +1,5 @@
 package no.nav.pensjon.simulator.generelt.client.pen.acl
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
-import java.time.LocalDate
-
 data class PenGenerelleDataResult(
     val person: PenPersonData?, // null if anonym
     val privatAfpSatser: PenPrivatAfpSatser?,
@@ -12,7 +8,6 @@ data class PenGenerelleDataResult(
 )
 
 data class PenPersonData(
-    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val foedselDato: LocalDate?,
     val statsborgerskap: String?
 )
 

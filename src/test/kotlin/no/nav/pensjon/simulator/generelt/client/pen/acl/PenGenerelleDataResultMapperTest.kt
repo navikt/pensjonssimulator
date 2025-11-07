@@ -7,17 +7,13 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.Person
-import java.time.LocalDate
 
 class PenGenerelleDataResultMapperTest : ShouldSpec({
 
     should("map empty lists") {
         PenGenerelleDataResultMapper.fromDto(
             PenGenerelleDataResult(
-                person = PenPersonData(
-                    foedselDato = LocalDate.of(1964, 5, 6),
-                    statsborgerskap = "ABW"
-                ),
+                person = PenPersonData(statsborgerskap = "ABW"),
                 privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
                 satsResultatListe = emptyList(),
                 //TODO sisteGyldigeOpptjeningsaar = 2023
@@ -41,10 +37,7 @@ class PenGenerelleDataResultMapperTest : ShouldSpec({
     should("map non-empty lists") {
         val result = PenGenerelleDataResultMapper.fromDto(
             PenGenerelleDataResult(
-                person = PenPersonData(
-                    foedselDato = LocalDate.of(1964, 5, 6),
-                    statsborgerskap = "ABW"
-                ),
+                person = PenPersonData(statsborgerskap = "ABW"),
                 privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
                 satsResultatListe = listOf(PenVeietSatsResultat(aar = 2025, verdi = 8.9)),
                 //TODO sisteGyldigeOpptjeningsaar = 2020

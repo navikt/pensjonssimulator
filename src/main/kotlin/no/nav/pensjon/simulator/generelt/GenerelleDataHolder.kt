@@ -11,15 +11,15 @@ import java.util.Collections.synchronizedMap
 @Component
 class GenerelleDataHolder(val client: GenerelleDataClient) {
 
-    private var opptjeningsaarCache: Int? = null
+    private var opptjeningsaarCache: MutableMap<Int, Int> = synchronizedMap(mutableMapOf())
     private val personCache: MutableMap<Pid, Person> = synchronizedMap(mutableMapOf())
     private val privatAfpSatsCache: MutableMap<DatoAvhengighetCacheKey, PrivatAfpSatser> = synchronizedMap(mutableMapOf())
     private val grunnbeloepCache: MutableMap<GrunnbeloepCacheKey, List<VeietSatsResultat>> = synchronizedMap(mutableMapOf())
 
     fun getSisteGyldigeOpptjeningsaar(): Int =
-        opptjeningsaarCache
+        opptjeningsaarCache[0]
             ?: client.fetchGenerelleData(GenerelleDataSpec.forOpptjeningsaar()).sisteGyldigeOpptjeningsaar.also {
-                opptjeningsaarCache = it
+                opptjeningsaarCache[0] = it
             }
 
     fun getPerson(pid: Pid): Person =

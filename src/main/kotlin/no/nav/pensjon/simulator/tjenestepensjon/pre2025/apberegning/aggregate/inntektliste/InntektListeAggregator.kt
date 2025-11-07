@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.i
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Inntekt
 import java.time.LocalDate
 
@@ -10,7 +9,7 @@ object InntektListeAggregator {
 
     fun aggregate(spec: InntektListeSpec,
                   actualTime: LocalDate = LocalDate.now(),
-                  sisteGyldigeOpptjeningsaar: Int = SISTE_GYLDIGE_OPPTJENING_AAR): List<Inntekt> {
+                  sisteGyldigeOpptjeningsaar: Int): List<Inntekt> {
 
         val inntektList: MutableList<Inntekt> = ArrayList()
 

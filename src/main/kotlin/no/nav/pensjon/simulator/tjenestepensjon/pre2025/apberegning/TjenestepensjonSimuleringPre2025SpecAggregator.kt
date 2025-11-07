@@ -21,17 +21,25 @@ object TjenestepensjonSimuleringPre2025SpecAggregator {
     fun aggregateSpec(
         simuleringResultat: SimulatorOutput,
         simuleringSpec: SimuleringSpec,
-        stillingsprosentSpec: StillingsprosentSpec
+        stillingsprosentSpec: StillingsprosentSpec,
+        sisteGyldigeOpptjeningsaar: Int
     ): TjenestepensjonSimuleringPre2025Spec {
-
         val afpEtterfAlder = simuleringSpec.type == SimuleringTypeEnum.AFP_ETTERF_ALDER
         val foedselsdato: LocalDate = simuleringResultat.foedselDato!! //ikke anonym simulering
 
         val offentligAfp = aggregate(simuleringResultat.pre2025OffentligAfp, afpEtterfAlder)
         val privatAfp = aggregate(simuleringResultat.privatAfpPeriodeListe, afpEtterfAlder)
-        val inntekter = aggregate(createSpec(simuleringSpec, foedselsdato))
-        val simuleringsperioder = aggregate(createSpec(simuleringSpec, offentligAfp, stillingsprosentSpec, foedselsdato))
-        val simuleringsdata = aggregate(foedselsdato, simuleringSpec.foersteUttakDato, simuleringResultat.alderspensjon?.simulertBeregningInformasjonListe)
+        val inntekter = aggregate(
+            spec = createSpec(simuleringSpec, foedselsdato),
+            sisteGyldigeOpptjeningsaar = sisteGyldigeOpptjeningsaar
+        )
+        val simuleringsperioder =
+            aggregate(createSpec(simuleringSpec, offentligAfp, stillingsprosentSpec, foedselsdato))
+        val simuleringsdata = aggregate(
+            foedselsdato,
+            simuleringSpec.foersteUttakDato,
+            simuleringResultat.alderspensjon?.simulertBeregningInformasjonListe
+        )
 
         return TjenestepensjonSimuleringPre2025Spec(
             pid = simuleringSpec.pid!!, //ikke anonym simulering

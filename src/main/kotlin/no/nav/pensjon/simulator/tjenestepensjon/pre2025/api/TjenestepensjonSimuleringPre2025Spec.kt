@@ -21,7 +21,7 @@ data class TjenestepensjonSimuleringPre2025Spec(
 
 data class SimulertOffentligAfp(
     val brutto: Int,
-    val tidligerePensjonsgivendeInntekt: Int
+    val tidligerePensjonsgivendeInntekt: Int = 0
 )
 
 data class SimulertPrivatAfp(
@@ -48,9 +48,9 @@ data class Inntekt(
 
 data class Pensjonsbeholdningsperiode(
     val fom: LocalDate,
-    val pensjonsbeholdning: Double,
-    val garantipensjonsbeholdning: Double,
-    val garantitilleggsbeholdning: Double
+    val pensjonsbeholdning: Double?,
+    val garantipensjonsbeholdning: Double?,
+    val garantitilleggsbeholdning: Double?
 )
 
 data class Simuleringsperiode(
@@ -63,13 +63,13 @@ data class Simuleringsperiode(
 data class Simuleringsdata(
     val fom: LocalDate,
     val andvendtTrygdetid: Int,
-    val poengAarTom1991: Int,
-    val poengAarFom1992: Int,
-    val ufoeregradVedOmregning: Int?,
+    val poengAarTom1991: Int?,
+    val poengAarFom1992: Int?,
+    val ufoeregradVedOmregning: Int,
     val basisGrunnpensjon: Double? ,
     val basisPensjonstillegg: Double?,
     val basisTilleggspensjon: Double?,
-    val delingstallUttak: Double,
+    val delingstallUttak: Double?,
     val forholdstallUttak: Double,
     val sluttpoengtall: Double?
 )

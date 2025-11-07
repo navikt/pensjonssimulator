@@ -84,6 +84,12 @@ data class Alder(val aar: Int, val maaneder: Int) {
             )
         }
 
+        fun fromAlder(foedselDato: LocalDate, alder: Alder): LocalDate =
+            foedselDato
+                .plusYears(alder.aar.toLong())
+                .withDayOfMonth(1) // første dag i...
+                .plusMonths(alder.maaneder.toLong() + 1L) // ...måneden etter 'aldersbasert' dato
+
         /**
          * Normalised alder = alder with måneder within [0, 11].
          * NB: Not to be confused with "normert alder".

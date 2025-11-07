@@ -29,22 +29,13 @@ data class GenerelleDataSpec(
                 inkludering = InkluderingSpec.forAfpSatser()
             )
 
-        fun forDelingstall(virkningFom: LocalDate, foedselDato: LocalDate) =
+        fun forOpptjeningsaar() =
             GenerelleDataSpec(
                 pid = null,
-                virkningFom,
-                foedselDato,
+                virkningFom = null,
+                foedselDato = null,
                 satsPeriode = null,
-                inkludering = InkluderingSpec.forDelingstall()
-            )
-
-        fun forForholdstall(virkningFom: LocalDate, foedselDato: LocalDate) =
-            GenerelleDataSpec(
-                pid = null,
-                virkningFom,
-                foedselDato,
-                satsPeriode = null,
-                inkludering = InkluderingSpec.forForholdstall()
+                inkludering = InkluderingSpec.none()
             )
 
         fun forVeietGrunnbeloep(fomAar: Int?, tomAar: Int?) =
@@ -71,12 +62,6 @@ data class InkluderingSpec(
     companion object {
         fun forAfpSatser() =
             InkluderingSpec(afpSatser = true, delingstall = false, forholdstall = false)
-
-        fun forDelingstall() =
-            InkluderingSpec(afpSatser = false, delingstall = true, forholdstall = false)
-
-        fun forForholdstall() =
-            InkluderingSpec(afpSatser = false, delingstall = false, forholdstall = true)
 
         fun none() =
             InkluderingSpec(afpSatser = false, delingstall = false, forholdstall = false)

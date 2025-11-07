@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.krav
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -11,12 +11,11 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
-import java.util.*
 
-class KravhodeCreatorTest : FunSpec({
+class KravhodeCreatorTest : ShouldSpec({
 
     /**
      * Opprettet kravhode skal ha:
@@ -27,13 +26,13 @@ class KravhodeCreatorTest : FunSpec({
      * - sakType = ALDER
      * - regelverkTypeEnum = verdi basert på årskull, f.eks. N_REG_N_OPPTJ for årskull 1963
      */
-    test("opprettKravhode should opprette kravhode") {
+    should("opprette kravhode") {
         val kravhode = KravhodeCreator(
             beholdningUpdater = mockk(relaxed = true),
             epsService = mockk(relaxed = true),
             persongrunnlagService = arrangePersongrunnlag(),
             opptjeningUpdater = mockk(relaxed = true),
-            generelleDataHolder = mockk(),
+            generelleDataHolder = mockk(relaxed = true),
             kravService = mockk(),
             ufoereService = mockk(relaxed = true),
             endringPersongrunnlag = mockk(),
@@ -52,7 +51,7 @@ class KravhodeCreatorTest : FunSpec({
         )
 
         with(kravhode) {
-            kravFremsattDato shouldBe dateAtNoon(2025, Calendar.JANUARY, 1) // = "dagens dato"
+            kravFremsattDato shouldBe LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon() // = "dagens dato"
             onsketVirkningsdato shouldBe LocalDate.of(2032, 6, 1) // = heltUttakDato
             gjelder shouldBe null
             sakId shouldBe null
@@ -70,12 +69,12 @@ private fun arrangePersongrunnlag(): PersongrunnlagService =
 private fun persongrunnlag() =
     Persongrunnlag().apply {
         penPerson = PenPerson()
-        fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+        fodselsdato = LocalDate.of(1963, 1, 1).toNorwegianDateAtNoon()
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
+                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
             }
         )
     }

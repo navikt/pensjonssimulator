@@ -50,6 +50,7 @@ class MaskinportenRequestClient(
                 .claim("scope", scope)
                 .issueTime(issueTime)
                 .expirationTime(expirationTime(issueTime))
+                .jwtID(UUID.randomUUID().toString())
                 .build()
         ).also {
             it.sign(RSASSASigner(credentials.privateKey))

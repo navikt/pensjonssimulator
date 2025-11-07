@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.*
 
-object SimulerOffentligTjenestepensjonMapper {
+object SimulerOffentligTjenestepensjonMapperV1 {
 
     fun fromDto(specV1: SimulerOffentligTjenestepensjonSpecV1): TjenestepensjonSimuleringPre2025Spec {
         return TjenestepensjonSimuleringPre2025Spec(

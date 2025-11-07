@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
@@ -258,9 +257,8 @@ class KravhodeCreator(
             bosattLandEnum = norge
             personDetaljListe = mutableListOf(anonymPersondetalj(spec))
             inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
-            sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-        }.also {
-            it.finishInit()
+            sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
+            finishInit()
         }
 
     // SimulerFleksibelAPCommand.createPersonDetaljerForenkletSimulering
@@ -271,8 +269,7 @@ class KravhodeCreator(
             penRolleFom = spec.foedselDato?.toNorwegianDateAtNoon()
             sivilstandTypeEnum = anonymSivilstand(spec.sivilstatus)
             bruk = true
-        }.also {
-            it.finishInit()
+            finishInit()
         }
 
     // SimulerFleksibelAPCommand.getSivilstandForenkletSimulering
@@ -319,7 +316,7 @@ class KravhodeCreator(
         val inntektListe: MutableList<Inntekt>
 
         if (spec.brukFremtidigInntekt) {
-            val gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
+            val gjeldendeAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar() + 1
             val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselAar(person, spec)
             val fom: LocalDate = foersteDag(gjeldendeAar)
 
@@ -424,7 +421,7 @@ class KravhodeCreator(
                     generelleDataHolder.getVeietGrunnbeloepListe(gjeldendeAar, aarSoekerBlirMaxAlder)
             }
         } else {
-            gjeldendeAar = SISTE_GYLDIGE_OPPTJENING_AAR + 1
+            gjeldendeAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar() + 1
             aarSoekerBlirMaxAlder = yearUserTurnsGivenAge(foedselsdato!!, MAX_OPPTJENING_ALDER)
         }
 

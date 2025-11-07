@@ -25,7 +25,6 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import java.time.LocalDate
 
 @Component
 class PenGenerelleDataClient(
@@ -84,9 +83,10 @@ class PenGenerelleDataClient(
 
         private fun nullResult() =
             GenerelleData(
-                person = Person(LocalDate.MIN, LandkodeEnum.NOR),
+                person = Person(LandkodeEnum.NOR),
                 privatAfpSatser = PrivatAfpSatser(),
                 satsResultatListe = emptyList(),
+                sisteGyldigeOpptjeningsaar = 0
             )
     }
 }

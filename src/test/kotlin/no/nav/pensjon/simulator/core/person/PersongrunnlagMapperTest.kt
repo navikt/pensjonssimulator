@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.person
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -10,11 +11,11 @@ import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
 
-class PersongrunnlagMapperTest : FunSpec({
+class PersongrunnlagMapperTest : ShouldSpec({
 
-    test("mapToPersongrunnlag should map only first AFP-historikk item") {
+    should("mappe kun første forekomst i AFP-historikken") {
         val mapper = PersongrunnlagMapper(
-            generelleDataHolder = mockk(),
+            generelleDataHolder = mockk(relaxed = true),
             personService = mockk(),
             time = { LocalDate.of(2021, 1, 1) }
         )
@@ -29,15 +30,15 @@ class PersongrunnlagMapperTest : FunSpec({
             spec = simuleringSpec
         )
 
-        with(result.afpHistorikkListe) {
-            size shouldBe 1
-            this[0].afpPensjonsgrad shouldBe 2
+        with(result) {
+            afpHistorikkListe shouldHaveSize 1
+            afpHistorikkListe[0].afpPensjonsgrad shouldBe 2
         }
     }
 
-    test("mapToPersongrunnlag skal bruke utenlandsperioder") {
+    should("bruke utenlandsperioder") {
         val mapper = PersongrunnlagMapper(
-            generelleDataHolder = mockk(),
+            generelleDataHolder = mockk(relaxed = true),
             personService = mockk(),
             time = { LocalDate.of(2021, 1, 1) }
         )

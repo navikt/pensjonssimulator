@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.core.endring
 
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
@@ -19,6 +18,7 @@ import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBE
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
@@ -35,6 +35,7 @@ class EndringPersongrunnlag(
     private val beholdningService: BeholdningerMedGrunnlagService,
     private val epsService: EpsService,
     private val persongrunnlagMapper: PersongrunnlagMapper,
+    private val generelleDataHolder: GenerelleDataHolder,
     private val time: Time
 ) {
     // SimulerEndringAvAPCommand.opprettPersongrunnlagForBruker
@@ -52,7 +53,7 @@ class EndringPersongrunnlag(
             ?.apply {
                 bosattLandEnum = LandkodeEnum.NOR
                 inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
-                sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+                sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
                 opptjeningsgrunnlagListe = opptjeningGrunnlagListe(spec, endringKravhode, person)
                 spec.flyktning?.let { flyktning = it }
                 adjustPersondetaljListe(persongrunnlag = this, spec)
@@ -366,9 +367,6 @@ class EndringPersongrunnlag(
                 personDetaljListe = personDetaljListe.filter {
                     it.bruk == true && it.penRolleTom == null
                 }.toMutableList()
-                // NB: In the original code (SimulerEndringAvAPCommandHelper.createPersongrunnlagWithValidPersonDetaljer)
-                // the PersonDetalj objects are copied twice: new Persongrunnlag(...) and then new PersonDetalj(...)
-                // which seems unnecessary
             }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
@@ -379,8 +377,7 @@ class EndringPersongrunnlag(
                 sivilstandTypeEnum = SivilstandEnum.ENKE
                 penRolleFom = fom?.toNorwegianDateAtNoon()
                 bruk = true
-            }.also {
-                it.finishInit()
+                finishInit()
             }
 
         // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker

@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -16,6 +15,7 @@ import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBE
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianNoon
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
@@ -28,6 +28,7 @@ class Pre2025OffentligAfpPersongrunnlag(
     private val kravService: KravService,
     private val persongrunnlagService: PersongrunnlagService,
     private val epsService: EpsService,
+    private val generelleDataHolder: GenerelleDataHolder,
     private val time: Time
 ) {
     // SimulerAFPogAPCommand.opprettPersongrunnlagForBruker
@@ -89,7 +90,7 @@ class Pre2025OffentligAfpPersongrunnlag(
 
         avdoedGrunnlag?.let {
             retainPersondetaljerHavingVirksomRolle(it)
-            it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+            it.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
             kravhode.persongrunnlagListe.add(it)
             return kravhode
         }
@@ -98,7 +99,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             // SimulerAFPogAPCommand.shouldAddInntektgrunnlagForEPS
             if (forrigeAlderspensjonBeregningResultat.epsPaavirkerBeregningen()) {
                 retainPersondetaljerHavingVirksomRolle(it)
-                it.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+                it.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
                 addEpsInntektGrunnlag(foersteUttakDato = spec.foersteUttakDato!!, grunnbeloep, persongrunnlag = it)
                 kravhode.persongrunnlagListe.add(it)
             }
@@ -117,7 +118,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             beholdVirksommePersondetaljer(persongrunnlag = this)
             spec.flyktning?.let { this.flyktning = it }
             this.antallArUtland = spec.utlandAntallAar
-            this.sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
+            this.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
             this.bosattLandEnum = LandkodeEnum.NOR
             this.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
         }
@@ -208,7 +209,7 @@ class Pre2025OffentligAfpPersongrunnlag(
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
-                fom = fomDatoInntekt.toNorwegianDateAtNoon() // is set to noon in property
+                fom = fomDatoInntekt.toNorwegianDateAtNoon()
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 inntektTypeEnum = InntekttypeEnum.FPI
                 //kopiertFraGammeltKrav = false <--- not used by pensjon-regler

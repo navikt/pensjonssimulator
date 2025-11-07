@@ -5,22 +5,21 @@ import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.Person
-import java.time.LocalDate
 
 object PenGenerelleDataResultMapper {
 
-    private val defaultPerson = Person(LocalDate.MIN, LandkodeEnum.NOR)
+    private val defaultPerson = Person( LandkodeEnum.NOR)
 
     fun fromDto(source: PenGenerelleDataResult) =
         GenerelleData(
             person = source.person?.let(::person) ?: defaultPerson,
             privatAfpSatser = source.privatAfpSatser?.let(::privatAfpSatser) ?: PrivatAfpSatser(),
-            satsResultatListe = source.satsResultatListe.orEmpty().map(::veietSatsResultat)
+            satsResultatListe = source.satsResultatListe.orEmpty().map(::veietSatsResultat),
+            sisteGyldigeOpptjeningsaar = 2023 //TODO source.sisteGyldigeOpptjeningsaar
         )
 
     private fun person(source: PenPersonData) =
         Person(
-            foedselDato = source.foedselDato ?: defaultPerson.foedselDato,
             statsborgerskap = source.statsborgerskap?.let(LandkodeEnum::valueOf) ?: defaultPerson.statsborgerskap
         )
 

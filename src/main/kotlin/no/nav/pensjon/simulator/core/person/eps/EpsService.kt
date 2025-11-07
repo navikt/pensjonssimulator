@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.person.eps
 
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.SISTE_GYLDIGE_OPPTJENING_AAR
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
@@ -17,6 +16,7 @@ import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -35,6 +35,7 @@ class EpsService(
     private val persongrunnlagService: PersongrunnlagService,
     private val persongrunnlagMapper: PersongrunnlagMapper,
     private val opptjeningUpdater: OpptjeningUpdater,
+    private val generelleDataHolder: GenerelleDataHolder,
     private val time: Time
 ) {
     // OpprettKravHodeHelper.opprettPersongrunnlagForEPS
@@ -73,13 +74,10 @@ class EpsService(
         val avdoedPerson = avdoed?.pid?.let(pensjonPersonService::person)
             ?: throw BadSpecException("Gjenlevenderett: Avdød person med PID ${avdoed?.pid} ikke funnet")
 
-        val persongrunnlag: Persongrunnlag = persongrunnlagMapper.avdoedPersongrunnlag(
-            avdoed,
-            avdoedPerson,
-            soekerPid
-        ).apply {
-            sisteGyldigeOpptjeningsAr = SISTE_GYLDIGE_OPPTJENING_AAR
-        }
+        val persongrunnlag: Persongrunnlag =
+            persongrunnlagMapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid).apply {
+                sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
+            }
 
         // Del 2
         persongrunnlagService.addBeholdningerMedGrunnlagToPersongrunnlag(

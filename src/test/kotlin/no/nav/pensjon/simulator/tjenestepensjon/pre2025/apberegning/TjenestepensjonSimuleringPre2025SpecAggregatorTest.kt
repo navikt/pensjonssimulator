@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -24,29 +25,36 @@ import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
 
-    "Offentlig Afp etterfulgt av alderpensjon blir aggregert til spec" {
+    "Offentlig AFP etterfulgt av alderpensjon blir aggregert til spec" {
         val simResultat = mockSimulatorOutput(afpEtterfAvAlder = true)
         val spec: SimuleringSpec = mockSimuleringSpec()
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
-        val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(simResultat, spec, stillingsprosent)
+
+        val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(
+            simuleringResultat = simResultat,
+            simuleringSpec = spec,
+            stillingsprosentSpec = stillingsprosent,
+            sisteGyldigeOpptjeningsaar = 2024
+        )
+
         result.pid shouldBe spec.pid
         result.foedselsdato shouldBe spec.foedselDato
         result.simulertOffentligAfp?.brutto shouldBe simResultat.pre2025OffentligAfp?.beregning?.brutto
         result.sisteTpOrdningsTpNummer shouldBe "TPNR"
         result.simulertPrivatAfp.shouldBeNull()
         result.sivilstand.name shouldBe spec.sivilstatus.name
-        result.inntekter.size shouldBe 3
+        result.inntekter shouldHaveSize 3
         result.inntekter[0].beloep shouldBe 500_000.0
         result.inntekter[1].beloep shouldBe 400_000.0
         result.inntekter[2].beloep shouldBe 0.0
-        result.pensjonsbeholdningsperioder.size shouldBe 1
+        result.pensjonsbeholdningsperioder shouldHaveSize 1
         with(result.pensjonsbeholdningsperioder[0]) {
             fom shouldBe LocalDate.of(2020, 1, 1)
             pensjonsbeholdning shouldBe 1.0
             garantipensjonsbeholdning shouldBe 2.0
             garantitilleggsbeholdning shouldBe 3.0
         }
-        result.simuleringsperioder.size shouldBe 2
+        result.simuleringsperioder shouldHaveSize 2
         with(result.simuleringsperioder[0]) {
             stillingsprosentOffentlig shouldBe 60
             simulerAFPOffentligEtterfulgtAvAlder shouldBe true
@@ -55,24 +63,32 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
             stillingsprosentOffentlig shouldBe 0
             simulerAFPOffentligEtterfulgtAvAlder shouldBe true
         }
-        result.simuleringsdata.size shouldBe 1
+        result.simuleringsdata shouldHaveSize 1
         with(result.simuleringsdata[0]) {
             fom shouldBe LocalDate.of(2029, 11, 1)
             andvendtTrygdetid shouldBe 6
         }
     }
 
-    "Privat Afp blir aggregert til spec" {
+    "Privat AFP blir aggregert til spec" {
         val simResultat = mockSimulatorOutput(afpEtterfAvAlder = false)
-        val spec: SimuleringSpec = mockSimuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, helt = LocalDate.of(2029, 11, 1))
+        val spec: SimuleringSpec =
+            mockSimuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, helt = LocalDate.of(2029, 11, 1))
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
-        val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(simResultat, spec, stillingsprosent)
+
+        val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(
+            simuleringResultat = simResultat,
+            simuleringSpec = spec,
+            stillingsprosentSpec = stillingsprosent,
+            sisteGyldigeOpptjeningsaar = 2024
+        )
+
         result.pid shouldBe spec.pid
         result.foedselsdato shouldBe spec.foedselDato
         result.sisteTpOrdningsTpNummer shouldBe "TPNR"
         result.simulertOffentligAfp.shouldBeNull()
         result.simulertPrivatAfp.shouldNotBeNull()
-        with(result.simulertPrivatAfp){
+        with(result.simulertPrivatAfp) {
             kompensasjonstillegg shouldBe 25
             totalAfpBeholdning shouldBe 20
         }
@@ -81,28 +97,26 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
         result.inntekter[0].beloep shouldBe 500_000.0
         result.inntekter[1].beloep shouldBe 400_000.0
         result.inntekter[2].beloep shouldBe 0.0
-        result.pensjonsbeholdningsperioder.size shouldBe 1
+        result.pensjonsbeholdningsperioder shouldHaveSize 1
         with(result.pensjonsbeholdningsperioder[0]) {
             fom shouldBe LocalDate.of(2020, 1, 1)
             pensjonsbeholdning shouldBe 1.0
             garantipensjonsbeholdning shouldBe 2.0
             garantitilleggsbeholdning shouldBe 3.0
         }
-        result.simuleringsperioder.size shouldBe 3
-        result.simuleringsdata.size shouldBe 1
+        result.simuleringsperioder shouldHaveSize 3
+        result.simuleringsdata shouldHaveSize 1
         with(result.simuleringsdata[0]) {
             fom shouldBe LocalDate.of(2029, 11, 1)
             andvendtTrygdetid shouldBe 6
         }
     }
-
-
 })
 
 private fun mockSimuleringSpec(
     type: SimuleringTypeEnum = SimuleringTypeEnum.AFP_ETTERF_ALDER,
     foerste: LocalDate = LocalDate.of(2027, 10, 1),
-    helt: LocalDate? = null,
+    helt: LocalDate? = null
 ) = SimuleringSpec(
     type = type,
     sivilstatus = SivilstatusType.GIFT,
@@ -176,9 +190,7 @@ private fun mockSimulatorOutput(
             }
         )
         pre2025OffentligAfp = if (afpEtterfAvAlder) Simuleringsresultat().apply {
-            beregning = no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning().apply {
-                brutto = 9
-            }
+            beregning = Beregning().apply { brutto = 9 }
         } else null
 
         if (!afpEtterfAvAlder) {

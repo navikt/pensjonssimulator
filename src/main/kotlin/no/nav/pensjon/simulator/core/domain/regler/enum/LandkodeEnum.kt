@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+// Aligned with pensjon-regler-api 2025-11-11
 enum class LandkodeEnum  {
     ABW,
     AFG,
@@ -254,5 +255,22 @@ enum class LandkodeEnum  {
     P_SIKKIM,
     P_YEMEN,
     P_PANAMAKANALSONEN,
-    SGS
+    SGS,
+    //--- Fra PEN: ---
+    P_349, // P_SPANSKE_OMR_AFRIKA
+    P_546, // P_SIKKIM
+    P_556, // P_YEMEN
+    P_669, // P_PANAMAKANALSONEN
+    P_UnkUnkUnk, // "???"
+    ALA,
+    ATA,
+    BES,
+    BLM,
+    BVT,
+    CUW,
+    HMD,
+    IMN,
+    JEY,
+    MAF,
+    SXM
 }

@@ -4,69 +4,69 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import java.util.*
 
 // PEN: no.nav.service.pensjon.simulering.support.command.LandMedRettTilOpptjeningAvTrygdetidCode
-enum class TrygdetidOpptjeningRettLand(val land: LandkodeEnum, val kravOmArbeid: Boolean) {
+enum class TrygdetidOpptjeningRettLand(val land: LandkodeEnum, val kravOmArbeid: Boolean = true) {
     // Nederland + nordisk konvensjon
-    NLD(land = LandkodeEnum.NLD, kravOmArbeid = false),
-    SWE(land = LandkodeEnum.SWE, kravOmArbeid = false),
-    DNK(land = LandkodeEnum.DNK, kravOmArbeid = false),
-    FIN(land = LandkodeEnum.FIN, kravOmArbeid = false),
-    FRO(land = LandkodeEnum.FRO, kravOmArbeid = false),
-    GRL(land = LandkodeEnum.GRL, kravOmArbeid = false),
-    ISL(land = LandkodeEnum.ISL, kravOmArbeid = false),
+    ALA(land = LandkodeEnum.ALA, kravOmArbeid = false), // Åland
+    DNK(land = LandkodeEnum.DNK, kravOmArbeid = false), // Danmark
+    FIN(land = LandkodeEnum.FIN, kravOmArbeid = false), // Finland
+    FRO(land = LandkodeEnum.FRO, kravOmArbeid = false), // Færøyene
+    GRL(land = LandkodeEnum.GRL, kravOmArbeid = false), // Grønland
+    ISL(land = LandkodeEnum.ISL, kravOmArbeid = false), // Island
+    NLD(land = LandkodeEnum.NLD, kravOmArbeid = false), // Nederland
+    SWE(land = LandkodeEnum.SWE, kravOmArbeid = false), // Sverige
 
     // EØS-land
-    BEL(land = LandkodeEnum.BEL, kravOmArbeid = true),
-    BGR(land = LandkodeEnum.BGR, kravOmArbeid = true),
-    EST(land = LandkodeEnum.EST, kravOmArbeid = true),
-    FRA(land = LandkodeEnum.FRA, kravOmArbeid = true),
-    GRC(land = LandkodeEnum.GRC, kravOmArbeid = true),
-    IRL(land = LandkodeEnum.IRL, kravOmArbeid = true),
-    ITA(land = LandkodeEnum.ITA, kravOmArbeid = true),
-    CYP(land = LandkodeEnum.CYP, kravOmArbeid = true),
-    HRV(land = LandkodeEnum.HRV, kravOmArbeid = true),
-    LVA(land = LandkodeEnum.LVA, kravOmArbeid = true),
-    LTU(land = LandkodeEnum.LTU, kravOmArbeid = true),
-    LUX(land = LandkodeEnum.LUX, kravOmArbeid = true),
-    MLT(land = LandkodeEnum.MLT, kravOmArbeid = true),
-    POL(land = LandkodeEnum.POL, kravOmArbeid = true),
-    PRT(land = LandkodeEnum.PRT, kravOmArbeid = true),
-    ROU(land = LandkodeEnum.ROU, kravOmArbeid = true),
-    SVK(land = LandkodeEnum.SVK, kravOmArbeid = true),
-    SVN(land = LandkodeEnum.SVN, kravOmArbeid = true),
-    ESP(land = LandkodeEnum.ESP, kravOmArbeid = true),
-    GBR(land = LandkodeEnum.GBR, kravOmArbeid = true),
-    CZE(land = LandkodeEnum.CZE, kravOmArbeid = true),
-    DEU(land = LandkodeEnum.DEU, kravOmArbeid = true),
-    HUN(land = LandkodeEnum.HUN, kravOmArbeid = true),
-    AUT(land = LandkodeEnum.AUT, kravOmArbeid = true),
+    AUT(land = LandkodeEnum.AUT), // Østerrike
+    BEL(land = LandkodeEnum.BEL), // Belgia
+    BGR(land = LandkodeEnum.BGR), // Bulgaria
+    CYP(land = LandkodeEnum.CYP), // Kypros
+    CZE(land = LandkodeEnum.CZE), // Tsjekkia
+    DEU(land = LandkodeEnum.DEU), // Tyskland
+    ESP(land = LandkodeEnum.ESP), // Spania
+    EST(land = LandkodeEnum.EST), // Estland
+    FRA(land = LandkodeEnum.FRA), // Frankrike
+    GRC(land = LandkodeEnum.GRC), // Hellas
+    IRL(land = LandkodeEnum.IRL), // Irland
+    ITA(land = LandkodeEnum.ITA), // Italia
+    HRV(land = LandkodeEnum.HRV), // Kroatia
+    HUN(land = LandkodeEnum.HUN), // Ungarn
+    LTU(land = LandkodeEnum.LTU), // Litauen
+    LVA(land = LandkodeEnum.LVA), // Latvia
+    LUX(land = LandkodeEnum.LUX), // Luxembourg
+    MLT(land = LandkodeEnum.MLT), // Malta
+    POL(land = LandkodeEnum.POL), // Polen
+    PRT(land = LandkodeEnum.PRT), // Portugal
+    ROU(land = LandkodeEnum.ROU), // Romania
+    SVK(land = LandkodeEnum.SVK), // Slovakia
+    SVN(land = LandkodeEnum.SVN), // Slovenia
 
     // Øvrige
-    USA(land = LandkodeEnum.USA, kravOmArbeid = true),
-    CHL(land = LandkodeEnum.CHL, kravOmArbeid = true),
-    ISR(land = LandkodeEnum.ISR, kravOmArbeid = true),
-    AUS(land = LandkodeEnum.AUS, kravOmArbeid = true),
-    CAN(land = LandkodeEnum.CAN, kravOmArbeid = true),
-    CHE(land = LandkodeEnum.CHE, kravOmArbeid = true),
-    IND(land = LandkodeEnum.IND, kravOmArbeid = true);
+    AUS(land = LandkodeEnum.AUS), // Australia
+    CAN(land = LandkodeEnum.CAN), // Canada
+    CHE(land = LandkodeEnum.CHE), // Sveits
+    CHL(land = LandkodeEnum.CHL), // Chile
+    GBR(land = LandkodeEnum.GBR), // Storbritannia
+    IND(land = LandkodeEnum.IND), // India
+    ISR(land = LandkodeEnum.ISR), // Israel
+    QEB(land = LandkodeEnum.QEB), // Quebec
+    USA(land = LandkodeEnum.USA); // USA
 
     companion object {
-        fun rettTilOpptjeningAvTrygdetid(land: LandkodeEnum?, harArbeidet: Boolean): Boolean {
-            if (mapper == null) {
-                initMapper()
-            }
+        private val opptjeningsrettVedLand: Map<LandkodeEnum, TrygdetidOpptjeningRettLand> = map()
 
-            return mapper!!.containsKey(land) && (harArbeidet || !mapper!![land]?.kravOmArbeid!!)
-        }
+        fun rettTilOpptjeningAvTrygdetid(land: LandkodeEnum?, harArbeidet: Boolean): Boolean =
+            opptjeningsrettVedLand.containsKey(land)
+                    && (harArbeidet || opptjeningsrettVedLand[land]!!.kravOmArbeid.not())
 
-        private var mapper: MutableMap<LandkodeEnum, TrygdetidOpptjeningRettLand>? = null
-
-        private fun initMapper() {
-            mapper = EnumMap(LandkodeEnum::class.java)
+        private fun map(): Map<LandkodeEnum, TrygdetidOpptjeningRettLand> {
+            val rettVedLand: MutableMap<LandkodeEnum, TrygdetidOpptjeningRettLand> = EnumMap(LandkodeEnum::class.java)
 
             @OptIn(ExperimentalStdlibApi::class)
-            for (entry in entries) {
-                mapper!![entry.land] = entry
+            for (opptjeningsrettLand in entries) {
+                rettVedLand[opptjeningsrettLand.land] = opptjeningsrettLand
             }
+
+            return rettVedLand
         }
     }
 }

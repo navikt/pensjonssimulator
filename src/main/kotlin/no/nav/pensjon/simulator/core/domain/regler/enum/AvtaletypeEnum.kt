@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+// Aligned with pensjon-regler-api 2025-11-11
 enum class AvtaletypeEnum {
     EOS_NOR,
     NOR_KONV,

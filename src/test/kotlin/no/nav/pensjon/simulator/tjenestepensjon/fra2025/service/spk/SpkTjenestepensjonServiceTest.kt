@@ -18,30 +18,32 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
 import java.time.LocalDate
 
 class SpkTjenestepensjonServiceTest : FunSpec({
 
-    val client = mockk<SpkTjenestepensjonClientFra2025>(relaxed = true)
+    val client: TjenestepensjonFra2025Client = mockk()
     val featureToggleService = mockk<FeatureToggleService>(relaxed = true)
     val service = SpkTjenestepensjonService(client, featureToggleService)
 
     beforeTest {
         clearMocks(client, featureToggleService)
-        every { client.service() } returns EgressService.SPK
+        every { client.leverandoerFulltNavn } returns EgressService.SPK.description
+        every { client.leverandoerKortNavn } returns EgressService.SPK.shortName
     }
 
     test("simuler gruppering og sortering av tjenestepensjon fra SPK") {
-        val request = dummyRequest("1963-02-05")
-        every { client.simuler(request, tpNummer = "3010") } returns dummyResult()
+        val spec = dummyRequest("1963-02-05")
+        every { client.simuler(spec, tpNummer = "3010") } returns dummyResult()
         every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns true
 
-        val result: Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> = service.simuler(request, tpNummer = "3010")
+        val result: Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> = service.simuler(spec, tpNummer = "3010")
 
         result.isSuccess shouldBe true
         with(result.getOrNull().shouldNotBeNull()) {
-            tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
+            tpLeverandoer shouldBe "Statens Pensjonskasse"
             betingetTjenestepensjonErInkludert shouldBe false
             ordningsListe shouldHaveSize 1
             utbetalingsperioder shouldHaveSize 2
@@ -96,14 +98,14 @@ class SpkTjenestepensjonServiceTest : FunSpec({
 
         result.isSuccess shouldBe true
         with(result.getOrNull().shouldNotBeNull()) {
-            tpLeverandoer shouldBe SpkMapper.PROVIDER_FULLT_NAVN
+            tpLeverandoer shouldBe "Statens Pensjonskasse"
             betingetTjenestepensjonErInkludert shouldBe false
             ordningsListe shouldHaveSize 1
             utbetalingsperioder.shouldBeEmpty()
         }
     }
 
-    test("simulering skal ikke gjoeres if feature toggle er av") {
+    test("simulering skal ikke gjøres hvis feature toggle er av") {
         val request = dummyRequest("1963-02-05")
         every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns false
         every {
@@ -120,7 +122,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
         }
     }
 
-    test("result skal vaere failure hvis ikke siste ordning") {
+    test("result skal være 'failure' hvis ikke siste ordning") {
         val request = dummyRequest("1963-02-05")
         every { featureToggleService.isEnabled(featureName = PEN_715_SIMULER_SPK) } returns true
         every { client.simuler(spec = request, tpNummer = "3010") } returns Result.success(
@@ -142,7 +144,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
         service.simuler(request, tpNummer = "3010").isFailure shouldBe true
     }
 
-    test("result should be failure with IkkeSisteOrdningException if not the last arrangement") {
+    test("result skal være 'failure' med 'ikke siste ordning'-exception hvis ikke siste ordning") {
         val request = dummyRequest("1963-02-05")
         every { featureToggleService.isEnabled(PEN_715_SIMULER_SPK) } returns true
         every { client.simuler(request, "3010") } returns Result.success(

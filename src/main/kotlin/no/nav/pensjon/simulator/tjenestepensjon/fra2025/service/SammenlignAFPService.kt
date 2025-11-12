@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
@@ -13,7 +12,7 @@ open class SammenlignAFPService(
     private val log = KotlinLogging.logger {}
 
     @Async("loggingExecutor") //TODO slå på når AFP er på plass i pensjonssimulator
-    open fun sammenlignOgLoggAfp(request: SimulerOffentligTjenestepensjonFra2025SpecV1, utbetalingsperiode: List<Utbetalingsperiode>) {
+    open fun sammenlignOgLoggAfp(request: OffentligTjenestepensjonFra2025SimuleringSpec, utbetalingsperiode: List<Utbetalingsperiode>) {
 //        val fremtidigInntekt = SPKMapper.mapToRequest(request).fremtidigInntektListe
 //
 //        val simuleringRequest = SimulerAFPOffentligLivsvarigRequest(

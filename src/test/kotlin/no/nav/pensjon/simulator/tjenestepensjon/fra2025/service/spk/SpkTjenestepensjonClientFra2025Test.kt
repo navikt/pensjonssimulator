@@ -22,7 +22,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiod
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.PROVIDER_FULLT_NAVN
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -55,6 +54,7 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
         )
 
     beforeSpec {
+        Arrange.security()
         server = MockWebServer().apply { start() }
         baseUrl = "http://localhost:${server.port}"
     }
@@ -74,17 +74,16 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
                 .setBody(objectMapper.writeValueAsString(mockResponse))
         )
 
-        Arrange.security()
         Arrange.webClientContextRunner().run {
             val result: Result<SimulertTjenestepensjon> =
                 client(context = it).simuler(
-                    spec = dummyRequest(foedselsdato = "1963-02-05", brukerBaOmAfp = true),
+                    spec = dummyRequest(foedselsdato = "1963-02-05", afpErForespurt = true),
                     tpNummer
                 )
 
             result.isSuccess shouldBe true
             with(result.getOrNull().shouldNotBeNull()) {
-                tpLeverandoer shouldBe PROVIDER_FULLT_NAVN
+                tpLeverandoer shouldBe "Statens Pensjonskasse"
                 ordningsListe shouldHaveSize 1
                 ordningsListe[0].tpNummer shouldBe tpNummer
                 utbetalingsperioder shouldHaveSize 5
@@ -99,11 +98,10 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
     test("send request og få error fra SPK") {
         server?.arrangeResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, body = "feil")
 
-        Arrange.security()
         Arrange.webClientContextRunner().run {
             // unique request to avoid cache hit
             val response: Result<SimulertTjenestepensjon> =
-                client(context = it).simuler(dummyRequest(foedselsdato = "1963-02-06", brukerBaOmAfp = true), "3010")
+                client(context = it).simuler(dummyRequest(foedselsdato = "1963-02-06", afpErForespurt = true), "3010")
 
             response.isFailure shouldBe true
             response.exceptionOrNull().shouldBeInstanceOf<TjenestepensjonSimuleringException>()

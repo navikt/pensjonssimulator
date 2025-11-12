@@ -55,17 +55,16 @@ class TpregisteretClient(
         }
     }
 
-    fun findAlleTpForhold(fnr: String): List<TpForhold> {
-        return webClient.get()
+    fun findAlleTpForhold(pid: Pid): List<TpForhold> =
+         webClient.get()
             .uri(FORHOLD_PATH)
-            .headers { setHeaders(it); it["fnr"] = fnr }
+            .headers { setHeaders(it); it["fnr"] = pid.value }
             .exchangeToMono(::handleAlleTpForholdResponse)
             .block()
             .orEmpty()
-    }
 
-    fun findTssId(tpId: String): String? {
-        return try {
+    fun findTssId(tpId: String): String? =
+         try {
             webClient.get()
                 .uri("$TSS_PATH$tpId")
                 .retrieve()
@@ -74,7 +73,6 @@ class TpregisteretClient(
         } catch (_: WebClientResponseException.NotFound) {
             null
         }
-    }
 
     private fun handleAlleTpForholdResponse(response: ClientResponse): Mono<List<TpForhold>> =
         when (response.statusCode()) {

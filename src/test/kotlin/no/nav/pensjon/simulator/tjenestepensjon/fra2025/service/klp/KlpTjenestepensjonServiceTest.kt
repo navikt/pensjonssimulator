@@ -7,22 +7,25 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import java.time.LocalDate
 
 class KlpTjenestepensjonServiceTest : ShouldSpec({
 
-    val client = mockk<KlpTjenestepensjonClientFra2025>(relaxed = true)
+    val client: TjenestepensjonFra2025Client = mockk()
     val service = KlpTjenestepensjonService(client)
 
     beforeTest {
         clearMocks(client)
-        every { client.service() } returns EgressService.KLP
+        every { client.leverandoerFulltNavn } returns EgressService.KLP.description
+        every { client.leverandoerKortNavn } returns EgressService.KLP.shortName
     }
 
     should("ikke inkludere betinget tjenestepensjon og offentlig AFP i simulering") {
@@ -51,17 +54,17 @@ class KlpTjenestepensjonServiceTest : ShouldSpec({
     private companion object {
 
         private fun spec() =
-            SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678910",
+            OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678910"),
                 foedselsdato = LocalDate.of(1963, 2, 5),
                 uttaksdato = LocalDate.of(2025, 3, 1),
                 sisteInntekt = 500000,
-                aarIUtlandetEtter16 = 0,
-                brukerBaOmAfp = true,
-                epsPensjon = false,
-                eps2G = false,
+                utlandAntallAar = 0,
+                afpErForespurt = true,
+                epsHarPensjon = false,
+                epsHarInntektOver2G = false,
                 fremtidigeInntekter = emptyList(),
-                erApoteker = false
+                gjelderApoteker = false
             )
 
         private fun success(): Result<SimulertTjenestepensjon> =

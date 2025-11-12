@@ -7,16 +7,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.BrukerErIkkeMedlemException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoettesIkkeException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.TjenestepensjonFra2025Aggregator.aggregerVellykketRespons
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.OffentligTjenestepensjonFra2025SimuleringSpecMapperV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025ResultV1
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpregisteretException
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.TjenestepensjonFra2025Aggregator.aggregerVellykketRespons
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -57,7 +53,8 @@ class TjenestepensjonFra2025Controller(
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
         try {
-            val simuleringsresultat = tjenestepensjonFra2025Service.simuler(specV1)
+            val simuleringsresultat = tjenestepensjonFra2025Service.simuler(
+                OffentligTjenestepensjonFra2025SimuleringSpecMapperV1.fromDto(specV1))
             val relevanteTpOrdninger = simuleringsresultat.first
             return simuleringsresultat.second.fold(
                 onSuccess = {

@@ -1,17 +1,12 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.BrukerErIkkeMedlemException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoettesIkkeException
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpregisteretException
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
+import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Service
 
 @Service
@@ -20,36 +15,36 @@ class TjenestepensjonFra2025Service(
     private val spk: SpkTjenestepensjonService,
     private val klp: KlpTjenestepensjonService,
     private val sisteTpOrdningService: SisteTpOrdningService,
-    ) {
+) {
     private val log = KotlinLogging.logger {}
 
-    fun simuler(request: SimulerOffentligTjenestepensjonFra2025SpecV1): Pair<List<String>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> {
+    fun simuler(spec: OffentligTjenestepensjonFra2025SimuleringSpec):
+            Pair<List<String>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> {
+
         val tpOrdninger = try {
-            tpregisteretClient.findAlleTpForhold(request.pid)
-        }
-        catch (e: TpregisteretException) {
+            tpregisteretClient.findAlleTpForhold(spec.pid)
+        } catch (e: TpregisteretException) {
             return emptyList<String>() to Result.failure(e)
         }
 
-
         val tpOrdningerNavn = tpOrdninger.map { it.navn }
-
         val sisteOrdningerNr = sisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
+
         if (sisteOrdningerNr.isEmpty()) {
             return emptyList<String>() to Result.failure(BrukerErIkkeMedlemException())
         }
 
-        log.info { "Fant tp ordninger med nummere: $sisteOrdningerNr" }
+        log.info { "Fant TP-ordninger med numre: $sisteOrdningerNr" }
 
         // Apotekere og brukere fodt for 1963 vil ikke kunne simulere tjenestepensjon enda
-        if (request.erApoteker || request.foedselsdato.year < 1963) return tpOrdningerNavn to Result.failure(
+        if (spec.gjelderApoteker || spec.foedselsdato.year < 1963) return tpOrdningerNavn to Result.failure(
             TpOrdningStoettesIkkeException("Apoteker")
         )
 
         val simulertTpListe = sisteOrdningerNr.map { ordning ->
             when (ordning) {
-                "3010", "3060" -> spk.simuler(request, ordning) // TpNummer for SPK
-                "4082", "3200" -> klp.simuler(request, ordning) // TpNummer for KLP
+                "3010", "3060" -> spk.simuler(spec, ordning) // TpNummer for SPK
+                "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
                 else -> Result.failure(TpOrdningStoettesIkkeException(ordning))
             }.run {
                 onSuccess { return tpOrdningerNavn to this }
@@ -64,7 +59,7 @@ class TjenestepensjonFra2025Service(
             }
         }
 
-        log.info { "Ingen simulering fra ${tpOrdninger}: ${simulertTpListe.map { it.exceptionOrNull()?.message }.joinToString(";")}" }
+        log.info { "Ingen simulering fra $tpOrdninger: ${simulertTpListe.map { it.exceptionOrNull()?.message }.joinToString(";")}" }
         return tpOrdningerNavn to simulertTpListe.first()
     }
 }

@@ -2,15 +2,17 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
-import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Delytelse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.FremtidigInntekt
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkYtelse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkTjenestepensjonYtelseType
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Utbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.Uttak
 import java.time.LocalDate
 
@@ -22,37 +24,6 @@ object SpkMapper {
             ?.let { mapToRequestV2(spec) }
             ?: mapToRequestV1(spec)
 
-    private fun mapToRequestV1(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
-        SpkSimulerTjenestepensjonRequest(
-            personId = spec.pid.value,
-            uttaksListe = opprettUttaksliste(spec),
-            fremtidigInntektListe = listOf(
-                opprettNaaverendeInntektFoerUttak(spec),
-                FremtidigInntekt(fraOgMedDato = spec.uttaksdato, aarligInntekt = 0)
-            ),
-            aarIUtlandetEtter16 = spec.utlandAntallAar,
-            epsPensjon = spec.epsHarPensjon,
-            eps2G = spec.epsHarInntektOver2G,
-        )
-
-    private fun mapToRequestV2(spec: OffentligTjenestepensjonFra2025SimuleringSpec): SpkSimulerTjenestepensjonRequest {
-        val fremtidigeInntekter: MutableList<FremtidigInntekt> =
-            mutableListOf(opprettNaaverendeInntektFoerUttak(spec))
-
-        fremtidigeInntekter.addAll(spec.fremtidigeInntekter.orEmpty().map {
-            FremtidigInntekt(fraOgMedDato = it.fom, aarligInntekt = it.aarligInntekt)
-        })
-
-        return SpkSimulerTjenestepensjonRequest(
-            personId = spec.pid.value,
-            uttaksListe = opprettUttaksliste(spec),
-            fremtidigInntektListe = fremtidigeInntekter,
-            aarIUtlandetEtter16 = spec.utlandAntallAar,
-            epsPensjon = spec.epsHarPensjon,
-            eps2G = spec.epsHarInntektOver2G,
-        )
-    }
-
     fun fromResponseDto(
         response: SpkSimulerTjenestepensjonResponse,
         request: SpkSimulerTjenestepensjonRequest? = null
@@ -61,34 +32,96 @@ object SpkMapper {
         return SimulertTjenestepensjon(
             tpLeverandoer = EgressService.SPK.description,
             ordningsListe = response.inkludertOrdningListe.map { Ordning(tpNummer = it.tpnr) },
-            utbetalingsperioder = response.utbetalingListe.flatMap { periode ->
-                val fraOgMed = periode.fraOgMedDato
-                periode.delytelseListe.map { Utbetalingsperiode(fraOgMed, it.maanedligBelop, it.ytelseType) }
-            },
-            aarsakIngenUtbetaling = response.aarsakIngenUtbetaling.map { it.statusBeskrivelse + ": " + it.ytelseType },
-            betingetTjenestepensjonErInkludert = response.utbetalingListe.flatMap { it.delytelseListe }
-                .any { it.ytelseType == TjenestepensjonYtelseType.BETINGET_TJENESTEPENSJON.kode },
+            utbetalingsperioder = response.utbetalingListe.flatMap(::utbetalingsperioder),
+            aarsakIngenUtbetaling = response.aarsakIngenUtbetaling.map { "${it.statusBeskrivelse}: ${it.ytelseType}" },
+            betingetTjenestepensjonErInkludert = response.utbetalingListe
+                .flatMap { it.delytelseListe }
+                .any(::erBetingetTjenestepensjon),
             erSisteOrdning = response.aarsakIngenUtbetaling.none { it.statusKode == "IKKE_SISTE_ORDNING" }, //TODO enum
             serviceData = listOf("Request: ${request?.toString()}", "Response: $response")
         )
     }
 
-    private fun opprettUttaksliste(request: OffentligTjenestepensjonFra2025SimuleringSpec): List<Uttak> =
-        SpkYtelse.hentAlleUnntattType(if (request.afpErForespurt) SpkYtelse.BTP else SpkYtelse.OAFP)
+    private fun mapToRequestV1(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
+        SpkSimulerTjenestepensjonRequest(
+            personId = spec.pid.value,
+            uttaksListe = uttakListe(spec),
+            fremtidigInntektListe = inntekterV1(spec),
+            aarIUtlandetEtter16 = spec.utlandAntallAar,
+            epsPensjon = spec.epsHarPensjon,
+            eps2G = spec.epsHarInntektOver2G
+        )
+
+    private fun mapToRequestV2(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
+        SpkSimulerTjenestepensjonRequest(
+            personId = spec.pid.value,
+            uttaksListe = uttakListe(spec),
+            fremtidigInntektListe = inntekterV2(spec),
+            aarIUtlandetEtter16 = spec.utlandAntallAar,
+            epsPensjon = spec.epsHarPensjon,
+            eps2G = spec.epsHarInntektOver2G
+        )
+
+    /**
+     * Inntekt f.o.m. fjorårets første dag til uttaksdato.
+     */
+    private fun inntekterV1(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> =
+        listOf(
+            naaverendeInntekt(aarligInntekt = spec.sisteInntekt),
+            FremtidigInntekt(fraOgMedDato = spec.uttaksdato, aarligInntekt = 0)
+        )
+
+    /**
+     * Inntekter f.o.m. fjorårets første dag til siste 'f.o.m.'-dato i listen over fremtidige inntekter.
+     */
+    private fun inntekterV2(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
+        val fremtidigeInntekter: MutableList<FremtidigInntekt> =
+            mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
+
+        fremtidigeInntekter.addAll(spec.fremtidigeInntekter.orEmpty().map(::inntekt))
+        return fremtidigeInntekter
+    }
+
+    private fun naaverendeInntekt(aarligInntekt: Int) =
+        FremtidigInntekt(
+            fraOgMedDato = fjoraaretsFoersteDag(),
+            aarligInntekt = aarligInntekt
+        )
+
+    private fun inntekt(spec: TjenestepensjonInntektSpec): FremtidigInntekt =
+        FremtidigInntekt(
+            fraOgMedDato = spec.fom,
+            aarligInntekt = spec.aarligInntekt
+        )
+
+    private fun utbetalingsperioder(utbetaling: Utbetaling): List<Utbetalingsperiode> =
+        utbetaling.delytelseListe.map {
+            Utbetalingsperiode(
+                fom = utbetaling.fraOgMedDato,
+                maanedligBelop = it.maanedligBelop,
+                ytelseType = it.ytelseType
+            )
+        }
+
+    private fun uttakListe(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<Uttak> =
+        SpkTjenestepensjonYtelseType.alleUnntatt(ekskludertType(spec.afpErForespurt))
             .map {
                 Uttak(
-                    ytelseType = it,
-                    fraOgMedDato = request.uttaksdato,
+                    ytelseType = it.externalValue,
+                    fraOgMedDato = spec.uttaksdato,
                     uttaksgrad = null
                 )
             }
 
-    private fun opprettNaaverendeInntektFoerUttak(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
-        FremtidigInntekt(
-            fraOgMedDato = fjorAarSomManglerOpptjeningIPopp(),
-            aarligInntekt = spec.sisteInntekt
-        )
+    private fun ekskludertType(afpErForespurt: Boolean): SpkTjenestepensjonYtelseType =
+        if (afpErForespurt)
+            SpkTjenestepensjonYtelseType.BETINGET_TJENESTEPENSJON
+        else
+            SpkTjenestepensjonYtelseType.OFFENTLIG_AFP
 
-    private fun fjorAarSomManglerOpptjeningIPopp(): LocalDate =
+    private fun erBetingetTjenestepensjon(ytelse: Delytelse): Boolean =
+        ytelse.ytelseType == SpkTjenestepensjonYtelseType.BETINGET_TJENESTEPENSJON.externalValue
+
+    private fun fjoraaretsFoersteDag(): LocalDate =
         LocalDate.now().minusYears(1).withDayOfYear(1)
 }

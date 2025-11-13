@@ -13,7 +13,7 @@ import java.time.LocalDate
 class SpkMapperTest : ShouldSpec({
 
     val idag = LocalDate.now()
-    val foersteJanuarIfjor = LocalDate.of(idag.year - 1, 1, 1)
+    val fjoraaretsFoersteDag = LocalDate.of(idag.year - 1, 1, 1)
 
     context("toRequestDto") {
         should("mappe spesifikasjon til request-DTO hvor bruker ber om å beregne AFP") {
@@ -38,11 +38,11 @@ class SpkMapperTest : ShouldSpec({
                 personId shouldBe "12345678901"
                 uttaksListe shouldHaveSize 5
                 with(uttaksListe[0]) {
-                    ytelseType shouldBe "PAASLAG"
+                    ytelseType shouldBe "APOF2020"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[1]) {
-                    ytelseType shouldBe "APOF2020"
+                    ytelseType shouldBe "OAFP"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[2]) {
@@ -50,16 +50,16 @@ class SpkMapperTest : ShouldSpec({
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[3]) {
-                    ytelseType shouldBe "SAERALDERSPAASLAG"
+                    ytelseType shouldBe "PAASLAG"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[4]) {
-                    ytelseType shouldBe "OAFP"
+                    ytelseType shouldBe "SAERALDERSPAASLAG"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(fremtidigInntektListe[0]) {
                     aarligInntekt shouldBe 100000
-                    fraOgMedDato shouldBe foersteJanuarIfjor
+                    fraOgMedDato shouldBe fjoraaretsFoersteDag
                 }
                 with(fremtidigInntektListe[1]) {
                     aarligInntekt shouldBe 0
@@ -92,11 +92,11 @@ class SpkMapperTest : ShouldSpec({
                 personId shouldBe "12345678901"
                 uttaksListe shouldHaveSize 5
                 with(uttaksListe[0]) {
-                    ytelseType shouldBe "PAASLAG"
+                    ytelseType shouldBe "APOF2020"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[1]) {
-                    ytelseType shouldBe "APOF2020"
+                    ytelseType shouldBe "BTP"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[2]) {
@@ -104,16 +104,16 @@ class SpkMapperTest : ShouldSpec({
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[3]) {
-                    ytelseType shouldBe "SAERALDERSPAASLAG"
+                    ytelseType shouldBe "PAASLAG"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[4]) {
-                    ytelseType shouldBe "BTP"
+                    ytelseType shouldBe "SAERALDERSPAASLAG"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(fremtidigInntektListe[0]) {
                     aarligInntekt shouldBe 100000
-                    fraOgMedDato shouldBe foersteJanuarIfjor
+                    fraOgMedDato shouldBe fjoraaretsFoersteDag
                 }
                 with(fremtidigInntektListe[1]) {
                     aarligInntekt shouldBe 0

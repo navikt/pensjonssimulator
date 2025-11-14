@@ -23,10 +23,10 @@ class TjenestepensjonSimuleringPre2025Service(
 
     fun simuler(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResultV1 {
         log.info { "Simulering av tjenestepensjon pre 2025: ${filterFnr(spec.toString())}" }
-        try {
 
-            val fnr = spec.pid.value
-            val alleForhold: List<TpOrdningFullDto> = tpregisteretClient.findAlleTpForhold(fnr)
+        try {
+            val pid = spec.pid
+            val alleForhold: List<TpOrdningFullDto> = tpregisteretClient.findAlleTpForhold(pid)
                 .mapNotNull { forhold ->
                     tpregisteretClient.findTssId(forhold.tpNr)
                         ?.let { TPOrdningIdDto(tpId = forhold.tpNr, tssId = it) }
@@ -44,7 +44,7 @@ class TjenestepensjonSimuleringPre2025Service(
                 return tpOrdningStoettesIkke()
             }
 
-            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(fnr, spkMedlemskap)
+            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid.value, spkMedlemskap)
 
             if (stillingsprosentListe.isEmpty()) {
                 log.warn { "No stillingsprosent found" }

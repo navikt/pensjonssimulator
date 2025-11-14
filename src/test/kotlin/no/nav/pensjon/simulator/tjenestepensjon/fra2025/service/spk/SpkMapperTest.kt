@@ -3,59 +3,63 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonFremtidigInntektDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import java.time.LocalDate
 
 class SpkMapperTest : ShouldSpec({
 
     val idag = LocalDate.now()
-    val foersteJanuarIfjor = LocalDate.of(idag.year - 1, 1, 1)
+    val fjoraaretsFoersteDag = LocalDate.of(idag.year - 1, 1, 1)
 
-    context("mapToRequest") {
-        should("map request hvor bruker ber om å beregne AFP") {
+    context("toRequestDto") {
+        should("mappe spesifikasjon til request-DTO hvor bruker ber om å beregne AFP") {
             val uttaksdato = LocalDate.of(2025, 2, 1)
-            val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678901",
+
+            val spec = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
                 sisteInntekt = 100000,
-                aarIUtlandetEtter16 = 3,
-                epsPensjon = true,
-                eps2G = true,
-                brukerBaOmAfp = true,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = true,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
-                erApoteker = false
+                fremtidigeInntekter = null,
+                gjelderApoteker = false
             )
 
-            val result: SpkSimulerTjenestepensjonRequest = SpkMapper.mapToRequest(request)
+            val result: SpkSimulerTjenestepensjonRequest = SpkMapper.toRequestDto(spec)
 
             with(result) {
                 personId shouldBe "12345678901"
                 uttaksListe shouldHaveSize 5
                 with(uttaksListe[0]) {
-                    ytelseType shouldBe "PAASLAG"
-                    fraOgMedDato shouldBe uttaksdato
-                }
-                with(uttaksListe[1]) {
                     ytelseType shouldBe "APOF2020"
                     fraOgMedDato shouldBe uttaksdato
                 }
-                with(uttaksListe[2]) {
-                    ytelseType shouldBe "OT6370"
-                    fraOgMedDato shouldBe uttaksdato
-                }
-                with(uttaksListe[3]) {
-                    ytelseType shouldBe "SAERALDERSPAASLAG"
-                    fraOgMedDato shouldBe uttaksdato
-                }
-                with(uttaksListe[4]) {
+                with(uttaksListe[1]) {
                     ytelseType shouldBe "OAFP"
                     fraOgMedDato shouldBe uttaksdato
                 }
+                with(uttaksListe[2]) {
+                    ytelseType shouldBe "OT6370"
+                    fraOgMedDato shouldBe uttaksdato
+                }
+                with(uttaksListe[3]) {
+                    ytelseType shouldBe "PAASLAG"
+                    fraOgMedDato shouldBe uttaksdato
+                }
+                with(uttaksListe[4]) {
+                    ytelseType shouldBe "SAERALDERSPAASLAG"
+                    fraOgMedDato shouldBe uttaksdato
+                }
                 with(fremtidigInntektListe[0]) {
                     aarligInntekt shouldBe 100000
-                    fraOgMedDato shouldBe foersteJanuarIfjor
+                    fraOgMedDato shouldBe fjoraaretsFoersteDag
                 }
                 with(fremtidigInntektListe[1]) {
                     aarligInntekt shouldBe 0
@@ -67,31 +71,32 @@ class SpkMapperTest : ShouldSpec({
             }
         }
 
-        should("map request hvor bruker ikke ber om å beregne AFP") {
+        should("mappe spesifikasjon til request-DTO hvor bruker ikke ber om å beregne AFP") {
             val uttaksdato = LocalDate.of(2025, 2, 1)
-            val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678901",
+            val spec = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
                 sisteInntekt = 100000,
-                aarIUtlandetEtter16 = 3,
-                epsPensjon = true,
-                eps2G = true,
-                brukerBaOmAfp = false,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = false,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
-                erApoteker = false
+                fremtidigeInntekter = null,
+                gjelderApoteker = false
             )
 
-            val result: SpkSimulerTjenestepensjonRequest = SpkMapper.mapToRequest(request)
+            val result: SpkSimulerTjenestepensjonRequest = SpkMapper.toRequestDto(spec)
 
             with(result) {
                 personId shouldBe "12345678901"
                 uttaksListe shouldHaveSize 5
                 with(uttaksListe[0]) {
-                    ytelseType shouldBe "PAASLAG"
+                    ytelseType shouldBe "APOF2020"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[1]) {
-                    ytelseType shouldBe "APOF2020"
+                    ytelseType shouldBe "BTP"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[2]) {
@@ -99,16 +104,16 @@ class SpkMapperTest : ShouldSpec({
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[3]) {
-                    ytelseType shouldBe "SAERALDERSPAASLAG"
+                    ytelseType shouldBe "PAASLAG"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(uttaksListe[4]) {
-                    ytelseType shouldBe "BTP"
+                    ytelseType shouldBe "SAERALDERSPAASLAG"
                     fraOgMedDato shouldBe uttaksdato
                 }
                 with(fremtidigInntektListe[0]) {
                     aarligInntekt shouldBe 100000
-                    fraOgMedDato shouldBe foersteJanuarIfjor
+                    fraOgMedDato shouldBe fjoraaretsFoersteDag
                 }
                 with(fremtidigInntektListe[1]) {
                     aarligInntekt shouldBe 0
@@ -120,32 +125,32 @@ class SpkMapperTest : ShouldSpec({
             }
         }
 
-        should("map request hvor bruker har ulike fremtidige inntekter") {
+        should("mappe spesifikasjon til request-DTO hvor bruker har ulike fremtidige inntekter") {
             val uttaksdato = LocalDate.of(2025, 2, 1)
-            val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678901",
+            val spec = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
                 sisteInntekt = 100000,
-                aarIUtlandetEtter16 = 3,
-                epsPensjon = true,
-                eps2G = true,
-                brukerBaOmAfp = true,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = true,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
                 fremtidigeInntekter = listOf(
-                    SimulerTjenestepensjonFremtidigInntektDto(fraOgMed = LocalDate.of(2025, 2, 1), aarligInntekt = 4),
-                    SimulerTjenestepensjonFremtidigInntektDto(fraOgMed = LocalDate.of(2026, 3, 1), aarligInntekt = 5),
-                    SimulerTjenestepensjonFremtidigInntektDto(fraOgMed = LocalDate.of(2027, 4, 1), aarligInntekt = 6)
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2025, 2, 1), aarligInntekt = 4),
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2026, 3, 1), aarligInntekt = 5),
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2027, 4, 1), aarligInntekt = 6)
                 ),
-                erApoteker = false
+                gjelderApoteker = false
             )
 
-            val result: SpkSimulerTjenestepensjonRequest = SpkMapper.mapToRequest(request)
+            val result: SpkSimulerTjenestepensjonRequest = SpkMapper.toRequestDto(spec)
 
             with(result) {
                 personId shouldBe "12345678901"
                 fremtidigInntektListe shouldHaveSize 4
                 with(fremtidigInntektListe[0]) {
-                    aarligInntekt shouldBe request.sisteInntekt
+                    aarligInntekt shouldBe spec.sisteInntekt
                     fraOgMedDato.isBefore(idag.minusYears(1)) shouldBe true
                 }
                 with(fremtidigInntektListe[1]) {
@@ -164,8 +169,8 @@ class SpkMapperTest : ShouldSpec({
         }
     }
 
-    context("mapToResponse") {
-        should("map to response") {
+    context("fromResponseDto") {
+        should("mappe respons-DTO til 'simulert tjenestepensjon' domeneobjekt") {
             val response = SpkSimulerTjenestepensjonResponse(
                 listOf(InkludertOrdning(tpnr = "3010")),
                 listOf(
@@ -193,7 +198,7 @@ class SpkMapperTest : ShouldSpec({
                 )
             )
 
-            val result = SpkMapper.mapToResponse(response)
+            val result: SimulertTjenestepensjon = SpkMapper.fromResponseDto(response)
 
             with(result) {
                 ordningsListe shouldHaveSize 1
@@ -222,7 +227,7 @@ class SpkMapperTest : ShouldSpec({
             }
         }
 
-        should("map response som er siste ordning") {
+        should("indikere 'er siste ordning' når årsak for 'ingen utbetaling' tilsier det") {
             val response = SpkSimulerTjenestepensjonResponse(
                 listOf(InkludertOrdning(tpnr = "3010")),
                 listOf(
@@ -250,13 +255,11 @@ class SpkMapperTest : ShouldSpec({
                 )
             )
 
-            val result = SpkMapper.mapToResponse(response)
-
-            result.erSisteOrdning shouldBe true
+            SpkMapper.fromResponseDto(response).erSisteOrdning shouldBe true
         }
 
-        should("map response som ikke er siste ordning") {
-            val resp = SpkSimulerTjenestepensjonResponse(
+        should("indikere 'ikke siste ordning' når årsak for 'ingen utbetaling' tilsier det") {
+            val response = SpkSimulerTjenestepensjonResponse(
                 listOf(InkludertOrdning(tpnr = "3010")),
                 listOf(
                     Utbetaling(
@@ -283,9 +286,7 @@ class SpkMapperTest : ShouldSpec({
                 )
             )
 
-            val result = SpkMapper.mapToResponse(resp)
-
-            result.erSisteOrdning shouldBe false
+            SpkMapper.fromResponseDto(response).erSisteOrdning shouldBe false
         }
     }
 })

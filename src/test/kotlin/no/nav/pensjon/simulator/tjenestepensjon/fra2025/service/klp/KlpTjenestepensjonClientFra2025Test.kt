@@ -19,9 +19,9 @@ import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
 import no.nav.pensjon.simulator.testutil.arrangeResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.ArsakIngenUtbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.InkludertOrdning
@@ -58,6 +58,7 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         )
 
     beforeSpec {
+        Arrange.security()
         server = MockWebServer().apply { start() }
         baseUrl = "http://localhost:${server.port}"
     }
@@ -71,7 +72,6 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         val serverResponse = simulerTjenestepensjonResponse()
         server?.arrangeOkJsonResponse(body = objectMapper.writeValueAsString(serverResponse))
 
-        Arrange.security()
         Arrange.webClientContextRunner().run {
             val receivedResponse = client(context = it, retryAttempts = 1).simuler(
                 spec = spec(foedselsdato = LocalDate.of(1963, 2, 5)),
@@ -96,7 +96,6 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
     test("send request og få error fra KLP") {
         server?.arrangeResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, body = "feil")
 
-        Arrange.security()
         Arrange.webClientContextRunner().run {
             val receivedResponse = client(context = it).simuler(
                 spec = spec(foedselsdato = LocalDate.of(1963, 2, 6)),
@@ -135,17 +134,17 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         private const val SIMULER_PATH = "/api/oftp/simulering"
 
         private fun spec(foedselsdato: LocalDate) =
-            SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678910",
+            OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678910"),
                 foedselsdato,
                 uttaksdato = LocalDate.of(2025, 3, 1),
                 sisteInntekt = 500000,
-                aarIUtlandetEtter16 = 0,
-                brukerBaOmAfp = true,
-                epsPensjon = false,
-                eps2G = false,
+                utlandAntallAar = 0,
+                afpErForespurt = true,
+                epsHarPensjon = false,
+                epsHarInntektOver2G = false,
                 fremtidigeInntekter = emptyList(),
-                erApoteker = false
+                gjelderApoteker = false
             )
 
         private fun simulerTjenestepensjonResponse() =

@@ -8,7 +8,7 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
@@ -30,122 +30,126 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
     val tp = mockk<TpregisteretClient>(relaxed = true)
     val spk = mockk<SpkTjenestepensjonService>(relaxed = true)
     val klp = mockk<KlpTjenestepensjonService>(relaxed = true)
-    val stos = SisteTpOrdningNavService()
 
-    val service = TjenestepensjonFra2025Service(tp, spk, klp, stos)
+    val service = TjenestepensjonFra2025Service(
+        tpregisteretClient = tp,
+        spk = spk,
+        klp = klp,
+        sisteTpOrdningService = SisteTpOrdningNavService()
+    )
 
     beforeTest {
         clearMocks(tp, spk, klp)
     }
 
-    test("simuler success fra spk") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns listOf(dummyTpOrdning(spkTpNummer))
-        every { spk.simuler(req, spkTpNummer) } returns dummyResult("spk", spkTpNummer)
+    test("simuler success fra SPK") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(SPK_TP_NUMMER))
+        every { spk.simuler(spec, SPK_TP_NUMMER) } returns dummyResult("spk", SPK_TP_NUMMER)
 
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
 
         res.second.isSuccess.shouldBeTrue()
         val tpRes = res.second.getOrNull().shouldNotBeNull()
         tpRes.tpLeverandoer shouldBe "spk"
-        tpRes.tpNummer shouldBe spkTpNummer
+        tpRes.tpNummer shouldBe SPK_TP_NUMMER
         tpRes.ordningsListe.size shouldBe 1
         tpRes.utbetalingsperioder.size shouldBe 1
     }
 
-    test("simuler failure fra spk") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns listOf(dummyTpOrdning(spkTpNummer))
-        every { spk.simuler(req, spkTpNummer) } returns
+    test("simuler failure fra SPK") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(SPK_TP_NUMMER))
+        every { spk.simuler(spec, SPK_TP_NUMMER) } returns
                 Result.failure(WebClientResponseException("Failed to simulate", 500, "error", null, null, null))
 
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
 
         res.second.isFailure.shouldBeTrue()
         val ex = res.second.exceptionOrNull().shouldNotBeNull()
         ex.message shouldBe "Failed to simulate"
     }
 
-    test("simuler naar tp-ordning ikke stoettes") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns listOf(dummyTpOrdning("9999"))
+    test("simuler når TP-ordning ikke støttes") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning("9999"))
 
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
 
         res.second.isFailure.shouldBeTrue()
         (res.second.exceptionOrNull() is TpOrdningStoettesIkkeException).shouldBeTrue()
     }
 
-    test("simuler tp naar bruker ikke er medlem i tp ordning") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns emptyList()
+    test("simuler tjenestepensjon når bruker ikke er medlem i TP-ordning") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns emptyList()
 
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
 
         res.second.isFailure.shouldBeTrue()
         (res.second.exceptionOrNull() is BrukerErIkkeMedlemException).shouldBeTrue()
     }
 
-    test("simuler naar tpregisteret feilet") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } throws ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+    test("simuler når TP-registeret feilet") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } throws ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
 
         try {
-            service.simuler(req)
+            service.simuler(spec)
             throw AssertionError("Expected ResponseStatusException")
         } catch (e: ResponseStatusException) {
             e.statusCode.is5xxServerError.shouldBeTrue()
         }
     }
 
-    test("simuler success fra klp 4082") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns listOf(dummyTpOrdning(klpAskerKommunalePensjonskasseTpNummer))
-        every { klp.simuler(req, klpAskerKommunalePensjonskasseTpNummer) } returns dummyResult("klp", klpAskerKommunalePensjonskasseTpNummer)
+    test("simuler success fra KLP 4082") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER))
+        every { klp.simuler(spec, KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER) } returns dummyResult("klp", KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER)
 
-        val res = service.simuler(req)
-
-        res.second.isSuccess.shouldBeTrue()
-        val tpRes = res.second.getOrNull().shouldNotBeNull()
-        tpRes.tpLeverandoer shouldBe "klp"
-        tpRes.tpNummer shouldBe klpAskerKommunalePensjonskasseTpNummer
-        tpRes.ordningsListe.size shouldBe 1
-        tpRes.utbetalingsperioder.size shouldBe 1
-    }
-
-    test("simuler success fra klp 3200") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns listOf(dummyTpOrdning(klpTpNummer))
-        every { klp.simuler(req, klpTpNummer) } returns dummyResult("klp", klpTpNummer)
-
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
 
         res.second.isSuccess.shouldBeTrue()
         val tpRes = res.second.getOrNull().shouldNotBeNull()
         tpRes.tpLeverandoer shouldBe "klp"
-        tpRes.tpNummer shouldBe klpTpNummer
+        tpRes.tpNummer shouldBe KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER
         tpRes.ordningsListe.size shouldBe 1
         tpRes.utbetalingsperioder.size shouldBe 1
     }
 
-    test("simulering feiler naar spk og klp returnerer tomt resultat") {
-        val req = dummyRequest("1963-02-05")
-        every { tp.findAlleTpForhold(req.pid) } returns listOf(dummyTpOrdning(spkTpNummer), dummyTpOrdning(klpAskerKommunalePensjonskasseTpNummer))
-        every { spk.simuler(req, spkTpNummer) } returns Result.failure(TomSimuleringFraTpOrdningException(spkTpNummer))
-        every { klp.simuler(req, klpAskerKommunalePensjonskasseTpNummer) } returns Result.failure(TomSimuleringFraTpOrdningException(klpAskerKommunalePensjonskasseTpNummer))
+    test("simuler success fra KLP 3200") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(KLP_TP_NUMMER))
+        every { klp.simuler(spec, KLP_TP_NUMMER) } returns dummyResult("klp", KLP_TP_NUMMER)
 
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
+
+        res.second.isSuccess.shouldBeTrue()
+        val tpRes = res.second.getOrNull().shouldNotBeNull()
+        tpRes.tpLeverandoer shouldBe "klp"
+        tpRes.tpNummer shouldBe KLP_TP_NUMMER
+        tpRes.ordningsListe.size shouldBe 1
+        tpRes.utbetalingsperioder.size shouldBe 1
+    }
+
+    test("simulering feiler når SPK og KLP returnerer tomt resultat") {
+        val spec = dummySpec(foedselsdato = "1963-02-05")
+        every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(SPK_TP_NUMMER), dummyTpOrdning(KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER))
+        every { spk.simuler(spec, SPK_TP_NUMMER) } returns Result.failure(TomSimuleringFraTpOrdningException(SPK_TP_NUMMER))
+        every { klp.simuler(spec, KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER) } returns Result.failure(TomSimuleringFraTpOrdningException(KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER))
+
+        val res = service.simuler(spec)
 
         res.second.isFailure.shouldBeTrue()
         (res.second.exceptionOrNull() is TomSimuleringFraTpOrdningException).shouldBeTrue()
     }
 
-    test("simuler naar bruker er apoteker") {
-        val req = dummyRequest("1963-02-05", erApoteker = true)
-        val tpOrdninger = listOf(dummyTpOrdning(spkTpNummer))
-        every { tp.findAlleTpForhold(req.pid) } returns tpOrdninger
+    test("simuler når bruker er apoteker") {
+        val spec = dummySpec(foedselsdato = "1963-02-05", gjelderApoteker = true)
+        val tpOrdninger = listOf(dummyTpOrdning(SPK_TP_NUMMER))
+        every { tp.findAlleTpForhold(spec.pid) } returns tpOrdninger
 
-        val res = service.simuler(req)
+        val res = service.simuler(spec)
 
         res.second.isFailure.shouldBeTrue()
         val ex = res.second.exceptionOrNull().shouldNotBeNull()
@@ -155,38 +159,37 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         res.first shouldBe tpOrdninger.map { it.navn }
     }
 }) {
-
     companion object {
-        const val spkTpNummer = "3010"
-        const val klpTpNummer = "3200"
-        const val klpAskerKommunalePensjonskasseTpNummer = "4082"
+        const val SPK_TP_NUMMER = "3010"
+        const val KLP_TP_NUMMER = "3200"
+        const val KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER = "4082"
 
-        fun dummyRequest(
+        fun dummySpec(
             foedselsdato: String,
-            brukerBaOmAfp: Boolean = false,
-            erApoteker: Boolean = false
-        ) = SimulerOffentligTjenestepensjonFra2025SpecV1(
-            pid = "12345678910",
+            afpErForespurt: Boolean = false,
+            gjelderApoteker: Boolean = false
+        ) = OffentligTjenestepensjonFra2025SimuleringSpec(
+            pid = Pid("12345678910"),
             foedselsdato = LocalDate.parse(foedselsdato),
             uttaksdato = LocalDate.parse("2025-03-01"),
             sisteInntekt = 500000,
-            aarIUtlandetEtter16 = 0,
-            brukerBaOmAfp = brukerBaOmAfp,
-            epsPensjon = false,
-            eps2G = false,
+            utlandAntallAar = 0,
+            afpErForespurt,
+            epsHarPensjon = false,
+            epsHarInntektOver2G = false,
             fremtidigeInntekter = emptyList(),
-            erApoteker = erApoteker
+            gjelderApoteker
         )
 
         fun dummyTpOrdning(tpNummer: String) =
-            TpForhold(tpNummer, "Statens pensjonskasse", null)
+            TpForhold(tpNr = tpNummer, navn = "Statens pensjonskasse", datoSistOpptjening = null)
 
         fun dummyResult(leverandoer: String, tpNummer: String) =
             Result.success(
-                SimulertTjenestepensjonMedMaanedsUtbetalinger(
+                value = SimulertTjenestepensjonMedMaanedsUtbetalinger(
                     tpLeverandoer = leverandoer,
                     tpNummer = tpNummer,
-                    ordningsListe = listOf(Ordning(spkTpNummer)),
+                    ordningsListe = listOf(Ordning(SPK_TP_NUMMER)),
                     utbetalingsperioder = listOf(
                         Maanedsutbetaling(
                             fraOgMedDato = LocalDate.parse("2025-03-01"),

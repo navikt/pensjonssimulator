@@ -3,58 +3,94 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService.Companion.PEN_715_SIMULER_SPK
+import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TpUtil
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TpUtil.grupperMedDatoFra
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
-class SpkTjenestepensjonService(private val client: SpkTjenestepensjonClientFra2025, private val featureToggleService: FeatureToggleService) {
+class SpkTjenestepensjonService(
+    @param:Qualifier("spk") private val client: TjenestepensjonFra2025Client,
+    private val featureToggleService: FeatureToggleService
+) {
     private val log = KotlinLogging.logger {}
 
-    fun simuler(request: SimulerOffentligTjenestepensjonFra2025SpecV1, tpNummer: String): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> {
-        if (!featureToggleService.isEnabled(PEN_715_SIMULER_SPK)) {
-            return failure()
+    fun simuler(
+        spec: OffentligTjenestepensjonFra2025SimuleringSpec,
+        tpNummer: String
+    ): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
+        when {
+            featureToggleService.isEnabled(PEN_715_SIMULER_SPK) ->
+                client.simuler(spec, tpNummer).fold(
+                    onSuccess = { result(pensjon = it, spec.foedselsdato, tpNummer) },
+                    onFailure = { Result.failure(exception = it) }
+                )
+
+            else -> failure()
         }
 
-        return client.simuler(request, tpNummer)
-            .fold(
-                onSuccess = {
-                    if (!it.erSisteOrdning)
-                        Result.failure(IkkeSisteOrdningException(client.service().shortName))
-                    else if (it.utbetalingsperioder.isEmpty())
-                        Result.failure(TomSimuleringFraTpOrdningException(client.service().shortName))
-                    else
-                        Result.success(
-                            SimulertTjenestepensjonMedMaanedsUtbetalinger(
-                                tpLeverandoer = SpkMapper.PROVIDER_FULLT_NAVN,
-                                tpNummer = tpNummer,
-                                ordningsListe = it.ordningsListe,
-                                utbetalingsperioder = TpUtil.grupperMedDatoFra(fjernAfp(it.utbetalingsperioder), request.foedselsdato),
-                                betingetTjenestepensjonErInkludert = it.betingetTjenestepensjonErInkludert,
-                                serviceData = it.serviceData
-                            )
-                        )
-                },
-                onFailure = { Result.failure(it) }
-            )
-    }
+    private fun result(
+        pensjon: SimulertTjenestepensjon,
+        foedselsdato: LocalDate,
+        tpNummer: String
+    ): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
+        when {
+            pensjon.erSisteOrdning.not() ->
+                Result.failure(exception = IkkeSisteOrdningException(tpOrdning = client.leverandoerKortNavn))
 
-    private fun failure(): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> {
-        val message = "Simulering av tjenestepensjon hos ${client.service().shortName} er slått av"
-        log.warn { message }
-        return Result.failure(TjenestepensjonSimuleringException(message))
-    }
+            pensjon.utbetalingsperioder.isEmpty() ->
+                Result.failure(exception = TomSimuleringFraTpOrdningException(tpOrdning = client.leverandoerKortNavn))
 
-    fun fjernAfp(utbetalingsliste: List<Utbetalingsperiode>) : List<Utbetalingsperiode> {
-        val afp = utbetalingsliste.filter { it.ytelseType == "OAFP" }
-        if (afp.isNotEmpty()){
-            log.info { "AFP fra ${client.service().shortName}: $afp" }
+            else -> Result.success(value = filtrertTjenestepensjon(tpNummer, pensjon, foedselsdato))
+                .also { logAfp(utbetalingsliste = pensjon.utbetalingsperioder) }
         }
-        return utbetalingsliste.filter { it.ytelseType != "OAFP" }
+
+    private fun filtrertTjenestepensjon(
+        tpNummer: String,
+        pensjon: SimulertTjenestepensjon,
+        foedselsdato: LocalDate
+    ) =
+        SimulertTjenestepensjonMedMaanedsUtbetalinger(
+            tpLeverandoer = client.leverandoerFulltNavn,
+            tpNummer = tpNummer,
+            ordningsListe = pensjon.ordningsListe,
+            utbetalingsperioder = grupperMedDatoFra(
+                utbetalingsliste = pensjon.utbetalingsperioder.filterNot(::ekskludert),
+                foedselsdato
+            ),
+            betingetTjenestepensjonErInkludert = pensjon.betingetTjenestepensjonErInkludert,
+            serviceData = pensjon.serviceData
+        )
+
+    private fun failure(): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
+        "Simulering av tjenestepensjon hos ${client.leverandoerKortNavn} er slått av".let {
+            log.warn { it }
+            Result.failure(TjenestepensjonSimuleringException(it))
+        }
+
+    private fun logAfp(utbetalingsliste: List<Utbetalingsperiode>) {
+        val afp = utbetalingsliste.filter { it.ytelseType == TjenestepensjonYtelseType.OFFENTLIG_AFP.kode }
+
+        if (afp.isNotEmpty()) {
+            log.info { "AFP fra ${client.leverandoerKortNavn}: $afp" }
+        }
+    }
+
+    private companion object {
+
+        private val ekskluderteYtelseTyper: List<String> =
+            TjenestepensjonYtelseType.entries.filter { it.erEkskludertForSpk }.map { it.kode }
+
+        private fun ekskludert(periode: Utbetalingsperiode): Boolean =
+            periode.ytelseType in ekskluderteYtelseTyper
     }
 }

@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.tech.security.egress.token.validation.Expiration
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.util.StringUtils.hasLength
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Obtains access tokens and caches them.
@@ -23,7 +24,7 @@ abstract class CacheAwareTokenClient(
     retryAttempts,
     expirationChecker
 ) {
-    private var accessTokensByUserByScope: MutableMap<String, MutableMap<String, TokenData>> = HashMap()
+    private var accessTokensByUserByScope: MutableMap<String, MutableMap<String, TokenData>> = ConcurrentHashMap()
     private var cleanupNeed = 0
 
     fun getTokenData(accessParameter: TokenAccessParameter, scope: String, user: String): TokenData {
@@ -50,9 +51,8 @@ abstract class CacheAwareTokenClient(
     open fun getCleanupTrigger(): Int = CLEANUP_TRIGGER
 
     private fun putInCache(scope: String, user: String, tokenData: TokenData) {
-        val tokensByUser = accessTokensByUserByScope[scope] ?: HashMap()
+        val tokensByUser = accessTokensByUserByScope.computeIfAbsent(scope) { ConcurrentHashMap() }
         tokensByUser[user] = tokenData
-        accessTokensByUserByScope[scope] = tokensByUser
     }
 
     private fun getValidTokenFromCache(scope: String, user: String): Optional<TokenData> {

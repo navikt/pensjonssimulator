@@ -15,7 +15,7 @@ object PenGenerelleDataResultMapper {
             person = source.person?.let(::person) ?: defaultPerson,
             privatAfpSatser = source.privatAfpSatser?.let(::privatAfpSatser) ?: PrivatAfpSatser(),
             satsResultatListe = source.satsResultatListe.orEmpty().map(::veietSatsResultat),
-            sisteGyldigeOpptjeningsaar = 2023 //TODO source.sisteGyldigeOpptjeningsaar
+            sisteGyldigeOpptjeningsaar = source.sisteGyldigeOpptjeningsaar
         )
 
     private fun person(source: PenPersonData) =

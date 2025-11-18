@@ -16,7 +16,7 @@ class PenGenerelleDataResultMapperTest : ShouldSpec({
                 person = PenPersonData(statsborgerskap = "ABW"),
                 privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
                 satsResultatListe = emptyList(),
-                //TODO sisteGyldigeOpptjeningsaar = 2023
+                sisteGyldigeOpptjeningsaar = 2024
             )
         ) shouldBeEqualToComparingFields
                 GenerelleData(
@@ -30,7 +30,7 @@ class PenGenerelleDataResultMapperTest : ShouldSpec({
                         referansebeloep = 0
                     ),
                     satsResultatListe = emptyList(),
-                    sisteGyldigeOpptjeningsaar = 2023
+                    sisteGyldigeOpptjeningsaar = 2024
                 )
     }
 
@@ -40,7 +40,7 @@ class PenGenerelleDataResultMapperTest : ShouldSpec({
                 person = PenPersonData(statsborgerskap = "ABW"),
                 privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
                 satsResultatListe = listOf(PenVeietSatsResultat(aar = 2025, verdi = 8.9)),
-                //TODO sisteGyldigeOpptjeningsaar = 2020
+                sisteGyldigeOpptjeningsaar = 2020
             )
         )
 

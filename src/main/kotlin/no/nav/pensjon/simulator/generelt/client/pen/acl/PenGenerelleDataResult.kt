@@ -4,7 +4,7 @@ data class PenGenerelleDataResult(
     val person: PenPersonData?, // null if anonym
     val privatAfpSatser: PenPrivatAfpSatser?,
     val satsResultatListe: List<PenVeietSatsResultat>?,
-    //TODO val sisteGyldigeOpptjeningsaar: Int
+    val sisteGyldigeOpptjeningsaar: Int
 )
 
 data class PenPersonData(

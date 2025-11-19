@@ -21,7 +21,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummyRequest
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -77,7 +77,7 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
         Arrange.webClientContextRunner().run {
             val result: Result<SimulertTjenestepensjon> =
                 client(context = it).simuler(
-                    spec = dummyRequest(foedselsdato = "1963-02-05", afpErForespurt = true),
+                    spec = dummySpec(foedselsdato = "1963-02-05", afpErForespurt = true),
                     tpNummer
                 )
 
@@ -101,7 +101,7 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
         Arrange.webClientContextRunner().run {
             // unique request to avoid cache hit
             val response: Result<SimulertTjenestepensjon> =
-                client(context = it).simuler(dummyRequest(foedselsdato = "1963-02-06", afpErForespurt = true), "3010")
+                client(context = it).simuler(dummySpec(foedselsdato = "1963-02-06", afpErForespurt = true), "3010")
 
             response.isFailure shouldBe true
             response.exceptionOrNull().shouldBeInstanceOf<TjenestepensjonSimuleringException>()

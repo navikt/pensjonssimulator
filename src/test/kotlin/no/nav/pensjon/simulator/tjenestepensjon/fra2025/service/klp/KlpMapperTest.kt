@@ -3,10 +3,10 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonFremtidigInntektDto
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.ANNEN_TP_ORDNING_BURDE_SIMULERE
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.*
 import java.time.LocalDate
 
@@ -15,8 +15,8 @@ class KlpMapperTest : ShouldSpec({
     val idag = LocalDate.now()
     val imorgen = idag.plusDays(1)
 
-    context("mapToResponse") {
-        should("map KLP response") {
+    context("fromResponseDto") {
+        should("map KLP response DTO to 'simulert tjenestepensjon' domain object") {
             val response = KlpSimulerTjenestepensjonResponse(
                 inkludertOrdningListe = listOf(InkludertOrdning(tpnr = "1000")),
                 utbetalingsListe = listOf(
@@ -49,7 +49,7 @@ class KlpMapperTest : ShouldSpec({
                 betingetTjenestepensjonErInkludert = true
             )
 
-            val result = KlpMapper.mapToResponse(response)
+            val result: SimulertTjenestepensjon = KlpMapper.fromResponseDto(response)
 
             with(result) {
                 ordningsListe shouldHaveSize 1
@@ -77,7 +77,7 @@ class KlpMapperTest : ShouldSpec({
             }
         }
 
-        should("map KLP response med ikke siste ordning") {
+        should("map KLP response DTO med ikke siste ordning") {
             val statusBeskrivelse = "Ikke siste ordning. Statens pensjonskasse er siste ordning"
             val ytelseType = "ALLE"
             val response = KlpSimulerTjenestepensjonResponse(
@@ -85,7 +85,7 @@ class KlpMapperTest : ShouldSpec({
                 utbetalingsListe = emptyList(),
                 arsakIngenUtbetaling = listOf(
                     ArsakIngenUtbetaling(
-                        statusKode = ANNEN_TP_ORDNING_BURDE_SIMULERE,
+                        statusKode = "IKKE_SISTE_ORDNING",
                         statusBeskrivelse = statusBeskrivelse,
                         ytelseType = ytelseType
                     )
@@ -93,7 +93,7 @@ class KlpMapperTest : ShouldSpec({
                 betingetTjenestepensjonErInkludert = false
             )
 
-            val result: SimulertTjenestepensjon = KlpMapper.mapToResponse(response)
+            val result: SimulertTjenestepensjon = KlpMapper.fromResponseDto(response)
 
             with(result) {
                 ordningsListe shouldHaveSize 1
@@ -106,31 +106,31 @@ class KlpMapperTest : ShouldSpec({
         }
     }
 
-    context("mapToRequest") {
-        should("map request to KLP request with fremtidige inntekter") {
+    context("toRequestDto") {
+        should("map spec to KLP request DTO with fremtidige inntekter") {
             val uttaksdato = LocalDate.of(2025, 2, 1)
-            val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678901",
+            val request = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
                 sisteInntekt = 100000,
-                aarIUtlandetEtter16 = 3,
-                epsPensjon = true,
-                eps2G = true,
-                brukerBaOmAfp = true,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = true,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
                 fremtidigeInntekter = listOf(
-                    SimulerTjenestepensjonFremtidigInntektDto(fraOgMed = LocalDate.of(2025, 2, 1), aarligInntekt = 4),
-                    SimulerTjenestepensjonFremtidigInntektDto(fraOgMed = LocalDate.of(2026, 3, 1), aarligInntekt = 5),
-                    SimulerTjenestepensjonFremtidigInntektDto(fraOgMed = LocalDate.of(2027, 4, 1), aarligInntekt = 6)
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2025, 2, 1), aarligInntekt = 4),
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2026, 3, 1), aarligInntekt = 5),
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2027, 4, 1), aarligInntekt = 6)
                 ),
-                erApoteker = false
+                gjelderApoteker = false
             )
 
-            val result: KlpSimulerTjenestepensjonRequest = KlpMapper.mapToRequest(request)
+            val result: KlpSimulerTjenestepensjonRequest = KlpMapper.toRequestDto(request)
 
             val expectedInntekter = request.fremtidigeInntekter!!
             with(result) {
-                personId shouldBe request.pid
+                personId shouldBe request.pid.value
                 uttaksListe shouldHaveSize 1
                 with(uttaksListe[0]) {
                     ytelseType shouldBe "ALLE"
@@ -143,41 +143,41 @@ class KlpMapperTest : ShouldSpec({
                 }
                 with(fremtidigInntektsListe[1]) {
                     arligInntekt shouldBe expectedInntekter[0].aarligInntekt
-                    fraOgMedDato shouldBe expectedInntekter[0].fraOgMed
+                    fraOgMedDato shouldBe expectedInntekter[0].fom
                 }
                 with(fremtidigInntektsListe[2]) {
                     arligInntekt shouldBe expectedInntekter[1].aarligInntekt
-                    fraOgMedDato shouldBe expectedInntekter[1].fraOgMed
+                    fraOgMedDato shouldBe expectedInntekter[1].fom
                 }
                 with(fremtidigInntektsListe[3]) {
                     arligInntekt shouldBe expectedInntekter[2].aarligInntekt
-                    fraOgMedDato shouldBe expectedInntekter[2].fraOgMed
+                    fraOgMedDato shouldBe expectedInntekter[2].fom
                 }
-                arIUtlandetEtter16 shouldBe request.aarIUtlandetEtter16
+                arIUtlandetEtter16 shouldBe request.utlandAntallAar
                 epsPensjon shouldBe true
                 eps2G shouldBe true
             }
         }
 
-        should("map request to KLP request without fremtidige inntekter") {
+        should("map spec to KLP request DTO without fremtidige inntekter") {
             val uttaksdato = LocalDate.of(2025, 2, 1)
-            val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-                pid = "12345678901",
+            val request = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
                 sisteInntekt = 100000,
-                aarIUtlandetEtter16 = 3,
-                epsPensjon = true,
-                eps2G = true,
-                brukerBaOmAfp = true,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = true,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
                 fremtidigeInntekter = null,
-                erApoteker = false
+                gjelderApoteker = false
             )
 
-            val result: KlpSimulerTjenestepensjonRequest = KlpMapper.mapToRequest(request)
+            val result: KlpSimulerTjenestepensjonRequest = KlpMapper.toRequestDto(request)
 
             with(result) {
-                personId shouldBe request.pid
+                personId shouldBe request.pid.value
                 uttaksListe shouldHaveSize 1
                 with(uttaksListe[0]) {
                     ytelseType shouldBe "ALLE"
@@ -188,7 +188,7 @@ class KlpMapperTest : ShouldSpec({
                     arligInntekt shouldBe request.sisteInntekt
                     fraOgMedDato.isEqual(idag) || fraOgMedDato.isBefore(imorgen) shouldBe true
                 }
-                arIUtlandetEtter16 shouldBe request.aarIUtlandetEtter16
+                arIUtlandetEtter16 shouldBe request.utlandAntallAar
                 epsPensjon shouldBe true
                 eps2G shouldBe true
             }

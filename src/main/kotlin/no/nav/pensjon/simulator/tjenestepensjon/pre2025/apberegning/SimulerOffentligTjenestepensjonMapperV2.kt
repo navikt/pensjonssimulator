@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
@@ -18,7 +19,10 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.Utenlandsperi
 import org.springframework.stereotype.Component
 
 @Component
-class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonService) {
+class SimulerOffentligTjenestepensjonMapperV2(
+    val personService: GeneralPersonService,
+    private val inntektService: InntektService
+) {
 
     fun fromDto(specV2: SimulerOffentligTjenestepensjonSpecV2): SimuleringSpec {
         val source = specV2.simuleringEtter2011
@@ -72,7 +76,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
         if (simuleringSpec.simuleringType == SimuleringTypeSpecV2.AFP_ETTERF_ALDER)
             Pre2025OffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!.name),
-                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
+                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak?.let(inntektService::hentSisteMaanedsInntektOver1G) ?: 0,
                 // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
             )

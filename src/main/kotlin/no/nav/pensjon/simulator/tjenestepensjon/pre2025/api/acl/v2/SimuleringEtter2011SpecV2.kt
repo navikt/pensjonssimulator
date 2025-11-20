@@ -80,7 +80,7 @@ data class SimuleringEtter2011SpecV2(
     var afpOrdning: AfpOrdningTypeSpecV2? = null,
 
     @param:Schema(description = "Inntekt måneden før AFP-uttak (offentlig AFP).")
-    var afpInntektMndForUttak: Int? = null,
+    var afpInntektMndForUttak: Boolean? = null,
 
     @param:Schema(description = "Ektefelles dødsdato.")
     var dodsdato: LocalDate? = null,

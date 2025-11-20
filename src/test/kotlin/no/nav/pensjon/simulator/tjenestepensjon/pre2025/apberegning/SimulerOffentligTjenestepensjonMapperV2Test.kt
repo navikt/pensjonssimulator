@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -17,9 +18,13 @@ import java.time.LocalDate
 class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
 
     "alle mulige felter blir brukt i mapping mot til simuleringSpec" {
-        val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {
+        val personService = mockk<GeneralPersonService>().apply {
             every { foedselsdato(any()) } returns LocalDate.of(1960, 1, 1)
-        })
+        }
+        val inntektService = mockk<InntektService>().apply {
+            every { hentSisteMaanedsInntektOver1G(true) } returns 6
+        }
+        val mapper = SimulerOffentligTjenestepensjonMapperV2(personService, inntektService)
 
         val spec = mockSpec(simuleringType = SimuleringTypeSpecV2.AFP_ETTERF_ALDER)
 
@@ -85,9 +90,11 @@ class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
     }
 
     "offentlig AFP blir ikke mappet ved andre simuleringstype enn AFP_ETTERF_ALDER" {
-        val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {
+        val personService = mockk<GeneralPersonService>().apply {
             every { foedselsdato(any()) } returns LocalDate.of(1960, 1, 1)
-        })
+        }
+        val inntektService = mockk<InntektService>()
+        val mapper = SimulerOffentligTjenestepensjonMapperV2(personService, inntektService)
 
         val simSpec = mapper.fromDto(mockSpec(simuleringType = SimuleringTypeSpecV2.ALDER))
 
@@ -95,9 +102,11 @@ class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
     }
 
     "mapping tåler default verdier fra spec" {
-        val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {
+        val personService = mockk<GeneralPersonService>().apply {
             every { foedselsdato(any()) } returns LocalDate.of(1960, 1, 1)
-        })
+        }
+        val inntektService = mockk<InntektService>()
+        val mapper = SimulerOffentligTjenestepensjonMapperV2(personService, inntektService)
 
         with(mapper.fromDto(mockMinimalSpec())) {
             type shouldBe SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
@@ -136,7 +145,7 @@ class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
     }
 
     "land konverteres til enum" {
-        val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk())
+        val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk(), mockk())
 
         mapper.mapLand("NOR") shouldBe LandkodeEnum.NOR
         mapper.mapLand("SWE") shouldBe LandkodeEnum.SWE
@@ -185,7 +194,7 @@ fun mockSpec(simuleringType: SimuleringTypeSpecV2) = SimulerOffentligTjenestepen
         epsPensjon = true,
         eps2G = true,
         afpOrdning = AfpOrdningTypeSpecV2.AFPSTAT,
-        afpInntektMndForUttak = 6,
+        afpInntektMndForUttak = true,
         brukerRegTPListe = emptyList(),
         stillingsprosentOffHeltUttak = StillingsprOffCodeV2.P_0,
         stillingsprosentOffGradertUttak = StillingsprOffCodeV2.P_100,

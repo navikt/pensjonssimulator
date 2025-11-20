@@ -7,11 +7,11 @@ import java.time.LocalDate
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FremtidigInntektV2 {
     @Schema(description = "Fra og med dato for inntekten")
-    private val datoFom: LocalDate? = null
+    val datoFom: LocalDate? = null
 
     @Schema(
         description = ("Årlig inntekt for perioden, dersom perioden er kortere enn et helt år, gjøres den om til årlig inntekt ved å kalkulere fra x/12 deler der x er antall "
                 + "måneder inntekten er angitt for")
     )
-    private val arliginntekt: Int? = null
+    val arliginntekt: Int? = null
 }

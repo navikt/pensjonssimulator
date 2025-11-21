@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad.beregnAfpGrad
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
-import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
@@ -14,14 +14,12 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
-import java.time.Period
 import java.util.*
 
 /**
@@ -223,7 +221,7 @@ object SimulatorOutputConverter {
         )
 
     private fun alderAar(foedselsdato: LocalDate, dato: Date): Int =
-        alderDato(foedselsdato, dato.toNorwegianLocalDate()).alder.aar
+        PensjonAlderDato(foedselsdato, dato = dato.toNorwegianLocalDate()).alder.aar
 
     private fun harUttakToday(grad: Uttaksgrad, today: LocalDate) =
         grad.uttaksgrad > 0 && coversToday(grad.fomDato, grad.tomDato, today)
@@ -236,26 +234,6 @@ object SimulatorOutputConverter {
 
         return false
     }
-
-    /**
-     * Beregner alder ved angitt dato.
-     * Kun helt fylte år og helt fylte måneder telles med.
-     * (Eksempel: En alder av 5 år, 11 måneder og 27 dager returneres som 5 år og 11 måneder.)
-     * Bakgrunnen for dette er at det i pensjonssammenheng opereres med hele måneder;
-     * det er den første dag i påfølgende måned som legges til grunn ved f.eks. uttak av pensjon.
-     */
-    private fun alderDato(foedselsdato: LocalDate, dato: LocalDate): PensjonAlderDato =
-        with(
-            Period.between(
-                foedselsdato.plusMonths(1).withDayOfMonth(1),
-                dato.withDayOfMonth(1)
-            )
-        ) {
-            PensjonAlderDato(
-                alder = Alder(aar = this.years, maaneder = this.months),
-                dato = dato
-            )
-        }
 
     private data class Trygdetid(
         val kapittel19: Int,

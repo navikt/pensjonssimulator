@@ -51,16 +51,16 @@
       "andelKapittel20": 0.8,
       "alderspensjonKapittel20": {
         "inntektspensjon": {
-          "maanedligUtbetaling": 32415,
-          "pensjonsbeholdningForUttak": 7784394
+          "maanedligUtbetaling": 32615,
+          "pensjonsbeholdningForUttak": 7832579
         },
         "garantipensjon": {
           "maanedligUtbetaling": 0,
-          "garantipensjonsbeholdningForUttak": -2346403,
+          "garantipensjonsbeholdningForUttak": -2384951,
           "trygdetid": 40
         }
       },
-      "sumMaanedligUtbetaling": 39185
+      "sumMaanedligUtbetaling": 39385
     },
     {
       "fraOgMedDato": "2029-01-01",
@@ -68,7 +68,7 @@
       "alderspensjonKapittel19": null,
       "andelKapittel20": 0.8,
       "alderspensjonKapittel20": null,
-      "sumMaanedligUtbetaling": 39303
+      "sumMaanedligUtbetaling": 39503
     }
   ]
 }

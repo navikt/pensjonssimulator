@@ -2,11 +2,11 @@ package no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.toDto
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -33,7 +33,7 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
     private val log = KotlinLogging.logger {}
     private val afpBeholdningWebClient: WebClient = webClientBase.withBaseUrl(baseUrl)
 
-    override fun simulerAfpBeholdningGrunnlag(
+    override fun simuler(
         spec: LivsvarigOffentligAfpSpec
     ): List<SimulerLivsvarigOffentligAfpBeholdningsperiode> {
         val uri = "/api/simuler"

@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.alder.Alder
 import java.time.LocalDate
 
 object AlderForDelingstallBeregner {
-    private val hoyesteAlderForDelingstall = Alder(70, 0)
     private const val LAVEST_MULIG_UTTAKSALDER = 62 //normAlder?
 
     fun bestemAldreForDelingstall(fodselsdato: LocalDate, uttaksdato: LocalDate): List<AlderForDelingstall> {
@@ -22,9 +21,6 @@ object AlderForDelingstallBeregner {
                 AlderForDelingstall(alderVedUttak, uttaksdato),
                 AlderForDelingstall(alderVedSisteTilvekstAvAfpBeholdninger, datoForSisteTilvekstAvAfpBeholdninger)
             )
-        }
-        if (aarGammelVedUttak >= hoyesteAlderForDelingstall.aar) {
-            return listOf(AlderForDelingstall(hoyesteAlderForDelingstall, uttaksdato))
         }
 
         return listOf(

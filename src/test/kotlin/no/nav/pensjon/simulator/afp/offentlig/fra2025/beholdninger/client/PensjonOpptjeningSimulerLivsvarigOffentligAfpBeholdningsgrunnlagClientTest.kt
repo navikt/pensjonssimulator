@@ -49,7 +49,7 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClientTest
         Arrange.security()
         Arrange.webClientContextRunner().run {
             val result: List<SimulerLivsvarigOffentligAfpBeholdningsperiode> =
-                client(context = it).simulerAfpBeholdningGrunnlag(
+                client(context = it).simuler(
                     LivsvarigOffentligAfpSpec(
                         pid = Pid("12345678901"),
                         foedselsdato = LocalDate.now(),
@@ -80,7 +80,7 @@ class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClientTest
         Arrange.security()
         Arrange.webClientContextRunner().run {
             val result: List<SimulerLivsvarigOffentligAfpBeholdningsperiode> =
-                client(context = it).simulerAfpBeholdningGrunnlag(
+                client(context = it).simuler(
                     LivsvarigOffentligAfpSpec(
                         pid = Pid("12345678901"),
                         foedselsdato = LocalDate.now(),

@@ -35,7 +35,7 @@ class LivsvarigOffentligAfpBeregningServiceTest : ShouldSpec({
         val alderVedAarsskifte = Alder(aar = 62, maaneder = 1)
 
         val service = LivsvarigOffentligAfpBeregningService(
-            simulerAfpBeholdningGrunnlag = arrangeAfpBeholdning(afpBeholdningGrunnlagResponse),
+            afpBeholdningClient = arrangeAfpBeholdning(afpBeholdningGrunnlagResponse),
             simulatorContext = arrangeDelingstall(foedselsdato, lavesteAlderVedUttak, alderVedAarsskifte)
         )
 
@@ -66,7 +66,7 @@ private fun arrangeAfpBeholdning(
     beholdningsperiodeListe: List<SimulerLivsvarigOffentligAfpBeholdningsperiode>
 ): SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient =
     mockk<SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient> {
-        every { simulerAfpBeholdningGrunnlag(any()) } returns beholdningsperiodeListe
+        every { simuler(any()) } returns beholdningsperiodeListe
     }
 
 private fun arrangeDelingstall(

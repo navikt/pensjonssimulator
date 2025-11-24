@@ -23,10 +23,12 @@ import java.time.LocalDate
 
 class AlternativtUttakServiceTest : FunSpec({
 
+    val foedselsdato = LocalDate.of(1967, 1, 1)
+
     test("findAlternativtUttak should find alternativt uttak") {
         val service = AlternativtUttakService(
             simulator = arrangeSimulator(),
-            normalderService = Arrange.normalder(foedselsdato = LocalDate.of(1967, 1, 1)),
+            normalderService = Arrange.normalder(foedselsdato),
             time = { LocalDate.of(2025, 1, 1) }
         )
 
@@ -38,13 +40,13 @@ class AlternativtUttakServiceTest : FunSpec({
             ),
             gradertUttak = GradertUttakSimuleringSpec(
                 grad = UttakGradKode.P_50,
-                uttakFom = PensjonAlderDato(alder = Alder(63, 0), dato = LocalDate.of(2030, 2, 1)),
+                uttakFom = PensjonAlderDato(foedselsdato, alder = Alder(aar = 63, maaneder = 0)),
                 aarligInntektBeloep = null
             ),
             heltUttak = HeltUttakSimuleringSpec(
-                uttakFom = PensjonAlderDato(alder = Alder(65, 0), dato = LocalDate.of(2032, 2, 1)),
+                uttakFom = PensjonAlderDato(foedselsdato, alder = Alder(aar = 65, maaneder = 0)),
                 aarligInntektBeloep = 123000,
-                inntektTom = PensjonAlderDato(alder = Alder(67, 0), dato = LocalDate.of(2034, 2, 1))
+                inntektTom = PensjonAlderDato(foedselsdato, alder = Alder(aar = 67, maaneder = 0))
             )
         ) shouldBe SimulertPensjonEllerAlternativ(
             pensjon = SimulertPensjon(
@@ -60,9 +62,9 @@ class AlternativtUttakServiceTest : FunSpec({
                 opptjeningGrunnlagListe = emptyList()
             ),
             alternativ = SimulertAlternativ(
-                gradertUttakAlder = SimulertUttakAlder(alder = Alder(65, 1), uttakDato = LocalDate.of(2032, 3, 1)),
+                gradertUttakAlder = SimulertUttakAlder(alder = Alder(aar = 65, maaneder = 1), uttakDato = LocalDate.of(2032, 3, 1)),
                 uttakGrad = UttakGradKode.P_40,
-                heltUttakAlder = SimulertUttakAlder(alder = Alder(66, 1), uttakDato = LocalDate.of(2033, 3, 1)),
+                heltUttakAlder = SimulertUttakAlder(alder = Alder(aar = 66, maaneder = 1), uttakDato = LocalDate.of(2033, 3, 1)),
                 resultStatus = SimulatorResultStatus.GOOD
             )
         )
@@ -71,9 +73,11 @@ class AlternativtUttakServiceTest : FunSpec({
 
 object AlternativtUttakServiceTestObjects {
 
+    val foedselsdato: LocalDate = LocalDate.of(1967, 1, 1)
+
     fun arrangeSimulator() =
         mockk<SimulatorCore>(relaxed = true).apply {
-            every { fetchFoedselsdato(pid) } returns LocalDate.of(1967, 1, 1)
+            every { fetchFoedselsdato(pid) } returns foedselsdato
 
             // Arrange a series of simulations that converge towards the best alternative:
             every {
@@ -138,7 +142,7 @@ object AlternativtUttakServiceTestObjects {
             foersteUttakDato = foersteUttakDato,
             heltUttakDato = heltUttakDato,
             pid = pid,
-            foedselDato = LocalDate.of(1967, 1, 1),
+            foedselDato = foedselsdato,
             avdoed = null,
             isTpOrigSimulering = false,
             simulerForTp = false,

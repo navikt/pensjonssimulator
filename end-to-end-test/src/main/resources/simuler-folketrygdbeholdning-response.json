@@ -1,8 +1,8 @@
 {
   "pensjonsBeholdningsPeriodeListe": [
     {
-      "pensjonsBeholdning": 5139168,
-      "garantiPensjonsBeholdning": 364655,
+      "pensjonsBeholdning": 5023522,
+      "garantiPensjonsBeholdning": 457172,
       "garantitilleggsbeholdning": 0,
       "garantiPensjonsNiva": {
         "belop": 224248,
@@ -13,8 +13,8 @@
       "fraOgMedDato": "2068-02-01"
     },
     {
-      "pensjonsBeholdning": 5247768,
-      "garantiPensjonsBeholdning": 277775,
+      "pensjonsBeholdning": 5132122,
+      "garantiPensjonsBeholdning": 370292,
       "garantitilleggsbeholdning": 0,
       "garantiPensjonsNiva": {
         "belop": 224248,
@@ -25,8 +25,8 @@
       "fraOgMedDato": "2069-01-01"
     },
     {
-      "pensjonsBeholdning": 5256818,
-      "garantiPensjonsBeholdning": 270535,
+      "pensjonsBeholdning": 5141172,
+      "garantiPensjonsBeholdning": 363052,
       "garantitilleggsbeholdning": 0,
       "garantiPensjonsNiva": {
         "belop": 224248,

@@ -8,7 +8,7 @@ import org.springframework.security.core.GrantedAuthority
 
 /**
  * Authentication data is initially obtained by Spring Security.
- * This class augments that data by adding a mechanism for obtaining egress tokens
+ * This class augments that data by adding a mechanism for getting egress tokens
  * (used by backend for accessing other services).
  */
 class EnrichedAuthentication(
@@ -22,7 +22,7 @@ class EnrichedAuthentication(
 
     override fun getName(): String? = initialAuth?.name
 
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority>? = initialAuth?.authorities
+    override fun getAuthorities(): Collection<GrantedAuthority> = initialAuth?.authorities.orEmpty()
 
     override fun getCredentials(): Any? = initialAuth?.credentials
 
@@ -30,7 +30,7 @@ class EnrichedAuthentication(
 
     override fun getPrincipal(): Any? = initialAuth?.principal
 
-    override fun isAuthenticated(): Boolean = initialAuth?.isAuthenticated ?: false
+    override fun isAuthenticated(): Boolean = initialAuth?.isAuthenticated == true
 
     override fun setAuthenticated(isAuthenticated: Boolean) {
         initialAuth?.let { it.isAuthenticated = isAuthenticated }

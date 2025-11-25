@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
@@ -236,6 +237,7 @@ class PensjonUnderUtbetaling {
      * Avoids the com.fasterxml.jackson.databind.exc.InvalidDefinitionException:
      * Cannot construct instance of `no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling` (no Creators, like default constructor, exist): cannot deserialize from Object value (no delegate- or property-based Creator)
      */
+    @JsonCreator
     constructor()
 
     // SIMDOM-ADD excludeBrutto

@@ -37,7 +37,8 @@ open class ObjectMapperConfiguration {
             registerModule(JavaTimeModule())
             enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS) // for Date in call to PEN
             disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            setSerializationInclusion(Include.NON_NULL)
+            disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            setDefaultPropertyInclusion(JsonInclude.Value.construct(Include.NON_NULL, Include.NON_NULL));
             // INDENT_OUTPUT must be disabled to avoid error 413 Request Too Large
         }
 
@@ -52,7 +53,7 @@ open class ObjectMapperConfiguration {
                 configOverride(MutableMap::class.java).include =
                     JsonInclude.Value.construct(Include.NON_NULL, Include.NON_NULL)
 
-                setSerializationInclusion(Include.NON_NULL)
+                setDefaultPropertyInclusion(JsonInclude.Value.construct(Include.NON_NULL, Include.NON_NULL));
 
                 setVisibility(
                     serializationConfig.defaultVisibilityChecker
@@ -74,6 +75,7 @@ open class ObjectMapperConfiguration {
         jacksonObjectMapper().apply {
             registerModule(JavaTimeModule())
             enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            setSerializationInclusion(Include.NON_NULL)
+            disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            setDefaultPropertyInclusion(JsonInclude.Value.construct(Include.NON_NULL, Include.NON_NULL));
         }
 }

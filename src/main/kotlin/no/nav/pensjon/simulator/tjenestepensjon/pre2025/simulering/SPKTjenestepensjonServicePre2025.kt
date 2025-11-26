@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
@@ -14,6 +13,7 @@ import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import tools.jackson.databind.ObjectMapper
 
 @Service
 class SPKTjenestepensjonServicePre2025(

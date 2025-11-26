@@ -110,7 +110,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag? =
                 spec.afpOffentligLivsvarigBeregningsresultat?.let {
-                    livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(it, kravhode, knekkpunktDato)
+                    livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(
+                        simulertAfpYtelseListe = it.afpYtelseListe,
+                        innvilgetAfpSpec = simuleringSpec.livsvarigOffentligAfp?.innvilgetAfp,
+                        kravhode = kravhode,
+                        maxGjelderFom = knekkpunktDato
+                    )
                 }
 
             // Corresponds to part 5

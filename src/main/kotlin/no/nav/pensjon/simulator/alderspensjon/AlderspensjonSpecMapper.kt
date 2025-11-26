@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import java.time.LocalDate
 
@@ -45,7 +46,7 @@ object AlderspensjonSpecMapper {
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
-            rettTilOffentligAfpFom = source.livsvarigOffentligAfpRettFom,
+            livsvarigOffentligAfp = source.livsvarigOffentligAfpRettFom?.let { LivsvarigOffentligAfpSpec(rettTilAfpFom = it) },
             pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,

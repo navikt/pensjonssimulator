@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -44,7 +45,7 @@ class UttakSpecMapperV1(val personService: GeneralPersonService) {
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,
-            rettTilOffentligAfpFom = source.rettTilAfpOffentligDato,
+            livsvarigOffentligAfp = source.rettTilAfpOffentligDato?.let { LivsvarigOffentligAfpSpec(rettTilAfpFom = it) },
             pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,

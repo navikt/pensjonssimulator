@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
@@ -8,14 +8,15 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class AlderspensjonSpecMapperTest : FunSpec({
+class AlderspensjonSpecMapperTest : ShouldSpec({
 
-    test("simuleringSpec maps from particular to general specification - 1. gangsuttak + offentlig AFP") {
+    should("map from particular to general specification - 1. gangsuttak + offentlig AFP") {
         AlderspensjonSpecMapper.simuleringSpec(
             source = alderspensjonSpec(livsvarigOffentligAfpRettFom = LocalDate.of(2032, 3, 4)),
             foedselsdato = LocalDate.of(1964, 1, 1),
@@ -31,7 +32,7 @@ class AlderspensjonSpecMapperTest : FunSpec({
                 )
     }
 
-    test("simuleringSpec maps from particular to general specification - endring av pensjon uten AFP") {
+    should("map from particular to general specification - endring av pensjon uten AFP") {
         AlderspensjonSpecMapper.simuleringSpec(
             source = alderspensjonSpec(livsvarigOffentligAfpRettFom = null), // => uten AFP
             foedselsdato = LocalDate.of(1964, 1, 1),
@@ -92,7 +93,7 @@ private fun simuleringSpec(type: SimuleringTypeEnum, livsvarigOffentligAfpRettFo
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = false,
-        rettTilOffentligAfpFom = livsvarigOffentligAfpRettFom,
+        livsvarigOffentligAfp = livsvarigOffentligAfpRettFom?.let { LivsvarigOffentligAfpSpec(rettTilAfpFom = it) },
         pre2025OffentligAfp = null,
         erAnonym = false,
         ignoreAvslag = false,

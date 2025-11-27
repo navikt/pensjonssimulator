@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tech.json
 
-import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import tools.jackson.databind.DeserializationFeature
@@ -20,12 +20,12 @@ open class ObjectMapperConfiguration {
             .addModule(dateSerializerModule())
             .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
+            .changeDefaultPropertyInclusion { it.withValueInclusion(NON_NULL) }
             .build()
 
-    private companion object {
+    companion object {
 
-        private fun dateSerializerModule() =
+        fun dateSerializerModule() =
             SimpleModule().apply {
                 addSerializer(EpochDateSerializer(handledType = Date::class.java))
             }

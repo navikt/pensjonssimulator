@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tech.json
 
-import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import no.nav.pensjon.simulator.tech.json.ObjectMapperConfiguration.Companion.dateSerializerModule
 import org.springframework.boot.http.converter.autoconfigure.ServerHttpMessageConvertersCustomizer
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.HttpMessageConverters
@@ -20,11 +21,12 @@ open class StrictServerHttpMessageConvertersCustomizer : ServerHttpMessageConver
         builder.addCustomConverter(
             JacksonJsonHttpMessageConverter(
                 JsonMapper.builder()
+                    .addModule(dateSerializerModule())
                     .defaultDateFormat(SimpleDateFormat("yyyy-MM-dd"))
                     .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES) // i.e. strict
                     .disable(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)
                     .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
-                    .changeDefaultPropertyInclusion { it.withValueInclusion(JsonInclude.Include.NON_NULL) }
+                    .changeDefaultPropertyInclusion { it.withValueInclusion(NON_NULL) }
                     .build()
             )
         )

@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
@@ -23,6 +22,7 @@ import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
@@ -177,8 +177,8 @@ object SimulatorContextUtil {
     }
 
     /**
-     * PEN's nettoPerAr is integer, whereas regler's is double;
-     * therefore need to round when calling regler from PEN.
+     * PEN's nettoPerAr is an integer, whereas regler's is double;
+     * therefore, need to round when calling regler from PEN.
      */
     private fun roundNettoPerAar(afp: AfpPrivatLivsvarig) {
         afp.nettoPerAr = afp.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()

@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
@@ -9,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import tools.jackson.databind.ObjectMapper
 
 class SimulatorContextUtilTest : FunSpec({
 

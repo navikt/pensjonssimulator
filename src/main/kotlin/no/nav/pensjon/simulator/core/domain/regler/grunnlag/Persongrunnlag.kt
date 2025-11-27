@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
@@ -22,7 +23,7 @@ import java.util.*
  * Persongrunnlag inneholder nødvendige data knyttet til en bestemt person.
  * Persongrunnlag brukes som inndata til kall på en regeltjeneste og må defineres før kallet.
  */
-class Persongrunnlag() {
+class Persongrunnlag {
     /**
      * Representerer personen.
      */
@@ -376,11 +377,13 @@ class Persongrunnlag() {
         sistMedlITrygden = rawSistMedlITrygden?.noon()
     }
 
-    // SIMDOM-ADD excludeTrygdetidPerioder, excludeForsteVirkningsdatoGrunnlag
+    @JsonCreator
+    constructor()
+
     constructor(
         source: Persongrunnlag,
-        excludeForsteVirkningsdatoGrunnlag: Boolean = false,
-        excludeTrygdetidPerioder: Boolean = false
+        excludeForsteVirkningsdatoGrunnlag: Boolean = false, // SIMDOM-ADD
+        excludeTrygdetidPerioder: Boolean = false // SIMDOM-ADD
     ) : this() {
         penPerson = source.penPerson?.let(::PenPerson)
         fodselsdato = source.fodselsdato?.clone() as? Date

@@ -1,8 +1,7 @@
 package no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.client.acl
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
@@ -10,70 +9,82 @@ import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
-class SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapperTest : FunSpec({
+class SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapperTest : ShouldSpec({
 
-    test("toDto maps pid, fom and income periods") {
-        val spec = LivsvarigOffentligAfpSpec(
-            pid = Pid("12345678910"),
-            foedselsdato = LocalDate.now(),
-            fom = LocalDate.parse("2025-03-01"),
-            fremtidigInntektListe = listOf(
-                Inntekt(fom = LocalDate.parse("2025-10-01"), aarligBeloep = 500000),
-                Inntekt(fom = LocalDate.parse("2026-10-01"), aarligBeloep = 520000),
+    context("toDto") {
+        should("map PID, f.o.m.-dato and income periods") {
+            val spec = LivsvarigOffentligAfpSpec(
+                pid = Pid("12345678910"),
+                foedselsdato = LocalDate.now(),
+                fom = LocalDate.of(2025, 3, 1),
+                fremtidigInntektListe = listOf(
+                    Inntekt(fom = LocalDate.of(2025, 10, 1), aarligBeloep = 500000),
+                    Inntekt(fom = LocalDate.of(2026, 10, 1), aarligBeloep = 520000),
+                )
             )
-        )
 
-        val dto: SimulerLivsvarigOffentligAfpBeholdningsgrunnlagSpec = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.toDto(spec)
+            SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.toDto(spec) shouldBe
+                    SimulerLivsvarigOffentligAfpBeholdningsgrunnlagSpec(
+                        personId = "12345678910",
+                        uttaksDato = LocalDate.of(2025, 3, 1),
+                        fremtidigInntektListe = listOf(
+                            Inntektsperiode(
+                                fraOgMedDato = LocalDate.of(2025, 10, 1),
+                                arligInntekt = 500_000
+                            ),
+                            Inntektsperiode(
+                                fraOgMedDato = LocalDate.of(2026, 10, 1),
+                                arligInntekt = 520_000
+                            )
+                        )
+                    )
+        }
 
-        dto.personId shouldBe Pid("12345678910")
-        dto.uttaksDato shouldBe LocalDate.parse("2025-03-01")
-        dto.fremtidigInntektListe shouldHaveSize 2
-        dto.fremtidigInntektListe[0].fraOgMedDato shouldBe LocalDate.parse("2025-10-01")
-        dto.fremtidigInntektListe[0].arligInntekt shouldBe 500_000
-        dto.fremtidigInntektListe[1].fraOgMedDato shouldBe LocalDate.parse("2026-10-01")
-        dto.fremtidigInntektListe[1].arligInntekt shouldBe 520_000
-    }
-
-    test("toDto handles empty income list") {
-        val spec = LivsvarigOffentligAfpSpec(
-            pid = Pid("12345678910"),
-            foedselsdato = LocalDate.now(),
-            fom = LocalDate.parse("2025-03-01"),
-            fremtidigInntektListe = emptyList()
-        )
-
-        val dto = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.toDto(spec)
-
-        dto.personId shouldBe Pid("12345678910")
-        dto.uttaksDato shouldBe LocalDate.parse("2025-03-01")
-        dto.fremtidigInntektListe.shouldBeEmpty()
-    }
-
-    test("fromDto maps response periods to domain periods") {
-        val response = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult(
-            afpBeholdningsgrunnlag = listOf(
-                Beholdningsperiode(belop = 1000, fraOgMedDato = LocalDate.parse("2025-03-01")),
-                Beholdningsperiode(belop = 2000, fraOgMedDato = LocalDate.parse("2026-03-01")),
+        should("handle empty income list") {
+            val spec = LivsvarigOffentligAfpSpec(
+                pid = Pid("12345678910"),
+                foedselsdato = LocalDate.now(),
+                fom = LocalDate.of(2025, 3, 1),
+                fremtidigInntektListe = emptyList()
             )
-        )
 
-        val periods: List<SimulerLivsvarigOffentligAfpBeholdningsperiode> =
-            SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto(response)
-
-        periods shouldHaveSize 2
-        periods[0].pensjonsbeholdning shouldBe 1000
-        periods[0].fom shouldBe LocalDate.parse("2025-03-01")
-        periods[1].pensjonsbeholdning shouldBe 2000
-        periods[1].fom shouldBe LocalDate.parse("2026-03-01")
+            SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.toDto(spec) shouldBe
+                    SimulerLivsvarigOffentligAfpBeholdningsgrunnlagSpec(
+                        personId = "12345678910",
+                        uttaksDato = LocalDate.of(2025, 3, 1),
+                        fremtidigInntektListe = emptyList()
+                    )
+        }
     }
 
-    test("fromDto handles empty response list") {
-        val response = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult(
-            afpBeholdningsgrunnlag = emptyList()
-        )
+    context("fromDto") {
+        should("map response periods to domain periods") {
+            val result = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult(
+                afpBeholdningsgrunnlag = listOf(
+                    Beholdningsperiode(belop = 1000, fraOgMedDato = LocalDate.of(2025, 3, 1)),
+                    Beholdningsperiode(belop = 2000, fraOgMedDato = LocalDate.of(2026, 3, 1)),
+                )
+            )
 
-        val periods = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto(response)
+            SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto(result) shouldBe
+                    listOf(
+                        SimulerLivsvarigOffentligAfpBeholdningsperiode(
+                            pensjonsbeholdning = 1000,
+                            fom = LocalDate.of(2025, 3, 1)
+                        ),
+                        SimulerLivsvarigOffentligAfpBeholdningsperiode(
+                            pensjonsbeholdning = 2000,
+                            fom = LocalDate.of(2026, 3, 1)
+                        )
+                    )
+        }
 
-        periods.shouldBeEmpty()
+        should("handle empty response list") {
+            val result = SimulerLivsvarigOffentligAfpBeholdningsgrunnlagResult(
+                afpBeholdningsgrunnlag = emptyList()
+            )
+
+            SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper.fromDto(result).shouldBeEmpty()
+        }
     }
 })

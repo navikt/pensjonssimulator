@@ -28,9 +28,9 @@ data class PenSpecialForsteVirkningsdatoGrunnlag(
  */
 data class PenSpecialPenPerson(
     val penPersonId: Long = 0,
-    val pid: Pid? = null,
+    val pid: String? = null,
     val fnr: String? = null, // TODO: temporary
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fodselsdato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fodselsdato: LocalDate? = null,
     val afpHistorikkListe: MutableList<PenAfpHistorikk>? = null,
     val uforehistorikk: PenUfoerehistorikk? = null,
     val generellHistorikk: PenGenerellHistorikk? = null

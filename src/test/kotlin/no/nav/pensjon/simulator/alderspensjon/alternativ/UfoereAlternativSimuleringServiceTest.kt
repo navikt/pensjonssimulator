@@ -250,7 +250,7 @@ private object UfoereAlternativSimuleringServiceTestObjects {
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = true,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,

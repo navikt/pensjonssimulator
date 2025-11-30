@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.person.Pid.Companion.redact
 import no.nav.pensjon.simulator.tech.json.Stringifier.listAsString
 import no.nav.pensjon.simulator.tech.json.Stringifier.textAsString
+import java.time.LocalDate
 import java.util.*
 
 /**
@@ -30,7 +31,8 @@ data class NavSimuleringSpecV3(
     val fremtidigInntektListe: List<NavSimuleringInntektSpecV3>? = null,
     val utenlandsperiodeListe: List<NavSimuleringUtlandSpecV3>? = null,
     val afpInntektMaanedFoerUttak: Boolean? = null,
-    val afpOrdning: AFPtypeEnum? = null
+    val afpOrdning: AFPtypeEnum? = null,
+    val innvilgetLivsvarigOffentligAfp: NavSimuleringInnvilgetLivsvarigOffentligAfpSpec? = null
 ) {
     /**
      * toString with redacted person ID
@@ -49,7 +51,8 @@ data class NavSimuleringSpecV3(
                 "\"fremtidigInntektListe\": ${listAsString(fremtidigInntektListe)}, " +
                 "\"utenlandsperiodeListe\": ${listAsString(utenlandsperiodeListe)}, " +
                 "\"afpInntektMaanedFoerUttak\": $afpInntektMaanedFoerUttak, " +
-                "\"afpOrdning\": ${textAsString(afpOrdning)} }"
+                "\"afpOrdning\": ${textAsString(afpOrdning)}, " +
+                "\"innvilgetLivsvarigOffentligAfp\": $innvilgetLivsvarigOffentligAfp }"
 }
 
 @JsonInclude(NON_NULL)
@@ -97,6 +100,21 @@ data class NavSimuleringUtlandSpecV3(
                 "\"tom\": ${textAsString(tom)}, " +
                 "\"land\": ${textAsString(land)}, " +
                 "\"arbeidetUtenlands\": $arbeidetUtenlands }"
+}
+
+/**
+ * Spesifiserer egenskapene til en løpende livsvarig AFP i offentlig sektor.
+ */
+@JsonInclude(NON_NULL)
+data class NavSimuleringInnvilgetLivsvarigOffentligAfpSpec(
+    val aarligBruttoBeloep: Double,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd", timezone = "CET") val uttakFom: LocalDate,
+    val sistRegulertGrunnbeloep: Int? = null
+) {
+    override fun toString() =
+        "{ \"aarligBruttoBeloep\": $aarligBruttoBeloep, " +
+                "\"uttakFom\": ${textAsString(uttakFom)}, " +
+                "\"sistRegulertGrunnbeloep\": $sistRegulertGrunnbeloep }"
 }
 
 data class NavSimuleringAlderSpecV3(

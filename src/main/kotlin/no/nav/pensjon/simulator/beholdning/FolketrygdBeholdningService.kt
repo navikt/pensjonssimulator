@@ -71,7 +71,7 @@ class FolketrygdBeholdningService(
             simulerForTp = false,
             utlandPeriodeListe = mutableListOf(),
             flyktning = null,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = true, // true for folketrygdbeholdning

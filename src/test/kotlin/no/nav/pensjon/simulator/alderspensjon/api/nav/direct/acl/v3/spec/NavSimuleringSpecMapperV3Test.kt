@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -17,17 +17,18 @@ import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 import java.util.*
 
-class NavSimuleringSpecMapperV3Test : FunSpec({
+class NavSimuleringSpecMapperV3Test : ShouldSpec({
     val foedselsdato = LocalDate.now().minusYears(62).minusMonths(1)
 
-    test("fromNavSimuleringSpecV3 should fetch fødselsdato and map values") {
+    should("fetch fødselsdato and map values") {
         val fremtidigInntektListeFraAar = foedselsdato.plusYears(58).year
         val utenlandsperiodeStartAar = foedselsdato.plusYears(58).year
         val foersteUttaksdato = foedselsdato.plusYears(62).plusMonths(4).withDayOfMonth(1)
         val heltUttaksdato = foedselsdato.plusYears(66).plusMonths(8).withDayOfMonth(1)
         NavSimuleringSpecMapperV3(
             personService = Arrange.foedselsdato(foedselsdato.year, foedselsdato.monthValue, foedselsdato.dayOfMonth),
-            inntektService = arrangeGrunnbeloep()
+            inntektService = arrangeInntekt(),
+            grunnbeloepService = mockk()
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
                 pid.value,
@@ -94,7 +95,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
@@ -105,11 +106,12 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
         )
     }
 
-    test("fromNavSimuleringSpecV3 should use heltUttakDato = null if ugradert uttak") {
+    should("use heltUttakDato = null if ugradert uttak") {
         val foersteUttaksdato = foedselsdato.plusYears(66).plusMonths(8).withDayOfMonth(1)
         NavSimuleringSpecMapperV3(
             personService = Arrange.foedselsdato(foedselsdato.year, foedselsdato.monthValue, foedselsdato.dayOfMonth),
-            inntektService = arrangeGrunnbeloep()
+            inntektService = arrangeInntekt(),
+            grunnbeloepService = mockk()
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
                 pid.value,
@@ -153,7 +155,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = true,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
@@ -165,7 +167,7 @@ class NavSimuleringSpecMapperV3Test : FunSpec({
     }
 })
 
-private fun arrangeGrunnbeloep(): InntektService =
+private fun arrangeInntekt(): InntektService =
     mockk<InntektService>().apply {
         every { hentSisteMaanedsInntektOver1G(false) } returns 100000
     }

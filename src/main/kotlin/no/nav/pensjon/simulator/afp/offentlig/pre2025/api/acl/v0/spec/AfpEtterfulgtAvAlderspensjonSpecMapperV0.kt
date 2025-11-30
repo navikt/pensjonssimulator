@@ -58,7 +58,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             epsKanOverskrives = false,
             foedselAar = 0, // only for anonym
             flyktning = false,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = Pre2025OffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.AFPSTAT, // ingen praktisk betydning i regelmotoren
                 inntektMaanedenFoerAfpUttakBeloep =

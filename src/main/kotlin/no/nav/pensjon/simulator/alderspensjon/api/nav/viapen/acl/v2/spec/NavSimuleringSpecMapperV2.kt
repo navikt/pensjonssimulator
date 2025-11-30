@@ -48,7 +48,7 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
             inntektOver1GAntallAar = 0, // used for anonym only
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
-            rettTilOffentligAfpFom = null, //TODO map to offentligAfpRett?
+            livsvarigOffentligAfp = null, //TODO map to offentligAfpRett?
             pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,

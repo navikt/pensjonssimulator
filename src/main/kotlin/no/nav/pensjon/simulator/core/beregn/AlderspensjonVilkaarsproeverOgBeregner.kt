@@ -26,6 +26,7 @@ import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.trygdetidSpec
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -288,7 +289,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = kravhode,
                 persongrunnlag = soekerGrunnlag,
                 knekkpunktDato = knekkpunktDato,
-                soekerForsteVirkningFom = soekerFoersteVirkning,
+                soekerFoersteVirkningFom = soekerFoersteVirkning,
                 ytelseType = KravlinjeTypeEnum.AP,
                 boddEllerArbeidetUtenlands = kravhode.boddEllerArbeidetIUtlandet
             )
@@ -301,7 +302,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = kravhode,
                 persongrunnlag = avdoedGrunnlag!!,
                 knekkpunktDato = knekkpunktDato,
-                soekerForsteVirkningFom = avdoedFoersteVirkning, // TODO: check possible mismatch (soker vs avdod)
+                soekerFoersteVirkningFom = avdoedFoersteVirkning, // TODO: check possible mismatch (soker vs avdod)
                 ytelseType = KravlinjeTypeEnum.GJR,
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             )
@@ -503,29 +504,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) {
             forrigeResultat.virkTom = getRelativeDateByDays(knekkpunktDato, -1).toNorwegianDateAtNoon()
         }
-
-        /**
-         * Ref. FastsettTrygdetidCache.fastsettTrygdetidInPreg and RequestToReglerMapper.mapToTrygdetidRequest
-         */
-        private fun trygdetidSpec(
-            kravhode: Kravhode,
-            persongrunnlag: Persongrunnlag,
-            knekkpunktDato: LocalDate,
-            soekerForsteVirkningFom: LocalDate?, // nullable
-            ytelseType: KravlinjeTypeEnum,
-            boddEllerArbeidetUtenlands: Boolean
-        ) =
-            TrygdetidRequest().apply {
-                this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-                this.brukerForsteVirk = soekerForsteVirkningFom?.toNorwegianDateAtNoon()
-                this.hovedKravlinjeType = ytelseType
-                this.persongrunnlag = persongrunnlag
-                this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
-                this.regelverkTypeEnum = kravhode.regelverkTypeEnum
-                this.uttaksgradListe = kravhode.uttaksgradListe
-                // Not set: virkTom, beregningsvilkarPeriodeListe
-                // NB: grunnlagsrolle is only used for caching
-            }
 
         private fun findValidForDate(list: MutableList<BeregningsResultatAfpPrivat>, date: LocalDate) =
             list.firstOrNull { isDateInPeriod(date, it.virkFom, it.virkTom) }

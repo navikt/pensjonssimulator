@@ -2,8 +2,6 @@ package no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning.domain
 
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning.AfpBeregningsgrunnlagAggregator.HOYESTE_ALDER_FOR_DELINGSTALL
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning.AfpBeregningsgrunnlagAggregator.haveEqualAlder
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning.AlderForDelingstallBeregner.bestemAldreForDelingstall
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.sats.Delingstall
@@ -62,6 +60,9 @@ class AfpBeregningsgrunnlagBuilder {
                 )
             }.delingstall
 
+    private fun haveEqualAlder(alder: Alder, delingstall: Delingstall): Boolean =
+        alder.aar == delingstall.alder.aar && alder.maaneder == delingstall.alder.maaneder
+
     fun build(): List<AfpBeregningsgrunnlag> {
         check(::spec.isInitialized)
         check(::alderForDelingstall.isInitialized)
@@ -76,5 +77,9 @@ class AfpBeregningsgrunnlagBuilder {
                     delingstall = bestemDelingstall(delingstallListe, it.alderForDelingstall.alder)
                 )
             }
+    }
+
+    companion object {
+        val HOYESTE_ALDER_FOR_DELINGSTALL = Alder(70, 0)
     }
 }

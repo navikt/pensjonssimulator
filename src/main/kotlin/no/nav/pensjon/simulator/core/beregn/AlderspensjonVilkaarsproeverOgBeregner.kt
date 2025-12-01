@@ -109,14 +109,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             val gjeldendePrivatAfp = getPrivatAfp(privatAfpBeregningResultatListe, knekkpunktDato)
 
             val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag? =
-                spec.afpOffentligLivsvarigBeregningsresultat?.let {
-                    livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(
-                        simulertAfpYtelseListe = it.afpYtelseListe,
-                        innvilgetAfpSpec = simuleringSpec.livsvarigOffentligAfp?.innvilgetAfp,
-                        kravhode = kravhode,
-                        maxGjelderFom = knekkpunktDato
-                    )
-                }
+                livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(
+                    innvilgetAfpSpec = simuleringSpec.livsvarigOffentligAfp?.innvilgetAfp,
+                    simulertAfpYtelseListe = spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe.orEmpty(),
+                    kravhode,
+                    maxGjelderFom = knekkpunktDato
+                )
 
             // Corresponds to part 5
             if (aarsaker.contains(KnekkpunktAarsak.UTG)) { // UTG = 'Endring av uttaksgrad'

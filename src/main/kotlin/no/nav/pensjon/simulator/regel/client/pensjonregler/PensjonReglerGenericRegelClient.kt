@@ -25,7 +25,7 @@ class PensjonReglerGenericRegelClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), GenericRegelClient {
     private val webClient = webClientBase.withBaseUrl(baseUrl)
-    val log = KotlinLogging.logger { }
+    //val log = KotlinLogging.logger { }
     //private val webClient2 = webClientBuilder.baseUrl(gcpBaseUrl).build()
 
     // regelServiceApi

@@ -12,6 +12,7 @@ class ApiAuthenticationManagerResolver(
     maskinportenProvider: ProviderManager
 ) : AuthenticationManagerResolver<HttpServletRequest> {
     private val builder = PathPatternRequestMatcher.withDefaults()
+
     private val managerMap: Map<RequestMatcher, AuthenticationManager> =
         mapOf(
             builder.matcher("/api/anonym/**") to entraProvider,
@@ -26,7 +27,7 @@ class ApiAuthenticationManagerResolver(
             builder.matcher("/api/v1/tidligst-mulig-uttak") to maskinportenProvider
         )
 
-    override fun resolve(request: HttpServletRequest?): AuthenticationManager =
-        managerMap.entries.firstOrNull { it.key.matches(request) }?.value
+    override fun resolve(context: HttpServletRequest): AuthenticationManager =
+        managerMap.entries.firstOrNull { it.key.matches(context) }?.value
             ?: throw IllegalArgumentException("Unable to resolve AuthenticationManager")
 }

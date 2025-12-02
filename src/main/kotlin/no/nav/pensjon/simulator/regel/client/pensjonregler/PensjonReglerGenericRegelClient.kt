@@ -1,7 +1,5 @@
 package no.nav.pensjon.simulator.regel.client.pensjonregler
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
@@ -10,11 +8,11 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tech.web.WebClientBase
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import tools.jackson.databind.json.JsonMapper
 import java.util.Objects.requireNonNull
 
 @Component
@@ -23,7 +21,7 @@ class PensjonReglerGenericRegelClient(
     //@Value("\${ps.regler.gcp.url}") gcpBaseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
-    @param:Qualifier("regler") private val objectMapper: ObjectMapper,
+    private val objectMapper: JsonMapper,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), GenericRegelClient {
     private val webClient = webClientBase.withBaseUrl(baseUrl)

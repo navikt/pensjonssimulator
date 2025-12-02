@@ -17,7 +17,7 @@ data class PensjonsbeholdningPeriodeV1(
     val garantiPensjonsBeholdning: Int,
     val garantitilleggsbeholdning: Int,
     val garantiPensjonsNiva: GarantipensjonNivaaV1,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate
 )
 
 data class GarantipensjonNivaaV1(

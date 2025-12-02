@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import java.time.LocalDate
 
 data class TidligstMuligUttakResultV1(
@@ -10,7 +11,7 @@ data class TidligstMuligUttakResultV1(
 
 data class TidligstMuligUttakV1(
     val uttaksgrad: Int,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val tidligstMuligeUttaksdato: LocalDate
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val tidligstMuligeUttaksdato: LocalDate
 )
 
 data class TidligstMuligUttakFeilV1(

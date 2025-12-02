@@ -17,7 +17,7 @@ data class PdlPerson(
 )
 
 data class PdlFoedselsdato(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foedselsdato: LocalDate?
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foedselsdato: LocalDate?
 )
 
 data class PdlError(val message: String)

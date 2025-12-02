@@ -5,11 +5,11 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.time.LocalDate
 
-// 2025-04-06
+// Aligned with pensjon-regler-api 2025-12-02
 data class AfpOffentligLivsvarigGrunnlag(
     val sistRegulertG: Int,
     val bruttoPerAr: Double,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uttaksdato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uttaksdato: LocalDate? = null,
 
     //--- Extra:
     @JsonIgnore

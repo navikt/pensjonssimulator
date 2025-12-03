@@ -52,7 +52,7 @@ class AnonymSimuleringSpecMapperV1Test : FunSpec({
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             flyktning = false,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,

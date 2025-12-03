@@ -62,7 +62,7 @@ class OffentligAfpBeregner(
                             forventetAarligInntektBeloep = spec.forventetInntektBeloep,
                             fremtidigeInntekter = spec.fremtidigInntektListe,
                             brukFremtidigInntekt = spec.brukFremtidigInntekt,
-                            virkningDato = spec.rettTilOffentligAfpFom ?: spec.foersteUttakDato!!
+                            virkningDato = spec.livsvarigOffentligAfp?.rettTilAfpFom ?: spec.foersteUttakDato!!
                         )
                     },
                     kravhode

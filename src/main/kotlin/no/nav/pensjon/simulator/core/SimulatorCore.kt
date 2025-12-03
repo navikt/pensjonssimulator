@@ -4,8 +4,11 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpBeregner
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpPeriodeConverter
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -19,6 +22,7 @@ import no.nav.pensjon.simulator.core.krav.*
 import no.nav.pensjon.simulator.core.result.ResultPreparerSpec
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
+import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
@@ -165,15 +169,13 @@ class SimulatorCore(
         )
 
         log.debug { "Simulator steg 6 - Beregn offentlig AFP" }
-        val offentligAfpResult: OffentligAfpResult =
-            offentligAfpBeregner.beregnAfp(
-                spec,
-                kravhode,
-                ytelser,
-                foedselsdato,
-                pid = person?.pid
-            )
-        kravhode = offentligAfpResult.kravhode // NB: kravhode reassigned (but only for pre-2025)
+        val simulertOffentligAfp: OffentligAfpResult =
+            if (spec.livsvarigOffentligAfp?.innvilgetAfp == null)
+                offentligAfpBeregner.beregnAfp(spec, kravhode, ytelser, foedselsdato, pid = person?.pid)
+            else
+                OffentligAfpResult(pre2025 = null, livsvarig = null, kravhode)
+
+        kravhode = simulertOffentligAfp.kravhode // NB: kravhode reassigned (but only for pre-2025)
 
         log.debug { "Simulator steg 7 - Vilkårsprøv og beregn alderspensjon" }
 
@@ -191,7 +193,7 @@ class SimulatorCore(
                     afpPrivatBeregningsresultater = privatAfpBeregningResultatListe,
                     gjeldendeAfpPrivatBeregningsresultat = gjeldendePrivatAfpBeregningResultat,
                     forsteVirkAfpPrivat = ytelser.privatAfpVirkningFom,
-                    afpOffentligLivsvarigBeregningsresultat = offentligAfpResult.livsvarig,
+                    afpOffentligLivsvarigBeregningsresultat = simulertOffentligAfp.livsvarig,
                     isHentPensjonsbeholdninger = spec.isHentPensjonsbeholdninger,
                     kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
                     sakId = kravhode.sakId,
@@ -206,7 +208,7 @@ class SimulatorCore(
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
                 SimulatorOutput().apply {
-                    pre2025OffentligAfp = offentligAfpResult.pre2025?.simuleringResult
+                    pre2025OffentligAfp = simulertOffentligAfp.pre2025?.simuleringResult
                 }
             else
                 resultPreparer.opprettOutput(
@@ -217,10 +219,11 @@ class SimulatorCore(
                         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                         forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                         forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
-                        pre2025OffentligAfpBeregningResultat = offentligAfpResult.pre2025?.simuleringResult,
+                        pre2025OffentligAfpBeregningResultat = simulertOffentligAfp.pre2025?.simuleringResult,
                         livsvarigOffentligAfpBeregningResultatListe =
                             LivsvarigOffentligAfpPeriodeConverter.aarligePerioder(
-                                result = offentligAfpResult.livsvarig,
+                                result = innvilgetLivsvarigOffentligAfp(spec, foedselsdato)
+                                    ?: simulertOffentligAfp.livsvarig,
                                 foedselMaaned = foedselsdato?.monthValue
                             ),
                         grunnbeloep = grunnbeloep,
@@ -243,4 +246,34 @@ class SimulatorCore(
 
     override fun fetchFoedselsdato(pid: Pid): LocalDate =
         generalPersonService.foedselsdato(pid)
+
+    private companion object {
+
+        private fun innvilgetLivsvarigOffentligAfp(
+            spec: SimuleringSpec,
+            foedselsdato: LocalDate?
+        ): LivsvarigOffentligAfpResult? =
+            spec.livsvarigOffentligAfp?.innvilgetAfp?.let {
+                livsvarigOffentligAfpResult(innvilgetAfp = it, pid = spec.pid, foedselsdato)
+            }
+
+        private fun livsvarigOffentligAfpResult(
+            innvilgetAfp: InnvilgetLivsvarigOffentligAfpSpec,
+            pid: Pid?,
+            foedselsdato: LocalDate?
+        ) =
+            LivsvarigOffentligAfpResult(
+                pid = pid?.value ?: "",
+                afpYtelseListe = listOf(
+                    LivsvarigOffentligAfpYtelseMedDelingstall(
+                        pensjonBeholdning = 0, // not used
+                        afpYtelsePerAar = innvilgetAfp.aarligBruttoBeloep,
+                        delingstall = 0.0, // not used
+                        gjelderFom = innvilgetAfp.uttakFom,
+                        gjelderFomAlder = foedselsdato?.let {
+                            Alder.from(foedselsdato = it, dato = innvilgetAfp.uttakFom)
+                        } ?: Alder(aar = 0, maaneder = 0) // cannot deduce alder without fødselsdato
+                    ))
+            )
+    }
 }

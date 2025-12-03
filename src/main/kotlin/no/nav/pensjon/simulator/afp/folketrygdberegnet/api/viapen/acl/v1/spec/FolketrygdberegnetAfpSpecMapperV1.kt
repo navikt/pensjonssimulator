@@ -49,7 +49,7 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             inntektOver1GAntallAar = 0, // used for anonym only
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
-            rettTilOffentligAfpFom = null, // not relevant in this context
+            livsvarigOffentligAfp = null, // not relevant in this context
             pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,

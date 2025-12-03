@@ -7,5 +7,5 @@ import org.springframework.security.core.context.SecurityContextHolder
 object EgressAccess {
 
     fun token(service: EgressService): RawJwt =
-        SecurityContextHolder.getContext().authentication.enriched().getEgressAccessToken(service)
+        SecurityContextHolder.getContext().authentication!!.enriched().getEgressAccessToken(service)
 }

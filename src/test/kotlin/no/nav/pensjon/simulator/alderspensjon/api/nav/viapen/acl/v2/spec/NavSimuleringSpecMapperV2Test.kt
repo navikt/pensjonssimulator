@@ -114,7 +114,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     inntektOver1GAntallAar = 0, // kun for anonym simulering
                     flyktning = false,
                     epsHarInntektOver2G = true,
-                    rettTilOffentligAfpFom = null,
+                    livsvarigOffentligAfp = null,
                     pre2025OffentligAfp = null,
                     erAnonym = false,
                     ignoreAvslag = false,

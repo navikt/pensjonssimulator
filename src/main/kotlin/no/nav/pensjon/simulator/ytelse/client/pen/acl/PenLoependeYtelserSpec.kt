@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.ytelse.client.pen.acl
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import java.time.LocalDate
 
 /**
@@ -8,7 +9,7 @@ import java.time.LocalDate
  */
 data class PenLoependeYtelserSpec(
     val pid: String?,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val foersteUttakDato: LocalDate,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foersteUttakDato: LocalDate,
     val avdoed: PenAvdoedYtelserSpec?,
     val alderspensjonFlags: PenAlderspensjonYtelserFlags?,
     val endringAlderspensjonFlags: PenEndringAlderspensjonYtelserFlags?,
@@ -20,7 +21,7 @@ data class PenLoependeYtelserSpec(
  */
 data class PenAvdoedYtelserSpec(
     val pid: String,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val doedDato: LocalDate?
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val doedDato: LocalDate?
 )
 
 /**

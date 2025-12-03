@@ -4,14 +4,11 @@ import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findLatestDateByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
@@ -23,6 +20,7 @@ import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.trygdetidSpec
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -133,17 +131,17 @@ class KnekkpunktFinder(
                 kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.SOKER, checkBruk = false)!!
 
             return trygdetidBeregner.fastsettTrygdetidForPeriode(
-                spec = trygdetidFastsetterInput(
-                    kravhode = kravhode,
-                    persongrunnlag = persongrunnlag,
+                spec = trygdetidSpec(
+                    kravhode,
+                    persongrunnlag,
                     knekkpunktDato = foersteBeregningDato,
-                    soekerFoersteVirkning = foersteVirkning,
+                    soekerFoersteVirkningFom = foersteVirkning,
                     ytelseType = KravlinjeTypeEnum.AP,
                     boddEllerArbeidetUtenlands = kravhode.boddEllerArbeidetIUtlandet
                 ),
                 rolle = GrunnlagsrolleEnum.SOKER,
                 kravIsUforetrygd = persongrunnlag.gjelderUforetrygd,
-                sakId = sakId
+                sakId
             )
         }
 
@@ -151,17 +149,17 @@ class KnekkpunktFinder(
             kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)!!
 
         return trygdetidBeregner.fastsettTrygdetidForPeriode(
-            spec = trygdetidFastsetterInput(
-                kravhode = kravhode,
-                persongrunnlag = persongrunnlag,
+            spec = trygdetidSpec(
+                kravhode,
+                persongrunnlag,
                 knekkpunktDato = foersteBeregningDato,
-                soekerFoersteVirkning = foersteVirkning,
+                soekerFoersteVirkningFom = foersteVirkning,
                 ytelseType = KravlinjeTypeEnum.GJR,
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             ),
             rolle = GrunnlagsrolleEnum.AVDOD,
             kravIsUforetrygd = persongrunnlag.gjelderUforetrygd,
-            sakId = sakId
+            sakId
         )
     }
 
@@ -185,7 +183,7 @@ class KnekkpunktFinder(
             if (gjelderSoeker)
                 yearUserTurnsGivenAge(persongrunnlag.fodselsdato!!, MAX_RELEVANTE_TRYGDETID_ALDER)
             else
-                getYear(getRelativeDateByYear(persongrunnlag.dodsdato!!, ANTALL_RELEVANTE_AAR_ETTER_DOED))
+                persongrunnlag.dodsdato!!.toNorwegianLocalDate().plusYears( ANTALL_RELEVANTE_AAR_ETTER_DOED.toLong()).year
 
         addKnekkpunkt(knekkpunktMap, foersteBeregningDato, aarsak)
         val forrigeTrygdetid = fastsettTrygdetid(aarsak, kravhode, foersteBeregningDato, foersteVirkning, sakId)
@@ -194,20 +192,23 @@ class KnekkpunktFinder(
 
         for (kalenderAar in foersteBeregningDato.year + 1..sisteRelevanteAar) {
             val virkDato = LocalDate.of(kalenderAar, 1, 1)
-            val trygdetidInput = trygdetidFastsetterInput(
+
+            val trygdetidSpec: TrygdetidRequest = trygdetidSpec(
                 kravhode,
                 persongrunnlag,
-                virkDato,
-                foersteVirkning,
-                kravlinjeType,
+                knekkpunktDato = virkDato,
+                soekerFoersteVirkningFom = foersteVirkning,
+                ytelseType = kravlinjeType,
                 boddEllerArbeidetUtenlands
             )
-            val trygdetid = trygdetidBeregner.fastsettTrygdetidForPeriode(
-                trygdetidInput,
-                grunnlagRolle,
-                persongrunnlag.gjelderUforetrygd,
+
+            val trygdetid: TrygdetidCombo = trygdetidBeregner.fastsettTrygdetidForPeriode(
+                spec = trygdetidSpec,
+                rolle = grunnlagRolle,
+                kravIsUforetrygd = persongrunnlag.gjelderUforetrygd,
                 sakId
             )
+
             val trygdetidKap19 = trygdetid.kapittel19
             val trygdetidKap20 = trygdetid.kapittel20
 
@@ -319,7 +320,7 @@ class KnekkpunktFinder(
         ): SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> {
             var latestRelevantKnekkpunkt: LocalDate = normalderDato
 
-            // If there is a UTG knekkpunkt later than 67m, then use that as latest relevant knekkpunkt date
+            // Uttaksgrad-knekkpunkt etter normalder brukes som siste relevante knekkpunkt:
             for ((key, value) in knekkpunkter) {
                 if (value.contains(KnekkpunktAarsak.UTG)) {
                     if (isAfterByDay(key, latestRelevantKnekkpunkt, false)) {
@@ -328,9 +329,8 @@ class KnekkpunktFinder(
                 }
             }
 
-            // Strip all knekkpunkter later than last relevant knekkpunkt date:
-            // return knekkpunkter.headMap(getRelativeDateByDays(latestRelevantKnekkpunkt, 1).toLocalDate())
-            return knekkpunkter.headMap(getRelativeDateByDays(latestRelevantKnekkpunkt, 1))
+            // Fjern alle knekkpunkter etter siste relevante knekkpunkt:
+            return knekkpunkter.headMap(latestRelevantKnekkpunkt.plusDays(1))
         }
 
         private fun forsteBeregningsdato(spec: SimuleringSpec) =
@@ -352,25 +352,5 @@ class KnekkpunktFinder(
          */
         private fun erFull(trygdetid: Trygdetid?) =
             trygdetid?.let { it.tt == FULL_TRYGDETID_ANTALL_AAR } != false
-
-        private fun trygdetidFastsetterInput(
-            kravhode: Kravhode,
-            persongrunnlag: Persongrunnlag,
-            knekkpunktDato: LocalDate,
-            soekerFoersteVirkning: LocalDate?, // NB: nullable at least for avdød
-            ytelseType: KravlinjeTypeEnum,
-            boddEllerArbeidetUtenlands: Boolean
-        ) =
-            TrygdetidRequest().apply {
-                this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-                this.brukerForsteVirk = soekerFoersteVirkning?.toNorwegianDateAtNoon()
-                this.hovedKravlinjeType = ytelseType
-                this.persongrunnlag = persongrunnlag
-                this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
-                this.regelverkTypeEnum = kravhode.regelverkTypeEnum
-                this.uttaksgradListe = kravhode.uttaksgradListe
-                // Not set: virkTom, beregningsvilkarPeriodeListe
-                // NB: grunnlagsrolle is only used for caching
-            }
     }
 }

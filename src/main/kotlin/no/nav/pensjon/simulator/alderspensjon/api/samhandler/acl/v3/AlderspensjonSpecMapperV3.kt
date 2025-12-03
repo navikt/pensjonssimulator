@@ -50,7 +50,7 @@ class AlderspensjonSpecMapperV3(
             brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = null,
-            rettTilOffentligAfpFom = null, // not supported in V3
+            livsvarigOffentligAfp = null, // not supported in V3
             pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,

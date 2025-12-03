@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.vedtak.client.pen.acl
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import java.time.LocalDate
 
@@ -14,5 +15,5 @@ data class PenVedtakSpecV1(
  */
 data class PenVedtakStatusSpec(
     val pid: String,
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "CET") val uttakFom: LocalDate?
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uttakFom: LocalDate?
 )

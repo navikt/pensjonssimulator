@@ -174,7 +174,7 @@ object PenKravhodeMapper {
             forstegangstjenestegrunnlag = source.forstegangstjenestegrunnlag
             pensjonsbeholdning = source.pensjonsbeholdning?.let(::pensjonsbeholdning)
             uforegrunnlag = source.uforegrunnlag
-            uforegrunnlagList = source.uforegrunnlagList
+            uforegrunnlagList = source.uforegrunnlagList ?: mutableListOf()
             instOpphReduksjonsperiodeListe = source.instOpphReduksjonsperiodeListe
             instOpphFasteUtgifterperiodeListe = source.instOpphFasteUtgifterperiodeListe
             dagpengegrunnlagListe = source.dagpengegrunnlagListe
@@ -185,11 +185,11 @@ object PenKravhodeMapper {
             afpTpoUpGrunnlag = source.afpTpoUpGrunnlag
             normertPensjonsalderGrunnlag = source.normertPensjonsalderGrunnlag
             yrkesskadegrunnlag = source.yrkesskadegrunnlag
-            yrkesskadegrunnlagList = source.yrkesskadegrunnlagList
-            barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder
-            beholdninger = source.flatBeholdninger.map(::pensjonsbeholdning).toMutableList()
-            livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe
-            trygdetider = source.trygdetider
+            yrkesskadegrunnlagList = source.yrkesskadegrunnlagList ?: mutableListOf()
+            barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder ?: mutableListOf()
+            beholdninger = source.flatBeholdninger.orEmpty().map(::pensjonsbeholdning).toMutableList()
+            livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe ?: mutableListOf()
+            trygdetider = source.trygdetider ?: mutableListOf()
             gjelderOmsorg = source.gjelderOmsorg
             gjelderUforetrygd = source.gjelderUforetrygd
         }.also {

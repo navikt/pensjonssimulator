@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator
 
 import io.prometheus.client.hotspot.DefaultExports
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration
 import org.springframework.boot.runApplication
 
 @SpringBootApplication(exclude = [UserDetailsServiceAutoConfiguration::class])

@@ -8,28 +8,40 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller
 import org.springframework.stereotype.Component
 import org.springframework.ws.WebServiceMessage
 import org.springframework.ws.client.core.FaultMessageResolver
+import org.springframework.ws.soap.SoapFault
 import org.springframework.ws.soap.SoapMessage
+import javax.xml.transform.Source
 
 @Component
 class SoapFaultHandler(private val jaxb2Marshaller: Jaxb2Marshaller) : FaultMessageResolver {
     private val log = KotlinLogging.logger {}
 
     override fun resolveFault(message: WebServiceMessage) =
-            throw (message as SoapMessage).soapBody.fault.run {
-                try {
-                    faultDetail.detailEntries.next().source.let {
-                        @Suppress("UNCHECKED_CAST")
-                        jaxb2Marshaller.unmarshal(it) as JAXBElement<SoapFaultElement>
-                    }.run {
-                        SoapFaultException(value::class.qualifiedName!!, value.errorMessage).also {
-                            log.warn { "Resolved known fault from SoapFaultDetail: $it" }
-                        }
-                    }
-                } catch (ex: Exception) {
-                    SoapFaultException(faultCode.toString(), faultStringOrReason).also {
-                        log.warn(ex) { "Could not resolve known error from SoapFaultDetail. Resolved from SoapFault: $it" }
-                    }
-                }
+        throw (message as SoapMessage).soapBody.fault?.let(::faultException)
+            ?: SoapFaultException("WebServiceMessage", message.toString())
+
+    private fun faultException(fault: SoapFault): SoapFaultException? =
+        try {
+            fault.faultDetail?.detailEntries?.next()?.source?.let {
+                faultException(faultElement(source = it).value)
+            }
+        } catch (e: Exception) {
+            faultException(fault, e)
+        }
+
+    private fun faultException(faultElement: SoapFaultElement) =
+        SoapFaultException(faultElement::class.qualifiedName ?: "", faultElement.errorMessage)
+            .also {
+                log.warn { "Resolved known fault from SoapFaultDetail: $it" }
             }
 
+    private fun faultException(fault: SoapFault, e: Exception) =
+        SoapFaultException(fault.faultCode.toString(), fault.faultStringOrReason ?: "")
+            .also {
+                log.warn(e) { "Could not resolve known error from SoapFaultDetail. Resolved from SoapFault: $it" }
+            }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun faultElement(source: Source) =
+        jaxb2Marshaller.unmarshal(source) as JAXBElement<SoapFaultElement>
 }

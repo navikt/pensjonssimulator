@@ -60,7 +60,7 @@ class AlderspensjonOgPrivatAfpSpecMapperV3Test : FunSpec({
             inntektOver1GAntallAar = 0,
             flyktning = null,
             epsHarInntektOver2G = false,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,

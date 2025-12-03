@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.PEN249KunTilltatMedEnTpiVerdiException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025SpecBeregningService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
@@ -104,6 +105,9 @@ class TjenestepensjonPre2025Controller(
         }
         catch (e: PEN249KunTilltatMedEnTpiVerdiException) {
             log.error(e) { "Er ikke tillat med mer enn en TPI verdi" };
+            return ResponseEntity.internalServerError().body(e.message);
+        }
+        catch (e: EgressException) {
             return ResponseEntity.internalServerError().body(e.message);
         }
         catch (e: RuntimeException) {

@@ -1,23 +1,23 @@
-package no.nav.pensjon.simulator.tech.security.ingress
+package no.nav.pensjon.simulator.tech.security.ingress.jwt
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.security.oauth2.jwt.Jwt
 
-class TokenAudienceValidatorTest : FunSpec({
+class JwtAudienceValidatorTest : FunSpec({
 
     test("validate has no errors when audience is valid") {
-        val validatorResult = TokenAudienceValidator(audience = "audience1").validate(jwt(audience = "audience1"))
+        val validatorResult = JwtAudienceValidator(audience = "audience1").validate(jwt(audience = "audience1"))
         validatorResult.hasErrors() shouldBe false
     }
 
     test("validate has errors when audience is invalid") {
-        val validatorResult = TokenAudienceValidator(audience = "audience1").validate(jwt(audience = "bad"))
+        val validatorResult = JwtAudienceValidator(audience = "audience1").validate(jwt(audience = "bad"))
         validatorResult.hasErrors() shouldBe true
     }
 
     test("validate has errors when audience claim is missing") {
-        val validatorResult = TokenAudienceValidator(audience = "audience1").validate(jwt(claims = mapOf("x" to "y")))
+        val validatorResult = JwtAudienceValidator(audience = "audience1").validate(jwt(claims = mapOf("x" to "y")))
         validatorResult.hasErrors() shouldBe true
     }
 })

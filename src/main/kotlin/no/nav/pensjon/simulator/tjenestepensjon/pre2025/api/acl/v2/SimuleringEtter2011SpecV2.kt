@@ -111,7 +111,7 @@ data class SimuleringEtter2011SpecV2(
     var fremtidigInntektList: List<FremtidigInntektV2> = listOf(),
 
     @param:Schema(description = "Egenregistrerte TP-er (lagring/visning).")
-    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2> = listOf(),
+    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2>? = listOf(),
 
     @param:Schema(description = "Brukeroppgitt ansettelsessektor. Benyttes ikke ved simulering, kun ved lagring/henting. Eksempel: ANNET, OFFENTLIG, PRIVAT")
     var ansettelsessektor: AnsattTypeCodeV2? = null,

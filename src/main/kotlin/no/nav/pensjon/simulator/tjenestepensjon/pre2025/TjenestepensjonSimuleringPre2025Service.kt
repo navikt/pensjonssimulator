@@ -1,7 +1,11 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
+import com.nimbusds.jose.util.JSONObjectUtils
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOFTPErrorResponseV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.tpOrdningStoettesIkke
@@ -23,6 +27,7 @@ class TjenestepensjonSimuleringPre2025Service(
 
     fun simuler(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResultV1 {
         log.info { "Simulering av tjenestepensjon pre 2025: ${filterFnr(spec.toString())}" }
+        var spkMedlemskap: TpOrdningFullDto? = null
 
         try {
             val pid = spec.pid
@@ -38,7 +43,7 @@ class TjenestepensjonSimuleringPre2025Service(
                 return ikkeMedlem()
             }
 
-            val spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
+            spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
             if (spkMedlemskap == null) {
                 log.warn { "No supported TP-Ordning found" }
                 return tpOrdningStoettesIkke()
@@ -62,7 +67,22 @@ class TjenestepensjonSimuleringPre2025Service(
         } catch (e: BrukerKvalifisererIkkeTilTjenestepensjonException) {
             log.warn { "Bruker kvalifiserer ikke til tjenestepensjon. ${e.message}" }
             throw e
-        } catch (e: Throwable) {
+        } catch (e: EgressException) {
+            val errorCode = JSONObjectUtils.parse(e.message)["errorCode"]?.toString()
+            val errorMessage = JSONObjectUtils.parse(e.message)["message"]?.toString()
+            if (spkMedlemskap == null || errorCode == null || errorMessage == null) throw e
+
+            return SimulerOffentligTjenestepensjonResultV1(
+                tpnr = spkMedlemskap.tpNr,
+                navnOrdning = spkMedlemskap.navn,
+                errorResponse = SimulerOFTPErrorResponseV1(
+                    errorCode = Feilkode.fromExternalValue(errorCode, errorMessage),
+                    errorMessage = errorMessage
+                ),
+                utbetalingsperiodeListe = emptyList()
+            )
+        }
+        catch (e: Throwable) {
             log.error(e) { "Unable to simulate offentlig tjenestepensjon pre 2025: ${e.message}" }
             throw e
         }

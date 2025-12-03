@@ -6,8 +6,8 @@ import java.time.LocalDate
  * Inneholder pensjonsrelatart alder og den datoen som alderen representerer relativt til fødselsdato.
  * "Pensjonsrelatert" vil si at det er første dag i måneden som brukes.
  */
-// PEN: SimuleringSpecAlderDato
-data class PensjonAlderDato(
+@ConsistentCopyVisibility
+data class PensjonAlderDato private constructor(
     val alder: Alder,
     val dato: LocalDate
 ) {
@@ -21,14 +21,14 @@ data class PensjonAlderDato(
         /**
          * Pensjonsrelatert dato er første dag i måneden etter 'aldersbasert' dato.
          */
-        private fun datoVedAlder(foedselDato: LocalDate, alder: Alder): LocalDate =
-            foedselDato
+        private fun datoVedAlder(foedselsdato: LocalDate, alder: Alder): LocalDate =
+            foedselsdato
                 .plusYears(alder.aar.toLong())
                 .withDayOfMonth(1) // første dag i...
                 .plusMonths(alder.maaneder.toLong() + 1L) // ...måneden etter 'aldersbasert' dato
 
         // TODO compare this with SimuleringRequestConverter.convertDatoFomToAlder
-        private fun alderVedDato(foedselDato: LocalDate, dato: LocalDate): Alder =
-            Alder.from(foedselDato, dato)
+        private fun alderVedDato(foedselsdato: LocalDate, dato: LocalDate): Alder =
+            Alder.from(foedselsdato, dato)
     }
 }

@@ -32,6 +32,14 @@ object SimulerOffentligTjenestepensjonResultMapperV2 {
             }
         )
 
-        return SimulerOffentligTjenestepensjonResultV2(listOf(simulertPensjon))
+        return SimulerOffentligTjenestepensjonResultV2(
+            listOf(simulertPensjon),
+            feilrespons = resultV1.errorResponse?.let {
+                SimulerOFTPErrorResponseV2(
+                    errorCode = it.errorCode,
+                    errorMessage = it.errorMessage
+                )
+            }
+        )
     }
 }

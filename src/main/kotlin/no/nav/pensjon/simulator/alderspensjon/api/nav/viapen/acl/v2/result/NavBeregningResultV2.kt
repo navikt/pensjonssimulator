@@ -9,14 +9,11 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.ResultatKildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 import java.time.LocalDate
 
-/**
- * Corresponds to no.nav.pensjon.pen.domain.api.beregning.Beregning in PEN and PSELV
- */
 @JsonInclude(NON_NULL)
 data class NavBeregningResultV2 (
     val merknadliste: List<MerknadV2> = emptyList(),
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkDatoFom: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkDatoTom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkDatoFom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkDatoTom: LocalDate? = null,
     val brutto: Int? = 0,
     val netto: Int? = 0,
     val g: Int? = 0,

@@ -2,11 +2,13 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
 import com.nimbusds.jose.util.JSONObjectUtils
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOFTPErrorResponseV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.*
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.tpOrdningStoettesIkke
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
@@ -16,6 +18,7 @@ import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class TjenestepensjonSimuleringPre2025Service(
@@ -72,11 +75,37 @@ class TjenestepensjonSimuleringPre2025Service(
             val errorMessage = JSONObjectUtils.parse(e.message)["message"]?.toString()
             if (spkMedlemskap == null || errorCode == null || errorMessage == null) throw e
 
+            val feilkode = Feilkode.fromExternalValue(errorCode, errorMessage)
+
+            if (feilkode == Feilkode.BEREGNING_GIR_NULL_UTBETALING)
+                return SimulerOffentligTjenestepensjonResultV1(
+                    tpnr = spkMedlemskap.tpNr,
+                    navnOrdning = spkMedlemskap.navn,
+                    errorResponse = SimulerOFTPErrorResponseV1(
+                        errorCode = feilkode,
+                        errorMessage = errorMessage
+                    ),
+                    utbetalingsperiodeListe = listOf(UtbetalingsperiodeV1(
+                        datoFom = Alder.fromAlder(spec.foedselsdato, Alder(65,0)),
+                        datoTom = Alder.fromAlder(spec.foedselsdato, Alder(67,0)),
+                        uttaksgrad = 100,
+                        arligUtbetaling = 0.0,
+                        ytelsekode = YtelseCode.AFP
+                    ),
+                    UtbetalingsperiodeV1(
+                        datoFom = Alder.fromAlder(spec.foedselsdato, Alder(67,0)),
+                        datoTom = null,
+                        uttaksgrad = 100,
+                        arligUtbetaling = 0.0,
+                        ytelsekode = YtelseCode.AP
+                    )
+                ))
+
             return SimulerOffentligTjenestepensjonResultV1(
                 tpnr = spkMedlemskap.tpNr,
                 navnOrdning = spkMedlemskap.navn,
                 errorResponse = SimulerOFTPErrorResponseV1(
-                    errorCode = Feilkode.fromExternalValue(errorCode, errorMessage),
+                    errorCode = feilkode,
                     errorMessage = errorMessage
                 ),
                 utbetalingsperiodeListe = emptyList()

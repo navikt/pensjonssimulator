@@ -71,7 +71,9 @@ class NavAlderspensjonController(
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
 
-            toDto(result)
+            toDto(result).also {
+                log.debug { "$FUNCTION_ID response: $it" }
+            }
         } catch (e: FeilISimuleringsgrunnlagetException) {
             resultWithErrorInfo("simuleringsgrunnlaget", e, specV3)
         } catch (e: ImplementationUnrecoverableException) {

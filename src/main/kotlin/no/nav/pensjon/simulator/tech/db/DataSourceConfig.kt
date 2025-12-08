@@ -1,5 +1,5 @@
 package no.nav.pensjon.simulator.tech.db
-/*
+
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Value
@@ -15,7 +15,7 @@ open class DataSourceConfig {
     @Bean
     open fun dataSource(
         @Value("\${psdb.url}") dbUrl: String,
-        @Value("\${psdb.user}") dbUsername: String,
+        @Value("\${psdb.username}") dbUsername: String,
         @Value("\${psdb.password}") dbPassword: String
     ): DataSource =
         HikariDataSource(
@@ -28,4 +28,3 @@ open class DataSourceConfig {
             }
         )
 }
-*/

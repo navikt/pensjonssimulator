@@ -1,5 +1,5 @@
 package no.nav.pensjon.simulator.tech.db
-
+/*
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Value
@@ -28,3 +28,4 @@ open class DataSourceConfig {
             }
         )
 }
+*/

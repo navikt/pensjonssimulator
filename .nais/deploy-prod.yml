@@ -29,6 +29,22 @@ spec:
   readiness:
     path: /internal/health/readiness
     periodSeconds: 30
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_18
+        tier: db-custom-1-3840
+        collation: nb_NO.UTF8
+        diskAutoresize: false
+        diskSize: 10
+        highAvailability: true
+        pointInTimeRecovery: true
+        autoBackupHour: 1
+        maintenance:
+          day: 7
+          hour: 3
+        databases:
+          - name: psdb
+            envVarPrefix: PSDB
   prometheus:
     enabled: true
     path: /internal/prometheus

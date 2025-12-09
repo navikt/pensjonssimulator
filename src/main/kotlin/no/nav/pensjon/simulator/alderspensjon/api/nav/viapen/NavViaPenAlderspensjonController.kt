@@ -28,6 +28,7 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -50,7 +51,8 @@ class NavViaPenAlderspensjonController(
     private val specMapper: NavSimuleringSpecMapperV2,
     private val traceAid: TraceAid,
     private val jsonMapper: JsonMapper,
-) : ControllerBase(traceAid) {
+    statistikk: StatistikkService
+) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
     /**
@@ -89,6 +91,8 @@ class NavViaPenAlderspensjonController(
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
             )
             log.debug { "$AP_FUNCTION_ID simuleringSpec:${jsonMapper.writeValueAsString(spec)}" }
+
+            registrerHendelse(simuleringstype = spec.type)
             val output: SimulatorOutput = simulator.simuler(spec)
             log.debug { "$AP_FUNCTION_ID SimulatorOutput:${jsonMapper.writeValueAsString(output)}" }
 
@@ -190,6 +194,7 @@ class NavViaPenAlderspensjonController(
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
             )
 
+            registrerHendelse(simuleringstype = spec.type)
             val output: SimulatorOutput = simulator.simuler(spec)
 
             toApForTpResultV2(output).also {

@@ -2,9 +2,11 @@ package no.nav.pensjon.simulator
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.testconfig.TestConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(
@@ -14,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles
     ]
 )
 @ActiveProfiles("test")
+@Import(TestConfig::class)
 open class PensjonssimulatorApplicationTest : FunSpec() {
 
     @Autowired

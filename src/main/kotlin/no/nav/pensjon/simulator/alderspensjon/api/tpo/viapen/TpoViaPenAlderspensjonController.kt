@@ -15,6 +15,7 @@ import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -35,8 +36,9 @@ import java.time.format.DateTimeParseException
 class TpoViaPenAlderspensjonController(
     private val simulatorCore: SimulatorCore,
     private val specMapperV1: TpoSimuleringSpecMapperV1,
-    private val traceAid: TraceAid
-) : ControllerBase(traceAid) {
+    private val traceAid: TraceAid,
+    statistikk: StatistikkService
+) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-alderspensjon")
@@ -66,6 +68,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = specMapperV1.fromDto(specV1)
+            registrerHendelse(simuleringstype = spec.type)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV1.toDto(result)
         } catch (e: BadRequestException) {

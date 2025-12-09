@@ -78,11 +78,11 @@ class PenPersongrunnlag(
 
     var gjelderOmsorg: Boolean = false,
     var gjelderUforetrygd: Boolean = false,
-    var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> = mutableListOf(),
-    var beholdninger: MutableList<PenPensjonsbeholdning> = mutableListOf(), // not used; flatBeholdninger used instead
-    var flatBeholdninger: MutableList<PenPensjonsbeholdning> = mutableListOf(),
-    var livsvarigOffentligAfpGrunnlagListe: List<AfpOffentligLivsvarigGrunnlag> = emptyList(),
-    var trygdetider: MutableList<Trygdetid> = mutableListOf(),
-    var uforegrunnlagList: MutableList<Uforegrunnlag> = mutableListOf(),
-    var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf()
+    var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode>? = mutableListOf(),
+    var beholdninger: MutableList<PenPensjonsbeholdning>? = mutableListOf(), // not used; flatBeholdninger used instead
+    var flatBeholdninger: MutableList<PenPensjonsbeholdning>? = mutableListOf(),
+    var livsvarigOffentligAfpGrunnlagListe: List<AfpOffentligLivsvarigGrunnlag>? = emptyList(),
+    var trygdetider: MutableList<Trygdetid>? = mutableListOf(),
+    var uforegrunnlagList: MutableList<Uforegrunnlag>? = mutableListOf(),
+    var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag>? = mutableListOf()
 )

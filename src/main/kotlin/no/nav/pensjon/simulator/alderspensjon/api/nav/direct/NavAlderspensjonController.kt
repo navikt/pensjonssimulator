@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import tools.jackson.databind.json.JsonMapper
 
 @RestController
 @RequestMapping("api/nav")
@@ -32,7 +33,8 @@ import org.springframework.web.bind.annotation.RestController
 class NavAlderspensjonController(
     private val service: SimuleringFacade,
     private val specMapper: NavSimuleringSpecMapperV3,
-    private val traceAid: TraceAid
+    private val traceAid: TraceAid,
+    private val jsonMapper: JsonMapper,
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
 
@@ -67,7 +69,7 @@ class NavAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = specMapper.fromNavSimuleringSpecV3(specV3)
-
+            log.debug { "$FUNCTION_ID simuleringSpec:${jsonMapper.writeValueAsString(spec)}" }
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
 

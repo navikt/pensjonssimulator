@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import tools.jackson.databind.json.JsonMapper
 import java.time.format.DateTimeParseException
 
 @RestController
@@ -47,7 +48,8 @@ import java.time.format.DateTimeParseException
 class NavViaPenAlderspensjonController(
     private val simulator: SimulatorCore,
     private val specMapper: NavSimuleringSpecMapperV2,
-    private val traceAid: TraceAid
+    private val traceAid: TraceAid,
+    private val jsonMapper: JsonMapper,
 ) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
 
@@ -86,8 +88,9 @@ class NavViaPenAlderspensjonController(
                 isHentPensjonsbeholdninger = false,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
             )
-
+            log.debug { "$AP_FUNCTION_ID simuleringSpec:${jsonMapper.writeValueAsString(spec)}" }
             val output: SimulatorOutput = simulator.simuler(spec)
+            log.debug { "$AP_FUNCTION_ID SimulatorOutput:${jsonMapper.writeValueAsString(output)}" }
 
             NavSimuleringSpecAndResultV2(
                 simulering = specV2.apply {

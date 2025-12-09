@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles
 
 @SpringBootTest(
     properties = [
-        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+        "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
         "spring.flyway.enabled=false"
     ]
 )

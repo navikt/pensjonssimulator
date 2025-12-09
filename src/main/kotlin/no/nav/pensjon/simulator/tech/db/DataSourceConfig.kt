@@ -14,7 +14,7 @@ open class DataSourceConfig {
 
     @Bean
     open fun dataSource(
-        @Value("\${psdb.url}") dbUrl: String,
+        @Value("\${psdb.jdbc.url}") dbUrl: String,
         @Value("\${psdb.username}") dbUsername: String,
         @Value("\${psdb.password}") dbPassword: String
     ): DataSource =

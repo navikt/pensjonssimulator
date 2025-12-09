@@ -13,7 +13,7 @@ import java.sql.ResultSet
 import java.util.Map
 
 @Repository
-open class JdbcStatistikkRepository(val db: NamedParameterJdbcOperations) : StatistikkRepository {
+open class JdbcStatistikkRepository(private val db: NamedParameterJdbcOperations) : StatistikkRepository {
 
     private val log = KotlinLogging.logger { }
     private val rowMapper = SimuleringStatistikkRowMapper()

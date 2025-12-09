@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.PEN249KunTilltatMedEnTpiVerdiException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025SpecBeregningService
@@ -30,7 +31,8 @@ class TjenestepensjonPre2025Controller(
     private val service: TjenestepensjonSimuleringPre2025Service,
     private val beregningService: TjenestepensjonSimuleringPre2025SpecBeregningService,
     private val simulerOffentligTjenestepensjonMapperV2: SimulerOffentligTjenestepensjonMapperV2,
-) : ControllerBase(traceAid) {
+    statistikk: StatistikkService
+) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-oftp/pre-2025")
@@ -58,10 +60,11 @@ class TjenestepensjonPre2025Controller(
         traceAid.begin()
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
+
         try {
-            val res: SimulerOffentligTjenestepensjonResultV1 = service.simuler(fromDto(specV1))
-            log.debug { "$FUNCTION_ID response: $res" }
-            return ResponseEntity.ok(res)
+            val result: SimulerOffentligTjenestepensjonResultV1 = service.simuler(fromDto(specV1))
+            log.debug { "$FUNCTION_ID response: $result" }
+            return ResponseEntity.ok(result)
         } finally {
             traceAid.end()
         }
@@ -92,14 +95,18 @@ class TjenestepensjonPre2025Controller(
         traceAid.begin()
         log.debug { "$FUNCTION_ID_V2 request: $specV2" }
         countCall(FUNCTION_ID_V2)
+
         try {
+            val simuleringSpec = simulerOffentligTjenestepensjonMapperV2.fromDto(specV2)
+            registrerHendelse(simuleringstype = simuleringSpec.type)
+
             val spec = beregningService.kompletterMedAlderspensjonsberegning(
-                simulerOffentligTjenestepensjonMapperV2.fromDto(specV2),
-                simulerOffentligTjenestepensjonMapperV2.stillingsprosentFromDto(specV2)
+                simuleringSpec,
+                stillingsprosentSpec = simulerOffentligTjenestepensjonMapperV2.stillingsprosentFromDto(specV2)
             )
+
             val result = toDto(service.simuler(spec))
             log.debug { "$FUNCTION_ID_V2 response: $result" }
-
             return result.let { ResponseEntity.ok(it) }
         }
         catch (e: PEN249KunTilltatMedEnTpiVerdiException) {
@@ -114,7 +121,6 @@ class TjenestepensjonPre2025Controller(
             traceAid.end()
         }
     }
-
 
     override fun errorMessage() = ERROR_MESSAGE
 

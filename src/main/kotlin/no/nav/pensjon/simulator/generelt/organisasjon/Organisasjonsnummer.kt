@@ -15,6 +15,7 @@ value class Organisasjonsnummer(val value: String) {
     override fun toString(): String = value
 
     companion object {
+        val nav = Organisasjonsnummer("889640782")
         private const val REQUIRED_LENGTH = 9
     }
 }

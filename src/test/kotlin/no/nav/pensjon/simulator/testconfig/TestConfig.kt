@@ -12,5 +12,3 @@ open class TestConfig {
     open fun namedParameterJdbcOperations(): NamedParameterJdbcOperations =
         mockk()
 }
-
-

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 class StatistikkService(private val repository: StatistikkRepository) {
 
     fun registrer(hendelse: SimuleringHendelse) {
-        repository.update(hendelse)
+        //repository.update(hendelse)
     }
 
     fun hent(): List<SimuleringStatistikk> =

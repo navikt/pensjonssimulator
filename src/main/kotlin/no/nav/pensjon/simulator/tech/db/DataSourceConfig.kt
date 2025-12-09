@@ -14,9 +14,9 @@ open class DataSourceConfig {
 
     @Bean
     open fun dataSource(
-        @Value("\${spring.flyway.url}") dbUrl: String,
-        @Value("\${spring.flyway.user}") dbUsername: String,
-        @Value("\${spring.flyway.password}") dbPassword: String
+        @Value("\${psdb.jdbc.url}") dbUrl: String,
+        @Value("\${psdb.username}") dbUsername: String,
+        @Value("\${psdb.password}") dbPassword: String
     ): DataSource =
         HikariDataSource(
             HikariConfig().apply {

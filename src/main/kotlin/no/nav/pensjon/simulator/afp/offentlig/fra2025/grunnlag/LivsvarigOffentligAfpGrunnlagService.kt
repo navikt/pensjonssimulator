@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.util.isBeforeOrOn
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import org.springframework.stereotype.Service
@@ -11,15 +12,23 @@ import java.time.LocalDate
 class LivsvarigOffentligAfpGrunnlagService(private val grunnbeloepService: GrunnbeloepService) {
 
     fun livsvarigOffentligAfpGrunnlag(
-        afpResult: LivsvarigOffentligAfpResult,
+        innvilgetAfpSpec: InnvilgetLivsvarigOffentligAfpSpec?,
+        simulertAfpYtelseListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>,
         kravhode: Kravhode,
         maxGjelderFom: LocalDate
     ): AfpOffentligLivsvarigGrunnlag? =
-        afpResult.afpYtelseListe
+        innvilgetAfpSpec?.let(::grunnlag)
+            ?: simulertGrunnlag(simulertAfpYtelseListe, maxGjelderFom)
+            ?: kravhode.gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag()
+
+    private fun simulertGrunnlag(
+        ytelseListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>,
+        maxGjelderFom: LocalDate
+    ): AfpOffentligLivsvarigGrunnlag? =
+        ytelseListe
             .filter { it.gjelderFom.isBeforeOrOn(maxGjelderFom) }
             .maxByOrNull { it.gjelderFom }
             ?.let(::grunnlag)
-            ?: kravhode.gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag()
 
     private fun grunnlag(ytelse: LivsvarigOffentligAfpYtelseMedDelingstall) =
         AfpOffentligLivsvarigGrunnlag(
@@ -27,5 +36,12 @@ class LivsvarigOffentligAfpGrunnlagService(private val grunnbeloepService: Grunn
             bruttoPerAr = ytelse.afpYtelsePerAar,
             uttaksdato = ytelse.gjelderFom
             // virkTom only relevant for innvilget AFP
+        )
+
+    private fun grunnlag(ytelse: InnvilgetLivsvarigOffentligAfpSpec) =
+        AfpOffentligLivsvarigGrunnlag(
+            sistRegulertG = ytelse.sistRegulertGrunnbeloep ?: grunnbeloepService.naavaerendeGrunnbeloep(),
+            bruttoPerAr = ytelse.aarligBruttoBeloep,
+            uttaksdato = ytelse.uttakFom
         )
 }

@@ -40,6 +40,8 @@ import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
 
@@ -488,9 +490,12 @@ class SimuleringResultPreparer(
                         // Andelen som kommer fra PREG er et heltall, for eksempel 5 betyr 50 %
                         // andelKapittel19. Må dele denne på 10 slik at man får desimaltall siden det forventes desimaltall i resten av
                         // løsning. Både andelDagens og andelNytt skal være mindre enn 1 for AP2016.
-                        val kapittel19Andel = beregningResultat2016?.andelKapittel19?.let { it / 10.0 } ?: 0.0
-                        this.kapittel19Andel = kapittel19Andel
-                        this.kapittel20Andel = 1.0 - kapittel19Andel
+                        val andelKapittel19 = beregningResultat2016?.andelKapittel19 ?: 0
+                        val kapittel19Andel = BigDecimal(andelKapittel19).divide(BigDecimal.TEN)
+                        val kapittel20Andel = BigDecimal.ONE.subtract(kapittel19Andel).setScale(1, RoundingMode.HALF_UP)
+
+                        this.kapittel19Andel = kapittel19Andel.toDouble()
+                        this.kapittel20Andel = kapittel20Andel.toDouble()
                     }
                 }
             }

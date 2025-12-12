@@ -4,11 +4,14 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -24,7 +27,8 @@ import java.util.*
 @Component
 class NavSimuleringSpecMapperV3(
     private val personService: GeneralPersonService,
-    private val inntektService: InntektService
+    private val inntektService: InntektService,
+    private val grunnbeloepService: GrunnbeloepService
 ) {
     fun fromNavSimuleringSpecV3(source: NavSimuleringSpecV3): SimuleringSpec {
         val pid = Pid(source.pid)
@@ -62,7 +66,7 @@ class NavSimuleringSpecMapperV3(
             // Inntekt angis før/etter gradert/helt uttak istedenfor via liste:
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = source.innvilgetLivsvarigOffentligAfp?.let(::livsvarigOffentligAfp),
 
             // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
             pre2025OffentligAfp = pre2025OffentligAfpSpec(
@@ -126,6 +130,15 @@ class NavSimuleringSpecMapperV3(
             antallArInntektEtterHeltUttak = inntektTomAlderSpec.aar - uttakFomAlderSpec.aar + 1 // +1, siden fra/til OG MED
         )
     }
+
+    private fun livsvarigOffentligAfp(source: NavSimuleringInnvilgetLivsvarigOffentligAfpSpec) =
+        LivsvarigOffentligAfpSpec(
+            innvilgetAfp = InnvilgetLivsvarigOffentligAfpSpec(
+                aarligBruttoBeloep = source.aarligBruttoBeloep,
+                uttakFom = source.uttakFom,
+                sistRegulertGrunnbeloep = source.sistRegulertGrunnbeloep ?: grunnbeloepService.naavaerendeGrunnbeloep()
+            )
+        )
 
     private fun pre2025OffentligAfpSpec(
         simuleringSpec: NavSimuleringSpecV3,

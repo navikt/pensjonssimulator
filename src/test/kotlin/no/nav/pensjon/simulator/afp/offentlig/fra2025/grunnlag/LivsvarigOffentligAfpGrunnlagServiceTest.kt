@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -10,21 +10,19 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.g.GrunnbeloepService
-import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class LivsvarigOffentligAfpGrunnlagServiceTest : FunSpec({
+class LivsvarigOffentligAfpGrunnlagServiceTest : ShouldSpec({
 
-    test("livsvarigOffentligAfpGrunnlag should fetch grunnbeløp when sistRegulertG undefined") {
+    should("bruke nåværende grunnbeløp når 'sist regulert G' er udefinert") {
         LivsvarigOffentligAfpGrunnlagService(grunnbeloepService = arrangeGrunnbeloep()).livsvarigOffentligAfpGrunnlag(
-            afpResult = LivsvarigOffentligAfpResult(
-                pid = pid.value,
-                afpYtelseListe = listOf(
-                    ytelse(afpYtelsePerAar = 12.3, gjelderFom = LocalDate.of(2025, 1, 1)), // before
-                    ytelse(afpYtelsePerAar = 23.4, gjelderFom = LocalDate.of(2025, 2, 1)), // on => max gjelderFom
-                    ytelse(afpYtelsePerAar = 34.5, gjelderFom = LocalDate.of(2025, 3, 1))  // after
-                )
+            innvilgetAfpSpec = null,
+            simulertAfpYtelseListe = listOf(
+                ytelse(afpYtelsePerAar = 12.3, gjelderFom = LocalDate.of(2025, 1, 1)), // before
+                ytelse(afpYtelsePerAar = 23.4, gjelderFom = LocalDate.of(2025, 2, 1)), // on => max gjelderFom
+                ytelse(afpYtelsePerAar = 34.5, gjelderFom = LocalDate.of(2025, 3, 1))  // after
             ),
             kravhode = Kravhode(),
             maxGjelderFom = LocalDate.of(2025, 2, 1)
@@ -37,14 +35,12 @@ class LivsvarigOffentligAfpGrunnlagServiceTest : FunSpec({
     }
 
     /**
-     * Når ingen ytelser i AFP-beregningsresultatet skal grunnlaget baseres på innvilget AFP (fra persongrunnlaget).
+     * Når ingen ytelser i AFP-beregningsresultatet skal grunnlaget baseres på saksbehandlet AFP (fra persongrunnlaget).
      */
-    test("livsvarigOffentligAfpGrunnlag should use innvilget AFP when no ytelse in AFP-result") {
+    should("bruke saksbehandlet AFP når både spesifisert innvilget AFP og simulert AFP mangler") {
         LivsvarigOffentligAfpGrunnlagService(grunnbeloepService = arrangeGrunnbeloep()).livsvarigOffentligAfpGrunnlag(
-            afpResult = LivsvarigOffentligAfpResult(
-                pid = pid.value,
-                afpYtelseListe = emptyList() // ingen ytelser => use gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag
-            ),
+            innvilgetAfpSpec = null,
+            simulertAfpYtelseListe = emptyList(), // ingen ytelser => use gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag
             kravhode = Kravhode().apply {
                 onsketVirkningsdato = LocalDate.of(2025, 2, 1)
                 persongrunnlagListe = mutableListOf(persongrunnlag())
@@ -55,6 +51,34 @@ class LivsvarigOffentligAfpGrunnlagServiceTest : FunSpec({
             bruttoPerAr = 2000.2, // ditto
             uttaksdato = LocalDate.of(2025, 1, 1), // ditto
             virkTom = LocalDate.of(2025, 12, 31) // ditto
+        )
+    }
+
+    /**
+     * Når simuleringsspesifikasjonen inneholder innvilget AFP, så skal denne brukes framfor både simulert AFP og saksbehandlet AFP.
+     */
+    should("foretrekke å bruke spesifisert innvilget AFP") {
+        LivsvarigOffentligAfpGrunnlagService(grunnbeloepService = arrangeGrunnbeloep()).livsvarigOffentligAfpGrunnlag(
+            // Denne innvilgede ytelsen skal ignoreres:
+            innvilgetAfpSpec = InnvilgetLivsvarigOffentligAfpSpec(
+                aarligBruttoBeloep = 1234.5,
+                uttakFom = LocalDate.of(2026, 1, 1),
+                sistRegulertGrunnbeloep = 130000
+            ),
+            simulertAfpYtelseListe = listOf(
+                // Denne simulerte ytelsen skal ignoreres:
+                ytelse(afpYtelsePerAar = 999.9, gjelderFom = LocalDate.of(2025, 2, 1)),
+            ),
+            kravhode = Kravhode().apply {
+                onsketVirkningsdato = LocalDate.of(2025, 6, 1)
+                persongrunnlagListe = mutableListOf(persongrunnlag()) // saksbehandlet AFP skal ignoreres
+            },
+            maxGjelderFom = LocalDate.of(2025, 2, 1)
+        ) shouldBe AfpOffentligLivsvarigGrunnlag(
+            sistRegulertG = 130000,
+            bruttoPerAr = 1234.5,
+            uttaksdato = LocalDate.of(2026, 1, 1),
+            virkTom = null
         )
     }
 })

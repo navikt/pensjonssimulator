@@ -59,7 +59,7 @@ class AlderspensjonOgPrivatAfpSpecMapperV3(
             brukFremtidigInntekt = true,
             inntektOver1GAntallAar = 0,
             flyktning = null,
-            rettTilOffentligAfpFom = null,
+            livsvarigOffentligAfp = null,
             pre2025OffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,

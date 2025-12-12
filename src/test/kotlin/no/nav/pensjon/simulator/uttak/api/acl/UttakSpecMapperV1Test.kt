@@ -1,19 +1,20 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
-class UttakSpecMapperV1Test : FunSpec({
+class UttakSpecMapperV1Test : ShouldSpec({
 
-    test("fromSpecV1 should map DTO to domain object representing simulering specification") {
+    should("map DTO to domain object representing simulering specification") {
         val personService = Arrange.foedselsdato(1964, 5, 6)
 
         UttakSpecMapperV1(personService).fromSpecV1(
@@ -60,7 +61,7 @@ class UttakSpecMapperV1Test : FunSpec({
             inntektOver1GAntallAar = 0,
             flyktning = false,
             epsHarInntektOver2G = false,
-            rettTilOffentligAfpFom = LocalDate.of(2027, 8, 1),
+            livsvarigOffentligAfp = LivsvarigOffentligAfpSpec(rettTilAfpFom = LocalDate.of(2027, 8, 1)),
             pre2025OffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,

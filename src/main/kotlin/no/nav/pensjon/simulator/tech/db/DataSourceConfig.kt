@@ -38,6 +38,7 @@ open class DataSourceConfig {
     open fun flyway(datasource: DataSource): Flyway {
         val config = ClassicConfiguration().apply {
             this.dataSource = datasource
+            this.defaultSchema = "pensjonssimulator"
             this.isCleanDisabled = false
             this.setLocations(Location.fromPath("classpath:", "db/migration"))
         }

@@ -1,33 +1,33 @@
-package no.nav.pensjon.simulator.tech.security.ingress
+package no.nav.pensjon.simulator.tech.security.ingress.scope
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.springframework.security.oauth2.jwt.Jwt
 
-class TokenScopeValidatorTest : FunSpec({
+class JwtScopeValidatorTest : FunSpec({
 
     test("validate has no errors when scope is valid") {
-        val validatorResult = TokenScopeValidator(scopes = listOf("scope1")).validate(jwt(scope = "scope1"))
+        val validatorResult = JwtScopeValidator(scopes = listOf("scope1")).validate(jwt(scope = "scope1"))
         validatorResult.hasErrors() shouldBe false
     }
 
     test("validate has no errors when scope 1 is valid") {
-        val validatorResult = TokenScopeValidator(scopes = listOf("scope1", "scope2")).validate(jwt(scope = "scope1"))
+        val validatorResult = JwtScopeValidator(scopes = listOf("scope1", "scope2")).validate(jwt(scope = "scope1"))
         validatorResult.hasErrors() shouldBe false
     }
 
     test("validate has no errors when scope 2 is valid") {
-        val validatorResult = TokenScopeValidator(scopes = listOf("scope1", "scope2")).validate(jwt(scope = "scope2"))
+        val validatorResult = JwtScopeValidator(scopes = listOf("scope1", "scope2")).validate(jwt(scope = "scope2"))
         validatorResult.hasErrors() shouldBe false
     }
 
     test("validate has errors when scope is invalid") {
-        val validatorResult = TokenScopeValidator(scopes = listOf("scope1")).validate(jwt(scope = "bad"))
+        val validatorResult = JwtScopeValidator(scopes = listOf("scope1")).validate(jwt(scope = "bad"))
         validatorResult.hasErrors() shouldBe true
     }
 
     test("validate has errors when scope claim is missing") {
-        val validatorResult = TokenScopeValidator(scopes = listOf("scope1")).validate(jwt(claims = mapOf("x" to "y")))
+        val validatorResult = JwtScopeValidator(scopes = listOf("scope1")).validate(jwt(claims = mapOf("x" to "y")))
         validatorResult.hasErrors() shouldBe true
     }
 })

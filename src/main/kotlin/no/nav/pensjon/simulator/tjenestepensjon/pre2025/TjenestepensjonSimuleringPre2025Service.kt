@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 import com.nimbusds.jose.util.JSONObjectUtils
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
@@ -18,13 +19,13 @@ import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 
 @Component
 class TjenestepensjonSimuleringPre2025Service(
     val tpregisteretClient: TpregisteretClient,
     val spkStillingsprosentService: SPKStillingsprosentService,
     val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025,
+    private val featureToggleService: FeatureToggleService
 ) {
     val log = KotlinLogging.logger { }
 
@@ -51,6 +52,12 @@ class TjenestepensjonSimuleringPre2025Service(
                 log.warn { "No supported TP-Ordning found" }
                 return tpOrdningStoettesIkke()
             }
+
+            if (featureToggleService.isEnabled("mock-offentligtp-foer-1963")) {
+                if (spec.pid.value == "19456138058") throw MOCK_SPK_EXCEPTION1
+                if (spec.pid.value == "13426143482") throw MOCK_SPK_EXCEPTION2
+            }
+
 
             val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid.value, spkMedlemskap)
 
@@ -120,5 +127,12 @@ class TjenestepensjonSimuleringPre2025Service(
     companion object {
         val FNR_REGEX = """[0-9]{11}""".toRegex()
         fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
+
+        val MOCK_SPK_EXCEPTION1 = EgressException(
+            """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}""",
+        )
+        val MOCK_SPK_EXCEPTION2 = EgressException(
+            """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
+        )
     }
 }

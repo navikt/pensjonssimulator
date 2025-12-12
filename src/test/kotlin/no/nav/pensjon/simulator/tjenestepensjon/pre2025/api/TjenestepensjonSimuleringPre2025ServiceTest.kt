@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.YtelseCode
@@ -25,11 +26,13 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     val tpClient = mockk<TpregisteretClient>()
     val stillingsprosentService = mockk<SPKStillingsprosentService>()
     val spkService = mockk<SPKTjenestepensjonServicePre2025>()
+    val featureToggleService = mockk<FeatureToggleService>()
 
     val service = TjenestepensjonSimuleringPre2025Service(
         tpregisteretClient = tpClient,
         spkStillingsprosentService = stillingsprosentService,
-        spkTjenestepensjonServicePre2025 = spkService
+        spkTjenestepensjonServicePre2025 = spkService,
+        featureToggleService = featureToggleService,
     )
 
     val spec = TjenestepensjonSimuleringPre2025Spec(

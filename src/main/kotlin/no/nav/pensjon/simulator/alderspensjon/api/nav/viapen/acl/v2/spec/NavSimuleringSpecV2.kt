@@ -51,13 +51,13 @@ data class NavSimuleringSpecV2(
     val avdodFlyktning: Boolean? = null,
     val simulerForTp: Boolean? = null,
     val tpOrigSimulering: Boolean = false,
-    val utenlandsperiodeForSimuleringList: List<NavSimuleringUtlandPeriodeV2> = listOf(),
+    val utenlandsperiodeForSimuleringList: List<NavSimuleringUtlandPeriodeV2>? = emptyList(),
     // Not used in PSELV but included to avoid failing on unknown properties:
     val ansettelsessektor: String? = null,
-    val brukerRegTPListe: List<NavSimuleringBrukerRegTjenestepensjonSpecDummyV2> = emptyList(),
+    val brukerRegTPListe: List<NavSimuleringBrukerRegTjenestepensjonSpecDummyV2>? = emptyList(),
     val stillingsprosentOffHeltUttak: String? = null,
     val stillingsprosentOffGradertUttak: String? = null,
-    val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2> = emptyList(),
+    val fremtidigInntektList: List<NavSimuleringFremtidigInntektSpecDummyV2>? = emptyList(),
     val changeStamp: NavSimuleringChangeStampSpecDummyV2? = null
 ) {
     /**

@@ -28,6 +28,13 @@ spec:
   readiness:
     path: /internal/health/readiness
     periodSeconds: 30
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_18
+        tier: db-f1-micro
+        databases:
+          - name: psdb-q1
+            envVarPrefix: PSDB
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -143,6 +150,9 @@ spec:
         - application: pensjon-selvbetjening-fss-gateway-q1
           namespace: pensjonselvbetjening
           cluster: dev-fss
+        - application: sporingslogg-q2 # only in q2
+          namespace: pensjonsamhandling
+          cluster: dev-fss
         - application: tp-q1
           namespace: pensjonsamhandling
           cluster: dev-fss
@@ -151,8 +161,9 @@ spec:
         - host: pensjon-pen-q1.dev-fss-pub.nais.io
         - host: pensjon-regler-q1.dev-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway-q1.dev-fss-pub.nais.io
-        - host: tp-api-q1.dev-fss-pub.nais.io
         - host: pensjonskalkulator-unleash-api.nav.cloud.nais.io
+        - host: sporingslogg-q2.dev-fss-pub.nais.io # only in q2
+        - host: tp-api-q1.dev-fss-pub.nais.io
         - host: api.test.spk.no
   env:
     - name: FSS_GATEWAY_SERVICE_ID
@@ -169,6 +180,10 @@ spec:
       value: https://pdl-api-q1.dev-fss-pub.nais.io
     - name: REGLER_URL
       value: https://pensjon-regler-q1.dev-fss-pub.nais.io
+    - name: SPORINGSLOGG_SERVICE_ID
+      value: dev-fss:pensjonsamhandling:sporingslogg-q2 # only in q2
+    - name: SPORINGSLOGG_URL
+      value: https://sporingslogg-q2.dev-fss-pub.nais.io # only in q2
     - name: TJENESTEPENSJON_SERVICE_ID
       value: dev-fss:pensjonsamhandling:tp-q1
     - name: TJENESTEPENSJON_URL

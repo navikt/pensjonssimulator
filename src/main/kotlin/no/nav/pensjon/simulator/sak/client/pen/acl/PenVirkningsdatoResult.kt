@@ -16,8 +16,8 @@ data class PenVirkningsdatoResult(
  * PEN: SpecialForsteVirkningsdatoGrunnlag
  */
 data class PenSpecialForsteVirkningsdatoGrunnlag(
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkningsdato: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val kravFremsattDato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkningsdato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val kravFremsattDato: LocalDate? = null,
     val bruker: PenSpecialPenPerson? = null,
     val annenPerson: PenSpecialPenPerson? = null,
     val kravlinjeType: String? = null // KravlinjeTypeEnum
@@ -28,9 +28,9 @@ data class PenSpecialForsteVirkningsdatoGrunnlag(
  */
 data class PenSpecialPenPerson(
     val penPersonId: Long = 0,
-    val pid: Pid? = null,
+    val pid: String? = null,
     val fnr: String? = null, // TODO: temporary
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fodselsdato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fodselsdato: LocalDate? = null,
     val afpHistorikkListe: MutableList<PenAfpHistorikk>? = null,
     val uforehistorikk: PenUfoerehistorikk? = null,
     val generellHistorikk: PenGenerellHistorikk? = null
@@ -41,8 +41,8 @@ data class PenSpecialPenPerson(
  */
 data class PenAfpHistorikk(
     val afpFpp: Double = 0.0, // Fremtidig pensjonspoeng
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkFom: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkTom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkFom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virkTom: LocalDate? = null,
     val afpPensjonsgrad: Int = 0,
     val afpOrdning: String? = null // AFPtypeEnum
 )
@@ -54,7 +54,7 @@ data class PenUfoerehistorikk(
     val uforeperiodeListe: List<PenUfoereperiode> = emptyList(),
     val garantigrad: Int = 0, // Uføregraden pensjonen er blitt fryst fra
     val garantigradYrke: Int = 0, // Yrkesskadegraden pensjonen er blitt fryst fra
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val sistMedlITrygden: LocalDate? = null // Dato for sist innmeldt i Folketrygden- for fremtidig trygdetid
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val sistMedlITrygden: LocalDate? = null // Dato for sist innmeldt i Folketrygden- for fremtidig trygdetid
 )
 
 /**
@@ -100,8 +100,8 @@ data class PenEosEkstra(
  */
 data class PenGarantiTrygdetid(
     var trygdetid_garanti: Int = 0,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fomDato: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val tomDato: LocalDate? = null
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fomDato: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val tomDato: LocalDate? = null
 )
 
 /**
@@ -153,17 +153,17 @@ data class PenReguleringsInformasjon(
  */
 data class PenUfoereperiode(
     val ufg: Int = 0,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uft: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uft: LocalDate? = null,
     val uforeType: String? = null,
     val fppGaranti: Double = 0.0,
     val fppGarantiKode: String? = null,
     val redusertAntFppAr: Int = 0,
     val redusertAntFppAr_proRata: Int = 0,
     val proRataBeregningType: String? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virk: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uftTom: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val ufgFom: LocalDate? = null,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val ufgTom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val virk: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val uftTom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val ufgFom: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val ufgTom: LocalDate? = null,
     val fodselsArYngsteBarn: Int = 0,
     val spt: Double = 0.0,
     val spt_proRata: Double = 0.0,
@@ -184,7 +184,7 @@ data class PenUfoereperiode(
     val spt_pa_e91_eos: Int = 0,
     val spt_pa_f92_eos: Int = 0,
     val beregningsgrunnlag: Int = 0,
-    @JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val angittUforetidspunkt: LocalDate? = null,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val angittUforetidspunkt: LocalDate? = null,
     val antattInntektFaktorKap19: Double = 0.0,
     val antattInntektFaktorKap20: Double = 0.0
 )

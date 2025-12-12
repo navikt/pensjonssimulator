@@ -14,34 +14,32 @@ import org.springframework.ws.transport.http.HttpUrlConnectionMessageSender
 
 @Configuration
 open class SoapClientConfig(
-    @param:Value("\${stillingsprosent.url}") val baseUrl: String,
+    @param:Value("\${stillingsprosent.url}") val baseUrl: String
 ) {
 
     @Bean
     open fun jaxb2Marshaller() = Jaxb2Marshaller().apply {
         setClassesToBeBound(
-                XMLHentStillingsprosentListeRequestWrapper::class.java,
-                XMLHentStillingsprosentListeResponseWrapper::class.java,
-                XMLStillingsprosent::class.java)
+            XMLHentStillingsprosentListeRequestWrapper::class.java,
+            XMLHentStillingsprosentListeResponseWrapper::class.java,
+            XMLStillingsprosent::class.java
+        )
     }
 
     @Bean
     open fun webServiceTemplate(jaxb2Marshaller: Jaxb2Marshaller) =
         WebServiceTemplate().apply {
-            defaultUri = "$baseUrl$PATH"
+            setDefaultUri("$baseUrl$PATH")
             marshaller = jaxb2Marshaller
             unmarshaller = jaxb2Marshaller
-            faultMessageResolver = SoapFaultHandler(jaxb2Marshaller)
-            interceptors = arrayOf(
-                AuthAttachingHttpRequestInterceptor(),
-            )
+            setFaultMessageResolver(SoapFaultHandler(jaxb2Marshaller))
+            setInterceptors(arrayOf(AuthAttachingHttpRequestInterceptor()))
             setMessageSender(HttpUrlConnectionMessageSender())
             setCheckConnectionForFault(true)
             setCheckConnectionForError(true)
         }
 
     companion object {
-        const val ENCODING = "UTF-8"
         const val PATH = "/ekstern-pensjon-tjeneste-tjenestepensjonSimuleringWeb/sca/TjenestepensjonSimuleringWSEXP"
     }
 }

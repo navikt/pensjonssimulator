@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.core.spec
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -38,7 +37,7 @@ data class SimuleringSpec(
     val inntektOver1GAntallAar: Int,
     val flyktning: Boolean?,
     val epsHarInntektOver2G: Boolean,
-    val rettTilOffentligAfpFom: LocalDate?,
+    val livsvarigOffentligAfp: LivsvarigOffentligAfpSpec?, // for "ny" AFP i offentlig sektor
     val pre2025OffentligAfp: Pre2025OffentligAfpSpec?, // for "gammel" AFP i offentlig sektor
     val erAnonym: Boolean, // støtter uinnlogget kalkulator
     val ignoreAvslag: Boolean, // simulering fullføres selv med for lav opptjening/trygdetid
@@ -151,7 +150,7 @@ data class SimuleringSpec(
             inntektOver1GAntallAar = inntektOver1GAntallAar,
             flyktning = flyktning,
             epsHarInntektOver2G = epsHarInntektOver2G,
-            rettTilOffentligAfpFom = rettTilOffentligAfpFom,
+            livsvarigOffentligAfp = livsvarigOffentligAfp,
             pre2025OffentligAfp = pre2025OffentligAfp,
             erAnonym = erAnonym,
             ignoreAvslag = ignoreAvslag,
@@ -192,7 +191,7 @@ data class SimuleringSpec(
             inntektOver1GAntallAar = inntektOver1GAntallAar,
             flyktning = flyktning,
             epsHarInntektOver2G = epsHarInntektOver2G,
-            rettTilOffentligAfpFom = rettTilOffentligAfpFom,
+            livsvarigOffentligAfp = livsvarigOffentligAfp,
             pre2025OffentligAfp = pre2025OffentligAfp,
             erAnonym = erAnonym,
             ignoreAvslag = ignoreAvslag,
@@ -294,9 +293,3 @@ data class SimuleringSpec(
             grad != UttakGradKode.P_100
     }
 }
-
-data class Pre2025OffentligAfpSpec(
-    val afpOrdning: AFPtypeEnum, // Hvilken AFP-ordning bruker er tilknyttet
-    val inntektMaanedenFoerAfpUttakBeloep: Int, // Brukers inntekt måneden før uttak av AFP
-    val inntektUnderAfpUttakBeloep: Int
-)

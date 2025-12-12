@@ -85,7 +85,7 @@ object TestObjects {
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = true,
-        rettTilOffentligAfpFom = null,
+        livsvarigOffentligAfp = null,
         pre2025OffentligAfp = afpOrdning?.let {
             Pre2025OffentligAfpSpec(
                 afpOrdning = it,

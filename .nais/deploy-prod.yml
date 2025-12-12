@@ -29,6 +29,22 @@ spec:
   readiness:
     path: /internal/health/readiness
     periodSeconds: 30
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_18
+        tier: db-custom-1-3840
+        collation: nb_NO.UTF8
+        diskAutoresize: false
+        diskSize: 10
+        highAvailability: true
+        pointInTimeRecovery: true
+        autoBackupHour: 1
+        maintenance:
+          day: 7
+          hour: 3
+        databases:
+          - name: psdb
+            envVarPrefix: PSDB
   prometheus:
     enabled: true
     path: /internal/prometheus
@@ -121,6 +137,8 @@ spec:
         - application: pdl-api
           namespace: pdl
           cluster: prod-fss
+        - application: pensjon-opptjening-afp-api
+          namespace: pensjonopptjening
         - application: pensjon-pen
           namespace: pensjondeployer
           cluster: prod-fss
@@ -130,11 +148,12 @@ spec:
         - application: pensjon-selvbetjening-fss-gateway
           namespace: pensjonselvbetjening
           cluster: prod-fss
+        - application: sporingslogg
+          namespace: pensjonsamhandling
+          cluster: prod-fss
         - application: tp
           namespace: pensjonsamhandling
           cluster: prod-fss
-        - application: pensjon-opptjening-afp-api
-          namespace: pensjonopptjening
       external:
         - host: maskinporten.no
         - host: pdl-api.prod-fss-pub.nais.io
@@ -142,8 +161,9 @@ spec:
         - host: pensjon-popp.prod-fss-pub.nais.io
         - host: pensjon-regler.prod-fss-pub.nais.io
         - host: pensjon-selvbetjening-fss-gateway.prod-fss-pub.nais.io
-        - host: tp-api.prod-fss-pub.nais.io
         - host: pensjonskalkulator-unleash-api.nav.cloud.nais.io
+        - host: sporingslogg.prod-fss-pub.nais.io
+        - host: tp-api.prod-fss-pub.nais.io
         - host: api.prod.spk.no
         - host: api.klp.no
   env:
@@ -169,6 +189,10 @@ spec:
       value: http://pensjon-opptjening-afp-api.pensjonopptjening
     - name: REGLER_URL
       value: https://pensjon-regler.prod-fss-pub.nais.io
+    - name: SPORINGSLOGG_SERVICE_ID
+      value: prod-fss:pensjonsamhandling:sporingslogg
+    - name: SPORINGSLOGG_URL
+      value: https://sporingslogg.prod-fss-pub.nais.io
     - name: TJENESTEPENSJON_SERVICE_ID
       value: prod-fss:pensjonsamhandling:tp
     - name: TJENESTEPENSJON_URL

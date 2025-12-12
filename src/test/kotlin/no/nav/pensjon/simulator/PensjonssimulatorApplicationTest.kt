@@ -7,9 +7,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.test.context.ActiveProfiles
 
-@SpringBootTest
+@SpringBootTest(
+    properties = [
+        "spring.autoconfigure.exclude=org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
+        "spring.flyway.enabled=false"
+    ]
+)
 @ActiveProfiles("test")
-class PensjonssimulatorApplicationTest : FunSpec() {
+open class PensjonssimulatorApplicationTest : FunSpec() {
 
     @Autowired
     lateinit var context: ApplicationContext

@@ -42,13 +42,13 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0,
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
-            utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map(::utlandPeriode).toMutableList(),
+            utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.orEmpty().map(::utlandPeriode).toMutableList(),
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             inntektOver1GAntallAar = 0, // used for anonym only
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
-            rettTilOffentligAfpFom = null, //TODO map to offentligAfpRett?
+            livsvarigOffentligAfp = null, //TODO map to offentligAfpRett?
             pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,

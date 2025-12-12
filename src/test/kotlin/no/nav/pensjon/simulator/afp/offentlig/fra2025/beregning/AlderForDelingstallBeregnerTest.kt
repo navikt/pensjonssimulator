@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.alder.Alder
 import java.time.LocalDate
 
 class AlderForDelingstallBeregnerTest : ShouldSpec({
@@ -24,17 +25,14 @@ class AlderForDelingstallBeregnerTest : ShouldSpec({
         }
     }
 
-    should("bestemme alder ved uttaksalder over 70 år") {
+    should("bestemme alder ved uttaksalder over 70 år er upåvirket av høyeste alder for delingstall") {
         val alderListe = AlderForDelingstallBeregner.bestemAldreForDelingstall(
             fodselsdato = LocalDate.of(1963, 12, 24),
             uttaksdato = LocalDate.of(2036, 4, 1)
         )
 
         alderListe shouldHaveSize 1
-        with(alderListe[0].alder) {
-            aar shouldBe 70
-            maaneder shouldBe 0
-        }
+        alderListe[0].alder shouldBe Alder(72, 3)
     }
 
     should("bestemme alder ved uttaksalder mellom 62 og 70 år") {

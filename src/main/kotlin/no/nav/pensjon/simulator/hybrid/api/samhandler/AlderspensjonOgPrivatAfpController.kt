@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3.*
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
@@ -39,9 +40,10 @@ class AlderspensjonOgPrivatAfpController(
     private val specMapper: AlderspensjonOgPrivatAfpSpecMapperV3,
     private val resultMapper: AlderspensjonOgPrivatAfpResultMapperV3,
     private val traceAid: TraceAid,
+    statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
-) : ControllerBase(traceAid, organisasjonsnummerProvider, tilknytningService) {
+) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v3/simuler-alderspensjon-privat-afp")
@@ -73,6 +75,7 @@ class AlderspensjonOgPrivatAfpController(
 
         return try {
             val spec: SimuleringSpec = specMapper.fromDto(specV3)
+            registrerHendelse(simuleringstype = spec.type)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid!!)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
 

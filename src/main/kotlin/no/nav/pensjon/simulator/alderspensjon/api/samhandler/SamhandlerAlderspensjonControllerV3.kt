@@ -7,19 +7,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultMapperV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonResultV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecMapperV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.AlderspensjonSpecValidatorV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.BadRequestReasonV3
-import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.InternalServerErrorReasonV3
+import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.*
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
@@ -45,9 +40,10 @@ class SamhandlerAlderspensjonControllerV3(
     private val specMapper: AlderspensjonSpecMapperV3,
     private val resultMapper: AlderspensjonResultMapperV3,
     private val traceAid: TraceAid,
+    statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
-) : ControllerBase(traceAid, organisasjonsnummerProvider, tilknytningService) {
+) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v3/simuler-alderspensjon")
@@ -84,6 +80,7 @@ class SamhandlerAlderspensjonControllerV3(
         return try {
             validator.validate(specV3)
             val spec: SimuleringSpec = specMapper.fromDtoV3(specV3)
+            registrerHendelse(simuleringstype = spec.type)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid!!)
             val result: SimulatorOutput = simulatorCore.simuler(spec)

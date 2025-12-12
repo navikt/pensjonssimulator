@@ -1,11 +1,14 @@
 package no.nav.pensjon.simulator.common.api
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
@@ -16,11 +19,20 @@ import java.lang.System.currentTimeMillis
 
 abstract class ControllerBase(
     private val traceAid: TraceAid,
+    private val statistikk: StatistikkService?,
     private val organisasjonsnummerProvider: OrganisasjonsnummerProvider?,
     private val tilknytningService: TilknytningService?
 ) {
     constructor(traceAid: TraceAid) : this(
         traceAid,
+        statistikk = null,
+        organisasjonsnummerProvider = null,
+        tilknytningService = null
+    )
+
+    constructor(statistikk: StatistikkService, traceAid: TraceAid) : this(
+        traceAid,
+        statistikk,
         organisasjonsnummerProvider = null,
         tilknytningService = null
     )
@@ -47,9 +59,9 @@ abstract class ControllerBase(
         else
             handleExternalError<T>(e)
 
-    protected fun <T> badRequest(e: RuntimeException): T? {
+    protected fun <T> badRequest(e: RuntimeException): T {
         val message = extractMessageRecursively(e)
-        log.info { "Bad request - $message" } // no error, so stacktrace is not logged
+        log.info { "Bad request - $message" } // no error, so the stacktrace is not logged
 
         throw ResponseStatusException(
             HttpStatus.BAD_REQUEST,
@@ -82,6 +94,31 @@ abstract class ControllerBase(
         }
     }
 
+    /**
+     * Registrer simuleringstype og organisasjonsnummer i statistikk.
+     * NB: Kun simuleringstype 'ALDER' registreres for samhandlere.
+     */
+    protected fun registrerHendelse(simuleringstype: SimuleringTypeEnum) {
+        if (statistikk == null) return
+
+        try {
+            val organisasjonsnummer =
+                organisasjonsnummerProvider?.provideOrganisasjonsnummer() ?: Organisasjoner.nav
+
+            val isNav = organisasjonsnummer == Organisasjoner.nav
+
+            statistikk.registrer(
+                hendelse = SimuleringHendelse(
+                    organisasjonsnummer,
+                    simuleringstype = if (isNav) simuleringstype else SimuleringTypeEnum.ALDER
+                )
+            )
+        } catch (e: Exception) {
+            // Log the error but do not fail the request
+            log.error(e) { "Feil ved registrering av hendelse i statistikk: ${e.message}" }
+        }
+    }
+
     abstract fun errorMessage(): String
 
     private fun <T> handleInternalError(e: EgressException): Nothing {
@@ -99,7 +136,7 @@ abstract class ControllerBase(
         return serviceUnavailable(e)
     }
 
-    private fun <T> serviceUnavailable(e: EgressException): T? {
+    private fun <T> serviceUnavailable(e: EgressException): T {
         throw ResponseStatusException(
             HttpStatus.SERVICE_UNAVAILABLE,
             "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",

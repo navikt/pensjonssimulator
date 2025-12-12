@@ -4,28 +4,24 @@ import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 
 object Organisasjoner {
 
+    val nav = Organisasjonsnummer("889640782")
+    val KLP = Organisasjonsnummer("938708606")
+    val SPK = Organisasjonsnummer("982583462")
+
     private val organisasjonNavnForNummer =
         mapOf(
-            "889640782" to "Nav",
+            nav.value to "Nav",
             "927613298" to "Aks", // Aksio
             "940380014" to "Are", // Arendal kommunale pensjonskasse
             "980650383" to "Dra", // Drammen kommunale pensjonskasse
             "916833520" to "Gab", // Gabler Pensjonstjenester
-            "938708606" to "KLP", // Kommunal Landspensjonskasse
+            KLP.value to "KLP", // Kommunal Landspensjonskasse
             "982759412" to "OPF", // Oslo Pensjonsforsikring
-            "982583462" to "SPK", // Statens pensjonskasse
+            SPK.value to "SPK", // Statens pensjonskasse
             "958995369" to "StL", // Storebrand Livsforsikring
             "931936492" to "StP"  // Storebrand Pensjonstjenester
         )
 
     fun navn(organisasjonsnummer: Organisasjonsnummer): String =
         organisasjonNavnForNummer[organisasjonsnummer.value] ?: "?$organisasjonsnummer"
-
-    val SPK: Organisasjonsnummer = organisasjonNavnForNummer
-        .entries.first { it.value.equals("SPK", ignoreCase = true) }
-        .let { Organisasjonsnummer(it.key) }
-
-    val KLP: Organisasjonsnummer = organisasjonNavnForNummer
-        .entries.first { it.value.equals("KLP", ignoreCase = true) }
-        .let { Organisasjonsnummer(it.key) }
 }

@@ -103,13 +103,13 @@ abstract class ControllerBase(
 
         try {
             val organisasjonsnummer =
-                organisasjonsnummerProvider?.provideOrganisasjonsnummer() ?: Organisasjonsnummer.nav
+                organisasjonsnummerProvider?.provideOrganisasjonsnummer() ?: Organisasjoner.nav
 
-            val isNav = organisasjonsnummer == Organisasjonsnummer.nav
+            val isNav = organisasjonsnummer == Organisasjoner.nav
 
             statistikk.registrer(
                 hendelse = SimuleringHendelse(
-                    organisasjonsnummer = organisasjonsnummer,
+                    organisasjonsnummer,
                     simuleringstype = if (isNav) simuleringstype else SimuleringTypeEnum.ALDER
                 )
             )

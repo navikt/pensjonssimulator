@@ -2,9 +2,6 @@ package no.nav.pensjon.simulator.tech.db
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.flywaydb.core.Flyway
-import org.flywaydb.core.api.Location
-import org.flywaydb.core.api.configuration.ClassicConfiguration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -30,18 +27,4 @@ open class DataSourceConfig {
                 maximumPoolSize = 5
             }
         )
-
-    /**
-     * Temporary bean for wiping the database.
-     */
-    @Bean(initMethod = "migrate")
-    open fun flyway(datasource: DataSource): Flyway {
-        val config = ClassicConfiguration().apply {
-            this.dataSource = datasource
-            this.isCleanDisabled = false
-            this.setLocations(Location.fromPath("classpath:", "db/migration"))
-        }
-
-        return Flyway(config).apply { clean() }
-    }
 }

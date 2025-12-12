@@ -26,7 +26,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     val tpClient = mockk<TpregisteretClient>()
     val stillingsprosentService = mockk<SPKStillingsprosentService>()
     val spkService = mockk<SPKTjenestepensjonServicePre2025>()
-    val featureToggleService = mockk<FeatureToggleService>()
+    val featureToggleService = mockk<FeatureToggleService>(relaxed = true)
 
     val service = TjenestepensjonSimuleringPre2025Service(
         tpregisteretClient = tpClient,

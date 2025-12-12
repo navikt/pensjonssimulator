@@ -30,4 +30,18 @@ open class DataSourceConfig {
                 maximumPoolSize = 5
             }
         )
+
+    /**
+     * Temporary bean for wiping the database.
+     */
+    @Bean(initMethod = "migrate")
+    open fun flyway(datasource: DataSource): Flyway {
+        val config = ClassicConfiguration().apply {
+            this.dataSource = datasource
+            this.isCleanDisabled = false
+            this.setLocations(Location.fromPath("classpath:", "db/migration"))
+        }
+
+        return Flyway(config).apply { clean() }
+    }
 }

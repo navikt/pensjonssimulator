@@ -1,5 +1,8 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
+import tools.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
@@ -21,8 +24,11 @@ class SimuleringFacade(
     private val ufoereAlternativSimulering: UfoereAlternativSimuleringService,
     private val normalderService: NormertPensjonsalderService,
     private val ufoereService: UfoereService,
-    private val time: Time
+    private val time: Time,
+    private val jsonMapper: JsonMapper,
 ) {
+    private val log = KotlinLogging.logger {}
+
     fun simulerAlderspensjon(
         spec: SimuleringSpec,
         inkluderPensjonHvisUbetinget: Boolean
@@ -31,6 +37,7 @@ class SimuleringFacade(
 
         try {
             val result: SimulatorOutput = simulator.simuler(spec)
+            log.debug { "SimuleringFacade: SimulatorOutput:${jsonMapper.writeValueAsString(result)}" }
 
             return SimulertPensjonEllerAlternativ(
                 pensjon =

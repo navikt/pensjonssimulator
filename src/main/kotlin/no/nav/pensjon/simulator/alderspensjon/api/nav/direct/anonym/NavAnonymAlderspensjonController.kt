@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -32,8 +33,9 @@ import org.springframework.web.bind.annotation.RestController
 @SecurityRequirement(name = "BearerAuthentication")
 class NavAnonymAlderspensjonController(
     private val service: SimulatorCore,
-    private val traceAid: TraceAid
-) : ControllerBase(traceAid) {
+    private val traceAid: TraceAid,
+    statistikk: StatistikkService
+) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-alderspensjon")
@@ -57,13 +59,15 @@ class NavAnonymAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(@RequestBody spec: AnonymSimuleringSpecV1): ResponseEntity<Any> {
+    fun simulerAlderspensjon(@RequestBody specV1: AnonymSimuleringSpecV1): ResponseEntity<Any> {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID request: $spec" }
+        log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
 
         return try {
-            val result = service.simuler(fromAnonymSimuleringSpecV1(spec))
+            val spec = fromAnonymSimuleringSpecV1(specV1)
+            registrerHendelse(simuleringstype = spec.type)
+            val result = service.simuler(spec)
             ResponseEntity(mapSimuleringResult(result), HttpStatus.OK)
         } catch (e: UtilstrekkeligOpptjeningException) {
             handleDomainError(e) // PEN: RestResponseEntityExceptionHandler.handleConflict

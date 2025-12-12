@@ -56,6 +56,7 @@ class TjenestepensjonSimuleringPre2025Service(
             if (featureToggleService.isEnabled("mock-offentligtp-foer-1963")) {
                 if (spec.pid.value == "19456138058") throw MOCK_SPK_EXCEPTION1
                 if (spec.pid.value == "13426143482") throw MOCK_SPK_EXCEPTION2
+                if (spec.pid.value == "26456120872") throw MOCK_SPK_EXCEPTION3
             }
 
 
@@ -133,6 +134,9 @@ class TjenestepensjonSimuleringPre2025Service(
         )
         val MOCK_SPK_EXCEPTION2 = EgressException(
             """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
+        )
+        val MOCK_SPK_EXCEPTION3 = EgressException(
+            """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
         )
     }
 }

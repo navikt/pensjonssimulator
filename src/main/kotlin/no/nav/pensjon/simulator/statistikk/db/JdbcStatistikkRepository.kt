@@ -28,11 +28,11 @@ open class JdbcStatistikkRepository(private val db: NamedParameterJdbcOperations
 
     private companion object {
         const val UPDATE_SQL: String =
-            "UPDATE PUBLIC.SIMULERING_TELLER SET ANTALL = ANTALL + 1" +
+            "UPDATE PENSJONSSIMULATOR.SIMULERING_TELLER SET ANTALL = ANTALL + 1" +
                     " WHERE ORG_NR = :org_nr AND SIMULERINGSTYPE = :simuleringstype"
 
         const val SELECT_SQL: String =
-            "SELECT ORG_NR, SIMULERINGSTYPE, ANTALL FROM PUBLIC.SIMULERING_TELLER ORDER BY ANTALL DESC"
+            "SELECT ORG_NR, SIMULERINGSTYPE, ANTALL FROM PENSJONSSIMULATOR.SIMULERING_TELLER ORDER BY ANTALL DESC"
 
         private fun dataMap(hendelse: SimuleringHendelse): MutableMap<String, Any> =
             Map.of<String, Any>(

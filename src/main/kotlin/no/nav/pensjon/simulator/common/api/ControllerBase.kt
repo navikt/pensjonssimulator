@@ -98,12 +98,16 @@ abstract class ControllerBase(
      * Registrer simuleringstype og organisasjonsnummer i statistikk.
      * NB: Kun simuleringstype 'ALDER' registreres for samhandlere.
      */
-    protected fun registrerHendelse(simuleringstype: SimuleringTypeEnum) {
+    protected fun registrerHendelse(
+        simuleringstype: SimuleringTypeEnum,
+        overridingOrganisasjonsnummer: Organisasjonsnummer? = null
+    ) {
         if (statistikk == null) return
 
         try {
-            val organisasjonsnummer =
-                organisasjonsnummerProvider?.provideOrganisasjonsnummer() ?: Organisasjoner.nav
+            val organisasjonsnummer = overridingOrganisasjonsnummer
+                ?: organisasjonsnummerProvider?.provideOrganisasjonsnummer()
+                ?: Organisasjoner.nav
 
             val isNav = organisasjonsnummer == Organisasjoner.nav
 

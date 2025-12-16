@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -68,7 +69,7 @@ class TpoViaPenAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = specMapperV1.fromDto(specV1)
-            registrerHendelse(simuleringstype = spec.type)
+            registrerHendelse(simuleringstype = spec.type, overridingOrganisasjonsnummer = Organisasjoner.norskPensjon)
             val result: SimulatorOutput = simulatorCore.simuler(spec)
             TpoSimuleringResultMapperV1.toDto(result)
         } catch (e: BadRequestException) {

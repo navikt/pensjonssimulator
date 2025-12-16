@@ -5,12 +5,14 @@ import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 object Organisasjoner {
 
     val nav = Organisasjonsnummer("889640782")
+    val norskPensjon = Organisasjonsnummer("890050212")
     val KLP = Organisasjonsnummer("938708606")
     val SPK = Organisasjonsnummer("982583462")
 
     private val organisasjonNavnForNummer =
         mapOf(
             nav.value to "Nav",
+            norskPensjon.value to "NoP",
             "927613298" to "Aks", // Aksio
             "940380014" to "Are", // Arendal kommunale pensjonskasse
             "980650383" to "Dra", // Drammen kommunale pensjonskasse

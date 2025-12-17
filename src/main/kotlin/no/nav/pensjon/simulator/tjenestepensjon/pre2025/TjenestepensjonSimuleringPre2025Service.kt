@@ -18,6 +18,7 @@ import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class TjenestepensjonSimuleringPre2025Service(
@@ -56,6 +57,7 @@ class TjenestepensjonSimuleringPre2025Service(
                 if (spec.pid.value == "19456138058") throw MOCK_SPK_EXCEPTION1
                 if (spec.pid.value == "13426143482") throw MOCK_SPK_EXCEPTION2
                 if (spec.pid.value == "26456120872") throw MOCK_SPK_EXCEPTION3
+                if (spec.pid.value == "25476113736") return MOCK_SPK_RESULT
             }
 
 
@@ -130,6 +132,51 @@ class TjenestepensjonSimuleringPre2025Service(
         )
         val MOCK_SPK_EXCEPTION3 = EgressException(
             """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
+        )
+        val MOCK_SPK_RESULT = SimulerOffentligTjenestepensjonResultV1(
+            tpnr = "3010",
+            navnOrdning = "Statens pensjonskasse",
+            inkluderteOrdningerListe = listOf("Statens pensjonskasse"),
+            leverandorUrl = "spk.no",
+            utbetalingsperiodeListe = listOf(
+                UtbetalingsperiodeV1(
+                    uttaksgrad = 2,
+                    arligUtbetaling = 6979.0,
+                    datoFom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(63, 5)),
+                    datoTom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(65, 0)),
+                    ytelsekode = YtelseCode.AFP
+                ),
+                UtbetalingsperiodeV1(
+                    uttaksgrad = 2,
+                    arligUtbetaling = 10560.0,
+                    datoFom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(65, 0)),
+                    datoTom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(67, 0)),
+                    ytelsekode = YtelseCode.AFP
+                ),
+                UtbetalingsperiodeV1(
+                    uttaksgrad = 100,
+                    arligUtbetaling = 173376.0,
+                    datoFom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(67, 0)),
+                    datoTom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(67, 5)),
+                    ytelsekode = YtelseCode.AP
+                ),
+                UtbetalingsperiodeV1(
+                    uttaksgrad = 100,
+                    arligUtbetaling = 167244.0,
+                    datoFom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(67, 5)),
+                    datoTom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(68, 5)),
+                    ytelsekode = YtelseCode.AP
+                ),
+                UtbetalingsperiodeV1(
+                    uttaksgrad = 100,
+                    arligUtbetaling = 163476.0,
+                    datoFom = Alder.fromAlder(LocalDate.of(1962,7,3), Alder(68, 5)),
+                    datoTom = null,
+                    ytelsekode = YtelseCode.AP
+                )
+            ),
+            brukerErIkkeMedlemAvTPOrdning = false,
+            brukerErMedlemAvTPOrdningSomIkkeStoettes = false,
         )
     }
 }

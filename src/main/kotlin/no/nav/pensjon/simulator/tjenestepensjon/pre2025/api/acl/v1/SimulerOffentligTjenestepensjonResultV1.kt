@@ -11,7 +11,7 @@ data class SimulerOffentligTjenestepensjonResultV1(
     val utbetalingsperiodeListe: List<UtbetalingsperiodeV1?> = emptyList(),
     var brukerErIkkeMedlemAvTPOrdning: Boolean = false,
     var brukerErMedlemAvTPOrdningSomIkkeStoettes: Boolean = false,
-    var errorResponse: SimulerOFTPErrorResponseV1? = null
+    var feilkode: Feilkode? = null
 ) {
 
     data class UtbetalingsperiodeV1(
@@ -48,10 +48,6 @@ data class SimulerOffentligTjenestepensjonResultV1(
         )
     }
 }
-data class SimulerOFTPErrorResponseV1(
-    val errorCode: Feilkode,
-    val errorMessage: String
-)
 
 enum class Feilkode(val externalValues: List<String>, val externalErrorMessages: List<String>) {
     TEKNISK_FEIL(listOf("CALC001", "CALC003", "CALC004", "CALC005"), emptyList()),
@@ -62,7 +58,9 @@ enum class Feilkode(val externalValues: List<String>, val externalErrorMessages:
         "Delvis AFP ikke lovlig med reststilling under 60%.",
         "Delvis AFP ikke lovlig med nedgang under 10%.",
         "Tjenestetid mindre enn 3 år.")
-        .map { "Validation problem: $it" });
+        .map { "Validation problem: $it" }),
+    BRUKER_IKKE_MEDLEM_AV_TP_ORDNING(emptyList(), emptyList()),
+    TP_ORDNING_STOETTES_IKKE(emptyList(), emptyList());
 
     companion object {
         fun fromExternalValue(externalValue: String, externalErrorMessage: String) = entries.firstOrNull {

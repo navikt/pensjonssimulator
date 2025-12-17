@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOFTPErrorResponseV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.*
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
@@ -89,10 +88,7 @@ class TjenestepensjonSimuleringPre2025Service(
                 return SimulerOffentligTjenestepensjonResultV1(
                     tpnr = spkMedlemskap.tpNr,
                     navnOrdning = spkMedlemskap.navn,
-                    errorResponse = SimulerOFTPErrorResponseV1(
-                        errorCode = feilkode,
-                        errorMessage = errorMessage
-                    ),
+                    feilkode = feilkode,
                     utbetalingsperiodeListe = listOf(UtbetalingsperiodeV1(
                         datoFom = Alder.fromAlder(spec.foedselsdato, Alder(65,0)),
                         datoTom = Alder.fromAlder(spec.foedselsdato, Alder(67,0)),
@@ -112,10 +108,7 @@ class TjenestepensjonSimuleringPre2025Service(
             return SimulerOffentligTjenestepensjonResultV1(
                 tpnr = spkMedlemskap.tpNr,
                 navnOrdning = spkMedlemskap.navn,
-                errorResponse = SimulerOFTPErrorResponseV1(
-                    errorCode = feilkode,
-                    errorMessage = errorMessage
-                ),
+                feilkode = feilkode,
                 utbetalingsperiodeListe = emptyList()
             )
         }

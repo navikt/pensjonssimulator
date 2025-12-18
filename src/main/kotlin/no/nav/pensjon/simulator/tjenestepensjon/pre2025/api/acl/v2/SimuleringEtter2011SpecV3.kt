@@ -2,11 +2,10 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.swagger.v3.oas.annotations.media.Schema
-import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class SimuleringEtter2011SpecV2(
+data class SimuleringEtter2011SpecV3(
     @param:Schema(description = "Angir hva som er simulert i den lagrede simuleringen.")
     var simuleringType: SimuleringTypeSpecV2,
 
@@ -80,7 +79,7 @@ data class SimuleringEtter2011SpecV2(
     var afpOrdning: AfpOrdningTypeSpecV2? = null,
 
     @param:Schema(description = "Inntekt måneden før AFP-uttak (offentlig AFP).")
-    var afpInntektMndForUttak: Int? = null,
+    var afpInntektMndForUttak: Boolean? = null,
 
     @param:Schema(description = "Ektefelles dødsdato.")
     var dodsdato: LocalDate? = null,
@@ -111,7 +110,7 @@ data class SimuleringEtter2011SpecV2(
     var fremtidigInntektList: List<FremtidigInntektV2> = listOf(),
 
     @param:Schema(description = "Egenregistrerte TP-er (lagring/visning).")
-    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2> = listOf(),
+    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2>? = listOf(),
 
     @param:Schema(description = "Brukeroppgitt ansettelsessektor. Benyttes ikke ved simulering, kun ved lagring/henting. Eksempel: ANNET, OFFENTLIG, PRIVAT")
     var ansettelsessektor: AnsattTypeCodeV2? = null,
@@ -122,9 +121,3 @@ data class SimuleringEtter2011SpecV2(
     @param:Schema(description = "Offentlig stillingsprosent ved gradert uttak.")
     var stillingsprosentOffGradertUttak: StillingsprOffCodeV2? = null,
 )
-
-data class Fnr(val pid: String) {
-    override fun toString(): String {
-        return Pid.redact(pid)
-    }
-}

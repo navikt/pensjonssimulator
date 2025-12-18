@@ -11,7 +11,8 @@ data class SimulerOffentligTjenestepensjonResultV1(
     val utbetalingsperiodeListe: List<UtbetalingsperiodeV1?> = emptyList(),
     var brukerErIkkeMedlemAvTPOrdning: Boolean = false,
     var brukerErMedlemAvTPOrdningSomIkkeStoettes: Boolean = false,
-    var feilkode: Feilkode? = null
+    var feilkode: Feilkode? = null,
+    val relevanteTpOrdninger: List<String>? = null
 ) {
 
     data class UtbetalingsperiodeV1(
@@ -40,11 +41,12 @@ data class SimulerOffentligTjenestepensjonResultV1(
         fun ikkeMedlem() =
             SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErIkkeMedlemAvTPOrdning = true)
 
-        fun tpOrdningStoettesIkke() = SimulerOffentligTjenestepensjonResultV1(
+        fun tpOrdningStoettesIkke(relevanteTpOrdninger: List<String>? = null) = SimulerOffentligTjenestepensjonResultV1(
             "",
             "",
             emptyList(),
-            brukerErMedlemAvTPOrdningSomIkkeStoettes = true
+            brukerErMedlemAvTPOrdningSomIkkeStoettes = true,
+            relevanteTpOrdninger = relevanteTpOrdninger
         )
     }
 }

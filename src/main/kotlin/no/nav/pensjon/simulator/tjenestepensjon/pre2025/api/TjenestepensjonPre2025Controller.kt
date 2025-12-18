@@ -155,8 +155,8 @@ class TjenestepensjonPre2025Controller(
     )
     fun simulerV3(@RequestBody specV3: SimulerOffentligTjenestepensjonSpecV3): ResponseEntity<Any> {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID_V2 request: $specV3" }
-        countCall(FUNCTION_ID_V2)
+        log.debug { "$FUNCTION_ID_V3 request: $specV3" }
+        countCall(FUNCTION_ID_V3)
 
         try {
             val simuleringSpec = simulerOffentligTjenestepensjonMapperV3.fromDto(specV3)
@@ -168,7 +168,7 @@ class TjenestepensjonPre2025Controller(
             )
 
             val result = SimulerOffentligTjenestepensjonResultMapperV3.toDto(serviceForPensjonskalkulator.simuler(spec))
-            log.debug { "$FUNCTION_ID_V2 response: $result" }
+            log.debug { "$FUNCTION_ID_V3 response: $result" }
             return result.let { ResponseEntity.ok(it) }
         }
         catch (e: PEN249KunTilltatMedEnTpiVerdiException) {
@@ -192,6 +192,7 @@ class TjenestepensjonPre2025Controller(
     companion object {
         const val FUNCTION_ID = "nav-tps-pre-2025"
         const val FUNCTION_ID_V2 = "nav-tps-pre-2025-v2"
+        const val FUNCTION_ID_V3 = "nav-tps-pre-2025-v3"
         const val ERROR_MESSAGE = "feil ved simulering av tjenestepensjon pre 2025"
     }
 }

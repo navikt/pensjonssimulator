@@ -8,7 +8,6 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.PEN249KunTilltatMedEnTpiVerdiException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025SpecBeregningService
@@ -19,9 +18,10 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonSpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV2.toDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultMapperV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV2
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonSpecV3
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -120,13 +120,6 @@ class TjenestepensjonPre2025Controller(
             log.error(e) { "Er ikke tillat med mer enn en TPI verdi" };
             return ResponseEntity.internalServerError().body(e.message);
         }
-        catch (e: EgressException) {
-            return ResponseEntity.internalServerError().body(e.message);
-        }
-        catch (e: RuntimeException) {
-            log.error(e) { "Kall til SimulerTjenestepensjon feilet" }
-            return ResponseEntity.internalServerError().body(e.message);
-        }
         finally {
             traceAid.end()
         }
@@ -153,7 +146,7 @@ class TjenestepensjonPre2025Controller(
             )
         ]
     )
-    fun simulerV3(@RequestBody specV3: SimulerOffentligTjenestepensjonSpecV3): ResponseEntity<Any> {
+    fun simulerV3(@RequestBody specV3: SimulerOffentligTjenestepensjonSpecV3): SimulerOffentligTjenestepensjonResultV3 {
         traceAid.begin()
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
@@ -169,18 +162,7 @@ class TjenestepensjonPre2025Controller(
 
             val result = SimulerOffentligTjenestepensjonResultMapperV3.toDto(serviceForPensjonskalkulator.simuler(spec))
             log.debug { "$FUNCTION_ID_V3 response: $result" }
-            return result.let { ResponseEntity.ok(it) }
-        }
-        catch (e: PEN249KunTilltatMedEnTpiVerdiException) {
-            log.error(e) { "Er ikke tillat med mer enn en TPI verdi" };
-            return ResponseEntity.internalServerError().body(e.message);
-        }
-        catch (e: EgressException) {
-            return ResponseEntity.internalServerError().body(e.message);
-        }
-        catch (e: RuntimeException) {
-            log.error(e) { "Kall til SimulerTjenestepensjon feilet" }
-            return ResponseEntity.internalServerError().body(e.message);
+            return result
         }
         finally {
             traceAid.end()

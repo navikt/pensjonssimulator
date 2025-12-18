@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 

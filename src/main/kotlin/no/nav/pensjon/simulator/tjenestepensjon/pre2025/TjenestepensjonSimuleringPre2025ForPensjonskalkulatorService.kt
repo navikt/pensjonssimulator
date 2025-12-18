@@ -3,7 +3,9 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 import com.nimbusds.jose.util.JSONObjectUtils
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.tech.env.EnvironmentUtil
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
+import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService.Companion.PEK_1490_TP_FOER_1963
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
@@ -17,6 +19,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStil
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import org.apache.el.parser.ParseException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -53,7 +56,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 return tpOrdningStoettesIkke(alleForhold.map { it.navn })
             }
 
-            if (featureToggleService.isEnabled("mock-offentligtp-foer-1963")) {
+            if (EnvironmentUtil.isDevelopment() && featureToggleService.isEnabled(PEK_1490_TP_FOER_1963)) {
                 if (spec.pid.value == "19456138058") throw MOCK_SPK_EXCEPTION1
                 if (spec.pid.value == "13426143482") throw MOCK_SPK_EXCEPTION2
                 if (spec.pid.value == "26456120872") throw MOCK_SPK_EXCEPTION3
@@ -66,10 +69,11 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
             if (stillingsprosentListe.isEmpty()) {
                 log.warn { "No stillingsprosent found" }
                 return SimulerOffentligTjenestepensjonResultV1(
-                    tpnr = spkMedlemskap.tpNr,
-                    navnOrdning = spkMedlemskap.navn,
+                    spkMedlemskap.tpNr,
+                    spkMedlemskap.navn,
+                    emptyList(),
                     feilkode = Feilkode.TEKNISK_FEIL,
-                    utbetalingsperiodeListe = emptyList()
+                    relevanteTpOrdninger = alleForhold.map { it.navn }
                 )
             }
 
@@ -85,10 +89,18 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
             log.warn { "Bruker kvalifiserer ikke til tjenestepensjon. ${e.message}" }
             throw e
         } catch (e: EgressException) {
-            val errorCode = JSONObjectUtils.parse(e.message)["errorCode"]?.toString()
-            val errorMessage = JSONObjectUtils.parse(e.message)["message"]?.toString()
+            val errorCode: String?
+            val errorMessage: String?
+            try {
+                errorCode = JSONObjectUtils.parse(e.message)["errorCode"]?.toString()
+                errorMessage = JSONObjectUtils.parse(e.message)["message"]?.toString()
+            } catch (parseException: ParseException) {
+                log.error { "Feil med parsing av koder fra SPK: ${parseException.message}" }
+                throw RuntimeException("Feil med parsing av koder: ${parseException.message}")
+            }
+
+            log.warn(e) { "Feilmelding i respons fra SPK: $e" }
             if (spkMedlemskap == null || errorCode == null || errorMessage == null) throw e
-            log.warn { "Feilmelding i respons fra SPK: ${e}" }
 
             val feilkode = Feilkode.fromExternalValue(errorCode, errorMessage)
 
@@ -97,21 +109,23 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                     tpnr = spkMedlemskap.tpNr,
                     navnOrdning = spkMedlemskap.navn,
                     feilkode = feilkode,
-                    utbetalingsperiodeListe = listOf(UtbetalingsperiodeV1(
-                        datoFom = Alder.fromAlder(spec.foedselsdato, Alder(65,0)),
-                        datoTom = Alder.fromAlder(spec.foedselsdato, Alder(67,0)),
-                        uttaksgrad = 100,
-                        arligUtbetaling = 0.0,
-                        ytelsekode = YtelseCode.AFP
-                    ),
-                    UtbetalingsperiodeV1(
-                        datoFom = Alder.fromAlder(spec.foedselsdato, Alder(67,0)),
-                        datoTom = null,
-                        uttaksgrad = 100,
-                        arligUtbetaling = 0.0,
-                        ytelsekode = YtelseCode.AP
+                    utbetalingsperiodeListe = listOf(
+                        UtbetalingsperiodeV1(
+                            datoFom = Alder.fromAlder(spec.foedselsdato, Alder(65, 0)),
+                            datoTom = Alder.fromAlder(spec.foedselsdato, Alder(67, 0)),
+                            uttaksgrad = 100,
+                            arligUtbetaling = 0.0,
+                            ytelsekode = YtelseCode.AFP
+                        ),
+                        UtbetalingsperiodeV1(
+                            datoFom = Alder.fromAlder(spec.foedselsdato, Alder(67, 0)),
+                            datoTom = null,
+                            uttaksgrad = 100,
+                            arligUtbetaling = 0.0,
+                            ytelsekode = YtelseCode.AP
+                        )
                     )
-                ))
+                )
 
             return SimulerOffentligTjenestepensjonResultV1(
                 tpnr = spkMedlemskap.tpNr,
@@ -123,62 +137,62 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
     }
 
     companion object {
-        val FNR_REGEX = """[0-9]{11}""".toRegex()
-        fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
+            val FNR_REGEX = """[0-9]{11}""".toRegex()
+            fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
 
-        val MOCK_SPK_EXCEPTION1 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}""",
-        )
-        val MOCK_SPK_EXCEPTION2 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
-        )
-        val MOCK_SPK_EXCEPTION3 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
-        )
-        val MOCK_SPK_RESULT = SimulerOffentligTjenestepensjonResultV1(
-            tpnr = "3010",
-            navnOrdning = "Statens pensjonskasse",
-            inkluderteOrdningerListe = listOf("Statens pensjonskasse"),
-            leverandorUrl = "spk.no",
-            utbetalingsperiodeListe = listOf(
-                UtbetalingsperiodeV1(
-                    uttaksgrad = 2,
-                    arligUtbetaling = 6979.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(64, 5)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(65, 0)),
-                    ytelsekode = YtelseCode.AFP
+            val MOCK_SPK_EXCEPTION1 = EgressException(
+                """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}""",
+            )
+            val MOCK_SPK_EXCEPTION2 = EgressException(
+                """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
+            )
+            val MOCK_SPK_EXCEPTION3 = EgressException(
+                """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
+            )
+            val MOCK_SPK_RESULT = SimulerOffentligTjenestepensjonResultV1(
+                tpnr = "3010",
+                navnOrdning = "Statens pensjonskasse",
+                inkluderteOrdningerListe = listOf("Statens pensjonskasse"),
+                leverandorUrl = "spk.no",
+                utbetalingsperiodeListe = listOf(
+                    UtbetalingsperiodeV1(
+                        uttaksgrad = 2,
+                        arligUtbetaling = 6979.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(64, 5)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
+                        ytelsekode = YtelseCode.AFP
+                    ),
+                    UtbetalingsperiodeV1(
+                        uttaksgrad = 2,
+                        arligUtbetaling = 540000.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
+                        ytelsekode = YtelseCode.AFP
+                    ),
+                    UtbetalingsperiodeV1(
+                        uttaksgrad = 100,
+                        arligUtbetaling = 173376.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
+                        ytelsekode = YtelseCode.AP
+                    ),
+                    UtbetalingsperiodeV1(
+                        uttaksgrad = 100,
+                        arligUtbetaling = 167244.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
+                        ytelsekode = YtelseCode.AP
+                    ),
+                    UtbetalingsperiodeV1(
+                        uttaksgrad = 100,
+                        arligUtbetaling = 163476.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
+                        datoTom = null,
+                        ytelsekode = YtelseCode.AP
+                    )
                 ),
-                UtbetalingsperiodeV1(
-                    uttaksgrad = 2,
-                    arligUtbetaling = 540000.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(65, 0)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(67, 0)),
-                    ytelsekode = YtelseCode.AFP
-                ),
-                UtbetalingsperiodeV1(
-                    uttaksgrad = 100,
-                    arligUtbetaling = 173376.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(67, 0)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(67, 5)),
-                    ytelsekode = YtelseCode.AP
-                ),
-                UtbetalingsperiodeV1(
-                    uttaksgrad = 100,
-                    arligUtbetaling = 167244.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(67, 5)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(68, 5)),
-                    ytelsekode = YtelseCode.AP
-                ),
-                UtbetalingsperiodeV1(
-                    uttaksgrad = 100,
-                    arligUtbetaling = 163476.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961,7,25), Alder(68, 5)),
-                    datoTom = null,
-                    ytelsekode = YtelseCode.AP
-                )
-            ),
-            brukerErIkkeMedlemAvTPOrdning = false,
-            brukerErMedlemAvTPOrdningSomIkkeStoettes = false,
-        )
+                brukerErIkkeMedlemAvTPOrdning = false,
+                brukerErMedlemAvTPOrdningSomIkkeStoettes = false,
+            )
+        }
     }
-}

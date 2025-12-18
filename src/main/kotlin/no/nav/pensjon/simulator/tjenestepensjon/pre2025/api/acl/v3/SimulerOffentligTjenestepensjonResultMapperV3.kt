@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
@@ -26,7 +26,7 @@ object SimulerOffentligTjenestepensjonResultMapperV3 {
             inkluderteOrdninger = resultV1.inkluderteOrdningerListe,
             leverandorUrl = resultV1.leverandorUrl,
             utbetalingsperioder = resultV1.utbetalingsperiodeListe.map { periodeV1 ->
-                UtbetalingsperiodeResultV2(
+                UtbetalingsperiodeResultV3(
                     grad = periodeV1?.uttaksgrad,
                     arligUtbetaling = periodeV1?.arligUtbetaling,
                     datoFom = periodeV1?.datoFom?.toNorwegianDate(),
@@ -38,7 +38,8 @@ object SimulerOffentligTjenestepensjonResultMapperV3 {
 
         return SimulerOffentligTjenestepensjonResultV3(
             listOf(simulertPensjon),
-            feilkode = resultV1.feilkode
+            feilkode = resultV1.feilkode,
+            relevanteTpOrdninger = resultV1.relevanteTpOrdninger
         )
     }
 }

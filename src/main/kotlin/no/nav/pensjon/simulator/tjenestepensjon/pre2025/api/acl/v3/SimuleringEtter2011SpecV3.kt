@@ -1,13 +1,14 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.swagger.v3.oas.annotations.media.Schema
+import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class SimuleringEtter2011SpecV3(
     @param:Schema(description = "Angir hva som er simulert i den lagrede simuleringen.")
-    var simuleringType: SimuleringTypeSpecV2,
+    var simuleringType: SimuleringTypeSpecV3,
 
     @param:Schema(description = "Brukeroppgitt navn ved lagring. Benyttes ikke ved simulering, kun ved lagring/henting.")
     var simuleringNavn: String? = null,
@@ -46,7 +47,7 @@ data class SimuleringEtter2011SpecV3(
     var forsteUttakDato: LocalDate? = null,
 
     @param:Schema(description = "Uttaksgrad fra første uttak.")
-    var utg: UttaksgradSpecV2? = null,
+    var utg: UttaksgradSpecV3? = null,
 
     @param:Schema(description = "Årlig inntekt fra gradert uttak til helt uttak.")
     var inntektUnderGradertUttak: Int? = null,
@@ -67,7 +68,7 @@ data class SimuleringEtter2011SpecV3(
     var flyktning: Boolean? = null,
 
     @param:Schema(description = "Sivilstatus under uttak.")
-    var sivilstatus: SivilstatusSpecV2? = null,
+    var sivilstatus: SivilstatusSpecV3? = null,
 
     @param:Schema(description = "Om EPS mottar pensjon/AFP.")
     var epsPensjon: Boolean? = null,
@@ -76,7 +77,7 @@ data class SimuleringEtter2011SpecV3(
     var eps2G: Boolean? = null,
 
     @param:Schema(description = "Brukers AFP-ordning (offentlig).")
-    var afpOrdning: AfpOrdningTypeSpecV2? = null,
+    var afpOrdning: AfpOrdningTypeSpecV3? = null,
 
     @param:Schema(description = "Inntekt måneden før AFP-uttak (offentlig AFP).")
     var afpInntektMndForUttak: Boolean? = null,
@@ -103,21 +104,27 @@ data class SimuleringEtter2011SpecV3(
     var simulerForTp: Boolean? = null,
 
     @param:Schema(description = "Utenlandsperioder brukt i simulering.")
-    var utenlandsperiodeForSimuleringList: List<UtenlandsperiodeForSimuleringV2> = listOf(),
+    var utenlandsperiodeForSimuleringList: List<UtenlandsperiodeForSimuleringV3> = listOf(),
 
     // Not used in PSELV but included to avoid failing on unknown properties:
     @param:Schema(description = "Fremtidige inntekter brukt i simulering.")
-    var fremtidigInntektList: List<FremtidigInntektV2> = listOf(),
+    var fremtidigInntektList: List<FremtidigInntektV3> = listOf(),
 
     @param:Schema(description = "Egenregistrerte TP-er (lagring/visning).")
-    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2>? = listOf(),
+    var brukerRegTPListe: List<BrukerRegTjenestepensjonV3>? = listOf(),
 
     @param:Schema(description = "Brukeroppgitt ansettelsessektor. Benyttes ikke ved simulering, kun ved lagring/henting. Eksempel: ANNET, OFFENTLIG, PRIVAT")
-    var ansettelsessektor: AnsattTypeCodeV2? = null,
+    var ansettelsessektor: AnsattTypeCodeV3? = null,
 
     @param:Schema(description = "Offentlig stillingsprosent ved helt uttak.")
-    var stillingsprosentOffHeltUttak: StillingsprOffCodeV2? = null,
+    var stillingsprosentOffHeltUttak: StillingsprOffCodeV3? = null,
 
     @param:Schema(description = "Offentlig stillingsprosent ved gradert uttak.")
-    var stillingsprosentOffGradertUttak: StillingsprOffCodeV2? = null,
+    var stillingsprosentOffGradertUttak: StillingsprOffCodeV3? = null,
 )
+
+data class Fnr(val pid: String) {
+    override fun toString(): String {
+        return Pid.redact(pid)
+    }
+}

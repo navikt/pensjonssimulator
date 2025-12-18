@@ -50,9 +50,7 @@ object SOAPAdapter {
     }
 
     fun unmarshal(result: XMLHentStillingsprosentListeResponseWrapper): List<Stillingsprosent> =
-        HentStillingsprosentListeResponse(
-            stillingsprosentListe = result.response.stillingsprosentListe.map(XMLStillingsprosent::toStillingsprosent)
-        ).stillingsprosentListe
+        result.response.stillingsprosentListe.map(XMLStillingsprosent::toStillingsprosent)
 
     fun handleFault(fault: XmlFaultWrapper): List<Stillingsprosent> =
         throw EgressException(fault.toFault().toString())

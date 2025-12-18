@@ -121,18 +121,4 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
 
         result.shouldBeEmpty()
     }
-
-    "getStillingsprosenter should return empty list on generic Exception" {
-        every {
-            webServiceTemplate.marshalSendAndReceive(
-                any<Any>(),
-                any<org.springframework.ws.client.core.WebServiceMessageCallback>()
-            )
-        } throws RuntimeException("Generic error")
-
-        val result = client.getStillingsprosenter(fnr, tpOrdning)
-
-        result.shouldBeEmpty()
-    }
-
 })

@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling
 
+import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.FNR
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.HentStillingsprosentListeRequest
@@ -7,7 +8,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.HentStillingsprosentListeResponse
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent
-import kotlin.collections.map
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
 
 object SOAPAdapter {
 
@@ -48,9 +49,9 @@ object SOAPAdapter {
         }
     }
 
-    fun unmarshal(p0: XMLHentStillingsprosentListeResponseWrapper): HentStillingsprosentListeResponse = with(p0.response) {
-        HentStillingsprosentListeResponse(
-                stillingsprosentListe = stillingsprosentListe.map(XMLStillingsprosent::toStillingsprosent)
-        )
-    }
+    fun unmarshal(result: XMLHentStillingsprosentListeResponseWrapper): List<Stillingsprosent> =
+        result.response.stillingsprosentListe.map(XMLStillingsprosent::toStillingsprosent)
+
+    fun handleFault(fault: XmlFaultWrapper): List<Stillingsprosent> =
+        throw EgressException(fault.toFault().toString())
 }

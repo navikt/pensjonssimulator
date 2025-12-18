@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

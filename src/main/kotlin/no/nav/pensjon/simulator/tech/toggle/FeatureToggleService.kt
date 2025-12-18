@@ -9,5 +9,6 @@ class FeatureToggleService(val client: FeatureToggleClient) {
 
     companion object {
         const val PEN_715_SIMULER_SPK = "tjenestepensjon-simulering.hent-oftp-fra-spk"
+        const val PEK_1490_TP_FOER_1963 = "mock-offentligtp-foer-1963"
     }
 }

@@ -15,7 +15,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.SimulerOffen
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.*
 import java.time.LocalDate
 
-class SimulerOffentligTjenestepensjonMapperV2Test : StringSpec({
+class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
     "alle mulige felter blir brukt i mapping mot til simuleringSpec" {
         val mapper = SimulerOffentligTjenestepensjonMapperV2(mockk<GeneralPersonService>().apply {

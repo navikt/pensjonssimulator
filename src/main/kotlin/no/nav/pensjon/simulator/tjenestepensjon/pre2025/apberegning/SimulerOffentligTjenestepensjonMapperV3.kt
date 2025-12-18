@@ -12,7 +12,10 @@ import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.*
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonSpecV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringEtter2011SpecV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringTypeSpecV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.UtenlandsperiodeForSimuleringV3
 import org.springframework.stereotype.Component
 
 @Component
@@ -70,7 +73,7 @@ class SimulerOffentligTjenestepensjonMapperV3(
     }
 
     fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV3): Pre2025OffentligAfpSpec? =
-        if (simuleringSpec.simuleringType == SimuleringTypeSpecV2.AFP_ETTERF_ALDER)
+        if (simuleringSpec.simuleringType == SimuleringTypeSpecV3.AFP_ETTERF_ALDER)
             Pre2025OffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!.name),
                 inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak?.let(inntektService::hentSisteMaanedsInntektOver1G) ?: 0,
@@ -80,7 +83,7 @@ class SimulerOffentligTjenestepensjonMapperV3(
         else
             null
 
-    private fun utlandPeriode(source: UtenlandsperiodeForSimuleringV2) =
+    private fun utlandPeriode(source: UtenlandsperiodeForSimuleringV3) =
         UtlandPeriode(
             land = mapLand(source.land),
             arbeidet = source.arbeidetIUtland,

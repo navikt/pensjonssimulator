@@ -11,6 +11,8 @@ data class SimulerOffentligTjenestepensjonResultV1(
     val utbetalingsperiodeListe: List<UtbetalingsperiodeV1?> = emptyList(),
     var brukerErIkkeMedlemAvTPOrdning: Boolean = false,
     var brukerErMedlemAvTPOrdningSomIkkeStoettes: Boolean = false,
+    var feilkode: Feilkode? = null,
+    val relevanteTpOrdninger: List<String>? = null
 ) {
 
     data class UtbetalingsperiodeV1(
@@ -35,16 +37,40 @@ data class SimulerOffentligTjenestepensjonResultV1(
         SERALDER
     }
 
-
     companion object {
         fun ikkeMedlem() =
             SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErIkkeMedlemAvTPOrdning = true)
 
-        fun tpOrdningStoettesIkke() = SimulerOffentligTjenestepensjonResultV1(
+        fun tpOrdningStoettesIkke(relevanteTpOrdninger: List<String>? = null) = SimulerOffentligTjenestepensjonResultV1(
             "",
             "",
             emptyList(),
-            brukerErMedlemAvTPOrdningSomIkkeStoettes = true
+            brukerErMedlemAvTPOrdningSomIkkeStoettes = true,
+            relevanteTpOrdninger = relevanteTpOrdninger
         )
+    }
+}
+
+enum class Feilkode(val externalValues: List<String>, val externalErrorMessages: List<String>) {
+    TEKNISK_FEIL(listOf("CALC001", "CALC003", "CALC004", "CALC005"), emptyList()),
+    BEREGNING_GIR_NULL_UTBETALING(listOf("CALC002"), listOf("Beregning gir 0 i utbetaling.").map { "Validation problem: $it" }),
+    OPPFYLLER_IKKE_INNGANGSVILKAAR(
+        listOf("CALC002"), listOf(
+        "Beregning gir 0 i utbetaling.",
+        "Delvis AFP ikke lovlig med reststilling under 60%.",
+        "Delvis AFP ikke lovlig med nedgang under 10%.",
+        "Tjenestetid mindre enn 3 år.")
+        .map { "Validation problem: $it" }),
+    BRUKER_IKKE_MEDLEM_AV_TP_ORDNING(emptyList(), emptyList()),
+    TP_ORDNING_STOETTES_IKKE(emptyList(), emptyList());
+
+    companion object {
+        fun fromExternalValue(externalValue: String, externalErrorMessage: String) = entries.firstOrNull {
+            if (externalValue != "CALC002") {
+                it.externalValues.contains(externalValue)
+            } else {
+                it.externalValues.contains(externalValue) && it.externalErrorMessages.contains(externalErrorMessage)
+            }
+        } ?: TEKNISK_FEIL
     }
 }

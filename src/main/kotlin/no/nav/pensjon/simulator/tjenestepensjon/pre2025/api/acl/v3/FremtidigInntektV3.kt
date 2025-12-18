@@ -1,11 +1,11 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FremtidigInntektV2 {
+class FremtidigInntektV3 {
     @Schema(description = "Fra og med dato for inntekten")
     val datoFom: LocalDate? = null
 

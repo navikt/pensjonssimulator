@@ -6,4 +6,3 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 data class SimulerOffentligTjenestepensjonSpecV2(
     val simuleringEtter2011: SimuleringEtter2011SpecV2
 )
-

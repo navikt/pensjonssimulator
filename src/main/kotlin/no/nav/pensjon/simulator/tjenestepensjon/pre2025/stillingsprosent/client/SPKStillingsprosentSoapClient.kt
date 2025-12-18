@@ -10,11 +10,13 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.FNR
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.HentStillingsprosentListeRequest
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.XMLHentStillingsprosentListeRequestWrapper
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import org.springframework.ws.client.WebServiceFaultException
 import org.springframework.ws.client.WebServiceIOException
 import org.springframework.ws.client.WebServiceTransportException
 import org.springframework.ws.client.core.WebServiceTemplate
@@ -39,21 +41,26 @@ class SPKStillingsprosentSoapClient(
         try {
             val requestPayload: XMLHentStillingsprosentListeRequestWrapper = dto.let(SOAPAdapter::marshal)
             log.info { "RequestPayload to stillingsprosent url: $url payload: $requestPayload" }
+
             return webServiceTemplate.marshalSendAndReceive(
                 requestPayload, SOAPCallback(url, samlTokenClient.samlAccessToken.accessToken)
             ).let {
-                SOAPAdapter.unmarshal(it as XMLHentStillingsprosentListeResponseWrapper)
-            }.stillingsprosentListe
+                (it as? XMLHentStillingsprosentListeResponseWrapper)?.let(SOAPAdapter::unmarshal)
+                    ?: (it as? XmlFaultWrapper)?.let(SOAPAdapter::handleFault)
+                    ?: throw WebServiceFaultException("Unexpected type in response: $it")
+            }
         } catch (ex: SoapFaultClientException) {
             // Handle SOAP faults returned from the server
             log.warn(ex) { "SOAP fault occurred at getStillingsprosenter: ${ex.faultStringOrReason}" }
+        //} catch (ex: WebServiceFaultException) {
+          //  log.warn(ex) { "Web service fault while calling getStillingsprosenter: ${ex.message}" }
         } catch (ex: WebServiceTransportException) {
             log.warn(ex) { "Transport error occurred while calling getStillingsprosenter: ${ex.message} ${ex.mostSpecificCause.message}" }
         } catch (ex: WebServiceIOException) {
             // Handle IO exceptions related to SOAP calls (e.g., timeout)
             log.warn(ex) { "IO error occurred while calling getStillingsprosenter: ${ex.message}" }
-        } catch (ex: Exception) {
-            log.warn(ex) { "Unexpected error occurred while calling getStillingsprosenter: ${ex.message}" }
+      //  } catch (ex: Exception) {
+        //    log.warn(ex) { "Unexpected error occurred while calling getStillingsprosenter: ${ex.message}" }
         }
         return emptyList()
     }

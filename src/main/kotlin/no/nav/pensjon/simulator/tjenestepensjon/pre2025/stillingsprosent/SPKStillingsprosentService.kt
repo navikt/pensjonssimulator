@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SPKStillingsprosentSoapClient
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
@@ -17,8 +18,13 @@ class SPKStillingsprosentService(
     fun getStillingsprosentListe(fnr: String, tpOrdning: TpOrdningFullDto): List<Stillingsprosent> {
 //        metrics.incrementCounter(AppMetrics.Metrics.APP_NAME, AppMetrics.Metrics.APP_TOTAL_OPPTJENINGSPERIODE_CALLS)
         var stillingsprosentList: List<Stillingsprosent> = emptyList()
-        val elapsed = measureTimeMillis { stillingsprosentList = client.getStillingsprosenter(fnr, tpOrdning) }
-        log.info { "Executed call to stillingsprosenter in: $elapsed ms $stillingsprosentList" }
+
+        try {
+            val elapsed = measureTimeMillis { stillingsprosentList = client.getStillingsprosenter(fnr, tpOrdning) }
+            log.info { "Executed call to stillingsprosenter in: $elapsed ms $stillingsprosentList" }
+        } catch (e: EgressException) {
+            log.warn { "Failed to fetch stillingsprosenter: ${e.message}" }
+        }
 //        metrics.incrementCounter(AppMetrics.Metrics.APP_NAME, AppMetrics.Metrics.APP_TOTAL_OPPTJENINGSPERIODE_TIME, elapsed.toDouble())
         return stillingsprosentList
     }

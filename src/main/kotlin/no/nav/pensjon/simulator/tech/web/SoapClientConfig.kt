@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.AuthAttachingHttpRequestInterceptor
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.SoapFaultHandler
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,7 +23,8 @@ open class SoapClientConfig(
         setClassesToBeBound(
             XMLHentStillingsprosentListeRequestWrapper::class.java,
             XMLHentStillingsprosentListeResponseWrapper::class.java,
-            XMLStillingsprosent::class.java
+            XMLStillingsprosent::class.java,
+            XmlFaultWrapper::class.java
         )
     }
 

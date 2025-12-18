@@ -120,10 +120,6 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 utbetalingsperiodeListe = emptyList()
             )
         }
-        catch (e: Throwable) {
-            log.error(e) { "Unable to simulate offentlig tjenestepensjon pre 2025: ${e.message}" }
-            throw e
-        }
     }
 
     companion object {

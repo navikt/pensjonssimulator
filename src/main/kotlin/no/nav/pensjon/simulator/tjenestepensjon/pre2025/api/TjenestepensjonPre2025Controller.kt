@@ -14,11 +14,14 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimulerin
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025SpecBeregningService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.SimulerOffentligTjenestepensjonMapperV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.SimulerOffentligTjenestepensjonMapperV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonMapperV1.fromDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonSpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV2.toDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV3
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -34,6 +37,7 @@ class TjenestepensjonPre2025Controller(
     private val serviceForPensjonskalkulator: TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService,
     private val beregningService: TjenestepensjonSimuleringPre2025SpecBeregningService,
     private val simulerOffentligTjenestepensjonMapperV2: SimulerOffentligTjenestepensjonMapperV2,
+    private val simulerOffentligTjenestepensjonMapperV3: SimulerOffentligTjenestepensjonMapperV3,
     statistikk: StatistikkService
 ) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
@@ -149,21 +153,21 @@ class TjenestepensjonPre2025Controller(
             )
         ]
     )
-    fun simulerV3(@RequestBody specV2: SimulerOffentligTjenestepensjonSpecV2): ResponseEntity<Any> {
+    fun simulerV3(@RequestBody specV3: SimulerOffentligTjenestepensjonSpecV3): ResponseEntity<Any> {
         traceAid.begin()
-        log.debug { "$FUNCTION_ID_V2 request: $specV2" }
+        log.debug { "$FUNCTION_ID_V2 request: $specV3" }
         countCall(FUNCTION_ID_V2)
 
         try {
-            val simuleringSpec = simulerOffentligTjenestepensjonMapperV2.fromDto(specV2)
+            val simuleringSpec = simulerOffentligTjenestepensjonMapperV3.fromDto(specV3)
             registrerHendelse(simuleringstype = simuleringSpec.type)
 
             val spec = beregningService.kompletterMedAlderspensjonsberegning(
                 simuleringSpec,
-                stillingsprosentSpec = simulerOffentligTjenestepensjonMapperV2.stillingsprosentFromDto(specV2)
+                stillingsprosentSpec = simulerOffentligTjenestepensjonMapperV3.stillingsprosentFromDto(specV3)
             )
 
-            val result = toDto(serviceForPensjonskalkulator.simuler(spec))
+            val result = SimulerOffentligTjenestepensjonResultMapperV3.toDto(serviceForPensjonskalkulator.simuler(spec))
             log.debug { "$FUNCTION_ID_V2 response: $result" }
             return result.let { ResponseEntity.ok(it) }
         }

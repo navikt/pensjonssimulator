@@ -1,26 +1,30 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
 
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 
-object SimulerOffentligTjenestepensjonResultMapperV2 {
+object SimulerOffentligTjenestepensjonResultMapperV3 {
 
-    fun toDto(resultV1: SimulerOffentligTjenestepensjonResultV1): SimulerOffentligTjenestepensjonResultV2 {
+    fun toDto(resultV1: SimulerOffentligTjenestepensjonResultV1): SimulerOffentligTjenestepensjonResultV3 {
 
-        if (resultV1.brukerErIkkeMedlemAvTPOrdning || resultV1.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
-            return SimulerOffentligTjenestepensjonResultV2()
+        if (resultV1.brukerErIkkeMedlemAvTPOrdning) {
+            return SimulerOffentligTjenestepensjonResultV3(emptyList(), Feilkode.BRUKER_IKKE_MEDLEM_AV_TP_ORDNING)
         }
 
-        val simulertPensjon = SimulertPensjonResultV2(
+        if (resultV1.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
+            return SimulerOffentligTjenestepensjonResultV3(
+                simulertPensjonListe = null,
+                feilkode = Feilkode.TP_ORDNING_STOETTES_IKKE,
+                relevanteTpOrdninger = resultV1.relevanteTpOrdninger
+            )
+        }
+
+        val simulertPensjon = SimulertPensjonResultV3(
             tpnr = resultV1.tpnr,
             navnOrdning = resultV1.navnOrdning,
             inkluderteOrdninger = resultV1.inkluderteOrdningerListe,
             leverandorUrl = resultV1.leverandorUrl,
-            inkluderteTpnr = null,
-            utelatteTpnr = null,
-            status = null,
-            feilkode = null,
-            feilbeskrivelse = null,
             utbetalingsperioder = resultV1.utbetalingsperiodeListe.map { periodeV1 ->
                 UtbetalingsperiodeResultV2(
                     grad = periodeV1?.uttaksgrad,
@@ -32,6 +36,9 @@ object SimulerOffentligTjenestepensjonResultMapperV2 {
             }
         )
 
-        return SimulerOffentligTjenestepensjonResultV2(listOf(simulertPensjon))
+        return SimulerOffentligTjenestepensjonResultV3(
+            listOf(simulertPensjon),
+            feilkode = resultV1.feilkode
+        )
     }
 }

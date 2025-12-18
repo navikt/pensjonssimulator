@@ -50,7 +50,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
             spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
             if (spkMedlemskap == null) {
                 log.warn { "No supported TP-Ordning found" }
-                return tpOrdningStoettesIkke()
+                return tpOrdningStoettesIkke(alleForhold.map { it.navn })
             }
 
             if (featureToggleService.isEnabled("mock-offentligtp-foer-1963")) {

@@ -95,7 +95,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 errorCode = JSONObjectUtils.parse(e.message)["errorCode"]?.toString()
                 errorMessage = JSONObjectUtils.parse(e.message)["message"]?.toString()
             } catch (parseException: ParseException) {
-                log.error { "Feil med parsing av koder fra SPK: ${parseException.message}" }
+                log.error(parseException) { "Feil med parsing av koder fra SPK: ${parseException.message}" }
                 throw RuntimeException("Feil med parsing av koder: ${parseException.message}")
             }
 

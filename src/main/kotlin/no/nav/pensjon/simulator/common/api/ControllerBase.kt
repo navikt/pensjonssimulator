@@ -42,14 +42,14 @@ abstract class ControllerBase(
     protected fun <R> timed(function: () -> R, functionName: String): R {
         val startTimeMillis = currentTimeMillis()
         val result = function()
-        log.info { "$functionName took ${currentTimeMillis() - startTimeMillis} ms to process" }
+        log.debug { "$functionName took ${currentTimeMillis() - startTimeMillis} ms to process" }
         return result
     }
 
     protected fun <A, R> timed(function: (A) -> R, argument: A, functionName: String): R {
         val startTimeMillis = currentTimeMillis()
         val result = function(argument)
-        log.info { "$functionName took ${currentTimeMillis() - startTimeMillis} ms to process" }
+        log.debug { "$functionName took ${currentTimeMillis() - startTimeMillis} ms to process" }
         return result
     }
 

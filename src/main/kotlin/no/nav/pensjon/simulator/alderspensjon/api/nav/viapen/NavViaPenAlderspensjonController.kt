@@ -141,10 +141,10 @@ class NavViaPenAlderspensjonController(
             log.warn(e) { "$AP_FUNCTION_ID regelmotorvalideringsfeil - request - $specV2" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$AP_FUNCTION_ID utilstrekkelig opptjening - request - $specV2" }
+            log.info(e) { "$AP_FUNCTION_ID utilstrekkelig opptjening - request - $specV2" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$AP_FUNCTION_ID utilstrekkelig trygdetid - request - $specV2" }
+            log.info(e) { "$AP_FUNCTION_ID utilstrekkelig trygdetid - request - $specV2" }
             throw e
         } catch (e: EgressException) {
             handle(e)!!
@@ -236,10 +236,10 @@ class NavViaPenAlderspensjonController(
             log.warn(e) { "$TP_FUNCTION_ID regelmotorvalideringsfeil - request - $specV2" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$TP_FUNCTION_ID utilstrekkelig opptjening - request - $specV2" }
+            log.info(e) { "$TP_FUNCTION_ID utilstrekkelig opptjening - request - $specV2" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$TP_FUNCTION_ID utilstrekkelig trygdetid - request - $specV2" }
+            log.info(e) { "$TP_FUNCTION_ID utilstrekkelig trygdetid - request - $specV2" }
             throw e
         } catch (e: EgressException) {
             handle(e)!!

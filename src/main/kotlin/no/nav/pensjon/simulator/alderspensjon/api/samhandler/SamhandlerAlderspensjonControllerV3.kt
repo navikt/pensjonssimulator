@@ -73,7 +73,6 @@ class SamhandlerAlderspensjonControllerV3(
         request: HttpServletRequest
     ): AlderspensjonResultV3 {
         traceAid.begin()
-        log.info { "direct V3 call" }
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
 
@@ -133,10 +132,10 @@ class SamhandlerAlderspensjonControllerV3(
             log.warn(e) { "$FUNCTION_ID_V3 regelmotorvalideringsfeil - request - $specV3" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig opptjening - request - $specV3" }
+            log.info(e) { "$FUNCTION_ID_V3 utilstrekkelig opptjening - request - $specV3" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
+            log.info(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
             throw e
         } catch (e: EgressException) {
             log.error(e) { "$FUNCTION_ID_V3 egress error - request - $specV3" }

@@ -116,10 +116,10 @@ class TpoFolketrygdberegnetAfpController(
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV0" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
             throw e
         } catch (e: EgressException) {
             handle(e)!!

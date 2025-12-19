@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.statistikk.db
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
@@ -15,12 +14,10 @@ import java.util.Map
 @Repository
 open class JdbcStatistikkRepository(private val db: NamedParameterJdbcOperations) : StatistikkRepository {
 
-    private val log = KotlinLogging.logger { }
     private val rowMapper = SimuleringStatistikkRowMapper()
 
     override fun update(hendelse: SimuleringHendelse) {
         db.update(UPDATE_SQL, dataMap(hendelse))
-            .also { log.info { "Rows updated in SIMULERING_TELLER: $it" } }
     }
 
     override fun read(): List<SimuleringStatistikk> =

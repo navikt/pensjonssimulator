@@ -109,10 +109,10 @@ class FolketrygdberegnetAfpController(
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
             throw e
         } catch (e: EgressException) {
             handle(e)!!

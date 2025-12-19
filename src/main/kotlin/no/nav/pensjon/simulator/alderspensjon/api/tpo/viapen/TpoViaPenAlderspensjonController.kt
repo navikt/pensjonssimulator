@@ -112,10 +112,10 @@ class TpoViaPenAlderspensjonController(
             log.warn(e) { "$FUNCTION_ID_V1 regelmotorvalideringsfeil - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID_V1 utilstrekkelig opptjening - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID_V1 utilstrekkelig opptjening - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID_V1 utilstrekkelig trygdetid - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID_V1 utilstrekkelig trygdetid - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
             /* TODO ref. PEN SimulerAlderspensjonController.simuler
         } catch (e: BrukerHarIkkeLopendeAlderspensjonException) {

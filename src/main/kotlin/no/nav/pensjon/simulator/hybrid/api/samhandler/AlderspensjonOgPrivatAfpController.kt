@@ -122,10 +122,10 @@ class AlderspensjonOgPrivatAfpController(
             log.warn(e) { "$FUNCTION_ID_V3 regelmotorvalideringsfeil - request - $specV3" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig opptjening - request - $specV3" }
+            log.info(e) { "$FUNCTION_ID_V3 utilstrekkelig opptjening - request - $specV3" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
+            log.info(e) { "$FUNCTION_ID_V3 utilstrekkelig trygdetid - request - $specV3" }
             throw e
         } catch (e: EgressException) {
             handle(e)!!

@@ -36,11 +36,16 @@ class SPKStillingsprosentSoapClient(
         fnr: String, tpOrdning: TpOrdningFullDto
     ): List<Stillingsprosent> {
         val dto = HentStillingsprosentListeRequest(FNR(fnr), tpOrdning)
-        sporingsloggService.logUtgaaendeRequest(SPK, Pid(fnr), dto.toString())
-        log.info { "Henter stillingsprosenter for fnr $fnr fra $url" }
+
+        sporingsloggService.logUtgaaendeRequest(
+            organisasjonsnummer = SPK,
+            pid = Pid(fnr),
+            leverteData = dto.toString()
+        )
+
         try {
             val requestPayload: XMLHentStillingsprosentListeRequestWrapper = dto.let(SOAPAdapter::marshal)
-            log.info { "RequestPayload to stillingsprosent url: $url payload: $requestPayload" }
+            log.debug { "RequestPayload to stillingsprosent url: $url payload: $requestPayload" }
 
             return webServiceTemplate.marshalSendAndReceive(
                 requestPayload, SOAPCallback(url, samlTokenClient.samlAccessToken.accessToken)

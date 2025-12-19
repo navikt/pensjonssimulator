@@ -1,24 +1,24 @@
 package no.nav.pensjon.simulator.afp.privat
 
 import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
-import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.BeregnAfpPrivatRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
+import no.nav.pensjon.simulator.core.exception.BadSpecException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -30,9 +30,9 @@ import java.util.*
 class PrivatAfpBeregner(
     private val context: SimulatorContext,
     private val generelleDataHolder: GenerelleDataHolder,
-    private val knekkpunktFinder: PrivatAfpKnekkpunktFinder
+    private val knekkpunktFinder: PrivatAfpKnekkpunktFinder,
+    private val time: Time
 ) {
-    // PEN: BeregnAfpPrivatHelper.beregnAfpPrivat
     fun beregnPrivatAfp(spec: PrivatAfpSpec): PrivatAfpResult {
         val foersteVirkning: LocalDate = spec.virkningFom
         val foersteUttakDato: LocalDate? = spec.foersteUttakDato
@@ -132,7 +132,7 @@ class PrivatAfpBeregner(
         knekkpunktDato: LocalDate,
         sakId: Long?
     ): BeregningsResultatAfpPrivat {
-        val request = BeregnAfpPrivatRequest().apply {
+        val spec = BeregnAfpPrivatRequest().apply {
             kravhode = afpKravhode
             vilkarsvedtakListe = arrayListOf(afpVedtak)
             virkFom = knekkpunktDato.toNorwegianDateAtNoon()
@@ -144,11 +144,38 @@ class PrivatAfpBeregner(
             virkFomAfpPrivatUttak = afpFoersteVirkning?.toNorwegianDateAtNoon()
         }
 
-        return context.beregnPrivatAfp(request, sakId)
+        try {
+            return context.beregnPrivatAfp(spec, sakId)
+        } catch (e: RegelmotorValideringException) {
+            handleException(e, afpVedtak)
+        }
     }
+
+    private fun handleException(e: RegelmotorValideringException, vedtak: VilkarsVedtak): Nothing {
+        throw if (indikererTrygdetidFeil(e.merknadListe))
+            framtidig(dato = vedtak.virkFom)?.let {
+                BadSpecException(message = "Personen har et vedtak med virkning f.o.m. $it;" +
+                        " uttaksdato må være etter denne datoen")
+            } ?: e
+        else
+            e
+    }
+
+    private fun framtidig(dato: Date?): LocalDate? =
+        dato?.toNorwegianLocalDate()?.let {
+            if (it > time.today()) it else null
+        }
 
     companion object {
         const val AFP_ALDER = 63 //TODO normert?
+
+        /**
+         * Feilmeldingskoder fra pensjon-regler.
+         */
+        private val feilmeldingerSomSammenIndikererTrygdetidFeil = listOf(
+            "TRYGDETID_KontrollerTrygdetidLogiskSammenhengBeregningRS.TrygdetidenErIkkeGyldigIBeregningsperioden",
+            "TRYGDETID_KontrollerTrygdetidLogiskSammenhengBeregningRS.TrygdetidKapittel20ErIkkeGyldigIBeregningsperioden"
+        )
 
         private fun calculateAfpBeholdningDato(foersteUttakDato: LocalDate, foedselsdato: LocalDate): LocalDate {
             val aarSoekerOppnaarAfpAlder: Int = yearUserTurnsGivenAge(foedselsdato, AFP_ALDER)
@@ -183,7 +210,8 @@ class PrivatAfpBeregner(
                         excludeTrygdetidPerioder = true
                     ).also {
                         it.finishInit()
-                    })
+                    }
+                )
             }
 
         private fun privatAfpResult(beregningResultat: BeregningsResultatAfpPrivat?) =
@@ -222,5 +250,13 @@ class PrivatAfpBeregner(
 
             return kravhode
         }
+
+        private fun indikererTrygdetidFeil(merknadListe: List<Merknad>): Boolean =
+            feilmeldingerSomSammenIndikererTrygdetidFeil.all {
+                anyMatchingKode(merknadListe, kode = it)
+            }
+
+        private fun anyMatchingKode(merknadListe: List<Merknad>, kode: String): Boolean =
+            merknadListe.any { it.kode == kode }
     }
 }

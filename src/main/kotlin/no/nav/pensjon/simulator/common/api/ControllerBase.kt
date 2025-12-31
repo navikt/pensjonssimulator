@@ -105,6 +105,8 @@ abstract class ControllerBase(
         if (statistikk == null) return
 
         try {
+            statistikk.takeSnapshotIfNeeded()
+
             val organisasjonsnummer = overridingOrganisasjonsnummer
                 ?: organisasjonsnummerProvider?.provideOrganisasjonsnummer()
                 ?: Organisasjoner.nav

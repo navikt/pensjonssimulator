@@ -6,9 +6,9 @@ import no.nav.pensjon.simulator.statistikk.SimuleringStatistikk
 object StatistikkMapperV1 {
 
     fun toDtoV1(source: List<SimuleringStatistikk>) =
-        StatistikkTransferObjectV1(statistikk = source.map(::hendelseAntall))
+        StatistikkTransferObjectV1(statistikk = source.map(::hendelseAntallV1))
 
-    private fun hendelseAntall(source: SimuleringStatistikk) =
+    fun hendelseAntallV1(source: SimuleringStatistikk) =
         HendelseAntallV1(
             hendelse = hendelse(source.hendelse),
             antall = source.antall

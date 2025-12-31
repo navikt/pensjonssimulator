@@ -26,7 +26,7 @@ class ControllerBaseTest : ShouldSpec({
 
     context("registrerHendelse") {
         should("registrere simuleringstype 'ALDER' når organisasjonen ikke er Nav") {
-            val statistikk = mockk<StatistikkService>()
+            val statistikk = mockk<StatistikkService>(relaxed = true)
 
             val controller = TestController(
                 traceAid = mockk(),

@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.spec.NavSimu
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -32,8 +33,9 @@ import org.springframework.web.bind.annotation.RestController
 class NavAlderspensjonController(
     private val service: SimuleringFacade,
     private val specMapper: NavSimuleringSpecMapperV3,
-    private val traceAid: TraceAid
-) : ControllerBase(traceAid) {
+    private val traceAid: TraceAid,
+    statistikk: StatistikkService
+) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
     /**
@@ -67,6 +69,7 @@ class NavAlderspensjonController(
 
         return try {
             val spec: SimuleringSpec = specMapper.fromNavSimuleringSpecV3(specV3)
+            registrerHendelse(simuleringstype = spec.type)
 
             val result: SimulertPensjonEllerAlternativ =
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)

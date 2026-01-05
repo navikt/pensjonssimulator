@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.beholdning
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
-import no.nav.pensjon.simulator.core.knekkpunkt.TrygdetidFastsetter
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -26,6 +25,8 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.trygdetidSpec
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -39,7 +40,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private val context: SimulatorContext,
     private val beregner: AlderspensjonBeregner,
     private val vilkaarsproever: Vilkaarsproever,
-    private val trygdetidFastsetter: TrygdetidFastsetter,
+    private val trygdetidBeregner: TrygdetidBeregnerProxy,
     private val sisteBeregningCreator: SisteBeregningCreator,
     private val normalderService: NormertPensjonsalderService,
     private val livsvarigOffentligAfpService: LivsvarigOffentligAfpGrunnlagService
@@ -109,9 +110,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             val gjeldendePrivatAfp = getPrivatAfp(privatAfpBeregningResultatListe, knekkpunktDato)
 
             val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag? =
-                spec.afpOffentligLivsvarigBeregningsresultat?.let {
-                    livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(it, kravhode, knekkpunktDato)
-                }
+                livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(
+                    innvilgetAfpSpec = simuleringSpec.livsvarigOffentligAfp?.innvilgetAfp,
+                    simulertAfpYtelseListe = spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe.orEmpty(),
+                    kravhode,
+                    maxGjelderFom = knekkpunktDato
+                )
 
             // Corresponds to part 5
             if (aarsaker.contains(KnekkpunktAarsak.UTG)) { // UTG = 'Endring av uttaksgrad'
@@ -285,7 +289,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = kravhode,
                 persongrunnlag = soekerGrunnlag,
                 knekkpunktDato = knekkpunktDato,
-                soekerForsteVirkningFom = soekerFoersteVirkning,
+                soekerFoersteVirkningFom = soekerFoersteVirkning,
                 ytelseType = KravlinjeTypeEnum.AP,
                 boddEllerArbeidetUtenlands = kravhode.boddEllerArbeidetIUtlandet
             )
@@ -298,7 +302,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                 kravhode = kravhode,
                 persongrunnlag = avdoedGrunnlag!!,
                 knekkpunktDato = knekkpunktDato,
-                soekerForsteVirkningFom = avdoedFoersteVirkning, // TODO: check possible mismatch (soker vs avdod)
+                soekerFoersteVirkningFom = avdoedFoersteVirkning, // TODO: check possible mismatch (soker vs avdod)
                 ytelseType = KravlinjeTypeEnum.GJR,
                 boddEllerArbeidetUtenlands = kravhode.boddArbeidUtlandAvdod
             )
@@ -315,7 +319,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         sakId: Long?
     ) {
         val response =
-            trygdetidFastsetter.fastsettTrygdetidForPeriode(spec, grunnlagRolle, kravGjelderUfoeretrygd, sakId)
+            trygdetidBeregner.fastsettTrygdetidForPeriode(spec, grunnlagRolle, kravGjelderUfoeretrygd, sakId)
 
         spec.persongrunnlag?.let {
             it.trygdetid = response.kapittel19
@@ -500,29 +504,6 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) {
             forrigeResultat.virkTom = getRelativeDateByDays(knekkpunktDato, -1).toNorwegianDateAtNoon()
         }
-
-        /**
-         * Ref. FastsettTrygdetidCache.fastsettTrygdetidInPreg and RequestToReglerMapper.mapToTrygdetidRequest
-         */
-        private fun trygdetidSpec(
-            kravhode: Kravhode,
-            persongrunnlag: Persongrunnlag,
-            knekkpunktDato: LocalDate,
-            soekerForsteVirkningFom: LocalDate?, // nullable
-            ytelseType: KravlinjeTypeEnum,
-            boddEllerArbeidetUtenlands: Boolean
-        ) =
-            TrygdetidRequest().apply {
-                this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-                this.brukerForsteVirk = soekerForsteVirkningFom?.toNorwegianDateAtNoon()
-                this.hovedKravlinjeType = ytelseType
-                this.persongrunnlag = persongrunnlag
-                this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
-                this.regelverkTypeEnum = kravhode.regelverkTypeEnum
-                this.uttaksgradListe = kravhode.uttaksgradListe
-                // Not set: virkTom, beregningsvilkarPeriodeListe
-                // NB: grunnlagsrolle is only used for caching
-            }
 
         private fun findValidForDate(list: MutableList<BeregningsResultatAfpPrivat>, date: LocalDate) =
             list.firstOrNull { isDateInPeriod(date, it.virkFom, it.virkTom) }

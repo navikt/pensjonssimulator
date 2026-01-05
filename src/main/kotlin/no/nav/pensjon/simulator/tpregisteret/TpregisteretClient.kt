@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.tpregisteret.acl.BrukerTilknyttetTpLeverandoerResponse
 import no.nav.pensjon.simulator.tpregisteret.acl.HentAlleTpForholdResponseDto
 import org.springframework.beans.factory.annotation.Value
@@ -22,12 +23,13 @@ import reactor.core.publisher.Mono
 class TpregisteretClient(
     @Value("\${tjenestepensjon.url}") baseUrl: String,
     @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts) {
 
     private val log = KotlinLogging.logger {}
-    private val webClient = webClientBuilder.baseUrl(baseUrl).build()
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
+//TODO cache?
 
     fun hentErBrukerTilknyttetTpLeverandoer(pid: Pid, organisasjonsnummer: Organisasjonsnummer): Boolean {
         val uri = "$PATH/hasForhold?orgnr=${organisasjonsnummer.value}"
@@ -53,17 +55,16 @@ class TpregisteretClient(
         }
     }
 
-    fun findAlleTpForhold(fnr: String): List<TpForhold> {
-        return webClient.get()
+    fun findAlleTpForhold(pid: Pid): List<TpForhold> =
+         webClient.get()
             .uri(FORHOLD_PATH)
-            .headers { setHeaders(it); it["fnr"] = fnr }
+            .headers { setHeaders(it); it["fnr"] = pid.value }
             .exchangeToMono(::handleAlleTpForholdResponse)
             .block()
             .orEmpty()
-    }
 
-    fun findTssId(tpId: String): String? {
-        return try {
+    fun findTssId(tpId: String): String? =
+         try {
             webClient.get()
                 .uri("$TSS_PATH$tpId")
                 .retrieve()
@@ -72,7 +73,6 @@ class TpregisteretClient(
         } catch (_: WebClientResponseException.NotFound) {
             null
         }
-    }
 
     private fun handleAlleTpForholdResponse(response: ClientResponse): Mono<List<TpForhold>> =
         when (response.statusCode()) {

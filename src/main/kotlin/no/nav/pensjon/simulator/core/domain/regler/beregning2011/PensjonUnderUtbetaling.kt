@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
@@ -68,166 +70,304 @@ class PensjonUnderUtbetaling {
         return null
     }
 
+    @get:JsonIgnore
+    @set:JsonIgnore
     var afpKompensasjonstillegg: AfpKompensasjonstillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpKompensasjonstillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var afpKronetillegg: AfpKronetillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpKronetillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var afpTillegg: AfpTillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpTillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var ektefelletillegg: Ektefelletillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Ektefelletillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var ektefelletilleggUT: EktefelletilleggUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<EktefelletilleggUT>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var familietillegg: Familietillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Familietillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var fasteUtgifterTillegg: FasteUtgifterTillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<FasteUtgifterTillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var fasteUtgifterTilleggUT: FasteUtgifterTilleggUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<FasteUtgifterTilleggUT>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var garantipensjon: Garantipensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Garantipensjon>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var garantitillegg: Garantitillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Garantitillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var garantitillegg_Art_27: Garantitillegg_Art_27?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Garantitillegg_Art_27>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var garantitillegg_Art_27_UT: Garantitillegg_Art_27_UT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Garantitillegg_Art_27_UT>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var garantitillegg_Art_50: Garantitillegg_Art_50?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Garantitillegg_Art_50>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var gjenlevendetillegg: Gjenlevendetillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Gjenlevendetillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var gjenlevendetilleggAP: GjenlevendetilleggAP?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<GjenlevendetilleggAP>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var gjenlevendetilleggAPKap19: GjenlevendetilleggAPKap19?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<GjenlevendetilleggAPKap19>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var grunnpensjon: Grunnpensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Grunnpensjon>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var hjelpeloshetsbidrag: Hjelpeloshetsbidrag?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Hjelpeloshetsbidrag>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var inntektspensjon: Inntektspensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Inntektspensjon>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var krigOgGammelYrkesskade: KrigOgGammelYrkesskade?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<KrigOgGammelYrkesskade>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var mendel: Mendel?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Mendel>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var minstenivatilleggIndividuelt: MinstenivatilleggIndividuelt?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<MinstenivatilleggIndividuelt>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var minstenivatilleggPensjonistpar: MinstenivatilleggPensjonistpar?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<MinstenivatilleggPensjonistpar>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var paragraf_8_5_1_tillegg: Paragraf_8_5_1_tillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Paragraf_8_5_1_tillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var pensjonstillegg: Pensjonstillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Pensjonstillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var sertillegg: Sertillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Sertillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var skjermingstillegg: Skjermingstillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Skjermingstillegg>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var temporarYtelseskomponent: TemporarYtelseskomponent?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<TemporarYtelseskomponent>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var tilleggspensjon: Tilleggspensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Tilleggspensjon>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var tilleggTilHjelpIHuset: TilleggTilHjelpIHuset?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<TilleggTilHjelpIHuset>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var uforetilleggTilAlderspensjon: UforetilleggTilAlderspensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<UforetilleggTilAlderspensjon>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var uforetrygdOrdiner: UforetrygdOrdiner?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<UforetrygdOrdiner>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var ventetillegg: Ventetillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Ventetillegg>(yk)
 
     // AbstraktBarnetillegg:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var barnetilleggSerkullsbarn: BarnetilleggSerkullsbarn?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggSerkullsbarn>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var barnetilleggFellesbarn: BarnetilleggFellesbarn?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggFellesbarn>(yk)
 
     // AbstraktBarnetillegg.AbstraktBarnetilleggUT:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var barnetilleggFellesbarnUT: BarnetilleggFellesbarnUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggFellesbarnUT>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var barnetilleggSerkullsbarnUT: BarnetilleggSerkullsbarnUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BarnetilleggSerkullsbarnUT>(yk)
 
     // AfpLivsvarig:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var afpOffentligLivsvarig: AfpOffentligLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpOffentligLivsvarig>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var afpPrivatLivsvarig: AfpPrivatLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<AfpPrivatLivsvarig>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var fremskrevetAfpLivsvarig: FremskrevetAfpLivsvarig?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<FremskrevetAfpLivsvarig>(yk)
 
     // Grunnpensjon:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var basisGrunnpensjon: BasisGrunnpensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BasisGrunnpensjon>(yk)
 
     // Tilleggspensjon:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var basisTilleggspensjon: BasisTilleggspensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BasisTilleggspensjon>(yk)
 
     // Pensjonstillegg:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var basisPensjonstillegg: BasisPensjonstillegg?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<BasisPensjonstillegg>(yk)
 
     // BeregningYtelseskomponent:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var skattefriGrunnpensjon: SkattefriGrunnpensjon?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<SkattefriGrunnpensjon>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var skattefriUforetrygdOrdiner: SkattefriUforetrygdOrdiner?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<SkattefriUforetrygdOrdiner>(yk)
 
     // BeregningYtelseskomponent.MotregningYtelseskomponent:
+    @get:JsonIgnore
+    @set:JsonIgnore
     var arbeidsavklaringspenger: Arbeidsavklaringspenger?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Arbeidsavklaringspenger>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var arbeidsavklaringspengerUT: ArbeidsavklaringspengerUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<ArbeidsavklaringspengerUT>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var sykepenger: Sykepenger?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<Sykepenger>(yk)
+
+    @get:JsonIgnore
+    @set:JsonIgnore
     var sykepengerUT: SykepengerUT?
         get() = ytelseskomponenter.firstIsInstanceOrNull()
         set(yk) = internalAddOrRemoveIfNull<SykepengerUT>(yk)
@@ -236,6 +376,7 @@ class PensjonUnderUtbetaling {
      * Avoids the com.fasterxml.jackson.databind.exc.InvalidDefinitionException:
      * Cannot construct instance of `no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling` (no Creators, like default constructor, exist): cannot deserialize from Object value (no delegate- or property-based Creator)
      */
+    @JsonCreator
     constructor()
 
     // SIMDOM-ADD excludeBrutto

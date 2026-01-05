@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.core.spec
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -38,7 +37,7 @@ data class SimuleringSpec(
     val inntektOver1GAntallAar: Int,
     val flyktning: Boolean?,
     val epsHarInntektOver2G: Boolean,
-    val rettTilOffentligAfpFom: LocalDate?,
+    val livsvarigOffentligAfp: LivsvarigOffentligAfpSpec?, // for "ny" AFP i offentlig sektor
     val pre2025OffentligAfp: Pre2025OffentligAfpSpec?, // for "gammel" AFP i offentlig sektor
     val erAnonym: Boolean, // støtter uinnlogget kalkulator
     val ignoreAvslag: Boolean, // simulering fullføres selv med for lav opptjening/trygdetid
@@ -119,6 +118,49 @@ data class SimuleringSpec(
         )
     }
 
+    fun withAvdoed(avdoedPid: Pid, doedsdato: LocalDate) =
+        SimuleringSpec(
+            type = if (type == SimuleringTypeEnum.ENDR_ALDER) SimuleringTypeEnum.ENDR_ALDER_M_GJEN else type,
+            sivilstatus = sivilstatus,
+            epsHarPensjon = epsHarPensjon,
+            foersteUttakDato = foersteUttakDato,
+            heltUttakDato = heltUttakDato,
+            pid = pid,
+            foedselDato = foedselDato,
+            avdoed = Avdoed(
+                pid = avdoedPid,
+                antallAarUtenlands = 0,
+                inntektFoerDoed = 0,
+                doedDato = doedsdato,
+                erMedlemAvFolketrygden = false,
+                harInntektOver1G = false
+            ),
+            isTpOrigSimulering = isTpOrigSimulering,
+            simulerForTp = simulerForTp,
+            uttakGrad = uttakGrad,
+            forventetInntektBeloep = forventetInntektBeloep,
+            inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
+            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+            foedselAar = foedselAar,
+            utlandAntallAar = utlandAntallAar,
+            utlandPeriodeListe = utlandPeriodeListe,
+            fremtidigInntektListe = fremtidigInntektListe,
+            brukFremtidigInntekt = brukFremtidigInntekt,
+            inntektOver1GAntallAar = inntektOver1GAntallAar,
+            flyktning = flyktning,
+            epsHarInntektOver2G = epsHarInntektOver2G,
+            livsvarigOffentligAfp = livsvarigOffentligAfp,
+            pre2025OffentligAfp = pre2025OffentligAfp,
+            erAnonym = erAnonym,
+            ignoreAvslag = ignoreAvslag,
+            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
+            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+            onlyVilkaarsproeving = onlyVilkaarsproeving,
+            epsKanOverskrives = epsKanOverskrives,
+            registerData = registerData
+        )
+
     fun withUttak(
         foersteUttakDato: LocalDate?,
         uttaksgrad: UttakGradKode,
@@ -149,7 +191,7 @@ data class SimuleringSpec(
             inntektOver1GAntallAar = inntektOver1GAntallAar,
             flyktning = flyktning,
             epsHarInntektOver2G = epsHarInntektOver2G,
-            rettTilOffentligAfpFom = rettTilOffentligAfpFom,
+            livsvarigOffentligAfp = livsvarigOffentligAfp,
             pre2025OffentligAfp = pre2025OffentligAfp,
             erAnonym = erAnonym,
             ignoreAvslag = ignoreAvslag,
@@ -231,7 +273,7 @@ data class SimuleringSpec(
      * - heltUttakDato = uttak av alderspensjon
      * Det er alderspensjonsuttaket (og dermed heltUttakDato) som er relevant for trygdetiden her
      */
-     fun foersteAlderspensjonUttaksdato(): LocalDate? =
+    fun foersteAlderspensjonUttaksdato(): LocalDate? =
         if (gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon())
             heltUttakDato ?: foersteUttakDato // bruker foersteUttakDato som 'backup'-dato
         else
@@ -251,9 +293,3 @@ data class SimuleringSpec(
             grad != UttakGradKode.P_100
     }
 }
-
-data class Pre2025OffentligAfpSpec(
-    val afpOrdning: AFPtypeEnum, // Hvilken AFP-ordning bruker er tilknyttet
-    val inntektMaanedenFoerAfpUttakBeloep: Int, // Brukers inntekt måneden før uttak av AFP
-    val inntektUnderAfpUttakBeloep: Int
-)

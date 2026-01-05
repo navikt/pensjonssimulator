@@ -1,43 +1,26 @@
 package no.nav.pensjon.simulator.generelt.client.pen.acl
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpSatser
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.generelt.GenerelleData
 import no.nav.pensjon.simulator.generelt.Person
-import java.time.LocalDate
 
-class PenGenerelleDataResultMapperTest : FunSpec({
+class PenGenerelleDataResultMapperTest : ShouldSpec({
 
-    test("fromDto with empty lists") {
+    should("map empty lists") {
         PenGenerelleDataResultMapper.fromDto(
             PenGenerelleDataResult(
-                person = PenPersonData(
-                    foedselDato = LocalDate.of(1964, 5, 6),
-                    statsborgerskap = "ABW"
-                ),
+                person = PenPersonData(statsborgerskap = "ABW"),
                 privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
-                delingstallUtvalg = PenDelingstallUtvalg(
-                    dt = 1.2,
-                    dt67soker = 3.4,
-                    dt67virk = 5.6,
-                    delingstallListe = mutableListOf()
-                ),
-                forholdstallUtvalg = PenForholdstallUtvalg(
-                    ft = 1.2,
-                    forholdstallListe = mutableListOf(),
-                    ft67soeker = 3.4,
-                    ft67virkning = 5.6,
-                    reguleringFaktor = 7.8
-                ),
-                satsResultatListe = emptyList()
+                satsResultatListe = emptyList(),
+                sisteGyldigeOpptjeningsaar = 2024
             )
         ) shouldBeEqualToComparingFields
                 GenerelleData(
                     person = Person(
-                        foedselDato = LocalDate.of(1964, 5, 6),
                         statsborgerskap = LandkodeEnum.ABW
                     ),
                     privatAfpSatser = PrivatAfpSatser(
@@ -46,51 +29,18 @@ class PenGenerelleDataResultMapperTest : FunSpec({
                         justeringsbeloep = 0,
                         referansebeloep = 0
                     ),
-                    satsResultatListe = emptyList()
+                    satsResultatListe = emptyList(),
+                    sisteGyldigeOpptjeningsaar = 2024
                 )
     }
 
-    test("fromDto lists") {
+    should("map non-empty lists") {
         val result = PenGenerelleDataResultMapper.fromDto(
             PenGenerelleDataResult(
-                person = PenPersonData(
-                    foedselDato = LocalDate.of(1964, 5, 6),
-                    statsborgerskap = "ABW"
-                ),
+                person = PenPersonData(statsborgerskap = "ABW"),
                 privatAfpSatser = PenPrivatAfpSatser(forholdstall = null),
-                delingstallUtvalg = PenDelingstallUtvalg(
-                    dt = 1.2,
-                    dt67soker = 3.4,
-                    dt67virk = 5.6,
-                    delingstallListe = mutableListOf(
-                        PenAarskullTall(
-                            aarskull = 1970L,
-                            alderAar = 55,
-                            maaneder = 9,
-                            tall = 6.71
-                        )
-                    )
-                ),
-                forholdstallUtvalg = PenForholdstallUtvalg(
-                    ft = 1.2,
-                    forholdstallListe = mutableListOf(
-                        PenAarskullTall(
-                            aarskull = 1960L,
-                            alderAar = 65,
-                            maaneder = 11,
-                            tall = 6.7
-                        )
-                    ),
-                    ft67soeker = 3.4,
-                    ft67virkning = 5.6,
-                    reguleringFaktor = 7.8
-                ),
-                satsResultatListe = listOf(
-                    PenVeietSatsResultat(
-                        aar = 2025,
-                        verdi = 8.9
-                    )
-                )
+                satsResultatListe = listOf(PenVeietSatsResultat(aar = 2025, verdi = 8.9)),
+                sisteGyldigeOpptjeningsaar = 2020
             )
         )
 

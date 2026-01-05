@@ -4,11 +4,9 @@ import no.nav.pensjon.simulator.tech.security.egress.token.EgressTokenGetter
 import no.nav.pensjon.simulator.tech.security.egress.token.RawJwt
 import no.nav.pensjon.simulator.tech.security.egress.token.TokenAccessParameter
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class MaskinportenTokenService(
-    val webClientBuilder: WebClient.Builder,
     val maskinportenClient: MaskinportenRequestClient,
 ) : EgressTokenGetter {
 

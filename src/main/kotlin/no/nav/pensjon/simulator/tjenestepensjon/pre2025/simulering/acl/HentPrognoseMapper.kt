@@ -34,9 +34,9 @@ object HentPrognoseMapper {
 
     private fun toPensjonsbeholdningsperiode(spec: Pensjonsbeholdningsperiode) = PensjonsbeholdningsperiodeDto(
         datoFom = spec.fom,
-        pensjonsbeholdning = spec.pensjonsbeholdning.toInt(),
-        garantipensjonsbeholdning = spec.garantipensjonsbeholdning.toInt(),
-        garantitilleggsbeholdning = spec.garantitilleggsbeholdning.toInt(),
+        pensjonsbeholdning = spec.pensjonsbeholdning?.toInt() ?: 0,
+        garantipensjonsbeholdning = spec.garantipensjonsbeholdning?.toInt() ?: 0,
+        garantitilleggsbeholdning = spec.garantitilleggsbeholdning?.toInt() ?: 0,
     )
 
     private fun toSimuleringsperiode(spec: Simuleringsperiode) =
@@ -84,7 +84,7 @@ object HentPrognoseMapper {
                     arligUtbetaling = utbetalingsperiode.arligUtbetaling,
                     datoFom = utbetalingsperiode.datoFom,
                     datoTom = utbetalingsperiode.datoTom,
-                    ytelsekode = utbetalingsperiode.ytelsekode
+                    ytelsekode = SimulerOffentligTjenestepensjonResultV1.YtelseCode.valueOf(utbetalingsperiode.ytelsekode)
                 )
             },
             brukerErIkkeMedlemAvTPOrdning = dto.brukerErIkkeMedlemAvTPOrdning,

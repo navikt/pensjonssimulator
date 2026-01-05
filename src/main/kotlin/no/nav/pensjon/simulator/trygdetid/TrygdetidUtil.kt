@@ -1,25 +1,45 @@
 package no.nav.pensjon.simulator.trygdetid
 
-import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 import java.util.*
 
 object TrygdetidUtil {
 
-    // Extracted from SettTrygdetidHelper.findAntallArMedOpptjening
     fun antallAarMedOpptjening(
-        opptjeningAarSet: SortedSet<Int>,
+        registrerteAarMedOpptjening: SortedSet<Int>,
         aarSoekerFikkMinstealderForTrygdetid: Int,
         dagensDato: LocalDate
     ): Int {
-        if (opptjeningAarSet.size < 1) return 0
+        if (registrerteAarMedOpptjening.isEmpty()) return 0
 
         val forrigeAar = dagensDato.year - 1
 
         return if (aarSoekerFikkMinstealderForTrygdetid > forrigeAar)
             0
         else
-            opptjeningAarSet.subSet(aarSoekerFikkMinstealderForTrygdetid, forrigeAar).size
+            registrerteAarMedOpptjening.subSet(aarSoekerFikkMinstealderForTrygdetid, forrigeAar).size
     }
+
+    fun trygdetidSpec(
+        kravhode: Kravhode,
+        persongrunnlag: Persongrunnlag,
+        knekkpunktDato: LocalDate,
+        soekerFoersteVirkningFom: LocalDate?, // nullable (e.g. for avdød)
+        ytelseType: KravlinjeTypeEnum,
+        boddEllerArbeidetUtenlands: Boolean
+    ) =
+        TrygdetidRequest().apply {
+            this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
+            this.brukerForsteVirk = soekerFoersteVirkningFom?.toNorwegianDateAtNoon()
+            this.hovedKravlinjeType = ytelseType
+            this.persongrunnlag = persongrunnlag
+            this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands
+            this.regelverkTypeEnum = kravhode.regelverkTypeEnum
+            this.uttaksgradListe = kravhode.uttaksgradListe
+        }
 }

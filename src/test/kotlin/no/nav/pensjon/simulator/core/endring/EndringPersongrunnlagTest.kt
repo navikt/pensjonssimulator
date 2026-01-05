@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.endring
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -10,13 +11,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
-import java.util.*
 
-class EndringPersongrunnlagTest : FunSpec({
+class EndringPersongrunnlagTest : ShouldSpec({
 
     /**
      * En persondetalj er irrelevant hvis enten:
@@ -27,13 +27,14 @@ class EndringPersongrunnlagTest : FunSpec({
      * - EndringPersongrunnlag bruker penRolleTom
      * - Pre2025OffentligAfpPersongrunnlag bruker virkTom
      */
-    test("getPersongrunnlagForSoeker should remove irrelevante persondetaljer") {
+    should("fjerne irrelevante persondetaljer") {
         val persongrunnlag = EndringPersongrunnlag(
             context = mockk(),
             kravService = arrangeKrav(), // kravet inneholder irrelevante persondetaljer
             beholdningService = mockk(),
             epsService = mockk(),
             persongrunnlagMapper = mockk(),
+            generelleDataHolder = mockk(relaxed = true),
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
@@ -43,7 +44,7 @@ class EndringPersongrunnlagTest : FunSpec({
         )
 
         with(persongrunnlag!!) {
-            personDetaljListe.size shouldBe 3
+            personDetaljListe shouldHaveSize 3
             personDetaljListe[0].grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
             personDetaljListe[1].grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.FAR
             personDetaljListe[2].grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.BARN
@@ -63,32 +64,32 @@ private fun persongrunnlag() =
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
-                virkTom = dateAtNoon(1901, Calendar.JANUARY, 1) // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+                virkTom = LocalDate.of(1901, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = false // => dvs. denne persondetaljen er irrelevant
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
-                virkTom = dateAtNoon(2026, Calendar.JANUARY, 1) // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.MOR
-                penRolleTom = dateAtNoon(2024, Calendar.JANUARY, 1) // => i fortid => irrelevant
-                virkTom = dateAtNoon(2026, Calendar.JANUARY, 1) // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon() // => i fortid => irrelevant
+                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.FAR
                 penRolleTom = null
-                virkTom = dateAtNoon(2026, Calendar.JANUARY, 1) // NB: virkTom has no effect
+                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
-                penRolleTom = dateAtNoon(2025, Calendar.JANUARY, 1) // => tom = "i dag" => detaljen er relevant
-                virkTom = dateAtNoon(1901, Calendar.JANUARY, 1) // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon() // => tom = "i dag" => detaljen er relevant
+                virkTom = LocalDate.of(1901, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
             }
         )
     }

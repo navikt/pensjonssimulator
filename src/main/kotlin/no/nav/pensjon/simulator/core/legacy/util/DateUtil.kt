@@ -139,9 +139,6 @@ object DateUtil {
             start < end
     }
 
-    fun calculateAgeInYears(foedselsdato: Date, dato: LocalDate): Int =
-        calculateAgeInYears(foedselsdato.toNorwegianLocalDate(), dato)
-
     // SimuleringEtter2011Utils.calculateAgeInYears
     // NB: Compare this with PensjonAlderDato.alderVedDato
     fun calculateAgeInYears(foedselsdato: LocalDate?, dato: LocalDate?): Int =

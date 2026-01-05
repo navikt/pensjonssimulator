@@ -41,6 +41,8 @@ open class SecurityConfiguration {
                     .requestMatchers(
                         HttpMethod.GET,
                         "/internal/**",
+                        "/api/v1/statistikk",
+                        "/api/v1/statistikk-snapshot/**",
                         "/api/v1/status",
                         "/api/devenv/**",
                         "/swagger-ui/**",

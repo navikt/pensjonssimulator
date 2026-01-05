@@ -2,9 +2,10 @@ package no.nav.pensjon.simulator.tech.security.egress.token
 
 import no.nav.pensjon.simulator.tech.security.egress.oauth2.OAuth2TokenClient
 import no.nav.pensjon.simulator.tech.security.egress.token.validation.ExpirationChecker
+import no.nav.pensjon.simulator.tech.web.WebClientBase
 import org.springframework.util.StringUtils.hasLength
-import org.springframework.web.reactive.function.client.WebClient
 import java.util.*
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Obtains access tokens and caches them.
@@ -14,16 +15,16 @@ import java.util.*
  */
 abstract class CacheAwareTokenClient(
     tokenEndpoint: String,
-    webClientBuilder: WebClient.Builder,
+    webClientBase: WebClientBase,
     retryAttempts: String,
     expirationChecker: ExpirationChecker
 ) : OAuth2TokenClient(
     tokenEndpoint,
-    webClientBuilder,
+    webClientBase,
     retryAttempts,
     expirationChecker
 ) {
-    private var accessTokensByUserByScope: MutableMap<String, MutableMap<String, TokenData>> = HashMap()
+    private var accessTokensByUserByScope: MutableMap<String, MutableMap<String, TokenData>> = ConcurrentHashMap()
     private var cleanupNeed = 0
 
     fun getTokenData(accessParameter: TokenAccessParameter, scope: String, user: String): TokenData {
@@ -50,9 +51,8 @@ abstract class CacheAwareTokenClient(
     open fun getCleanupTrigger(): Int = CLEANUP_TRIGGER
 
     private fun putInCache(scope: String, user: String, tokenData: TokenData) {
-        val tokensByUser = accessTokensByUserByScope[scope] ?: HashMap()
+        val tokensByUser = accessTokensByUserByScope.computeIfAbsent(scope) { ConcurrentHashMap() }
         tokensByUser[user] = tokenData
-        accessTokensByUserByScope[scope] = tokensByUser
     }
 
     private fun getValidTokenFromCache(scope: String, user: String): Optional<TokenData> {

@@ -11,8 +11,10 @@ import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.*
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
@@ -36,9 +38,10 @@ import java.time.format.DateTimeParseException
 class SamhandlerAlderspensjonControllerV4(
     private val service: AlderspensjonService,
     private val traceAid: TraceAid,
+    statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
-) : ControllerBase(traceAid, organisasjonsnummerProvider, tilknytningService) {
+) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v4/simuler-alderspensjon")
@@ -74,6 +77,7 @@ class SamhandlerAlderspensjonControllerV4(
 
         return try {
             val spec: AlderspensjonSpec = AlderspensjonSpecMapperV4.fromDto(specV4)
+            registrerHendelse(simuleringstype = SimuleringTypeEnum.ALDER)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
             resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID_V4))
@@ -96,10 +100,10 @@ class SamhandlerAlderspensjonControllerV4(
             log.warn { "$FUNCTION_ID_V4 feil i regelmotorvalidering - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn { "$FUNCTION_ID_V4 utilstrekkelig opptjening - ${e.message} - request: $specV4" }
+            log.info { "$FUNCTION_ID_V4 utilstrekkelig opptjening - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn { "$FUNCTION_ID_V4 utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
+            log.info { "$FUNCTION_ID_V4 utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
             feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!

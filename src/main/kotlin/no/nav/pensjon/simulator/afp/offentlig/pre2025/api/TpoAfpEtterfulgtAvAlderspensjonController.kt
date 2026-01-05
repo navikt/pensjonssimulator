@@ -20,6 +20,7 @@ import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
@@ -39,9 +40,10 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
     private val simulator: SimulatorCore,
     private val specMapper: AfpEtterfulgtAvAlderspensjonSpecMapperV0,
     private val traceAid: TraceAid,
+    statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
-    tilknytningService: TilknytningService,
-) : ControllerBase(traceAid, organisasjonsnummerProvider, tilknytningService) {
+    tilknytningService: TilknytningService
+) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v0/simuler-afp-etterfulgt-av-alderspensjon")
@@ -77,6 +79,7 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             verifiserAtBrukerTilknyttetTpLeverandoer(pid)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, pid)
             val spec: SimuleringSpec = specMapper.fromDto(validatedSpecV0)
+            registrerHendelse(simuleringstype = spec.type)
             toDto(simulator.simuler(spec), spec)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
@@ -106,10 +109,10 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV0" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!

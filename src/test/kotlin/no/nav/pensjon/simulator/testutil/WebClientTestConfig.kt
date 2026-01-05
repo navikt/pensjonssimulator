@@ -1,14 +1,42 @@
 package no.nav.pensjon.simulator.testutil
 
-import no.nav.pensjon.simulator.tech.web.WebClientConfig
+import no.nav.pensjon.simulator.tech.web.WebClientBase
+import no.nav.pensjon.simulator.tech.web.WebClientBuilderConfiguration
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.http.codec.json.JacksonJsonDecoder
+import org.springframework.http.codec.json.JacksonJsonEncoder
 import org.springframework.web.reactive.function.client.WebClient
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.databind.json.JsonMapper
 
 @TestConfiguration
 open class WebClientTestConfig {
 
     @Bean
-    open fun webClientBuilder(): WebClient.Builder =
-        WebClient.builder().also { WebClientConfig().customize(it) }
+    open fun webClientBase(objectMapper: ObjectMapper): WebClientBase =
+        WebClientBase(
+            builder = WebClient.builder()
+                .codecs {
+                    it.defaultCodecs().jacksonJsonDecoder(JacksonJsonDecoder(deserializationMapper()))
+                    it.defaultCodecs().jacksonJsonEncoder(JacksonJsonEncoder(JsonMapper.builder()))
+                }
+                .also {
+                    WebClientBuilderConfiguration().customize(it)
+                }
+        )
+
+    @Bean
+    open fun objectMapper(): ObjectMapper =
+        JsonMapper.builder()
+            .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+            .build()
+
+    private companion object {
+        private fun deserializationMapper(): JsonMapper =
+            JsonMapper.builder()
+                .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+                .build()
+    }
 }

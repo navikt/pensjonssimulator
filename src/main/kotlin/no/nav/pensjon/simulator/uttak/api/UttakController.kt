@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
@@ -35,9 +36,10 @@ class UttakController(
     private val service: UttakService,
     private val specMapper: UttakSpecMapperV1,
     private val traceAid: TraceAid,
+    statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
-    tilknytningService: TilknytningService,
-) : ControllerBase(traceAid, organisasjonsnummerProvider, tilknytningService) {
+    tilknytningService: TilknytningService
+) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/tidligst-mulig-uttak")
@@ -74,6 +76,7 @@ class UttakController(
 
             verifiserAtBrukerTilknyttetTpLeverandoer(pid)
             val spec: SimuleringSpec = specMapper.fromSpecV1(specV1)
+            registrerHendelse(simuleringstype = spec.type)
             resultV1(timed(service::finnTidligstMuligUttak, spec, FUNCTION_ID))
         } catch (e: BadRequestException) {
             log.warn(e) { "$FUNCTION_ID bad request - $specV1" }
@@ -109,10 +112,10 @@ class UttakController(
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
             handle(e)!!

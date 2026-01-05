@@ -1,165 +1,197 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerTjenestepensjonFremtidigInntektDto
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.ANNEN_TP_ORDNING_BURDE_SIMULERE
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.*
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
-class KlpMapperTest{
+class KlpMapperTest : ShouldSpec({
 
-    @Test
-    fun `map klp response`() {
-        val resp = KlpSimulerTjenestepensjonResponse(
-            listOf(InkludertOrdning("1000")),
-            listOf(
-                Utbetaling(LocalDate.of(2025, 2, 6), manedligUtbetaling = 1, arligUtbetaling = 12, ytelseType = "BTP"),
-                Utbetaling(
-                    LocalDate.of(2028, 3, 7),
-                    manedligUtbetaling = 2,
-                    arligUtbetaling = 24,
-                    ytelseType = "PAASLAG"
+    val idag = LocalDate.now()
+    val imorgen = idag.plusDays(1)
+
+    context("fromResponseDto") {
+        should("map KLP response DTO to 'simulert tjenestepensjon' domain object") {
+            val response = KlpSimulerTjenestepensjonResponse(
+                inkludertOrdningListe = listOf(InkludertOrdning(tpnr = "1000")),
+                utbetalingsListe = listOf(
+                    Utbetaling(
+                        LocalDate.of(2025, 2, 6),
+                        manedligUtbetaling = 1,
+                        arligUtbetaling = 12,
+                        ytelseType = "BTP"
+                    ),
+                    Utbetaling(
+                        LocalDate.of(2028, 3, 7),
+                        manedligUtbetaling = 2,
+                        arligUtbetaling = 24,
+                        ytelseType = "PAASLAG"
+                    ),
+                    Utbetaling(
+                        LocalDate.of(2030, 4, 8),
+                        manedligUtbetaling = 3,
+                        arligUtbetaling = 36,
+                        ytelseType = "OT6370"
+                    ),
                 ),
-                Utbetaling(
-                    LocalDate.of(2030, 4, 8),
-                    manedligUtbetaling = 3,
-                    arligUtbetaling = 36,
-                    ytelseType = "OT6370"
+                arsakIngenUtbetaling = listOf(
+                    ArsakIngenUtbetaling(
+                        statusKode = "IKKE_STOETTET",
+                        statusBeskrivelse = "Ikke stoettet",
+                        ytelseType = "SAERALDERSPAASLAG"
+                    )
                 ),
-            ),
-            listOf(
-                ArsakIngenUtbetaling(
-                    statusKode = "IKKE_STOETTET",
-                    statusBeskrivelse = "Ikke stoettet",
-                    ytelseType = "SAERALDERSPAASLAG"
-                )
-            ), true
-        )
+                betingetTjenestepensjonErInkludert = true
+            )
 
-        val result = KlpMapper.mapToResponse(resp)
+            val result: SimulertTjenestepensjon = KlpMapper.fromResponseDto(response)
 
-        assertEquals(1, result.ordningsListe.size)
-        assertEquals("1000", result.ordningsListe[0].tpNummer)
-        assertEquals(3, result.utbetalingsperioder.size)
+            with(result) {
+                ordningsListe shouldHaveSize 1
+                ordningsListe[0].tpNummer shouldBe "1000"
+                aarsakIngenUtbetaling shouldHaveSize 1
+                aarsakIngenUtbetaling.first() shouldBe "Ikke stoettet: SAERALDERSPAASLAG"
+                erSisteOrdning shouldBe true
+                utbetalingsperioder shouldHaveSize 3
 
-        assertEquals(resp.utbetalingsListe[0].fraOgMedDato, result.utbetalingsperioder[0].fom)
-        assertEquals(resp.utbetalingsListe[0].manedligUtbetaling, result.utbetalingsperioder[0].maanedligBelop)
-        assertEquals(resp.utbetalingsListe[0].ytelseType, result.utbetalingsperioder[0].ytelseType)
-        assertEquals(resp.utbetalingsListe[1].fraOgMedDato, result.utbetalingsperioder[1].fom)
-        assertEquals(resp.utbetalingsListe[1].manedligUtbetaling, result.utbetalingsperioder[1].maanedligBelop)
-        assertEquals(resp.utbetalingsListe[1].ytelseType, result.utbetalingsperioder[1].ytelseType)
-        assertEquals(resp.utbetalingsListe[2].fraOgMedDato, result.utbetalingsperioder[2].fom)
-        assertEquals(resp.utbetalingsListe[2].manedligUtbetaling, result.utbetalingsperioder[2].maanedligBelop)
-        assertEquals(resp.utbetalingsListe[2].ytelseType, result.utbetalingsperioder[2].ytelseType)
+                with(utbetalingsperioder[0]) {
+                    fom shouldBe response.utbetalingsListe[0].fraOgMedDato
+                    maanedligBelop shouldBe response.utbetalingsListe[0].manedligUtbetaling
+                    ytelseType shouldBe response.utbetalingsListe[0].ytelseType
+                }
+                with(utbetalingsperioder[1]) {
+                    fom shouldBe response.utbetalingsListe[1].fraOgMedDato
+                    maanedligBelop shouldBe response.utbetalingsListe[1].manedligUtbetaling
+                    ytelseType shouldBe response.utbetalingsListe[1].ytelseType
+                }
+                with(utbetalingsperioder[2]) {
+                    fom shouldBe response.utbetalingsListe[2].fraOgMedDato
+                    maanedligBelop shouldBe response.utbetalingsListe[2].manedligUtbetaling
+                    ytelseType shouldBe response.utbetalingsListe[2].ytelseType
+                }
+            }
+        }
 
-        assertEquals(1, result.aarsakIngenUtbetaling.size)
-        assertEquals("Ikke stoettet: SAERALDERSPAASLAG", result.aarsakIngenUtbetaling.first())
-        assertTrue { result.erSisteOrdning }
+        should("map KLP response DTO med ikke siste ordning") {
+            val statusBeskrivelse = "Ikke siste ordning. Statens pensjonskasse er siste ordning"
+            val ytelseType = "ALLE"
+            val response = KlpSimulerTjenestepensjonResponse(
+                inkludertOrdningListe = listOf(InkludertOrdning(tpnr = "1000")),
+                utbetalingsListe = emptyList(),
+                arsakIngenUtbetaling = listOf(
+                    ArsakIngenUtbetaling(
+                        statusKode = "IKKE_SISTE_ORDNING",
+                        statusBeskrivelse = statusBeskrivelse,
+                        ytelseType = ytelseType
+                    )
+                ),
+                betingetTjenestepensjonErInkludert = false
+            )
 
+            val result: SimulertTjenestepensjon = KlpMapper.fromResponseDto(response)
+
+            with(result) {
+                ordningsListe shouldHaveSize 1
+                ordningsListe[0].tpNummer shouldBe "1000"
+                aarsakIngenUtbetaling shouldHaveSize 1
+                aarsakIngenUtbetaling.first() shouldBe "$statusBeskrivelse: $ytelseType"
+                erSisteOrdning shouldBe false
+                utbetalingsperioder shouldHaveSize 0
+            }
+        }
     }
 
-    @Test
-    fun `map klp response med ikke siste ordning`() {
-        val statusBeskrivelse = "Ikke siste ordning. Statens pensjonskasse er siste ordning"
-        val ytelseType = "ALLE"
-        val resp = KlpSimulerTjenestepensjonResponse(
-            listOf(InkludertOrdning("1000")),
-            listOf(),
-            listOf(ArsakIngenUtbetaling(statusKode = ANNEN_TP_ORDNING_BURDE_SIMULERE, statusBeskrivelse = statusBeskrivelse, ytelseType = ytelseType)), false
-        )
+    context("toRequestDto") {
+        should("map spec to KLP request DTO with fremtidige inntekter") {
+            val uttaksdato = LocalDate.of(2025, 2, 1)
+            val request = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
+                sisteInntekt = 100000,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = true,
+                uttaksdato = uttaksdato,
+                foedselsdato = LocalDate.of(1990, 1, 1),
+                fremtidigeInntekter = listOf(
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2025, 2, 1), aarligInntekt = 4),
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2026, 3, 1), aarligInntekt = 5),
+                    TjenestepensjonInntektSpec(fom = LocalDate.of(2027, 4, 1), aarligInntekt = 6)
+                ),
+                gjelderApoteker = false
+            )
 
-        val result: SimulertTjenestepensjon = KlpMapper.mapToResponse(resp)
+            val result: KlpSimulerTjenestepensjonRequest = KlpMapper.toRequestDto(request)
 
-        assertEquals(1, result.ordningsListe.size)
-        assertEquals("1000", result.ordningsListe[0].tpNummer)
-        assertTrue(result.utbetalingsperioder.isEmpty())
+            val expectedInntekter = request.fremtidigeInntekter!!
+            with(result) {
+                personId shouldBe request.pid.value
+                uttaksListe shouldHaveSize 1
+                with(uttaksListe[0]) {
+                    ytelseType shouldBe "ALLE"
+                    fraOgMedDato shouldBe uttaksdato
+                }
+                fremtidigInntektsListe shouldHaveSize 4
+                with(fremtidigInntektsListe[0]) {
+                    arligInntekt shouldBe request.sisteInntekt
+                    fraOgMedDato.isEqual(idag) || fraOgMedDato.isBefore(imorgen) shouldBe true
+                }
+                with(fremtidigInntektsListe[1]) {
+                    arligInntekt shouldBe expectedInntekter[0].aarligInntekt
+                    fraOgMedDato shouldBe expectedInntekter[0].fom
+                }
+                with(fremtidigInntektsListe[2]) {
+                    arligInntekt shouldBe expectedInntekter[1].aarligInntekt
+                    fraOgMedDato shouldBe expectedInntekter[1].fom
+                }
+                with(fremtidigInntektsListe[3]) {
+                    arligInntekt shouldBe expectedInntekter[2].aarligInntekt
+                    fraOgMedDato shouldBe expectedInntekter[2].fom
+                }
+                arIUtlandetEtter16 shouldBe request.utlandAntallAar
+                epsPensjon shouldBe true
+                eps2G shouldBe true
+            }
+        }
 
-        assertEquals(1, result.aarsakIngenUtbetaling.size)
-        assertEquals("$statusBeskrivelse: $ytelseType", result.aarsakIngenUtbetaling.first())
-        assertFalse { result.erSisteOrdning }
+        should("map spec to KLP request DTO without fremtidige inntekter") {
+            val uttaksdato = LocalDate.of(2025, 2, 1)
+            val request = OffentligTjenestepensjonFra2025SimuleringSpec(
+                pid = Pid("12345678901"),
+                sisteInntekt = 100000,
+                utlandAntallAar = 3,
+                epsHarPensjon = true,
+                epsHarInntektOver2G = true,
+                afpErForespurt = true,
+                uttaksdato = uttaksdato,
+                foedselsdato = LocalDate.of(1990, 1, 1),
+                fremtidigeInntekter = null,
+                gjelderApoteker = false
+            )
 
+            val result: KlpSimulerTjenestepensjonRequest = KlpMapper.toRequestDto(request)
+
+            with(result) {
+                personId shouldBe request.pid.value
+                uttaksListe shouldHaveSize 1
+                with(uttaksListe[0]) {
+                    ytelseType shouldBe "ALLE"
+                    fraOgMedDato shouldBe uttaksdato
+                }
+                fremtidigInntektsListe shouldHaveSize 1
+                with(fremtidigInntektsListe[0]) {
+                    arligInntekt shouldBe request.sisteInntekt
+                    fraOgMedDato.isEqual(idag) || fraOgMedDato.isBefore(imorgen) shouldBe true
+                }
+                arIUtlandetEtter16 shouldBe request.utlandAntallAar
+                epsPensjon shouldBe true
+                eps2G shouldBe true
+            }
+        }
     }
-
-    @Test
-    fun `map request to klp request with fremtidigeInntekter`() {
-        val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-            pid = "12345678901",
-            sisteInntekt = 100000,
-            aarIUtlandetEtter16 = 3,
-            epsPensjon = true,
-            eps2G = true,
-            brukerBaOmAfp = true,
-            uttaksdato = uttaksdato,
-            foedselsdato = LocalDate.of(1990, 1, 1),
-            fremtidigeInntekter = listOf(
-                SimulerTjenestepensjonFremtidigInntektDto(LocalDate.of(2025, 2, 1), 4),
-                SimulerTjenestepensjonFremtidigInntektDto(LocalDate.of(2026, 3, 1), 5),
-                SimulerTjenestepensjonFremtidigInntektDto(LocalDate.of(2027, 4, 1), 6)
-            ),
-            erApoteker = false
-        )
-
-        val result: KlpSimulerTjenestepensjonRequest = KlpMapper.mapToRequest(request)
-
-        assertEquals(request.pid, result.personId)
-        assertEquals(1, result.uttaksListe.size)
-        assertEquals("ALLE", result.uttaksListe[0].ytelseType)
-        assertEquals(uttaksdato, result.uttaksListe[0].fraOgMedDato)
-
-        assertEquals(4, result.fremtidigInntektsListe.size)
-
-        assertEquals(request.sisteInntekt, result.fremtidigInntektsListe[0].arligInntekt)
-        assertTrue(result.fremtidigInntektsListe[0].fraOgMedDato.isEqual(LocalDate.now()) ||
-                result.fremtidigInntektsListe[0].fraOgMedDato.isBefore(LocalDate.now().plusDays(1)))
-
-
-        assertEquals(request.fremtidigeInntekter!![0].aarligInntekt, result.fremtidigInntektsListe[1].arligInntekt)
-        assertEquals(request.fremtidigeInntekter[0].fraOgMed, result.fremtidigInntektsListe[1].fraOgMedDato)
-        assertEquals(request.fremtidigeInntekter[1].aarligInntekt, result.fremtidigInntektsListe[2].arligInntekt)
-        assertEquals(request.fremtidigeInntekter[1].fraOgMed, result.fremtidigInntektsListe[2].fraOgMedDato)
-        assertEquals(request.fremtidigeInntekter[2].aarligInntekt, result.fremtidigInntektsListe[3].arligInntekt)
-        assertEquals(request.fremtidigeInntekter[2].fraOgMed, result.fremtidigInntektsListe[3].fraOgMedDato)
-
-        assertEquals(request.aarIUtlandetEtter16, result.arIUtlandetEtter16)
-        assertTrue(result.epsPensjon)
-        assertTrue(result.eps2G)
-    }
-
-    @Test
-    fun `map request to klp request without fremtidigeInntekter`() {
-        val uttaksdato = LocalDate.of(2025, 2, 1)
-        val request = SimulerOffentligTjenestepensjonFra2025SpecV1(
-            pid = "12345678901",
-            sisteInntekt = 100000,
-            aarIUtlandetEtter16 = 3,
-            epsPensjon = true,
-            eps2G = true,
-            brukerBaOmAfp = true,
-            uttaksdato = uttaksdato,
-            foedselsdato = LocalDate.of(1990, 1, 1),
-            fremtidigeInntekter = null,
-            erApoteker = false
-        )
-
-        val result: KlpSimulerTjenestepensjonRequest = KlpMapper.mapToRequest(request)
-
-        assertEquals(request.pid, result.personId)
-        assertEquals(1, result.uttaksListe.size)
-        assertEquals("ALLE", result.uttaksListe[0].ytelseType)
-        assertEquals(uttaksdato, result.uttaksListe[0].fraOgMedDato)
-
-        assertEquals(1, result.fremtidigInntektsListe.size)
-
-        assertEquals(request.sisteInntekt, result.fremtidigInntektsListe[0].arligInntekt)
-        assertTrue(result.fremtidigInntektsListe[0].fraOgMedDato.isEqual(LocalDate.now()) ||
-                result.fremtidigInntektsListe[0].fraOgMedDato.isBefore(LocalDate.now().plusDays(1)))
-
-        assertEquals(request.aarIUtlandetEtter16, result.arIUtlandetEtter16)
-        assertTrue(result.epsPensjon)
-        assertTrue(result.eps2G)
-    }
-}
+})

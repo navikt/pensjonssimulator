@@ -11,11 +11,15 @@ enum class EgressService(
     val purpose: String,
     val authType: AuthType = AuthType.MACHINE_INSIDE_NAV
 ) {
-    OAUTH2_TOKEN(description = "OAuth2 token", shortName = "OA2", purpose = "OAuth2 access token"),
+    OAUTH2_TOKEN(
+        description = "OAuth2 token",
+        shortName = "OA2",
+        purpose = "OAuth2 access token"
+    ),
     FSS_GATEWAY(
         description = "FSS-gateway",
         shortName = "FGW",
-        purpose = "Proxy for sporingslogg"
+        purpose = "Proxy for SOAP-kall til tjenestepensjonsordning"
     ),
     PENSJONSFAGLIG_KJERNE(
         description = "Pensjonsfaglig kjerne",
@@ -37,6 +41,11 @@ enum class EgressService(
         description = "Persondata",
         shortName = "PDL",
         purpose = "Hente generelle persondata"
+    ),
+    SPORINGSLOGG(
+        description = "Sporingslogg",
+        shortName = "SPOR",
+        purpose = "Logge datautveksling med eksterne parter"
     ),
     TP_REGISTERET(
         description = "Tjenestepensjonsregisteret",

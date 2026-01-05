@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -31,8 +32,9 @@ import java.time.format.DateTimeParseException
 class FolketrygdberegnetAfpController(
     private val simulator: SimulatorCore,
     private val specMapper: FolketrygdberegnetAfpSpecMapperV1,
-    private val traceAid: TraceAid
-) : ControllerBase(traceAid) {
+    private val traceAid: TraceAid,
+    statistikk: StatistikkService
+) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
     /**
@@ -64,6 +66,7 @@ class FolketrygdberegnetAfpController(
 
         return try {
             val spec: SimuleringSpec = specMapper.fromSimuleringSpecV1(specV1)
+            registrerHendelse(simuleringstype = spec.type)
             val output: SimulatorOutput = simulator.simuler(spec)
             toResultV1(output)
         } catch (e: BadRequestException) {
@@ -106,10 +109,10 @@ class FolketrygdberegnetAfpController(
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV1" }
             throw e
         } catch (e: UtilstrekkeligTrygdetidException) {
-            log.warn(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
+            log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
             throw e
         } catch (e: EgressException) {
             handle(e)!!

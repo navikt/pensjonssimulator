@@ -16,6 +16,9 @@ data class Alder(val aar: Int, val maaneder: Int) {
     infix fun lessThan(other: Alder?): Boolean =
         other?.let { aar < it.aar || aar == it.aar && maaneder < it.maaneder } != false
 
+    infix fun min(other: Alder): Alder =
+        if (this.aar > other.aar || (this.aar == other.aar && this.maaneder > other.maaneder)) other else this
+
     infix fun plussMaaneder(antallMaaneder: Int): Alder =
         normalisedAlder(aar, maaneder = maaneder + antallMaaneder)
 
@@ -83,6 +86,12 @@ data class Alder(val aar: Int, val maaneder: Int) {
                 maaneder = dato.monthValue - foedselsdato.monthValue - delmaanedFratrekk
             )
         }
+
+        fun fromAlder(foedselDato: LocalDate, alder: Alder): LocalDate =
+            foedselDato
+                .plusYears(alder.aar.toLong())
+                .withDayOfMonth(1) // første dag i...
+                .plusMonths(alder.maaneder.toLong() + 1L) // ...måneden etter 'aldersbasert' dato
 
         /**
          * Normalised alder = alder with måneder within [0, 11].

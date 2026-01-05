@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.benmanes.caffeine.cache.Cache
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.finishOpptjeningInit
 import no.nav.pensjon.simulator.core.SimulatorContextUtil.personOpptjeningsgrunnlag
@@ -25,13 +24,14 @@ import no.nav.pensjon.simulator.regel.client.RegelClient
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.stereotype.Component
+import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 import java.util.*
 
 @Component
 class SimulatorContext(
     private val regelService: GenericRegelClient,
-    private val objectMapper: ObjectMapper,
+    private val objectMapper: JsonMapper,
     cacheManager: CaffeineCacheManager
 ) : RegelClient {
 

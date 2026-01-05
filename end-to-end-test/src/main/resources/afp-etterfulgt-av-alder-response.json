@@ -2,7 +2,7 @@
   "simuleringSuksess": true,
   "aarsakListeIkkeSuksess": [],
   "folketrygdberegnetAfp": {
-    "fraOgMedDato": "2025-12-01",
+    "fraOgMedDato": "2028-01-01",
     "beregnetTidligereInntekt": 905000,
     "sisteLignetInntektBrukt": false,
     "sisteLignetInntektAar": null,
@@ -51,16 +51,16 @@
       "andelKapittel20": 0.8,
       "alderspensjonKapittel20": {
         "inntektspensjon": {
-          "maanedligUtbetaling": 32415,
-          "pensjonsbeholdningForUttak": 7784394
+          "maanedligUtbetaling": 32983,
+          "pensjonsbeholdningForUttak": 7920817
         },
         "garantipensjon": {
           "maanedligUtbetaling": 0,
-          "garantipensjonsbeholdningForUttak": -2346403,
+          "garantipensjonsbeholdningForUttak": -2455541,
           "trygdetid": 40
         }
       },
-      "sumMaanedligUtbetaling": 39185
+      "sumMaanedligUtbetaling": 39753
     },
     {
       "fraOgMedDato": "2029-01-01",
@@ -68,7 +68,7 @@
       "alderspensjonKapittel19": null,
       "andelKapittel20": 0.8,
       "alderspensjonKapittel20": null,
-      "sumMaanedligUtbetaling": 39303
+      "sumMaanedligUtbetaling": 40225
     }
   ]
 }

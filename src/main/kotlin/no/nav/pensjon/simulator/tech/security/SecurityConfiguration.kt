@@ -3,8 +3,9 @@ package no.nav.pensjon.simulator.tech.security
 import jakarta.servlet.http.HttpServletRequest
 import no.nav.pensjon.simulator.tech.security.egress.SecurityContextEnricher
 import no.nav.pensjon.simulator.tech.security.ingress.AuthenticationEnricherFilter
-import no.nav.pensjon.simulator.tech.security.ingress.TokenAudienceValidator
-import no.nav.pensjon.simulator.tech.security.ingress.TokenScopeValidator
+import no.nav.pensjon.simulator.tech.security.ingress.MaskinportenAuthenticationConverter
+import no.nav.pensjon.simulator.tech.security.ingress.jwt.JwtAudienceValidator
+import no.nav.pensjon.simulator.tech.security.ingress.scope.JwtScopeValidator
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -28,7 +29,7 @@ open class SecurityConfiguration {
     open fun filterChain(
         http: HttpSecurity,
         authResolver: AuthenticationManagerResolver<HttpServletRequest>,
-        securityContextEnricher: SecurityContextEnricher,
+        securityContextEnricher: SecurityContextEnricher
     ): SecurityFilterChain =
         http
             .addFilterAfter(
@@ -48,6 +49,18 @@ open class SecurityConfiguration {
                         "/v3/api-docs/**",
                         "/error"
                     ).permitAll()
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/v0/simuler-afp-etterfulgt-av-alderspensjon",
+                        "/api/v3/simuler-alderspensjon",
+                        "/api/v4/simuler-alderspensjon",
+                        "/api/v1/simuler-folketrygdbeholdning",
+                        "/api/v0/simuler-folketrygdberegnet-afp",
+                        "/api/v1/tidligst-mulig-uttak",
+                    )
+                    .hasAnyAuthority("scope:simuler-alderspensjon")
+                    .requestMatchers(HttpMethod.POST, "/api/v3/simuler-alderspensjon-privat-afp")
+                    .hasAnyAuthority("scope:simuler-alderspensjon-og-privat-afp")
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer {
@@ -71,7 +84,7 @@ open class SecurityConfiguration {
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
-                jwtDecoder(issuer, tokenValidator = TokenAudienceValidator(audience))
+                jwtDecoder(issuer, tokenValidator = JwtAudienceValidator(audience))
             )
         )
 
@@ -87,9 +100,11 @@ open class SecurityConfiguration {
             JwtAuthenticationProvider(
                 jwtDecoder(
                     issuer,
-                    tokenValidator = TokenScopeValidator(listOf(scope1, scope2, scope3, scope4))
-                ),
-            )
+                    tokenValidator = JwtScopeValidator(listOf(scope1, scope2, scope3, scope4))
+                )
+            ).apply {
+                setJwtAuthenticationConverter(MaskinportenAuthenticationConverter())
+            }
         )
 
 

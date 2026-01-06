@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tech.security.ingress
+package no.nav.pensjon.simulator.tech.security.ingress.jwt
 
 import mu.KotlinLogging
 import org.springframework.security.oauth2.core.OAuth2Error
@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.failu
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult.success
 import org.springframework.security.oauth2.jwt.Jwt
 
-class TokenAudienceValidator(val audience: String) : OAuth2TokenValidator<Jwt> {
+class JwtAudienceValidator(val audience: String) : OAuth2TokenValidator<Jwt> {
 
     private val log = KotlinLogging.logger {}
 

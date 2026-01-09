@@ -129,7 +129,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
     //   -> SimulerVilkarsprovAfpConsumerCommand.execute
     private fun simulerVilkarsprovAfp(spec: Simulering): Simuleringsresultat =
         try {
-            context.simulerVilkarsprovPre2025OffentligAfp(SimuleringRequest(spec, spec.uttaksdato))
+            context.simulerVilkarsprovPre2025OffentligAfp(SimuleringRequest(fjernTrygdeavtale(spec), spec.uttaksdato))
         } catch (e: KanIkkeBeregnesException) {
             throw FeilISimuleringsgrunnlagetException(e)
         } catch (e: RegelmotorValideringException) {
@@ -290,13 +290,28 @@ class Pre2025OffentligAfpFoerstegangBeregner(
     ): Simuleringsresultat =
         context.simulerPre2025OffentligAfp(
             SimuleringRequest(
-                simulering = spec,
+                simulering = fjernTrygdeavtale(spec),
                 fom = spec.uttaksdato,
                 ektefelleMottarPensjon = epsMottarPensjon,
                 beregnForsorgingstillegg = beregnForsoergingstillegg,
                 beregnInstitusjonsopphold = beregnInstitusjonsopphold
             )
         )
+
+    private fun fjernTrygdeavtale(spec: Simulering) = Simulering()
+        .apply {
+            simuleringTypeEnum = spec.simuleringTypeEnum
+            afpOrdningEnum = spec.afpOrdningEnum
+            uttaksdato = spec.uttaksdato
+            persongrunnlagListe = spec.persongrunnlagListe
+                .map { Persongrunnlag(it)
+                    .apply {
+                        it.trygdeavtaledetaljer = null
+                        it.trygdeavtale = null
+                    }
+                }.toList()
+            vilkarsvedtakliste = spec.vilkarsvedtakliste
+        }
 
     // PEN: Extracted from SimulerAFPogAPCommand.beregnAfpOffentlig
     private fun addEpsInntektGrunnlag(

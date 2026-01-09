@@ -11,21 +11,20 @@ object SelfTestResultMapperV1 {
         SelfTestResultV1(
             application = APPLICATION_NAME,
             timestamp = LocalTime.now().toString(),
-            aggregateResult = getAggregateResult(pingResults.values).code,
-            checks = pingResults.values.map(::checkResult)
+            aggregateResult = deduceAggregateResult(pingResults.values).code,
+            checks = pingResults.values.map(::dto)
         )
 
-    private fun getAggregateResult(pingResults: Collection<PingResult>) =
-        pingResults
+    private fun deduceAggregateResult(results: Collection<PingResult>) =
+        results
             .map { it.status }
             .firstOrNull { it == ServiceStatus.DOWN } ?: ServiceStatus.UP
 
-    private fun checkResult(result: PingResult) =
+    private fun dto(result: PingResult) =
         CheckResultV1(
             endpoint = result.endpoint,
             description = result.service.description,
             errorMessage = if (result.status == ServiceStatus.DOWN) result.message else null,
             result = result.status.code
         )
-
 }

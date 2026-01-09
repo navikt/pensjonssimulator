@@ -22,7 +22,7 @@ class SelfTestController(
     @GetMapping("internal/selftest")
     @Operation(
         summary = "Selvtest",
-        description = "Utfører selvtest for applikasjonen, dvs. pinger applikasjonene den ar avhengig av"
+        description = "Utfører selvtest for applikasjonen, dvs. pinger applikasjonene den er avhengig av"
     )
     fun selfTest(request: HttpServletRequest): ResponseEntity<Any> {
         securityContextEnricher.enrichAuthentication(request)

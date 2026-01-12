@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.beholdning
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.INITIERING_OPPTJENINGMODUS
 import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdaterUtil.KORRIGERING_OPPTJENINGMODUS
@@ -81,6 +82,7 @@ class BeholdningUpdater(
     fun updateBeholdningFromEksisterendePersongrunnlag(nyttKravhode: Kravhode) {
         val persongrunnlag: Persongrunnlag = nyttKravhode.hentPersongrunnlagForSoker()
         val persongrunnlagCopy = Persongrunnlag(source = persongrunnlag)
+        log.info {"Updating beholdning on persongrunnlag for pid=${persongrunnlag.penPerson?.pid} with virkFom=${nyttKravhode.onsketVirkningsdato} beholdninger:${persongrunnlag.beholdninger} beholdning:${persongrunnlag.pensjonsbeholdning}" }
         updateBeholdninger(persongrunnlag, persongrunnlagCopy.beholdninger)
         updateBeholdningOnVirk(nyttKravhode, persongrunnlagCopy)
     }
@@ -614,7 +616,7 @@ class BeholdningUpdater(
     }
 
     private companion object {
-
+        private val log = KotlinLogging.logger {}
         private const val CALL_TO_PREG_FAILED = "Call to PREG failed"
 
         // BeholdningSwitchDecider, specified in PK-25114

@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.util.*
 
 // Checked 2025-02-28
@@ -20,5 +21,9 @@ open class Pensjonsbeholdning : Beholdning {
     constructor(source: Pensjonsbeholdning) : super(source) {
         fom = source.fom?.clone() as? Date
         tom = source.tom?.clone() as? Date
+    }
+
+    override fun toString(): String {
+        return "fom=${fom?.toNorwegianLocalDate()}, tom=${tom?.toNorwegianLocalDate()}, ar=$ar, belop=$totalbelop"
     }
 }

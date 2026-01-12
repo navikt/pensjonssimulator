@@ -242,8 +242,6 @@ class KravhodeCreator(
                 kravhode.persongrunnlagListe.add(this)
             }
         }
-
-        beholdningUpdater.updateBeholdningFromEksisterendePersongrunnlag(kravhode)
     }
 
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBrukerForenkletSimulering

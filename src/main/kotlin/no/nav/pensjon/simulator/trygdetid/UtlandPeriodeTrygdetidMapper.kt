@@ -2,11 +2,9 @@ package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
 import java.util.*
 
 // PEN:
@@ -61,7 +59,7 @@ object UtlandPeriodeTrygdetidMapper {
                 } else if (startsAndEndsIn(outer, inner)) {
                     continue@outerLoop
                 } else if (startsBeforeAndEndsAfter(outer, inner)) {
-                    resultList.add(copy(source = outer, newPeriodeTom = dayBeforeStartOf(inner)))
+                    resultList.add(outer.withPeriodeTom(dato = dayBeforeStartOf(inner)))
                     outer.periode.fom = dayAfterEndOf(inner)
                 } else if (endsBefore(inner, outer)) {
                     // No action
@@ -78,16 +76,6 @@ object UtlandPeriodeTrygdetidMapper {
         resultList.addAll(innerList)
         return resultList.sortedBy { it.periode.fom }
     }
-
-    private fun copy(source: TrygdetidOpphold, newPeriodeTom: Date?) =
-        TrygdetidOpphold(
-            periode = trygdetidPeriode(
-                fom = source.periode.fom,
-                tom = newPeriodeTom,
-                land = source.periode.landEnum
-            ),
-            arbeidet = source.arbeidet
-        )
 
     private fun trygdetidsgrunnlag(periode: UtlandPeriode, nestePeriode: UtlandPeriode) =
         TrygdetidOpphold(

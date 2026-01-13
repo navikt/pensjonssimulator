@@ -3,9 +3,7 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
 import no.nav.pensjon.simulator.trygdetid.TrygdetidsgrunnlagCreator.trygdetidsperiodeListe
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriodeTrygdetidMapper.utlandTrygdetidsgrunnlag
 import java.time.LocalDate

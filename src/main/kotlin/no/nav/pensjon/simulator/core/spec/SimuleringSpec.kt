@@ -7,8 +7,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
 import java.util.*
 

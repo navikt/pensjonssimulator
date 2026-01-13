@@ -1,10 +1,9 @@
 package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
 import java.time.LocalDate
 
 // PEN:

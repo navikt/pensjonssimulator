@@ -8,13 +8,13 @@ import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
 import java.time.LocalDate

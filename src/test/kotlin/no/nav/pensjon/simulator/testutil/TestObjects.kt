@@ -13,10 +13,10 @@ import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.security.oauth2.jwt.Jwt
 import java.time.LocalDate
 import java.util.*

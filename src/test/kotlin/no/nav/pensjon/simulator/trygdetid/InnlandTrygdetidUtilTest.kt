@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
 import no.nav.pensjon.simulator.testutil.TestDateUtil.atNoon
 import java.time.LocalDate
 

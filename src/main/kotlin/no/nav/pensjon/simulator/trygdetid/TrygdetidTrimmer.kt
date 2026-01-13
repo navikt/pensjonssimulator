@@ -2,11 +2,10 @@ package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpptjeningRettLand.Companion.rettTilOpptjeningAvTrygdetid
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
+import no.nav.pensjon.simulator.trygdetid.TrygdetidOpptjeningRettLand.Companion.rettTilOpptjeningAvTrygdetid
 import java.time.LocalDate
 import java.util.*
 

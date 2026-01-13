@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum

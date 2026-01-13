@@ -17,7 +17,11 @@ class AlderspensjonOgPrivatAfpResultPreparer(
     private val personService: GeneralPersonService,
     private val time: Time
 ) {
-    fun result(simulatorOutput: SimulatorOutput, pid: Pid): AlderspensjonOgPrivatAfpResult {
+    fun result(
+        simulatorOutput: SimulatorOutput,
+        pid: Pid,
+        harLoependePrivatAfp: Boolean
+    ): AlderspensjonOgPrivatAfpResult {
         val alderspensjon = simulatorOutput.alderspensjon
         val foedselsdato = personService.foedselsdato(pid)
         val idag = time.today()
@@ -34,7 +38,7 @@ class AlderspensjonOgPrivatAfpResultPreparer(
             privatAfpPeriodeListe = simulatorOutput.privatAfpPeriodeListe.map(::privatAfpPeriode),
             harNaavaerendeUttak,
             harTidligereUttak = harNaavaerendeUttak.not() && harHattUttakFoer(uttakListe, dato = idag),
-            harLoependePrivatAfp = false //TODO
+            harLoependePrivatAfp
         )
     }
 

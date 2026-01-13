@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeParseException
 
@@ -16,24 +17,31 @@ import java.time.format.DateTimeParseException
 @Service
 class AlderspensjonOgPrivatAfpService(
     private val simulatorCore: SimulatorCore,
+    private val ytelseService: YtelseService,
     private val resultPreparer: AlderspensjonOgPrivatAfpResultPreparer
 ) {
     fun simuler(spec: SimuleringSpec): AlderspensjonOgPrivatAfpResult =
         try {
             resultPreparer.result(
                 simulatorOutput = simulatorCore.simuler(initialSpec = spec),
-                pid = spec.pid!!
+                pid = spec.pid!!,
+                harLoependePrivatAfp = ytelseService.getLoependeYtelser(spec).privatAfpVirkningFom != null
             )
+            //TODO: PEN: UgyldigInput - Jira TPP-47
+            //TODO PEN222BeregningstjenesteFeiletException, PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
+            //TODO Kopier ThrowableExceptionMapper fra PEN - Jira TPP-45
         } catch (e: BadRequestException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: BadSpecException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: DateTimeParseException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+        } catch (e: EgressException) {
+            problem(e, type = ProblemType.SERVERFEIL)
         } catch (e: FeilISimuleringsgrunnlagetException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e, type = ProblemType.SERVERFEIL)
         } catch (e: InvalidArgumentException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: InvalidEnumValueException) {
@@ -52,8 +60,6 @@ class AlderspensjonOgPrivatAfpService(
             problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
             problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
-        } catch (e: EgressException) {
-            problem(e, type = ProblemType.SERVERFEIL)
         }
 
     private companion object {

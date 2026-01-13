@@ -24,7 +24,8 @@ class AlderspensjonOgPrivatAfpResultPreparerTest : ShouldSpec({
             time = mockk(relaxed = true)
         ).result(
             simulatorOutput = SimulatorOutput(),
-            pid
+            pid,
+            harLoependePrivatAfp = false
         ) shouldBe AlderspensjonOgPrivatAfpResult(
             suksess = true,
             alderspensjonsperiodeListe = emptyList(),
@@ -50,12 +51,14 @@ class AlderspensjonOgPrivatAfpResultPreparerTest : ShouldSpec({
                         })
                 }
             },
-            pid
+            pid,
+            harLoependePrivatAfp = true
         )
 
         with(result) {
             harNaavaerendeUttak shouldBe true
             harTidligereUttak shouldBe false
+            harLoependePrivatAfp shouldBe true
         }
     }
 
@@ -81,7 +84,8 @@ class AlderspensjonOgPrivatAfpResultPreparerTest : ShouldSpec({
                         })
                 }
             },
-            pid
+            pid,
+            harLoependePrivatAfp = false
         )
 
         with(result) {
@@ -99,7 +103,8 @@ class AlderspensjonOgPrivatAfpResultPreparerTest : ShouldSpec({
                 privatAfpPeriodeListe.add(PrivatAfpPeriode(alderAar = 64, aarligBeloep = 1))
                 privatAfpPeriodeListe.add(PrivatAfpPeriode(alderAar = 65, aarligBeloep = 2))
             },
-            pid
+            pid,
+            harLoependePrivatAfp = false
         )
 
         with(result) {

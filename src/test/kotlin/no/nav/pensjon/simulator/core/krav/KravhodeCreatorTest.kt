@@ -28,7 +28,6 @@ class KravhodeCreatorTest : ShouldSpec({
      */
     should("opprette kravhode") {
         val kravhode = KravhodeCreator(
-            beholdningUpdater = mockk(relaxed = true),
             epsService = mockk(relaxed = true),
             persongrunnlagService = arrangePersongrunnlag(),
             opptjeningUpdater = mockk(relaxed = true),

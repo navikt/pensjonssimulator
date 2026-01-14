@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.core.krav
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUpdater
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
@@ -55,7 +54,6 @@ import kotlin.streams.toList
  */
 @Component
 class KravhodeCreator(
-    private val beholdningUpdater: BeholdningUpdater,
     private val epsService: EpsService,
     private val persongrunnlagService: PersongrunnlagService,
     private val opptjeningUpdater: OpptjeningUpdater,
@@ -242,8 +240,6 @@ class KravhodeCreator(
                 kravhode.persongrunnlagListe.add(this)
             }
         }
-
-        beholdningUpdater.updateBeholdningFromEksisterendePersongrunnlag(kravhode)
     }
 
     // SimulerFleksibelAPCommand.opprettPersongrunnlagForBrukerForenkletSimulering

@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import kotlin.reflect.KProperty1

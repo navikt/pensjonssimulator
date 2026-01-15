@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.hybrid.*
 import no.nav.pensjon.simulator.uttak.Uttaksgrad
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 
 class AlderspensjonOgPrivatAfpResultMapperV3Test : ShouldSpec({
 

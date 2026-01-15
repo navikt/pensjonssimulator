@@ -14,10 +14,10 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.testutil.TestObjects.persongrunnlag
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 import java.util.*
 

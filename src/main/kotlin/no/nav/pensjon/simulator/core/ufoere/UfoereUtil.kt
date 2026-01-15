@@ -2,9 +2,9 @@ package no.nav.pensjon.simulator.core.ufoere
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.validity.BadSpecException
 import kotlin.collections.filter
 import kotlin.collections.maxByOrNull
 import kotlin.collections.orEmpty

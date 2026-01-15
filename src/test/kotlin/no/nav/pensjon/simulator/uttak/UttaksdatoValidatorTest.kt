@@ -6,10 +6,10 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.normalder.Aldersgrenser
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.normalder.VerdiStatus
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 class UttaksdatoValidatorTest : FunSpec({

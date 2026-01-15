@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
 
 import no.nav.pensjon.simulator.hybrid.*
+import no.nav.pensjon.simulator.validity.Problem
 
 /**
  * Anti-corruption layer (ACL).

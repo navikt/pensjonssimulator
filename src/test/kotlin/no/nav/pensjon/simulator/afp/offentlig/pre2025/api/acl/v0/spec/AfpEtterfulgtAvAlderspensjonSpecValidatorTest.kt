@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.afp.offentlig.pre2025.api.acl.v0.spec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.exception.BadSpecException
+import no.nav.pensjon.simulator.validity.BadSpecException
 
 class AfpEtterfulgtAvAlderspensjonSpecValidatorTest : StringSpec({
 

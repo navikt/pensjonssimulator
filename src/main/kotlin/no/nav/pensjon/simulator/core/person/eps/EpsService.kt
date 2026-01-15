@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
 import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
@@ -22,6 +21,7 @@ import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

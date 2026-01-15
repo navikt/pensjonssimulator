@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.spec
 
-import no.nav.pensjon.simulator.core.exception.BadSpecException
+import no.nav.pensjon.simulator.validity.BadSpecException
 
 object UttakValidator {
 

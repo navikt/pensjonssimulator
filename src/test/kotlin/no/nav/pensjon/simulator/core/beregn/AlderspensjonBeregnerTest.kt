@@ -13,9 +13,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 class AlderspensjonBeregnerTest : ShouldSpec({

@@ -359,29 +359,6 @@ class SimulatorContext(
     override fun fetchGrunnbeloepListe(dato: LocalDate): SatsResponse =
         grunnbeloepCache.getIfPresent(dato) ?: fetchFreshGrunnbeloep(dato).also { grunnbeloepCache.put(dato, it) }
 
-    // PEN: HentGyldigSatsConsumerCommand.execute
-    override fun fetchGyldigSats(request: HentGyldigSatsRequest): SatsResponse =
-        regelService.makeRegelCall(
-            request = request,
-            responseClass = SatsResponse::class.java,
-            serviceName = "hentGyldigSats",
-            map = null,
-            sakId = null
-        )
-
-    // PEN: RegulerPensjonsbeholdningConsumerCommand.execute
-    override fun regulerPensjonsbeholdning(request: RegulerPensjonsbeholdningRequest): RegulerPensjonsbeholdningResponse {
-        val response: RegulerPensjonsbeholdningResponse =
-            regelService.makeRegelCall(
-                request = request,
-                responseClass = RegulerPensjonsbeholdningResponse::class.java,
-                serviceName = "regulerPensjonsbeholdning",
-                map = null,
-                sakId = null
-            )
-        return response //TODO validerOgFerdigstillResponse(response) -> mapRegulerPensjonsbeholdningConsumerResponseToPen
-    }
-
     override fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse {
         val response : HentDelingstallResponse = regelService.makeRegelCall(
             request,

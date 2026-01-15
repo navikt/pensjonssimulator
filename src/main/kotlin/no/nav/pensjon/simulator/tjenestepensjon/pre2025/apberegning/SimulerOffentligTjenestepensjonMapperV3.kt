@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -16,6 +15,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringEtter2011SpecV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringTypeSpecV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.UtenlandsperiodeForSimuleringV3
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 
 @Component

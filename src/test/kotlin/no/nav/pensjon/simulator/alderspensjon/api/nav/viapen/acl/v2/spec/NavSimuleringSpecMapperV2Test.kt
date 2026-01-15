@@ -8,12 +8,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtMidnight
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
 import java.util.*
 

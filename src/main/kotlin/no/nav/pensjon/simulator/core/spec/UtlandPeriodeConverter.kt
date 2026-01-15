@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.spec
 
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 

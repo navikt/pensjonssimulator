@@ -7,10 +7,9 @@ import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.core.util.isBefore
 import no.nav.pensjon.simulator.trygdetid.cache.RollebasertTrygdetidCache
 import org.springframework.stereotype.Component
-import java.util.Date
 
 /**
  * Delegerer beregning av trygdetid til pensjon-regler.
@@ -53,9 +52,6 @@ class TrygdetidBeregnerProxy(private val context: SimulatorContext) {
         spec.persongrunnlag?.trygdetidPerioderKapittel20.orEmpty().all {
             it.fom?.isBefore(spec.virkFom) == true
         }
-
-    private fun Date.isBefore(other: Date?): Boolean? =
-        other?.let { this.toNorwegianLocalDate().isBefore(it.toNorwegianLocalDate()) }
 
     // SimuleringEtter2011Context.fastsettTrygdetid
     private fun fastsettTrygdetid(

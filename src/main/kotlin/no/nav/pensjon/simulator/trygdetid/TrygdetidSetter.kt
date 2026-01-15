@@ -95,7 +95,7 @@ class TrygdetidSetter(
         if (tom == null || tom.isAfter(fom)) {
             with(norskTrygdetidPeriode(fom, tom, ikkeProRata = true)) {
                 persongrunnlag.trygdetidPerioder.add(this)
-                persongrunnlag.trygdetidPerioderKapittel20.add(TTPeriode(this).apply { finishInit() })
+                persongrunnlag.trygdetidPerioderKapittel20.add(TTPeriode(this))
             }
         }
     }

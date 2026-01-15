@@ -1,9 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import java.util.*
 
 // Checked 2025-02-28
@@ -48,27 +46,11 @@ class TTPeriode {
      */
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
 
-    // SIMDOM-ADD:
-    @JsonIgnore
-    var rawFom: Date? = null
-    @JsonIgnore
-    var rawTom: Date? = null
-
-    fun finishInit() {
-        rawFom = fom
-        rawTom = tom
-        fom = rawFom?.noon()
-        tom = rawTom?.noon()
-    }
-    // end SIMDOM-ADD
-
     constructor()
 
     constructor(source: TTPeriode) : this() {
         fom = source.fom?.clone() as? Date
-        rawFom = source.rawFom?.clone() as? Date
         tom = source.tom?.clone() as? Date
-        rawTom = source.rawTom?.clone() as? Date
         poengIInnAr = source.poengIInnAr
         poengIUtAr = source.poengIUtAr
         landEnum = source.landEnum

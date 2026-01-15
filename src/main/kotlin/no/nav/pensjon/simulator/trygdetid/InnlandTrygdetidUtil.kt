@@ -1,10 +1,8 @@
 package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.trygdetidPeriode
-import no.nav.pensjon.simulator.core.trygd.TrygdetidOpphold
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
 import java.time.LocalDate
 
 // PEN:
@@ -28,8 +26,8 @@ object InnlandTrygdetidUtil {
     // PEN: SettTrygdetidHelper.createTrygdetidsgrunnlagNorge
     fun norskTrygdetidPeriode(fom: LocalDate, tom: LocalDate?, ikkeProRata: Boolean) =
         trygdetidPeriode(
-            fom = fom.toNorwegianDateAtNoon(),
-            tom = tom?.toNorwegianDateAtNoon(),
+            fom,
+            tom,
             land = LandkodeEnum.NOR,
             ikkeProRata,
             bruk = null // bruk is not set in SettTrygdetidHelper.createTrygdetidsgrunnlagNorge in PEN

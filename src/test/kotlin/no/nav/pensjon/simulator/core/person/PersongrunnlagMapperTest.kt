@@ -7,8 +7,8 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
-import no.nav.pensjon.simulator.core.trygd.UtlandPeriode
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
 
 class PersongrunnlagMapperTest : ShouldSpec({

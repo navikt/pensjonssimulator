@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.util.*
 
 fun Date.toNorwegianLocalDate(): LocalDate =
-    NorwegianCalendar.forDate(this).let {
+    NorwegianCalendar.forDate(date = this).let {
         LocalDate.of(
             it[Calendar.YEAR],
             it[Calendar.MONTH] + 1,
@@ -12,8 +12,23 @@ fun Date.toNorwegianLocalDate(): LocalDate =
         )
     }
 
-fun Date.toNorwegianDate() = NorwegianCalendar.forDate(this).time
-fun Date.toNorwegianNoon() = NorwegianCalendar.norwegianNoon(this)
+fun Date.toNorwegianDate(): Date =
+    NorwegianCalendar.forDate(date = this).time
+
+fun Date.toNorwegianNoon(): Date =
+    NorwegianCalendar.norwegianNoon(this)
+
+fun Date.isBefore(other: Date?): Boolean =
+    other?.let { this.toNorwegianLocalDate().isBefore(it.toNorwegianLocalDate()) } == true
+
+fun Date.isBeforeOrSame(other: Date?): Boolean =
+    other?.let { this.toNorwegianLocalDate().isAfter(it.toNorwegianLocalDate()).not() } == true
+
+fun Date.isAfterOrSame(other: Date?): Boolean =
+    other?.let { this.toNorwegianLocalDate().isBefore(it.toNorwegianLocalDate()).not() } ?: true
+
+fun Date.isAfter(other: Date?): Boolean =
+    other?.let { this.toNorwegianLocalDate().isAfter(it.toNorwegianLocalDate()) } ?: true
 
 object NorwegianCalendar {
     val locale = Locale.of("nb", "NO")

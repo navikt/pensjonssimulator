@@ -16,16 +16,16 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.trygd.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
-import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland
-import no.nav.pensjon.simulator.core.trygd.TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland
-import no.nav.pensjon.simulator.core.trygd.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
 import no.nav.pensjon.simulator.trygdetid.Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe
 import no.nav.pensjon.simulator.trygdetid.Kapittel20TrygdetidsgrunnlagCreator.kapittel20TrygdetidsperiodeListe
+import no.nav.pensjon.simulator.trygdetid.TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland
+import no.nav.pensjon.simulator.trygdetid.TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland
+import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagSpec
 import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
 import org.springframework.stereotype.Component
@@ -38,7 +38,7 @@ import java.util.*
 class KravhodeUpdater(
     private val context: SimulatorContext,
     private val normalderService: NormertPensjonsalderService,
-    private val pre2025OffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
+    private val tidsbegrensetOffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
     private val trygdetidSetter: TrygdetidSetter,
     private val time: Time
 ) {
@@ -66,7 +66,7 @@ class KravhodeUpdater(
 
         log.debug { "STEP 4.2 - Sett pensjonsbeholdning for bruker" }
         when {
-            simuleringSpec.gjelderPre2025OffentligAfp() -> pre2025OffentligAfpBeholdning.setPensjonsbeholdning(
+            simuleringSpec.gjelderPre2025OffentligAfp() -> tidsbegrensetOffentligAfpBeholdning.setPensjonsbeholdning(
                 soekerGrunnlag,
                 forrigeAlderspensjonBeregningResult
             )
@@ -227,15 +227,15 @@ class KravhodeUpdater(
         private const val AGE_ADULTHOOD_OPPTJENING = 16
 
         // SimulerFleksibelAPCommand.createTrygdetidsgrunnlagForenkletSimulering
-        private fun anonymSimuleringTrygdetidPeriode(spec: TrygdetidGrunnlagSpec): TTPeriode {
-            val fom = LocalDate.of(
-                spec.simuleringSpec.foedselAar + AGE_ADULTHOOD_OPPTJENING + (spec.utlandAntallAar ?: 0),
-                1,
-                1
+        private fun anonymSimuleringTrygdetidPeriode(spec: TrygdetidGrunnlagSpec): TTPeriode =
+            anonymSimuleringTrygdetidPeriode(
+                fom = LocalDate.of(
+                    spec.simuleringSpec.foedselAar + AGE_ADULTHOOD_OPPTJENING + (spec.utlandAntallAar ?: 0),
+                    1,
+                    1
+                ),
+                tom = spec.tom
             )
-
-            return anonymSimuleringTrygdetidPeriode(fom, spec.tom)
-        }
     }
 }
 

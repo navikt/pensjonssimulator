@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleDatoEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleKritEnum

@@ -10,9 +10,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.validity.BadSpecException
 
 class Pre2025OffentligAfpSpecValidatorTest : FunSpec({
 

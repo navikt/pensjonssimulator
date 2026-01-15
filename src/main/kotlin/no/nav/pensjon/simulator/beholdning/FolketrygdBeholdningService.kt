@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.alderspensjon.spec.OffentligSimuleringstypeDeduc
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -15,6 +14,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttaksdatoValidator
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 

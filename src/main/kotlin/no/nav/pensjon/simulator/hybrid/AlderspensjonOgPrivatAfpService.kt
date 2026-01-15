@@ -1,11 +1,16 @@
 package no.nav.pensjon.simulator.hybrid
 
+import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeParseException
@@ -18,22 +23,24 @@ import java.time.format.DateTimeParseException
 class AlderspensjonOgPrivatAfpService(
     private val simulatorCore: SimulatorCore,
     private val ytelseService: YtelseService,
-    private val resultPreparer: AlderspensjonOgPrivatAfpResultPreparer
+    private val resultPreparer: AlderspensjonOgPrivatAfpResultPreparer,
+    private val time: Time
 ) {
     fun simuler(spec: SimuleringSpec): AlderspensjonOgPrivatAfpResult =
         try {
+            validate(spec, time.today())
+
             resultPreparer.result(
                 simulatorOutput = simulatorCore.simuler(initialSpec = spec),
                 pid = spec.pid!!,
                 harLoependePrivatAfp = ytelseService.getLoependeYtelser(spec).privatAfpVirkningFom != null
             )
-            //TODO: PEN: UgyldigInput - Jira TPP-47
             //TODO PEN222BeregningstjenesteFeiletException, PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
             //TODO Kopier ThrowableExceptionMapper fra PEN - Jira TPP-45
         } catch (e: BadRequestException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: BadSpecException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e)
         } catch (e: DateTimeParseException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
@@ -63,6 +70,9 @@ class AlderspensjonOgPrivatAfpService(
         }
 
     private companion object {
+        private fun problem(e: BadSpecException) =
+            problem(e, type = e.problemType)
+
         private fun problem(e: RuntimeException, type: ProblemType) =
             AlderspensjonOgPrivatAfpResult(
                 suksess = false,

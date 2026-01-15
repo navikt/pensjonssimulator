@@ -2,7 +2,8 @@ package no.nav.pensjon.simulator.alderspensjon.spec
 
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.tech.web.BadRequestException
+import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.ProblemType
 import java.time.LocalDate
 
 object SimuleringSpecValidator {
@@ -14,27 +15,35 @@ object SimuleringSpecValidator {
 
     private fun validateInntekt(inntektListe: MutableList<FremtidigInntekt>) {
         if (inntektListe.any { it.fom.dayOfMonth != 1 }) {
-            throw BadRequestException("En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden")
+            ugyldigInntekt(message = "En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden")
         }
 
         if (inntektListe.groupBy { it.fom }.size < inntektListe.size) {
-            throw BadRequestException("To fremtidige inntekter har samme f.o.m.-dato")
+            ugyldigInntekt(message = "To fremtidige inntekter har samme f.o.m.-dato")
         }
 
         if (inntektListe.any { it.aarligInntektBeloep < 0 }) {
-            throw BadRequestException("En fremtidig inntekt har negativt beløp")
+            ugyldigInntekt(message = "En fremtidig inntekt har negativt beløp")
         }
     }
 
     private fun validateUttak(spec: SimuleringSpec, today: LocalDate) {
         spec.foersteUttakDato?.let {
             if (it.isBefore(today))
-                throw BadRequestException("Dato for første uttak er for tidlig")
-        } ?: throw BadRequestException("Dato for første uttak mangler")
+                ugyldigUttaksdato(message = "Dato for første uttak er for tidlig")
+        } ?: ugyldigUttaksdato(message = "Dato for første uttak mangler")
 
         if (spec.heltUttakDato != null) {
             if (spec.foersteUttakDato.isAfter(spec.heltUttakDato))
-                throw BadRequestException("Andre uttak (100 %) starter ikke etter første uttak (gradert)")
+                ugyldigUttaksdato(message = "Andre uttak (100 %) starter ikke etter første uttak (gradert)")
         }
+    }
+
+    private fun ugyldigInntekt(message: String): Nothing {
+        throw BadSpecException(message, problemType = ProblemType.UGYLDIG_INNTEKT)
+    }
+
+    private fun ugyldigUttaksdato(message: String): Nothing {
+        throw BadSpecException(message, problemType = ProblemType.UGYLDIG_UTTAKSDATO)
     }
 }

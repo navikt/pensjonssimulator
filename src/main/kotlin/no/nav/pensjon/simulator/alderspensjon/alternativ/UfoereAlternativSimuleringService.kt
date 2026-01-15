@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -14,6 +13,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withGradertInsteadO
 import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 

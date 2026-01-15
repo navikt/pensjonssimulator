@@ -5,9 +5,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
 import no.nav.pensjon.simulator.core.util.NorwegianCalendar
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.util.*
 
 /**

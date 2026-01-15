@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.alderspensjon.spec
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.vedtak.VedtakService
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 

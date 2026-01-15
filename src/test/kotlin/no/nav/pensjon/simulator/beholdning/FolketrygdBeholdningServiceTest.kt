@@ -9,7 +9,6 @@ import io.mockk.verify
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -19,6 +18,7 @@ import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.uttak.UttaksdatoValidator
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 class FolketrygdBeholdningServiceTest : FunSpec({

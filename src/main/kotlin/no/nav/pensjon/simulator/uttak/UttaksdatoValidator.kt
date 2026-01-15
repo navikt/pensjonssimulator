@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.uttak
 
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 

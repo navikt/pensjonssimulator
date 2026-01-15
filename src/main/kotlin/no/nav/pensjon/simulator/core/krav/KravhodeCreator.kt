@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.krav
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
+import no.nav.pensjon.simulator.alderspensjon.regel.RegelverkUtil.regelverkType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
@@ -14,8 +15,6 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttaksgrad
-import no.nav.pensjon.simulator.core.exception.BadSpecException
-import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.inntekt.InntektUtil.faktiskAarligInntekt
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederFraAarStartTilFoersteUttakDato
@@ -41,6 +40,7 @@ import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -85,7 +85,7 @@ class KravhodeCreator(
             gjelder = null
             sakId = null
             sakType = SakTypeEnum.ALDER
-            regelverkTypeEnum = regelverkType(foedselAar(person, spec))
+            regelverkTypeEnum = regelverkType(foedselsaar(person, spec))
         }
 
         addPersongrunnlagForSoekerToKravhode(spec, kravhode, person, forrigeAlderspensjonBeregningResultat, grunnbeloep)
@@ -133,7 +133,7 @@ class KravhodeCreator(
         return kravhode
     }
 
-    private fun foedselAar(person: PenPerson?, spec: SimuleringSpec): Int =
+    private fun foedselsaar(person: PenPerson?, spec: SimuleringSpec): Int =
         person?.foedselsdato?.year ?: spec.foedselAar
 
     private fun updateOensketVirkningAndUtbetalingsgrad(spec: SimuleringSpec, kravhode: Kravhode) {
@@ -313,7 +313,7 @@ class KravhodeCreator(
 
         if (spec.brukFremtidigInntekt) {
             val gjeldendeAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar() + 1
-            val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselAar(person, spec)
+            val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselsaar(person, spec)
             val fom: LocalDate = foersteDag(gjeldendeAar)
 
             val inntektsgrunnlagList =
@@ -594,14 +594,6 @@ class KravhodeCreator(
         private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
         private val log = KotlinLogging.logger {}
-
-        private fun regelverkType(foedselAar: Int): RegelverkTypeEnum =
-            when {
-                foedselAar < 1943 -> throw PersonForGammelException("Kan ikke sette regelverktype - fødselsår < 1943")
-                foedselAar <= 1953 -> RegelverkTypeEnum.N_REG_G_OPPTJ
-                foedselAar <= 1962 -> RegelverkTypeEnum.N_REG_G_N_OPPTJ
-                else -> RegelverkTypeEnum.N_REG_N_OPPTJ
-            }
 
         // OpprettKravHodeHelper.finnUttaksgradListe
         // -> SimulerFleksibelAPCommand.finnUttaksgradListe

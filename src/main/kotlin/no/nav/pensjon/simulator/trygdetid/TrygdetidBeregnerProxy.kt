@@ -3,12 +3,12 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.exception.BadSpecException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.isBefore
 import no.nav.pensjon.simulator.trygdetid.cache.RollebasertTrygdetidCache
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 
 /**

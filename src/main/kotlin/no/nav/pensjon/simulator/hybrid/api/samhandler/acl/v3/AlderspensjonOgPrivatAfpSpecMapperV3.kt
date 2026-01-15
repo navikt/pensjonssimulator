@@ -6,6 +6,8 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -76,5 +78,8 @@ class AlderspensjonOgPrivatAfpSpecMapperV3(
 
     private fun uttaksgrad(source: AlderspensjonOgPrivatAfpSpecV3): UttakGradKode =
         UttakGradKode.entries.firstOrNull { it.value == source.foersteUttak.grad.toString() }
-            ?: UttakGradKode.P_100
+            ?: throw BadSpecException(
+                message = "Ugyldig uttaksgrad: ${source.foersteUttak.grad}",
+                problemType = ProblemType.UGYLDIG_UTTAKSGRAD
+            )
 }

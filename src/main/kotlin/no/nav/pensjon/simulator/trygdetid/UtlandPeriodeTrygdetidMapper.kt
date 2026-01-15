@@ -1,11 +1,6 @@
 package no.nav.pensjon.simulator.trygdetid
 
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
-import java.util.*
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.TrygdetidsgrunnlagForUtenlandsperioderMapper
@@ -51,20 +46,20 @@ object UtlandPeriodeTrygdetidMapper {
             innerLoop@ while (innerIndex < innerList.size) {
                 inner = innerList[innerIndex]
 
-                if (endsBefore(outer, inner)) {
+                if (outer.endsBefore(inner)) {
                     break@innerLoop
-                } else if (startsBeforeAndEndsIn(outer, inner)) {
-                    outer.periode.tom = dayBeforeStartOf(inner)
+                } else if (outer.startsBeforeAndEndsIn(inner)) {
+                    outer.periode.tom = inner.dayBefore()
                     break@innerLoop
-                } else if (startsAndEndsIn(outer, inner)) {
+                } else if (outer.startsAndEndsIn(inner)) {
                     continue@outerLoop
-                } else if (startsBeforeAndEndsAfter(outer, inner)) {
-                    resultList.add(outer.withPeriodeTom(dato = dayBeforeStartOf(inner)))
-                    outer.periode.fom = dayAfterEndOf(inner)
-                } else if (endsBefore(inner, outer)) {
+                } else if (outer.startsBeforeAndEndsAfter(inner)) {
+                    resultList.add(outer.withPeriodeTom(dato = inner.dayBefore()))
+                    outer.periode.fom = inner.dayAfter()
+                } else if (inner.endsBefore(outer)) {
                     // No action
-                } else if (startsInAndEndsAfter(outer, inner)) {
-                    outer.periode.fom = dayAfterEndOf(inner)
+                } else if (outer.startsInAndEndsAfter(inner)) {
+                    outer.periode.fom = inner.dayAfter()
                 }
 
                 innerIndex++
@@ -100,50 +95,4 @@ object UtlandPeriodeTrygdetidMapper {
             ),
             arbeidet = periode.arbeidet
         )
-
-    private fun dayBeforeStartOf(opphold: TrygdetidOpphold): Date? =
-        opphold.periode.fom?.toNorwegianLocalDate()?.minusDays(1)?.toNorwegianDateAtNoon()
-
-    private fun dayAfterEndOf(opphold: TrygdetidOpphold): Date? =
-        opphold.periode.tom?.toNorwegianLocalDate()?.plusDays(1)?.toNorwegianDateAtNoon()
-
-    private fun startsBeforeAndEndsIn(grunnlagA: TrygdetidOpphold, grunnlagB: TrygdetidOpphold): Boolean {
-        val a = grunnlagA.periode
-        val b = grunnlagB.periode
-
-        return isBeforeByDay(a.fom, b.fom, false)
-                && a.tom != null && isBeforeByDay(b.fom, a.tom, allowSameDay = true)
-                && isBeforeByDay(a.tom, b.tom, allowSameDay = true)
-    }
-
-    private fun startsBeforeAndEndsAfter(grunnlagA: TrygdetidOpphold, grunnlagB: TrygdetidOpphold): Boolean {
-        val a = grunnlagA.periode
-        val b = grunnlagB.periode
-
-        return isBeforeByDay(a.fom, b.fom, false)
-                && (a.tom == null || isAfterByDay(a.tom, b.tom, allowSameDay = false))
-    }
-
-    private fun startsAndEndsIn(grunnlagA: TrygdetidOpphold, grunnlagB: TrygdetidOpphold): Boolean {
-        val a = grunnlagA.periode
-        val b = grunnlagB.periode
-
-        return isAfterByDay(a.fom, b.fom, true)
-                && a.tom != null && isBeforeByDay(a.tom, b.tom, allowSameDay = true)
-    }
-
-    private fun startsInAndEndsAfter(grunnlagA: TrygdetidOpphold, grunnlagB: TrygdetidOpphold): Boolean {
-        val a = grunnlagA.periode
-        val b = grunnlagB.periode
-
-        return isAfterByDay(a.fom, b.fom, allowSameDay = true)
-                && isBeforeByDay(a.fom, b.tom, allowSameDay = true)
-                && (a.tom == null || isAfterByDay(a.tom, b.tom, allowSameDay = false))
-    }
-
-    private fun endsBefore(a: TrygdetidOpphold, b: TrygdetidOpphold): Boolean =
-        a.periode.tom?.let { endsBefore(it, b.periode.fom) } == true
-
-    private fun endsBefore(a: Date, b: Date?): Boolean =
-        isBeforeByDay(a, b, allowSameDay = false)
 }

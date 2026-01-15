@@ -227,15 +227,15 @@ class KravhodeUpdater(
         private const val AGE_ADULTHOOD_OPPTJENING = 16
 
         // SimulerFleksibelAPCommand.createTrygdetidsgrunnlagForenkletSimulering
-        private fun anonymSimuleringTrygdetidPeriode(spec: TrygdetidGrunnlagSpec): TTPeriode {
-            val fom = LocalDate.of(
-                spec.simuleringSpec.foedselAar + AGE_ADULTHOOD_OPPTJENING + (spec.utlandAntallAar ?: 0),
-                1,
-                1
+        private fun anonymSimuleringTrygdetidPeriode(spec: TrygdetidGrunnlagSpec): TTPeriode =
+            anonymSimuleringTrygdetidPeriode(
+                fom = LocalDate.of(
+                    spec.simuleringSpec.foedselAar + AGE_ADULTHOOD_OPPTJENING + (spec.utlandAntallAar ?: 0),
+                    1,
+                    1
+                ),
+                tom = spec.tom
             )
-
-            return anonymSimuleringTrygdetidPeriode(fom, spec.tom)
-        }
     }
 }
 

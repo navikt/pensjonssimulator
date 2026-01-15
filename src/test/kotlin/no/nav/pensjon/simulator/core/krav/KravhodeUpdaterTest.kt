@@ -42,9 +42,7 @@ class KravhodeUpdaterTest : ShouldSpec({
 
         with(kravhode) {
             persongrunnlagListe shouldHaveSize 1
-            persongrunnlagListe[0].trygdeavtale!!.kravDatoIAvtaleland shouldBe
-                    //  dateAtNoon(2025, Calendar.JANUARY, 1) // = dagens dato
-                    idag.toNorwegianDateAtNoon()
+            persongrunnlagListe[0].trygdeavtale!!.kravDatoIAvtaleland shouldBe idag.toNorwegianDateAtNoon()
         }
     }
 })

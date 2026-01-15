@@ -1,16 +1,15 @@
-package no.nav.pensjon.simulator.core.trygd
+package no.nav.pensjon.simulator.trygdetid
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleDatoEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleKritEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
-import java.util.*
 
-class TrygdeavtaleFactoryTest : FunSpec({
+class TrygdeavtaleFactoryTest : ShouldSpec({
 
     /**
      * Opprettet trygdeavtale for simulering utland skal ha:
@@ -21,16 +20,17 @@ class TrygdeavtaleFactoryTest : FunSpec({
      * - kravDatoIAvtaleland = angitt dato med klokkeslett 12
      * - omfattesavAvtalensPersonkrets = true
      */
-    test("newTrygdeavtaleForSimuleringUtland should set kravDatoIAvtaleland according to input") {
-        val trygdeavtale =
-            TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland(avtalelandKravdato = LocalDate.of(2025, 1, 1))
+    should("set 'kravdato i avtaleland' according to input") {
+        val dato = LocalDate.of(2025, 1, 1)
+
+        val trygdeavtale = TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland(avtalelandKravdato = dato)
 
         with(trygdeavtale) {
             avtaledatoEnum shouldBe AvtaleDatoEnum.EOS1994
             avtaleKriterieEnum shouldBe AvtaleKritEnum.YRK_TRYGD
             avtaleTypeEnum shouldBe AvtaletypeEnum.EOS_NOR
             bostedslandEnum shouldBe LandkodeEnum.NOR
-            kravDatoIAvtaleland shouldBe dateAtNoon(2025, Calendar.JANUARY, 1) // according to input
+            kravDatoIAvtaleland shouldBe dato.toNorwegianDateAtNoon() // according to input
             omfattesavAvtalensPersonkrets shouldBe true
         }
     }

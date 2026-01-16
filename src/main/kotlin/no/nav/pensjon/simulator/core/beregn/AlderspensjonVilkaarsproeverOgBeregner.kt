@@ -30,6 +30,8 @@ import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.trygdetidSpec
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag as LivsvarigOffentligAfpGrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
 /**
  * Vilkårsprøving og beregning av alderspensjon.
@@ -109,7 +111,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             // Corresponds to part 4
             val gjeldendePrivatAfp = getPrivatAfp(privatAfpBeregningResultatListe, knekkpunktDato)
 
-            val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag? =
+            val livsvarigOffentligAfpGrunnlag: LivsvarigOffentligAfpGrunnlag? =
                 livsvarigOffentligAfpService.livsvarigOffentligAfpGrunnlag(
                     innvilgetAfpSpec = simuleringSpec.livsvarigOffentligAfp?.innvilgetAfp,
                     simulertAfpYtelseListe = spec.afpOffentligLivsvarigBeregningsresultat?.afpYtelseListe.orEmpty(),
@@ -428,12 +430,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         private fun getPrivatAfp(
             resultatListe: MutableList<BeregningsResultatAfpPrivat>,
             knekkpunktDato: LocalDate
-        ): AfpPrivatLivsvarig? =
+        ): PrivatAfp? =
             findValidForDate(resultatListe, knekkpunktDato)?.privatAfp()
 
         private fun vilkaarsproevingSpec(
-            livsvarigOffentligAfp: AfpOffentligLivsvarigGrunnlag?,
-            privatAfp: AfpPrivatLivsvarig?,
+            livsvarigOffentligAfp: LivsvarigOffentligAfpGrunnlag?,
+            privatAfp: PrivatAfp?,
             virkningDato: LocalDate,
             kravhode: Kravhode,
             privatAfpFoersteVirkning: LocalDate?,

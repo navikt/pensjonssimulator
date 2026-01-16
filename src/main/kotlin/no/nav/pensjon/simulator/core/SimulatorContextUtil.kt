@@ -4,7 +4,6 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.Pakkseddel
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAPKap19
@@ -26,6 +25,7 @@ import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
 object SimulatorContextUtil {
 
@@ -169,9 +169,9 @@ object SimulatorContextUtil {
 
     private fun preprocess(pensjon: PensjonUnderUtbetaling) {
         pensjon.ytelseskomponenter.forEach {
-            (it as? Tilleggspensjon)?.let { it.formelMap = HashMap() }
-            (it as? GjenlevendetilleggAP)?.let { it.formelMap = HashMap() }
-            (it as? GjenlevendetilleggAPKap19)?.let { it.formelMap = HashMap() }
+            (it as? Tilleggspensjon)?.let { o -> o.formelMap = HashMap() }
+            (it as? GjenlevendetilleggAP)?.let { o -> o.formelMap = HashMap() }
+            (it as? GjenlevendetilleggAPKap19)?.let { o -> o.formelMap = HashMap() }
             roundNettoPerAar(it)
         }
     }
@@ -180,7 +180,7 @@ object SimulatorContextUtil {
      * PEN's nettoPerAr is an integer, whereas regler's is double;
      * therefore, need to round when calling regler from PEN.
      */
-    private fun roundNettoPerAar(afp: AfpPrivatLivsvarig) {
+    private fun roundNettoPerAar(afp: PrivatAfp) {
         afp.nettoPerAr = afp.nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
     }
 

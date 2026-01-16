@@ -1,18 +1,20 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import java.util.*
+import java.util.Date
 
+// Copied from pensjon-regler-api 2026-01-16
 /**
- * Denne klassen inneholder informasjon om TP-ordningers uførepensjonsgrunnlag. Dette er manuelt registrerte data og ikke hentet fra TP-registeret eller andre eksterne kilder.
+ * Informasjon om tjenestepensjonsordningers uførepensjonsgrunnlag.
+ * Dette er manuelt registrerte data og ikke hentet fra TP-registeret eller andre eksterne kilder.
  */
-class AfpTpoUpGrunnlag(
-    var belop: Int = 0,
+class AfpTpoUpGrunnlag {
+    /**
+     * Beløp som skal benyttes i AFP-beregning dersom bruker har hatt uførepensjon fra TPO
+     */
+    var belop = 0
 
+    /**
+     * Dato som beløpet ovenfor var gyldig
+     */
     var virkFom: Date? = null
-) {
-
-    constructor(AfpTpoUpGrunnlag: AfpTpoUpGrunnlag) : this() {
-        this.belop = AfpTpoUpGrunnlag.belop
-        this.virkFom = AfpTpoUpGrunnlag.virkFom
-    }
 }

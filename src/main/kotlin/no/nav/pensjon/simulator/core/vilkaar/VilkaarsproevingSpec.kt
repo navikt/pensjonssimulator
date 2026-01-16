@@ -1,16 +1,15 @@
 package no.nav.pensjon.simulator.core.vilkaar
 
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag as LivsvarigOffentligAfpGrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
-// PEN: no.nav.service.pensjon.simulering.abstractsimulerapfra2011.FPEN028VilkarsprovKravRequest
 data class VilkaarsproevingSpec(
-    val livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
-    val privatAfp: AfpPrivatLivsvarig?,
+    val livsvarigOffentligAfpGrunnlag: LivsvarigOffentligAfpGrunnlag?,
+    val privatAfp: PrivatAfp?,
     val virkningFom: LocalDate,
     val kravhode: Kravhode,
     val afpFoersteVirkning: LocalDate?,

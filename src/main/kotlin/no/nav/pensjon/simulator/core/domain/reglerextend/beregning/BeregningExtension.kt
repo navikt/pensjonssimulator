@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copyBarnetillegg
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import java.util.*
+import no.nav.pensjon.simulator.core.util.copy
 
 fun AfpTillegg.copy() =
     AfpTillegg().also {
@@ -28,8 +28,8 @@ fun BarnetilleggSerkullsbarn.copy() =
 fun Beregning.copy() =
     Beregning().also {
         it.penPerson = this.penPerson?.let(::PenPerson)
-        it.virkFom = this.virkFom?.clone() as? Date
-        it.virkTom = this.virkTom?.clone() as? Date
+        it.virkFom = this.virkFom?.copy()
+        it.virkTom = this.virkTom?.copy()
         it.brutto = this.brutto
         it.netto = this.netto
         it.gp = this.gp?.let(::Grunnpensjon)
@@ -91,9 +91,9 @@ fun Beregning.copy() =
         it.pubReguleringFratrekk = this.pubReguleringFratrekk
         it.ttBeregnetForGrunnlagsrolle = this.ttBeregnetForGrunnlagsrolle
         it.ungUforGarantiFrafalt = this.ungUforGarantiFrafalt
-        it.uft = this.uft?.clone() as? Date
-        it.yst = this.yst?.clone() as? Date
-        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.uft = this.uft?.copy()
+        it.yst = this.yst?.copy()
+        it.merknadListe = this.merknadListe.map { o -> o.copy() }
     }
 
 fun Familietillegg.copy() =
@@ -179,7 +179,7 @@ fun copyYtelseskomponent(
     target.fradragPerAr = source.fradragPerAr
     target.ytelsekomponentTypeEnum = source.ytelsekomponentTypeEnum
     target.formelKodeEnum = source.formelKodeEnum
-    target.merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
+    target.merknadListe = source.merknadListe.map { o -> o.copy() }.toMutableList()
     target.reguleringsInformasjon = source.reguleringsInformasjon?.let(::ReguleringsInformasjon)
     target.fradragsTransaksjon = source.fradragsTransaksjon
     target.opphort = source.opphort

@@ -5,13 +5,11 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InfoPavirkendeYtelse
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
@@ -25,6 +23,8 @@ import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag as LivsvarigOffentligAfpGrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
 // PEN: Beregning part of
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.VilkarsprovOgBeregnAlderHelper
@@ -37,8 +37,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         vedtakListe: MutableList<VilkarsVedtak>,
         virkningDato: LocalDate,
         sisteAldersberegning2011: SisteBeregning?,
-        privatAfp: AfpPrivatLivsvarig?,
-        livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
+        privatAfp: PrivatAfp?,
+        livsvarigOffentligAfpGrunnlag: LivsvarigOffentligAfpGrunnlag?,
         simuleringSpec: SimuleringSpec,
         sakId: Long?,
         isFoersteUttak: Boolean,
@@ -181,8 +181,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             kravhode: Kravhode,
             vedtakListe: MutableList<VilkarsVedtak>,
             virkningFom: LocalDate,
-            privatAfp: AfpPrivatLivsvarig?,
-            livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
+            privatAfp: PrivatAfp?,
+            livsvarigOffentligAfpGrunnlag: LivsvarigOffentligAfpGrunnlag?,
             simuleringSpec: SimuleringSpec
         ): AlderspensjonBeregningCommonSpec {
             val epsMottarPensjon = epsMottarPensjon(simuleringSpec)
@@ -236,8 +236,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             vedtakListe: MutableList<VilkarsVedtak>,
             virkningFom: LocalDate,
             sisteAlderspensjonBeregning2011: SisteBeregning,
-            privatAfp: AfpPrivatLivsvarig?,
-            livsvarigOffentligAfpGrunnlag: AfpOffentligLivsvarigGrunnlag?,
+            privatAfp: PrivatAfp?,
+            livsvarigOffentligAfpGrunnlag: LivsvarigOffentligAfpGrunnlag?,
             simuleringSpec: SimuleringSpec
         ): AlderspensjonRevurderingCommonSpec {
             val epsMottarPensjon = epsMottarPensjon(simuleringSpec)
@@ -245,8 +245,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
 
             return AlderspensjonRevurderingCommonSpec(
                 kravhode,
-                vilkarsvedtakListe = vedtakListe,
-                infoPavirkendeYtelse = paavirkendeYtelseInfo,
+                vilkaarsvedtakListe = vedtakListe,
+                paavirkendeYtelseInfo,
                 epsMottarPensjon,
                 virkFom = virkningFom,
                 forrigeAldersberegning = sisteAlderspensjonBeregning2011,
@@ -299,8 +299,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         private fun revurdering2011Request(spec: AlderspensjonRevurderingCommonSpec) =
             RevurderingAlderspensjon2011Request().apply {
                 kravhode = spec.kravhode
-                vilkarsvedtakListe = Vector(spec.vilkarsvedtakListe)
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                vilkarsvedtakListe = Vector(spec.vilkaarsvedtakListe)
+                infoPavirkendeYtelse = spec.paavirkendeYtelseInfo
                 epsMottarPensjon = spec.epsMottarPensjon
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 virkTom = null
@@ -311,8 +311,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         private fun revurdering2016Request(spec: AlderspensjonRevurderingCommonSpec) =
             RevurderingAlderspensjon2016Request().apply {
                 kravhode = spec.kravhode
-                vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe)
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                vilkarsvedtakListe = ArrayList(spec.vilkaarsvedtakListe)
+                infoPavirkendeYtelse = spec.paavirkendeYtelseInfo
                 epsMottarPensjon = spec.epsMottarPensjon
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016
@@ -325,8 +325,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         private fun revurdering2025Request(spec: AlderspensjonRevurderingCommonSpec) =
             RevurderingAlderspensjon2025Request().apply {
                 kravhode = spec.kravhode
-                vilkarsvedtakListe = ArrayList(spec.vilkarsvedtakListe)
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
+                vilkarsvedtakListe = ArrayList(spec.vilkaarsvedtakListe)
+                infoPavirkendeYtelse = spec.paavirkendeYtelseInfo
                 epsMottarPensjon = spec.epsMottarPensjon
                 virkFom = spec.virkFom?.toNorwegianDateAtNoon()
                 sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011 // NB: 2011

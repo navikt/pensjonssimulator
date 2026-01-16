@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AntallArMndDag
 
+// Copied from pensjon-regler-api 2026-01-16
 /**
  * Trygdetid for land med bilaterale avtaler.
  */

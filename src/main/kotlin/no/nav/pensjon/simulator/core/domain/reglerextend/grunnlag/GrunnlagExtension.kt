@@ -7,13 +7,13 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
-import java.util.*
+import no.nav.pensjon.simulator.core.util.copy
 
 fun AfpHistorikk.copy() =
     AfpHistorikk().also {
         it.afpFpp = this.afpFpp
-        it.virkFom = this.virkFom?.clone() as? Date
-        it.virkTom = this.virkTom?.clone() as? Date
+        it.virkFom = this.virkFom?.copy()
+        it.virkTom = this.virkTom?.copy()
         it.afpPensjonsgrad = this.afpPensjonsgrad
         it.afpOrdningEnum = this.afpOrdningEnum
     }
@@ -38,15 +38,15 @@ fun AntallArOgMnd.copy() =
 
 fun ArbeidsforholdEtterUforgrunnlag.copy() =
     ArbeidsforholdEtterUforgrunnlag().also {
-        it.fomDato = this.fomDato?.clone() as? Date
+        it.fomDato = this.fomDato?.copy()
         it.stillingsprosent = this.stillingsprosent
         it.varigTilrettelagtArbeid = this.varigTilrettelagtArbeid
     }
 
 fun Arbeidsforholdsgrunnlag.copy() =
     Arbeidsforholdsgrunnlag().also {
-        it.fomDato = this.fomDato?.clone() as? Date
-        it.tomDato = this.tomDato?.clone() as? Date
+        it.fomDato = this.fomDato?.copy()
+        it.tomDato = this.tomDato?.copy()
         it.stillingsprosent = this.stillingsprosent
         it.arbeidsgiver = this.arbeidsgiver
         it.orgNummer = this.orgNummer
@@ -56,8 +56,8 @@ fun BarnDetalj.copy() =
     BarnDetalj().also {
         it.annenForelder = this.annenForelder?.let(::PenPerson)
         it.borMedBeggeForeldre = this.borMedBeggeForeldre
-        it.borFomDato = this.borFomDato?.clone() as? Date
-        it.borTomDato = this.borTomDato?.clone() as? Date
+        it.borFomDato = this.borFomDato?.copy()
+        it.borTomDato = this.borTomDato?.copy()
         it.inntektOver1G = this.inntektOver1G
         it.underUtdanning = this.underUtdanning
     }
@@ -76,9 +76,9 @@ fun BarnetilleggVilkar.copy() =
 
 fun BarnetilleggVurderingsperiode.copy() =
     BarnetilleggVurderingsperiode().also {
-        it.fomDato = this.fomDato?.clone() as? Date
-        it.tomDato = this.tomDato?.clone() as? Date
-        it.btVilkarListe = this.btVilkarListe.map { it.copy() }
+        it.fomDato = this.fomDato?.copy()
+        it.tomDato = this.tomDato?.copy()
+        it.btVilkarListe = this.btVilkarListe.map { o -> o.copy() }
     }
 
 fun Beholdninger.copy() =
@@ -122,8 +122,8 @@ fun Garantitilleggsbeholdning.copy() =
 fun GarantiTrygdetid.copy() =
     GarantiTrygdetid().also {
         it.trygdetid_garanti = this.trygdetid_garanti
-        it.fomDato = this.fomDato?.clone() as? Date
-        it.tomDato = this.tomDato?.clone() as? Date
+        it.fomDato = this.fomDato?.copy()
+        it.tomDato = this.tomDato?.copy()
     }
 
 fun InngangOgEksportGrunnlag.copy() =
@@ -162,8 +162,8 @@ fun InngangOgEksportGrunnlag.copy() =
 fun InstOpphFasteUtgifterperiode.copy() =
     InstOpphFasteUtgifterperiode().also {
         it.instOpphFasteUtgifterperiodeId = this.instOpphFasteUtgifterperiodeId
-        it.fom = this.fom?.clone() as? Date
-        it.tom = this.tom?.clone() as? Date
+        it.fom = this.fom?.copy()
+        it.tom = this.tom?.copy()
         it.fasteUtgifter = this.fasteUtgifter
     }
 
@@ -180,8 +180,8 @@ fun NormertPensjonsalderGrunnlag.copy() =
 
 fun Pensjonsbeholdning.copy() =
     Pensjonsbeholdning().also {
-        it.fom = this.fom?.clone() as? Date
-        it.tom = this.tom?.clone() as? Date
+        it.fom = this.fom?.copy()
+        it.tom = this.tom?.copy()
         copyBeholdning(source = this, target = it)
     }
 
@@ -194,8 +194,8 @@ fun Unntak.copy() =
 
 fun Uttaksgrad.copy() =
     Uttaksgrad().also {
-        it.fomDato = this.fomDato?.clone() as? Date
-        it.tomDato = this.tomDato?.clone() as? Date
+        it.fomDato = this.fomDato?.copy()
+        it.tomDato = this.tomDato?.copy()
         it.uttaksgrad = this.uttaksgrad
     }
 
@@ -224,6 +224,6 @@ private fun copyBeholdning(source: Beholdning, target: Beholdning) {
     target.opptjening = source.opptjening?.let(::Opptjening)
     target.beholdningsTypeEnum = source.beholdningsTypeEnum
     target.formelKodeEnum = source.formelKodeEnum
-    target.merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
+    target.merknadListe = source.merknadListe.map { o -> o.copy() }.toMutableList()
     target.lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
 }

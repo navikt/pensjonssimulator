@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.reglerextend
 
 import no.nav.pensjon.simulator.core.domain.regler.*
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import java.util.*
+import no.nav.pensjon.simulator.core.util.copy
 
 // Checked 2025-03-06
 
@@ -16,7 +16,7 @@ fun Pakkseddel.copy() =
     Pakkseddel().also {
         it.kontrollTjenesteOk = this.kontrollTjenesteOk
         it.annenTjenesteOk = this.annenTjenesteOk
-        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.merknadListe = this.merknadListe.map { o -> o.copy() }
         it.satstabell = this.satstabell
     }
 
@@ -27,7 +27,7 @@ fun Trygdetid.copy() =
         it.tt = this.tt
         it.ftt = this.ftt
         it.ftt_redusert = this.ftt_redusert
-        it.ftt_fom = this.ftt_fom?.clone() as? Date
+        it.ftt_fom = this.ftt_fom?.copy()
         it.tt_fa_mnd = this.tt_fa_mnd
         it.tt_67_70 = this.tt_67_70
         it.tt_67_75 = this.tt_67_75
@@ -38,15 +38,27 @@ fun Trygdetid.copy() =
         it.opptjeningsperiode = this.opptjeningsperiode
         it.ttUtlandEos = this.ttUtlandEos?.copy()
         it.ttUtlandKonvensjon = this.ttUtlandKonvensjon?.copy()
-        it.ttUtlandTrygdeavtaler = this.ttUtlandTrygdeavtaler.map { it.copy() }
-        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.ttUtlandTrygdeavtaler = this.ttUtlandTrygdeavtaler.map { o -> o.copy() }
+        it.merknadListe = this.merknadListe.map { o -> o.copy() }
         it.garantiTypeEnum = this.garantiTypeEnum
         it.prorataNevnerVKAP = this.prorataNevnerVKAP
         it.prorataTellerVKAP = this.prorataTellerVKAP
         it.tt_fa = this.tt_fa?.copy()
-        it.virkFom = this.virkFom?.clone() as? Date
-        it.virkTom = this.virkTom?.clone() as? Date
+        it.virkFom = this.virkFom?.copy()
+        it.virkTom = this.virkTom?.copy()
         it.anvendtFlyktningEnum = this.anvendtFlyktningEnum
+    }
+
+fun TTPeriode.copy() =
+    TTPeriode().also {
+        it.fom = this.fom?.copy()
+        it.tom = this.tom?.copy()
+        it.poengIInnAr = this.poengIInnAr
+        it.poengIUtAr = this.poengIUtAr
+        it.landEnum = this.landEnum
+        it.ikkeProRata = this.ikkeProRata
+        it.bruk = this.bruk
+        it.grunnlagKildeEnum = this.grunnlagKildeEnum
     }
 
 fun TTUtlandEOS.copy() =
@@ -62,7 +74,7 @@ fun TTUtlandEOS.copy() =
         it.tt_lik_pa = this.tt_lik_pa
         it.tt_konvensjon_ar = this.tt_konvensjon_ar
         it.tt_fa = this.tt_fa
-        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.merknadListe = this.merknadListe.map { o -> o.copy() }
     }
 
 fun TTUtlandKonvensjon.copy() =
@@ -77,7 +89,7 @@ fun TTUtlandKonvensjon.copy() =
         it.tt_A10_nevner = this.tt_A10_nevner
         it.tt_konvensjon_ar = this.tt_konvensjon_ar
         it.tt_lik_pa = this.tt_lik_pa
-        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.merknadListe = this.merknadListe.map { o -> o.copy() }
     }
 
 fun TTUtlandTrygdeavtale.copy() =
@@ -91,7 +103,7 @@ fun TTUtlandTrygdeavtale.copy() =
         it.pro_rata_nevner = this.pro_rata_nevner
         it.avtalelandEnum = this.avtalelandEnum
         it.tt_fa = this.tt_fa
-        it.merknadListe = this.merknadListe.map { it.copy() }
+        it.merknadListe = this.merknadListe.map { o -> o.copy() }
     }
 
 fun Uforeopptjening.copy() =

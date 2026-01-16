@@ -402,8 +402,8 @@ class Persongrunnlag {
         source.inntektsgrunnlagListe.forEach { inntektsgrunnlagListe.add(Inntektsgrunnlag(it)) }
 
         if (excludeTrygdetidPerioder.not()) {
-            source.trygdetidPerioder.forEach { trygdetidPerioder.add(TTPeriode(it)) }
-            source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(TTPeriode(it)) }
+            source.trygdetidPerioder.forEach { trygdetidPerioder.add(it.copy()) }
+            source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(it.copy()) }
         }
 
         trygdetid = source.trygdetid?.copy()

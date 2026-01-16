@@ -14,8 +14,6 @@ fun Merknad.copy() =
 
 fun Pakkseddel.copy() =
     Pakkseddel().also {
-        it.kontrollTjenesteOk = this.kontrollTjenesteOk
-        it.annenTjenesteOk = this.annenTjenesteOk
         it.merknadListe = this.merknadListe.map { o -> o.copy() }
         it.satstabell = this.satstabell
     }

@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad.beregnAfpGrad
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
-import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
@@ -19,6 +18,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import java.time.LocalDate
 import java.util.*
 

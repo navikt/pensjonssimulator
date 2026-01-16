@@ -1,7 +1,5 @@
 package no.nav.pensjon.simulator.core.result
 
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.findElementOfType
-import no.nav.pensjon.simulator.core.beholdning.BeholdningUtil.sortedSubset
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
@@ -9,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -340,7 +339,6 @@ class SimuleringResultPreparer(
         var forrigeAfpBeregningsresultatKopi: BeregningsResultatAfpPrivat? = null
 
         if (forrigeAfpBeregningResultat != null) {
-            // Put a copy of the løpende beregningsresultat on the list. Adjust fom/tom.
             forrigeAfpBeregningsresultatKopi = modifiedCopyOfPrivatAfpBeregningResultat(
                 beregningResultat = forrigeAfpBeregningResultat,
                 resultatListe = privatAfpBeregningResultatListe,
@@ -791,7 +789,9 @@ class SimuleringResultPreparer(
             return result
         }
 
-        // TypedInformationListeUtils.subsetOfTypes
+        private fun findElementOfType(list: List<Beholdning>, type: BeholdningtypeEnum) =
+            list.find { type == it.beholdningsTypeEnum } as? Pensjonsbeholdning
+
         private fun subsetOfTypes(
             list: List<Ytelseskomponent>,
             vararg types: YtelseskomponentTypeEnum
@@ -799,6 +799,11 @@ class SimuleringResultPreparer(
             list.filter {
                 listOf(*types).any { t -> t == it.ytelsekomponentTypeEnum }
             }
+
+        private fun sortedSubset(list: List<Pensjonsbeholdning>, aar: Int) =
+            list.filter { it.ar == aar }
+                .toMutableList()
+                .sortedBy { it.ar }
 
         private fun copy(original: AbstraktBeregningsResultat): AbstraktBeregningsResultat =
             when (original) {

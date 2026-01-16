@@ -156,7 +156,7 @@ object SimulatorContextUtil {
             }
         }
 
-        log.warn { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
+        log.debug { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
 
         if (kontrollTjenesteOk) {
             log.error { "$call - regler validering andre merknader - $message => KanIkkeBeregnesException" }

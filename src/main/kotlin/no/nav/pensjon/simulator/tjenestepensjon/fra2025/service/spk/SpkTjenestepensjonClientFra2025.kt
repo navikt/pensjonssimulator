@@ -65,21 +65,21 @@ class SpkTjenestepensjonClientFra2025(
                 .bodyToMono<SpkSimulerTjenestepensjonResponse>()
                 .block()
                 ?.let { success(spec, request, response = it) }
-                ?: Result.failure(TjenestepensjonSimuleringException("No response body"))
+                ?: Result.failure(TjenestepensjonSimuleringException("No response body", leverandoerKortNavn))
         } catch (e: WebClientResponseException) {
             "Failed to simulate tjenestepensjon 2025 with $leverandoerKortNavn ${e.responseBodyAsString}".let {
                 log.error(e) { it }
-                Result.failure(TjenestepensjonSimuleringException(it))
+                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
             }
         } catch (e: WebClientRequestException) {
             "Failed to send request to simulate tjenestepensjon 2025 with $leverandoerKortNavn".let {
                 log.error(e) { "$it med url ${e.uri}" }
-                Result.failure(TjenestepensjonSimuleringException(it))
+                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
             }
         } catch (e: EgressException) {
             "Failed to simulate tjenestepensjon 2025 at $leverandoerKortNavn".let {
                 log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
-                Result.failure(TjenestepensjonSimuleringException(it))
+                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
             }
         }
     }

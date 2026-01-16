@@ -74,7 +74,7 @@ class SpkTjenestepensjonService(
     private fun failure(): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
         "Simulering av tjenestepensjon hos ${client.leverandoerKortNavn} er slått av".let {
             log.warn { it }
-            Result.failure(TjenestepensjonSimuleringException(it))
+            Result.failure(TjenestepensjonSimuleringException(it, client.leverandoerKortNavn))
         }
 
     private fun logAfp(utbetalingsliste: List<Utbetalingsperiode>) {

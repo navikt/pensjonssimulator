@@ -27,7 +27,7 @@ class TjenestepensjonFra2025Service(
             return emptyList<String>() to Result.failure(e)
         }
 
-        val tpOrdningerNavn = tpOrdninger.map { it.navn }
+        val tpOrdningerNavn = tpOrdninger.map { it.navn }.sorted()
         val sisteOrdningerNr = sisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
 
         if (sisteOrdningerNr.isEmpty()) {

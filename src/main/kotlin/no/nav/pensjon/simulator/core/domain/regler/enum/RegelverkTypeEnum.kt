@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
 
 /**
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/RegelverkTypeEnum.kt
- * 2025-01-29
+ * Copied 2026-01-16
  */
 enum class RegelverkTypeEnum {
     G_REG,

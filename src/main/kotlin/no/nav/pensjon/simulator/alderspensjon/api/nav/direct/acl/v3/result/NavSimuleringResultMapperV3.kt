@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result
 
 import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
-import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 
 /**
  * Maps between data transfer objects (DTOs) and domain objects related to simulering.

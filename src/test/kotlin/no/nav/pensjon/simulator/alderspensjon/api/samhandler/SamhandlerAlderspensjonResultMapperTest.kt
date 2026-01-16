@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.*
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
-import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import java.time.LocalDate
 
 class SamhandlerAlderspensjonResultMapperTest : FunSpec({

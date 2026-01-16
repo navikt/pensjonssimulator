@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
-import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import java.time.LocalDate
 
 data class SimulertPensjon(

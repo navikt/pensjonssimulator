@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Assert.assertResult
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.alderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.simulertPensjonEllerAlternativ
-import no.nav.pensjon.simulator.core.beholdning.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import java.time.LocalDate
 
 // Copied from PEN

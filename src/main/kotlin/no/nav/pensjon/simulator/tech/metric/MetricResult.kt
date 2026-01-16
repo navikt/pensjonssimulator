@@ -9,25 +9,25 @@ object Metrics {
 
     fun countEgressCall(service: String, result: String) {
         Metrics
-            .counter("$PREFIX-egress-call", "service", service, "result", result)
+            .counter("${PREFIX}_egress_call", "service", service, "result", result)
             .increment()
     }
 
     fun countIngressCall(organisasjonId: String, callId: String) {
         Metrics
-            .counter("$PREFIX-ingress-call", "org", organisasjonId, "call", callId)
+            .counter("${PREFIX}_ingress_call", "org", organisasjonId, "call", callId)
             .increment()
     }
 
     fun countSimuleringstype(type: String) {
         Metrics
-            .counter("$PREFIX-simuleringstype", "type", type)
+            .counter("${PREFIX}_simuleringstype", "type", type)
             .increment()
     }
 
     fun countTjenestepensjonSimuleringPre2025(resultat: SPKResultatKodePre2025, org: String = Organisasjoner.navn(SPK)) {
         Metrics
-            .counter("$PREFIX-tp-simulering-pre-2025", "resultat", resultat.name, "org", org)
+            .counter("${PREFIX}_tp_simulering_pre_2025", "resultat", resultat.name, "org", org)
             .increment()
     }
 }

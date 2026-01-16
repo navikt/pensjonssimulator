@@ -36,23 +36,7 @@ class SPKTjenestepensjonServicePre2025(
         val requestWithFilteredFnr = TjenestepensjonSimuleringPre2025Service.filterFnr(request.toString())
         log.debug { "Populated request: $requestWithFilteredFnr" }
         log.debug { "Populated request JSON: ${objectMapper.writeValueAsString(request)}" } //OBS: request logges som debug i dev, fnr må maskeres for logging i prod
-        return try {
-            spkTjenestepensjonClientPre2025.getPrognose(request = request, tpOrdning = tpOrdning)
-        } catch (e: WebClientResponseException) {
-            val rawResponseBody = e.responseBodyAsString
-            val responseBody = e.responseBodyAsString.let { StringUtils.replace(it, "Ã¥", "å") }
-                .let { StringUtils.replace(it, "Ã\u0083Â¥", "å") }
-                .let { StringUtils.replace(it, "Ã¦", "æ") }
-                .let { StringUtils.replace(it, "Ã¸", "ø") }
-                .let { StringUtils.replace(it, "Ã\u0083Â¸", "ø") }
-
-            log.warn(e) { "Error <$responseBody> while calling SPK with request: $requestWithFilteredFnr" }
-            log.warn { "Raw responseBody <$rawResponseBody> while calling SPK with request: $requestWithFilteredFnr" }
-            if (responseBody.contains("Validation problem")) {
-                throw BrukerKvalifisererIkkeTilTjenestepensjonException(responseBody)
-            }
-            throw e
-        }
+        return spkTjenestepensjonClientPre2025.getPrognose(request = request, tpOrdning = tpOrdning)
     }
 
     private fun buildTpForhold(tpOrdningOpptjeningsperiodeMap: Map<TpOrdningFullDto, List<OpptjeningsperiodeDto>>) =

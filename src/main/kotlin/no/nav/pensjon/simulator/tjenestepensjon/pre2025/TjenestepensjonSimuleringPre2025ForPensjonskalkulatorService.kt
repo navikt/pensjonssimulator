@@ -4,6 +4,7 @@ import com.nimbusds.jose.util.JSONObjectUtils
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.tech.env.EnvironmentUtil
+import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService.Companion.PEK_1490_TP_FOER_1963
 import no.nav.pensjon.simulator.tech.web.EgressException
@@ -13,7 +14,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.*
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1.Companion.tpOrdningStoettesIkke
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodePre2025.*
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodePre2025.Companion.fromFeilkode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
@@ -68,6 +70,8 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
 
             if (stillingsprosentListe.isEmpty()) {
                 log.warn { "No stillingsprosent found" }
+                    .also { Metrics.countTjenestepensjonSimuleringPre2025(INGEN_STILLINGSPROSENT) }
+
                 return SimulerOffentligTjenestepensjonResultV1(
                     spkMedlemskap.tpNr,
                     spkMedlemskap.navn,
@@ -82,12 +86,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 spec,
                 stillingsprosentListe,
                 spkMedlemskap,
-            )
+            ).also { Metrics.countTjenestepensjonSimuleringPre2025(OK) }
+
             log.debug { "Returning response: ${filterFnr(response.toString())}" }
             return response
-        } catch (e: BrukerKvalifisererIkkeTilTjenestepensjonException) {
-            log.warn { "Bruker kvalifiserer ikke til tjenestepensjon. ${e.message}" }
-            throw e
         } catch (e: EgressException) {
             val errorCode: String?
             val errorMessage: String?
@@ -96,13 +98,18 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 errorMessage = JSONObjectUtils.parse(e.message)["message"]?.toString()
             } catch (parseException: ParseException) {
                 log.error(parseException) { "Feil med parsing av koder fra SPK: ${parseException.message}" }
+                    .also { Metrics.countTjenestepensjonSimuleringPre2025(UKJENT_FEIL_HOS_SPK) }
                 throw RuntimeException("Feil med parsing av koder: ${parseException.message}")
             }
 
             log.warn(e) { "Feilmelding i respons fra SPK: $e" }
-            if (spkMedlemskap == null || errorCode == null || errorMessage == null) throw e
+            if (spkMedlemskap == null || errorCode == null || errorMessage == null){
+                Metrics.countTjenestepensjonSimuleringPre2025(UKJENT_FEIL_HOS_SPK)
+                throw e
+            }
 
             val feilkode = Feilkode.fromExternalValue(errorCode, errorMessage)
+                .also { Metrics.countTjenestepensjonSimuleringPre2025(fromFeilkode(it)) }
 
             if (feilkode == Feilkode.BEREGNING_GIR_NULL_UTBETALING)
                 return SimulerOffentligTjenestepensjonResultV1(

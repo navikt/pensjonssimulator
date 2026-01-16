@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.tech.metric
 
 import io.micrometer.core.instrument.Metrics
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodePre2025
 
 object Metrics {
     private const val PREFIX = "ps"
@@ -20,6 +22,12 @@ object Metrics {
     fun countSimuleringstype(type: String) {
         Metrics
             .counter("$PREFIX-simuleringstype", "type", type)
+            .increment()
+    }
+
+    fun countTjenestepensjonSimuleringPre2025(resultat: SPKResultatKodePre2025, org: String = Organisasjoner.navn(SPK)) {
+        Metrics
+            .counter("$PREFIX-tp-simulering-pre-2025", "resultat", resultat.name, "org", org)
             .increment()
     }
 }

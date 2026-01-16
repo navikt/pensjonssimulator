@@ -23,6 +23,12 @@ fun AfpOpptjening.copy() =
         copyBeholdning(source = this, target = it)
     }
 
+fun AfpTpoUpGrunnlag.copy() =
+    AfpTpoUpGrunnlag().also {
+        it.belop = this.belop
+        it.virkFom = this.virkFom?.copy()
+    }
+
 fun AntallArMndDag.copy() =
     AntallArMndDag().also {
         it.antallAr = this.antallAr

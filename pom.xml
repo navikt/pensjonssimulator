@@ -19,7 +19,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-        <kotlin.version>2.2.21</kotlin.version>
+        <kotlin.version>2.3.0</kotlin.version>
         <flyway.version>11.20.1</flyway.version>
         <logback.version>1.5.24</logback.version>
         <okhttp3.version>5.3.2</okhttp3.version>

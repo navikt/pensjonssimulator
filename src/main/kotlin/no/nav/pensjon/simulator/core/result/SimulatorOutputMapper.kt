@@ -18,6 +18,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
 /**
  * PEN: no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011ResultatMapper
@@ -45,7 +46,7 @@ object SimulatorOutputMapper {
     ): PrivatAfpPeriode {
         val privatAfpUnderUtbetaling = resultat.pensjonUnderUtbetaling
         val ytelseKomponentListe = privatAfpUnderUtbetaling?.ytelseskomponenter.orEmpty()
-        val privatAfp: AfpPrivatLivsvarig? = resultat.privatAfp()
+        val privatAfp: PrivatAfp? = resultat.privatAfp()
         val afpKronetillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KRONETILLEGG)
         val afpKompensasjonstillegg = firstYtelseOfType(ytelseKomponentListe, YtelseskomponentTypeEnum.AFP_KOMP_TILLEGG)
 

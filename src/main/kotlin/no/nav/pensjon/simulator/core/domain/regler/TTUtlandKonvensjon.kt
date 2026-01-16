@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-// 2025-06-06
+// Copied from pensjon-regler-api 2026-01-16
 /**
  * Trygdetid for utenlandssaker, men ikke EØS. Dvs nordisk konvensjon (artikkel
  * 10) og andre land med bilaterale avtaler.

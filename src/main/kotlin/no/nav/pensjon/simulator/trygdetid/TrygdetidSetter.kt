@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -95,7 +96,7 @@ class TrygdetidSetter(
         if (tom == null || tom.isAfter(fom)) {
             with(norskTrygdetidPeriode(fom, tom, ikkeProRata = true)) {
                 persongrunnlag.trygdetidPerioder.add(this)
-                persongrunnlag.trygdetidPerioderKapittel20.add(TTPeriode(this))
+                persongrunnlag.trygdetidPerioderKapittel20.add(this.copy())
             }
         }
     }

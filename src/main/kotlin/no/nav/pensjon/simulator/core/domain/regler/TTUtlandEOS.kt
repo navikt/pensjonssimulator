@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AntallArMndDag
 
+// Copied from pensjon-regler-api 2026-01-16
 /**
  * Trygdetid for EØS-tilfeller.
  */
@@ -47,7 +48,7 @@ class TTUtlandEOS {
      * Nevner i EØS pro-rata brøk, i antall måneder.
      */
     var tt_eos_nevner = 0
-    // usikker på om disse skal ligge begge steder
+
     /**
      * Trygdetid skal være lik antall poengår. Har bare betydning for personer
      * som har vært bosatt i utlandet.

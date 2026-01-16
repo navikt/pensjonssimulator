@@ -3,6 +3,9 @@ package no.nav.pensjon.simulator.core.util
 import java.time.LocalDate
 import java.util.*
 
+fun Date.copy(): Date =
+    this.clone() as Date
+
 fun Date.toNorwegianLocalDate(): LocalDate =
     NorwegianCalendar.forDate(date = this).let {
         LocalDate.of(

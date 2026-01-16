@@ -59,15 +59,15 @@ private fun pakkseddel() =
     }
 
 private fun trygdetidPeriode() =
-    TTPeriode().also {
-        it.fom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
-        it.tom = LocalDate.of(2022, 2, 2).toNorwegianDateAtNoon()
-        it.poengIInnAr = true
-        it.poengIUtAr = true
-        it.landEnum = LandkodeEnum.EST
-        it.ikkeProRata = true
-        it.bruk = true
-        it.grunnlagKildeEnum = GrunnlagkildeEnum.AA
+    TTPeriode().apply {
+        fom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
+        tom = LocalDate.of(2022, 2, 2).toNorwegianDateAtNoon()
+        poengIInnAr = true
+        poengIUtAr = true
+        landEnum = LandkodeEnum.EST
+        ikkeProRata = true
+        bruk = true
+        grunnlagKildeEnum = GrunnlagkildeEnum.AA
     }
 
 private fun uforeopptjening() =

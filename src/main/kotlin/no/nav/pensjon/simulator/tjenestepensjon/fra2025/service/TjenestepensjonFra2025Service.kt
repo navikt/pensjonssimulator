@@ -45,7 +45,7 @@ class TjenestepensjonFra2025Service(
             when (ordning) {
                 "3010", "3060" -> spk.simuler(spec, ordning) // TpNummer for SPK
                 "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
-                else -> Result.failure(TpOrdningStoettesIkkeException(ordning))
+                else -> Result.failure(TpOrdningStoettesIkkeException(tpOrdningerNavn.toString()))
             }.run {
                 onSuccess { return tpOrdningerNavn to this }
                 onFailure { if (it is TomSimuleringFraTpOrdningException) return tpOrdningerNavn to this } //Skjer kun hvis siste ordning

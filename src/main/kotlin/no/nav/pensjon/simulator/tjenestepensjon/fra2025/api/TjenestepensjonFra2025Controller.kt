@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.metric.Metrics
+import no.nav.pensjon.simulator.tech.selftest.SelfTest.Companion.APPLICATION_NAME
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.OffentligTjenestepensjonFra2025SimuleringSpecMapperV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
@@ -67,23 +68,15 @@ class TjenestepensjonFra2025Controller(
                     aggregerVellykketRespons
                 },
                 onFailure = { e ->
+                    countMetric(e)
                     when (e) {
                         is BrukerErIkkeMedlemException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.BRUKER_ER_IKKE_MEDLEM_HOS_TP_ORDNING, e.message, relevanteTpOrdninger)
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.IKKE_MEDLEM, "INGEN_ORDNING") }
                         is TpOrdningStoettesIkkeException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.TP_ORDNING_ER_IKKE_STOTTET, e.message, relevanteTpOrdninger)
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.TP_ORDNING_STOETTES_IKKE, relevanteTpOrdninger.joinToString(",")) } //Kan ikke separere liste, fordi vi vil logge en per bruker-simulering
                         is TjenestepensjonSimuleringException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.TEKNISK_FEIL_FRA_TP_ORDNING, e.message, relevanteTpOrdninger)
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.TEKNISK_FEIL_FRA_TP_ORDNING, e.tpOrdning) }
                         is TomSimuleringFraTpOrdningException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING, "Simulering fra ${e.tpOrdning} inneholder ingen utbetalingsperioder", relevanteTpOrdninger)
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.INGEN_UTBETALINGSPERIODER, e.tpOrdning) }
                         is IkkeSisteOrdningException -> SimulerOffentligTjenestepensjonFra2025ResultV1(ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING, "Simulering fra ${e.tpOrdning} inneholder ingen utbetalingsperioder", relevanteTpOrdninger)
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.INGEN_UTBETALINGSPERIODER, e.tpOrdning) }
-                        is TpregisteretException -> { log.error(e) { "Simulering feilet pga feil fra tpregisteret: ${e.message}" }
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.TEKNISK_FEIL_I_NAV, "tpregisteret") };
-                            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)}
-                        else -> { log.error(e) { "Simulering feilet: ${e.message}" }
-                            .also { Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.TEKNISK_FEIL_I_NAV, "pensjonssimulator") };
-                            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message)}
+                        is TpregisteretException -> { log.error(e) { "Simulering feilet pga feil fra tpregisteret: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message) }
+                        else -> { log.error(e) { "Simulering feilet: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message) }
                     }
                 })
         }
@@ -93,6 +86,14 @@ class TjenestepensjonFra2025Controller(
     }
 
     override fun errorMessage() = ERROR_MESSAGE
+
+    private fun countMetric(e: Throwable) {
+        if (e is MetricAware) {
+            Metrics.countTjenestepensjonSimuleringFra2025(e.metricResult, e.metricSource)
+        } else {
+            Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.TEKNISK_FEIL_I_NAV, APPLICATION_NAME)
+        }
+    }
 
     companion object {
         const val FUNCTION_ID = "nav-tps-fra-2025"

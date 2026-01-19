@@ -65,7 +65,7 @@ class TjenestepensjonFra2025Controller(
             return simuleringsresultat.second.fold(
                 onSuccess = {
                     val aggregerVellykketRespons: SimulerOffentligTjenestepensjonFra2025ResultV1 = aggregerVellykketRespons(it, relevanteTpOrdninger)
-                        .also { resultat -> Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.OK, resultat.simuleringsResultat!!.tpLeverandoer) }
+                        .also { _ -> Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.OK, it.tpLeverandoer.shortName) }
                     log.debug { "Simulering vellykket: $aggregerVellykketRespons" }
                     aggregerVellykketRespons
                 },

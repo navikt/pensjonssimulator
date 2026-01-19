@@ -41,8 +41,7 @@ class KlpTjenestepensjonClientFra2025(
     private val sammenligner: SammenlignAFPService,
     private val isDevelopment: () -> Boolean = { EnvironmentUtil.isDevelopment() },
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
-    override val leverandoerKortNavn = service.shortName
-    override val leverandoerFulltNavn = service.description
+    override val service = service()
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
@@ -67,21 +66,21 @@ class KlpTjenestepensjonClientFra2025(
                 .bodyToMono<KlpSimulerTjenestepensjonResponse>()
                 .block()
                 ?.let { success(request, spec, it) }
-                ?: Result.failure(TjenestepensjonSimuleringException("No response body", leverandoerKortNavn))
+                ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
             "Failed to simulate tjenestepensjon 2025 at ${service.shortName} ${e.responseBodyAsString}".let {
                 log.error(e) { it }
-                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
+                Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: WebClientRequestException) {
             "Failed to send request to simulate tjenestepensjon 2025 at ${service.shortName}".let {
                 log.error(e) { "$it med url ${e.uri}" }
-                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
+                Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: EgressException) {
             "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
                 log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
-                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
+                Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         }
     }
@@ -104,13 +103,12 @@ class KlpTjenestepensjonClientFra2025(
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 
-    override fun service() = service
+    override fun service() = EgressService.KLP
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     companion object {
         private const val SIMULER_PATH = "/api/oftp/simulering"
-        private val service = EgressService.KLP
 
         private fun mockResponse(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
             KlpSimulerTjenestepensjonResponse(

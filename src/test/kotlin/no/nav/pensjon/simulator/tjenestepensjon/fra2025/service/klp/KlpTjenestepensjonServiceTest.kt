@@ -24,8 +24,7 @@ class KlpTjenestepensjonServiceTest : ShouldSpec({
 
     beforeTest {
         clearMocks(client)
-        every { client.leverandoerFulltNavn } returns EgressService.KLP.description
-        every { client.leverandoerKortNavn } returns EgressService.KLP.shortName
+        every { client.service } returns EgressService.KLP
     }
 
     should("ikke inkludere betinget tjenestepensjon og offentlig AFP i simulering") {

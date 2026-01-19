@@ -37,8 +37,7 @@ class SpkTjenestepensjonClientFra2025(
     private val sammenligner: SammenlignAFPService
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
 
-    override val leverandoerKortNavn = service.shortName
-    override val leverandoerFulltNavn = service.description
+    override val service = service()
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
@@ -47,7 +46,7 @@ class SpkTjenestepensjonClientFra2025(
         tpNummer: String
     ): Result<SimulertTjenestepensjon> {
         val request: SpkSimulerTjenestepensjonRequest = toRequestDto(spec)
-        log.debug { "Simulating tjenestepensjon 2025 with $leverandoerKortNavn with request $request" }
+        log.debug { "Simulating tjenestepensjon 2025 with ${service.shortName} with request $request" }
 
         sporingslogg.logUtgaaendeRequest(
             organisasjonsnummer = Organisasjoner.SPK,
@@ -65,21 +64,21 @@ class SpkTjenestepensjonClientFra2025(
                 .bodyToMono<SpkSimulerTjenestepensjonResponse>()
                 .block()
                 ?.let { success(spec, request, response = it) }
-                ?: Result.failure(TjenestepensjonSimuleringException("No response body", leverandoerKortNavn))
+                ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
-            "Failed to simulate tjenestepensjon 2025 with $leverandoerKortNavn ${e.responseBodyAsString}".let {
+            "Failed to simulate tjenestepensjon 2025 with ${service.shortName} ${e.responseBodyAsString}".let {
                 log.error(e) { it }
-                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
+                Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: WebClientRequestException) {
-            "Failed to send request to simulate tjenestepensjon 2025 with $leverandoerKortNavn".let {
+            "Failed to send request to simulate tjenestepensjon 2025 with ${service.shortName}".let {
                 log.error(e) { "$it med url ${e.uri}" }
-                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
+                Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: EgressException) {
-            "Failed to simulate tjenestepensjon 2025 at $leverandoerKortNavn".let {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
                 log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
-                Result.failure(TjenestepensjonSimuleringException(it, leverandoerKortNavn))
+                Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         }
     }
@@ -103,12 +102,11 @@ class SpkTjenestepensjonClientFra2025(
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 
-    override fun service() = service
+    override fun service() = EgressService.SPK
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     companion object {
         private const val SIMULER_PATH = "/nav/v2/tjenestepensjon/simuler"
-        private val service = EgressService.SPK
     }
 }

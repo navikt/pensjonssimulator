@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain
 
+import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+
 open class SimulertTjenestepensjon(
     val tpLeverandoer: String,
     var ordningsListe: List<Ordning> = emptyList(),
@@ -17,7 +19,7 @@ open class SimulertTjenestepensjon(
 data class Ordning(val tpNummer: String)
 
 open class SimulertTjenestepensjonMedMaanedsUtbetalinger(
-    val tpLeverandoer: String,
+    val tpLeverandoer: EgressService,
     val tpNummer: String,
     var ordningsListe: List<Ordning> = emptyList(),
     var utbetalingsperioder: List<Maanedsutbetaling> = emptyList(),

@@ -11,7 +11,7 @@ object TjenestepensjonFra2025Aggregator {
             relevanteTpOrdninger = tpOrdninger,
             simuleringsResultatStatus = SimuleringsResultatStatusDto(ResultatTypeDto.SUCCESS),
             simuleringsResultat = SimuleringsResultatDto(
-                tpLeverandoer = simulertTjenestepensjon.tpLeverandoer,
+                tpLeverandoer = simulertTjenestepensjon.tpLeverandoer.description,
                 tpNummer = simulertTjenestepensjon.tpNummer,
                 utbetalingsperioder = aggregerTilAarligePerioder(simulertTjenestepensjon.utbetalingsperioder),
                 betingetTjenestepensjonErInkludert = simulertTjenestepensjon.betingetTjenestepensjonErInkludert

@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
@@ -45,13 +46,13 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
     test("simuler success fra SPK") {
         val spec = dummySpec(foedselsdato = "1963-02-05")
         every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(SPK_TP_NUMMER))
-        every { spk.simuler(spec, SPK_TP_NUMMER) } returns dummyResult("spk", SPK_TP_NUMMER)
+        every { spk.simuler(spec, SPK_TP_NUMMER) } returns dummyResult(EgressService.SPK, SPK_TP_NUMMER)
 
         val res = service.simuler(spec)
 
         res.second.isSuccess.shouldBeTrue()
         val tpRes = res.second.getOrNull().shouldNotBeNull()
-        tpRes.tpLeverandoer shouldBe "spk"
+        tpRes.tpLeverandoer shouldBe EgressService.SPK
         tpRes.tpNummer shouldBe SPK_TP_NUMMER
         tpRes.ordningsListe.size shouldBe 1
         tpRes.utbetalingsperioder.size shouldBe 1
@@ -105,13 +106,13 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
     test("simuler success fra KLP 4082") {
         val spec = dummySpec(foedselsdato = "1963-02-05")
         every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER))
-        every { klp.simuler(spec, KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER) } returns dummyResult("klp", KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER)
+        every { klp.simuler(spec, KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER) } returns dummyResult(EgressService.KLP, KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER)
 
         val res = service.simuler(spec)
 
         res.second.isSuccess.shouldBeTrue()
         val tpRes = res.second.getOrNull().shouldNotBeNull()
-        tpRes.tpLeverandoer shouldBe "klp"
+        tpRes.tpLeverandoer shouldBe EgressService.KLP
         tpRes.tpNummer shouldBe KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER
         tpRes.ordningsListe.size shouldBe 1
         tpRes.utbetalingsperioder.size shouldBe 1
@@ -120,13 +121,13 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
     test("simuler success fra KLP 3200") {
         val spec = dummySpec(foedselsdato = "1963-02-05")
         every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(KLP_TP_NUMMER))
-        every { klp.simuler(spec, KLP_TP_NUMMER) } returns dummyResult("klp", KLP_TP_NUMMER)
+        every { klp.simuler(spec, KLP_TP_NUMMER) } returns dummyResult(EgressService.KLP, KLP_TP_NUMMER)
 
         val res = service.simuler(spec)
 
         res.second.isSuccess.shouldBeTrue()
         val tpRes = res.second.getOrNull().shouldNotBeNull()
-        tpRes.tpLeverandoer shouldBe "klp"
+        tpRes.tpLeverandoer shouldBe EgressService.KLP
         tpRes.tpNummer shouldBe KLP_TP_NUMMER
         tpRes.ordningsListe.size shouldBe 1
         tpRes.utbetalingsperioder.size shouldBe 1
@@ -169,7 +170,7 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         fun dummyTpOrdning(tpNummer: String) =
             TpForhold(tpNr = tpNummer, navn = "Statens pensjonskasse", datoSistOpptjening = null)
 
-        fun dummyResult(leverandoer: String, tpNummer: String) =
+        fun dummyResult(leverandoer: EgressService, tpNummer: String) =
             Result.success(
                 value = SimulertTjenestepensjonMedMaanedsUtbetalinger(
                     tpLeverandoer = leverandoer,

@@ -1,15 +1,15 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.MinimumIfuTypeEnum
-import java.util.*
+import java.util.Date
 
-// 2025-03-10
+// Copied from pensjon-regler-api 2026-01-16
 /**
  * Angir inntekt før uførhet (IFU) og hvorvidt inntekten er minimumsgrense eller ikke.
  * Inneholder ulike varianter av inntekt før uførhet som resulterer fra ulike måter å beregne denne inntekten,
  * i tillegg til den endelige inntekten som brukes.
  */
-class InntektForUforhet : AbstraktBeregningsvilkar {
+class InntektForUforhet : AbstraktBeregningsvilkar() {
     /**
      * Angir om bruker kvalifiserer til Minste-IFU sats som ung ufør, enslig eller gift.
      */
@@ -34,22 +34,4 @@ class InntektForUforhet : AbstraktBeregningsvilkar {
      * Den inntekt før uførhet som er angitt av saksbehandler. Ikke justert for minimumsIFU.
      */
     var angittInntekt = 0
-
-    constructor() : super()
-
-    constructor(source: InntektForUforhet) : super(source) {
-        inntekt = source.inntekt
-        erMinimumsIfu = source.erMinimumsIfu
-        angittInntekt = source.angittInntekt
-        minimumIfuTypeEnum = source.minimumIfuTypeEnum
-        ifuDato = source.ifuDato?.clone() as? Date
-    }
-
-    override fun dypKopi(abstraktBeregningsvilkar: AbstraktBeregningsvilkar): AbstraktBeregningsvilkar? {
-        var ifu: InntektForUforhet? = null
-        if (abstraktBeregningsvilkar.javaClass == InntektForUforhet::class.java) {
-            ifu = InntektForUforhet(abstraktBeregningsvilkar as InntektForUforhet)
-        }
-        return ifu
-    }
 }

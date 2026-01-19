@@ -385,7 +385,7 @@ class Persongrunnlag {
         excludeForsteVirkningsdatoGrunnlag: Boolean = false, // SIMDOM-ADD
         excludeTrygdetidPerioder: Boolean = false // SIMDOM-ADD
     ) : this() {
-        penPerson = source.penPerson?.let(::PenPerson)
+        penPerson = source.penPerson?.copy()
         fodselsdato = source.fodselsdato?.clone() as? Date
         dodsdato = source.dodsdato?.clone() as? Date
         statsborgerskapEnum = source.statsborgerskapEnum
@@ -470,7 +470,7 @@ class Persongrunnlag {
         }
 
         for (omsorgsgrunnlag in source.omsorgsgrunnlagListe) {
-            this.omsorgsgrunnlagListe.add(Omsorgsgrunnlag(omsorgsgrunnlag))
+            this.omsorgsgrunnlagListe.add(omsorgsgrunnlag.copy())
         }
 
         for (afg in source.arbeidsforholdsgrunnlagListe) {

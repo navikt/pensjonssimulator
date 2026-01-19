@@ -23,8 +23,6 @@ class ReglerExtensionTest : ShouldSpec({
         val original = pakkseddel()
 
         with(original.copy()) {
-            kontrollTjenesteOk shouldBe true
-            annenTjenesteOk shouldBe true
             merknadListe shouldHaveSize 1
             merknadListe[0] shouldBeEqualToComparingFields original.merknadListe[0]
             satstabell shouldBe "s"
@@ -52,8 +50,6 @@ private fun merknad() =
 
 private fun pakkseddel() =
     Pakkseddel().apply {
-        kontrollTjenesteOk = true
-        annenTjenesteOk = true
         merknadListe = listOf(merknad())
         satstabell = "s"
     }

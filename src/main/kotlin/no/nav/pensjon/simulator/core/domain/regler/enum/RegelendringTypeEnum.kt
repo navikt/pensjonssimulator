@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
 
 /**
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/RegelendringTypeEnum.kt
- * 2025-01-29
+ * Copied 2026-01-16
  */
 enum class RegelendringTypeEnum {
     ALLE,
@@ -32,5 +32,6 @@ enum class RegelendringTypeEnum {
     BELOPSGRENSE_UT,
     EKTEFELLETILLEGG_UT,
     UFORETRYGD_KONVERTERT,
-    MINSTEYTELSE_UT
+    MINSTEYTELSE_UT,
+    AARLIG_UT
 }

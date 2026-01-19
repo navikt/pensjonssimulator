@@ -24,8 +24,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Component
 class PenUfoeretrygdUtbetalingClient(
-    @Value("\${ps.pen.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${ps.pen.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid

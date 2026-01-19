@@ -11,11 +11,11 @@ import org.springframework.util.MultiValueMap
 
 @Component
 class ClientCredentialsTokenRequestClient(
-    @Value("\${azure.openid-config.token-endpoint}") tokenEndpoint: String,
+    @Value($$"${azure.openid-config.token-endpoint}") tokenEndpoint: String,
     webClientBase: WebClientBase,
     expirationChecker: ExpirationChecker,
     private val credentials: ClientCredentials,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String
 ) : CacheAwareTokenClient(
     tokenEndpoint,
     webClientBase,

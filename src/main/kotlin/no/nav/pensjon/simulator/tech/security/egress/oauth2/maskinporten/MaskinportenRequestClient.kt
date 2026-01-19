@@ -18,11 +18,11 @@ import java.util.*
 
 @Component
 class MaskinportenRequestClient(
-    @param:Value("\${maskinporten.token-endpoint-url}") val tokenEndpoint: String,
+    @param:Value($$"${maskinporten.token-endpoint-url}") val tokenEndpoint: String,
     webClientBase: WebClientBase,
     expirationChecker: ExpirationChecker,
     private val credentials: MaskinportenCredentials,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String
 ) : CacheAwareTokenClient(
     tokenEndpoint,
     webClientBase,

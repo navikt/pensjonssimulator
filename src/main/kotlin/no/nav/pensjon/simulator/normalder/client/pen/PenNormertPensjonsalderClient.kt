@@ -4,8 +4,8 @@ import com.github.benmanes.caffeine.cache.Cache
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.normalder.Aldersgrenser
 import no.nav.pensjon.simulator.normalder.client.NormertPensjonsalderClient
-import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormalderResultMapper
 import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormalderResult
+import no.nav.pensjon.simulator.normalder.client.pen.acl.PenNormalderResultMapper
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -18,14 +18,13 @@ import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 
 @Component
 class PenNormertPensjonsalderClient(
-    @Value("\${ps.pen.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${ps.pen.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid,

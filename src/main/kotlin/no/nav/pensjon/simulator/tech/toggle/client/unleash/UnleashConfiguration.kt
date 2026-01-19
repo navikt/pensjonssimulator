@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 open class UnleashConfiguration(
-    @Value("\${unleash.server.api.url}") private val endpoint: String,
-    @Value("\${unleash.server.api.token}") private val apiKey: String,
-    @Value("\${unleash.toggle.interval}") private val toggleInterval: String,
-    @Value("\${nais.cluster.name}") private val clusterName: String
+    @param:Value($$"${unleash.server.api.url}") private val endpoint: String,
+    @param:Value($$"${unleash.server.api.token}") private val apiKey: String,
+    @param:Value($$"${unleash.toggle.interval}") private val toggleInterval: String,
+    @param:Value($$"${nais.cluster.name}") private val clusterName: String
 ) {
     @Bean
-    open fun unleashConfig(@Value("\${nais.app.name}") appName: String) =
+    open fun unleashConfig(@Value($$"${nais.app.name}") appName: String) =
         UnleashConfig.builder()
             .appName(appName)
             .environment(environment())
@@ -25,7 +25,8 @@ open class UnleashConfiguration(
             .build()
 
     @Bean
-    open fun defaultUnleash(config: UnleashConfig) = DefaultUnleash(config)
+    open fun defaultUnleash(config: UnleashConfig) =
+        DefaultUnleash(config)
 
     private fun environment() =
         if (clusterName == PRODUCTION_CLUSTER_NAME)

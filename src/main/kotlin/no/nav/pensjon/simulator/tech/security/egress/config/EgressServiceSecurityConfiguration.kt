@@ -13,15 +13,15 @@ open class EgressServiceSecurityConfiguration {
 
     @Bean
     open fun egressServiceListsByAudience(
-        @Value("\${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
-        @Value("\${ps.persondata.service-id}") persondataServiceId: String,
-        @Value("\${ps.fss-gw.service-id}") fssGatewayServiceId: String,
-        @Value("\${ps.sporingslogg.service-id}") sporingsloggServiceId: String,
-        @Value("\${tjenestepensjon.service-id}") tpRegisterServiceId: String,
-        @Value("\${ps.popp.service-id}") opptjeningServiceId: String,
-        @Value("\${ps.maskinporten.consume.spk.scope}") spkServiceId: String,
-        @Value("\${ps.maskinporten.consume.klp.scope}") klpServiceId: String,
-        @Value("\${ps.pensjon-opptjening-afp-api.service-id}") pensjonOpptjeningAfpApiServiceId: String,
+        @Value($$"${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
+        @Value($$"${ps.persondata.service-id}") persondataServiceId: String,
+        @Value($$"${ps.fss-gw.service-id}") fssGatewayServiceId: String,
+        @Value($$"${ps.sporingslogg.service-id}") sporingsloggServiceId: String,
+        @Value($$"${tjenestepensjon.service-id}") tpRegisterServiceId: String,
+        @Value($$"${ps.popp.service-id}") opptjeningServiceId: String,
+        @Value($$"${ps.maskinporten.consume.spk.scope}") spkServiceId: String,
+        @Value($$"${ps.maskinporten.consume.klp.scope}") klpServiceId: String,
+        @Value($$"${ps.pensjon-opptjening-afp-api.service-id}") pensjonOpptjeningAfpApiServiceId: String,
     ) =
         EgressServicesByAudience(
             mapOf(

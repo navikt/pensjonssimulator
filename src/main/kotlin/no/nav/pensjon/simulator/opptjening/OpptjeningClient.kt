@@ -23,8 +23,8 @@ import java.time.LocalDate
 
 @Component
 class OpptjeningClient(
-    @param:Value("\${ps.popp.url}") private val baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @param:Value($$"${ps.popp.url}") private val baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val time: Time
@@ -69,6 +69,7 @@ class OpptjeningClient(
         )
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
+    
     override fun service() = service
 
     companion object {

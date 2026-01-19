@@ -25,11 +25,11 @@ import java.time.LocalDate
 
 @Component
 class PdlGeneralPersonClient(
-    @param:Value("\${ps.persondata.url}") private val baseUrl: String,
+    @param:Value($$"${ps.persondata.url}") private val baseUrl: String,
     webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String
 ) : ExternalServiceClient(retryAttempts), GeneralPersonClient {
 
     private val webClient = webClientBase.withBaseUrl(baseUrl)

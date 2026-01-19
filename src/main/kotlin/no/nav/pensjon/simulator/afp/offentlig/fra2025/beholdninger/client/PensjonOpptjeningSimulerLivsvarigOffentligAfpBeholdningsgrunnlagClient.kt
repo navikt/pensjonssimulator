@@ -24,8 +24,8 @@ import org.springframework.web.reactive.function.client.toEntity
 
 @Component
 class PensjonOpptjeningSimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient(
-    @Value("\${ps.pensjon-opptjening-afp-api.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${ps.pensjon-opptjening-afp-api.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     private val traceAid: TraceAid,
     webClientBase: WebClientBase
 ) : ExternalServiceClient(retryAttempts), SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient {

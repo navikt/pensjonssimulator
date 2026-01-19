@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class ClientCredentials(
-    @Value("\${azure-app.client-id}") val clientId: String,
-    @Value("\${azure-app.client-secret}") val clientSecret: String
+    @param:Value($$"${azure-app.client-id}") val clientId: String,
+    @param:Value($$"${azure-app.client-secret}") val clientSecret: String
 )

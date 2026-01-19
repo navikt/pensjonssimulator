@@ -17,8 +17,8 @@ import java.util.Objects.requireNonNull
 
 @Component
 class PensjonReglerGenericRegelClient(
-    @Value("\${ps.regler.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${ps.regler.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     private val objectMapper: JsonMapper,
     private val traceAid: TraceAid

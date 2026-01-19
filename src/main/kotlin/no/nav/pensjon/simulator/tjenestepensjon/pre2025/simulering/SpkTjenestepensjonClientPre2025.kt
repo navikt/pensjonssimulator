@@ -23,8 +23,8 @@ import org.springframework.web.reactive.function.client.bodyToMono
 
 @Service
 class SpkTjenestepensjonClientPre2025(
-    @Value("\${spk.tp-simulering.pre-2025.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${spk.tp-simulering.pre-2025.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingsloggService: SporingsloggService,

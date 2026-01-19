@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("api/nav")
@@ -57,6 +58,7 @@ class TjenestepensjonFra2025Controller(
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
         try {
+            validateSpec(specV1)
             val simuleringsresultat: Pair<List<String>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
                 OffentligTjenestepensjonFra2025SimuleringSpecMapperV1.fromDto(specV1))
             val relevanteTpOrdninger = simuleringsresultat.first
@@ -79,8 +81,10 @@ class TjenestepensjonFra2025Controller(
                         else -> { log.error(e) { "Simulering feilet: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message) }
                     }
                 })
-        }
-        finally {
+        } catch (e: UgyldigSpecException) {
+            countMetric(e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        } finally {
             traceAid.end()
         }
     }
@@ -95,7 +99,17 @@ class TjenestepensjonFra2025Controller(
         }
     }
 
+    private fun validateSpec(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) {
+        if (spec.erApoteker) {
+            throw UgyldigSpecException("Apoteker støttes ikke")
+        }
+        if (spec.foedselsdato.isBefore(MINSTE_FOEDSELSDATO)) {
+            throw UgyldigSpecException("Fødselsdato før $MINSTE_FOEDSELSDATO støttes ikke")
+        }
+    }
+
     companion object {
+        private val MINSTE_FOEDSELSDATO = LocalDate.of(1963, 1, 1)
         const val FUNCTION_ID = "nav-tps-fra-2025"
         const val ERROR_MESSAGE = "feil ved simulering av tjenestepensjon fra 2025"
     }

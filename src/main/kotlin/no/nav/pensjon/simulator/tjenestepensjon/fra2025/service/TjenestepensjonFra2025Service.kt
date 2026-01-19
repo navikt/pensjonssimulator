@@ -36,11 +36,6 @@ class TjenestepensjonFra2025Service(
 
         log.info { "Fant TP-ordninger med numre: $sisteOrdningerNr" }
 
-        // Apotekere og brukere fodt for 1963 vil ikke kunne simulere tjenestepensjon enda
-        if (spec.gjelderApoteker || spec.foedselsdato.year < 1963) return tpOrdningerNavn to Result.failure(
-            TpOrdningStoettesIkkeException("Apoteker")
-        )
-
         val simulertTpListe = sisteOrdningerNr.map { ordning ->
             when (ordning) {
                 "3010", "3060" -> spk.simuler(spec, ordning) // TpNummer for SPK

@@ -18,6 +18,9 @@ fun Pakkseddel.copy() =
         it.satstabell = this.satstabell
     }
 
+fun PenPerson.copy() =
+    PenPerson(this.penPersonId)
+
 fun Trygdetid.copy() =
     Trygdetid().also {
         it.trygdetidId = this.trygdetidId

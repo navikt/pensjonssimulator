@@ -1,35 +1,19 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
-import java.util.*
+import java.util.Date
 
-class InntektEtterUforhet : AbstraktBeregningsvilkar {
+// Copied from pensjon-regler-api 2026-01-16
+/**
+ * Angir inntekt etter uførhet (IEU).
+ */
+class InntektEtterUforhet : AbstraktBeregningsvilkar() {
+    /**
+     * Inntekten.
+     */
     var inntekt = 0
+
+    /**
+     * Virkningstidspunktet for inntekt etter uførhet.
+     */
     var ieuDato: Date? = null
-
-    constructor() : super()
-
-    constructor(inntektEtterUforhet: InntektEtterUforhet) : super(inntektEtterUforhet) {
-        this.inntekt = inntektEtterUforhet.inntekt
-        this.ieuDato = inntektEtterUforhet.ieuDato
-    }
-
-    constructor(
-        merknadListe: MutableList<Merknad> = mutableListOf(),
-        /** Interne felt */
-        inntekt: Int = 0,
-        ieuDato: Date? = null
-    ) : super(merknadListe) {
-        this.inntekt = inntekt
-        this.ieuDato = ieuDato
-    }
-
-    override fun dypKopi(abstraktBeregningsvilkar: AbstraktBeregningsvilkar): AbstraktBeregningsvilkar? {
-        var ieu: InntektEtterUforhet? = null
-        if (abstraktBeregningsvilkar.javaClass == InntektEtterUforhet::class.java) {
-            ieu = InntektEtterUforhet(abstraktBeregningsvilkar as InntektEtterUforhet)
-        }
-        return ieu
-    }
-
 }

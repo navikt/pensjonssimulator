@@ -5,12 +5,10 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.JustertGarantip
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
 
-// 2025-04-06
+// Copied from pensjon-regler-api 2026-01-16
 class Garantipensjonsbeholdning() : Beholdning() {
     var justertGarantipensjonsniva: JustertGarantipensjonsniva? = null
     var pensjonsbeholdning = 0.0
-    @Deprecated("Avvikles.", replaceWith = ReplaceWith("delingstallVedNormertPensjonsalder"))
-    var delingstall67 = 0.0
     var delingstallVedNormertPensjonsalder = 0.0
 
     /**
@@ -37,9 +35,6 @@ class Garantipensjonsbeholdning() : Beholdning() {
 
     //--- Extra:
     @JsonIgnore private var unclearedPensjonsbeholdning: Double? = null
-
-    val internPensjonsbeholdning: Double
-        @JsonIgnore get() = unclearedPensjonsbeholdning ?: pensjonsbeholdning
 
     // Garantipensjonsbeholdning in kjerne/PEN does not contain pensjonsbeholdning, hence need to set it to zero:
     fun clearPensjonsbeholdning() {

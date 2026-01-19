@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.krav
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import java.util.*
 
@@ -40,7 +41,7 @@ class Kravlinje {
     constructor(source: Kravlinje) {
         kravlinjeTypeEnum = source.kravlinjeTypeEnum
         hovedKravlinje = source.kravlinjeTypeEnum?.erHovedkravlinje == true
-        relatertPerson = source.relatertPerson?.let(::PenPerson)
+        relatertPerson = source.relatertPerson?.copy()
         hovedKravlinje = source.hovedKravlinje
 
         // SIMDOM-ADD:

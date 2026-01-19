@@ -5,20 +5,18 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GenerellHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.person.Pid
-import java.io.Serializable
 import java.time.LocalDate
 
-class PenPerson(var penPersonId: Long = 0) : Serializable {
+// Aligned with pensjon-regler-api 2026-01-16
+class PenPerson(var penPersonId: Long = 0) {
 
+    //--- Extra:
     @JsonIgnore var pid: Pid? = null
     @JsonIgnore var foedselsdato: LocalDate? = null
     @JsonIgnore var afpHistorikkListe: MutableList<AfpHistorikk>? = null
     @JsonIgnore var uforehistorikk: Uforehistorikk? = null
     @JsonIgnore var generellHistorikk: GenerellHistorikk? = null
 
-    constructor(penPerson: PenPerson) : this() {
-        this.penPersonId = penPerson.penPersonId
-    }
-
     override fun toString() = penPersonId.toString()
+    //--- end of extra ---
 }

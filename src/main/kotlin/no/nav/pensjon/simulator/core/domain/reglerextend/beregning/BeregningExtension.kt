@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.beregning
 
-import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.penobjekter.copy
@@ -27,7 +26,7 @@ fun BarnetilleggSerkullsbarn.copy() =
 
 fun Beregning.copy() =
     Beregning().also {
-        it.penPerson = this.penPerson?.let(::PenPerson)
+        it.penPerson = this.penPerson?.copy()
         it.virkFom = this.virkFom?.copy()
         it.virkTom = this.virkTom?.copy()
         it.brutto = this.brutto

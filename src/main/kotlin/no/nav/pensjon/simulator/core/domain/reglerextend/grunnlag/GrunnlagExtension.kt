@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
-import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -60,7 +59,7 @@ fun Arbeidsforholdsgrunnlag.copy() =
 
 fun BarnDetalj.copy() =
     BarnDetalj().also {
-        it.annenForelder = this.annenForelder?.let(::PenPerson)
+        it.annenForelder = this.annenForelder?.copy()
         it.borMedBeggeForeldre = this.borMedBeggeForeldre
         it.borFomDato = this.borFomDato?.copy()
         it.borTomDato = this.borTomDato?.copy()
@@ -110,7 +109,6 @@ fun Garantipensjonsbeholdning.copy() =
     Garantipensjonsbeholdning().also {
         it.justertGarantipensjonsniva = this.justertGarantipensjonsniva?.copy()
         it.pensjonsbeholdning = this.pensjonsbeholdning
-        it.delingstall67 = this.delingstall67
         it.delingstallVedNormertPensjonsalder = this.delingstallVedNormertPensjonsalder
         it.satsTypeEnum = this.satsTypeEnum
         it.sats = this.sats
@@ -183,6 +181,14 @@ fun NormertPensjonsalderGrunnlag.copy() =
         nedreMnd = this.nedreMnd,
         erPrognose = this.erPrognose
     )
+
+fun Omsorgsgrunnlag.copy() =
+    Omsorgsgrunnlag().also {
+        it.ar = this.ar
+        it.omsorgTypeEnum = this.omsorgTypeEnum
+        it.personOmsorgFor = this.personOmsorgFor?.copy()
+        it.bruk = this.bruk
+    }
 
 fun Pensjonsbeholdning.copy() =
     Pensjonsbeholdning().also {

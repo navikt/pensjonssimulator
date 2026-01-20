@@ -30,6 +30,11 @@ suspend fun main() {
             path = "/api/v1/simuler-folketrygdbeholdning",
             requestResource = "simuler-folketrygdbeholdning-request.json",
             responseResource = "simuler-folketrygdbeholdning-response.json",
+        ),
+        Resource(
+            path = "/api/v3/simuler-alderspensjon",
+            requestResource = "simuler-alderspensjon-v3-request.json",
+            responseResource = "simuler-alderspensjon-v3-response.json",
         )
     )
 

@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tech.metric
 
 import io.micrometer.core.instrument.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TPSimuleringResultatFra2025
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TpSimuleringResultatFra2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodePre2025
 
 object Metrics {
@@ -32,7 +32,7 @@ object Metrics {
             .increment()
     }
 
-    fun countTjenestepensjonSimuleringFra2025(resultat: TPSimuleringResultatFra2025, orgEllerApp: String) {
+    fun countTjenestepensjonSimuleringFra2025(resultat: TpSimuleringResultatFra2025, orgEllerApp: String) {
         Metrics
             .counter("${PREFIX}_tp_simulering_fra_2025", "resultat", resultat.name, "org_eller_app", orgEllerApp)
             .increment()

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics
 
-enum class TPSimuleringResultatFra2025 {
+enum class TpSimuleringResultatFra2025 {
     OK,
     IKKE_MEDLEM,
     TP_ORDNING_STOETTES_IKKE,

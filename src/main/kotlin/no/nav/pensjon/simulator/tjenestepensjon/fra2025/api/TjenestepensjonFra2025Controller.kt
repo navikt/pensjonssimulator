@@ -16,7 +16,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.TjenestepensjonFra2025Aggregator.aggregerVellykketRespons
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TPSimuleringResultatFra2025
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TpSimuleringResultatFra2025
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
@@ -65,7 +65,7 @@ class TjenestepensjonFra2025Controller(
             return simuleringsresultat.second.fold(
                 onSuccess = {
                     val aggregerVellykketRespons: SimulerOffentligTjenestepensjonFra2025ResultV1 = aggregerVellykketRespons(it, relevanteTpOrdninger)
-                        .also { _ -> Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.OK, it.tpLeverandoer.shortName) }
+                        .also { _ -> Metrics.countTjenestepensjonSimuleringFra2025(TpSimuleringResultatFra2025.OK, it.tpLeverandoer.shortName) }
                     log.debug { "Simulering vellykket: $aggregerVellykketRespons" }
                     aggregerVellykketRespons
                 },
@@ -95,7 +95,7 @@ class TjenestepensjonFra2025Controller(
         if (e is MetricAware) {
             Metrics.countTjenestepensjonSimuleringFra2025(e.metricResult, e.metricSource)
         } else {
-            Metrics.countTjenestepensjonSimuleringFra2025(TPSimuleringResultatFra2025.TEKNISK_FEIL_I_NAV, APPLICATION_NAME)
+            Metrics.countTjenestepensjonSimuleringFra2025(TpSimuleringResultatFra2025.TEKNISK_FEIL_I_NAV, APPLICATION_NAME)
         }
     }
 

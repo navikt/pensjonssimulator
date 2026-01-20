@@ -40,10 +40,10 @@ class KlpTjenestepensjonService(
     ): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
         when {
             pensjon.erSisteOrdning.not() ->
-                Result.failure(exception = IkkeSisteOrdningException(tpOrdning = client.leverandoerKortNavn))
+                Result.failure(exception = IkkeSisteOrdningException(tpOrdning = client.service.shortName))
 
             pensjon.utbetalingsperioder.isEmpty() ->
-                Result.failure(exception = TomSimuleringFraTpOrdningException(tpOrdning = client.leverandoerKortNavn))
+                Result.failure(exception = TomSimuleringFraTpOrdningException(tpOrdning = client.service.shortName))
 
             else -> Result.success(value = filtrertTjenestepensjon(tpNummer, pensjon, foedselsdato))
         }
@@ -54,7 +54,7 @@ class KlpTjenestepensjonService(
         foedselsdato: LocalDate
     ) =
         SimulertTjenestepensjonMedMaanedsUtbetalinger(
-            tpLeverandoer = client.leverandoerFulltNavn,
+            tpLeverandoer = client.service,
             tpNummer = tpNummer,
             ordningsListe = pensjon.ordningsListe,
             utbetalingsperioder = grupperMedDatoFra(
@@ -69,7 +69,7 @@ class KlpTjenestepensjonService(
     private fun logSuccess(result: Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>) {
         result.onSuccess {
             log.info {
-                "tjenestepensjonsrequest til ${client.leverandoerKortNavn}: ${redact(it.serviceData.toString())}"
+                "tjenestepensjonsrequest til ${client.service.shortName}: ${redact(it.serviceData.toString())}"
             }
         }
     }

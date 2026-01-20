@@ -30,8 +30,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
 
     beforeTest {
         clearMocks(client, featureToggleService)
-        every { client.leverandoerFulltNavn } returns EgressService.SPK.description
-        every { client.leverandoerKortNavn } returns EgressService.SPK.shortName
+        every { client.service } returns EgressService.SPK
     }
 
     test("simuler gruppering og sortering av tjenestepensjon fra SPK") {
@@ -43,7 +42,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
 
         result.isSuccess shouldBe true
         with(result.getOrNull().shouldNotBeNull()) {
-            tpLeverandoer shouldBe "Statens Pensjonskasse"
+            tpLeverandoer shouldBe EgressService.SPK
             betingetTjenestepensjonErInkludert shouldBe false
             ordningsListe shouldHaveSize 1
             utbetalingsperioder shouldHaveSize 2
@@ -98,7 +97,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
 
         result.isSuccess shouldBe true
         with(result.getOrNull().shouldNotBeNull()) {
-            tpLeverandoer shouldBe "Statens Pensjonskasse"
+            tpLeverandoer shouldBe EgressService.SPK
             betingetTjenestepensjonErInkludert shouldBe false
             ordningsListe shouldHaveSize 1
             utbetalingsperioder.shouldBeEmpty()

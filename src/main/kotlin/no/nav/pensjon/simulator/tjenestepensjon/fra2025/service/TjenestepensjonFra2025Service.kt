@@ -27,7 +27,7 @@ class TjenestepensjonFra2025Service(
             return emptyList<String>() to Result.failure(e)
         }
 
-        val tpOrdningerNavn = tpOrdninger.map { it.navn }
+        val tpOrdningerNavn = tpOrdninger.map { it.navn }.sorted()
         val sisteOrdningerNr = sisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
 
         if (sisteOrdningerNr.isEmpty()) {
@@ -36,16 +36,11 @@ class TjenestepensjonFra2025Service(
 
         log.info { "Fant TP-ordninger med numre: $sisteOrdningerNr" }
 
-        // Apotekere og brukere fodt for 1963 vil ikke kunne simulere tjenestepensjon enda
-        if (spec.gjelderApoteker || spec.foedselsdato.year < 1963) return tpOrdningerNavn to Result.failure(
-            TpOrdningStoettesIkkeException("Apoteker")
-        )
-
         val simulertTpListe = sisteOrdningerNr.map { ordning ->
             when (ordning) {
                 "3010", "3060" -> spk.simuler(spec, ordning) // TpNummer for SPK
                 "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
-                else -> Result.failure(TpOrdningStoettesIkkeException(ordning))
+                else -> Result.failure(TpOrdningStoettesIkkeException(tpOrdningerNavn.toString()))
             }.run {
                 onSuccess { return tpOrdningerNavn to this }
                 onFailure { if (it is TomSimuleringFraTpOrdningException) return tpOrdningerNavn to this } //Skjer kun hvis siste ordning

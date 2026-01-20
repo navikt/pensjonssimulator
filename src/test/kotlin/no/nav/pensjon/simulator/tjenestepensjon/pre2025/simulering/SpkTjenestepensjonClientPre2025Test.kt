@@ -15,7 +15,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
@@ -95,35 +95,35 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
                     datoFom.toString() shouldBe "2026-08-01"
                     datoTom?.toString() shouldBe "2027-07-31"
                     uttaksgrad shouldBe 92
-                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResultV1.YtelseCode.AFP
+                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResult.YtelseCode.AFP
                 }
                 with(utbetalingsperiodeListe[1]!!) {
                     arligUtbetaling shouldBe 485760.0
                     datoFom.toString() shouldBe "2027-08-01"
                     datoTom?.toString() shouldBe "2029-07-31"
                     uttaksgrad shouldBe 92
-                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResultV1.YtelseCode.AFP
+                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResult.YtelseCode.AFP
                 }
                 with(utbetalingsperiodeListe[2]!!) {
                     arligUtbetaling shouldBe 181332.0
                     datoFom.toString() shouldBe "2029-08-01"
                     datoTom?.toString() shouldBe "2029-12-31"
                     uttaksgrad shouldBe 100
-                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResultV1.YtelseCode.AP
+                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResult.YtelseCode.AP
                 }
                 with(utbetalingsperiodeListe[3]!!) {
                     arligUtbetaling shouldBe 180828.0
                     datoFom.toString() shouldBe "2030-01-01"
                     datoTom?.toString() shouldBe "2030-12-31"
                     uttaksgrad shouldBe 100
-                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResultV1.YtelseCode.AP
+                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResult.YtelseCode.AP
                 }
                 with(utbetalingsperiodeListe[4]!!) {
                     arligUtbetaling shouldBe 180504.0
                     datoFom.toString() shouldBe "2031-01-01"
                     datoTom shouldBe null
                     uttaksgrad shouldBe 100
-                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResultV1.YtelseCode.AP
+                    ytelsekode shouldBe SimulerOffentligTjenestepensjonResult.YtelseCode.AP
                 }
                 leverandorUrl shouldBe null
                 navnOrdning shouldBe "Statens pensjonskasse"

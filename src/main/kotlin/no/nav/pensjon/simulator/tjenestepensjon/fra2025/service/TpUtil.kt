@@ -1,13 +1,14 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
 
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import java.time.LocalDate
 import java.time.Period
 
 object TpUtil {
+    private val FNR_REGEX = """[0-9]{11}""".toRegex()
+
     fun grupperMedDatoFra(utbetalingsliste: List<Utbetalingsperiode>, foedselsdato: LocalDate): List<Maanedsutbetaling> {
         return utbetalingsliste
             .groupBy { it.fom }
@@ -35,5 +36,5 @@ object TpUtil {
         return Alder(periode.years, periode.months)
     }
 
-    fun redact(string: String): String = string.replace(TjenestepensjonSimuleringPre2025Service.FNR_REGEX) { "***********" }
+    fun redact(string: String): String = string.replace(FNR_REGEX) { "***********" }
 }

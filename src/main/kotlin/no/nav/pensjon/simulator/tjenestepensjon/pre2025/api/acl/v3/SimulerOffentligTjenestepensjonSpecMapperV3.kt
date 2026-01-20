@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -11,21 +11,18 @@ import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonSpecV3
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringEtter2011SpecV3
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringTypeSpecV3
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.UtenlandsperiodeForSimuleringV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.OftpSimuleringSivilstandSpec
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.OftpSimuleringTypeSpec
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 
 @Component
-class SimulerOffentligTjenestepensjonMapperV3(
-    val personService: GeneralPersonService,
+class SimulerOffentligTjenestepensjonSpecMapperV3(
+    private val personService: GeneralPersonService,
     private val inntektService: InntektService
 ) {
-
-    fun fromDto(specV3: SimulerOffentligTjenestepensjonSpecV3): SimuleringSpec {
-        val source = specV3.simuleringEtter2011
+    fun fromDto(dto: SimulerOffentligTjenestepensjonSpecV3): SimuleringSpec {
+        val source = dto.simuleringEtter2011
         val pid = source.fnr.pid.let(::Pid)
 
         return SimuleringSpec(
@@ -65,18 +62,18 @@ class SimulerOffentligTjenestepensjonMapperV3(
         )
     }
 
-    fun stillingsprosentFromDto(spec: SimulerOffentligTjenestepensjonSpecV3): StillingsprosentSpec {
-        return StillingsprosentSpec(
+    fun stillingsprosentFromDto(spec: SimulerOffentligTjenestepensjonSpecV3) =
+        StillingsprosentSpec(
             heltUttak = spec.simuleringEtter2011.stillingsprosentOffHeltUttak,
             gradertUttak = spec.simuleringEtter2011.stillingsprosentOffGradertUttak
         )
-    }
 
-    fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV3): Pre2025OffentligAfpSpec? =
+    private fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV3): Pre2025OffentligAfpSpec? =
         if (simuleringSpec.simuleringType == SimuleringTypeSpecV3.AFP_ETTERF_ALDER)
             Pre2025OffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!.name),
-                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak?.let(inntektService::hentSisteMaanedsInntektOver1G) ?: 0,
+                inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak?.let(inntektService::hentSisteMaanedsInntektOver1G)
+                    ?: 0,
                 // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
             )
@@ -85,28 +82,13 @@ class SimulerOffentligTjenestepensjonMapperV3(
 
     private fun utlandPeriode(source: UtenlandsperiodeForSimuleringV3) =
         UtlandPeriode(
-            land = mapLand(source.land),
+            land = LandkodeEnum.extendedValueOf(source.land),
             arbeidet = source.arbeidetIUtland,
             fom = source.periodeFom,
             tom = source.periodeTom
         )
 
-    fun mapLand(land: String) : LandkodeEnum {
-        return irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
-    }
-
-    private val irregularLandEnums: Map<String, LandkodeEnum>
-        get() {
-            val land: MutableMap<String, LandkodeEnum> = mutableMapOf()
-            land["???"] = LandkodeEnum.P_UKJENT
-            land["349"] = LandkodeEnum.P_SPANSKE_OMR_AFRIKA
-            land["546"] = LandkodeEnum.P_SIKKIM
-            land["556"] = LandkodeEnum.P_YEMEN
-            land["669"] = LandkodeEnum.P_PANAMAKANALSONEN
-            return land
-        }
-
-    fun avdoed(source: SimuleringEtter2011SpecV3): Avdoed? =
+    private fun avdoed(source: SimuleringEtter2011SpecV3): Avdoed? =
         source.fnrAvdod?.pid?.let {
             Avdoed(
                 pid = Pid(it),

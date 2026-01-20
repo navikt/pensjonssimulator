@@ -1,9 +1,6 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonValue
-
-enum class StillingsprOffCodeV2(@get:JsonValue val externalValue: String) {
+enum class StillingsprosentCode(val externalValue: String) {
     P_0("0"),
     P_10("10"),
     P_20("20"),
@@ -18,14 +15,12 @@ enum class StillingsprOffCodeV2(@get:JsonValue val externalValue: String) {
     P_100("100");
 
     companion object {
-        @JvmStatic
-        @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-        fun fromJson(v: Any?): StillingsprOffCodeV2 =
+        fun fromJson(v: Any?): StillingsprosentCode =
             entries.firstOrNull { it.externalValue.equals(v?.toString(), ignoreCase = true) }
                 ?: throw IllegalArgumentException(
                     "$v is not valid. Allowed: " + entries.joinToString(",") { it.externalValue }
                 )
 
-        fun toInt(v: StillingsprOffCodeV2?) = v?.externalValue?.toInt()
+        fun toInt(v: StillingsprosentCode?) = v?.externalValue?.toInt()
     }
 }

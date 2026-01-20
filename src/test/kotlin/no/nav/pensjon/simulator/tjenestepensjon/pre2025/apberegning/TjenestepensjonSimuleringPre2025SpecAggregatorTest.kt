@@ -20,7 +20,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.StillingsprOffCodeV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentCode
 import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
@@ -28,7 +28,7 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
     "Offentlig AFP etterfulgt av alderpensjon blir aggregert til spec" {
         val simResultat = mockSimulatorOutput(afpEtterfAvAlder = true)
         val spec: SimuleringSpec = mockSimuleringSpec()
-        val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
+        val stillingsprosent = StillingsprosentSpec(StillingsprosentCode.P_100, StillingsprosentCode.P_60)
 
         val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(
             simuleringResultat = simResultat,
@@ -74,7 +74,7 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
         val simResultat = mockSimulatorOutput(afpEtterfAvAlder = false)
         val spec: SimuleringSpec =
             mockSimuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, helt = LocalDate.of(2029, 11, 1))
-        val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
+        val stillingsprosent = StillingsprosentSpec(StillingsprosentCode.P_100, StillingsprosentCode.P_60)
 
         val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(
             simuleringResultat = simResultat,

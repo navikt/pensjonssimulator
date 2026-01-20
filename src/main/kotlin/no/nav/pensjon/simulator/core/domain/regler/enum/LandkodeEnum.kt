@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
 // Aligned with pensjon-regler-api 2025-11-11
-enum class LandkodeEnum  {
+enum class LandkodeEnum {
     ABW,
     AFG,
     AGO,
@@ -272,5 +272,21 @@ enum class LandkodeEnum  {
     IMN,
     JEY,
     MAF,
-    SXM
+    SXM;
+
+    //--- Extra:
+    companion object {
+        fun extendedValueOf(land: String): LandkodeEnum =
+            irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
+
+        private val irregularLandEnums: Map<String, LandkodeEnum> =
+            mapOf(
+                "???" to P_UKJENT,
+                "???" to P_UKJENT,
+                "349" to P_SPANSKE_OMR_AFRIKA,
+                "546" to P_SIKKIM,
+                "556" to P_YEMEN,
+                "669" to P_PANAMAKANALSONEN
+            )
+    }
 }

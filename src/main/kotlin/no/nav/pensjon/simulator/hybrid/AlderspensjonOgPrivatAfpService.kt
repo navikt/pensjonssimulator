@@ -73,7 +73,7 @@ class AlderspensjonOgPrivatAfpService(
         private fun problem(e: BadSpecException) =
             problem(e, type = e.problemType)
 
-        private fun problem(e: RuntimeException, type: ProblemType) =
+        fun problem(e: RuntimeException, type: ProblemType) =
             AlderspensjonOgPrivatAfpResult(
                 suksess = false,
                 alderspensjonsperiodeListe = emptyList(),

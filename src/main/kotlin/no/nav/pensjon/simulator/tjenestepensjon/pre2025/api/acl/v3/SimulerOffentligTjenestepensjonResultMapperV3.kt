@@ -1,45 +1,51 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 
 object SimulerOffentligTjenestepensjonResultMapperV3 {
 
-    fun toDto(resultV1: SimulerOffentligTjenestepensjonResultV1): SimulerOffentligTjenestepensjonResultV3 {
+    fun toDto(source: SimulerOffentligTjenestepensjonResult): SimulerOffentligTjenestepensjonResultV3 {
 
-        if (resultV1.brukerErIkkeMedlemAvTPOrdning) {
-            return SimulerOffentligTjenestepensjonResultV3(emptyList(), Feilkode.BRUKER_IKKE_MEDLEM_AV_TP_ORDNING)
+        if (source.brukerErIkkeMedlemAvTPOrdning) {
+            return SimulerOffentligTjenestepensjonResultV3(
+                simulertPensjonListe = emptyList(),
+                feilkode = FeilkodeV3.BRUKER_IKKE_MEDLEM_AV_TP_ORDNING
+            )
         }
 
-        if (resultV1.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
+        if (source.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
             return SimulerOffentligTjenestepensjonResultV3(
                 simulertPensjonListe = null,
-                feilkode = Feilkode.TP_ORDNING_STOETTES_IKKE,
-                relevanteTpOrdninger = resultV1.relevanteTpOrdninger
+                feilkode = FeilkodeV3.TP_ORDNING_STOETTES_IKKE,
+                relevanteTpOrdninger = source.relevanteTpOrdninger
             )
         }
 
         val simulertPensjon = SimulertPensjonResultV3(
-            tpnr = resultV1.tpnr,
-            navnOrdning = resultV1.navnOrdning,
-            inkluderteOrdninger = resultV1.inkluderteOrdningerListe,
-            leverandorUrl = resultV1.leverandorUrl,
-            utbetalingsperioder = resultV1.utbetalingsperiodeListe.map { periodeV1 ->
+            tpnr = source.tpnr,
+            navnOrdning = source.navnOrdning,
+            inkluderteOrdninger = source.inkluderteOrdningerListe,
+            leverandorUrl = source.leverandorUrl,
+            utbetalingsperioder = source.utbetalingsperiodeListe.map {
                 UtbetalingsperiodeResultV3(
-                    grad = periodeV1?.uttaksgrad,
-                    arligUtbetaling = periodeV1?.arligUtbetaling,
-                    datoFom = periodeV1?.datoFom?.toNorwegianDate(),
-                    datoTom = periodeV1?.datoTom?.toNorwegianDate(),
-                    ytelsekode = periodeV1?.ytelsekode?.toString()
+                    grad = it.uttaksgrad,
+                    arligUtbetaling = it.arligUtbetaling,
+                    datoFom = it.datoFom.toNorwegianDate(),
+                    datoTom = it.datoTom?.toNorwegianDate(),
+                    ytelsekode = it.ytelsekode?.toString()
                 )
             }
         )
 
         return SimulerOffentligTjenestepensjonResultV3(
-            listOf(simulertPensjon),
-            feilkode = resultV1.feilkode,
-            relevanteTpOrdninger = resultV1.relevanteTpOrdninger
+            simulertPensjonListe = listOf(simulertPensjon),
+            feilkode = feilkodeV3(source),
+            relevanteTpOrdninger = source.relevanteTpOrdninger
         )
     }
+
+    private fun feilkodeV3(source: SimulerOffentligTjenestepensjonResult): FeilkodeV3? =
+        source.feilkode?.let { FeilkodeV3.valueOf(it.name) }
+            ?: source.problem?.let { FeilkodeV3.ANNEN_KLIENTFEIL }
 }

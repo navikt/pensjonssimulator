@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.TjenestepensjonSimuleringPre2025Service
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TpUtil.redact
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.OpptjeningsperiodeService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
@@ -11,8 +11,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.TpForhold
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Service
-import org.springframework.util.StringUtils
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import tools.jackson.databind.ObjectMapper
 
 @Service
@@ -27,13 +25,14 @@ class SPKTjenestepensjonServicePre2025(
         spec: TjenestepensjonSimuleringPre2025Spec,
         stillingsprosentListe: List<Stillingsprosent>,
         tpOrdning: TpOrdningFullDto,
-    ): SimulerOffentligTjenestepensjonResultV1 {
+    ): SimulerOffentligTjenestepensjonResult {
         val request = HentPrognoseMapper.toDto(spec)
-        val opptjeningsperiodeResponse = opptjeningsperiodeService.getOpptjeningsperiodeListe(tpOrdning, stillingsprosentListe)
+        val opptjeningsperiodeResponse =
+            opptjeningsperiodeService.getOpptjeningsperiodeListe(tpOrdning, stillingsprosentListe)
 
         request.tpForholdListe = buildTpForhold(opptjeningsperiodeResponse.tpOrdningOpptjeningsperiodeMap)
         request.sisteTpnr = tpOrdning.tpNr
-        val requestWithFilteredFnr = TjenestepensjonSimuleringPre2025Service.filterFnr(request.toString())
+        val requestWithFilteredFnr = redact(request.toString())
         log.debug { "Populated request: $requestWithFilteredFnr" }
         log.debug { "Populated request JSON: ${objectMapper.writeValueAsString(request)}" } //OBS: request logges som debug i dev, fnr må maskeres for logging i prod
         return spkTjenestepensjonClientPre2025.getPrognose(request = request, tpOrdning = tpOrdning)
@@ -41,5 +40,4 @@ class SPKTjenestepensjonServicePre2025(
 
     private fun buildTpForhold(tpOrdningOpptjeningsperiodeMap: Map<TpOrdningFullDto, List<OpptjeningsperiodeDto>>) =
         tpOrdningOpptjeningsperiodeMap.map { entry -> TpForholdDto(entry.key.tpNr, entry.value) }
-
 }

@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SimulertOffentligAfp
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.StillingsprOffCodeV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentCode
 import java.time.LocalDate
 
 class SimuleringsperioderSpecMapperTest : StringSpec({
@@ -18,7 +18,7 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
         val foedselsdato = LocalDate.now()
         val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
         val offentligAfpSpec = SimulertOffentligAfp(1, 2)
-        val stillingsprosentSpec = StillingsprosentSpec(StillingsprOffCodeV2.P_80, StillingsprOffCodeV2.P_50)
+        val stillingsprosentSpec = StillingsprosentSpec(StillingsprosentCode.P_80, StillingsprosentCode.P_50)
         SimuleringsperioderSpecMapper.createSpec(simSpec, offentligAfpSpec, stillingsprosentSpec, foedselsdato)
             .apply {
                 afpEtterfulgtAvAlder shouldBe true //baseres kun på simulert offentlig AFP
@@ -35,7 +35,7 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
     "afp etterfulgt av alder satt til false ved manglende simulert afp" {
         val foedselsdato = LocalDate.now()
         val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
-        val stillingsprosentSpec = StillingsprosentSpec(StillingsprOffCodeV2.P_80, StillingsprOffCodeV2.P_50)
+        val stillingsprosentSpec = StillingsprosentSpec(StillingsprosentCode.P_80, StillingsprosentCode.P_50)
         SimuleringsperioderSpecMapper.createSpec(simSpec, null, stillingsprosentSpec, foedselsdato)
             .apply {
                 afpEtterfulgtAvAlder shouldBe false

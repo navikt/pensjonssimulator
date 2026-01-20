@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl
 
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.*
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 
 object HentPrognoseMapper {
 
@@ -72,19 +72,19 @@ object HentPrognoseMapper {
         )
     })
 
-    fun fromDto(dto: HentPrognoseResponseDto): SimulerOffentligTjenestepensjonResultV1 {
-        return SimulerOffentligTjenestepensjonResultV1(
+    fun fromDto(dto: HentPrognoseResponseDto): SimulerOffentligTjenestepensjonResult {
+        return SimulerOffentligTjenestepensjonResult(
             tpnr = dto.tpnr,
             navnOrdning = dto.navnOrdning,
             inkluderteOrdningerListe = dto.inkluderteOrdningerListe,
             leverandorUrl = dto.leverandorUrl,
             utbetalingsperiodeListe = dto.utbetalingsperiodeListe.filterNotNull().map { utbetalingsperiode ->
-                SimulerOffentligTjenestepensjonResultV1.UtbetalingsperiodeV1(
+                SimulerOffentligTjenestepensjonResult.Utbetalingsperiode(
                     uttaksgrad = utbetalingsperiode.uttaksgrad,
                     arligUtbetaling = utbetalingsperiode.arligUtbetaling,
                     datoFom = utbetalingsperiode.datoFom,
                     datoTom = utbetalingsperiode.datoTom,
-                    ytelsekode = SimulerOffentligTjenestepensjonResultV1.YtelseCode.valueOf(utbetalingsperiode.ytelsekode)
+                    ytelsekode = SimulerOffentligTjenestepensjonResult.YtelseCode.valueOf(utbetalingsperiode.ytelsekode)
                 )
             },
             brukerErIkkeMedlemAvTPOrdning = dto.brukerErIkkeMedlemAvTPOrdning,

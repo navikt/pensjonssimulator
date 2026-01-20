@@ -40,7 +40,7 @@ class TjenestepensjonFra2025Service(
             when (ordning) {
                 "3010", "3060" -> spk.simuler(spec, ordning) // TpNummer for SPK
                 "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
-                else -> Result.failure(TpOrdningStoettesIkkeException(tpOrdningerNavn.toString()))
+                else -> Result.failure(TpOrdningStoettesIkkeException(tilTpOrdningVisningsnavn(tpOrdningerNavn)))
             }.run {
                 onSuccess { return tpOrdningerNavn to this }
                 onFailure { if (it is TomSimuleringFraTpOrdningException) return tpOrdningerNavn to this } //Skjer kun hvis siste ordning
@@ -56,5 +56,13 @@ class TjenestepensjonFra2025Service(
 
         log.info { "Ingen simulering fra $tpOrdninger: ${simulertTpListe.map { it.exceptionOrNull()?.message }.joinToString(";")}" }
         return tpOrdningerNavn to simulertTpListe.first()
+    }
+
+    fun tilTpOrdningVisningsnavn(tpOrdningerNavn:  List<String>) =
+        tpOrdningerNavn.find { it.contains(AKTUELL_TP_ORDNING, ignoreCase = true) } ?: OEVRIGE_TP_ORDNINGER
+
+    companion object {
+        private const val OEVRIGE_TP_ORDNINGER = "Øvrige TP-Ordninger"
+        private const val AKTUELL_TP_ORDNING = "Storebrand"
     }
 }

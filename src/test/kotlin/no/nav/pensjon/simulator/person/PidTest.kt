@@ -57,7 +57,7 @@ class PidTest : ShouldSpec({
             Pid("04925398980").equals(null) shouldBe false
         }
     }
-/*
+
     /**
      * As of 2026-01-19, this test will fail if Pid is made an inline value class.
      */
@@ -67,7 +67,7 @@ class PidTest : ShouldSpec({
             wrapper.pid.value shouldBe "04925398980"
             jsonMapper.writeValueAsString(wrapper) shouldBe "{}" // i.e., ignored
         }
-    }*/
+    }
 })
 
 private class PidWrapper(@JsonIgnore val pid: Pid)

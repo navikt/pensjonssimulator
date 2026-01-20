@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
+import no.nav.pensjon.simulator.person.Pid
 
 /**
  * Maps kravhode from DTO (data transfer object) to pensjonssimulator domain.
@@ -23,7 +24,7 @@ object PenKravhodeMapper {
             gjelder = source.gjelder
             sakId = source.sakId
             sakType = source.sakType
-            sakPenPersonFnr = source.sakPenPersonFnr
+            sakPenPersonFnr = source.sakPenPersonFnr?.let(::Pid)
             sakForsteVirkningsdatoListe = source.sakForsteVirkningsdatoListe.map(::virkningDato)
             boddEllerArbeidetIUtlandet = source.boddEllerArbeidetIUtlandet
             kravlinjeListe = source.kravlinjeListe.map(::kravlinje).toMutableList()

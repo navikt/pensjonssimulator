@@ -26,8 +26,8 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Component
 class PenPersonClient(
-    @Value("\${ps.pen.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${ps.pen.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid
@@ -50,7 +50,7 @@ class PenPersonClient(
                 forEach { cache.put(it.key, it.value) }
             }.toMutableMap()
 
-        hits.forEach { personerVedPid.put(it.pid!!, it) }
+        hits.forEach { personerVedPid[it.pid!!] = it }
         return personerVedPid
     }
 

@@ -1,0 +1,26 @@
+{
+  "fnr": "01506236254",
+  "forsteUttak": {
+    "datoFom": "2029-01-01",
+    "grad": 20
+  },
+  "heltUttak": {
+    "datoFom": "2030-11-01",
+    "grad": 100
+  },
+  "arIUtlandetEtter16": 0,
+  "sivilstandVedPensjonering": "GIFT",
+  "epsPensjon": true,
+  "eps2G": true,
+  "fremtidigInntektListe": [
+    {
+      "arligInntekt": 200000,
+      "fomDato": "2029-01-01"
+    },
+    {
+      "arligInntekt": 200000,
+      "fomDato": "2030-11-01"
+    }
+  ],
+  "simulerMedAfpPrivat": true
+}

@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.krav.KravGjelder
-import no.nav.pensjon.simulator.person.Pid
 import java.util.*
 
 /**
@@ -20,7 +19,7 @@ class PenKravhode {
     var gjelder: KravGjelder? = null // PEN: KravGjelderCode
     var sakId: Long? = null
     var sakType: SakTypeEnum? = null // PEN: SakTypeCode
-    var sakPenPersonFnr: Pid? = null
+    var sakPenPersonFnr: String? = null
     var sakForsteVirkningsdatoListe: List<PenFoersteVirkningDato> = emptyList()
     var persongrunnlagListe: MutableList<PenPersongrunnlag> = mutableListOf()
     var kravlinjeListe: MutableList<PenKravlinje> = mutableListOf()

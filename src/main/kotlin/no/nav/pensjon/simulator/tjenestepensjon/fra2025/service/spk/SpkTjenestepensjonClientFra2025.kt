@@ -29,8 +29,8 @@ import org.springframework.web.reactive.function.client.bodyToMono
 
 @Service("spk")
 class SpkTjenestepensjonClientFra2025(
-    @Value("\${spk.tp-simulering.fra-2025.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${spk.tp-simulering.fra-2025.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,

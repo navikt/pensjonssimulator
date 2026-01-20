@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 @Component
 class SamlTokenClient(
-    @param:Value("\${ps.sts.url}") private val baseUrl: String,
+    @param:Value($$"${ps.sts.url}") private val baseUrl: String,
     webClientBase: WebClientBase
 ) {
     private val webClient = webClientBase.withBaseUrl(baseUrl)

@@ -79,8 +79,8 @@ open class SecurityConfiguration {
     @Bean("entra-id-provider")
     @Primary
     open fun entraIdProvider(
-        @Value("\${azure.openid.config.issuer}") issuer: String,
-        @Value("\${azure-app.client-id}") audience: String
+        @Value($$"${azure.openid.config.issuer}") issuer: String,
+        @Value($$"${azure-app.client-id}") audience: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
@@ -90,11 +90,11 @@ open class SecurityConfiguration {
 
     @Bean("maskinporten-provider")
     open fun maskinportenProvider(
-        @Value("\${maskinporten.issuer}") issuer: String,
-        @Value("\${ps.maskinporten.scope.1}") scope1: String,
-        @Value("\${ps.maskinporten.scope.2}") scope2: String,
-        @Value("\${ps.maskinporten.scope.3}") scope3: String,
-        @Value("\${ps.maskinporten.scope.4}") scope4: String
+        @Value($$"${maskinporten.issuer}") issuer: String,
+        @Value($$"${ps.maskinporten.scope.1}") scope1: String,
+        @Value($$"${ps.maskinporten.scope.2}") scope2: String,
+        @Value($$"${ps.maskinporten.scope.3}") scope3: String,
+        @Value($$"${ps.maskinporten.scope.4}") scope4: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(

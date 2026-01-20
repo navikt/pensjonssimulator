@@ -37,6 +37,7 @@ object MaskinportenToken {
                 .claim("scope", maskinportenConfig.scope)
                 .issueTime(Date())
                 .expirationTime(getExpireAfter())
+                .jwtID(UUID.randomUUID().toString())
                 .build()
         )
         signedJWT.sign(RSASSASigner(rsaKey.toRSAPrivateKey()))

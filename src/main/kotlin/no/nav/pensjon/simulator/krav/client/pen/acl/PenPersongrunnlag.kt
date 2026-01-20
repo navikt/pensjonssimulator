@@ -2,12 +2,12 @@ package no.nav.pensjon.simulator.krav.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUPtilUT
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import java.util.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag as LivsvarigOffentligAfpGrunnlag
 
 /**
  * Persongrunnlag DTO (data transfer object) received from PEN.
@@ -81,7 +81,7 @@ class PenPersongrunnlag(
     var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode>? = mutableListOf(),
     var beholdninger: MutableList<PenPensjonsbeholdning>? = mutableListOf(), // not used; flatBeholdninger used instead
     var flatBeholdninger: MutableList<PenPensjonsbeholdning>? = mutableListOf(),
-    var livsvarigOffentligAfpGrunnlagListe: List<AfpOffentligLivsvarigGrunnlag>? = emptyList(),
+    var livsvarigOffentligAfpGrunnlagListe: List<LivsvarigOffentligAfpGrunnlag>? = emptyList(),
     var trygdetider: MutableList<Trygdetid>? = mutableListOf(),
     var uforegrunnlagList: MutableList<Uforegrunnlag>? = mutableListOf(),
     var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag>? = mutableListOf()

@@ -21,8 +21,8 @@ import reactor.core.publisher.Mono
 
 @Component
 class TpregisteretClient(
-    @Value("\${tjenestepensjon.url}") baseUrl: String,
-    @Value("\${ps.web-client.retry-attempts}") retryAttempts: String,
+    @Value($$"${tjenestepensjon.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts) {

@@ -15,7 +15,7 @@ import org.springframework.ws.transport.http.HttpUrlConnectionMessageSender
 
 @Configuration
 open class SoapClientConfig(
-    @param:Value("\${stillingsprosent.url}") val baseUrl: String
+    @param:Value($$"${stillingsprosent.url}") val baseUrl: String
 ) {
 
     @Bean

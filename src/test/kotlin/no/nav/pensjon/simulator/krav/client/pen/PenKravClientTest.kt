@@ -1,25 +1,24 @@
 package no.nav.pensjon.simulator.krav.client.pen
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import okhttp3.mockwebserver.MockResponse
+import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.cache.caffeine.CaffeineCacheManager
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import java.util.*
+import java.time.LocalDate
 
-class PenKravClientTest : FunSpec({
+class PenKravClientTest : ShouldSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
@@ -42,32 +41,30 @@ class PenKravClientTest : FunSpec({
         server?.shutdown()
     }
 
-    test("fetchKravhode deserializes response") {
-        server!!.enqueue(
-            MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setResponseCode(HttpStatus.OK.value()).setBody(PenKravhodeResponse.KRAVHODE)
-        )
+    should("gi et deserialisert og domenemappet kravhode") {
+        server!!.arrangeOkJsonResponse(body = KRAVHODE)
 
         Arrange.webClientContextRunner().run {
-            val result: Kravhode = client(context = it).fetchKravhode(123L)
+            val result: Kravhode = client(context = it).fetchKravhode(kravhodeId = 123L)
 
-            result.persongrunnlagListe.size shouldBe 1
+            result.persongrunnlagListe shouldHaveSize 1
             with(result.persongrunnlagListe[0]) {
-                personDetaljListe.size shouldBe 1
+                personDetaljListe shouldHaveSize 1
                 personDetaljListe[0].bruk shouldBe true
-                fodselsdato shouldBe dateAtNoon(year = 1974, zeroBasedMonth = Calendar.MARCH, day = 30)
+                fodselsdato shouldBe LocalDate.of(1974, 3, 30).toNorwegianDateAtNoon()
             }
-            result.kravlinjeListe.size shouldBe 1
+            result.kravlinjeListe shouldHaveSize 1
             result.kravlinjeListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.UT
+            result.sakPenPersonFnr shouldBe Pid("25416300960")
         }
     }
 })
 
-object PenKravhodeResponse {
-
-    @Language("json")
-    const val KRAVHODE = """{
+/**
+ * Response from PEN.
+ */
+@Language("json")
+private const val KRAVHODE = """{
     "persongrunnlagListe": [
         {
             "penPerson": {
@@ -516,6 +513,6 @@ object PenKravhodeResponse {
     "sisteSakstypeForAP": null,
     "overstyrendeP_satsGP": 0.0,
     "btVurderingsperiodeBenyttet": true,
+    "sakPenPersonFnr" : "25416300960",
     "uforetrygd": true
 }"""
-}

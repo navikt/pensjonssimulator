@@ -1,0 +1,405 @@
+{
+  "afpPrivatBeholdningVedUttak": 98252,
+  "alderspensjonFraFolketrygden": [
+    {
+      "datoFom": "2029-01-01",
+      "delytelser": [
+        {
+          "belop": 2009,
+          "pensjonstype": "GP"
+        },
+        {
+          "belop": 4271,
+          "pensjonstype": "TP"
+        },
+        {
+          "belop": -2439,
+          "pensjonstype": "PT"
+        },
+        {
+          "belop": 62245,
+          "pensjonstype": "IP"
+        },
+        {
+          "belop": -11046,
+          "pensjonstype": "GAP"
+        }
+      ],
+      "uttaksgrad": 20
+    },
+    {
+      "datoFom": "2030-11-01",
+      "delytelser": [
+        {
+          "belop": 10825,
+          "pensjonstype": "GP"
+        },
+        {
+          "belop": 23014,
+          "pensjonstype": "TP"
+        },
+        {
+          "belop": -13143,
+          "pensjonstype": "PT"
+        },
+        {
+          "belop": -230568,
+          "pensjonstype": "MIN_NIVA_TILL_INDV"
+        },
+        {
+          "belop": 335181,
+          "pensjonstype": "IP"
+        },
+        {
+          "belop": -59483,
+          "pensjonstype": "GAP"
+        }
+      ],
+      "uttaksgrad": 100
+    }
+  ],
+  "harTidligereUttak": false,
+  "harUttak": false,
+  "pensjonsbeholdningsperioder": [
+    {
+      "datoFom": "2029-01-01",
+      "garantipensjonsbeholdning": -1027937.8829754586,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "pensjonsbeholdning": 5792307.153719322
+    },
+    {
+      "datoFom": "2029-11-01",
+      "garantipensjonsbeholdning": -1027937.8829754586,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1731884.7196728606,
+      "pensjonsbeholdning": 5792307.153719322
+    },
+    {
+      "datoFom": "2030-11-01",
+      "garantipensjonsbeholdning": -1027937.8829754586,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1731884.7196728606,
+      "pensjonsbeholdning": 5792307.153719322
+    },
+    {
+      "datoFom": "2031-01-01",
+      "garantipensjonsbeholdning": -1056897.8829754586,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1764464.7196728599,
+      "pensjonsbeholdning": 5828507.153719322
+    },
+    {
+      "datoFom": "2032-01-01",
+      "garantipensjonsbeholdning": -1085857.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1797044.5567728605,
+      "pensjonsbeholdning": 5864706.972719322
+    },
+    {
+      "datoFom": "2033-01-01",
+      "garantipensjonsbeholdning": -1114817.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1829624.5567728598,
+      "pensjonsbeholdning": 5900906.972719322
+    },
+    {
+      "datoFom": "2034-01-01",
+      "garantipensjonsbeholdning": -1143777.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1862204.55677286,
+      "pensjonsbeholdning": 5937106.972719322
+    },
+    {
+      "datoFom": "2035-01-01",
+      "garantipensjonsbeholdning": -1172737.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1894784.5567728602,
+      "pensjonsbeholdning": 5973306.972719322
+    },
+    {
+      "datoFom": "2036-01-01",
+      "garantipensjonsbeholdning": -1201697.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1927364.5567728605,
+      "pensjonsbeholdning": 6009506.972719322
+    },
+    {
+      "datoFom": "2037-01-01",
+      "garantipensjonsbeholdning": -1230657.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1959944.5567728598,
+      "pensjonsbeholdning": 6045706.972719322
+    },
+    {
+      "datoFom": "2038-01-01",
+      "garantipensjonsbeholdning": -1259617.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -1992524.55677286,
+      "pensjonsbeholdning": 6081906.972719322
+    },
+    {
+      "datoFom": "2039-01-01",
+      "garantipensjonsbeholdning": -1288577.7381754587,
+      "garantipensjonsniva": {
+        "belop": 224248.0,
+        "sats": 224248.0,
+        "satsType": "ORDINAER",
+        "tt_anv": 40
+      },
+      "garantitilleggsbeholdning": -2025104.5567728602,
+      "pensjonsbeholdning": 6118106.972719322
+    }
+  ],
+  "pensjonsperioder": [
+    {
+      "arligUtbetaling": 57100,
+      "datoFom": "2028-11-01"
+    },
+    {
+      "arligUtbetaling": 68520,
+      "datoFom": "2029-11-01"
+    },
+    {
+      "arligUtbetaling": 370814,
+      "datoFom": "2030-11-01"
+    },
+    {
+      "arligUtbetaling": 373062,
+      "datoFom": "2031-11-01"
+    },
+    {
+      "arligUtbetaling": 375450,
+      "datoFom": "2032-11-01"
+    },
+    {
+      "arligUtbetaling": 377982,
+      "datoFom": "2033-11-01"
+    },
+    {
+      "arligUtbetaling": 380668,
+      "datoFom": "2034-11-01"
+    },
+    {
+      "arligUtbetaling": 383550,
+      "datoFom": "2035-11-01"
+    },
+    {
+      "arligUtbetaling": 386636,
+      "datoFom": "2036-11-01"
+    },
+    {
+      "arligUtbetaling": 389916,
+      "datoFom": "2037-11-01"
+    },
+    {
+      "arligUtbetaling": 393238,
+      "datoFom": "2038-11-01"
+    },
+    {
+      "arligUtbetaling": 393792,
+      "datoFom": "2039-11-01"
+    }
+  ],
+  "simuleringsdataListe": [
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2029-11-01",
+      "delingstallUttak": 0.0,
+      "forholdstallUttak": 0.0,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2030-01-01",
+      "delingstallUttak": 0.0,
+      "forholdstallUttak": 0.0,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2030-11-01",
+      "delingstallUttak": 15.28,
+      "forholdstallUttak": 1.063,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2031-01-01",
+      "delingstallUttak": 15.14,
+      "forholdstallUttak": 1.054,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2032-01-01",
+      "delingstallUttak": 14.34,
+      "forholdstallUttak": 0.998,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2033-01-01",
+      "delingstallUttak": 13.55,
+      "forholdstallUttak": 0.943,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2034-01-01",
+      "delingstallUttak": 12.76,
+      "forholdstallUttak": 0.888,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2035-01-01",
+      "delingstallUttak": 11.98,
+      "forholdstallUttak": 0.834,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2036-01-01",
+      "delingstallUttak": 11.2,
+      "forholdstallUttak": 0.78,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2037-01-01",
+      "delingstallUttak": 10.44,
+      "forholdstallUttak": 0.727,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2038-01-01",
+      "delingstallUttak": 9.81,
+      "forholdstallUttak": 0.683,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    },
+    {
+      "anvendtTrygdetid": 40,
+      "basisgp": 117144.0,
+      "basispt": -142223.1984,
+      "basistp": 249040.3344,
+      "datoFom": "2039-01-01",
+      "delingstallUttak": 9.81,
+      "forholdstallUttak": 0.683,
+      "poengArFom1992": 28,
+      "poengArTom1991": 12,
+      "sluttpoengtall": 4.46
+    }
+  ],
+  "sisteGyldigeOpptjeningsAr": 2024
+}

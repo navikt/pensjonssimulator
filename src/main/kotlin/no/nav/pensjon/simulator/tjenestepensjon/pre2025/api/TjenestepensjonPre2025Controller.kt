@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonSpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV2.toDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.FeilkodeV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultMapperV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonSpecV3
@@ -159,10 +160,10 @@ class TjenestepensjonPre2025Controller(
             )
 
             val resultV3 = SimulerOffentligTjenestepensjonResultMapperV3.toDto(result)
-            log.debug { "$FUNCTION_ID_V3 response: $result" }
+            log.debug { "$FUNCTION_ID_V3 response: $resultV3" }
 
             return ResponseEntity
-                .status(result.problem?.let { HttpStatus.UNPROCESSABLE_ENTITY } ?: HttpStatus.OK)
+                .status(httpStatus(resultV3.feilkode))
                 .body(resultV3)
         } finally {
             traceAid.end()
@@ -176,5 +177,12 @@ class TjenestepensjonPre2025Controller(
         const val FUNCTION_ID_V2 = "nav-tps-pre-2025-v2"
         const val FUNCTION_ID_V3 = "nav-tps-pre-2025-v3"
         const val ERROR_MESSAGE = "feil ved simulering av tjenestepensjon pre 2025"
+
+        private fun httpStatus(feilkode: FeilkodeV3?) =
+            when (feilkode) {
+                null -> HttpStatus.OK
+                FeilkodeV3.IKKE_PROSESSERBAR_ENTITET -> HttpStatus.UNPROCESSABLE_ENTITY
+                else -> HttpStatus.INTERNAL_SERVER_ERROR
+            }
     }
 }

@@ -36,19 +36,6 @@ data class SimulerOffentligTjenestepensjonResultV1(
         AFP,
         SERALDER
     }
-
-    companion object {
-        fun ikkeMedlem() =
-            SimulerOffentligTjenestepensjonResultV1("", "", emptyList(), brukerErIkkeMedlemAvTPOrdning = true)
-
-        fun tpOrdningStoettesIkke(relevanteTpOrdninger: List<String>? = null) = SimulerOffentligTjenestepensjonResultV1(
-            "",
-            "",
-            emptyList(),
-            brukerErMedlemAvTPOrdningSomIkkeStoettes = true,
-            relevanteTpOrdninger = relevanteTpOrdninger
-        )
-    }
 }
 
 enum class Feilkode(val externalValues: List<String>, val externalErrorMessages: List<String>) {

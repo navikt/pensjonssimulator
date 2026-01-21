@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
+// Aligned with pensjon-regler-api 2026-01-21
 enum class ArsakFtDtEnum {
     FU19,
     OG19,

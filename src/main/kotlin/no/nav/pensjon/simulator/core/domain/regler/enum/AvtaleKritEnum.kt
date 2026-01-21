@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
-// TODO Tatt inn AvtaleKritCode fra Pesys
+// Aligned with pensjon-regler-api 2026-01-21
 enum class AvtaleKritEnum {
     /**
      * Ikke yrkesaktiv, 3 års botid

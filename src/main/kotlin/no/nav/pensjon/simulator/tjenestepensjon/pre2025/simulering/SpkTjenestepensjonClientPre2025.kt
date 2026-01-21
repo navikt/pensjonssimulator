@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tech.web.WebClientBase
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
@@ -32,7 +32,7 @@ class SpkTjenestepensjonClientPre2025(
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
-    fun getPrognose(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): SimulerOffentligTjenestepensjonResultV1 {
+    fun getPrognose(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): SimulerOffentligTjenestepensjonResult {
         sporingsloggService.logUtgaaendeRequest(SPK, Pid(request.fnr), request.toString())
         val response: HentPrognoseResponseDto? = webClient
             .post()

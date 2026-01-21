@@ -1,33 +1,33 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
 
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 
 object SimulerOffentligTjenestepensjonResultMapperV2 {
 
-    fun toDto(resultV1: SimulerOffentligTjenestepensjonResultV1): SimulerOffentligTjenestepensjonResultV2 {
+    fun toDto(result: SimulerOffentligTjenestepensjonResult): SimulerOffentligTjenestepensjonResultV2 {
 
-        if (resultV1.brukerErIkkeMedlemAvTPOrdning || resultV1.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
+        if (result.brukerErIkkeMedlemAvTPOrdning || result.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
             return SimulerOffentligTjenestepensjonResultV2()
         }
 
         val simulertPensjon = SimulertPensjonResultV2(
-            tpnr = resultV1.tpnr,
-            navnOrdning = resultV1.navnOrdning,
-            inkluderteOrdninger = resultV1.inkluderteOrdningerListe,
-            leverandorUrl = resultV1.leverandorUrl,
+            tpnr = result.tpnr,
+            navnOrdning = result.navnOrdning,
+            inkluderteOrdninger = result.inkluderteOrdningerListe,
+            leverandorUrl = result.leverandorUrl,
             inkluderteTpnr = null,
             utelatteTpnr = null,
             status = null,
             feilkode = null,
             feilbeskrivelse = null,
-            utbetalingsperioder = resultV1.utbetalingsperiodeListe.map { periodeV1 ->
+            utbetalingsperioder = result.utbetalingsperiodeListe.map {
                 UtbetalingsperiodeResultV2(
-                    grad = periodeV1?.uttaksgrad,
-                    arligUtbetaling = periodeV1?.arligUtbetaling,
-                    datoFom = periodeV1?.datoFom?.toNorwegianDate(),
-                    datoTom = periodeV1?.datoTom?.toNorwegianDate(),
-                    ytelsekode = periodeV1?.ytelsekode?.toString()
+                    grad = it.uttaksgrad,
+                    arligUtbetaling = it.arligUtbetaling,
+                    datoFom = it.datoFom.toNorwegianDate(),
+                    datoTom = it.datoTom?.toNorwegianDate(),
+                    ytelsekode = it.ytelsekode?.toString()
                 )
             }
         )

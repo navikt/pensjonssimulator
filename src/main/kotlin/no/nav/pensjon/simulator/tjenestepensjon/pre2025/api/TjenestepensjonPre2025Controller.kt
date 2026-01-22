@@ -159,7 +159,7 @@ class TjenestepensjonPre2025Controller(
             )
 
             val resultV3 = SimulerOffentligTjenestepensjonResultMapperV3.toDto(result)
-            log.debug { "$FUNCTION_ID_V3 response: $result" }
+            log.debug { "$FUNCTION_ID_V3 response: $resultV3" }
 
             return ResponseEntity
                 .status(result.problem?.let { HttpStatus.UNPROCESSABLE_ENTITY } ?: HttpStatus.OK)

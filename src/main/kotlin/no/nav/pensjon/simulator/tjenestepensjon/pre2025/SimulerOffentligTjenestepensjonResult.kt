@@ -50,8 +50,8 @@ enum class YtelseCode {
 }
 
 enum class Feilkode(
-    val externalValues: List<String> = emptyList(),
-    val externalErrorMessages: List<String> = emptyList()
+    private val externalValues: List<String> = emptyList(),
+    private val externalErrorMessages: List<String> = emptyList()
 ) {
     TEKNISK_FEIL(
         externalValues = listOf("CALC001", "CALC003", "CALC004", "CALC005")
@@ -71,6 +71,7 @@ enum class Feilkode(
     TP_ORDNING_STOETTES_IKKE;
 
     companion object {
+        //TODO: Place this in ACL on egress side
         fun fromExternalValue(externalValue: String, externalErrorMessage: String) =
             entries.firstOrNull {
                 if (externalValue == "CALC002")

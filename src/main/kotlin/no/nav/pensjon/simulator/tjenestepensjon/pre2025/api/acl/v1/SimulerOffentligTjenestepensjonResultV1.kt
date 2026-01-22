@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import java.time.LocalDate
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.Feilkode as InternalFeilkode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.YtelseCode as InternalYtelseCode
 
 data class SimulerOffentligTjenestepensjonResultV1(
     val tpnr: String,
@@ -31,33 +33,27 @@ data class SimulerOffentligTjenestepensjonResultV1(
         var ytelsekode: YtelseCode?
     )
 
-    enum class YtelseCode {
-        AP,
-        AFP,
-        SERALDER
+    enum class YtelseCode(private val internalValue: InternalYtelseCode) {
+        AP(internalValue = InternalYtelseCode.AP),
+        AFP(internalValue = InternalYtelseCode.AFP),
+        SERALDER(internalValue = InternalYtelseCode.SERALDER);
+
+        companion object {
+            fun externalValue(value: InternalYtelseCode): YtelseCode =
+                YtelseCode.entries.single { it.internalValue == value }
+        }
     }
 }
 
-enum class Feilkode(val externalValues: List<String>, val externalErrorMessages: List<String>) {
-    TEKNISK_FEIL(listOf("CALC001", "CALC003", "CALC004", "CALC005"), emptyList()),
-    BEREGNING_GIR_NULL_UTBETALING(listOf("CALC002"), listOf("Beregning gir 0 i utbetaling.").map { "Validation problem: $it" }),
-    OPPFYLLER_IKKE_INNGANGSVILKAAR(
-        listOf("CALC002"), listOf(
-        "Beregning gir 0 i utbetaling.",
-        "Delvis AFP ikke lovlig med reststilling under 60%.",
-        "Delvis AFP ikke lovlig med nedgang under 10%.",
-        "Tjenestetid mindre enn 3 år.")
-        .map { "Validation problem: $it" }),
-    BRUKER_IKKE_MEDLEM_AV_TP_ORDNING(emptyList(), emptyList()),
-    TP_ORDNING_STOETTES_IKKE(emptyList(), emptyList());
+enum class Feilkode(private val internalValue: InternalFeilkode) {
+    TEKNISK_FEIL(internalValue = InternalFeilkode.TEKNISK_FEIL),
+    BEREGNING_GIR_NULL_UTBETALING(internalValue = InternalFeilkode.BEREGNING_GIR_NULL_UTBETALING),
+    OPPFYLLER_IKKE_INNGANGSVILKAAR(internalValue = InternalFeilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR),
+    BRUKER_IKKE_MEDLEM_AV_TP_ORDNING(internalValue = InternalFeilkode.BRUKER_IKKE_MEDLEM_AV_TP_ORDNING),
+    TP_ORDNING_STOETTES_IKKE(internalValue = InternalFeilkode.TP_ORDNING_STOETTES_IKKE);
 
     companion object {
-        fun fromExternalValue(externalValue: String, externalErrorMessage: String) = entries.firstOrNull {
-            if (externalValue != "CALC002") {
-                it.externalValues.contains(externalValue)
-            } else {
-                it.externalValues.contains(externalValue) && it.externalErrorMessages.contains(externalErrorMessage)
-            }
-        } ?: TEKNISK_FEIL
+        fun externalValue(value: InternalFeilkode): Feilkode =
+            Feilkode.entries.singleOrNull { it.internalValue == value } ?: TEKNISK_FEIL
     }
 }

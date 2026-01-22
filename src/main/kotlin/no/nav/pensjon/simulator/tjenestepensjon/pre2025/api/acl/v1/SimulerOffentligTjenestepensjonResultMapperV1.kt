@@ -14,7 +14,7 @@ object SimulerOffentligTjenestepensjonResultMapperV1 {
             utbetalingsperiodeListe = source.utbetalingsperiodeListe.map(::utbetalingsperiode),
             brukerErIkkeMedlemAvTPOrdning = source.brukerErIkkeMedlemAvTPOrdning,
             brukerErMedlemAvTPOrdningSomIkkeStoettes = source.brukerErMedlemAvTPOrdningSomIkkeStoettes,
-            feilkode = source.feilkode?.let { Feilkode.valueOf(it.name) },
+            feilkode = source.feilkode?.let(Feilkode::externalValue),
             relevanteTpOrdninger = source.relevanteTpOrdninger
         )
 
@@ -24,6 +24,6 @@ object SimulerOffentligTjenestepensjonResultMapperV1 {
             arligUtbetaling = source.arligUtbetaling,
             datoFom = source.datoFom,
             datoTom = source.datoTom,
-            ytelsekode = source.ytelsekode?.let { SimulerOffentligTjenestepensjonResultV1.YtelseCode.valueOf(it.name) }
+            ytelsekode = source.ytelsekode?.let(SimulerOffentligTjenestepensjonResultV1.YtelseCode::externalValue)
         )
 }

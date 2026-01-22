@@ -2,20 +2,19 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3
 
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
 
 object SimulerOffentligTjenestepensjonResultMapperV3 {
 
     fun toDto(result: SimulerOffentligTjenestepensjonResult): SimulerOffentligTjenestepensjonResultV3 {
 
         if (result.brukerErIkkeMedlemAvTPOrdning) {
-            return SimulerOffentligTjenestepensjonResultV3(emptyList(), Feilkode.BRUKER_IKKE_MEDLEM_AV_TP_ORDNING)
+            return SimulerOffentligTjenestepensjonResultV3(emptyList(), FeilkodeV3.BRUKER_IKKE_MEDLEM_AV_TP_ORDNING)
         }
 
         if (result.brukerErMedlemAvTPOrdningSomIkkeStoettes) {
             return SimulerOffentligTjenestepensjonResultV3(
                 simulertPensjonListe = null,
-                feilkode = Feilkode.TP_ORDNING_STOETTES_IKKE,
+                feilkode = FeilkodeV3.TP_ORDNING_STOETTES_IKKE,
                 relevanteTpOrdninger = result.relevanteTpOrdninger
             )
         }
@@ -38,7 +37,7 @@ object SimulerOffentligTjenestepensjonResultMapperV3 {
 
         return SimulerOffentligTjenestepensjonResultV3(
             listOf(simulertPensjon),
-            feilkode = result.feilkode?.let { Feilkode.valueOf(it.name) },
+            feilkode = result.feilkode?.let(FeilkodeV3::externalValue),
             relevanteTpOrdninger = result.relevanteTpOrdninger
         )
     }

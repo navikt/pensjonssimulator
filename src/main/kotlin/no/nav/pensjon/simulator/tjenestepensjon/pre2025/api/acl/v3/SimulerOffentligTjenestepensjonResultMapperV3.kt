@@ -37,12 +37,8 @@ object SimulerOffentligTjenestepensjonResultMapperV3 {
 
         return SimulerOffentligTjenestepensjonResultV3(
             listOf(simulertPensjon),
-            feilkode = feilkode(result),
+            feilkode = result.feilkode?.let(FeilkodeV3::externalValue),
             relevanteTpOrdninger = result.relevanteTpOrdninger
         )
     }
-
-    private fun feilkode(source: SimulerOffentligTjenestepensjonResult): FeilkodeV3? =
-        source.feilkode?.let(FeilkodeV3::externalValue)
-            ?: source.problem?.let { FeilkodeV3.IKKE_PROSESSERBAR_ENTITET }
 }

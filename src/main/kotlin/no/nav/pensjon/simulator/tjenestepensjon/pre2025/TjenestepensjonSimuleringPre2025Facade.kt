@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
@@ -16,6 +17,8 @@ class TjenestepensjonSimuleringPre2025Facade(
     private val beregningService: TjenestepensjonSimuleringPre2025SpecBeregningService,
     private val tjenestepensjonSimulator: TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService
 ) {
+    private val log = KotlinLogging.logger {}
+
     fun simuler(
         simuleringSpec: SimuleringSpec,
         stillingsprosentSpec: StillingsprosentSpec
@@ -37,15 +40,18 @@ class TjenestepensjonSimuleringPre2025Facade(
             problem(e)
         }
 
-    private companion object {
-        private fun problem(e: RuntimeException) =
-            SimulerOffentligTjenestepensjonResult(
-                tpnr = "",
-                navnOrdning = "",
-                problem = Problem(
-                    type = ProblemType.ANNEN_KLIENTFEIL,
-                    beskrivelse = e.message ?: "Ukjent feil - ${e.javaClass.simpleName}"
-                )
+    private fun problem(e: RuntimeException) =
+        SimulerOffentligTjenestepensjonResult(
+            tpnr = "",
+            navnOrdning = "",
+            problem = Problem(
+                type = ProblemType.ANNEN_KLIENTFEIL,
+                beskrivelse = message(e).also { log.warn { it } }
             )
+        )
+
+    private companion object {
+        private fun message(e: RuntimeException): String =
+            e.message ?: "Ukjent feil - ${e.javaClass.simpleName}"
     }
 }

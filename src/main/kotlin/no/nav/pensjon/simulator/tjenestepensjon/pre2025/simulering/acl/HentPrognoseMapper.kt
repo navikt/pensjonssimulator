@@ -1,7 +1,13 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl
 
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.*
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonResultV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.Utbetalingsperiode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.YtelseCode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Pensjonsbeholdningsperiode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Simuleringsdata
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Simuleringsperiode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TpForhold
 
 object HentPrognoseMapper {
 
@@ -72,23 +78,22 @@ object HentPrognoseMapper {
         )
     })
 
-    fun fromDto(dto: HentPrognoseResponseDto): SimulerOffentligTjenestepensjonResultV1 {
-        return SimulerOffentligTjenestepensjonResultV1(
+    fun fromDto(dto: HentPrognoseResponseDto) =
+        SimulerOffentligTjenestepensjonResult(
             tpnr = dto.tpnr,
             navnOrdning = dto.navnOrdning,
             inkluderteOrdningerListe = dto.inkluderteOrdningerListe,
             leverandorUrl = dto.leverandorUrl,
-            utbetalingsperiodeListe = dto.utbetalingsperiodeListe.filterNotNull().map { utbetalingsperiode ->
-                SimulerOffentligTjenestepensjonResultV1.UtbetalingsperiodeV1(
-                    uttaksgrad = utbetalingsperiode.uttaksgrad,
-                    arligUtbetaling = utbetalingsperiode.arligUtbetaling,
-                    datoFom = utbetalingsperiode.datoFom,
-                    datoTom = utbetalingsperiode.datoTom,
-                    ytelsekode = SimulerOffentligTjenestepensjonResultV1.YtelseCode.valueOf(utbetalingsperiode.ytelsekode)
+            utbetalingsperiodeListe = dto.utbetalingsperiodeListe.filterNotNull().map {
+                Utbetalingsperiode(
+                    uttaksgrad = it.uttaksgrad,
+                    arligUtbetaling = it.arligUtbetaling,
+                    datoFom = it.datoFom,
+                    datoTom = it.datoTom,
+                    ytelsekode = YtelseCode.valueOf(it.ytelsekode)
                 )
             },
             brukerErIkkeMedlemAvTPOrdning = dto.brukerErIkkeMedlemAvTPOrdning,
             brukerErMedlemAvTPOrdningSomIkkeStoettes = dto.brukerErMedlemAvTPOrdningSomIkkeStoettes,
         )
-    }
 }

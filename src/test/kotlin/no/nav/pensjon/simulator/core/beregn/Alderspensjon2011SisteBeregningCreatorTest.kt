@@ -20,9 +20,10 @@ import java.util.*
 
 class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
 
-    // ===========================================
-    // Tests for ytelseskomponenter filtering
-    // ===========================================
+    /**
+     * Test filter for irrelevante ytelseskomponenter.
+     * En ytelseskomponent er irrelevant hvis den er opphørt eller ubrukt.
+     */
 
     test("createBeregning should filter out irrelevante ytelseskomponenter") {
         val beregning = createBeregning(

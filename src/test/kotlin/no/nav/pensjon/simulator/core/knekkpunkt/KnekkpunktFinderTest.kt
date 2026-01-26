@@ -443,7 +443,8 @@ class KnekkpunktFinderTest : FunSpec({
 
         every { trygdetidBeregner.fastsettTrygdetidForPeriode(any(), any(), any(), any()) } returnsMany listOf(
             TrygdetidCombo(null, null),
-            TrygdetidCombo(Trygdetid().apply { tt = 30 }, null) // Different from null
+            TrygdetidCombo(Trygdetid().apply { tt = 30 }, null), // Different from null
+            TrygdetidCombo(Trygdetid().apply { tt = 40 }, null)  // Full trygdetid, causes loop to break
         )
 
         val finder = createKnekkpunktFinder(trygdetidBeregner = trygdetidBeregner)

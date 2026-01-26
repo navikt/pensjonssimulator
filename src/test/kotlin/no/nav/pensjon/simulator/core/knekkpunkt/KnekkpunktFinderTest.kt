@@ -67,7 +67,7 @@ class KnekkpunktFinderTest : FunSpec({
         val spec = createKnekkpunktSpec(
             soekerOpptjeningGrunnlagListe = mutableListOf(
                 Opptjeningsgrunnlag().apply {
-                    ar = 2020
+                    ar = 2035
                     pi = 0 // zero pi should not trigger knekkpunkt
                 }
             )
@@ -77,7 +77,7 @@ class KnekkpunktFinderTest : FunSpec({
 
         // 2022 should not be present since pi = 0
         // but normalder-based knekkpunkt should still be there
-        result.keys.filter { it == LocalDate.of(2022, 1, 1) }.size shouldBe 0
+        result.keys.filter { it == LocalDate.of(2035, 1, 1) }.size shouldBe 0
     }
 
     test("finnKnekkpunkter should add knekkpunkter based on avdod opptjeningsgrunnlag when avdod is present") {

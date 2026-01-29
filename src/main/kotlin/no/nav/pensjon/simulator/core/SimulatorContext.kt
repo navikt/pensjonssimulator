@@ -22,7 +22,6 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
-import org.apache.commons.lang3.BooleanUtils
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.stereotype.Component
 import tools.jackson.databind.json.JsonMapper

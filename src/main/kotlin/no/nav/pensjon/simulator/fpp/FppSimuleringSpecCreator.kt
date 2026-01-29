@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.GeneralPersonService
+import no.nav.pensjon.simulator.person.Person
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.person.Sivilstandstype
 import no.nav.pensjon.simulator.person.relasjon.PersonPar
@@ -19,9 +20,8 @@ import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
-import java.util.Date
+import java.util.*
 import java.util.concurrent.atomic.AtomicLong
-import no.nav.pensjon.simulator.person.Person as DomainPerson
 
 @Component
 class FppSimuleringSpecCreator(
@@ -130,20 +130,20 @@ class FppSimuleringSpecCreator(
         opptjeningFolketrygden: OpptjeningFolketrygden?,
         grunnbeloep: Int
     ): Persongrunnlag {
-        val pid = personopplysninger.ident?.let(::Pid)
+        val soekerPid = personopplysninger.ident?.let(::Pid)
 
-        val person: DomainPerson = pid?.let(personService::person)
-            ?: throw ImplementationUnrecoverableException("Person ikke funnet for PID $pid")
+        val person: Person = soekerPid?.let(personService::person)
+            ?: throw ImplementationUnrecoverableException("Person ikke funnet for PID $soekerPid")
 
         val sivilstandsinformasjon: Sivilstandsinformasjon? = person.sivilstand?.let(::Sivilstandsinformasjon)
+        val foedselsdato = personopplysninger.fodselsdato
 
         return Persongrunnlag().apply {
             penPerson = PenPerson().apply {
                 penPersonId = 1L
-                this.pid = pid
+                pid = soekerPid
             }
 
-            val foedselsdato = personopplysninger.fodselsdato
             fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
             dodsdato = null
             antallArUtland = if (simuleringType == BARN) 0 else personopplysninger.antAarIUtlandet ?: 0
@@ -264,7 +264,7 @@ class FppSimuleringSpecCreator(
             val relatertPersonDto: PersonV1? = relasjon?.person //TODO map to domain
             val relatertPid = relatertPersonDto?.pid?.let(::Pid)
             val relatertPenPerson = PenPerson().apply { pid = relatertPid }
-            val relatertPerson = relatertPid?.let(personService::person)
+            val relatertPerson: Person? = relatertPid?.let(personService::person)
             val foedselsdato: LocalDate? = relatertPerson?.foedselsdato
             fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
             dodsdato = avdoed?.datoForDodsfall?.toNorwegianDateAtNoon()
@@ -326,7 +326,7 @@ class FppSimuleringSpecCreator(
         for (soesken in barneopplysninger.sosken) {
             val persongrunnlag = Persongrunnlag().apply {
                 val soeskenPid = soesken.fnr?.let(::Pid)
-                val soeskenPerson: DomainPerson? = soeskenPid?.let(personService::person)
+                val soeskenPerson: Person? = soeskenPid?.let(personService::person)
                 val foedselsdato: LocalDate? = soeskenPerson?.foedselsdato
 
                 penPerson = PenPerson().apply {
@@ -361,33 +361,28 @@ class FppSimuleringSpecCreator(
      * For simulating UFORE, UFOR_M_GJEN
      */
     private fun persongrunnlagForBarn(
-        person: Personopplysninger,
+        personopplysninger: Personopplysninger,
         barn: BarneopplysningerData,
         uttaksdato: LocalDate,
         runningPersonId: AtomicLong
     ) =
         Persongrunnlag().apply {
+            val barnPid: Pid? = barn.fnr?.let(::Pid)
+
             penPerson = PenPerson().apply {
                 penPersonId = runningPersonId.getAndIncrement()
-                pid = barn.fnr?.let(::Pid)
+                pid = barnPid
             }
 
-            fodselsdato = person.fodselsdato?.toNorwegianDateAtNoon()
+            fodselsdato = personopplysninger.fodselsdato?.toNorwegianDateAtNoon()
             antallArUtland = 0
             flyktning = false
-            personDetaljListe.add(
-                persondetaljForBarn(
-                    person,
-                    rolleFom = person.fodselsdato,
-                    barn,
-                    uttaksdato
-                )
-            )
+            personDetaljListe.add(persondetaljForBarn(personopplysninger, barn, uttaksdato))
             over60ArKanIkkeForsorgesSelv = false
-            this.opptjeningsgrunnlagListe = mutableListOf()
+            opptjeningsgrunnlagListe = mutableListOf()
             dodAvYrkesskade = false
             medlemIFolketrygdenSiste3Ar = true
-            statsborgerskapEnum = barn.fnr?.let(::Pid)?.let(personService::statsborgerskap)
+            statsborgerskapEnum = barnPid?.let(personService::statsborgerskap)
         }
 
     private fun setPersongrunnlagFromAvdoed(
@@ -408,14 +403,13 @@ class FppSimuleringSpecCreator(
 
     private fun persondetaljForBarn(
         personopplysninger: Personopplysninger,
-        rolleFom: LocalDate?,
         barn: BarneopplysningerData,
         uttaksdato: LocalDate
     ) =
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
             bruk = true
-            penRolleFom = rolleFom?.toNorwegianDateAtNoon()
+            penRolleFom = personopplysninger.fodselsdato?.toNorwegianDateAtNoon()
             borMedEnum = personopplysninger.ident?.let {
                 borMedBarnStatus(
                     soekerPid = Pid(it),
@@ -423,7 +417,7 @@ class FppSimuleringSpecCreator(
                     dato = uttaksdato
                 )
             }
-            barnDetalj = barnedetalj(personopplysninger, barn)
+            barnDetalj = barnedetalj(barn, erUnderUtdanning = personopplysninger.erUnderUtdanning)
             finishInit() // sets rolleFomDato
         }
 
@@ -432,15 +426,17 @@ class FppSimuleringSpecCreator(
         barn: BarneopplysningerData,
         dato: LocalDate
     ): BorMedTypeEnum =
-        if (barn.borMedBeggeForeldre || borSammen(pid1 = Pid(barn.fnr!!), pid2 = soekerPid, dato))
+        if (barn.borMedBeggeForeldre || borSammen(barn, annenPersonPid = soekerPid, dato))
             BorMedTypeEnum.J_BARN
         else
             BorMedTypeEnum.N_BARN
 
-    private fun borSammen(pid1: Pid, pid2: Pid, dato: LocalDate): Boolean =
-        personService.borSammen(
-            personer = PersonPar(pid1, pid2, dato)
-        )
+    private fun borSammen(barn: BarneopplysningerData, annenPersonPid: Pid, dato: LocalDate): Boolean =
+        barn.fnr?.let(::Pid)?.let {
+            personService.borSammen(
+                personer = PersonPar(pid1 = it, pid2 = annenPersonPid, dato = dato)
+            )
+        } == true
 
     private fun epsFoedselsdato(): Date =
         time.today().minusYears(UNKNOWN_EPS_DEFAULT_AGE).toNorwegianDateAtNoon()
@@ -660,7 +656,7 @@ class FppSimuleringSpecCreator(
             grunnbeloep: Int
         ): Int =
             when (simuleringType) {
-                // isUnderUtdanning is null if the user is under 18 years old
+                // erUnderUtdanning is null if the user is under 18 years old
                 BARN -> if (personopplysninger.erUnderUtdanning == true) grunnbeloep * 2 else 0
                 GJENLEVENDE -> personopplysninger.forventetArbeidsinntektGjenlevende?.toInt() ?: 0
                 else -> personopplysninger.forventetArbeidsinntekt ?: 0
@@ -704,13 +700,13 @@ class FppSimuleringSpecCreator(
             else
                 BorMedTypeEnum.N_SOSKEN
 
-        private fun barnedetalj(person: Personopplysninger, barn: BarneopplysningerData) =
+        private fun barnedetalj(barn: BarneopplysningerData, erUnderUtdanning: Boolean?) =
             BarnDetalj().apply {
                 annenForelder = null
                 underUtdanning = false
                 borMedBeggeForeldre = barn.borMedBeggeForeldre
                 inntektOver1G = barn.erInntektOver1G
-                underUtdanning = person.erUnderUtdanning == true
+                underUtdanning = erUnderUtdanning == true
             }
 
         private fun soesken(soesken: BarneopplysningerSoeskenData) =

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.fpp
+package no.nav.pensjon.simulator.core.spec
 
 data class ExtraSimuleringSpec(
     val beregnInstitusjonsopphold: Boolean,

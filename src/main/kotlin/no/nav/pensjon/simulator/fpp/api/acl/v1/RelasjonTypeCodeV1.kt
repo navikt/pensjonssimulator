@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.fpp.RelasjonTypeCode
 // PEN: no.nav.domain.pensjon.common.person.enums.RelasjonTypeCode
 /**
  * Anti-corruption.
- * Versjonert utgave av relasjonstyper for bruk i API-et (isolerer API-et fra den interne reprsentasjonen i domenet).
+ * Versjonert utgave av relasjonstyper for bruk i API-et (isolerer API-et fra den interne representasjonen i domenet).
  */
 enum class RelasjonTypeCodeV1(val internalValue: RelasjonTypeCode) {
     BARN(internalValue = RelasjonTypeCode.BARN),

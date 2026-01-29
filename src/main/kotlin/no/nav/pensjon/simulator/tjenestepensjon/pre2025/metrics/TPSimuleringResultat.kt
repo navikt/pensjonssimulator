@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics
 
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.Feilkode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.Feilkode
 
 enum class SPKResultatKodePre2025 {
     OK,

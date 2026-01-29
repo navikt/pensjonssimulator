@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 
 /**
  * Anti-corruption.
- * Versjonert utgave av simuleringstyper for bruk i API-et (isolerer API-et fra den interne reprsentasjonen i domenet).
+ * Versjonert utgave av simuleringstyper for bruk i API-et (isolerer API-et fra den interne representasjonen i domenet).
  */
 enum class SimuleringTypeV1(val internalValue: SimuleringTypeEnum) {
     /**

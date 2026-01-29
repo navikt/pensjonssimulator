@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.fpp
 
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.Vilkaarsproever
+import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
@@ -11,6 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.*
+import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
 import no.nav.pensjon.simulator.core.util.isBefore
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -26,6 +29,7 @@ import java.util.*
 @Service
 class FppSimuleringService(
     private val generalSimuleringService: GeneralPensjonSimuleringService,
+    private val vilkaarsproever: Vilkaarsproever,
     private val personService: PersonService,
     private val grunnbeloepService: GrunnbeloepService
 ) {
@@ -168,15 +172,14 @@ class FppSimuleringService(
         return generalSimuleringService.simulerPensjon(coreSpec, extraSpec, simuleringType = BARN)
     }
 
-    private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat {
+    private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
         try {
-            return generalSimuleringService.simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec)
+            vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(spec)
         } catch (e: KanIkkeBeregnesException) {
             throw FeilISimuleringsgrunnlagetException(e)
         } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }
-    }
 
     private fun extraSimuleringSpec(coreSpec: Simulering): ExtraSimuleringSpec {
         val beregnForsoergingstillegg = coreSpec.vilkarsvedtakliste.any {

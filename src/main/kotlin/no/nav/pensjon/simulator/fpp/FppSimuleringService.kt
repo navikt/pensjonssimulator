@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.fpp
 
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Vilkaarsproever
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpVilkaarsproever
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -29,7 +29,7 @@ import java.util.*
 @Service
 class FppSimuleringService(
     private val generalSimuleringService: GeneralPensjonSimuleringService,
-    private val vilkaarsproever: Vilkaarsproever,
+    private val vilkaarsproever: AfpVilkaarsproever,
     private val personService: PersonService,
     private val grunnbeloepService: GrunnbeloepService
 ) {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
  * Vilkårsprøver tidsbegrenset avtalefestet pensjon i offentlig sektor.
  */
 @Service
-class Vilkaarsproever(private val simulator: SimulatorContext) {
+class AfpVilkaarsproever(private val simulator: SimulatorContext) {
 
     // PEN: DefaultSimuleringConsumerService.simulerVilkarsprovAfp
     //   -> SimulerVilkarsprovAfpConsumerCommand.execute

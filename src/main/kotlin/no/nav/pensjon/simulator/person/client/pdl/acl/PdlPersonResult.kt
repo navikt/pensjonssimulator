@@ -13,12 +13,18 @@ data class PdlPersonResult(
 data class PdlPersonEnvelope(val hentPerson: PdlPerson?) // null if person not found
 
 data class PdlPerson(
-    val foedselsdato: List<PdlFoedselsdato>?
+    val foedselsdato: List<PdlFoedselsdato>?,
+    val sivilstand: List<PdlSivilstand>?,
+    val statsborgerskap: List<PdlStatsborgerskap>?
 )
 
 data class PdlFoedselsdato(
     @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val foedselsdato: LocalDate?
 )
+
+data class PdlSivilstand(val type: String?)
+
+data class PdlStatsborgerskap(val land: String?)
 
 data class PdlError(val message: String)
 

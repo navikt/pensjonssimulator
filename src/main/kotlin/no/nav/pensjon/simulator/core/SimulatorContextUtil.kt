@@ -11,7 +11,9 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtb
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.RevurderingAlderspensjon2025Request
+import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringResponse
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2011Request
 import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2016Request
@@ -21,6 +23,7 @@ import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import org.apache.commons.lang3.BooleanUtils
 import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -124,6 +127,12 @@ object SimulatorContextUtil {
                 )
             }
         }
+    }
+
+    // PEN: SimulerPensjonsberegningConsumerCommand.validerOgFerdigstillResponse
+    fun validerOgFerdigstillResponse(response: SimuleringResponse): Simuleringsresultat? {
+        validerResponse(response.pakkseddel)
+        return response.simuleringsResultat
     }
 
     // RegelHelper.validateResponse

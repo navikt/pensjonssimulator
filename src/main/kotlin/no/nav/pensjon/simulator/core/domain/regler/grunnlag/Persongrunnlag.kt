@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
+import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import java.util.*
@@ -339,6 +340,9 @@ class Persongrunnlag {
     var gjelderUforetrygd: Boolean = false
 
     @JsonIgnore
+    var fastsattTrygdetid: Boolean = false
+
+    @JsonIgnore
     var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> =
         mutableListOf() // discriminator: BT_VURDERINGSPERIODE
 
@@ -353,6 +357,9 @@ class Persongrunnlag {
 
     @JsonIgnore
     var uforegrunnlagList: MutableList<Uforegrunnlag> = mutableListOf() // UFORE
+
+    @JsonIgnore
+    var ufoereOpptjeningGrunnlag: UfoereOpptjeningGrunnlag? = null // for FPP
 
     @JsonIgnore
     var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf() // YRKESKADE
@@ -496,6 +503,7 @@ class Persongrunnlag {
         livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe.map { it.copy() }
         trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
         uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
+        ufoereOpptjeningGrunnlag = source.ufoereOpptjeningGrunnlag?.copy()
         yrkesskadegrunnlagList = source.yrkesskadegrunnlagList.map(::Yrkesskadegrunnlag).toMutableList()
         rawFodselsdato = source.rawFodselsdato?.clone() as? Date
         rawDodsdato = source.rawDodsdato?.clone() as? Date

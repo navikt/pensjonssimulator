@@ -1,23 +1,23 @@
 package no.nav.pensjon.simulator.person.client.pdl
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.person.Sivilstandstype
+import no.nav.pensjon.simulator.person.Person
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
-import okhttp3.mockwebserver.MockResponse
+import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.cache.caffeine.CaffeineCacheManager
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import java.time.LocalDate
 
-class PdlGeneralPersonClientTest : FunSpec({
+class PdlGeneralPersonClientTest : ShouldSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
@@ -40,28 +40,38 @@ class PdlGeneralPersonClientTest : FunSpec({
         server?.shutdown()
     }
 
-    test("fetchFoedselsdato") {
-        server?.enqueue(
-            MockResponse()
-                .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setResponseCode(HttpStatus.OK.value()).setBody(FOEDSELSDATO_JSON)
-        )
+    should("fetch and map fødselsdato + sivilstand") {
+        server?.arrangeOkJsonResponse(body = PERSONALIA_JSON)
 
         Arrange.webClientContextRunner().run {
-            client(context = it).fetchFoedselsdato(Pid("22426305678")) shouldBe
-                    LocalDate.of(1963, 2, 22)
+            client(context = it).fetchPerson(Pid("22426305678")) shouldBe
+                    Person(
+                        foedselsdato = LocalDate.of(1963, 12, 31),
+                        sivilstand = Sivilstandstype.UGIFT,
+                        statsborgerskap = LandkodeEnum.LAO
+                    )
+
         }
     }
 })
 
 @Language("JSON")
-private const val FOEDSELSDATO_JSON =
-    """{
+private const val PERSONALIA_JSON = """{
               "data": {
                 "hentPerson": {
                   "foedselsdato": [
                     {
-                      "foedselsdato": "1963-02-22"
+                      "foedselsdato": "1963-12-31"
+                    }
+                  ],
+                  "sivilstand": [
+                    {
+                      "type": "UGIFT"
+                    }
+                  ],
+                  "statsborgerskap": [
+                    {
+                      "land": "LAO"
                     }
                   ]
                 }

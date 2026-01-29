@@ -49,6 +49,8 @@ interface RegelClient {
         sakId: Long?
     ): BeregningsResultatAlderspensjon2025
 
+    fun simulerPensjon(spec: SimuleringRequest, serviceName: String): Simuleringsresultat
+
     fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat
 
     fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat

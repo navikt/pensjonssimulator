@@ -11,14 +11,14 @@ enum class InntekttypeEnum {
     FKI,
     FORINTNAE,
     FORINTUTL,
-    FPI,
+    FPI, // Forventet pensjongivende inntekt
     HYPF,
     HYPF2G,
-    IMFU,
+    IMFU, // Inntekt måneden før uttak
     KAP,
     PE_PGILT,
     PE_SILT,
-    PENF,
+    PENF, // Pensjonsinntekt fra folketrygden
     PENSKD,
     PENT,
     PENTU,

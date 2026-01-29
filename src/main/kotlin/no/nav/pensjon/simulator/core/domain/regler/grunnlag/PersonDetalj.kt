@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
+import no.nav.pensjon.simulator.person.relasjon.Soesken
 import java.util.*
 
 /**
@@ -92,6 +93,9 @@ open class PersonDetalj {
 
     @JsonIgnore
     var virkTom: Date? = null
+
+    @JsonIgnore
+    var soesken: Soesken? = null
     // end extra fields
 
     constructor() {}

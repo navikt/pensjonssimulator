@@ -14,6 +14,7 @@ open class EgressServiceSecurityConfiguration {
     @Bean
     open fun egressServiceListsByAudience(
         @Value($$"${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
+        @Value($$"${ps.pensjonpersondata.service-id}") pensjonPersondataServiceId: String,
         @Value($$"${ps.persondata.service-id}") persondataServiceId: String,
         @Value($$"${ps.fss-gw.service-id}") fssGatewayServiceId: String,
         @Value($$"${ps.sporingslogg.service-id}") sporingsloggServiceId: String,
@@ -26,6 +27,7 @@ open class EgressServiceSecurityConfiguration {
         EgressServicesByAudience(
             mapOf(
                 pensjonsfagligKjerneServiceId to EgressService.PENSJONSFAGLIG_KJERNE,
+                pensjonPersondataServiceId to EgressService.PENSJON_PERSONDATA,
                 persondataServiceId to EgressService.PERSONDATA,
                 fssGatewayServiceId to EgressService.FSS_GATEWAY,
                 sporingsloggServiceId to EgressService.SPORINGSLOGG,

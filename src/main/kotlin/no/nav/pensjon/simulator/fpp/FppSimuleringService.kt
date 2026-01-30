@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.fpp
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpVilkaarsproever
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -22,47 +21,71 @@ import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.FULL_TRYGDETID_ANTALL_AAR
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.util.*
 
 @Service
 class FppSimuleringService(
-    private val generalSimuleringService: GeneralPensjonSimuleringService,
+    private val simulator: GeneralPensjonSimuleringService,
     private val vilkaarsproever: AfpVilkaarsproever,
     private val personService: PersonService,
     private val grunnbeloepService: GrunnbeloepService
 ) {
+
     // PEN: SimpleSimuleringService.simulerPensjonsberegning
     //   -> SimulerPensjonsberegningCommand.execute
-    fun simulerPensjonsberegning(spec: Simulering): Simuleringsresultat {
-        validate(spec)
-        val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(spec)
+    fun simulerPensjonsberegning(coreSpec: Simulering): FppSimuleringResult {
+        validate(coreSpec)
+        val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(coreSpec)
 
         if (tilstrekkeligTrygdetid.not()) {
-            return Simuleringsresultat().apply {
-                statusEnum = VedtakResultatEnum.AVSL
-                merknadListe.add(Merknad().apply { kode = "MinsteTrygdetid" })
-            }
+            return FppSimuleringResult(
+                afpOrdning = coreSpec.afpOrdningEnum,
+                beregnetAfp = null,
+                problem = Problem(
+                    type = ProblemType.UTILSTREKKELIG_TRYGDETID,
+                    beskrivelse = "Utilstrekkelig trygdetid"
+                )
+            )
         }
 
-        addUfoerehistorikk(spec)
-        createVilkaarsvedtakListe(spec)
+        addUfoerehistorikk(coreSpec)
+        createVilkaarsvedtakListe(coreSpec)
 
-        if (AFP == spec.simuleringTypeEnum) {
-            val simuleringsresultat: Simuleringsresultat = simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec)
+        if (AFP == coreSpec.simuleringTypeEnum) {
+            val simuleringsresultat: Simuleringsresultat = simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(coreSpec)
             val status: VedtakResultatEnum = simuleringsresultat.statusEnum ?: VedtakResultatEnum.INNV
 
             if (status == VedtakResultatEnum.AVSL || status == VedtakResultatEnum.VETIKKE) {
-                return simuleringsresultat
+                return FppSimuleringResult(
+                    afpOrdning = coreSpec.afpOrdningEnum,
+                    beregnetAfp = simuleringsresultat.beregning?.folketrygdberegnetAfp(),
+                    problem = Problem(
+                        type = ProblemType.UTILSTREKKELIG_OPPTJENING,
+                        beskrivelse = "Avslag, sannsynligvis pga. utilstrekkelig opptjening"
+                    )
+                )
             }
         }
 
-        return simulerMedFeilhaandtering(spec, extraSpec = extraSimuleringSpec(spec)).apply {
+        val simuleringsresultat = simulerMedFeilhaandtering(
+            coreSpec,
+            extraSpec = extraSimuleringSpec(coreSpec)
+        ).apply {
             if (statusEnum == null) {
                 statusEnum = VedtakResultatEnum.INNV
             }
         }
+
+        return FppSimuleringResult(
+            afpOrdning = coreSpec.afpOrdningEnum,
+            beregnetAfp = simuleringsresultat.beregning?.folketrygdberegnetAfp()
+        )
     }
 
     private fun addUfoerehistorikk(spec: Simulering) {
@@ -135,10 +158,10 @@ class FppSimuleringService(
 
     private fun simuler(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
         when (coreSpec.simuleringTypeEnum) {
-            ALDER -> generalSimuleringService.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER)
-            ALDER_M_GJEN -> generalSimuleringService.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER_M_GJEN)
-            AFP -> generalSimuleringService.simulerPensjon(coreSpec, extraSpec, simuleringType = AFP)
-            GJENLEVENDE -> generalSimuleringService.simulerPensjon(coreSpec, extraSpec, simuleringType = GJENLEVENDE)
+            ALDER -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER)
+            ALDER_M_GJEN -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER_M_GJEN)
+            AFP -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = AFP)
+            GJENLEVENDE -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = GJENLEVENDE)
             BARN -> simulerBarnepensjon(coreSpec, extraSpec)
             else -> Simuleringsresultat()
         }
@@ -169,7 +192,7 @@ class FppSimuleringService(
         }
 
         soekersPersongrunnlag!!.barnekull = Barnekull().apply { this.antallBarn = antallBarn }
-        return generalSimuleringService.simulerPensjon(coreSpec, extraSpec, simuleringType = BARN)
+        return simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = BARN)
     }
 
     private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
@@ -196,9 +219,7 @@ class FppSimuleringService(
     private companion object {
         private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51
         private const val MAX_ALDER_SOESKEN = 18
-        private const val MAX_TRYGDETID = 40
-        private const val MIN_TRYGDETID = 3
-        private const val TRYGDETID_HVIS_FLYKTNING = MAX_TRYGDETID
+        private const val TRYGDETID_HVIS_FLYKTNING = FULL_TRYGDETID_ANTALL_AAR
 
         /**
          * Setter trygdetid på persongrunnlagene og avgjør om trygdetiden er tilstrekkelig.
@@ -219,7 +240,7 @@ class FppSimuleringService(
                 persongrunnlag.trygdetid = Trygdetid().apply { tt = trygdetidAntallAar }
                 persongrunnlag.trygdetider.add(Trygdetid().apply { tt = trygdetidAntallAar })
 
-                if (trygdetidAntallAar < MIN_TRYGDETID &&
+                if (trygdetidAntallAar < MINIMUM_TRYGDETID_ANTALL_AAR &&
                     ALDER == spec.simuleringTypeEnum &&
                     isSoeker(persongrunnlag)
                 ) {
@@ -237,8 +258,8 @@ class FppSimuleringService(
             val antallAar: Int = GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID - persongrunnlag.antallArUtland
 
             return antallAar
-                .coerceAtLeast(0) // NB: Ikke MIN_TRYGDETID
-                .coerceAtMost(MAX_TRYGDETID)
+                .coerceAtLeast(0) // NB: Ikke MINIMUM_TRYGDETID_ANTALL_AAR
+                .coerceAtMost(FULL_TRYGDETID_ANTALL_AAR)
         }
 
         private fun updateVilkaarsvedtak(

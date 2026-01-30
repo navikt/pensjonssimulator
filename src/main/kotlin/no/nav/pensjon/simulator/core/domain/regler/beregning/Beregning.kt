@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
@@ -9,6 +10,8 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Minstenivatille
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.MinstenivatilleggPensjonistpar
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.EosEkstra
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
 import java.util.*
 
 // 2025-03-23
@@ -373,7 +376,8 @@ class Beregning {
      */
     var merknadListe: List<Merknad> = mutableListOf()
 
-    //SIMDOM-ADD
+    //--- Extra:
+    @JsonIgnore
     var id: Long = 0L
 
     fun getBrukteYtelseskomponenter(): List<Ytelseskomponent> {
@@ -408,5 +412,28 @@ class Beregning {
         // UforetrygdOrdinerListe
         // FradragYtelseskomponentListe
         return liste
+    }
+
+    // PEN: no.nav.domain.pensjon.kjerne.beregning.Beregning.hentFolketrygdberegnetAfp
+    fun folketrygdberegnetAfp(): FolketrygdberegnetAfp {
+        val sluttpoengtall = tp?.spt
+        val poengrekke = sluttpoengtall?.poengrekke
+
+        return FolketrygdberegnetAfp(
+            totalbelopAfp = netto,
+            virkFom = virkFom?.toNorwegianLocalDate(),
+            trygdetid = tt_anv,
+            grunnbelop = g,
+            tidligereArbeidsinntekt = poengrekke?.tpi,
+            sluttpoengtall = sluttpoengtall?.pt,
+            poengar = poengrekke?.pa,
+            poeangar_f92 = poengrekke?.pa_f92,
+            poeangar_e91 = poengrekke?.pa_e91,
+            tilleggspensjon = tp?.netto,
+            fpp = poengrekke?.fpp?.pt,
+            grunnpensjon = gp?.netto,
+            afpTillegg = afpTillegg?.netto,
+            sertillegg = st?.netto
+        )
     }
 }

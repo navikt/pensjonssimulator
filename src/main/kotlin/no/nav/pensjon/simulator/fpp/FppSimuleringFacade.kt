@@ -15,7 +15,7 @@ class FppSimuleringFacade(
         simuleringType: SimuleringTypeEnum,
         spec: FppSimuleringSpec
     ): FppSimuleringResult {
-        val simuleringSpec: Simulering = simuleringSpecCreator.createSpec(
+        val coreSpec: Simulering = simuleringSpecCreator.createSpec(
             simuleringType,
             uttaksdato = spec.uttaksdato,
             personopplysninger = spec.personopplysninger,
@@ -23,9 +23,6 @@ class FppSimuleringFacade(
             barneopplysninger = spec.barneopplysninger
         )
 
-        return FppSimuleringResult(
-            afpOrdning = simuleringSpec.afpOrdningEnum,
-            simuleringsresultat = simulator.simulerPensjonsberegning(spec = simuleringSpec)
-        )
+        return simulator.simulerPensjonsberegning(coreSpec)
     }
 }

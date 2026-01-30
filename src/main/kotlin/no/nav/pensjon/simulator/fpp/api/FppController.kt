@@ -6,14 +6,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
-import no.nav.pensjon.simulator.core.domain.regler.Merknad
-import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.fpp.FppSimuleringFacade
-import no.nav.pensjon.simulator.fpp.FppSimuleringSpec
 import no.nav.pensjon.simulator.fpp.FppSimuleringResult
+import no.nav.pensjon.simulator.fpp.FppSimuleringSpec
 import no.nav.pensjon.simulator.fpp.api.acl.v1.SimuleringTypeV1
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -101,14 +101,13 @@ class FppController(
         private fun problem(e: Exception) =
             FppSimuleringResult(
                 afpOrdning = null,
-                simuleringsresultat = Simuleringsresultat().apply {
-                    merknadListe.add(Merknad().apply {
-                        argumentListe = listOf(e.message ?: e.javaClass.simpleName)
-                    })
-                }
+                beregnetAfp = null,
+                problem = Problem(
+                    type = ProblemType.ANNEN_KLIENTFEIL,
+                    beskrivelse = e.message ?: e.javaClass.simpleName
+                )
             )
     }
-
 }
 
 private val FNR_REGEX = """[0-9]{2}([0-9]{4})[0-9]{5}""".toRegex()

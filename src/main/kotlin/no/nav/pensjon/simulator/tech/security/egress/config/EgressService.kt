@@ -26,6 +26,11 @@ enum class EgressService(
         shortName = "PEN",
         purpose = "Hente pensjonsdata"
     ),
+    PENSJON_PERSONDATA(
+        description = "Pensjonsrelaterte persondata",
+        shortName = "PPD",
+        purpose = "Hente pensjonsrelaterte persondata"
+    ),
     PENSJON_REGLER(
         description = "Pensjonsfaglig regelmotor",
         shortName = "PR",

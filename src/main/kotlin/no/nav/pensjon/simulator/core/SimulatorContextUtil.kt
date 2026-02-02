@@ -11,11 +11,8 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtb
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.to.RevurderingAlderspensjon2025Request
-import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
-import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2011Request
-import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2016Request
-import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2025Request
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
+import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
@@ -124,6 +121,12 @@ object SimulatorContextUtil {
                 )
             }
         }
+    }
+
+    // PEN: SimulerPensjonsberegningConsumerCommand.validerOgFerdigstillResponse
+    fun validerOgFerdigstillResponse(response: SimuleringResponse): Simuleringsresultat? {
+        validerResponse(response.pakkseddel)
+        return response.simuleringsResultat
     }
 
     // RegelHelper.validateResponse

@@ -10,6 +10,9 @@ import java.util.*
 
 object TrygdetidUtil {
 
+    const val MINIMUM_TRYGDETID_ANTALL_AAR: Int = 3
+    const val FULL_TRYGDETID_ANTALL_AAR = 40
+
     fun antallAarMedOpptjening(
         registrerteAarMedOpptjening: SortedSet<Int>,
         aarSoekerFikkMinstealderForTrygdetid: Int,

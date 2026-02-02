@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.person.client.pdl
 import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.person.Person
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.person.client.GeneralPersonClient
 import no.nav.pensjon.simulator.person.client.pdl.acl.PdlPersonMapper
@@ -21,7 +22,6 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import java.time.LocalDate
 
 @Component
 class PdlGeneralPersonClient(
@@ -33,24 +33,23 @@ class PdlGeneralPersonClient(
 ) : ExternalServiceClient(retryAttempts), GeneralPersonClient {
 
     private val webClient = webClientBase.withBaseUrl(baseUrl)
-    private val cache: Cache<Pid, LocalDate> = createCache("foedselsdato", cacheManager)
+    private val cache: Cache<Pid, Person> = createCache("pdl-person", cacheManager)
     private val log = KotlinLogging.logger {}
 
     override fun service() = service
 
-    override fun fetchFoedselsdato(pid: Pid): LocalDate? =
+    override fun fetchPerson(pid: Pid): Person? =
         cache.getIfPresent(pid) ?: fetchFreshData(pid)?.also { cache.put(pid, it) }
 
-    private fun fetchFreshData(pid: Pid): LocalDate? {
+    private fun fetchFreshData(pid: Pid): Person? {
         val uri = "/$RESOURCE"
-        log.debug { "PDL baseUrl $baseUrl" }
 
         return try {
             webClient
                 .post()
                 .uri(uri)
                 .headers(::setHeaders)
-                .bodyValue(foedselsdatoQuery(pid))
+                .bodyValue(personaliaQuery(pid))
                 .retrieve()
                 .bodyToMono(PdlPersonResult::class.java)
                 .retryWhen(retryBackoffSpec(uri))
@@ -83,8 +82,8 @@ class PdlGeneralPersonClient(
         private const val BEHANDLINGSNUMMER = "B353"
         private val service = EgressService.PERSONDATA
 
-        private fun foedselsdatoQuery(pid: Pid) = """{
-	"query": "query(${"$"}ident: ID!) { hentPerson(ident: ${"$"}ident) { foedselsdato { foedselsdato } } }",
+        private fun personaliaQuery(pid: Pid) = """{
+	"query": "query(${"$"}ident: ID!) { hentPerson(ident: ${"$"}ident) { foedselsdato { foedselsdato }, sivilstand(historikk: false) { type }, statsborgerskap(historikk: false) { land } } }",
 	"variables": {
 		"ident": "${pid.value}"
 	}

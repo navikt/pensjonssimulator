@@ -185,6 +185,20 @@ class SimulatorContext(
         return response.revurdertBeregningsResultat!!
     }
 
+    // PEN: SimulerPensjonsberegningConsumerCommand.kallSimuleringsTjeneste
+    override fun simulerPensjon(spec: SimuleringRequest, serviceName: String): Simuleringsresultat {
+        val response: SimuleringResponse =
+            regelService.makeRegelCall(
+                request = spec,
+                responseClass = SimuleringResponse::class.java,
+                serviceName,
+                map = null,
+                sakId = null
+            )
+
+        return validerOgFerdigstillResponse(response) ?: throw RuntimeException("Simuleringsresultat is null")
+    }
+
     // PEN: SimulerPensjonsberegningConsumerCommand.execute for AFP (pre-2025 offentlig AFP)
     override fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
         val response: SimuleringResponse =
@@ -200,7 +214,7 @@ class SimulatorContext(
         return response.simuleringsResultat ?: throw RuntimeException("Simuleringsresultat is null")
     }
 
-    // PEN: SimulerVilkarsprovAfpConsumerCommand.execute (pre-2025 offentlig AFP)
+    // PEN: SimulerVilkarsprovAfpConsumerCommand.execute (tidsbegrenset offentlig AFP)
     override fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
         val response: SimuleringResponse =
             regelService.makeRegelCall(
@@ -360,12 +374,13 @@ class SimulatorContext(
         grunnbeloepCache.getIfPresent(dato) ?: fetchFreshGrunnbeloep(dato).also { grunnbeloepCache.put(dato, it) }
 
     override fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse {
-        val response : HentDelingstallResponse = regelService.makeRegelCall(
+        val response: HentDelingstallResponse = regelService.makeRegelCall(
             request,
             HentDelingstallResponse::class.java,
             "delingstall",
             null,
-            null)
+            null
+        )
         return response
     }
 

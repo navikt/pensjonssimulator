@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.error.Missing
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
-import no.nav.tjenestepensjon.simulering.v2.service.OpptjeningsperiodeResponse
 import org.springframework.stereotype.Service
 
 @Service

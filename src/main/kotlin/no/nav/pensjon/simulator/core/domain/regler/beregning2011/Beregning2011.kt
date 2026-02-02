@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import no.nav.domain.pensjon.regler.repository.komponent.uforetrygd.koder.BeregningGjelderTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeregningGjelderTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.BeregningRelasjon

@@ -1,4 +1,4 @@
-package no.nav.domain.pensjon.regler.repository.komponent.uforetrygd.koder
+package no.nav.pensjon.simulator.core.domain.regler.enum
 
 enum class BeregningGjelderTypeEnum {
     AVDOD,

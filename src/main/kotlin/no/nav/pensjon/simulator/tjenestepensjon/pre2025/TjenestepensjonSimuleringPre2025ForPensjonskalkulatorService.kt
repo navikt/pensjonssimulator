@@ -162,35 +162,35 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                     Utbetalingsperiode(
                         uttaksgrad = 2,
                         arligUtbetaling = 6979.0,
-                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(64, 5)),
-                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(64, 5)).withDayOfMonth(1),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)).withDayOfMonth(Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)).lengthOfMonth()),
                         ytelsekode = YtelseCode.AFP
                     ),
                     Utbetalingsperiode(
                         uttaksgrad = 2,
                         arligUtbetaling = 540000.0,
-                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
-                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)).withDayOfMonth(1),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)).withDayOfMonth(Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)).lengthOfMonth()),
                         ytelsekode = YtelseCode.AFP
                     ),
                     Utbetalingsperiode(
                         uttaksgrad = 100,
                         arligUtbetaling = 173376.0,
-                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
-                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)).withDayOfMonth(1),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)).withDayOfMonth(Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)).lengthOfMonth()),
                         ytelsekode = YtelseCode.AP
                     ),
                     Utbetalingsperiode(
                         uttaksgrad = 100,
                         arligUtbetaling = 167244.0,
-                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
-                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)).withDayOfMonth(1),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)).withDayOfMonth(Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)).lengthOfMonth()),
                         ytelsekode = YtelseCode.AP
                     ),
                     Utbetalingsperiode(
                         uttaksgrad = 100,
                         arligUtbetaling = 163476.0,
-                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)).withDayOfMonth(1),
                         datoTom = null,
                         ytelsekode = YtelseCode.AP
                     )

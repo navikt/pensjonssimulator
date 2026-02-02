@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.fpp.FppSimuleringResult
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpec
 import no.nav.pensjon.simulator.fpp.api.acl.v1.SimuleringTypeV1
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -109,9 +110,3 @@ class FppController(
             )
     }
 }
-
-private val FNR_REGEX = """[0-9]{2}([0-9]{4})[0-9]{5}""".toRegex()
-
-fun JsonMapper.writeValueAsRedactedString(value: Any) =
-    FNR_REGEX.replace(this.writeValueAsString(value), "**$1*****")
-

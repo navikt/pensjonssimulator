@@ -9,7 +9,6 @@ import java.time.LocalDate
 
 class PdlPersonMapperTest : FunSpec({
 
-
     context("fromDto") {
 
         test("pick first in lists of fødselsdato, sivilstand, statsborgerskap") {
@@ -18,11 +17,11 @@ class PdlPersonMapperTest : FunSpec({
                     data = PdlPersonEnvelope(
                         hentPerson = PdlPerson(
                             foedselsdato = listOf(
-                                PdlFoedselsdato(foedselsdato = LocalDate.of(1963, 4, 5)), // first in the list
+                                PdlFoedselsdato(foedselsdato = LocalDate.of(1963, 4, 5)),
                                 PdlFoedselsdato(foedselsdato = LocalDate.of(1963, 4, 3))
                             ),
                             sivilstand = listOf(
-                                PdlSivilstand(type = "UGIFT"), // first in the list
+                                PdlSivilstand(type = "UGIFT"),
                                 PdlSivilstand(type = "GIFT")
                             ),
                             statsborgerskap = listOf(
@@ -42,21 +41,9 @@ class PdlPersonMapperTest : FunSpec({
         }
 
         test("returnerer fødselsdato fra gyldig respons") {
-            val dto = PdlPersonResult(
-                data = PdlPersonEnvelope(
-                    hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1990, 5, 15))
-                        )
-                    )
-                ),
-                extensions = null,
-                errors = null
-            )
+            val result = PdlPersonMapper.fromDto(personResult(foedselsdato = LocalDate.of(1990, 5, 15)))
 
-            val result = PdlPersonMapper.fromDto(dto)
-
-            result shouldBe LocalDate.of(1990, 5, 15)
+            result?.foedselsdato shouldBe LocalDate.of(1990, 5, 15)
         }
 
         test("returnerer første fødselsdato når flere finnes") {
@@ -67,7 +54,9 @@ class PdlPersonMapperTest : FunSpec({
                             PdlFoedselsdato(LocalDate.of(1963, 4, 5)),
                             PdlFoedselsdato(LocalDate.of(1963, 4, 3)),
                             PdlFoedselsdato(LocalDate.of(1992, 7, 17))
-                        )
+                        ),
+                        sivilstand = null,
+                        statsborgerskap = null
                     )
                 ),
                 extensions = null,
@@ -76,7 +65,7 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe LocalDate.of(1963, 4, 5)
+            result?.foedselsdato shouldBe LocalDate.of(1963, 4, 5)
         }
 
         test("returnerer null når data er null") {
@@ -103,10 +92,10 @@ class PdlPersonMapperTest : FunSpec({
             result shouldBe null
         }
 
-        test("returnerer null når foedselsdato-liste er null") {
+        test("returnerer Person med null fødselsdato når foedselsdato-liste er null") {
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
-                    hentPerson = PdlPerson(foedselsdato = null)
+                    hentPerson = PdlPerson(foedselsdato = null, sivilstand = null, statsborgerskap = null)
                 ),
                 extensions = null,
                 errors = null
@@ -114,13 +103,13 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe null
+            result?.foedselsdato shouldBe null
         }
 
-        test("returnerer null når foedselsdato-liste er tom") {
+        test("returnerer Person med null fødselsdato når foedselsdato-liste er tom") {
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
-                    hentPerson = PdlPerson(foedselsdato = emptyList())
+                    hentPerson = PdlPerson(foedselsdato = emptyList(), sivilstand = null, statsborgerskap = null)
                 ),
                 extensions = null,
                 errors = null
@@ -128,16 +117,16 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe null
+            result?.foedselsdato shouldBe null
         }
 
-        test("returnerer null når første fødselsdato i listen er null") {
+        test("returnerer Person med null fødselsdato når første fødselsdato i listen er null") {
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
                     hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(foedselsdato = null)
-                        )
+                        foedselsdato = listOf(PdlFoedselsdato(foedselsdato = null)),
+                        sivilstand = null,
+                        statsborgerskap = null
                     )
                 ),
                 extensions = null,
@@ -146,16 +135,16 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe null
+            result?.foedselsdato shouldBe null
         }
 
         test("håndterer respons med errors men gyldig data") {
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
                     hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1985, 3, 20))
-                        )
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1985, 3, 20))),
+                        sivilstand = null,
+                        statsborgerskap = null
                     )
                 ),
                 extensions = null,
@@ -164,34 +153,22 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe LocalDate.of(1985, 3, 20)
+            result?.foedselsdato shouldBe LocalDate.of(1985, 3, 20)
         }
 
         test("håndterer respons med tom errors-liste") {
-            val dto = PdlPersonResult(
-                data = PdlPersonEnvelope(
-                    hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1985, 3, 20))
-                        )
-                    )
-                ),
-                extensions = null,
-                errors = emptyList()
-            )
+            val result = PdlPersonMapper.fromDto(personResult(foedselsdato = LocalDate.of(1985, 3, 20), errors = emptyList()))
 
-            val result = PdlPersonMapper.fromDto(dto)
-
-            result shouldBe LocalDate.of(1985, 3, 20)
+            result?.foedselsdato shouldBe LocalDate.of(1985, 3, 20)
         }
 
         test("håndterer respons med extensions") {
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
                     hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1985, 3, 20))
-                        )
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1985, 3, 20))),
+                        sivilstand = null,
+                        statsborgerskap = null
                     )
                 ),
                 extensions = PdlExtensions(
@@ -210,25 +187,13 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe LocalDate.of(1985, 3, 20)
+            result?.foedselsdato shouldBe LocalDate.of(1985, 3, 20)
         }
 
         test("håndterer skuddårsdato") {
-            val dto = PdlPersonResult(
-                data = PdlPersonEnvelope(
-                    hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(2000, 2, 29))
-                        )
-                    )
-                ),
-                extensions = null,
-                errors = null
-            )
+            val result = PdlPersonMapper.fromDto(personResult(foedselsdato = LocalDate.of(2000, 2, 29)))
 
-            val result = PdlPersonMapper.fromDto(dto)
-
-            result shouldBe LocalDate.of(2000, 2, 29)
+            result?.foedselsdato shouldBe LocalDate.of(2000, 2, 29)
         }
 
         test("håndterer ulike datoer") {
@@ -240,19 +205,9 @@ class PdlPersonMapperTest : FunSpec({
             )
 
             testDates.forEach { expectedDate ->
-                val dto = PdlPersonResult(
-                    data = PdlPersonEnvelope(
-                        hentPerson = PdlPerson(
-                            foedselsdato = listOf(PdlFoedselsdato(expectedDate))
-                        )
-                    ),
-                    extensions = null,
-                    errors = null
-                )
+                val result = PdlPersonMapper.fromDto(personResult(foedselsdato = expectedDate))
 
-                val result = PdlPersonMapper.fromDto(dto)
-
-                result shouldBe expectedDate
+                result?.foedselsdato shouldBe expectedDate
             }
         }
 
@@ -272,9 +227,9 @@ class PdlPersonMapperTest : FunSpec({
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
                     hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1990, 5, 15))
-                        )
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1990, 5, 15))),
+                        sivilstand = null,
+                        statsborgerskap = null
                     )
                 ),
                 extensions = null,
@@ -287,43 +242,117 @@ class PdlPersonMapperTest : FunSpec({
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe LocalDate.of(1990, 5, 15)
+            result?.foedselsdato shouldBe LocalDate.of(1990, 5, 15)
         }
 
         test("håndterer extensions med tom warnings-liste") {
-            val dto = PdlPersonResult(
-                data = PdlPersonEnvelope(
-                    hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1990, 5, 15))
-                        )
-                    )
-                ),
-                extensions = PdlExtensions(warnings = emptyList()),
-                errors = null
+            val result = PdlPersonMapper.fromDto(
+                personResult(
+                    foedselsdato = LocalDate.of(1990, 5, 15),
+                    extensions = PdlExtensions(warnings = emptyList())
+                )
             )
 
-            val result = PdlPersonMapper.fromDto(dto)
-
-            result shouldBe LocalDate.of(1990, 5, 15)
+            result?.foedselsdato shouldBe LocalDate.of(1990, 5, 15)
         }
 
         test("håndterer extensions med null warnings") {
+            val result = PdlPersonMapper.fromDto(
+                personResult(
+                    foedselsdato = LocalDate.of(1990, 5, 15),
+                    extensions = PdlExtensions(warnings = null)
+                )
+            )
+
+            result?.foedselsdato shouldBe LocalDate.of(1990, 5, 15)
+        }
+
+        test("mapper sivilstand GIFT") {
             val dto = PdlPersonResult(
                 data = PdlPersonEnvelope(
                     hentPerson = PdlPerson(
-                        foedselsdato = listOf(
-                            PdlFoedselsdato(LocalDate.of(1990, 5, 15))
-                        )
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1990, 1, 1))),
+                        sivilstand = listOf(PdlSivilstand(type = "GIFT")),
+                        statsborgerskap = null
                     )
                 ),
-                extensions = PdlExtensions(warnings = null),
+                extensions = null,
                 errors = null
             )
 
             val result = PdlPersonMapper.fromDto(dto)
 
-            result shouldBe LocalDate.of(1990, 5, 15)
+            result?.sivilstand shouldBe Sivilstandstype.GIFT
+        }
+
+        test("mapper statsborgerskap NOR") {
+            val dto = PdlPersonResult(
+                data = PdlPersonEnvelope(
+                    hentPerson = PdlPerson(
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1990, 1, 1))),
+                        sivilstand = null,
+                        statsborgerskap = listOf(PdlStatsborgerskap(land = "NOR"))
+                    )
+                ),
+                extensions = null,
+                errors = null
+            )
+
+            val result = PdlPersonMapper.fromDto(dto)
+
+            result?.statsborgerskap shouldBe LandkodeEnum.NOR
+        }
+
+        test("returnerer UOPPGITT sivilstand når sivilstand-liste er null") {
+            val dto = PdlPersonResult(
+                data = PdlPersonEnvelope(
+                    hentPerson = PdlPerson(
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1990, 1, 1))),
+                        sivilstand = null,
+                        statsborgerskap = null
+                    )
+                ),
+                extensions = null,
+                errors = null
+            )
+
+            val result = PdlPersonMapper.fromDto(dto)
+
+            result?.sivilstand shouldBe Sivilstandstype.UOPPGITT
+        }
+
+        test("returnerer P_UKJENT statsborgerskap når statsborgerskap-liste er null") {
+            val dto = PdlPersonResult(
+                data = PdlPersonEnvelope(
+                    hentPerson = PdlPerson(
+                        foedselsdato = listOf(PdlFoedselsdato(LocalDate.of(1990, 1, 1))),
+                        sivilstand = null,
+                        statsborgerskap = null
+                    )
+                ),
+                extensions = null,
+                errors = null
+            )
+
+            val result = PdlPersonMapper.fromDto(dto)
+
+            result?.statsborgerskap shouldBe LandkodeEnum.P_UKJENT
         }
     }
 })
+
+private fun personResult(
+    foedselsdato: LocalDate,
+    extensions: PdlExtensions? = null,
+    errors: List<PdlError>? = null
+) = PdlPersonResult(
+    data = PdlPersonEnvelope(
+        hentPerson = PdlPerson(
+            foedselsdato = listOf(PdlFoedselsdato(foedselsdato)),
+            sivilstand = null,
+            statsborgerskap = null
+        )
+    ),
+    extensions = extensions,
+    errors = errors
+)

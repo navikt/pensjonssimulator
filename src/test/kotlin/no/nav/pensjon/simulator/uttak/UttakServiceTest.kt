@@ -36,9 +36,9 @@ class UttakServiceTest : FunSpec({
         val result = UttakService(simuleringFacade, normalderService) { LocalDate.of(2024, 1, 1) }
             .finnTidligstMuligUttak(simuleringSpec(foedselsdato = foedselsdato))
 
-        result.uttakDato shouldBe alderDato
+        result.uttaksdato shouldBe alderDato
         result.uttaksgrad shouldBe Uttaksgrad.FEMTI_PROSENT
-        result.feil shouldBe null
+        result.problem shouldBe null
     }
 
     test("finnTidligstMuligUttak adjusts date to first of next month when alder date is in the past") {
@@ -50,7 +50,7 @@ class UttakServiceTest : FunSpec({
         val result = UttakService(simuleringFacade, normalderService) { LocalDate.of(2025, 3, 15) }
             .finnTidligstMuligUttak(simuleringSpec(foedselsdato = foedselsdato))
 
-        result.uttakDato shouldBe LocalDate.of(2025, 4, 1)
+        result.uttaksdato shouldBe LocalDate.of(2025, 4, 1)
     }
 
     test("finnTidligstMuligUttak adjusts date to first of next month when alder date equals today") {
@@ -62,7 +62,7 @@ class UttakServiceTest : FunSpec({
         val result = UttakService(simuleringFacade, normalderService) { alderDato }
             .finnTidligstMuligUttak(simuleringSpec(foedselsdato = foedselsdato))
 
-        result.uttakDato shouldBe LocalDate.of(2025, 3, 1)
+        result.uttaksdato shouldBe LocalDate.of(2025, 3, 1)
     }
 
     test("finnTidligstMuligUttak passes adjusted date as foersteUttakDato to simulation") {
@@ -114,7 +114,7 @@ class UttakServiceTest : FunSpec({
         val result = UttakService(simuleringFacade, normalderService) { LocalDate.of(2024, 1, 1) }
             .finnTidligstMuligUttak(simuleringSpec(foedselsdato = foedselsdato))
 
-        result.uttakDato shouldBe gradertDato
+        result.uttaksdato shouldBe gradertDato
     }
 
     test("finnTidligstMuligUttak uses heltUttakAlder when alternativ has no gradertUttakAlder") {
@@ -136,7 +136,7 @@ class UttakServiceTest : FunSpec({
         val result = UttakService(simuleringFacade, normalderService) { LocalDate.of(2024, 1, 1) }
             .finnTidligstMuligUttak(simuleringSpec(foedselsdato = foedselsdato))
 
-        result.uttakDato shouldBe heltDato
+        result.uttaksdato shouldBe heltDato
     }
 
     test("finnTidligstMuligUttak derives uttaksgrad from spec uttakGrad") {
@@ -170,6 +170,6 @@ class UttakServiceTest : FunSpec({
         val result = UttakService(simuleringFacade, normalderService) { LocalDate.of(2024, 1, 1) }
             .finnTidligstMuligUttak(simuleringSpec(foedselsdato = foedselsdato))
 
-        result.feil shouldBe null
+        result.problem shouldBe null
     }
 })

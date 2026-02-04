@@ -9,6 +9,7 @@ import kotlin.collections.filter
 import kotlin.collections.maxByOrNull
 import kotlin.collections.orEmpty
 
+//TODO vurdere å fjerne ubrukt kode
 object UfoereUtil {
 
     private const val MAX_SUM_AV_UFOEREGRAD_OG_UTTAKSGRAD = 100 // prosent

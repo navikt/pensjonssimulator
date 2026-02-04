@@ -1,4 +1,4 @@
-package no.nav.tjenestepensjon.simulering.v2.service
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening
 
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto

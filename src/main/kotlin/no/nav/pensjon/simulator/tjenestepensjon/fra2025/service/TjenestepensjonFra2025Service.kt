@@ -38,7 +38,7 @@ class TjenestepensjonFra2025Service(
 
         val simulertTpListe = sisteOrdningerNr.map { ordning ->
             when (ordning) {
-                "3010", "3060" -> spk.simuler(spec, ordning) // TpNummer for SPK
+                "3010" -> spk.simuler(spec, ordning) // TpNummer for SPK
                 "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
                 else -> Result.failure(TpOrdningStoettesIkkeException(tilTpOrdningVisningsnavn(tpOrdningerNavn)))
             }.run {

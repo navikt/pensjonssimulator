@@ -177,7 +177,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                         uttaksgrad = 100,
                         arligUtbetaling = 173376.0,
                         datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)).withDayOfMonth(1),
-                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)).withDayOfMonth(Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)).lengthOfMonth()),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 4)).withDayOfMonth(Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)).lengthOfMonth()),
                         ytelsekode = YtelseCode.AP
                     ),
                     Utbetalingsperiode(

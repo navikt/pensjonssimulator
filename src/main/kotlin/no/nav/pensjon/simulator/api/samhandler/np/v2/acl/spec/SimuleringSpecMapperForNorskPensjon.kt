@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
+package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringstypeDeducer
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -19,14 +19,14 @@ import java.time.LocalDate
  * PEN: no.nav.pensjon.pen_app.provider.ws.simulerepensjon.v1.converter.HentSimulertPensjonRequestConverter
  */
 @Component
-class AlderspensjonOgPrivatAfpSpecMapperV3(
+class SimuleringSpecMapperForNorskPensjon(
     private val personService: GeneralPersonService,
     private val simuleringstypeDeducer: SimuleringstypeDeducer
 ) {
     /**
      * Takes a specification in the form of a data transfer object (DTO) and maps it to a domain object.
      */
-    fun fromDto(source: AlderspensjonOgPrivatAfpSpecV3): SimuleringSpec {
+    fun fromDto(source: SimuleringSpecDto): SimuleringSpec {
         val pid: Pid = source.personident.let(::Pid)
         val foersteUttak = source.foersteUttak
         val foersteUttakFom: LocalDate = foersteUttak.fomDato
@@ -72,11 +72,11 @@ class AlderspensjonOgPrivatAfpSpecMapperV3(
         )
     }
 
-    private fun sivilstatus(source: AlderspensjonOgPrivatAfpSpecV3): SivilstatusType =
+    private fun sivilstatus(source: SimuleringSpecDto): SivilstatusType =
         SivilstatusType.entries.firstOrNull { it.name == source.sivilstatusVedPensjonering.name }
             ?: SivilstatusType.UGIF
 
-    private fun uttaksgrad(source: AlderspensjonOgPrivatAfpSpecV3): UttakGradKode =
+    private fun uttaksgrad(source: SimuleringSpecDto): UttakGradKode =
         UttakGradKode.entries.firstOrNull { it.value == source.foersteUttak.grad.toString() }
             ?: throw BadSpecException(
                 message = "Ugyldig uttaksgrad: ${source.foersteUttak.grad}",

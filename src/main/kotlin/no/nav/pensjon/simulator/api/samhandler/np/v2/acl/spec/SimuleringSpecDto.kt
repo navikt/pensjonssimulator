@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
+package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
@@ -14,7 +14,7 @@ import java.util.*
  * PEN: no.nav.tjeneste.ekstern.simulerepensjon.v1.meldinger.HentSimulertPensjonRequest
  * (cf. no.nav.pensjon.pen_app.provider.ws.simuleralderspensjon.v3.model.SimulerAlderspensjonRequestV3)
  */
-data class AlderspensjonOgPrivatAfpSpecV3(
+data class SimuleringSpecDto(
     val personident: String, // required
     val sivilstatusVedPensjonering: ApOgPrivatAfpSivilstatusSpecV3, // required
     val foersteUttak: ApOgPrivatAfpUttakSpecV3, // required

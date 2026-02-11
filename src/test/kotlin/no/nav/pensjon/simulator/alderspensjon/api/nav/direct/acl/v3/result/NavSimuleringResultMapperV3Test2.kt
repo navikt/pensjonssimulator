@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSi
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.alderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.simulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
 // Copied from PEN
@@ -149,8 +150,7 @@ private object NavSimuleringResultMapperV3Test2Objects {
                     )
                 ),
                 harUttak = true,
-                harTilstrekkeligTrygdetid = true,
-                trygdetid = 21,
+                primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 21),
                 opptjeningGrunnlagListe = listOf(
                     OpptjeningGrunnlag(
                         aar = 22,

@@ -1,16 +1,19 @@
-package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
+package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.result
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.hybrid.*
+import no.nav.pensjon.simulator.orch.AlderspensjonOgPrivatAfpResult
+import no.nav.pensjon.simulator.orch.Alderspensjonsperiode
+import no.nav.pensjon.simulator.orch.PrivatAfpPeriode
+import no.nav.pensjon.simulator.orch.Uttaksperiode
 import no.nav.pensjon.simulator.uttak.Uttaksgrad
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 
-class AlderspensjonOgPrivatAfpResultMapperV3Test : ShouldSpec({
+class SimuleringResultMapperTest : ShouldSpec({
 
     should("map problematic result to data transfer object") {
-        AlderspensjonOgPrivatAfpResultMapperV3.toDto(
+        SimuleringResultMapper.toDto(
             AlderspensjonOgPrivatAfpResult(
                 suksess = false,
                 alderspensjonsperiodeListe = emptyList(),
@@ -23,22 +26,22 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : ShouldSpec({
                     beskrivelse = "født før 1943"
                 )
             )
-        ) shouldBe AlderspensjonOgPrivatAfpResultV3(
+        ) shouldBe SimuleringResultDto(
             suksess = false,
             alderspensjonsperioder = emptyList(),
             privatAfpPerioder = emptyList(),
             harNaavaerendeUttak = false,
             harTidligereUttak = false,
             harLoependePrivatAfp = false,
-            problem = ProblemV3(
-                kode = ProblemTypeV3.PERSON_FOR_HOEY_ALDER,
+            problem = ProblemDto(
+                kode = ProblemTypeDto.PERSON_FOR_HOEY_ALDER,
                 beskrivelse = "født før 1943"
             )
         )
     }
 
     should("map successful result to data transfer object") {
-        AlderspensjonOgPrivatAfpResultMapperV3.toDto(
+        SimuleringResultMapper.toDto(
             AlderspensjonOgPrivatAfpResult(
                 suksess = true,
                 alderspensjonsperiodeListe = listOf(
@@ -60,22 +63,22 @@ class AlderspensjonOgPrivatAfpResultMapperV3Test : ShouldSpec({
                 harLoependePrivatAfp = true,
                 problem = null
             )
-        ) shouldBe AlderspensjonOgPrivatAfpResultV3(
+        ) shouldBe SimuleringResultDto(
             suksess = true,
             alderspensjonsperioder = listOf(
-                ApOgPrivatAfpAlderspensjonsperiodeResultV3(
+                ApOgPrivatAfpAlderspensjonsperiodeResultDto(
                     alder = 63,
                     beloep = 1,
                     datoFom = "2025-01-01",
                     uttaksperiode = listOf(
-                        ApOgPrivatAfpUttaksperiodeResultV3(
+                        ApOgPrivatAfpUttaksperiodeResultDto(
                             startmaaned = 64,
                             uttaksgrad = 50
                         )
                     )
                 )
             ),
-            privatAfpPerioder = listOf(ApOgPrivatAfpPrivatAfpPeriodeResultV3(alder = 64, beloep = 1)),
+            privatAfpPerioder = listOf(ApOgPrivatAfpPrivatAfpPeriodeResultDto(alder = 64, beloep = 1)),
             harNaavaerendeUttak = true,
             harTidligereUttak = true,
             harLoependePrivatAfp = true,

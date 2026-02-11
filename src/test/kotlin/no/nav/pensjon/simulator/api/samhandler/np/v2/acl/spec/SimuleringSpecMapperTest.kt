@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
+package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
@@ -16,11 +16,11 @@ import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.validity.ProblemType
 import java.time.LocalDate
 
-class AlderspensjonOgPrivatAfpSpecMapperV3Test : ShouldSpec({
+class SimuleringSpecMapperTest : ShouldSpec({
 
     context("gyldig uttaksgrad") {
         should("map from data transfer object to domain object") {
-            AlderspensjonOgPrivatAfpSpecMapperV3(
+            SimuleringSpecMapperForNorskPensjon(
                 personService = Arrange.foedselsdato(1963, 1, 15),
                 simuleringstypeDeducer = arrangeSimuleringstype()
             ).fromDto(
@@ -64,7 +64,7 @@ class AlderspensjonOgPrivatAfpSpecMapperV3Test : ShouldSpec({
     context("ugyldig uttaksgrad") {
         should("throw 'bad specification' exception") {
             shouldThrow<BadSpecException> {
-                AlderspensjonOgPrivatAfpSpecMapperV3(
+                SimuleringSpecMapperForNorskPensjon(
                     personService = mockk(relaxed = true),
                     simuleringstypeDeducer = mockk(relaxed = true)
                 ).fromDto(
@@ -76,7 +76,7 @@ class AlderspensjonOgPrivatAfpSpecMapperV3Test : ShouldSpec({
 })
 
 private fun specTransferObject(uttaksgrad: Int) =
-    AlderspensjonOgPrivatAfpSpecV3(
+    SimuleringSpecDto(
         personident = pid.value,
         aarligInntektFoerUttak = 2000,
         antallInntektsaarEtterHeltUttak = 2,

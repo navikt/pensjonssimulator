@@ -1,15 +1,15 @@
-package no.nav.pensjon.simulator.hybrid.api.samhandler.acl.v3
+package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import no.nav.pensjon.simulator.testutil.TestObjects
 import java.time.LocalDate
 
-class AlderspensjonOgPrivatAfpSpecV3Test : FunSpec({
+class SimuleringSpecDtoTest : FunSpec({
 
     test("toString should produce JSON with redacted person ID") {
-        AlderspensjonOgPrivatAfpSpecV3(
-            personident = pid.value,
+        SimuleringSpecDto(
+            personident = TestObjects.pid.value,
             sivilstatusVedPensjonering = ApOgPrivatAfpSivilstatusSpecV3.UGIF,
             foersteUttak = ApOgPrivatAfpUttakSpecV3(
                 fomDato = LocalDate.of(2025, 1, 1),

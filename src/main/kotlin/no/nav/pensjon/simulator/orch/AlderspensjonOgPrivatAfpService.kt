@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.hybrid
+package no.nav.pensjon.simulator.orch
 
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore

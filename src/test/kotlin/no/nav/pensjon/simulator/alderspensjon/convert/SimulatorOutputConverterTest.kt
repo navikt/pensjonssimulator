@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 import java.util.*
 
@@ -106,8 +107,7 @@ class SimulatorOutputConverterTest : FunSpec({
             livsvarigOffentligAfp = emptyList(),
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = false,
-            harTilstrekkeligTrygdetid = true,
-            trygdetid = 19, // NB: Max of trygdetidKap19 and trygdetidKap20
+            primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 4),
             opptjeningGrunnlagListe = emptyList()
         )
     }
@@ -164,6 +164,6 @@ class SimulatorOutputConverterTest : FunSpec({
                 }
             },
             today = LocalDate.of(2025, 2, 15)
-        ).harTilstrekkeligTrygdetid shouldBe true
+        ).primaerTrygdetid.erTilstrekkelig shouldBe true
     }
 })

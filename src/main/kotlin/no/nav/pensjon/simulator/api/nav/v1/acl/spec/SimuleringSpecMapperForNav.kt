@@ -50,7 +50,7 @@ class SimuleringSpecMapperForNav(
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
             inntektEtterHeltUttakAntallAar = heltUttak.antallArInntektEtterHeltUttak,
             utlandAntallAar = 0, // only for anonym
-            sivilstatus = source.sivilstand.internalValue,
+            sivilstatus = source.sivilstatus.internalValue,
             epsHarPensjon = source.eps?.levende?.harPensjon == true,
             epsHarInntektOver2G = source.eps?.levende?.harInntektOver2G == true,
             erAnonym = false,
@@ -147,8 +147,8 @@ class SimuleringSpecMapperForNav(
 
     private fun utlandPeriode(source: UtlandSpecDto) =
         UtlandPeriode(
-            fom = source.fom.toNorwegianLocalDate(),
-            tom = source.tom?.toNorwegianLocalDate(),
+            fom = source.fom,
+            tom = source.tom,
             land = LandkodeEnum.valueOf(source.land),
             arbeidet = source.arbeidetUtenlands
         )

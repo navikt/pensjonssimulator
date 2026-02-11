@@ -3,23 +3,19 @@ package no.nav.pensjon.simulator.api.nav.v1.acl.spec
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import jakarta.validation.constraints.NotNull
-import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import java.time.LocalDate
-import java.util.*
 
 /**
  * Data transfer object (DTO) som representerer inn-data (spesifikasjon) for
  * simulering av alderspensjon "versjon 3" (som brukes av Navs pensjonskalkulator).
  */
 data class SimuleringSpecDto(
-    val pid: String,
-    val sivilstand: SivilstatusSpecDto,
-    val uttaksar: Int? = null,
-    val sisteInntekt: Int,
-    val simuleringstype: SimuleringstypeSpecDto,
+    @field:NotNull val pid: String,
+    @field:NotNull val sivilstatus: SivilstatusSpecDto,
+    @field:NotNull val sisteInntekt: Int,
+    @field:NotNull val simuleringstype: SimuleringstypeSpecDto,
     val gradertUttak: GradertUttakSpecDto? = null,
-    val heltUttak: HeltUttakSpecDto,
+    @field:NotNull val heltUttak: HeltUttakSpecDto,
     val aarUtenlandsEtter16Aar: Int? = null,
     val fremtidigInntektListe: List<InntektSpecDto>? = null,
     val utenlandsperiodeListe: List<UtlandSpecDto>? = null,
@@ -34,21 +30,21 @@ data class GradertUttakSpecDto(
 )
 
 data class HeltUttakSpecDto(
-    val uttakFomAlder: AlderSpecDto,
-    val aarligInntekt: Int,
-    val inntektTomAlder: AlderSpecDto
+    @field:NotNull val uttakFomAlder: AlderSpecDto,
+    @field:NotNull val aarligInntekt: Int,
+    @field:NotNull val inntektTomAlder: AlderSpecDto
 )
 
 data class InntektSpecDto(
     val aarligInntekt: Int? = null,
-    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fom: Date? = null
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fom: LocalDate? = null
 )
 
 data class UtlandSpecDto(
-    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fom: Date,
-    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val tom: Date?,
-    val land: String,
-    val arbeidetUtenlands: Boolean
+    @field:NotNull @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val fom: LocalDate,
+    @param:JsonFormat(shape = STRING, pattern = "yyyy-MM-dd") val tom: LocalDate?,
+    @field:NotNull val land: String, // must correspond to LandkodeEnum values
+    @field:NotNull val arbeidetUtenlands: Boolean
 )
 
 /**
@@ -92,16 +88,6 @@ data class InnvilgetLivsvarigOffentligAfpSpecDto(
 )
 
 data class AlderSpecDto(
-    val aar: Int,
-    val maaneder: Int
+    @field:NotNull val aar: Int,
+    @field:NotNull val maaneder: Int
 )
-
-enum class AfpOrdningTypeSpecDto(val internalValue: AFPtypeEnum) {
-    KOMMUNAL(internalValue = AFPtypeEnum.AFPKOM),
-    STATLIG(internalValue = AFPtypeEnum.AFPSTAT),
-    FINANSNAERINGEN(internalValue = AFPtypeEnum.FINANS),
-    KONVERTERT_PRIVAT(internalValue = AFPtypeEnum.KONV_K),
-    KONVERTERT_OFFENTLIG(internalValue = AFPtypeEnum.KONV_O),
-    LO_NHO_ORDNINGEN(internalValue = AFPtypeEnum.LONHO),
-    SPEKTER(internalValue = AFPtypeEnum.NAVO),
-}

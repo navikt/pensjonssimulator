@@ -48,7 +48,7 @@ class PensjonForNorskPensjonController(
     //TODO Avtal med Norsk Pensjon å endre URL til v2/simuler-alderspensjon-privat-afp
     @PostMapping("v3/simuler-alderspensjon-privat-afp")
     @Operation(
-        summary = "Simuler alderspensjon og privat AFP for samhandler (Dto)",
+        summary = "Simuler alderspensjon og privat AFP for samhandleren Norsk Pensjon",
         description = "Lager en prognose for utbetaling av alderspensjon og privat avtalefestet pensjon" +
                 " (versjon 3 av tjenesten)." +
                 "\\\n\\\n*Scope*: **nav:pensjon/simulering/alderspensjonogprivatafp**"
@@ -81,12 +81,12 @@ class PensjonForNorskPensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonOgPrivatAfpDto(
+    fun simulerAlderspensjonOgPrivatAfp(
         @RequestBody specDto: SimuleringSpecDto,
         request: HttpServletRequest
     ): ResponseEntity<SimuleringResultDto> {
         traceAid.begin()
-        countCall(functionName = FUNCTION_ID_Dto)
+        countCall(functionName = FUNCTION_ID)
 
         return try {
             val spec: SimuleringSpec = specMapper.fromDto(specDto)
@@ -95,7 +95,7 @@ class PensjonForNorskPensjonController(
             val result = SimuleringResultMapper.toDto(service.simuler(spec))
             ResponseEntity.status(result.problem?.kode?.httpStatus ?: HttpStatus.OK).body(result)
         } catch (e: Exception) {
-            log.error(e) { "$FUNCTION_ID_Dto intern feil for spec $specDto" }
+            log.error(e) { "$FUNCTION_ID intern feil for spec $specDto" }
             throw e
         } finally {
             traceAid.end()
@@ -111,9 +111,9 @@ class PensjonForNorskPensjonController(
         }
 
     private companion object {
-        private const val TJENESTE = "simulering av alderspensjon/privat AFP"
+        private const val TJENESTE = "simulering av pensjon for Norsk Pensjon"
         private const val ERROR_MESSAGE = "feil ved $TJENESTE"
-        private const val FUNCTION_ID_Dto = "sam-ap-pafp"
+        private const val FUNCTION_ID = "sim-np"
 
         private fun problem(e: Exception, type: ProblemTypeDto) =
             SimuleringResultDto(

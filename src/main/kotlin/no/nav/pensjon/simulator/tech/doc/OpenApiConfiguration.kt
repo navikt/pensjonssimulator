@@ -21,7 +21,7 @@ open class OpenApiConfiguration {
                     .title("Pensjonssimulator API")
                     .description("Tjenester for simulering av pensjon (prognose for pensjonsutbetaling).\\\n" +
                             "Klienter må autentisere seg via Maskinporten – se hver enkelt tjeneste for hvilket *scope* som skal brukes.")
-                    .version("v1.1.0")
+                    .version("v1.2.0")
             ).components(
                 Components()
                     .addSecuritySchemes(

@@ -11,7 +11,7 @@
     </parent>
     <groupId>no.nav.pensjon</groupId>
     <artifactId>pensjonssimulator</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <properties>
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,7 +19,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>21</kotlin.compiler.jvmTarget>
-        <kotlin.version>2.2.21</kotlin.version>
+        <kotlin.version>2.3.0</kotlin.version>
         <flyway.version>11.20.3</flyway.version>
         <logback.version>1.5.26</logback.version>
         <okhttp3.version>5.3.2</okhttp3.version>

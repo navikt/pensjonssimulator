@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.api.nav.v1.acl.result
 
 import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
+import no.nav.pensjon.simulator.api.nav.v1.acl.UttaksgradDto
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 
@@ -117,7 +118,7 @@ object SimuleringResultMapper {
         else
             UttaksparametreDto(
                 gradertUttakAlder = source.gradertUttakAlder?.let(::alder),
-                uttaksgrad = source.uttakGrad.value.toInt(),
+                uttaksgrad = UttaksgradDto.fromInternalValue(source.uttakGrad),
                 heltUttakAlder = alder(source.heltUttakAlder)
             )
 

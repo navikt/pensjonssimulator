@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.api.nav.v1.acl.result
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import jakarta.validation.constraints.NotNull
+import no.nav.pensjon.simulator.api.nav.v1.acl.UttaksgradDto
 import org.springframework.http.HttpStatus
 
 @JsonInclude(NON_NULL)
@@ -113,7 +114,7 @@ data class TrygdetidDto(
 @JsonInclude(NON_NULL)
 data class UttaksparametreDto(
     val gradertUttakAlder: AlderDto?,
-    @field:NotNull val uttaksgrad: Int,
+    @field:NotNull val uttaksgrad: UttaksgradDto,
     @field:NotNull val heltUttakAlder: AlderDto
 )
 

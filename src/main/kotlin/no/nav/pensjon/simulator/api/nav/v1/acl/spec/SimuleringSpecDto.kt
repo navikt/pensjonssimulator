@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.api.nav.v1.acl.spec
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import jakarta.validation.constraints.NotNull
+import no.nav.pensjon.simulator.api.nav.v1.acl.UttaksgradDto
 import java.time.LocalDate
 
 /**
@@ -24,7 +25,7 @@ data class SimuleringSpecDto(
 )
 
 data class GradertUttakSpecDto(
-    val grad: UttaksgradSpecDto? = null,
+    val grad: UttaksgradDto? = null,
     val uttakFomAlder: AlderSpecDto? = null,
     val aarligInntekt: Int? = null
 )

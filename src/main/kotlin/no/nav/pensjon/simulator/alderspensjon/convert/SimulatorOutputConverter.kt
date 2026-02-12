@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 import java.util.*
 
@@ -27,19 +28,7 @@ import java.util.*
  */
 object SimulatorOutputConverter {
 
-    /**
-     * Folketrygdloven kapittel 19, https://lovdata.no/lov/1997-02-28-19/§19-2:
-     * "Det er et vilkår for rett til alderspensjon at vedkommende har minst fem års trygdetid" (med noen unntak)
-     */
-    private const val KAPITTEL19_MINIMUM_TRYGDETID_ANTALL_AAR = 5
-
-    /**
-     * Folketrygdloven kapittel 20, https://lovdata.no/lov/1997-02-28-19/§20-10:
-     * "Det er et vilkår for rett til garantipensjon at vedkommende har minst fem års trygdetid"
-     */
-    private const val MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR = 5
-
-    private const val ALDER_REPRESENTING_LOPENDE_YTELSER = 0
+    private const val ALDER_REPRESENTING_LOEPENDE_YTELSER = 0
 
     fun pensjon(
         source: SimulatorOutput,
@@ -47,15 +36,14 @@ object SimulatorOutputConverter {
         inntektVedFase1Uttak: Int? = null
     ): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
-        val pensjonsperioder: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
-        val trygdetid: Trygdetid = anvendtTrygdetid(pensjonsperioder)
+        val periodeListe: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
 
         return SimulertPensjon(
-            alderspensjon = pensjonsperioder.map { aarligAlderspensjon(it, alderspensjon) },
+            alderspensjon = periodeListe.map { aarligAlderspensjon(it, alderspensjon) },
             alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
                 .map(::alderspensjonFraFolketrygden),
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
-                pre2025OffentligAfp(
+                tidsbegrensetOffentligAfp(
                     beregning = it,
                     foedselsdato = source.foedselDato,
                     inntektVedAfpUttak = inntektVedFase1Uttak
@@ -66,8 +54,7 @@ object SimulatorOutputConverter {
             pensjonBeholdningPeriodeListe = alderspensjon?.pensjonBeholdningListe.orEmpty()
                 .map(::beholdningPeriode),
             harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
-            harTilstrekkeligTrygdetid = trygdetid.erTilstrekkelig,
-            trygdetid = trygdetid.kapittel19.coerceAtLeast(trygdetid.kapittel20), //TODO sjekk det faglige her
+            primaerTrygdetid = foersteTrygdetid(periodeListe),
             opptjeningGrunnlagListe = source.persongrunnlag?.opptjeningsgrunnlagListe.orEmpty()
                 .map(::opptjeningGrunnlag).sortedBy { it.aar }
         )
@@ -88,7 +75,7 @@ object SimulatorOutputConverter {
             source.skjermingstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.SKJERMT, beloep = it)) }
         }
 
-    private fun anvendtTrygdetid(periodeListe: List<PensjonPeriode>): Trygdetid =
+    private fun foersteTrygdetid(periodeListe: List<PensjonPeriode>): Trygdetid =
         firstBeregninginfo(periodeListe)?.let { Trygdetid(it.tt_anv_kap19 ?: 0, it.tt_anv_kap20 ?: 0) }
             ?: Trygdetid(0, 0)
 
@@ -102,7 +89,7 @@ object SimulatorOutputConverter {
         val info = source.latestBeregningInformasjon
 
         return SimulertAarligAlderspensjon(
-            alderAar = source.alderAar ?: ALDER_REPRESENTING_LOPENDE_YTELSER,
+            alderAar = source.alderAar ?: ALDER_REPRESENTING_LOEPENDE_YTELSER,
             beloep = source.beloep ?: 0,
             inntektspensjon = info?.inntektspensjon,
             garantipensjon = info?.garantipensjon,
@@ -152,7 +139,7 @@ object SimulatorOutputConverter {
     /**
      * Ref. BeregningFormPopulator.createBeregningFormDataFromBeregning in pensjon-pselv
      */
-    private fun pre2025OffentligAfp(
+    private fun tidsbegrensetOffentligAfp(
         beregning: Beregning,
         foedselsdato: LocalDate?,
         inntektVedAfpUttak: Int?
@@ -233,14 +220,5 @@ object SimulatorOutputConverter {
         }
 
         return false
-    }
-
-    private data class Trygdetid(
-        val kapittel19: Int,
-        val kapittel20: Int
-    ) {
-        val erTilstrekkelig: Boolean
-            get() = kapittel19 >= KAPITTEL19_MINIMUM_TRYGDETID_ANTALL_AAR ||
-                    kapittel20 >= MINIMUM_TRYGDETID_FOR_GARANTIPENSJON_ANTALL_AAR
     }
 }

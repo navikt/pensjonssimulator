@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.core.spec.HeltUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
 class AlternativtUttakServiceTest : FunSpec({
@@ -57,8 +58,7 @@ class AlternativtUttakServiceTest : FunSpec({
                 livsvarigOffentligAfp = emptyList(),
                 pensjonBeholdningPeriodeListe = emptyList(),
                 harUttak = false,
-                harTilstrekkeligTrygdetid = false,
-                trygdetid = 0,
+                primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 0),
                 opptjeningGrunnlagListe = emptyList()
             ),
             alternativ = SimulertAlternativ(

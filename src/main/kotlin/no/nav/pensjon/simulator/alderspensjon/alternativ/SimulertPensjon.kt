@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
 data class SimulertPensjon(
@@ -12,14 +13,7 @@ data class SimulertPensjon(
     val livsvarigOffentligAfp: List<SimulertLivsvarigOffentligAfp>,
     val pensjonBeholdningPeriodeListe: List<SimulertPensjonBeholdningPeriode>,
     val harUttak: Boolean,
-
-    /**
-     * Kapittel 19: Angir om personen har nok trygdetid for alderspensjon
-     * Kapittel 20: Angir om personen har nok trygdetid for garantipensjon
-     */
-    val harTilstrekkeligTrygdetid: Boolean,
-
-    val trygdetid: Int,
+    val primaerTrygdetid: Trygdetid,
     val opptjeningGrunnlagListe: List<OpptjeningGrunnlag>
 )
 

@@ -68,11 +68,11 @@ class SimuleringSpecValidatorTest : ShouldSpec({
     should("throw exception if: Dato for første uttak er før dagens dato") {
         shouldThrow<BadSpecException> {
             SimuleringSpecValidator.validate(
-                simuleringSpec(foersteUttakDato = LocalDate.of(2025, 1, 31)),
-                today = LocalDate.of(2025, 2, 1)
+                simuleringSpec(foersteUttakDato = LocalDate.of(2025, 1, 1)),
+                today = LocalDate.of(2025, 1, 2)
             )
         } shouldBe BadSpecException(
-            message = "Dato for første uttak er for tidlig",
+            message = "Dato for første uttak (2025-01-01) er for tidlig",
             problemType = ProblemType.UGYLDIG_UTTAKSDATO
         )
     }

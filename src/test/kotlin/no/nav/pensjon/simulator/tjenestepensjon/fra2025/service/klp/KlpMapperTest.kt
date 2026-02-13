@@ -170,7 +170,7 @@ class KlpMapperTest : ShouldSpec({
                 afpErForespurt = true,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
-                fremtidigeInntekter = null,
+                fremtidigeInntekter = emptyList(),
                 gjelderApoteker = false
             )
 

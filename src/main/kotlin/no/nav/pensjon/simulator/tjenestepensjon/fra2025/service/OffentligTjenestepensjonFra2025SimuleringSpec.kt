@@ -12,7 +12,7 @@ data class OffentligTjenestepensjonFra2025SimuleringSpec(
     val afpErForespurt: Boolean,
     val epsHarPensjon: Boolean,
     val epsHarInntektOver2G: Boolean,
-    val fremtidigeInntekter: List<TjenestepensjonInntektSpec>?, //TODO make non-nullable
+    val fremtidigeInntekter: List<TjenestepensjonInntektSpec>,
     val gjelderApoteker: Boolean
 )
 

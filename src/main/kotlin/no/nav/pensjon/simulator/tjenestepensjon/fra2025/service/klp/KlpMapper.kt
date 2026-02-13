@@ -57,7 +57,7 @@ object KlpMapper {
         val inntektListe = mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
 
         inntektListe.addAll(
-            spec.fremtidigeInntekter.orEmpty().map(::inntekt)
+            spec.fremtidigeInntekter.map(::inntekt)
         )
 
         return inntektListe

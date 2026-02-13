@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.api.nav.v1.acl.UttaksgradDto
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
+import no.nav.pensjon.simulator.validity.Problem
 
 /**
  * Maps between data transfer objects (DTOs) and domain objects related to simulering.
@@ -22,7 +23,8 @@ object SimuleringResultMapper {
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
             primaerTrygdetid = pensjon?.primaerTrygdetid?.let(::trygdetid),
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ),
-            pensjonsgivendeInntektListe = pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag)
+            pensjonsgivendeInntektListe = pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag),
+            problem = source?.problem?.let(::problem)
         )
     }
 
@@ -133,4 +135,10 @@ object SimuleringResultMapper {
 
     private fun erHel(pensjon: SimulertAlderspensjonFraFolketrygden): Boolean =
         pensjon.uttakGrad == Uttaksgrad.HUNDRE_PROSENT.prosentsats
+
+    private fun problem(source: Problem) =
+        ProblemDto(
+            kode = ProblemTypeDto.entries.firstOrNull { it.internalValue == source.type } ?: ProblemTypeDto.SERVERFEIL,
+            beskrivelse = source.beskrivelse
+        )
 }

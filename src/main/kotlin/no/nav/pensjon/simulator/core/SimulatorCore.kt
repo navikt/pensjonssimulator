@@ -38,6 +38,7 @@ import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
+import no.nav.pensjon.simulator.ytelse.AvdoedYtelser
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -85,13 +86,7 @@ class SimulatorCore(
 
         val foedselsdato: LocalDate? = person?.foedselsdato
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
-
-        val specWithAvdoed = ytelser.avdoed?.pid?.let {
-            initialSpec.withAvdoed(
-                avdoedPid = it,
-                doedsdato = ytelser.avdoed.doedsdato ?: throw EgressException("Missing dødsdato in PEN response")
-            )
-        } ?: initialSpec
+        val specWithAvdoed = specWithEventuellAvdoed(initialSpec, ytelser.avdoed)
 
         val spec: SimuleringSpec =
             if (specWithAvdoed.gjelderPre2025OffentligAfp())
@@ -248,6 +243,21 @@ class SimulatorCore(
         generalPersonService.foedselsdato(pid)
 
     private companion object {
+
+        /**
+         * Hvis spesifikasjonen ikke inneholder informasjon om avdød, hent det fra eventuell eksisterende ytelse.
+         */
+        private fun specWithEventuellAvdoed(spec: SimuleringSpec, ytelser: AvdoedYtelser?) =
+            if (spec.avdoed == null)
+                ytelser?.pid?.let {
+                    spec.withAvdoed(
+                        avdoedPid = it,
+                        doedsdato = ytelser.doedsdato
+                            ?: throw EgressException("Missing dødsdato in PEN response")
+                    )
+                } ?: spec
+            else
+                spec
 
         private fun innvilgetLivsvarigOffentligAfp(
             spec: SimuleringSpec,

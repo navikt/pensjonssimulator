@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.alderspensjon.*
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
 class SamhandlerAlderspensjonResultMapperTest : FunSpec({
@@ -80,8 +81,7 @@ class SamhandlerAlderspensjonResultMapperTest : FunSpec({
                         )
                     ),
                     harUttak = true,
-                    harTilstrekkeligTrygdetid = true,
-                    trygdetid = 40,
+                    primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 40),
                     opptjeningGrunnlagListe = listOf(
                         OpptjeningGrunnlag(aar = 2024, pensjonsgivendeInntekt = 50000)
                     )
@@ -234,8 +234,7 @@ private fun simulertPensjon(alderspensjonFraFolketrygden: List<SimulertAlderspen
             livsvarigOffentligAfp = emptyList(),
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = true,
-            harTilstrekkeligTrygdetid = true,
-            trygdetid = 40,
+            primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 40),
             opptjeningGrunnlagListe = emptyList()
         ),
         alternativ = null

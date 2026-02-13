@@ -96,6 +96,8 @@ spec:
               orgno: "940380014"
             - name: Drammen kommunale pensjonskasse
               orgno: "980650383"
+            - name: Storebrand Pensjonstjenester
+              orgno: "931936492"
         - name: v3/alderspensjon
           product: pensjon
           enabled: true

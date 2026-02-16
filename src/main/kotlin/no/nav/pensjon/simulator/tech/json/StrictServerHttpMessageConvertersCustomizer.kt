@@ -13,7 +13,6 @@ import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter
 import tools.jackson.core.json.JsonWriteFeature
 import tools.jackson.databind.DeserializationFeature
 import tools.jackson.databind.json.JsonMapper
-import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 
 @Configuration
@@ -54,6 +53,6 @@ class ByteArrayToStringConverter : AbstractHttpMessageConverter<ByteArray>(Media
         inputMessage.body.readAllBytes()
 
     override fun writeInternal(bytes: ByteArray, outputMessage: HttpOutputMessage) {
-        outputMessage.body.write(String(bytes, StandardCharsets.UTF_8).toByteArray())
+        outputMessage.body.write(bytes)
     }
 }

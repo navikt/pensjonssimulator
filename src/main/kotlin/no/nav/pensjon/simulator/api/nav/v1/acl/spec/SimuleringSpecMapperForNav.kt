@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.api.nav.v1.acl.spec
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.Avdoed
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
@@ -126,7 +127,7 @@ class SimuleringSpecMapperForNav(
         ): Pre2025OffentligAfpSpec? =
             if (simuleringSpec.simuleringstype == SimuleringstypeSpecDto.ALDERSPENSJON_MED_TIDSBEGRENSET_OFFENTLIG_AFP)
                 Pre2025OffentligAfpSpec(
-                    afpOrdning = simuleringSpec.offentligAfp?.afpOrdning?.internalValue!!,
+                    afpOrdning = simuleringSpec.offentligAfp?.afpOrdning?.internalValue ?: AFPtypeEnum.AFPKOM,
                     inntektMaanedenFoerAfpUttakBeloep = inntektSisteMaanedOver1G ?: 0,
                     inntektUnderAfpUttakBeloep = inntektAarligBeloep ?: 0
                 )

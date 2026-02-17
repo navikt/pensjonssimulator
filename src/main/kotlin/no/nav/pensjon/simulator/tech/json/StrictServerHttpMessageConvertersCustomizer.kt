@@ -24,7 +24,7 @@ open class StrictServerHttpMessageConvertersCustomizer : ServerHttpMessageConver
      */
     override fun customize(builder: HttpMessageConverters.ServerBuilder) {
         builder
-            .addCustomConverter(ByteArrayToStringConverter())
+            //.addCustomConverter(ByteArrayToStringConverter())
             .addCustomConverter(
                 JacksonJsonHttpMessageConverter(
                     JsonMapper.builder().configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)

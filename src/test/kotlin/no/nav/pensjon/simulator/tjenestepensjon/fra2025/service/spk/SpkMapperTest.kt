@@ -28,7 +28,7 @@ class SpkMapperTest : ShouldSpec({
                 afpErForespurt = true,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
-                fremtidigeInntekter = null,
+                fremtidigeInntekter = emptyList(),
                 gjelderApoteker = false
             )
 
@@ -61,10 +61,6 @@ class SpkMapperTest : ShouldSpec({
                     aarligInntekt shouldBe 100000
                     fraOgMedDato shouldBe fjoraaretsFoersteDag
                 }
-                with(fremtidigInntektListe[1]) {
-                    aarligInntekt shouldBe 0
-                    fraOgMedDato shouldBe uttaksdato
-                }
                 aarIUtlandetEtter16 shouldBe 3
                 epsPensjon shouldBe true
                 eps2G shouldBe true
@@ -82,7 +78,7 @@ class SpkMapperTest : ShouldSpec({
                 afpErForespurt = false,
                 uttaksdato = uttaksdato,
                 foedselsdato = LocalDate.of(1990, 1, 1),
-                fremtidigeInntekter = null,
+                fremtidigeInntekter = emptyList(),
                 gjelderApoteker = false
             )
 
@@ -114,10 +110,6 @@ class SpkMapperTest : ShouldSpec({
                 with(fremtidigInntektListe[0]) {
                     aarligInntekt shouldBe 100000
                     fraOgMedDato shouldBe fjoraaretsFoersteDag
-                }
-                with(fremtidigInntektListe[1]) {
-                    aarligInntekt shouldBe 0
-                    fraOgMedDato shouldBe uttaksdato
                 }
                 aarIUtlandetEtter16 shouldBe 3
                 epsPensjon shouldBe true

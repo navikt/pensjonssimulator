@@ -19,10 +19,15 @@ import java.time.LocalDate
 object SpkMapper {
     private val log = KotlinLogging.logger {}
 
-    fun toRequestDto(spec: OffentligTjenestepensjonFra2025SimuleringSpec): SpkSimulerTjenestepensjonRequest =
-        spec.fremtidigeInntekter
-            ?.let { mapToRequestV2(spec) }
-            ?: mapToRequestV1(spec)
+    fun toRequestDto(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
+        SpkSimulerTjenestepensjonRequest(
+            personId = spec.pid.value,
+            uttaksListe = uttakListe(spec),
+            fremtidigInntektListe = inntekter(spec),
+            aarIUtlandetEtter16 = spec.utlandAntallAar,
+            epsPensjon = spec.epsHarPensjon,
+            eps2G = spec.epsHarInntektOver2G
+        )
 
     fun fromResponseDto(
         response: SpkSimulerTjenestepensjonResponse,
@@ -42,43 +47,14 @@ object SpkMapper {
         )
     }
 
-    private fun mapToRequestV1(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
-        SpkSimulerTjenestepensjonRequest(
-            personId = spec.pid.value,
-            uttaksListe = uttakListe(spec),
-            fremtidigInntektListe = inntekterV1(spec),
-            aarIUtlandetEtter16 = spec.utlandAntallAar,
-            epsPensjon = spec.epsHarPensjon,
-            eps2G = spec.epsHarInntektOver2G
-        )
-
-    private fun mapToRequestV2(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
-        SpkSimulerTjenestepensjonRequest(
-            personId = spec.pid.value,
-            uttaksListe = uttakListe(spec),
-            fremtidigInntektListe = inntekterV2(spec),
-            aarIUtlandetEtter16 = spec.utlandAntallAar,
-            epsPensjon = spec.epsHarPensjon,
-            eps2G = spec.epsHarInntektOver2G
-        )
-
-    /**
-     * Inntekt f.o.m. fjorårets første dag til uttaksdato.
-     */
-    private fun inntekterV1(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> =
-        listOf(
-            naaverendeInntekt(aarligInntekt = spec.sisteInntekt),
-            FremtidigInntekt(fraOgMedDato = spec.uttaksdato, aarligInntekt = 0)
-        )
-
     /**
      * Inntekter f.o.m. fjorårets første dag til siste 'f.o.m.'-dato i listen over fremtidige inntekter.
      */
-    private fun inntekterV2(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
+    private fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
         val fremtidigeInntekter: MutableList<FremtidigInntekt> =
             mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
 
-        fremtidigeInntekter.addAll(spec.fremtidigeInntekter.orEmpty().map(::inntekt))
+        fremtidigeInntekter.addAll(spec.fremtidigeInntekter.map(::inntekt))
         return fremtidigeInntekter
     }
 

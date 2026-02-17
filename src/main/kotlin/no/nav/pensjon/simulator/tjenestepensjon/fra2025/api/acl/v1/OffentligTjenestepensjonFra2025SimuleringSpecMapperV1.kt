@@ -16,7 +16,7 @@ object OffentligTjenestepensjonFra2025SimuleringSpecMapperV1 {
             afpErForespurt = source.brukerBaOmAfp,
             epsHarPensjon = source.epsPensjon,
             epsHarInntektOver2G = source.eps2G,
-            fremtidigeInntekter = source.fremtidigeInntekter?.map(::inntekt),
+            fremtidigeInntekter = source.fremtidigeInntekter.map(::inntekt),
             gjelderApoteker = source.erApoteker
         )
 

@@ -11,7 +11,7 @@ data class SimulerOffentligTjenestepensjonFra2025SpecV1(
     val brukerBaOmAfp: Boolean,
     val epsPensjon: Boolean,
     val eps2G: Boolean,
-    val fremtidigeInntekter: List<SimulerTjenestepensjonFremtidigInntektDto>? = null, //kun i V2
+    val fremtidigeInntekter: List<SimulerTjenestepensjonFremtidigInntektDto>,
     val erApoteker: Boolean
 )
 

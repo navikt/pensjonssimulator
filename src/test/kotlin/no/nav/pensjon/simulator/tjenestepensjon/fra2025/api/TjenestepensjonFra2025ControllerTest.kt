@@ -174,7 +174,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
             brukerBaOmAfp = false,
             epsPensjon = false,
             eps2G = false,
-            fremtidigeInntekter = null,
+            fremtidigeInntekter = emptyList(),
             erApoteker = erApoteker
         )
 

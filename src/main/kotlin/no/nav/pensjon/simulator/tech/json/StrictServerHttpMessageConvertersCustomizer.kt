@@ -24,10 +24,10 @@ open class StrictServerHttpMessageConvertersCustomizer : ServerHttpMessageConver
      */
     override fun customize(builder: HttpMessageConverters.ServerBuilder) {
         builder
-            //.addCustomConverter(ByteArrayToStringConverter())
+            .addCustomConverter(ByteArrayToStringConverter())
             .addCustomConverter(
                 JacksonJsonHttpMessageConverter(
-                    JsonMapper.builder().configure(JsonWriteFeature.WRITE_NUMBERS_AS_STRINGS, true)
+                    JsonMapper.builder()
                         .addModule(dateSerializerModule())
                         .defaultDateFormat(SimpleDateFormat("yyyy-MM-dd"))
                         .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES) // i.e. strict
@@ -38,6 +38,7 @@ open class StrictServerHttpMessageConvertersCustomizer : ServerHttpMessageConver
                 )
             )
     }
+
 }
 
 /**

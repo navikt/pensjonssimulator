@@ -2,11 +2,13 @@ package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.validity.Problem
 import java.time.LocalDate
 
 data class SimulertPensjonEllerAlternativ(
     val pensjon: SimulertPensjon?,
-    val alternativ: SimulertAlternativ?
+    val alternativ: SimulertAlternativ?,
+    val problem: Problem? = null
 )
 
 // PEN: SimulatorSimulertAlternativ

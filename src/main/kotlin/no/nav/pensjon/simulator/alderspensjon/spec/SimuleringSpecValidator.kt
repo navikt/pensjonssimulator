@@ -30,7 +30,7 @@ object SimuleringSpecValidator {
     private fun validateUttak(spec: SimuleringSpec, today: LocalDate) {
         spec.foersteUttakDato?.let {
             if (it.isBefore(today))
-                ugyldigUttaksdato(message = "Dato for første uttak er for tidlig")
+                ugyldigUttaksdato(message = "Dato for første uttak ($it) er for tidlig")
         } ?: ugyldigUttaksdato(message = "Dato for første uttak mangler")
 
         if (spec.heltUttakDato != null) {

@@ -2,8 +2,8 @@ package no.nav.pensjon.simulator.api.nav.v1.acl.spec
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.Avdoed
+import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
@@ -26,8 +25,7 @@ import java.time.LocalDate
 class SimuleringSpecMapperForNav(
     private val personService: GeneralPersonService,
     private val inntektService: InntektService,
-    private val grunnbeloepService: GrunnbeloepService,
-    private val time: Time
+    private val grunnbeloepService: GrunnbeloepService
 ) {
     fun fromDto(source: SimuleringSpecDto): SimuleringSpec {
         val pid = Pid(source.pid)
@@ -87,7 +85,7 @@ class SimuleringSpecMapperForNav(
     private fun gradertUttak(source: GradertUttakSpecDto, foedselsdato: LocalDate) =
         GradertUttakSpec(
             grad = source.grad!!.internalValue,
-            uttakFom = validated(uttakFom = uttakDato(foedselsdato, uttakAlder = alder(source.uttakFomAlder!!))),
+            uttakFom = uttakDato(foedselsdato, uttakAlder = alder(source.uttakFomAlder!!)),
             aarligInntekt = source.aarligInntekt ?: 0
         )
 
@@ -96,18 +94,12 @@ class SimuleringSpecMapperForNav(
         val tomAlder = alder(source.inntektTomAlder)
 
         return HeltUttakSpec(
-            uttakFom = validated(uttakFom = uttakDato(foedselsdato, uttakAlder = fomAlder)),
+            uttakFom = uttakDato(foedselsdato, uttakAlder = fomAlder),
             aarligInntekt = source.aarligInntekt,
             inntektTom = inntektTomDato(foedselsdato, tomAlder),
             inntektEtterHeltUttakAntallAar = tomAlder.aar - fomAlder.aar + 1 // +1, siden fra/til OG MED
         )
     }
-
-    private fun validated(uttakFom: LocalDate): LocalDate =
-        if (uttakFom < time.today())
-            throw RegelmotorValideringException("Uttaksdato ($uttakFom) kan ikke være i fortid")
-        else
-            uttakFom
 
     private fun livsvarigOffentligAfp(source: InnvilgetLivsvarigOffentligAfpSpecDto) =
         LivsvarigOffentligAfpSpec(
@@ -135,7 +127,7 @@ class SimuleringSpecMapperForNav(
         ): Pre2025OffentligAfpSpec? =
             if (simuleringSpec.simuleringstype == SimuleringstypeSpecDto.ALDERSPENSJON_MED_TIDSBEGRENSET_OFFENTLIG_AFP)
                 Pre2025OffentligAfpSpec(
-                    afpOrdning = simuleringSpec.offentligAfp?.afpOrdning?.internalValue!!,
+                    afpOrdning = simuleringSpec.offentligAfp?.afpOrdning?.internalValue ?: AFPtypeEnum.AFPKOM,
                     inntektMaanedenFoerAfpUttakBeloep = inntektSisteMaanedOver1G ?: 0,
                     inntektUnderAfpUttakBeloep = inntektAarligBeloep ?: 0
                 )

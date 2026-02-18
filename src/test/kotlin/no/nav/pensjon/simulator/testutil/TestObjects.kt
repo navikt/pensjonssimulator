@@ -101,6 +101,51 @@ object TestObjects {
         epsKanOverskrives = false
     )
 
+    fun tidsbegrensetOffentligAfpSimuleringSpec(
+        foedselsdato: LocalDate,
+        sivilstatus: SivilstatusType,
+        foersteUttakDato: LocalDate?,
+        heltUttakDato: LocalDate?,
+        forventetInntektBeloep: Int,
+        inntektUnderGradertUttakBeloep: Int,
+        inntektEtterHeltUttakBeloep: Int,
+        inntektEtterHeltUttakAntallAar: Int,
+        pre2025OffentligAfp: Pre2025OffentligAfpSpec,
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
+    ) = SimuleringSpec(
+        type = SimuleringTypeEnum.AFP_ETTERF_ALDER, // tidsbegrenset offentlig AFP
+        sivilstatus,
+        epsHarPensjon = false,
+        foersteUttakDato,
+        heltUttakDato = heltUttakDato,
+        pid = pid,
+        foedselDato = foedselsdato,
+        avdoed = null,
+        isTpOrigSimulering = false,
+        simulerForTp = false,
+        uttakGrad = UttakGradKode.P_0, // alltid 0 for tidsbegrenset offentlig AFP
+        forventetInntektBeloep = forventetInntektBeloep,
+        inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
+        inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
+        inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+        foedselAar = 0,
+        utlandAntallAar = 0,
+        utlandPeriodeListe = mutableListOf(),
+        fremtidigInntektListe = mutableListOf(),
+        brukFremtidigInntekt = false,
+        inntektOver1GAntallAar = 0,
+        flyktning = false,
+        epsHarInntektOver2G = false,
+        livsvarigOffentligAfp = null,
+        pre2025OffentligAfp = pre2025OffentligAfp,
+        erAnonym = false,
+        ignoreAvslag = false,
+        isHentPensjonsbeholdninger = false,
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false
+    )
+
     private fun utlandPeriodeListe(): MutableList<UtlandPeriode> =
         mutableListOf(
             UtlandPeriode(

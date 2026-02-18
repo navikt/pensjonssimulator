@@ -5,9 +5,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.error.DuplicateOpptjeningsperiodeEndDateException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.error.MissingOpptjeningsperiodeException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import java.time.LocalDate

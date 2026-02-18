@@ -1,5 +1,6 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl
 
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import java.time.LocalDate
 
 data class HentPrognoseRequestDto(
@@ -27,12 +28,21 @@ data class SimulertAFPPrivatDto(
     val kompensasjonstillegg: Double
 )
 
-enum class SivilstandCodeEnumDto {
-    ENKE,
-    GIFT,
-    REPA,
-    SKIL,
-    UGIF
+/**
+ * Subset of no.nav.pensjon.simulator.person.Sivilstandstype
+ */
+enum class SivilstandCodeEnumDto(val internalValue: SivilstandKode) {
+    ENKE(internalValue = SivilstandKode.ENKE),
+    GIFT(internalValue = SivilstandKode.GIFT),
+    REPA(internalValue = SivilstandKode.REGISTRERT_PARTNER),
+    SKIL(internalValue = SivilstandKode.SKILT),
+    UGIF(internalValue = SivilstandKode.UGIFT);
+
+    companion object {
+        fun fromInternalValue(value: SivilstandKode): SivilstandCodeEnumDto =
+            entries.firstOrNull { it.internalValue == value }
+                ?: throw IllegalArgumentException("Ingen ekstern enum-verdi for sivilstand $value")
+    }
 }
 
 data class InntektDto(
@@ -60,7 +70,7 @@ data class SimuleringsdataDto(
     val poengArTom1991: Int?,
     val poengArFom1992: Int?,
     val uforegradVedOmregning: Int?,
-    val basisgp: Double? ,
+    val basisgp: Double?,
     val basispt: Double?,
     val basistp: Double?,
     val delingstallUttak: Double?,

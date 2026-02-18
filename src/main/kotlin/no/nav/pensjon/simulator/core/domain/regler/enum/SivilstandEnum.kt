@@ -4,6 +4,7 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
  * pensjon-regler-api: no/nav/pensjon/regler/domain/enum/SivilstandEnum.kt
  * Copied 2025-05-22
  * Plus added comments
+ * Ref. lovdata.no/forskrift/2017-07-14-1201/§3-1-1
  */
 enum class SivilstandEnum {
     /**

@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.s
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Simuleringsperiode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Simuleringsperiode
 import java.time.LocalDate
 
 object SimuleringperioderListeAggregator {

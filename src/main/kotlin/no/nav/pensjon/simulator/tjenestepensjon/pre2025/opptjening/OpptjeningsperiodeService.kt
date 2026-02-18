@@ -2,14 +2,14 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening
 
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.error.DuplicateOpptjeningsperiodeEndDateException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.error.MissingOpptjeningsperiodeException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.OpptjeningsperiodeDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.OpptjeningsperiodeDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.stereotype.Service
 
 @Service
 class OpptjeningsperiodeService {
-
+//TODO remove dependency on DTO
     fun getOpptjeningsperiodeListe(tpOrdning: TpOrdningFullDto, stillingsprosentListe: List<Stillingsprosent>) =
         OpptjeningsperiodeResponse(
             mapOf(tpOrdning to mapStillingsprosentToOpptjeningsperiodeList(stillingsprosentListe)),

@@ -63,6 +63,7 @@ data class LevendeEpsDto(
 
 /**
  * Informasjon om avdød ektefelle/partner/samboer (EPS) er relevant for pensjon med gjenlevenderett.
+ * Ref. Folketrygdloven kap. 17 - lovdata.no/lov/1997-02-28-19/KAPITTEL_5-4
  */
 data class AvdoedEpsDto(
     @field:NotNull val pid: String,

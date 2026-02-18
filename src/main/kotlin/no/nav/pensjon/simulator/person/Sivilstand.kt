@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.person
 
+//TODO Rename to Sivilstatus
 enum class Sivilstand(val harEps: Boolean) {
     UNKNOWN(false),
     UOPPGITT(false),

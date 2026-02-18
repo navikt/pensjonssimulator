@@ -1,20 +1,23 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.offentligafp
 
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SimulertOffentligAfp
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertOffentligAfp
 
 object OffentligAfpAggregator {
 
-    fun aggregate(pre2025OffentligAfp: Simuleringsresultat?, afpEtterfAlder: Boolean): SimulertOffentligAfp? {
-        return if (afpEtterfAlder) {
-            pre2025OffentligAfp?.beregning?.let {
-                SimulertOffentligAfp(
-                    brutto = it.brutto,
-                    tidligerePensjonsgivendeInntekt = it.tp?.spt?.poengrekke?.tpi ?: 0
-                )
-            }
-        } else {
+    fun aggregate(
+        tidsbegrensetOffentligAfp: Simuleringsresultat?,
+        gjelderOffentligAfp: Boolean
+    ): SimulertOffentligAfp? =
+        if (gjelderOffentligAfp)
+            tidsbegrensetOffentligAfp?.beregning?.let(::simulertOffentligAfp)
+        else
             null
-        }
-    }
+
+    private fun simulertOffentligAfp(beregning: Beregning) =
+        SimulertOffentligAfp(
+            brutto = beregning.brutto,
+            tidligerePensjonsgivendeInntekt = beregning.tp?.spt?.poengrekke?.tpi ?: 0
+        )
 }

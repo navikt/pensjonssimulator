@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.si
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.simulertberegningsinformasjon.SimulerBeregningsinformasjonAggregator.aggregate
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.map.pensjonsbeholdninger.PensjonsbeholdningerMapper.map
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.map.sivilstand.SivilstandMapper.map
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.TjenestepensjonSimuleringPre2025Spec
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import java.time.LocalDate
 
 object TjenestepensjonSimuleringPre2025SpecAggregator {
@@ -24,21 +24,31 @@ object TjenestepensjonSimuleringPre2025SpecAggregator {
         stillingsprosentSpec: StillingsprosentSpec,
         sisteGyldigeOpptjeningsaar: Int
     ): TjenestepensjonSimuleringPre2025Spec {
-        val afpEtterfAlder = simuleringSpec.type == SimuleringTypeEnum.AFP_ETTERF_ALDER
+        val gjelderOffentligAfp = simuleringSpec.type == SimuleringTypeEnum.AFP_ETTERF_ALDER
         val foedselsdato: LocalDate = simuleringResultat.foedselDato!! //ikke anonym simulering
 
-        val offentligAfp = aggregate(simuleringResultat.pre2025OffentligAfp, afpEtterfAlder)
-        val privatAfp = aggregate(simuleringResultat.privatAfpPeriodeListe, afpEtterfAlder)
+        val offentligAfp = aggregate(
+            tidsbegrensetOffentligAfp = simuleringResultat.pre2025OffentligAfp,
+            gjelderOffentligAfp
+        )
+
+        val privatAfp = aggregate(
+            afpPeriodeListe = simuleringResultat.privatAfpPeriodeListe,
+            gjelderOffentligAfp
+        )
+
         val inntekter = aggregate(
             spec = createSpec(simuleringSpec, foedselsdato),
             sisteGyldigeOpptjeningsaar = sisteGyldigeOpptjeningsaar
         )
+
         val simuleringsperioder =
             aggregate(createSpec(simuleringSpec, offentligAfp, stillingsprosentSpec, foedselsdato))
+
         val simuleringsdata = aggregate(
             foedselsdato,
-            simuleringSpec.foersteUttakDato,
-            simuleringResultat.alderspensjon?.simulertBeregningInformasjonListe
+            foersteUttakDato = simuleringSpec.foersteUttakDato,
+            simulertBeregningInformasjonListe = simuleringResultat.alderspensjon?.simulertBeregningInformasjonListe
         )
 
         return TjenestepensjonSimuleringPre2025Spec(

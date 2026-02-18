@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.map.sivilstand
 
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SivilstandKode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 
 object SivilstandMapper {
 

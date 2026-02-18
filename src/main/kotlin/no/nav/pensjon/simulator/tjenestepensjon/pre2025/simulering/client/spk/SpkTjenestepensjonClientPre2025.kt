@@ -1,9 +1,7 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
@@ -12,9 +10,12 @@ import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseMapper
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseResponseDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.TjenestepensjonClientPre2025
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.HentPrognoseRequestDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.HentPrognoseResponseDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseResultMapper.fromDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseSpecMapper.toDto
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -27,13 +28,23 @@ class SpkTjenestepensjonClientPre2025(
     @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     private val traceAid: TraceAid,
-    private val sporingsloggService: SporingsloggService,
-) : ExternalServiceClient(retryAttempts) {
-    private val log = KotlinLogging.logger {}
+    private val sporingslogger: SporingsloggService,
+) : ExternalServiceClient(retryAttempts), TjenestepensjonClientPre2025 {
+
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
-    fun getPrognose(request: HentPrognoseRequestDto, tpOrdning: TpOrdningFullDto): SimulerOffentligTjenestepensjonResult {
-        sporingsloggService.logUtgaaendeRequest(SPK, Pid(request.fnr), request.toString())
+    override fun getPrognose(
+        spec: TjenestepensjonSimuleringPre2025Spec,
+        tpOrdning: TpOrdningFullDto
+    ): SimulerOffentligTjenestepensjonResult {
+        val request: HentPrognoseRequestDto = toDto(spec)
+
+        sporingslogger.logUtgaaendeRequest(
+            organisasjonsnummer = Organisasjoner.SPK,
+            pid = spec.pid,
+            leverteData = request.toString()
+        )
+
         val response: HentPrognoseResponseDto? = webClient
             .post()
             .uri(PATH)
@@ -42,16 +53,13 @@ class SpkTjenestepensjonClientPre2025(
             .retrieve()
             .bodyToMono<HentPrognoseResponseDto>()
             .block()
-        return response?.let { HentPrognoseMapper.fromDto(it) }
-            ?: HentPrognoseMapper.fromDto(HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr))
+
+        return response?.let(::fromDto)
+            ?: fromDto(HentPrognoseResponseDto(tpnr = request.sisteTpnr, navnOrdning = tpOrdning.tpNr))
     }
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

@@ -1,22 +1,22 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.afpprivat
 
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SimulertPrivatAfp
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertPrivatAfp
 
 object AfpPrivatAggregator {
 
-    fun aggregate(privatAfpPeriodeListe: List<PrivatAfpPeriode>, afpEtterfAlder: Boolean): SimulertPrivatAfp? {
-        return if (afpEtterfAlder){
+    fun aggregate(afpPeriodeListe: List<PrivatAfpPeriode>, gjelderOffentligAfp: Boolean): SimulertPrivatAfp? =
+        if (gjelderOffentligAfp)
             null
-        }
-        else {
-            privatAfpPeriodeListe
-                .minWithOrNull(getComparatorAfpPrivatePeriodeBasedOnAlder())
-                ?.let { SimulertPrivatAfp(it.afpOpptjening!!, it.kompensasjonstillegg!!.toDouble()) }
-        }
-    }
+        else
+            afpPeriodeListe.minWithOrNull(comparePerioderBasedOnAlder())?.let(::simulertPrivatAfp)
 
-    private fun getComparatorAfpPrivatePeriodeBasedOnAlder(): Comparator<PrivatAfpPeriode> {
-        return compareBy(nullsLast(naturalOrder())) { it.alderAar }
-    }
+    private fun simulertPrivatAfp(periode: PrivatAfpPeriode) =
+        SimulertPrivatAfp(
+            totalAfpBeholdning = periode.afpOpptjening!!,
+            kompensasjonstillegg = periode.kompensasjonstillegg!!.toDouble()
+        )
+
+    private fun comparePerioderBasedOnAlder(): Comparator<PrivatAfpPeriode> =
+        compareBy(nullsLast(naturalOrder())) { it.alderAar }
 }

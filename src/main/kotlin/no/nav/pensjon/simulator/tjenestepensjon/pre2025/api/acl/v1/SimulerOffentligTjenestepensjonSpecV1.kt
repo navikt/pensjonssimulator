@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import java.time.LocalDate
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,32 +18,29 @@ data class SimulerOffentligTjenestepensjonSpecV1(
     val simuleringsperiodeListe: List<SimuleringsperiodeV1> = emptyList(),
     val simuleringsdataListe: List<SimuleringsdataV1> = emptyList(),
     val tpForholdListe: List<TpForholdV1>? = emptyList(),
-){
+) {
 
     override fun toString(): String {
         return "SimulerOffentligTjenestepensjonRequest(fodselsdato='$fodselsdato', sisteTpnr=$sisteTpnr, sprak=$sprak, simulertAFPOffentlig=$simulertAFPOffentlig, simulertAFPPrivat=$simulertAFPPrivat, sivilstandkode=$sivilstandkode, inntektListe=$inntektListe, pensjonsbeholdningsperiodeListe=$pensjonsbeholdningsperiodeListe, simuleringsperiodeListe=$simuleringsperiodeListe, simuleringsdataListe=$simuleringsdataListe, tpForholdListe=$tpForholdListe)"
     }
 }
 
-data class SimulertAFPOffentligV1 (
+data class SimulertAFPOffentligV1(
     val simulertAFPOffentligBrutto: Int,
     val tpi: Int = 0,
 )
 
-data class SimulertAFPPrivatV1 (
+data class SimulertAFPPrivatV1(
     val afpOpptjeningTotalbelop: Int,
     val kompensasjonstillegg: Double,
 )
 
-enum class SivilstandCodeEnumV1 {
-    ENKE,
-    GIFT,
-    /**
-     * Registrert partner
-     */
-    REPA,
-    SKIL,
-    UGIF
+enum class SivilstandCodeEnumV1(val internalValue: SivilstandKode) {
+    ENKE(internalValue = SivilstandKode.ENKE),
+    GIFT(internalValue = SivilstandKode.GIFT),
+    REPA(internalValue = SivilstandKode.REGISTRERT_PARTNER),
+    SKIL(internalValue = SivilstandKode.SKILT),
+    UGIF(internalValue = SivilstandKode.UGIFT)
 }
 
 data class InntektV1(
@@ -50,22 +48,21 @@ data class InntektV1(
     val inntekt: Double,
 )
 
-
-data class PensjonsbeholdningsperiodeV1 (
+data class PensjonsbeholdningsperiodeV1(
     val datoFom: LocalDate,
     val pensjonsbeholdning: Double,
     val garantipensjonsbeholdning: Double,
     val garantitilleggsbeholdning: Double,
 )
 
-data class SimuleringsperiodeV1 (
+data class SimuleringsperiodeV1(
     val datoFom: LocalDate,
     val folketrygdUttaksgrad: Int,
     val stillingsprosentOffentlig: Int,
     val simulerAFPOffentligEtterfulgtAvAlder: Boolean,
 )
 
-data class SimuleringsdataV1 (
+data class SimuleringsdataV1(
     val datoFom: LocalDate,
     val andvendtTrygdetid: Int,
     val poengArTom1991: Int,
@@ -79,7 +76,7 @@ data class SimuleringsdataV1 (
     val sluttpoengtall: Double,
 )
 
-data class TpForholdV1 (
+data class TpForholdV1(
     val tpnr: String,
     val opptjeningsperiodeListe: List<OpptjeningsperiodeV1> = emptyList(),
 )

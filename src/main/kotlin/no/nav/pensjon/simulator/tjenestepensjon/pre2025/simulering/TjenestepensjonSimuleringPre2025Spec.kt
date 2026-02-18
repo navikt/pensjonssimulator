@@ -1,8 +1,6 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
 
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SivilstandCodeEnumV1
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
 import java.time.LocalDate
 
 data class TjenestepensjonSimuleringPre2025Spec(
@@ -17,7 +15,7 @@ data class TjenestepensjonSimuleringPre2025Spec(
     val simuleringsperioder: List<Simuleringsperiode>,
     val simuleringsdata: List<Simuleringsdata>,
     val tpForhold: List<TpForhold>,
-    )
+)
 
 data class SimulertOffentligAfp(
     val brutto: Int,
@@ -29,16 +27,15 @@ data class SimulertPrivatAfp(
     val kompensasjonstillegg: Double
 )
 
-enum class SivilstandKode(val dtoSivilstand: SivilstandCodeEnumV1, val remoteDtoSivilstand: SivilstandCodeEnumDto) {
-    ENKE(SivilstandCodeEnumV1.ENKE, SivilstandCodeEnumDto.ENKE),
-    GIFT(SivilstandCodeEnumV1.GIFT, SivilstandCodeEnumDto.GIFT),
-    REGISTRERT_PARTNER(SivilstandCodeEnumV1.REPA, SivilstandCodeEnumDto.REPA),
-    SKILT(SivilstandCodeEnumV1.SKIL, SivilstandCodeEnumDto.SKIL),
-    UGIFT(SivilstandCodeEnumV1.UGIF, SivilstandCodeEnumDto.UGIF);
-
-    companion object {
-        fun fromDto(dto: SivilstandCodeEnumV1) = entries.firstOrNull { it.dtoSivilstand == dto } ?: throw IllegalArgumentException("Unknown dtoSivilstand: $dto")
-    }
+/**
+ * Subset of no.nav.pensjon.simulator.person.Sivilstandstype
+ */
+enum class SivilstandKode {
+    ENKE,
+    GIFT,
+    REGISTRERT_PARTNER,
+    SKILT,
+    UGIFT
 }
 
 data class Inntekt(
@@ -66,7 +63,7 @@ data class Simuleringsdata(
     val poengAarTom1991: Int?,
     val poengAarFom1992: Int?,
     val ufoeregradVedOmregning: Int,
-    val basisGrunnpensjon: Double? ,
+    val basisGrunnpensjon: Double?,
     val basisPensjonstillegg: Double?,
     val basisTilleggspensjon: Double?,
     val delingstallUttak: Double?,
@@ -87,4 +84,3 @@ data class Opptjeningsperiode(
     val faktiskHovedloenn: Int?,
     val stillingsuavhengigTilleggsloenn: Int?
 )
-

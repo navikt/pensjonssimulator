@@ -3,14 +3,13 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SPKStillingsprosentSoapClient
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.stereotype.Service
 import kotlin.system.measureTimeMillis
 
 @Service
-class SPKStillingsprosentService(private val client: SPKStillingsprosentSoapClient) {
+class SpkStillingsprosentService(private val client: SPKStillingsprosentSoapClient) {
 
     private val log = KotlinLogging.logger {}
 

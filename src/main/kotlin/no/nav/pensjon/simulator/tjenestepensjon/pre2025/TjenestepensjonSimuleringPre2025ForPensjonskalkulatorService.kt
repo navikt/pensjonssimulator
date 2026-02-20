@@ -14,9 +14,9 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodeP
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodePre2025.Companion.fromFeilkode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningId
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.apache.el.parser.ParseException
 import org.springframework.stereotype.Component
@@ -25,7 +25,7 @@ import java.time.LocalDate
 @Component
 class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
     val tpregisteretClient: TpregisteretClient,
-    val spkStillingsprosentService: SPKStillingsprosentService,
+    val spkStillingsprosentService: SpkStillingsprosentService,
     val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025,
     private val featureToggleService: FeatureToggleService
 ) {
@@ -37,11 +37,12 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
 
         try {
             val pid = spec.pid
+
             val alleForhold: List<TpOrdning> = tpregisteretClient.findAlleTpForhold(pid)
                 .mapNotNull { forhold ->
                     tpregisteretClient.findTssId(forhold.tpNr)
-                        ?.let { TPOrdningIdDto(tpId = forhold.tpNr, tssId = it) }
-                        ?.mapTilTpOrdningFull(forhold)
+                        ?.let { TpOrdningId(tpId = forhold.tpNr, tssId = it) }
+                        ?.toTpOrdning(forhold)
                 }
 
             if (alleForhold.isEmpty()) {
@@ -79,6 +80,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
             }
 
             log.debug { "Request simulation from SPK using REST" }
+
             val response = spkTjenestepensjonServicePre2025.simulerOffentligTjenestepensjon(
                 spec,
                 stillingsprosentListe,
@@ -100,6 +102,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
             }
 
             log.warn(e) { "Feilmelding i respons fra SPK: $e" }
+
             if (spkMedlemskap == null || errorCode == null || errorMessage == null){
                 Metrics.countTjenestepensjonSimuleringPre2025(UKJENT_FEIL_HOS_SPK)
                 throw e
@@ -196,7 +199,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                     )
                 ),
                 brukerErIkkeMedlemAvTPOrdning = false,
-                brukerErMedlemAvTPOrdningSomIkkeStoettes = false,
+                brukerErMedlemAvTPOrdningSomIkkeStoettes = false
             )
         }
     }

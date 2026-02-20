@@ -6,17 +6,17 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjeneste
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
+import no.nav.pensjon.simulator.tpregisteret.TpOrdningId
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Component
 
 @Component
 class TjenestepensjonSimuleringPre2025Service(
     val tpregisteretClient: TpregisteretClient,
-    val spkStillingsprosentService: SPKStillingsprosentService,
-    val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025,
+    val spkStillingsprosentService: SpkStillingsprosentService,
+    val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025
 ) {
     val log = KotlinLogging.logger { }
 
@@ -29,8 +29,8 @@ class TjenestepensjonSimuleringPre2025Service(
             val alleForhold: List<TpOrdning> = tpregisteretClient.findAlleTpForhold(pid)
                 .mapNotNull { forhold ->
                     tpregisteretClient.findTssId(forhold.tpNr)
-                        ?.let { TPOrdningIdDto(tpId = forhold.tpNr, tssId = it) }
-                        ?.mapTilTpOrdningFull(forhold)
+                        ?.let { TpOrdningId(tpId = forhold.tpNr, tssId = it) }
+                        ?.toTpOrdning(forhold)
                 }
 
             if (alleForhold.isEmpty()) {

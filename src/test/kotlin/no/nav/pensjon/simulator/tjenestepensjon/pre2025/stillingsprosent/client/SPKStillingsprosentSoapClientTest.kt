@@ -7,7 +7,7 @@ import io.mockk.*
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper.XMLHentStillingsprosentListeResponse
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent

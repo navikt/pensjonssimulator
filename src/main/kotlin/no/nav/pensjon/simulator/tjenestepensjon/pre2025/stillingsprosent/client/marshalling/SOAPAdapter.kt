@@ -1,18 +1,14 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling
 
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.FNR
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.HentStillingsprosentListeRequest
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.XMLHentStillingsprosentListeRequestWrapper
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.HentStillingsprosentListeResponse
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.*
 
 object SOAPAdapter {
 
-    private fun Stillingsprosent.toXML() = XMLStillingsprosent().also {
+    private fun StillingsprosentDto.toXML() = XMLStillingsprosent().also {
         it.aldersgrense = aldersgrense
         it.datoFom = datoFom.toXMLGregorianCalendar()
         it.datoTom = datoTom?.toXMLGregorianCalendar()
@@ -49,9 +45,9 @@ object SOAPAdapter {
         }
     }
 
-    fun unmarshal(result: XMLHentStillingsprosentListeResponseWrapper): List<Stillingsprosent> =
+    fun unmarshal(result: XMLHentStillingsprosentListeResponseWrapper): List<StillingsprosentDto> =
         result.response.stillingsprosentListe.map(XMLStillingsprosent::toStillingsprosent)
 
-    fun handleFault(fault: XmlFaultWrapper): List<Stillingsprosent> =
+    fun handleFault(fault: XmlFaultWrapper): List<StillingsprosentDto> =
         throw EgressException(fault.toFault().toString())
 }

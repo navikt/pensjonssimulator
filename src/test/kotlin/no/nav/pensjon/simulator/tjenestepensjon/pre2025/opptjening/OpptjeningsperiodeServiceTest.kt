@@ -4,8 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.OpptjeningsperiodeDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import java.time.LocalDate
 
@@ -32,7 +31,7 @@ class OpptjeningsperiodeServiceTest : FunSpec({
         stillingsuavhengigTilleggslonn = stillingsuavhengigTilleggslonn,
         utvidelse = null
     )
-
+/*
     fun opptjeningsperiode(
         datoFom: LocalDate = LocalDate.of(2020, 1, 1),
         datoTom: LocalDate? = LocalDate.of(2025, 12, 31),
@@ -48,7 +47,7 @@ class OpptjeningsperiodeServiceTest : FunSpec({
         faktiskHovedlonn = faktiskHovedlonn,
         stillingsuavhengigTilleggslonn = stillingsuavhengigTilleggslonn
     )
-/*
+
     // --- mapStillingsprosentToOpptjeningsperiodeList ---
 
     test("mapStillingsprosentToOpptjeningsperiodeList maps all fields correctly") {

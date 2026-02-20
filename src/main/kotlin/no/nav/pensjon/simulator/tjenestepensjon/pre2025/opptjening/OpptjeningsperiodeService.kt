@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening
 
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.OpptjeningsperiodeDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.stereotype.Service
 

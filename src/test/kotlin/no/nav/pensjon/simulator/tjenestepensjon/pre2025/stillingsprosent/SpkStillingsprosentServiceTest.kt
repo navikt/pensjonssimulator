@@ -7,12 +7,11 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SPKStillingsprosentSoapClient
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import java.time.LocalDate
 
-class SPKStillingsprosentServiceTest : FunSpec({
+class SpkStillingsprosentServiceTest : FunSpec({
 
     val pid = Pid("12345678910")
 
@@ -23,18 +22,19 @@ class SPKStillingsprosentServiceTest : FunSpec({
             tssId = "tss-3010"
         )
 
-    fun stillingsprosent(prosent: Double = 100.0) = Stillingsprosent(
-        datoFom = LocalDate.of(2020, 1, 1),
-        datoTom = null,
-        stillingsprosent = prosent,
-        aldersgrense = 67,
-        faktiskHovedlonn = "500000",
-        stillingsuavhengigTilleggslonn = null,
-        utvidelse = null
-    )
+    fun stillingsprosent(prosent: Double = 100.0) =
+        Stillingsprosent(
+            datoFom = LocalDate.of(2020, 1, 1),
+            datoTom = null,
+            stillingsprosent = prosent,
+            aldersgrense = 67,
+            faktiskHovedlonn = "500000",
+            stillingsuavhengigTilleggslonn = null,
+            utvidelse = null
+        )
 
     fun service(client: SPKStillingsprosentSoapClient = mockk()) =
-        SPKStillingsprosentService(client)
+        SpkStillingsprosentService(client)
 
     // --- Happy path ---
 

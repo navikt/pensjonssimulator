@@ -11,8 +11,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifi
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
@@ -60,7 +60,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
 
     fun service(
         tpClient: TpregisteretClient = tpregisteretClient(),
-        spkStillingsprosent: SPKStillingsprosentService = mockk {
+        spkStillingsprosent: SpkStillingsprosentService = mockk {
             every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
         spkTjenestepensjon: SPKTjenestepensjonServicePre2025 = mockk {
@@ -148,7 +148,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
     // --- Empty stillingsprosent ---
 
     test("simuler throws RuntimeException when stillingsprosent is empty") {
-        val spkStillingsprosent = mockk<SPKStillingsprosentService> {
+        val spkStillingsprosent = mockk<SpkStillingsprosentService> {
             every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
 

@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent
 
 import java.time.LocalDate
 
@@ -9,5 +9,10 @@ data class Stillingsprosent(
     var aldersgrense: Int,
     var faktiskHovedlonn: String?,
     var stillingsuavhengigTilleggslonn: String?,
-    var utvidelse: Utvidelse.StillingsprosentUtvidelse1?
+    var utvidelse: StillingsprosentUtvidelse?
+)
+
+data class StillingsprosentUtvidelse(
+    val any: List<Any>,
+    val otherAttributes: Map<String, String>
 )

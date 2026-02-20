@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.ac
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseSpecMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.TpForholdDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.TjenestepensjonClientPre2025
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.stereotype.Service
 import tools.jackson.databind.ObjectMapper

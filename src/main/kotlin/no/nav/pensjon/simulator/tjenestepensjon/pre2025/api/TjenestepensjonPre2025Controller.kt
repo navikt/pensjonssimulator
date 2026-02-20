@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.*
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.SimulerOffentligTjenestepensjonMapperV2
@@ -17,15 +18,14 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffentligTjenestepensjonSpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV2.toDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.FeilkodeV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultMapperV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonSpecV3
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import tools.jackson.databind.json.JsonMapper
 
 @RestController
 @RequestMapping("api/nav")
@@ -37,6 +37,7 @@ class TjenestepensjonPre2025Controller(
     private val beregningService: TjenestepensjonSimuleringPre2025SpecBeregningService,
     private val simulerOffentligTjenestepensjonMapperV2: SimulerOffentligTjenestepensjonMapperV2,
     private val simulerOffentligTjenestepensjonMapperV3: SimulerOffentligTjenestepensjonMapperV3,
+    private val jsonMapper: JsonMapper,
     statistikk: StatistikkService
 ) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
@@ -164,6 +165,9 @@ class TjenestepensjonPre2025Controller(
             return ResponseEntity
                 .status(result.problem?.let { HttpStatus.UNPROCESSABLE_ENTITY } ?: HttpStatus.OK)
                 .body(resultV3)
+        } catch (e: Exception) {
+            log.error(e) { "$FUNCTION_ID intern feil for spec ${jsonMapper.writeValueAsRedactedString(specV3)}" }
+            throw e
         } finally {
             traceAid.end()
         }
@@ -171,10 +175,21 @@ class TjenestepensjonPre2025Controller(
 
     override fun errorMessage() = ERROR_MESSAGE
 
+    @ExceptionHandler(value = [Exception::class])
+    private fun internalError(e: Exception): ResponseEntity<SimulerOffentligTjenestepensjonResultV3> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem())
+
     companion object {
         const val FUNCTION_ID = "nav-tps-pre-2025"
         const val FUNCTION_ID_V2 = "nav-tps-pre-2025-v2"
         const val FUNCTION_ID_V3 = "nav-tps-pre-2025-v3"
         const val ERROR_MESSAGE = "feil ved simulering av tjenestepensjon pre 2025"
+
+        private fun problem() =
+            SimulerOffentligTjenestepensjonResultV3(
+                simulertPensjonListe = emptyList(),
+                feilkode = FeilkodeV3.TEKNISK_FEIL,
+                relevanteTpOrdninger = emptyList()
+            )
     }
 }

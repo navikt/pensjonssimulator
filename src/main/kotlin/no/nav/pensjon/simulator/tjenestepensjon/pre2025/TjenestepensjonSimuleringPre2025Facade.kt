@@ -6,6 +6,8 @@ import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetExcepti
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.validity.Problem
@@ -37,6 +39,10 @@ class TjenestepensjonSimuleringPre2025Facade(
         } catch (e: Pre2025OffentligAfpAvslaattException) {
             problem(e)
         } catch (e: RegelmotorValideringException) {
+            problem(e)
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            problem(e)
+        } catch (e: UtilstrekkeligTrygdetidException) {
             problem(e)
         }
 

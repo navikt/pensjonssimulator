@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Simuleringsdata
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Simuleringsdata
 import java.time.LocalDate
 
 object SimulerBeregningsinformasjonAggregator {

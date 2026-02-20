@@ -8,8 +8,8 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SimulertOffentligAfp
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.StillingsprOffCodeV2
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertOffentligAfp
 import java.time.LocalDate
 
 class SimuleringsperioderSpecMapperTest : StringSpec({

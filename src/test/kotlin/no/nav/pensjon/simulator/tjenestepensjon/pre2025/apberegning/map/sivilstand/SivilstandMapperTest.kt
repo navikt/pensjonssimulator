@@ -3,11 +3,11 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.map.sivilst
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SivilstandKode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 
 class SivilstandMapperTest : StringSpec({
 
-    "Alle sivilstatuser blir mappet til sivilstand"{
+    "Alle sivilstatuser blir mappet til sivilstand" {
         SivilstandMapper.map(SivilstatusType.ENKE) shouldBe SivilstandKode.ENKE
         SivilstandMapper.map(SivilstatusType.GJPA) shouldBe SivilstandKode.ENKE
         SivilstandMapper.map(SivilstatusType.GIFT) shouldBe SivilstandKode.GIFT
@@ -24,5 +24,4 @@ class SivilstandMapperTest : StringSpec({
         SivilstandMapper.map(SivilstatusType.GJSA) shouldBe SivilstandKode.UGIFT
         SivilstandMapper.map(SivilstatusType.GJES) shouldBe SivilstandKode.UGIFT
     }
-
 })

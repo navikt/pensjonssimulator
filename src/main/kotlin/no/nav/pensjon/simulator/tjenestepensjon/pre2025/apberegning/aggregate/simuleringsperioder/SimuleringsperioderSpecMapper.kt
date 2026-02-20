@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.s
 
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.SimulertOffentligAfp
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertOffentligAfp
 import java.time.LocalDate
 
 object SimuleringsperioderSpecMapper {

@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.i
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Inntekt
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Inntekt
 import java.time.LocalDate
 
 class InntektListeAggregatorTest : StringSpec({

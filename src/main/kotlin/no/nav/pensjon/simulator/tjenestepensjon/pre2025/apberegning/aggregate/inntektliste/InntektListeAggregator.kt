@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.i
 
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Inntekt
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Inntekt
 import java.time.LocalDate
 
 object InntektListeAggregator {

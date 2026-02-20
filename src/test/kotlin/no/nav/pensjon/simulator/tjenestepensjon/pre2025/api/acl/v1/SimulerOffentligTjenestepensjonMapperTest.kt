@@ -4,7 +4,8 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.*
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import java.time.LocalDate
 
 class SimulerOffentligTjenestepensjonMapperTest : StringSpec({

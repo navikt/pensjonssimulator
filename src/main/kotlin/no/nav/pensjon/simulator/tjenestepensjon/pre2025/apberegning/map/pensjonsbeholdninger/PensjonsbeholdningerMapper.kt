@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.map.pensjonsbeholdninger
 
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.Pensjonsbeholdningsperiode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Pensjonsbeholdningsperiode
 
 object PensjonsbeholdningerMapper {
 

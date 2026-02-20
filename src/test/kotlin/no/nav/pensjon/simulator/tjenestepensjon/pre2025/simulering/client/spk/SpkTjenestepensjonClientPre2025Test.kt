@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -12,8 +12,8 @@ import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.YtelseCode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.HentPrognoseRequestDto
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.acl.SivilstandCodeEnumDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -46,7 +46,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
             retryAttempts = "0",
             webClientBase = context.getBean(WebClientBase::class.java),
             traceAid,
-            sporingsloggService = sporingslogg
+            sporingslogger = sporingslogg
         )
 
     beforeSpec {
@@ -60,14 +60,18 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
         server?.shutdown()
     }
 
-    val request = HentPrognoseRequestDto(
-        fnr = "12345678901",
-        fodselsdato = LocalDate.of(1955, 1, 1),
-        sisteTpnr = "3010",
-        sivilstandkode = SivilstandCodeEnumDto.UGIF,
-        inntektListe = emptyList(),
-        simuleringsperiodeListe = emptyList(),
-        simuleringsdataListe = emptyList()
+    val spec = TjenestepensjonSimuleringPre2025Spec(
+        pid = Pid("12345678901"),
+        foedselsdato = LocalDate.of(1955, 1, 1),
+        sisteTpOrdningsTpNummer = "3010",
+        simulertOffentligAfp = null,
+        simulertPrivatAfp = null,
+        sivilstand = SivilstandKode.UGIFT,
+        inntekter = emptyList(),
+        pensjonsbeholdningsperioder = emptyList(),
+        simuleringsperioder = emptyList(),
+        simuleringsdata = emptyList(),
+        tpForhold = emptyList()
     )
 
     val tpDto = TpOrdningFullDto("SPK", "3010", LocalDate.now(), "12345")
@@ -81,7 +85,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
                     .setBody(RESPONSE_BODY)
             )
 
-            val result = client(context = it).getPrognose(request, tpDto)
+            val result = client(context = it).getPrognose(spec, tpDto)
 
             with(result) {
                 tpnr shouldBe "3010"
@@ -140,7 +144,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
 
         Arrange.webClientContextRunner().run {
             // Fallback is constructed as HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr)
-            client(context = it).getPrognose(request, tpDto).tpnr shouldBe "3010"
+            client(context = it).getPrognose(spec, tpDto).tpnr shouldBe "3010"
         }
     }
 }) {

@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.web.EgressException
@@ -18,7 +19,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlToken
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.HttpStatus
 import org.springframework.oxm.jaxb.Jaxb2Marshaller
@@ -51,8 +52,8 @@ class SpkStillingsprosentSoapClientFaultTest : ShouldSpec({
 
         shouldThrow<EgressException> {
             client.getStillingsprosenter(
-                fnr = "12345678901",
-                tpOrdning = TpOrdningFullDto(
+                pid = Pid("12345678901"),
+                tpOrdning = TpOrdning(
                     navn = "pensjonskasse",
                     tpNr = "1234",
                     datoSistOpptjening = LocalDate.of(2025, 1, 1),

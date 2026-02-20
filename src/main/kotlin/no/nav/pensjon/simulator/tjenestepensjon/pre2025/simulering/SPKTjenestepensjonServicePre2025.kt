@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.ac
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.TpForholdDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.TjenestepensjonClientPre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.stereotype.Service
 import tools.jackson.databind.ObjectMapper
 
@@ -24,7 +24,7 @@ class SPKTjenestepensjonServicePre2025(
     fun simulerOffentligTjenestepensjon(
         spec: TjenestepensjonSimuleringPre2025Spec,
         stillingsprosentListe: List<Stillingsprosent>,
-        tpOrdning: TpOrdningFullDto
+        tpOrdning: TpOrdning
     ): SimulerOffentligTjenestepensjonResult {
         val request = PrognoseSpecMapper.toDto(spec)
         val opptjeningsperiodeResponse =
@@ -35,10 +35,10 @@ class SPKTjenestepensjonServicePre2025(
         val requestWithFilteredFnr = TjenestepensjonSimuleringPre2025Service.filterFnr(request.toString())
         log.debug { "Populated request: $requestWithFilteredFnr" }
         log.debug { "Populated request JSON: ${objectMapper.writeValueAsString(request)}" } //OBS: request logges som debug i dev, fnr må maskeres for logging i prod
-        return tjenestepensjonClient.getPrognose(spec, tpOrdning)
+        return tjenestepensjonClient.getPrognose(spec, tpOrdning.tpNr)
     }
 
-    private fun buildTpForhold(tpOrdningOpptjeningsperiodeMap: Map<TpOrdningFullDto, List<OpptjeningsperiodeDto>>) =
+    private fun buildTpForhold(tpOrdningOpptjeningsperiodeMap: Map<TpOrdning, List<OpptjeningsperiodeDto>>) =
         tpOrdningOpptjeningsperiodeMap.map {
             TpForholdDto(tpnr = it.key.tpNr, opptjeningsperiodeListe = it.value)
         }

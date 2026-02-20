@@ -1,31 +1,29 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SPKStillingsprosentSoapClient
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.stereotype.Service
 import kotlin.system.measureTimeMillis
 
 @Service
-class SPKStillingsprosentService(
-    private val client: SPKStillingsprosentSoapClient,
-    //private val metrics: AppMetrics
-) {
+class SPKStillingsprosentService(private val client: SPKStillingsprosentSoapClient) {
+
     private val log = KotlinLogging.logger {}
 
-    fun getStillingsprosentListe(fnr: String, tpOrdning: TpOrdningFullDto): List<Stillingsprosent> {
-//        metrics.incrementCounter(AppMetrics.Metrics.APP_NAME, AppMetrics.Metrics.APP_TOTAL_OPPTJENINGSPERIODE_CALLS)
-        var stillingsprosentList: List<Stillingsprosent> = emptyList()
+    fun getStillingsprosentListe(pid: Pid, tpOrdning: TpOrdning): List<Stillingsprosent> {
+        var stillingsprosentListe: List<Stillingsprosent> = emptyList()
 
         try {
-            val elapsed = measureTimeMillis { stillingsprosentList = client.getStillingsprosenter(fnr, tpOrdning) }
-            log.info { "Executed call to stillingsprosenter in: $elapsed ms $stillingsprosentList" }
+            val elapsed = measureTimeMillis { stillingsprosentListe = client.getStillingsprosenter(pid, tpOrdning) }
+            log.info { "Executed call to stillingsprosenter in: $elapsed ms $stillingsprosentListe" }
         } catch (e: EgressException) {
             log.warn { "Failed to fetch stillingsprosenter: ${e.message}" }
         }
-//        metrics.incrementCounter(AppMetrics.Metrics.APP_NAME, AppMetrics.Metrics.APP_TOTAL_OPPTJENINGSPERIODE_TIME, elapsed.toDouble())
-        return stillingsprosentList
+
+        return stillingsprosentListe
     }
 }

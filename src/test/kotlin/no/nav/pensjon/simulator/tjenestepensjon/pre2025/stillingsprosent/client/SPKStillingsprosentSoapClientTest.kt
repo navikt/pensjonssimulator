@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlToken
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.ws.client.WebServiceIOException
 import org.springframework.ws.client.WebServiceTransportException
 import org.springframework.ws.client.core.WebServiceTemplate
@@ -22,14 +22,20 @@ import java.time.LocalDate
 import javax.xml.datatype.DatatypeFactory
 
 class SPKStillingsprosentSoapClientTest : StringSpec({
+
     val webServiceTemplate = mockk<WebServiceTemplate>()
     val samlTokenClient = mockk<SamlTokenClient>()
     val sporingsloggService = mockk<SporingsloggService>()
     val client = SPKStillingsprosentSoapClient(webServiceTemplate, samlTokenClient, sporingsloggService, "some-url")
-
-    val fnr = "12345678901"
+    val fnr = Pid("12345678901")
     val orgnummer = Organisasjoner.SPK
-    val tpOrdning = TpOrdningFullDto("pensjonskasse", "1234", LocalDate.now(), "867530")
+
+    val tpOrdning = TpOrdning(
+        navn = "pensjonskasse",
+        tpNr = "1234",
+        datoSistOpptjening = LocalDate.now(),
+        tssId = "867530"
+    )
 
     beforeEach {
         clearMocks(webServiceTemplate, samlTokenClient, sporingsloggService)
@@ -75,10 +81,9 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
             )
         } returns responseWrapper
 
-        val result = client.getStillingsprosenter(fnr, tpOrdning)
+        client.getStillingsprosenter(fnr, tpOrdning) shouldBe expectedStillingsprosenter
 
-        result shouldBe expectedStillingsprosenter
-        verify { sporingsloggService.logUtgaaendeRequest(Organisasjoner.SPK, Pid(fnr), any()) }
+        verify { sporingsloggService.logUtgaaendeRequest(Organisasjoner.SPK, fnr, any()) }
     }
 
     "getStillingsprosenter should return empty list on WebServiceTransportException" {
@@ -89,9 +94,7 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
             )
         } throws WebServiceTransportException("Transport error")
 
-        val result = client.getStillingsprosenter(fnr, tpOrdning)
-
-        result.shouldBeEmpty()
+        client.getStillingsprosenter(fnr, tpOrdning).shouldBeEmpty()
     }
 
     "getStillingsprosenter should return empty list on SoapFaultClientException" {
@@ -104,9 +107,7 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
             )
         } throws faultException
 
-        val result = client.getStillingsprosenter(fnr, tpOrdning)
-
-        result.shouldBeEmpty()
+        client.getStillingsprosenter(fnr, tpOrdning).shouldBeEmpty()
     }
 
     "getStillingsprosenter should return empty list on WebServiceIOException" {
@@ -117,8 +118,6 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
             )
         } throws WebServiceIOException("IO error")
 
-        val result = client.getStillingsprosenter(fnr, tpOrdning)
-
-        result.shouldBeEmpty()
+        client.getStillingsprosenter(fnr, tpOrdning).shouldBeEmpty()
     }
 })

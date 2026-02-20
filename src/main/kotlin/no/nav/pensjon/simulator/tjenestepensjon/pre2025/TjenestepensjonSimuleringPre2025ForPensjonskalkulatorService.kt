@@ -16,7 +16,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepe
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
 import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.apache.el.parser.ParseException
 import org.springframework.stereotype.Component
@@ -33,15 +33,15 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
 
     fun simuler(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResult {
         log.info { "Simulering av tjenestepensjon pre 2025: ${filterFnr(spec.toString())}" }
-        var spkMedlemskap: TpOrdningFullDto? = null
+        var spkMedlemskap: TpOrdning? = null
 
         try {
             val pid = spec.pid
-            val alleForhold: List<TpOrdningFullDto> = tpregisteretClient.findAlleTpForhold(pid)
+            val alleForhold: List<TpOrdning> = tpregisteretClient.findAlleTpForhold(pid)
                 .mapNotNull { forhold ->
                     tpregisteretClient.findTssId(forhold.tpNr)
                         ?.let { TPOrdningIdDto(tpId = forhold.tpNr, tssId = it) }
-                        ?.mapTilTpOrdningFullDto(forhold)
+                        ?.mapTilTpOrdningFull(forhold)
                 }
 
             if (alleForhold.isEmpty()) {
@@ -50,6 +50,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
             }
 
             spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
+
             if (spkMedlemskap == null) {
                 log.warn { "No supported TP-Ordning found" }
                 return tpOrdningStoettesIkke(alleForhold.map { it.navn })
@@ -62,17 +63,16 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 if (spec.pid.value == "25476113736") return MOCK_SPK_RESULT
             }
 
-
-            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid.value, spkMedlemskap)
+            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid, tpOrdning = spkMedlemskap)
 
             if (stillingsprosentListe.isEmpty()) {
                 log.warn { "No stillingsprosent found" }
                     .also { Metrics.countTjenestepensjonSimuleringPre2025(INGEN_STILLINGSPROSENT) }
 
                 return SimulerOffentligTjenestepensjonResult(
-                    spkMedlemskap.tpNr,
-                    spkMedlemskap.navn,
-                    emptyList(),
+                    tpnr = spkMedlemskap.tpNr,
+                    navnOrdning = spkMedlemskap.navn,
+                    inkluderteOrdningerListe = emptyList(),
                     feilkode = Feilkode.TEKNISK_FEIL,
                     relevanteTpOrdninger = alleForhold.map { it.navn }
                 )

@@ -61,7 +61,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
     fun service(
         tpClient: TpregisteretClient = tpregisteretClient(),
         spkStillingsprosent: SPKStillingsprosentService = mockk {
-            every { getStillingsprosentListe(pid.value, any()) } returns listOf(stillingsprosent())
+            every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
         spkTjenestepensjon: SPKTjenestepensjonServicePre2025 = mockk {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns SimulerOffentligTjenestepensjonResult(
@@ -142,16 +142,14 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
             tssIdMap = mapOf("3060" to "tss-3060")
         )
 
-        val result = service(tpClient = tpClient).simuler(spec())
-
-        result.tpnr shouldBe "3010"
+        service(tpClient = tpClient).simuler(spec()).tpnr shouldBe "3010"
     }
 
     // --- Empty stillingsprosent ---
 
     test("simuler throws RuntimeException when stillingsprosent is empty") {
         val spkStillingsprosent = mockk<SPKStillingsprosentService> {
-            every { getStillingsprosentListe(pid.value, any()) } returns emptyList()
+            every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
 
         shouldThrow<RuntimeException> {

@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepe
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
 import no.nav.pensjon.simulator.tpregisteret.TPOrdningIdDto
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Component
 
@@ -25,11 +25,12 @@ class TjenestepensjonSimuleringPre2025Service(
 
         try {
             val pid = spec.pid
-            val alleForhold: List<TpOrdningFullDto> = tpregisteretClient.findAlleTpForhold(pid)
+
+            val alleForhold: List<TpOrdning> = tpregisteretClient.findAlleTpForhold(pid)
                 .mapNotNull { forhold ->
                     tpregisteretClient.findTssId(forhold.tpNr)
                         ?.let { TPOrdningIdDto(tpId = forhold.tpNr, tssId = it) }
-                        ?.mapTilTpOrdningFullDto(forhold)
+                        ?.mapTilTpOrdningFull(forhold)
                 }
 
             if (alleForhold.isEmpty()) {
@@ -38,12 +39,13 @@ class TjenestepensjonSimuleringPre2025Service(
             }
 
             val spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
+
             if (spkMedlemskap == null) {
                 log.warn { "No supported TP-Ordning found" }
                 return tpOrdningStoettesIkke()
             }
 
-            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid.value, spkMedlemskap)
+            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid, tpOrdning = spkMedlemskap)
 
             if (stillingsprosentListe.isEmpty()) {
                 log.warn { "No stillingsprosent found" }

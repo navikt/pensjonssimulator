@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.person
 
-//TODO Merge with Sivilstand and possibly SivilstandEnum
+//TODO Merge with SivilstandEnum?
 // PEN: no.nav.domain.pensjon.kjerne.sivilstand.Sivilstandstype
 /**
  * Ref. lovdata.no/forskrift/2017-07-14-1201/§3-1-1

@@ -12,8 +12,8 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
@@ -46,8 +46,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
         stillingsprosent = 100.0,
         aldersgrense = 67,
         faktiskHovedlonn = "500000",
-        stillingsuavhengigTilleggslonn = null,
-        utvidelse = null
+        stillingsuavhengigTilleggslonn = null
     )
 
     fun tpregisteretClient(
@@ -66,11 +65,13 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     fun service(
         tpClient: TpregisteretClient = tpregisteretClient(),
-        spkStillingsprosent: SPKStillingsprosentService = mockk {
-            every { getStillingsprosentListe(pid.value, any()) } returns listOf(stillingsprosent())
+        spkStillingsprosent: SpkStillingsprosentService = mockk {
+            every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
         spkTjenestepensjon: SPKTjenestepensjonServicePre2025 = mockk {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns SimulerOffentligTjenestepensjonResult(
+            every {
+                simulerOffentligTjenestepensjon(any(), any(), any())
+            } returns SimulerOffentligTjenestepensjonResult(
                 tpnr = "3010",
                 navnOrdning = "SPK",
                 utbetalingsperiodeListe = emptyList()
@@ -92,8 +93,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
         val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
 
-        result.tpnr shouldBe "3010"
-        result.navnOrdning shouldBe "SPK"
+        with(result) {
+            tpnr shouldBe "3010"
+            navnOrdning shouldBe "SPK"
+        }
     }
 
     // --- No TP-forhold ---
@@ -103,8 +106,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
         val result = service(tpClient = tpClient).simuler(spec())
 
-        result.brukerErIkkeMedlemAvTPOrdning shouldBe true
-        result.tpnr shouldBe ""
+        with(result) {
+            brukerErIkkeMedlemAvTPOrdning shouldBe true
+            tpnr shouldBe ""
+        }
     }
 
     // --- No TSS ID ---
@@ -115,9 +120,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
             tssIdMap = mapOf("3010" to null)
         )
 
-        val result = service(tpClient = tpClient).simuler(spec())
-
-        result.brukerErIkkeMedlemAvTPOrdning shouldBe true
+        service(tpClient = tpClient).simuler(spec()).brukerErIkkeMedlemAvTPOrdning shouldBe true
     }
 
     // --- No supported TP-ordning ---
@@ -130,8 +133,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
         val result = service(tpClient = tpClient).simuler(spec())
 
-        result.brukerErMedlemAvTPOrdningSomIkkeStoettes shouldBe true
-        result.relevanteTpOrdninger shouldBe listOf("Annen ordning")
+        with(result) {
+            brukerErMedlemAvTPOrdningSomIkkeStoettes shouldBe true
+            relevanteTpOrdninger shouldBe listOf("Annen ordning")
+        }
     }
 
     test("simuler finds SPK membership with tpNr 3060") {
@@ -140,24 +145,24 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
             tssIdMap = mapOf("3060" to "tss-3060")
         )
 
-        val result = service(tpClient = tpClient).simuler(spec())
-
-        result.tpnr shouldBe "3010"
+        service(tpClient = tpClient).simuler(spec()).tpnr shouldBe "3010"
     }
 
     // --- Empty stillingsprosent ---
 
     test("simuler returns TEKNISK_FEIL result when stillingsprosent is empty") {
-        val spkStillingsprosent = mockk<SPKStillingsprosentService> {
-            every { getStillingsprosentListe(pid.value, any()) } returns emptyList()
+        val spkStillingsprosent = mockk<SpkStillingsprosentService> {
+            every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
 
         val result = service(spkStillingsprosent = spkStillingsprosent).simuler(spec())
 
-        result.feilkode shouldBe Feilkode.TEKNISK_FEIL
-        result.tpnr shouldBe "3010"
-        result.navnOrdning shouldBe "SPK"
-        result.utbetalingsperiodeListe shouldBe emptyList()
+        with(result) {
+            feilkode shouldBe Feilkode.TEKNISK_FEIL
+            tpnr shouldBe "3010"
+            navnOrdning shouldBe "SPK"
+            utbetalingsperiodeListe shouldBe emptyList()
+        }
     }
 
     // --- EgressException: BEREGNING_GIR_NULL_UTBETALING ---
@@ -171,13 +176,15 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
         val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
 
-        result.feilkode shouldBe Feilkode.BEREGNING_GIR_NULL_UTBETALING
-        result.utbetalingsperiodeListe shouldHaveSize 2
-        result.utbetalingsperiodeListe[0].arligUtbetaling shouldBe 0.0
-        result.utbetalingsperiodeListe[0].ytelsekode shouldBe YtelseCode.AFP
-        result.utbetalingsperiodeListe[1].arligUtbetaling shouldBe 0.0
-        result.utbetalingsperiodeListe[1].ytelsekode shouldBe YtelseCode.AP
-        result.utbetalingsperiodeListe[1].datoTom shouldBe null
+        with(result) {
+            feilkode shouldBe Feilkode.BEREGNING_GIR_NULL_UTBETALING
+            utbetalingsperiodeListe shouldHaveSize 2
+            utbetalingsperiodeListe[0].arligUtbetaling shouldBe 0.0
+            utbetalingsperiodeListe[0].ytelsekode shouldBe YtelseCode.AFP
+            utbetalingsperiodeListe[1].arligUtbetaling shouldBe 0.0
+            utbetalingsperiodeListe[1].ytelsekode shouldBe YtelseCode.AP
+            utbetalingsperiodeListe[1].datoTom shouldBe null
+        }
     }
 
     // --- EgressException: OPPFYLLER_IKKE_INNGANGSVILKAAR ---
@@ -191,9 +198,11 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
         val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
 
-        result.feilkode shouldBe Feilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR
-        result.utbetalingsperiodeListe shouldBe emptyList()
-        result.tpnr shouldBe "3010"
+        with(result) {
+            feilkode shouldBe Feilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR
+            utbetalingsperiodeListe shouldBe emptyList()
+            tpnr shouldBe "3010"
+        }
     }
 
     // --- EgressException: TEKNISK_FEIL ---
@@ -207,8 +216,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
         val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
 
-        result.feilkode shouldBe Feilkode.TEKNISK_FEIL
-        result.utbetalingsperiodeListe shouldBe emptyList()
+        with(result) {
+            feilkode shouldBe Feilkode.TEKNISK_FEIL
+            utbetalingsperiodeListe shouldBe emptyList()
+        }
     }
 
     // --- EgressException: unknown error code ---
@@ -220,9 +231,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
             )
         }
 
-        val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
-
-        result.feilkode shouldBe Feilkode.TEKNISK_FEIL
+        service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec()).feilkode shouldBe Feilkode.TEKNISK_FEIL
     }
 
     // --- EgressException before SPK membership found ---
@@ -256,8 +265,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
     // --- filterFnr ---
 
     test("filterFnr replaces 11-digit numbers") {
-        val result = TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService.filterFnr("pid=12345678910 data")
-
-        result shouldBe "pid=***** data"
+        TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService.filterFnr("pid=12345678910 data") shouldBe
+                "pid=***** data"
     }
 })

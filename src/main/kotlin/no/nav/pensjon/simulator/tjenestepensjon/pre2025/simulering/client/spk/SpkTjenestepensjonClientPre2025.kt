@@ -16,7 +16,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.ac
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.HentPrognoseResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseResultMapper.fromDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseSpecMapper.toDto
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -35,7 +34,7 @@ class SpkTjenestepensjonClientPre2025(
 
     override fun getPrognose(
         spec: TjenestepensjonSimuleringPre2025Spec,
-        tpOrdning: TpOrdningFullDto
+        tpNr: String
     ): SimulerOffentligTjenestepensjonResult {
         val request: HentPrognoseRequestDto = toDto(spec)
 
@@ -55,7 +54,7 @@ class SpkTjenestepensjonClientPre2025(
             .block()
 
         return response?.let(::fromDto)
-            ?: fromDto(HentPrognoseResponseDto(tpnr = request.sisteTpnr, navnOrdning = tpOrdning.tpNr))
+            ?: fromDto(HentPrognoseResponseDto(tpnr = request.sisteTpnr, navnOrdning = tpNr))
     }
 
     private fun setHeaders(headers: HttpHeaders) {

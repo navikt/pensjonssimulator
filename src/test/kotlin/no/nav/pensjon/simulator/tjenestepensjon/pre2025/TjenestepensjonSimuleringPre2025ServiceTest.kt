@@ -11,8 +11,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifi
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SPKStillingsprosentService
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.acl.Stillingsprosent
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
@@ -44,8 +44,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
         stillingsprosent = 100.0,
         aldersgrense = 67,
         faktiskHovedlonn = "500000",
-        stillingsuavhengigTilleggslonn = null,
-        utvidelse = null
+        stillingsuavhengigTilleggslonn = null
     )
 
     fun tpregisteretClient(
@@ -60,8 +59,8 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
 
     fun service(
         tpClient: TpregisteretClient = tpregisteretClient(),
-        spkStillingsprosent: SPKStillingsprosentService = mockk {
-            every { getStillingsprosentListe(pid.value, any()) } returns listOf(stillingsprosent())
+        spkStillingsprosent: SpkStillingsprosentService = mockk {
+            every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
         spkTjenestepensjon: SPKTjenestepensjonServicePre2025 = mockk {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns SimulerOffentligTjenestepensjonResult(
@@ -142,16 +141,14 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
             tssIdMap = mapOf("3060" to "tss-3060")
         )
 
-        val result = service(tpClient = tpClient).simuler(spec())
-
-        result.tpnr shouldBe "3010"
+        service(tpClient = tpClient).simuler(spec()).tpnr shouldBe "3010"
     }
 
     // --- Empty stillingsprosent ---
 
     test("simuler throws RuntimeException when stillingsprosent is empty") {
-        val spkStillingsprosent = mockk<SPKStillingsprosentService> {
-            every { getStillingsprosentListe(pid.value, any()) } returns emptyList()
+        val spkStillingsprosent = mockk<SpkStillingsprosentService> {
+            every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
 
         shouldThrow<RuntimeException> {

@@ -14,11 +14,12 @@ import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.YtelseCode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningFullDto
+import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.web.reactive.function.client.WebClient
 import java.time.LocalDate
 
@@ -44,7 +45,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
         SpkTjenestepensjonClientPre2025(
             baseUrl!!,
             retryAttempts = "0",
-            webClientBase = context.getBean(WebClientBase::class.java),
+            webClientBase = context.getBean<WebClientBase>(),
             traceAid,
             sporingslogger = sporingslogg
         )
@@ -74,7 +75,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
         tpForhold = emptyList()
     )
 
-    val tpDto = TpOrdningFullDto("SPK", "3010", LocalDate.now(), "12345")
+    val tpDto = TpOrdning(navn = "SPK", tpNr = "3010", datoSistOpptjening = LocalDate.now(), tssId = "12345")
 
     "1) getResponse returns body from server" {
         Arrange.webClientContextRunner().run {
@@ -85,7 +86,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
                     .setBody(RESPONSE_BODY)
             )
 
-            val result = client(context = it).getPrognose(spec, tpDto)
+            val result = client(context = it).getPrognose(spec, tpDto.tpNr)
 
             with(result) {
                 tpnr shouldBe "3010"
@@ -144,7 +145,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
 
         Arrange.webClientContextRunner().run {
             // Fallback is constructed as HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr)
-            client(context = it).getPrognose(spec, tpDto).tpnr shouldBe "3010"
+            client(context = it).getPrognose(spec, tpDto.tpNr).tpnr shouldBe "3010"
         }
     }
 }) {

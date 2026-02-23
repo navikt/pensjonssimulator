@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response
 
 import jakarta.xml.bind.annotation.*
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.toLocalDate
 import javax.xml.datatype.XMLGregorianCalendar
 
@@ -37,13 +38,13 @@ class XMLStillingsprosent {
     var stillingsuavhengigTilleggslonn: String? = null
 
     fun toStillingsprosent() =
-        StillingsprosentDto(
+        Stillingsprosent(
             datoFom = datoFom.toLocalDate(),
             datoTom = datoTom?.toLocalDate(),
             stillingsprosent = stillingsprosent,
             aldersgrense = aldersgrense,
             faktiskHovedlonn = faktiskHovedlonn,
-            stillingsuavhengigTilleggslonn = stillingsuavhengigTilleggslonn,
-            utvidelse = null
+            stillingsuavhengigTilleggslonn = stillingsuavhengigTilleggslonn
+            // 'utvidelse' is not mapped
         )
 }

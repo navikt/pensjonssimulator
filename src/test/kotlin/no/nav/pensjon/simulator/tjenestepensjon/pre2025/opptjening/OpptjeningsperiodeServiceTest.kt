@@ -28,8 +28,7 @@ class OpptjeningsperiodeServiceTest : FunSpec({
         stillingsprosent = prosent,
         aldersgrense = aldersgrense,
         faktiskHovedlonn = faktiskHovedlonn,
-        stillingsuavhengigTilleggslonn = stillingsuavhengigTilleggslonn,
-        utvidelse = null
+        stillingsuavhengigTilleggslonn = stillingsuavhengigTilleggslonn
     )
 /*
     fun opptjeningsperiode(

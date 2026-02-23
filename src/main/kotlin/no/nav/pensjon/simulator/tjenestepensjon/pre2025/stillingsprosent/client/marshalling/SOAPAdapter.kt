@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling
 
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.FNR
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.HentStillingsprosentListeRequest
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.XMLHentStillingsprosentListeRequestWrapper
@@ -8,7 +9,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 
 object SOAPAdapter {
 
-    private fun StillingsprosentDto.toXML() = XMLStillingsprosent().also {
+    private fun Stillingsprosent.toXML() = XMLStillingsprosent().also {
         it.aldersgrense = aldersgrense
         it.datoFom = datoFom.toXMLGregorianCalendar()
         it.datoTom = datoTom?.toXMLGregorianCalendar()
@@ -45,9 +46,9 @@ object SOAPAdapter {
         }
     }
 
-    fun unmarshal(result: XMLHentStillingsprosentListeResponseWrapper): List<StillingsprosentDto> =
+    fun unmarshal(result: XMLHentStillingsprosentListeResponseWrapper): List<Stillingsprosent> =
         result.response.stillingsprosentListe.map(XMLStillingsprosent::toStillingsprosent)
 
-    fun handleFault(fault: XmlFaultWrapper): List<StillingsprosentDto> =
+    fun handleFault(fault: XmlFaultWrapper): List<Stillingsprosent> =
         throw EgressException(fault.toFault().toString())
 }

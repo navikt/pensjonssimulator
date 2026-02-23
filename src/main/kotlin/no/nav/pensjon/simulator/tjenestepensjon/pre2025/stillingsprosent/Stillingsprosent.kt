@@ -8,11 +8,5 @@ data class Stillingsprosent(
     var stillingsprosent: Double,
     var aldersgrense: Int,
     var faktiskHovedlonn: String?,
-    var stillingsuavhengigTilleggslonn: String?,
-    var utvidelse: StillingsprosentUtvidelse?
-)
-
-data class StillingsprosentUtvidelse(
-    val any: List<Any>,
-    val otherAttributes: Map<String, String>
+    var stillingsuavhengigTilleggslonn: String?
 )

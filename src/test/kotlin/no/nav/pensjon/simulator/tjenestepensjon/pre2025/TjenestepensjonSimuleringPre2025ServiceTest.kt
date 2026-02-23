@@ -44,8 +44,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
         stillingsprosent = 100.0,
         aldersgrense = 67,
         faktiskHovedlonn = "500000",
-        stillingsuavhengigTilleggslonn = null,
-        utvidelse = null
+        stillingsuavhengigTilleggslonn = null
     )
 
     fun tpregisteretClient(

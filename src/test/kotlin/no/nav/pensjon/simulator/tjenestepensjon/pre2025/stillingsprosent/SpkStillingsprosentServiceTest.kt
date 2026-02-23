@@ -7,7 +7,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SPKStillingsprosentSoapClient
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SpkStillingsprosentSoapClient
 import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import java.time.LocalDate
 
@@ -29,18 +29,17 @@ class SpkStillingsprosentServiceTest : FunSpec({
             stillingsprosent = prosent,
             aldersgrense = 67,
             faktiskHovedlonn = "500000",
-            stillingsuavhengigTilleggslonn = null,
-            utvidelse = null
+            stillingsuavhengigTilleggslonn = null
         )
 
-    fun service(client: SPKStillingsprosentSoapClient = mockk()) =
+    fun service(client: SpkStillingsprosentSoapClient = mockk()) =
         SpkStillingsprosentService(client)
 
     // --- Happy path ---
 
     test("getStillingsprosentListe returns list from client") {
         val expected = listOf(stillingsprosent(100.0), stillingsprosent(50.0))
-        val client = mockk<SPKStillingsprosentSoapClient> {
+        val client = mockk<SpkStillingsprosentSoapClient> {
             every { getStillingsprosenter(pid, any()) } returns expected
         }
 
@@ -49,7 +48,7 @@ class SpkStillingsprosentServiceTest : FunSpec({
 
     test("getStillingsprosentListe passes fnr and tpOrdning to client") {
         val ordning = tpOrdning()
-        val client = mockk<SPKStillingsprosentSoapClient> {
+        val client = mockk<SpkStillingsprosentSoapClient> {
             every { getStillingsprosenter(pid, ordning) } returns emptyList()
         }
 
@@ -61,7 +60,7 @@ class SpkStillingsprosentServiceTest : FunSpec({
     // --- Empty result ---
 
     test("getStillingsprosentListe returns empty list when client returns empty list") {
-        val client = mockk<SPKStillingsprosentSoapClient> {
+        val client = mockk<SpkStillingsprosentSoapClient> {
             every { getStillingsprosenter(pid, any()) } returns emptyList()
         }
 
@@ -71,7 +70,7 @@ class SpkStillingsprosentServiceTest : FunSpec({
     // --- EgressException ---
 
     test("getStillingsprosentListe returns empty list when client throws EgressException") {
-        val client = mockk<SPKStillingsprosentSoapClient> {
+        val client = mockk<SpkStillingsprosentSoapClient> {
             every { getStillingsprosenter(pid, any()) } throws EgressException("SOAP error")
         }
 

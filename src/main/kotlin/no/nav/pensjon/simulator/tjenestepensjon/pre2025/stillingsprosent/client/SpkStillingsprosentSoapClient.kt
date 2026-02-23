@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.acl.StillingsprosentMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.acl.TpOrdningSpecMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.SOAPAdapter
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.SOAPCallback
@@ -26,17 +25,15 @@ import org.springframework.ws.client.core.support.WebServiceGatewaySupport
 import org.springframework.ws.soap.client.SoapFaultClientException
 
 @Component
-class SPKStillingsprosentSoapClient(
+class SpkStillingsprosentSoapClient(
     private val webServiceTemplate: WebServiceTemplate,
     private val samlTokenClient: SamlTokenClient,
     private val sporingsloggService: SporingsloggService,
     @param:Value($$"${spk.stillingsprosent.pre-2025.url}") private val url: String
-) : WebServiceGatewaySupport() {
+) : WebServiceGatewaySupport(), StillingsprosentClient {
     private val log = KotlinLogging.logger {}
 
-    fun getStillingsprosenter(
-        pid: Pid, tpOrdning: TpOrdning
-    ): List<Stillingsprosent> {
+    override fun getStillingsprosenter(pid: Pid, tpOrdning: TpOrdning): List<Stillingsprosent> {
         val dto = HentStillingsprosentListeRequest(
             fnr = FNR(pid.value),
             tpOrdning = TpOrdningSpecMapper.toDto(tpOrdning)
@@ -58,7 +55,7 @@ class SPKStillingsprosentSoapClient(
                 (it as? XMLHentStillingsprosentListeResponseWrapper)?.let(SOAPAdapter::unmarshal)
                     ?: (it as? XmlFaultWrapper)?.let(SOAPAdapter::handleFault)
                     ?: throw WebServiceFaultException("Unexpected type in response: $it")
-            }.map(StillingsprosentMapper::fromDto)
+            }
         } catch (ex: SoapFaultClientException) {
             // Handle SOAP faults returned from the server
             log.warn(ex) { "SOAP fault occurred at getStillingsprosenter: ${ex.faultStringOrReason}" }

@@ -21,12 +21,12 @@ import org.springframework.ws.soap.client.SoapFaultClientException
 import java.time.LocalDate
 import javax.xml.datatype.DatatypeFactory
 
-class SPKStillingsprosentSoapClientTest : StringSpec({
+class SpkStillingsprosentSoapClientTest : StringSpec({
 
     val webServiceTemplate = mockk<WebServiceTemplate>()
     val samlTokenClient = mockk<SamlTokenClient>()
     val sporingsloggService = mockk<SporingsloggService>()
-    val client = SPKStillingsprosentSoapClient(webServiceTemplate, samlTokenClient, sporingsloggService, "some-url")
+    val client = SpkStillingsprosentSoapClient(webServiceTemplate, samlTokenClient, sporingsloggService, "some-url")
     val fnr = Pid("12345678901")
     val orgnummer = Organisasjoner.SPK
 
@@ -51,8 +51,7 @@ class SPKStillingsprosentSoapClientTest : StringSpec({
                 datoTom = LocalDate.of(2021, 1, 1),
                 faktiskHovedlonn = "100000",
                 stillingsuavhengigTilleggslonn = "10000",
-                aldersgrense = 70,
-                utvidelse = null
+                aldersgrense = 70
             )
         )
         val responseWrapper = XMLHentStillingsprosentListeResponseWrapper(

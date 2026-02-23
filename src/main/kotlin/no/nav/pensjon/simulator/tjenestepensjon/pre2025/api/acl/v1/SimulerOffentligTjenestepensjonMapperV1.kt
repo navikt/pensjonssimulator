@@ -79,7 +79,7 @@ object SimulerOffentligTjenestepensjonMapperV1 {
         Opptjeningsperiode(
             fom = dto.datoFom,
             tom = dto.datoTom,
-            stillingsprosent = dto.stillingsprosent,
+            stillingsprosent = dto.stillingsprosent.toDouble(),
             aldersgrense = dto.aldersgrense,
             faktiskHovedloenn = dto.faktiskHovedlonn,
             stillingsuavhengigTilleggsloenn = dto.stillingsuavhengigTilleggslonn

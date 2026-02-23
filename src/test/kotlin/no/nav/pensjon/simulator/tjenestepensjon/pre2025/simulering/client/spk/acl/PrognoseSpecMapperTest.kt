@@ -286,7 +286,7 @@ class PrognoseSpecMapperTest : FunSpec({
                     Opptjeningsperiode(
                         fom = LocalDate.of(2010, 1, 1),
                         tom = LocalDate.of(2020, 12, 31),
-                        stillingsprosent = 100,
+                        stillingsprosent = 100.0,
                         aldersgrense = 67,
                         faktiskHovedloenn = 500000,
                         stillingsuavhengigTilleggsloenn = 10000
@@ -320,7 +320,7 @@ class PrognoseSpecMapperTest : FunSpec({
                     Opptjeningsperiode(
                         fom = LocalDate.of(2010, 1, 1),
                         tom = null,
-                        stillingsprosent = 80,
+                        stillingsprosent = 80.0,
                         aldersgrense = null,
                         faktiskHovedloenn = null,
                         stillingsuavhengigTilleggsloenn = null

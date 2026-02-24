@@ -63,7 +63,6 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
                 if (spec.pid.value == "26456120872") throw MOCK_SPK_EXCEPTION3
                 if (spec.pid.value == "25476113736") return MOCK_SPK_RESULT
 
-
             val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid, tpOrdning = spkMedlemskap)
 
             if (stillingsprosentListe.isEmpty()) {

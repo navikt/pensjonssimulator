@@ -15,7 +15,22 @@ data class TjenestepensjonSimuleringPre2025Spec(
     val simuleringsperioder: List<Simuleringsperiode>,
     val simuleringsdata: List<Simuleringsdata>,
     val tpForhold: List<TpForhold>,
-)
+) {
+    fun withTpInfo(tpNummer: String, tpForholdListe: List<TpForhold>) =
+        TjenestepensjonSimuleringPre2025Spec(
+            pid = pid,
+            foedselsdato = foedselsdato,
+            sisteTpOrdningsTpNummer = tpNummer,
+            simulertOffentligAfp = simulertOffentligAfp,
+            simulertPrivatAfp = simulertPrivatAfp,
+            sivilstand = sivilstand,
+            inntekter = inntekter,
+            pensjonsbeholdningsperioder = pensjonsbeholdningsperioder,
+            simuleringsperioder = simuleringsperioder,
+            simuleringsdata = simuleringsdata,
+            tpForhold = tpForholdListe
+        )
+}
 
 data class SimulertOffentligAfp(
     val brutto: Int,
@@ -79,7 +94,7 @@ data class TpForhold(
 data class Opptjeningsperiode(
     val fom: LocalDate,
     val tom: LocalDate?,
-    val stillingsprosent: Int,
+    val stillingsprosent: Double,
     val aldersgrense: Int?,
     val faktiskHovedloenn: Int?,
     val stillingsuavhengigTilleggsloenn: Int?

@@ -12,16 +12,19 @@ import no.nav.pensjon.simulator.tpregisteret.TpOrdningId
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Component
 
+/**
+ * Service for V1 and V2 in TjenestepensjonPre2025Controller.
+ */
 @Component
 class TjenestepensjonSimuleringPre2025Service(
-    val tpregisteretClient: TpregisteretClient,
-    val spkStillingsprosentService: SpkStillingsprosentService,
-    val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025
+    private val tpregisteretClient: TpregisteretClient,
+    private val spkStillingsprosentService: SpkStillingsprosentService,
+    private val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025
 ) {
     val log = KotlinLogging.logger { }
 
     fun simuler(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResult {
-        log.info { "Simulering av tjenestepensjon pre 2025: ${filterFnr(spec.toString())}" }
+        log.debug { "Simulering av tjenestepensjon pre 2025: ${filterFnr(spec.toString())}" }
 
         try {
             val pid = spec.pid

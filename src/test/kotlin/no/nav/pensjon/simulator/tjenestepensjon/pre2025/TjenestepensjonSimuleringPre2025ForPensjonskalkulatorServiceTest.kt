@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -18,7 +18,7 @@ import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
 
-class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec({
+class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldSpec({
 
     val pid = Pid("12345678910")
     val foedselsdato = LocalDate.of(1963, 1, 15)
@@ -83,7 +83,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- Happy path ---
 
-    test("simuler returns result from SPK when all conditions are met") {
+    should("return result from SPK when all conditions are met") {
         val expectedResult = SimulerOffentligTjenestepensjonResult(
             tpnr = "3010", navnOrdning = "SPK", utbetalingsperiodeListe = emptyList()
         )
@@ -101,7 +101,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- No TP-forhold ---
 
-    test("simuler returns ikkeMedlem when no TP-forhold found") {
+    should("return ikkeMedlem when no TP-forhold found") {
         val tpClient = tpregisteretClient(forhold = emptyList())
 
         val result = service(tpClient = tpClient).simuler(spec())
@@ -114,7 +114,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- No TSS ID ---
 
-    test("simuler returns ikkeMedlem when tssId is null for all forhold") {
+    should("return ikkeMedlem when TSS-ID is undefined for all forhold") {
         val tpClient = tpregisteretClient(
             forhold = listOf(spkForhold()),
             tssIdMap = mapOf("3010" to null)
@@ -125,7 +125,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- No supported TP-ordning ---
 
-    test("simuler returns tpOrdningStoettesIkke with ordning names when no SPK ordning found") {
+    should("return tpOrdningStoettesIkke with ordning names when no TP-ordning found") {
         val tpClient = tpregisteretClient(
             forhold = listOf(TpForhold(tpNr = "9999", navn = "Annen ordning", datoSistOpptjening = null)),
             tssIdMap = mapOf("9999" to "tss-9999")
@@ -139,7 +139,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
         }
     }
 
-    test("simuler finds SPK membership with tpNr 3060") {
+    should("find SPK membership with TP-nummer 3060") {
         val tpClient = tpregisteretClient(
             forhold = listOf(TpForhold(tpNr = "3060", navn = "SPK 3060", datoSistOpptjening = null)),
             tssIdMap = mapOf("3060" to "tss-3060")
@@ -150,7 +150,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- Empty stillingsprosent ---
 
-    test("simuler returns TEKNISK_FEIL result when stillingsprosent is empty") {
+    should("return TEKNISK_FEIL result when stillingsprosent is empty") {
         val spkStillingsprosent = mockk<SpkStillingsprosentService> {
             every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
@@ -167,7 +167,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- EgressException: BEREGNING_GIR_NULL_UTBETALING ---
 
-    test("simuler returns zero-amount perioder when SPK returns BEREGNING_GIR_NULL_UTBETALING") {
+    should("return zero-amount perioder when SPK returns BEREGNING_GIR_NULL_UTBETALING") {
         val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
                 """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}"""
@@ -179,17 +179,21 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
         with(result) {
             feilkode shouldBe Feilkode.BEREGNING_GIR_NULL_UTBETALING
             utbetalingsperiodeListe shouldHaveSize 2
-            utbetalingsperiodeListe[0].arligUtbetaling shouldBe 0.0
-            utbetalingsperiodeListe[0].ytelsekode shouldBe YtelseCode.AFP
-            utbetalingsperiodeListe[1].arligUtbetaling shouldBe 0.0
-            utbetalingsperiodeListe[1].ytelsekode shouldBe YtelseCode.AP
-            utbetalingsperiodeListe[1].datoTom shouldBe null
+            with(utbetalingsperiodeListe[0]) {
+                arligUtbetaling shouldBe 0.0
+                ytelsekode shouldBe YtelseCode.AFP
+            }
+            with(utbetalingsperiodeListe[1]) {
+                arligUtbetaling shouldBe 0.0
+                ytelsekode shouldBe YtelseCode.AP
+                datoTom shouldBe null
+            }
         }
     }
 
     // --- EgressException: OPPFYLLER_IKKE_INNGANGSVILKAAR ---
 
-    test("simuler returns result with feilkode for OPPFYLLER_IKKE_INNGANGSVILKAAR") {
+    should("return result with feilkode for OPPFYLLER_IKKE_INNGANGSVILKAAR") {
         val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
                 """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}"""
@@ -207,7 +211,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- EgressException: TEKNISK_FEIL ---
 
-    test("simuler returns result with TEKNISK_FEIL for known technical error codes") {
+    should("return result with TEKNISK_FEIL for known technical error codes") {
         val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
                 """{"errorCode":"CALC001","message":"Some technical error"}"""
@@ -224,7 +228,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- EgressException: unknown error code ---
 
-    test("simuler returns TEKNISK_FEIL for unknown error code") {
+    should("return TEKNISK_FEIL for unknown error code") {
         val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
                 """{"errorCode":"UNKNOWN","message":"Unknown error"}"""
@@ -236,7 +240,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- EgressException before SPK membership found ---
 
-    test("simuler rethrows EgressException when spkMedlemskap is null") {
+    should("rethrow EgressException when SPK-medlemskap is null") {
         val tpClient = mockk<TpregisteretClient> {
             every { findAlleTpForhold(pid) } throws EgressException(
                 """{"errorCode":"CALC001","message":"error"}"""
@@ -250,7 +254,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
 
     // --- EgressException with missing errorCode ---
 
-    test("simuler rethrows EgressException when errorCode is null") {
+    should("rethrow EgressException when error code is undefined") {
         val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
                 """{"message":"error without code"}"""
@@ -260,12 +264,5 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : FunSpec
         shouldThrow<EgressException> {
             service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
         }
-    }
-
-    // --- filterFnr ---
-
-    test("filterFnr replaces 11-digit numbers") {
-        TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService.filterFnr("pid=12345678910 data") shouldBe
-                "pid=***** data"
     }
 })

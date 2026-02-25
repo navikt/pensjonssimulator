@@ -183,59 +183,59 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
 
         private fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
 
-        val MOCK_SPK_EXCEPTION1 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}""",
-        )
-        val MOCK_SPK_EXCEPTION2 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
-        )
-        val MOCK_SPK_EXCEPTION3 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
-        )
-        val MOCK_SPK_RESULT = SimulerOffentligTjenestepensjonResult(
-            tpnr = "3010",
-            navnOrdning = "Statens pensjonskasse",
-            inkluderteOrdningerListe = listOf("Statens pensjonskasse"),
-            leverandorUrl = "spk.no",
-            utbetalingsperiodeListe = listOf(
-                Utbetalingsperiode(
-                    uttaksgrad = 2,
-                    arligUtbetaling = 6979.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(64, 5)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
-                    ytelsekode = YtelseCode.AFP
+            val MOCK_SPK_EXCEPTION1 = EgressException(
+                """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}""",
+            )
+            val MOCK_SPK_EXCEPTION2 = EgressException(
+                """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
+            )
+            val MOCK_SPK_EXCEPTION3 = EgressException(
+                """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
+            )
+            val MOCK_SPK_RESULT = SimulerOffentligTjenestepensjonResult(
+                tpnr = "3010",
+                navnOrdning = "Statens pensjonskasse",
+                inkluderteOrdningerListe = listOf("Statens pensjonskasse"),
+                leverandorUrl = "spk.no",
+                utbetalingsperiodeListe = listOf(
+                    Utbetalingsperiode(
+                        uttaksgrad = 2,
+                        arligUtbetaling = 6979.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(64, 5)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
+                        ytelsekode = YtelseCode.AFP
+                    ),
+                    Utbetalingsperiode(
+                        uttaksgrad = 2,
+                        arligUtbetaling = 540000.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
+                        ytelsekode = YtelseCode.AFP
+                    ),
+                    Utbetalingsperiode(
+                        uttaksgrad = 100,
+                        arligUtbetaling = 173376.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
+                        ytelsekode = YtelseCode.AP
+                    ),
+                    Utbetalingsperiode(
+                        uttaksgrad = 100,
+                        arligUtbetaling = 167244.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
+                        datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
+                        ytelsekode = YtelseCode.AP
+                    ),
+                    Utbetalingsperiode(
+                        uttaksgrad = 100,
+                        arligUtbetaling = 163476.0,
+                        datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
+                        datoTom = null,
+                        ytelsekode = YtelseCode.AP
+                    )
                 ),
-                Utbetalingsperiode(
-                    uttaksgrad = 2,
-                    arligUtbetaling = 540000.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(65, 0)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
-                    ytelsekode = YtelseCode.AFP
-                ),
-                Utbetalingsperiode(
-                    uttaksgrad = 100,
-                    arligUtbetaling = 173376.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 0)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
-                    ytelsekode = YtelseCode.AP
-                ),
-                Utbetalingsperiode(
-                    uttaksgrad = 100,
-                    arligUtbetaling = 167244.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(67, 5)),
-                    datoTom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
-                    ytelsekode = YtelseCode.AP
-                ),
-                Utbetalingsperiode(
-                    uttaksgrad = 100,
-                    arligUtbetaling = 163476.0,
-                    datoFom = Alder.fromAlder(LocalDate.of(1961, 7, 25), Alder(68, 5)),
-                    datoTom = null,
-                    ytelsekode = YtelseCode.AP
-                )
-            ),
-            brukerErIkkeMedlemAvTPOrdning = false,
-            brukerErMedlemAvTPOrdningSomIkkeStoettes = false
-        )
+                brukerErIkkeMedlemAvTPOrdning = false,
+                brukerErMedlemAvTPOrdningSomIkkeStoettes = false
+            )
     }
 }

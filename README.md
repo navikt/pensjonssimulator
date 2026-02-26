@@ -8,7 +8,7 @@ Applikasjonen eksponerer API-er som brukes av Nav internt og av samhandlere.
 
 ## Teknologi
 
-* [Java 21](https://openjdk.org/projects/jdk/21/)
+* [Java 25](https://openjdk.org/projects/jdk/25/)
 * [Kotlin](https://kotlinlang.org/)
 * [Spring Boot 4](https://spring.io/projects/spring-boot)
 * [Maven](https://maven.apache.org/)

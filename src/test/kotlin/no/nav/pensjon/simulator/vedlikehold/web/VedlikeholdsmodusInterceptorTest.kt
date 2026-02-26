@@ -20,7 +20,7 @@ class VedlikeholdsmodusInterceptorTest : FunSpec({
         featureToggleService = mockk()
         request = mockk(relaxed = true)
         response = mockk(relaxed = true)
-        interceptor = VedlikeholdsmodusInterceptor(featureToggleService)
+        interceptor = VedlikeholdsmodusInterceptor(featureToggleService) 
     }
 
     test("naar vedlikeholdsmodus er aktivert skal forespørselen blokkeres") {

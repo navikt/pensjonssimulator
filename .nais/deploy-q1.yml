@@ -149,7 +149,7 @@ spec:
           cluster: dev-fss
         - application: pensjon-regler-q1
           namespace: pensjon-regler
-          cluster: dev-fss
+          cluster: dev-gcp
         - application: pensjon-selvbetjening-fss-gateway-q1
           namespace: pensjonselvbetjening
           cluster: dev-fss

@@ -159,7 +159,7 @@ spec:
           cluster: dev-fss
         - application: pensjon-regler-q2
           namespace: pensjon-regler
-          cluster: dev-fss
+          cluster: dev-gcp
         - application: pensjon-selvbetjening-fss-gateway
           namespace: pensjonselvbetjening
           cluster: dev-fss
@@ -206,7 +206,7 @@ spec:
     - name: PENSJON_OPPTJENING_AFP_API_URL
       value: http://pensjon-opptjening-afp-api.pensjonopptjening
     - name: REGLER_URL
-      value: https://pensjon-regler-q2.dev-fss-pub.nais.io
+      value: http://pensjon-regler-q2.pensjon-regler
     - name: SPORINGSLOGG_SERVICE_ID
       value: dev-fss:pensjonsamhandling:sporingslogg-q2
     - name: SPORINGSLOGG_URL

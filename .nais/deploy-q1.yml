@@ -187,7 +187,7 @@ spec:
     - name: PERSONDATA_URL
       value: https://pdl-api-q1.dev-fss-pub.nais.io
     - name: REGLER_URL
-      value: https://pensjon-regler-q1.dev-fss-pub.nais.io
+      value: http://pensjon-regler-q1.pensjon-regler
     - name: SPORINGSLOGG_SERVICE_ID
       value: dev-fss:pensjonsamhandling:sporingslogg-q2 # only in q2
     - name: SPORINGSLOGG_URL

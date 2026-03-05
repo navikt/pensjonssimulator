@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
+import no.nav.pensjon.simulator.vedtak.VedtakUtil
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.beholdning
@@ -164,10 +165,12 @@ class AlderspensjonVilkaarsproeverOgBeregner(
 
             for (vedtak in vedtakListeAllePerioder) {
                 if (vedtak.kravlinjeForsteVirk == null) { // ref. github.com/navikt/pensjon-pen/pull/11703
-                    vedtak.fastsettForstevirkKravlinje(
+                    vedtak.kravlinjeForsteVirk = VedtakUtil.foersteVirkningsdato(
                         vedtakListe = vedtakListeAllePerioder,
-                        virkningListe = kravhode.sakForsteVirkningsdatoListe
-                    )
+                        virkningListe = kravhode.sakForsteVirkningsdatoListe,
+                        kravlinjetype = vedtak.kravlinjeTypeEnum,
+                        gjelderPerson = vedtak.gjelderPerson
+                    )?.toNorwegianDateAtNoon()
                 }
             }
 

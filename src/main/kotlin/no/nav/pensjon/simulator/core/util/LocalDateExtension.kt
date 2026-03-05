@@ -15,5 +15,14 @@ fun LocalDate.isBeforeOrOn(other: LocalDate): Boolean {
     return this.isBefore(other) || this.isEqual(other)
 }
 
+/**
+ * Null-supporting variant of isBeforeOrOn.
+ * Equivalent to the legacy function isBeforeByDay, where null is treated as year 0.
+ */
+fun LocalDate?.isBeforeOrSame(other: LocalDate?): Boolean =
+    (this ?: defaultDate).isBeforeOrOn(other ?: defaultDate)
+
 fun LocalDate.toNorwegianDate(): Date = norwegianDate(this)
 fun LocalDate.toNorwegianDateAtNoon(): Date = norwegianDateAtNoon(this)
+
+private val defaultDate = LocalDate.of(0, 1, 1)

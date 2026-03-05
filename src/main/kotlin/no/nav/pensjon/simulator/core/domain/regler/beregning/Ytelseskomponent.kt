@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import java.math.RoundingMode
 
+// Copied from pensjon-regler-api 2026-03-05
 /**
  * Superklasse for alle ytelser, Grunnpensjon, Sertillegg, AfpTillegg osv. For
  * alle ytelser gjelder at brutto - netto = fradrag.
@@ -89,7 +90,7 @@ abstract class Ytelseskomponent {
     /**
      * Type ytelse, verdi fra kodeverk.
      */
-    abstract var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum
+    abstract val ytelsekomponentTypeEnum: YtelseskomponentTypeEnum
 
     /**
      * Liste av merknader.
@@ -125,50 +126,39 @@ abstract class Ytelseskomponent {
     var sakTypeEnum: SakTypeEnum? = null
 
     constructor()
+    constructor(ytelseskomponent: Ytelseskomponent) {
+        brutto = ytelseskomponent.brutto
+        netto = ytelseskomponent.netto
+        fradrag = ytelseskomponent.fradrag
+        bruttoPerAr = ytelseskomponent.bruttoPerAr
+        nettoPerAr = ytelseskomponent.nettoPerAr
+        fradragPerAr = ytelseskomponent.fradragPerAr
 
-    constructor(typeEnum: YtelseskomponentTypeEnum) {
-        ytelsekomponentTypeEnum = typeEnum
+        if (ytelseskomponent.formelKodeEnum != null) {
+            formelKodeEnum = ytelseskomponent.formelKodeEnum
+        }
+
+        merknadListe = ytelseskomponent.merknadListe.map { it.copy() }.toMutableList()
+
+        if (ytelseskomponent.reguleringsInformasjon != null) {
+            reguleringsInformasjon = ReguleringsInformasjon(ytelseskomponent.reguleringsInformasjon!!)
+        }
+        fradragsTransaksjon = ytelseskomponent.fradragsTransaksjon
+        opphort = ytelseskomponent.opphort
+        if (ytelseskomponent.sakTypeEnum != null) {
+            sakTypeEnum = ytelseskomponent.sakTypeEnum
+        }
+
+        brukt = ytelseskomponent.brukt // extra
     }
 
-    constructor(source: Ytelseskomponent) {
-        brutto = source.brutto
-        netto = source.netto
-        fradrag = source.fradrag
-        bruttoPerAr = source.bruttoPerAr
-        nettoPerAr = source.nettoPerAr
-        fradragPerAr = source.fradragPerAr
-        ytelsekomponentTypeEnum = source.ytelsekomponentTypeEnum
-
-        if (source.formelKodeEnum != null) {
-            formelKodeEnum = source.formelKodeEnum
-        }
-
-        merknadListe = source.merknadListe.map { it.copy() }.toMutableList()
-
-        if (source.reguleringsInformasjon != null) {
-            reguleringsInformasjon = ReguleringsInformasjon(source.reguleringsInformasjon!!)
-        }
-
-        fradragsTransaksjon = source.fradragsTransaksjon
-        opphort = source.opphort
-
-        if (source.sakTypeEnum != null) {
-            sakTypeEnum = source.sakTypeEnum
-        }
-
-        brukt = source.brukt // SIMDOM-ADD
-        unroundedNettoPerAr = source.unroundedNettoPerAr // SIMDOM-ADD
-    }
-
-    // SIMDOM-ADD
+    //--- Extra:
     @JsonIgnore
     var brukt: Boolean = true
-    @JsonIgnore
-    private var unroundedNettoPerAr: Double? = null
 
     // nettoPerAr in kjerne/PEN is integer
     fun roundNettoPerAr() {
-        unroundedNettoPerAr = nettoPerAr
         nettoPerAr = nettoPerAr.toBigDecimal().setScale(0, RoundingMode.UP).toDouble()
     }
+    // end extra
 }

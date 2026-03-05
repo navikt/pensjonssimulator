@@ -1,8 +1,4 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
-// 2025-03-10
+// Copied from pensjon-regler-api 2026-03-05
 class Yrkesskade : AbstraktVilkar()
-/*{
-    constructor() : super()
-    constructor(yrkesskade: Yrkesskade?) : super(yrkesskade!!)
-}*/

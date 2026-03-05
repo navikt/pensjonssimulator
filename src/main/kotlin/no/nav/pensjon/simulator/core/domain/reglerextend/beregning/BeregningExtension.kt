@@ -176,7 +176,6 @@ fun copyYtelseskomponent(
     target.bruttoPerAr = source.bruttoPerAr
     target.nettoPerAr = source.nettoPerAr
     target.fradragPerAr = source.fradragPerAr
-    target.ytelsekomponentTypeEnum = source.ytelsekomponentTypeEnum
     target.formelKodeEnum = source.formelKodeEnum
     target.merknadListe = source.merknadListe.map { o -> o.copy() }.toMutableList()
     target.reguleringsInformasjon = source.reguleringsInformasjon?.let(::ReguleringsInformasjon)
@@ -185,5 +184,4 @@ fun copyYtelseskomponent(
     target.sakTypeEnum = source.sakTypeEnum
     //--- Extra:
     target.brukt = source.brukt
-    //target.unroundedNettoPerAr = source.unroundedNettoPerAr
 }

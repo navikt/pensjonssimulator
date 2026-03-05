@@ -13,8 +13,16 @@ object LocalDateUtil {
     fun norwegianDateAtNoon(source: LocalDate): Date =
         norwegianDate(source, hourOfDay = 12)
 
+    /**
+     * Equivalent to the legacy function findEarliestDateByDay in PEN
+     */
     fun earliest(a: LocalDate?, b: LocalDate?): LocalDate? =
-        if (a.isBeforeOrSame(b)) a else b
+        when {
+            a == null -> b
+            b == null -> a
+            a.isBeforeOrSame(b) -> a
+            else -> b
+        }
 
     private fun norwegianDate(source: LocalDate, hourOfDay: Int): Date =
         Calendar.getInstance(timeZone, locale).also {

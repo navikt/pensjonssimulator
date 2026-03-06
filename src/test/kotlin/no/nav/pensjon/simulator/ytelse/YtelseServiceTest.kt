@@ -34,14 +34,17 @@ class YtelseServiceTest : ShouldSpec({
                     LoependeYtelserResult(
                         alderspensjon = AlderspensjonYtelser(
                             sokerVirkningFom = LocalDate.of(2019, 1, 1),
-                            avdodVirkningFom = LocalDate.of(2020, 1, 1),
                             sisteBeregning = SisteAldersberegning2011(),
                             forrigeBeregningsresultat = BeregningsResultatAlderspensjon2025(),
                             forrigeVilkarsvedtakListe = emptyList(),
-                            avdoed = AvdoedYtelser(
+                            avdoed = InformasjonOmAvdoed(
                                 pid = pid,
                                 doedsdato = LocalDate.of(2019, 3, 21),
-                                foersteVirkningsdato = LocalDate.of(2020, 1, 1)
+                                foersteVirkningsdato = LocalDate.of(2020, 1, 1),
+                                aarligPensjonsgivendeInntektErMinst1G = null,
+                                harTilstrekkeligMedlemskapIFolketrygden = null,
+                                antallAarUtenlands = null,
+                                erFlyktning = null
                             )
                         ),
                         afpPrivat = PrivatAfpYtelser(
@@ -60,10 +63,14 @@ class YtelseServiceTest : ShouldSpec({
             forrigeAlderspensjonBeregningResultat = null, // ditto
             forrigePrivatAfpBeregningResultat = null, // ditto
             forrigeVedtakListe = mutableListOf(),
-            avdoed = AvdoedYtelser(
+            avdoed = InformasjonOmAvdoed(
                 pid = pid,
                 doedsdato = LocalDate.of(2019, 3, 21),
-                foersteVirkningsdato = LocalDate.of(2020, 1, 1)
+                foersteVirkningsdato = LocalDate.of(2020, 1, 1),
+                aarligPensjonsgivendeInntektErMinst1G = null,
+                harTilstrekkeligMedlemskapIFolketrygden = null,
+                antallAarUtenlands = null,
+                erFlyktning = null
             )
         )
     }

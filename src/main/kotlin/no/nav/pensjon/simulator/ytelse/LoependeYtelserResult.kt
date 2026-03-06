@@ -13,11 +13,10 @@ data class LoependeYtelserResult(
 
 data class AlderspensjonYtelser(
     val sokerVirkningFom: LocalDate?,
-    val avdodVirkningFom: LocalDate?,
     val sisteBeregning: SisteBeregning?,
     val forrigeBeregningsresultat: AbstraktBeregningsResultat?,
     val forrigeVilkarsvedtakListe: List<VilkarsVedtak>,
-    val avdoed: AvdoedYtelser?
+    val avdoed: InformasjonOmAvdoed?
 )
 
 data class PrivatAfpYtelser(
@@ -25,8 +24,12 @@ data class PrivatAfpYtelser(
     val forrigeBeregningsresultat: AbstraktBeregningsResultat? = null
 )
 
-data class AvdoedYtelser (
+data class InformasjonOmAvdoed (
     val pid: Pid?,
     val doedsdato: LocalDate?,
-    val foersteVirkningsdato: LocalDate?
+    val foersteVirkningsdato: LocalDate?,
+    val aarligPensjonsgivendeInntektErMinst1G: Boolean?,
+    val harTilstrekkeligMedlemskapIFolketrygden: Boolean?,
+    val antallAarUtenlands: Int?,
+    val erFlyktning: Boolean?
 )

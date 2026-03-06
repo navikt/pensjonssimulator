@@ -15,8 +15,8 @@ import no.nav.pensjon.simulator.validity.ProblemType
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
 import no.nav.pensjon.simulator.ytelse.client.YtelseClient
+import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserResultMapper
-import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserResultV1
 import no.nav.pensjon.simulator.ytelse.client.pen.acl.PenLoependeYtelserSpecMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.caffeine.CaffeineCacheManager
@@ -25,6 +25,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
 class PenYtelseClient(
@@ -54,7 +55,7 @@ class PenYtelseClient(
                 .headers(::setHeaders)
                 .bodyValue(PenLoependeYtelserSpecMapper.toDto(spec))
                 .retrieve()
-                .bodyToMono(PenLoependeYtelserResultV1::class.java)
+                .bodyToMono<PenLoependeYtelserResult>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.let(PenLoependeYtelserResultMapper::fromDto)

@@ -1,10 +1,9 @@
 {
     "alderspensjon": {
-        "sokerVirkningFom": "2022-12-01T00:00:00+0100",
-        "avdodVirkningFom": null,
+        "sokerVirkningFom": "2022-12-01",
         "sisteBeregning": {
             "type": "SisteAldersberegning2016",
-            "virkDato": "2024-05-01T12:00:00+0200",
+            "virkDato": "2024-05-01",
             "tt_anv": 40,
             "basispensjon": {
                 "totalbelop": 367034.82012000005,
@@ -65,13 +64,22 @@
                 "totalbelopNetto": 24134,
                 "barnetilleggFellesbarn": null
             }
+        },
+        "avdoed": {
+            "pid": "12345678910",
+            "doedsdato": "2022-12-13",
+            "foersteVirkningsdato": "2023-02-01",
+            "aarligPensjonsgivendeInntektErMinst1G": true,
+            "harTilstrekkeligMedlemskapIFolketrygden": false,
+            "antallAarUtenlands": 4,
+            "erFlyktning": true
         }
     },
     "afpPrivat": {
-        "virkningFom": "2024-05-01T00:00:00+0200",
+        "virkningFom": "2024-05-01",
         "forrigeBeregningsresultat": {
             "type": "BeregningsResultatAfpPrivat",
-            "virkFom": "2024-05-01T12:00:00+0200",
+            "virkFom": "2024-05-01",
             "pensjonUnderUtbetaling": {
                 "totalbelopNetto": 5896,
                 "totalbelopNettoAr": 70757.45238214353,

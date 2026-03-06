@@ -118,7 +118,7 @@ data class SimuleringSpec(
         )
     }
 
-    fun withAvdoed(avdoedPid: Pid, doedsdato: LocalDate) =
+    fun withAvdoed(avdoed: Avdoed) =
         SimuleringSpec(
             type = if (type == SimuleringTypeEnum.ENDR_ALDER) SimuleringTypeEnum.ENDR_ALDER_M_GJEN else type,
             sivilstatus = sivilstatus,
@@ -127,14 +127,7 @@ data class SimuleringSpec(
             heltUttakDato = heltUttakDato,
             pid = pid,
             foedselDato = foedselDato,
-            avdoed = Avdoed(
-                pid = avdoedPid,
-                antallAarUtenlands = 0,
-                inntektFoerDoed = 0,
-                doedDato = doedsdato,
-                erMedlemAvFolketrygden = false,
-                harInntektOver1G = false
-            ),
+            avdoed = avdoed,
             isTpOrigSimulering = isTpOrigSimulering,
             simulerForTp = simulerForTp,
             uttakGrad = uttakGrad,

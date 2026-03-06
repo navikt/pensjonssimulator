@@ -1,10 +1,9 @@
 package no.nav.pensjon.simulator.ytelse.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelser
-import no.nav.pensjon.simulator.ytelse.AvdoedYtelser
+import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.PrivatAfpYtelser
 
@@ -15,7 +14,7 @@ import no.nav.pensjon.simulator.ytelse.PrivatAfpYtelser
  */
 object PenLoependeYtelserResultMapper {
 
-    fun fromDto(source: PenLoependeYtelserResultV1) =
+    fun fromDto(source: PenLoependeYtelserResult) =
         LoependeYtelserResult(
             alderspensjon = source.alderspensjon?.let(::alderspensjonYtelser),
             afpPrivat = source.afpPrivat?.let(::privatAfpYtelser)
@@ -23,8 +22,7 @@ object PenLoependeYtelserResultMapper {
 
     private fun alderspensjonYtelser(source: PenAlderspensjonYtelser) =
         AlderspensjonYtelser(
-            sokerVirkningFom = source.sokerVirkningFom?.toNorwegianLocalDate(),
-            avdodVirkningFom = source.avdodVirkningFom?.toNorwegianLocalDate(),
+            sokerVirkningFom = source.sokerVirkningFom,
             sisteBeregning = source.sisteBeregning,
             forrigeBeregningsresultat = source.forrigeBeregningsresultat,
             forrigeVilkarsvedtakListe = source.forrigeVilkarsvedtakListe.orEmpty().map(::setErHovedkrav),
@@ -33,15 +31,19 @@ object PenLoependeYtelserResultMapper {
 
     private fun privatAfpYtelser(source: PenPrivatAfpYtelser) =
         PrivatAfpYtelser(
-            virkningFom = source.virkningFom?.toNorwegianLocalDate(),
+            virkningFom = source.virkningFom,
             forrigeBeregningsresultat = source.forrigeBeregningsresultat
         )
 
-    private fun avdoedYtelser(source: PenAvdoedYtelser) =
-        AvdoedYtelser(
+    private fun avdoedYtelser(source: PenInformasjonOmAvdoed) =
+        InformasjonOmAvdoed(
             pid = source.pid?.let(::Pid),
-            doedsdato = source.doedsdato?.toNorwegianLocalDate(),
-            foersteVirkningsdato = source.foersteVirkningsdato?.toNorwegianLocalDate()
+            doedsdato = source.doedsdato,
+            foersteVirkningsdato = source.foersteVirkningsdato,
+            aarligPensjonsgivendeInntektErMinst1G = source.aarligPensjonsgivendeInntektErMinst1G,
+            harTilstrekkeligMedlemskapIFolketrygden = source.harTilstrekkeligMedlemskapIFolketrygden,
+            antallAarUtenlands = source.antallAarUtenlands,
+            erFlyktning = source.erFlyktning
         )
 
     private fun setErHovedkrav(vedtak: VilkarsVedtak): VilkarsVedtak {

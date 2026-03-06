@@ -1,10 +1,12 @@
 package no.nav.pensjon.simulator.core
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpBeregner
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpResult
@@ -42,389 +44,347 @@ import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import no.nav.pensjon.simulator.ytelse.AvdoedYtelser
+import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import java.time.LocalDate
 import java.util.*
 
-class SimulatorCoreTest : FunSpec({
+class SimulatorCoreTest : ShouldSpec({
 
-    // ===========================================
-    // Tests for simuler() - basic flow
-    // ===========================================
+    context("simuler - basic flow") {
+        should("execute full simulation flow and return output") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec()
 
-    test("simuler should execute full simulation flow and return output") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec()
+            core.simuler(spec) shouldNotBe null
+        }
 
-        val result = core.simuler(spec)
+        should("call EndringValidator.validate for endring simulation types") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.ENDR_ALDER,
+                foersteUttakDato = LocalDate.of(2025, 1, 1),
+                heltUttakDato = LocalDate.of(2027, 1, 1),
+                uttakGrad = UttakGradKode.P_100
+            )
 
-        result shouldNotBe null
-    }
+            core.simuler(spec) shouldNotBe null
+        }
 
-    test("simuler should call EndringValidator.validate for endring simulation types") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(
-            type = SimuleringTypeEnum.ENDR_ALDER,
-            foersteUttakDato = LocalDate.of(2025, 1, 1),
-            heltUttakDato = LocalDate.of(2027, 1, 1),
-            uttakGrad = UttakGradKode.P_100
-        )
+        should("throw exception for invalid endring type without required fields") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.ENDR_ALDER,
+                foersteUttakDato = null // Invalid - required for endring
+            )
 
-        val result = core.simuler(spec)
-
-        result shouldNotBe null
-    }
-
-    test("simuler should throw exception for invalid endring type without required fields") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(
-            type = SimuleringTypeEnum.ENDR_ALDER,
-            foersteUttakDato = null // Invalid - required for endring
-        )
-
-        shouldThrow<InvalidArgumentException> {
-            core.simuler(spec)
+            shouldThrow<InvalidArgumentException> {
+                core.simuler(spec)
+            }
         }
     }
 
-    // ===========================================
-    // Tests for simuler() - avdoed handling
-    // ===========================================
+    context("simuler - avdød handling") {
+        should("use avdoed from ytelser when available") {
+            val avdoedPid = Pid("98765432109")
+            val doedsdato = LocalDate.of(2020, 5, 15)
 
-    test("simuler should use avdoed from ytelser when available") {
-        val avdoedPid = Pid("98765432109")
-        val doedsdato = LocalDate.of(2020, 5, 15)
+            val ytelseService = mockk<YtelseService> {
+                every { getLoependeYtelser(any()) } returns LoependeYtelser(
+                    soekerVirkningFom = LocalDate.of(2025, 1, 1),
+                    privatAfpVirkningFom = null,
+                    sisteBeregning = null,
+                    forrigeAlderspensjonBeregningResultat = null,
+                    forrigePrivatAfpBeregningResultat = null,
+                    forrigeVedtakListe = mutableListOf(),
+                    avdoed = InformasjonOmAvdoed(
+                        pid = avdoedPid,
+                        doedsdato = doedsdato,
+                        foersteVirkningsdato = LocalDate.of(2020, 6, 1),
+                        aarligPensjonsgivendeInntektErMinst1G = null,
+                        harTilstrekkeligMedlemskapIFolketrygden = null,
+                        antallAarUtenlands = null,
+                        erFlyktning = null
+                    )
+                )
+            }
 
-        val ytelseService = mockk<YtelseService> {
-            every { getLoependeYtelser(any()) } returns LoependeYtelser(
-                soekerVirkningFom = LocalDate.of(2025, 1, 1),
-                privatAfpVirkningFom = null,
-                sisteBeregning = null,
-                forrigeAlderspensjonBeregningResultat = null,
-                forrigePrivatAfpBeregningResultat = null,
-                forrigeVedtakListe = mutableListOf(),
-                avdoed = AvdoedYtelser(
-                    pid = avdoedPid,
-                    doedsdato = doedsdato,
-                    foersteVirkningsdato = LocalDate.of(2020, 6, 1)
+            val core = createSimulatorCore(ytelseService = ytelseService)
+            val spec = createSimuleringSpec(avdoed = null)
+
+            core.simuler(spec) shouldNotBe null
+        }
+    }
+
+    context("simuler - privat AFP") {
+        should("calculate privat AFP when privatAfpVirkningFom is set") {
+            val privatAfpBeregner = mockk<PrivatAfpBeregner> {
+                every { beregnPrivatAfp(any()) } returns PrivatAfpResult(
+                    gjeldendeBeregningsresultatAfpPrivat = BeregningsResultatAfpPrivat(),
+                    afpPrivatBeregningsresultatListe = mutableListOf()
+                )
+            }
+
+            val ytelseService = mockk<YtelseService> {
+                every { getLoependeYtelser(any()) } returns LoependeYtelser(
+                    soekerVirkningFom = LocalDate.of(2025, 1, 1),
+                    privatAfpVirkningFom = LocalDate.of(2024, 1, 1),
+                    sisteBeregning = null,
+                    forrigeAlderspensjonBeregningResultat = null,
+                    forrigePrivatAfpBeregningResultat = null,
+                    forrigeVedtakListe = mutableListOf(),
+                    avdoed = null
+                )
+            }
+
+            val core = createSimulatorCore(
+                privatAfpBeregner = privatAfpBeregner,
+                ytelseService = ytelseService
+            )
+            val spec = createSimuleringSpec()
+
+            core.simuler(spec)
+
+            verify(exactly = 1) { privatAfpBeregner.beregnPrivatAfp(any()) }
+        }
+
+        should("not calculate privat AFP when privatAfpVirkningFom is null") {
+            val privatAfpBeregner = mockk<PrivatAfpBeregner>()
+
+            val core = createSimulatorCore(privatAfpBeregner = privatAfpBeregner)
+            val spec = createSimuleringSpec()
+
+            core.simuler(spec)
+
+            verify(exactly = 0) { privatAfpBeregner.beregnPrivatAfp(any()) }
+        }
+    }
+
+    context("simuler - AFP_FPP special case") {
+        should("return special output for AFP_FPP simulation type") {
+            val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
+                every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
+                    pre2025 = Pre2025OffentligAfpResult(
+                        simuleringResult = Simuleringsresultat(),
+                        kravhode = createKravhode()
+                    ),
+                    livsvarig = null,
+                    kravhode = createKravhode()
+                )
+            }
+
+            val core = createSimulatorCore(offentligAfpBeregner = offentligAfpBeregner)
+            val spec = createSimuleringSpec(type = SimuleringTypeEnum.AFP_FPP)
+
+            core.simuler(spec).pre2025OffentligAfp shouldNotBe null
+        }
+    }
+
+    context("simuler - anonymous vs personal") {
+        should("not add personal data to output when erAnonym is true") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(erAnonym = true, pid = null)
+
+            val result = core.simuler(spec)
+
+            result.foedselDato shouldBe null
+            result.persongrunnlag shouldBe null
+        }
+
+        should("add personal data to output when erAnonym is false") {
+            val personService = mockk<PersonService> {
+                every { person(any()) } returns PenPerson().apply {
+                    foedselsdato = LocalDate.of(1963, 1, 1)
+                }
+            }
+
+            val core = createSimulatorCore(personService = personService)
+            val spec = createSimuleringSpec(erAnonym = false)
+
+            val result = core.simuler(spec)
+
+            result.foedselDato shouldBe LocalDate.of(1963, 1, 1)
+            result.persongrunnlag shouldNotBe null
+        }
+    }
+
+    context("simuler - tidsbegrenset offentlig AFP") {
+        should("adjust heltUttakDato for pre-2025 offentlig AFP") {
+            val normalderService = mockk<NormertPensjonsalderService> {
+                every { normalder(any<LocalDate>()) } returns Alder(67, 0)
+            }
+
+            val personService = mockk<PersonService> {
+                every { person(any()) } returns PenPerson().apply {
+                    foedselsdato = LocalDate.of(1960, 6, 15)
+                }
+            }
+
+            val core = createSimulatorCore(
+                normalderService = normalderService,
+                personService = personService
+            )
+
+            // AFP_FPP gjelderPre2025OffentligAfp() returns true
+            val spec = createSimuleringSpec(type = SimuleringTypeEnum.AFP_FPP)
+
+            core.simuler(spec) shouldNotBe null
+        }
+    }
+
+    context("simuler - metrics and logging") {
+        should("count simuleringstype metric") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(type = SimuleringTypeEnum.ALDER)
+
+            core.simuler(spec)
+
+            // Metrics.countSimuleringstype is called - we can't easily verify static calls,
+            // but the test ensures no exception is thrown
+        }
+    }
+
+    context("simuler - kravhode operations") {
+        should("create and update kravhode") {
+            val kravhode = createKravhode()
+            val updatedKravhode = createKravhode()
+
+            val kravhodeCreator = mockk<KravhodeCreator> {
+                every { opprettKravhode(any(), any(), any()) } returns kravhode
+            }
+
+            val kravhodeUpdater = mockk<KravhodeUpdater> {
+                every { updateKravhodeForFoersteKnekkpunkt(any()) } returns updatedKravhode
+            }
+
+            val core = createSimulatorCore(
+                kravhodeCreator = kravhodeCreator,
+                kravhodeUpdater = kravhodeUpdater
+            )
+            val spec = createSimuleringSpec()
+
+            core.simuler(spec)
+
+            verify { kravhodeCreator.opprettKravhode(any(), any(), any()) }
+            verify { kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(any()) }
+        }
+    }
+
+    context("simuler - knekkpunkt finding") {
+        should("find knekkpunkter") {
+            val knekkpunktFinder = mockk<KnekkpunktFinder> {
+                every { finnKnekkpunkter(any()) } returns sortedMapOf()
+            }
+
+            val core = createSimulatorCore(knekkpunktFinder = knekkpunktFinder)
+            val spec = createSimuleringSpec()
+
+            core.simuler(spec)
+
+            verify { knekkpunktFinder.finnKnekkpunkter(any()) }
+        }
+    }
+
+    context("simuler - offentlig AFP") {
+        should("calculate offentlig AFP when innvilgetAfp is null") {
+            val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
+                every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
+                    pre2025 = null,
+                    livsvarig = null,
+                    kravhode = createKravhode()
+                )
+            }
+
+            val core = createSimulatorCore(offentligAfpBeregner = offentligAfpBeregner)
+            val spec = createSimuleringSpec()
+
+            core.simuler(spec)
+
+            verify { offentligAfpBeregner.beregnAfp(any(), any(), any(), any(), any()) }
+        }
+    }
+
+    context("simuler - result preparation") {
+        should("prepare result with correct spec values") {
+            val resultPreparer = mockk<SimuleringResultPreparer> {
+                every { opprettOutput(any()) } returns SimulatorOutput()
+            }
+
+            val core = createSimulatorCore(resultPreparer = resultPreparer)
+            val spec = createSimuleringSpec()
+
+            core.simuler(spec)
+
+            verify { resultPreparer.opprettOutput(any()) }
+        }
+    }
+
+    context("simuler - endring av alderspensjon med gjenlevenderett") {
+        should("validate ENDR_ALDER_M_GJEN with avdoed doedDato") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                foersteUttakDato = LocalDate.of(2025, 1, 1),
+                heltUttakDato = LocalDate.of(2027, 1, 1),
+                uttakGrad = UttakGradKode.P_100,
+                avdoed = Avdoed(
+                    pid = Pid("98765432109"),
+                    antallAarUtenlands = 0,
+                    inntektFoerDoed = 0,
+                    doedDato = LocalDate.of(2020, 5, 15)
                 )
             )
+
+            core.simuler(spec) shouldNotBe null
         }
 
-        val core = createSimulatorCore(ytelseService = ytelseService)
-        val spec = createSimuleringSpec(avdoed = null)
-
-        val result = core.simuler(spec)
-
-        result shouldNotBe null
-    }
-
-    // ===========================================
-    // Tests for simuler() - privat AFP
-    // ===========================================
-
-    test("simuler should calculate privat AFP when privatAfpVirkningFom is set") {
-        val privatAfpBeregner = mockk<PrivatAfpBeregner> {
-            every { beregnPrivatAfp(any()) } returns PrivatAfpResult(
-                gjeldendeBeregningsresultatAfpPrivat = BeregningsResultatAfpPrivat(),
-                afpPrivatBeregningsresultatListe = mutableListOf()
-            )
-        }
-
-        val ytelseService = mockk<YtelseService> {
-            every { getLoependeYtelser(any()) } returns LoependeYtelser(
-                soekerVirkningFom = LocalDate.of(2025, 1, 1),
-                privatAfpVirkningFom = LocalDate.of(2024, 1, 1),
-                sisteBeregning = null,
-                forrigeAlderspensjonBeregningResultat = null,
-                forrigePrivatAfpBeregningResultat = null,
-                forrigeVedtakListe = mutableListOf(),
+        should("throw for ENDR_ALDER_M_GJEN without avdoed doedDato") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                foersteUttakDato = LocalDate.of(2025, 1, 1),
+                heltUttakDato = LocalDate.of(2027, 1, 1),
+                uttakGrad = UttakGradKode.P_100,
                 avdoed = null
             )
-        }
 
-        val core = createSimulatorCore(
-            privatAfpBeregner = privatAfpBeregner,
-            ytelseService = ytelseService
-        )
-        val spec = createSimuleringSpec()
-
-        core.simuler(spec)
-
-        verify(exactly = 1) { privatAfpBeregner.beregnPrivatAfp(any()) }
-    }
-
-    test("simuler should not calculate privat AFP when privatAfpVirkningFom is null") {
-        val privatAfpBeregner = mockk<PrivatAfpBeregner>()
-
-        val core = createSimulatorCore(privatAfpBeregner = privatAfpBeregner)
-        val spec = createSimuleringSpec()
-
-        core.simuler(spec)
-
-        verify(exactly = 0) { privatAfpBeregner.beregnPrivatAfp(any()) }
-    }
-
-    // ===========================================
-    // Tests for simuler() - AFP_FPP special case
-    // ===========================================
-
-    test("simuler should return special output for AFP_FPP simulation type") {
-        val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
-            every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
-                pre2025 = Pre2025OffentligAfpResult(
-                    simuleringResult = Simuleringsresultat(),
-                    kravhode = createKravhode()
-                ),
-                livsvarig = null,
-                kravhode = createKravhode()
-            )
-        }
-
-        val core = createSimulatorCore(offentligAfpBeregner = offentligAfpBeregner)
-        val spec = createSimuleringSpec(type = SimuleringTypeEnum.AFP_FPP)
-
-        val result = core.simuler(spec)
-
-        result.pre2025OffentligAfp shouldNotBe null
-    }
-
-    // ===========================================
-    // Tests for simuler() - anonymous vs personal
-    // ===========================================
-
-    test("simuler should not add personal data to output when erAnonym is true") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(erAnonym = true, pid = null)
-
-        val result = core.simuler(spec)
-
-        result.foedselDato shouldBe null
-        result.persongrunnlag shouldBe null
-    }
-
-    test("simuler should add personal data to output when erAnonym is false") {
-        val personService = mockk<PersonService> {
-            every { person(any()) } returns PenPerson().apply {
-                foedselsdato = LocalDate.of(1963, 1, 1)
+            shouldThrow<InvalidArgumentException> {
+                core.simuler(spec)
             }
         }
-
-        val core = createSimulatorCore(personService = personService)
-        val spec = createSimuleringSpec(erAnonym = false)
-
-        val result = core.simuler(spec)
-
-        result.foedselDato shouldBe LocalDate.of(1963, 1, 1)
-        result.persongrunnlag shouldNotBe null
     }
 
-    // ===========================================
-    // Tests for simuler() - pre-2025 offentlig AFP
-    // ===========================================
+    context("simuler - heltUttakDato requirement") {
+        should("throw for gradert uttak without heltUttakDato") {
+            val core = createSimulatorCore()
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.ENDR_ALDER,
+                foersteUttakDato = LocalDate.of(2025, 1, 1),
+                heltUttakDato = null, // Missing for gradert uttak
+                uttakGrad = UttakGradKode.P_50
+            )
 
-    test("simuler should adjust heltUttakDato for pre-2025 offentlig AFP") {
-        val normalderService = mockk<NormertPensjonsalderService> {
-            every { normalder(any<LocalDate>()) } returns Alder(67, 0)
-        }
-
-        val personService = mockk<PersonService> {
-            every { person(any()) } returns PenPerson().apply {
-                foedselsdato = LocalDate.of(1960, 6, 15)
+            shouldThrow<InvalidArgumentException> {
+                core.simuler(spec)
             }
         }
-
-        val core = createSimulatorCore(
-            normalderService = normalderService,
-            personService = personService
-        )
-
-        // AFP_FPP gjelderPre2025OffentligAfp() returns true
-        val spec = createSimuleringSpec(type = SimuleringTypeEnum.AFP_FPP)
-
-        val result = core.simuler(spec)
-
-        result shouldNotBe null
     }
 
-    // ===========================================
-    // Tests for fetchFoedselsdato()
-    // ===========================================
+    context("fetchFoedselsdato") {
+        should("delegate to generalPersonService") {
+            val expectedDate = LocalDate.of(1965, 3, 20)
+            val generalPersonService = mockk<GeneralPersonService> {
+                every { foedselsdato(any()) } returns expectedDate
+            }
 
-    test("fetchFoedselsdato should delegate to generalPersonService") {
-        val expectedDate = LocalDate.of(1965, 3, 20)
-        val generalPersonService = mockk<GeneralPersonService> {
-            every { foedselsdato(any()) } returns expectedDate
-        }
+            val core = createSimulatorCore(generalPersonService = generalPersonService)
+            val pid = Pid("12345678901")
 
-        val core = createSimulatorCore(generalPersonService = generalPersonService)
-        val pid = Pid("12345678901")
-
-        val result = core.fetchFoedselsdato(pid)
-
-        result shouldBe expectedDate
-        verify { generalPersonService.foedselsdato(pid) }
-    }
-
-    // ===========================================
-    // Tests for simuler() - metrics and logging
-    // ===========================================
-
-    test("simuler should count simuleringstype metric") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(type = SimuleringTypeEnum.ALDER)
-
-        core.simuler(spec)
-
-        // Metrics.countSimuleringstype is called - we can't easily verify static calls,
-        // but the test ensures no exception is thrown
-    }
-
-    // ===========================================
-    // Tests for simuler() - kravhode operations
-    // ===========================================
-
-    test("simuler should create and update kravhode") {
-        val kravhode = createKravhode()
-        val updatedKravhode = createKravhode()
-
-        val kravhodeCreator = mockk<KravhodeCreator> {
-            every { opprettKravhode(any(), any(), any()) } returns kravhode
-        }
-
-        val kravhodeUpdater = mockk<KravhodeUpdater> {
-            every { updateKravhodeForFoersteKnekkpunkt(any()) } returns updatedKravhode
-        }
-
-        val core = createSimulatorCore(
-            kravhodeCreator = kravhodeCreator,
-            kravhodeUpdater = kravhodeUpdater
-        )
-        val spec = createSimuleringSpec()
-
-        core.simuler(spec)
-
-        verify { kravhodeCreator.opprettKravhode(any(), any(), any()) }
-        verify { kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(any()) }
-    }
-
-    // ===========================================
-    // Tests for simuler() - knekkpunkt finding
-    // ===========================================
-
-    test("simuler should find knekkpunkter") {
-        val knekkpunktFinder = mockk<KnekkpunktFinder> {
-            every { finnKnekkpunkter(any()) } returns sortedMapOf()
-        }
-
-        val core = createSimulatorCore(knekkpunktFinder = knekkpunktFinder)
-        val spec = createSimuleringSpec()
-
-        core.simuler(spec)
-
-        verify { knekkpunktFinder.finnKnekkpunkter(any()) }
-    }
-
-    // ===========================================
-    // Tests for simuler() - offentlig AFP
-    // ===========================================
-
-    test("simuler should calculate offentlig AFP when innvilgetAfp is null") {
-        val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
-            every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
-                pre2025 = null,
-                livsvarig = null,
-                kravhode = createKravhode()
-            )
-        }
-
-        val core = createSimulatorCore(offentligAfpBeregner = offentligAfpBeregner)
-        val spec = createSimuleringSpec()
-
-        core.simuler(spec)
-
-        verify { offentligAfpBeregner.beregnAfp(any(), any(), any(), any(), any()) }
-    }
-
-    // ===========================================
-    // Tests for simuler() - result preparation
-    // ===========================================
-
-    test("simuler should prepare result with correct spec values") {
-        val resultPreparer = mockk<SimuleringResultPreparer> {
-            every { opprettOutput(any()) } returns SimulatorOutput()
-        }
-
-        val core = createSimulatorCore(resultPreparer = resultPreparer)
-        val spec = createSimuleringSpec()
-
-        core.simuler(spec)
-
-        verify { resultPreparer.opprettOutput(any()) }
-    }
-
-    // ===========================================
-    // Tests for simuler() - ENDR_ALDER_M_GJEN
-    // ===========================================
-
-    test("simuler should validate ENDR_ALDER_M_GJEN with avdoed doedDato") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(
-            type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-            foersteUttakDato = LocalDate.of(2025, 1, 1),
-            heltUttakDato = LocalDate.of(2027, 1, 1),
-            uttakGrad = UttakGradKode.P_100,
-            avdoed = Avdoed(
-                pid = Pid("98765432109"),
-                antallAarUtenlands = 0,
-                inntektFoerDoed = 0,
-                doedDato = LocalDate.of(2020, 5, 15)
-            )
-        )
-
-        val result = core.simuler(spec)
-
-        result shouldNotBe null
-    }
-
-    test("simuler should throw for ENDR_ALDER_M_GJEN without avdoed doedDato") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(
-            type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-            foersteUttakDato = LocalDate.of(2025, 1, 1),
-            heltUttakDato = LocalDate.of(2027, 1, 1),
-            uttakGrad = UttakGradKode.P_100,
-            avdoed = null
-        )
-
-        shouldThrow<InvalidArgumentException> {
-            core.simuler(spec)
-        }
-    }
-
-    // ===========================================
-    // Tests for simuler() - heltUttakDato requirement
-    // ===========================================
-
-    test("simuler should throw for gradert uttak without heltUttakDato") {
-        val core = createSimulatorCore()
-        val spec = createSimuleringSpec(
-            type = SimuleringTypeEnum.ENDR_ALDER,
-            foersteUttakDato = LocalDate.of(2025, 1, 1),
-            heltUttakDato = null, // Missing for gradert uttak
-            uttakGrad = UttakGradKode.P_50
-        )
-
-        shouldThrow<InvalidArgumentException> {
-            core.simuler(spec)
+            core.fetchFoedselsdato(pid) shouldBe expectedDate
+            verify { generalPersonService.foedselsdato(pid) }
         }
     }
 })
-
-// ===========================================
-// Helper functions
-// ===========================================
 
 private fun createSimulatorCore(
     kravhodeCreator: KravhodeCreator = mockKravhodeCreator(),

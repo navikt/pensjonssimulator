@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core.ytelse
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteBeregning
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.ytelse.AvdoedYtelser
+import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import java.time.LocalDate
 
 data class LoependeYtelser(
@@ -13,5 +13,5 @@ data class LoependeYtelser(
     val forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
     val forrigePrivatAfpBeregningResultat: AbstraktBeregningsResultat?,
     val forrigeVedtakListe: MutableList<VilkarsVedtak>,
-    val avdoed: AvdoedYtelser?
+    val avdoed: InformasjonOmAvdoed?
 )

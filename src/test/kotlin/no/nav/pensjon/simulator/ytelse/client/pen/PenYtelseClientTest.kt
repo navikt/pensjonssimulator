@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.validity.ProblemType
+import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserResult
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
 import okhttp3.mockwebserver.MockResponse
@@ -59,7 +60,18 @@ class PenYtelseClientTest : ShouldSpec({
             val result: LoependeYtelserResult = client(context = it).fetchLoependeYtelser(spec = spec())
 
             with(result) {
-                alderspensjon?.sokerVirkningFom shouldBe LocalDate.of(2022, 12, 1)
+                with(alderspensjon!!) {
+                    sokerVirkningFom shouldBe LocalDate.of(2022, 12, 1)
+                    avdoed shouldBe InformasjonOmAvdoed(
+                        pid = pid,
+                        doedsdato = LocalDate.of(2022, 12, 13),
+                        foersteVirkningsdato = LocalDate.of(2023, 2, 1),
+                        aarligPensjonsgivendeInntektErMinst1G = true,
+                        harTilstrekkeligMedlemskapIFolketrygden = false,
+                        antallAarUtenlands = 4,
+                        erFlyktning = true
+                    )
+                }
                 with(afpPrivat!!)
                 {
                     virkningFom shouldBe LocalDate.of(2024, 5, 1)

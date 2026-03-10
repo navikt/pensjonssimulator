@@ -138,10 +138,10 @@ object SimulatorContextUtil {
         val message = pakkseddel.merknaderAsString()
 
         if (kontrollTjenesteOk) {
-            log.error { "regler validering andre merknader - $message" }
+            log.warn { "regler validering andre merknader - $message" }
             throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
         } else {
-            log.error { "regler validering kontroll merknader - $message" }
+            log.warn { "regler validering kontroll merknader - $message" }
             throw RegelmotorValideringException(message, pakkseddel.merknadListe)
         }
     }

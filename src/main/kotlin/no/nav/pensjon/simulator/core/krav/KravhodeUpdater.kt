@@ -246,7 +246,7 @@ class KravhodeUpdater(
 
         private fun handle(e: RegelmotorValideringException): Nothing {
             throw if (indikererYrkesskadegradFeil(e.merknadListe))
-                InternDataInkonsistensException(message = "En yrkesskadegrad kan ikke være høyere enn uføregraden i en uføreperiode")
+                InternDataInkonsistensException(message = "En yrkesskadegrad kan ikke være høyere enn uføregraden i en uføreperiode", e)
             else
                 e
         }

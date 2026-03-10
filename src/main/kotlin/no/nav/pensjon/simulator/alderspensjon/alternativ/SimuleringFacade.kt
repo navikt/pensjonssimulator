@@ -61,7 +61,7 @@ class SimuleringFacade(
         } catch (e: BadRequestException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: BadSpecException) {
-            problem(e)
+            problem(e, type = e.problemType)
         } catch (e: DateTimeParseException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
@@ -69,7 +69,7 @@ class SimuleringFacade(
         } catch (e: FeilISimuleringsgrunnlagetException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
+            problem(e, type = ProblemType.IMPLEMENTASJONSFEIL)
         } catch (e: InternDataInkonsistensException) {
             problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: InvalidArgumentException) {
@@ -79,7 +79,7 @@ class SimuleringFacade(
         } catch (e: KanIkkeBeregnesException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: PersonForGammelException) {
             problem(e, type = ProblemType.PERSON_FOR_HOEY_ALDER)
         } catch (e: PersonForUngException) {
@@ -120,9 +120,6 @@ class SimuleringFacade(
         private fun isReducible(grad: UttakGradKode): Boolean =
             grad !== UttakGradKode.P_20 // 20 % is lowest gradert uttak
                     && grad !== UttakGradKode.P_100 // 100 % is not gradert uttak and hence not "adjustable" to a lower grad
-
-        private fun problem(e: BadSpecException) =
-            problem(e, type = e.problemType)
 
         private fun problem(e: RuntimeException, type: ProblemType) =
             SimulertPensjonEllerAlternativ(

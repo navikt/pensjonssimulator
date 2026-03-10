@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.orch
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -13,9 +14,11 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import no.nav.pensjon.simulator.ytelse.YtelseService
+import org.springframework.http.HttpStatus
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
@@ -33,51 +36,39 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 harTidligereUttak = false,
                 harLoependePrivatAfp = true
             )
-            val simulatorCore = mockk<SimulatorCore>()
-            val ytelseService = mockk<YtelseService>()
-            val resultPreparer = mockk<AlderspensjonOgPrivatAfpResultPreparer>()
-            every { simulatorCore.simuler(any()) } returns simulatorOutput
-            every { ytelseService.getLoependeYtelser(any()) } returns mockk {
-                every { privatAfpVirkningFom } returns LocalDate.of(2029, 1, 1)
+            val resultPreparer = mockk<AlderspensjonOgPrivatAfpResultPreparer>().apply {
+                every {
+                    result(simulatorOutput, pid = spec.pid!!, harLoependePrivatAfp = true)
+                } returns expectedResult
             }
-            every {
-                resultPreparer.result(simulatorOutput, spec.pid!!, harLoependePrivatAfp = true)
-            } returns expectedResult
 
-            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }
-                .simuler(spec) shouldBe expectedResult
+            AlderspensjonOgPrivatAfpService(
+                simulatorCore = arrangeCore(simulatorOutput),
+                ytelseService = arrangePrivatAfpYtelse(dato = LocalDate.of(2029, 1, 1)),
+                resultPreparer
+            ) { today }.simuler(spec) shouldBe expectedResult
         }
 
         should("pass harLoependePrivatAfp=true when privatAfpVirkningFom is not null") {
             val harLoependeAfpSlot = slot<Boolean>()
-            val simulatorCore = mockk<SimulatorCore> { every { simuler(any()) } returns SimulatorOutput() }
-            val ytelseService = mockk<YtelseService> {
-                every { getLoependeYtelser(any()) } returns mockk {
-                    every { privatAfpVirkningFom } returns LocalDate.of(2029, 1, 1)
-                }
-            }
-            val resultPreparer = mockk<AlderspensjonOgPrivatAfpResultPreparer> {
-                every { result(any(), any(), capture(harLoependeAfpSlot)) } returns mockk()
-            }
 
-            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }.simuler(validSpec)
+            AlderspensjonOgPrivatAfpService(
+                simulatorCore = arrangeCore(),
+                ytelseService = arrangePrivatAfpYtelse(dato = LocalDate.of(2029, 1, 1)),
+                resultPreparer = arrangeResultPreparer(harLoependeAfpSlot)
+            ) { today }.simuler(validSpec)
 
             harLoependeAfpSlot.captured shouldBe true
         }
 
         should("pass harLoependePrivatAfp=false when privatAfpVirkningFom is null") {
             val harLoependeAfpSlot = slot<Boolean>()
-            val simulatorCore = mockk<SimulatorCore> { every { simuler(any()) } returns SimulatorOutput() }
-            val ytelseService = mockk<YtelseService> {
-                every { getLoependeYtelser(any()) } returns mockk {
-                    every { privatAfpVirkningFom } returns null
-                }
-            }
-            val resultPreparer = mockk<AlderspensjonOgPrivatAfpResultPreparer> {
-                every { result(any(), any(), capture(harLoependeAfpSlot)) } returns mockk()
-            }
 
-            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }.simuler(validSpec)
+            AlderspensjonOgPrivatAfpService(
+                simulatorCore = arrangeCore(),
+                ytelseService = arrangePrivatAfpYtelse(dato = null),
+                resultPreparer = arrangeResultPreparer(harLoependeAfpSlot)
+            ) { today }.simuler(validSpec)
 
             harLoependeAfpSlot.captured shouldBe false
         }
@@ -151,14 +142,14 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "kan ikke beregnes")
         }
 
-        should("return ANNEN_KLIENTFEIL problem on KonsistensenIGrunnlagetErFeilException") {
+        should("return INTERN_DATA_INKONSISTENS problem on KonsistensenIGrunnlagetErFeilException") {
             val result = badService(
                 simulatorException = KonsistensenIGrunnlagetErFeilException(RuntimeException("inkonsistent"))
             ).simuler(validSpec)
 
             with(result) {
                 suksess shouldBe false
-                problem?.type shouldBe ProblemType.ANNEN_KLIENTFEIL
+                problem?.type shouldBe ProblemType.INTERN_DATA_INKONSISTENS
             }
         }
 
@@ -174,14 +165,29 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
     }
 
     context("serverfeil") {
-        should("return TREDJEPARTSFEIL problem on EgressException") {
-            badService(simulatorException = EgressException("egress error"))
+        should("return ANNEN_SERVERFEIL problem on EgressException due to error in application acting as client") {
+            badService(simulatorException = EgressException("egress error", statusCode = HttpStatus.BAD_REQUEST))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_SERVERFEIL, "egress error")
+        }
+
+        should("return TREDJEPARTSFEIL problem on EgressException due to error in remote server") {
+            badService(
+                simulatorException = EgressException(
+                    "egress error",
+                    statusCode = HttpStatus.INTERNAL_SERVER_ERROR
+                )
+            )
                 .simuler(validSpec) shouldBe errorResult(ProblemType.TREDJEPARTSFEIL, "egress error")
         }
 
-        should("return SERVERFEIL problem on ImplementationUnrecoverableException") {
+        should("return IMPLEMENTASJONSFEIL problem on ImplementationUnrecoverableException") {
             badService(simulatorException = ImplementationUnrecoverableException("implementation error"))
-                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_SERVERFEIL, "implementation error")
+                .simuler(validSpec) shouldBe errorResult(ProblemType.IMPLEMENTASJONSFEIL, "implementation error")
+        }
+
+        should("return IMPLEMENTASJONSFEIL problem on ImplementationUnrecoverableException") {
+            badService(simulatorException = InternDataInkonsistensException("data error"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.INTERN_DATA_INKONSISTENS, "data error")
         }
     }
 
@@ -240,6 +246,23 @@ private fun badService(simulatorException: Exception) =
         ytelseService = mockk(),
         resultPreparer = mockk()
     ) { today }
+
+private fun arrangeCore(output: SimulatorOutput = SimulatorOutput()): SimulatorCore =
+    mockk<SimulatorCore> { every { simuler(any()) } returns output }
+
+private fun arrangeResultPreparer(harLoependeAfpSlot: CapturingSlot<Boolean>): AlderspensjonOgPrivatAfpResultPreparer =
+    mockk<AlderspensjonOgPrivatAfpResultPreparer> {
+        every {
+            result(simulatorOutput = any(), pid = any(), harLoependePrivatAfp = capture(harLoependeAfpSlot))
+        } returns mockk()
+    }
+
+private fun arrangePrivatAfpYtelse(dato: LocalDate?): YtelseService =
+    mockk<YtelseService> {
+        every { getLoependeYtelser(any()) } returns mockk {
+            every { privatAfpVirkningFom } returns dato
+        }
+    }
 
 private fun errorResult(problemType: ProblemType, beskrivelse: String) =
     AlderspensjonOgPrivatAfpResult(

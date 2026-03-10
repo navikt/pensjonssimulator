@@ -5,11 +5,8 @@ package no.nav.pensjon.simulator.validity
  * Årsaken kan f.eks. være feilregistrering eller saksbehandlingsfeil.
  */
 class InternDataInkonsistensException : RuntimeException {
-    val problemType: ProblemType
 
-    constructor(message: String) : this(message, ProblemType.INTERN_DATA_INKONSISTENS)
+    constructor(message: String) : super(message)
 
-    constructor(message: String, problemType: ProblemType) : super(message) {
-        this.problemType = problemType
-    }
+    constructor(message: String, e: Throwable) : super(message, e)
 }

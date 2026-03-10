@@ -1,7 +1,5 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -26,14 +24,16 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.http.HttpStatus
+import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 
 class SpkTjenestepensjonClientFra2025Test : FunSpec({
 
     var server: MockWebServer? = null
     var baseUrl: String? = null
-    val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule())
+    val objectMapper = JsonMapper()
 
     val sporingslogg = mockk<SporingsloggService> {
         every { logUtgaaendeRequest(Organisasjoner.SPK, any<Pid>(), any<String>()) } just runs
@@ -47,7 +47,7 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
         SpkTjenestepensjonClientFra2025(
             baseUrl!!,
             retryAttempts = "0",
-            webClientBase = context.getBean(WebClientBase::class.java),
+            webClientBase = context.getBean<WebClientBase>(),
             traceAid = mockk(relaxed = true),
             sporingslogg,
             sammenligner

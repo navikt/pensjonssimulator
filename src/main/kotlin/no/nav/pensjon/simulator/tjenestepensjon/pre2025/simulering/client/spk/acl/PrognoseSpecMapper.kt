@@ -87,7 +87,7 @@ object PrognoseSpecMapper {
         OpptjeningsperiodeDto(
             datoFom = spec.fom,
             datoTom = spec.tom,
-            stillingsprosent = spec.stillingsprosent.toDouble(),
+            stillingsprosent = spec.stillingsprosent,
             aldersgrense = spec.aldersgrense,
             faktiskHovedlonn = spec.faktiskHovedloenn,
             stillingsuavhengigTilleggslonn = spec.stillingsuavhengigTilleggsloenn

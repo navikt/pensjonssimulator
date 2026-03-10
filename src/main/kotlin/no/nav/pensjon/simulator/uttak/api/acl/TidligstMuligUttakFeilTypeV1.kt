@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.uttak.api.acl
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.http.HttpStatus
 
@@ -19,12 +18,10 @@ enum class TidligstMuligUttakFeilTypeV1(
     FOR_LAV_OPPTJENING(internalValue = ProblemType.UTILSTREKKELIG_OPPTJENING),
     FOR_LAV_TRYGDETID(internalValue = ProblemType.UTILSTREKKELIG_TRYGDETID),
     ANNEN_KLIENTFEIL(internalValue = ProblemType.ANNEN_KLIENTFEIL),
-    TEKNISK_FEIL(internalValue = ProblemType.SERVERFEIL, httpStatus = HttpStatus.INTERNAL_SERVER_ERROR);
+    TEKNISK_FEIL(internalValue = ProblemType.ANNEN_SERVERFEIL, httpStatus = HttpStatus.INTERNAL_SERVER_ERROR);
 
     companion object {
-        private val logger = KotlinLogging.logger {}
-
-        fun fromInternalValue(value: ProblemType) = entries.firstOrNull { it.internalValue == value }
-            ?: TEKNISK_FEIL.also { logger.warn { "Ingen TMU-feiltype matcher problemtype $value" } }
+        fun fromInternalValue(value: ProblemType) =
+            entries.firstOrNull { it.internalValue == value } ?: TEKNISK_FEIL
     }
 }

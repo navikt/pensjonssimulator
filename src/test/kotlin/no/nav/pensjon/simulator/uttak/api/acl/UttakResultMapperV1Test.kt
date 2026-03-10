@@ -16,7 +16,7 @@ class UttakResultMapperV1Test : ShouldSpec({
                 uttaksdato = LocalDate.of(2021, 1, 1),
                 uttaksgrad = Uttaksgrad.AATTI_PROSENT,
                 problem = Problem(
-                    type = ProblemType.SERVERFEIL,
+                    type = ProblemType.ANNEN_SERVERFEIL,
                     beskrivelse = "Feil"
                 )
             )

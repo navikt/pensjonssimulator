@@ -99,7 +99,7 @@ class PensjonForNavController(
 
     @ExceptionHandler(value = [Exception::class])
     private fun internalError(e: Exception): ResponseEntity<SimuleringResultDto> =
-        with(ProblemTypeDto.SERVERFEIL) {
+        with(ProblemTypeDto.ANNEN_SERVERFEIL) {
             ResponseEntity.status(this.httpStatus).body(problem(e, type = this))
         }
 

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.krav
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
 import no.nav.pensjon.simulator.core.SimulatorContext
+import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
@@ -11,6 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -28,6 +30,7 @@ import no.nav.pensjon.simulator.trygdetid.TrygdeavtaleFactory.newTrygdeavtaledet
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagSpec
 import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -109,8 +112,12 @@ class KravhodeUpdater(
 
     // SimulerFleksibelAPCommand.settPensjonsbeholdning (part of)
     private fun fetchBeholdninger(grunnlag: Persongrunnlag, foersteUttakDato: LocalDate?) =
-        context.beregnOpptjening(foersteUttakDato, grunnlag)
-            .filter { BeholdningtypeEnum.PEN_B == it.beholdningsTypeEnum }
+        try {
+            context.beregnOpptjening(foersteUttakDato, grunnlag)
+                .filter { BeholdningtypeEnum.PEN_B == it.beholdningsTypeEnum }
+        } catch (e: RegelmotorValideringException) {
+            handle(e)
+        }
 
     private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag) {
         setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdato)
@@ -236,6 +243,19 @@ class KravhodeUpdater(
                 ),
                 tom = spec.tom
             )
+
+        private fun handle(e: RegelmotorValideringException): Nothing {
+            throw if (indikererYrkesskadegradFeil(e.merknadListe))
+                InternDataInkonsistensException(message = "En yrkesskadegrad kan ikke være høyere enn uføregraden i en uføreperiode")
+            else
+                e
+        }
+
+        private fun indikererYrkesskadegradFeil(merknadListe: List<Merknad>): Boolean =
+            merknadListe.any { it.kode == "UFOREGRUNNLAG_GeneriskKontrollpunkt" && gjelderYrkesskadegrad(merknad = it) }
+
+        private fun gjelderYrkesskadegrad(merknad: Merknad): Boolean =
+            merknad.argumentListe.any { it.startsWith("En yrkesskadegrad kan ikke") }
     }
 }
 

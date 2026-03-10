@@ -21,31 +21,9 @@ import java.time.format.DateTimeParseException
 
 class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
 
-    val today = LocalDate.of(2024, 1, 1)
-
-    fun validSpec() = simuleringSpec(foersteUttakDato = LocalDate.of(2029, 1, 1))
-
-    fun serviceWithThrowingSimulator(exception: Exception) =
-        AlderspensjonOgPrivatAfpService(
-            mockk<SimulatorCore> { every { simuler(any()) } throws exception },
-            mockk(),
-            mockk()
-        ) { today }
-
-    fun errorResult(problemType: ProblemType, beskrivelse: String) =
-        AlderspensjonOgPrivatAfpResult(
-            suksess = false,
-            alderspensjonsperiodeListe = emptyList(),
-            privatAfpPeriodeListe = emptyList(),
-            harNaavaerendeUttak = false,
-            harTidligereUttak = false,
-            harLoependePrivatAfp = false,
-            problem = Problem(problemType, beskrivelse)
-        )
-
     context("happy path") {
         should("return result from resultPreparer on success") {
-            val spec = validSpec()
+            val spec = validSpec
             val simulatorOutput = SimulatorOutput()
             val expectedResult = AlderspensjonOgPrivatAfpResult(
                 suksess = true,
@@ -63,17 +41,11 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 every { privatAfpVirkningFom } returns LocalDate.of(2029, 1, 1)
             }
             every {
-                resultPreparer.result(
-                    simulatorOutput,
-                    spec.pid!!,
-                    harLoependePrivatAfp = true
-                )
+                resultPreparer.result(simulatorOutput, spec.pid!!, harLoependePrivatAfp = true)
             } returns expectedResult
 
-            val result = AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }
-                .simuler(spec)
-
-            result shouldBe expectedResult
+            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }
+                .simuler(spec) shouldBe expectedResult
         }
 
         should("pass harLoependePrivatAfp=true when privatAfpVirkningFom is not null") {
@@ -88,8 +60,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 every { result(any(), any(), capture(harLoependeAfpSlot)) } returns mockk()
             }
 
-            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }
-                .simuler(validSpec())
+            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }.simuler(validSpec)
 
             harLoependeAfpSlot.captured shouldBe true
         }
@@ -106,8 +77,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 every { result(any(), any(), capture(harLoependeAfpSlot)) } returns mockk()
             }
 
-            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }
-                .simuler(validSpec())
+            AlderspensjonOgPrivatAfpService(simulatorCore, ytelseService, resultPreparer) { today }.simuler(validSpec)
 
             harLoependeAfpSlot.captured shouldBe false
         }
@@ -117,158 +87,167 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
         should("return UGYLDIG_UTTAKSDATO problem when foersteUttakDato is before today") {
             val spec = simuleringSpec(foersteUttakDato = LocalDate.of(2023, 1, 1))
 
-            val result = AlderspensjonOgPrivatAfpService(mockk(), mockk(), mockk()) { today }
-                .simuler(spec)
-
-            result shouldBe errorResult(
-                ProblemType.UGYLDIG_UTTAKSDATO,
-                "Dato for første uttak (2023-01-01) er for tidlig"
+            goodService.simuler(spec) shouldBe errorResult(
+                problemType = ProblemType.UGYLDIG_UTTAKSDATO,
+                beskrivelse = "Dato for første uttak (2023-01-01) er for tidlig"
             )
         }
 
         should("return UGYLDIG_UTTAKSDATO problem when foersteUttakDato is null") {
             val spec = simuleringSpec(foersteUttakDato = null)
 
-            val result = AlderspensjonOgPrivatAfpService(mockk(), mockk(), mockk()) { today }
-                .simuler(spec)
-
-            result shouldBe errorResult(ProblemType.UGYLDIG_UTTAKSDATO, "Dato for første uttak mangler")
+            goodService.simuler(spec) shouldBe errorResult(
+                problemType = ProblemType.UGYLDIG_UTTAKSDATO,
+                beskrivelse = "Dato for første uttak mangler"
+            )
         }
 
         should("return UGYLDIG_INNTEKT problem when fremtidig inntekt has negative beloep") {
             val spec = simuleringSpec(
                 foersteUttakDato = LocalDate.of(2029, 1, 1),
                 inntektSpecListe = listOf(
-                    FremtidigInntekt(aarligInntektBeloep = -1, fom = LocalDate.of(2029, 1, 1))
+                    FremtidigInntekt(
+                        aarligInntektBeloep = -1,
+                        fom = LocalDate.of(2029, 1, 1)
+                    )
                 )
             )
 
-            val result = AlderspensjonOgPrivatAfpService(mockk(), mockk(), mockk()) { today }
-                .simuler(spec)
-
-            result shouldBe errorResult(ProblemType.UGYLDIG_INNTEKT, "En fremtidig inntekt har negativt beløp")
+            goodService.simuler(spec) shouldBe errorResult(
+                problemType = ProblemType.UGYLDIG_INNTEKT,
+                beskrivelse = "En fremtidig inntekt har negativt beløp"
+            )
         }
     }
 
     context("ukategorisert klientfeil") {
         should("return ANNEN_KLIENTFEIL problem on BadRequestException") {
-            val result = serviceWithThrowingSimulator(BadRequestException("bad request"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "bad request")
+            badService(simulatorException = BadRequestException("bad request"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "bad request")
         }
 
         should("return ANNEN_KLIENTFEIL problem on DateTimeParseException") {
-            val result = serviceWithThrowingSimulator(DateTimeParseException("parse error", "text", 0))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "parse error")
+            badService(simulatorException = DateTimeParseException("parse error", "text", 0))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "parse error")
         }
 
         should("return ANNEN_KLIENTFEIL problem on FeilISimuleringsgrunnlagetException") {
-            val result = serviceWithThrowingSimulator(FeilISimuleringsgrunnlagetException("feil i grunnlag"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "feil i grunnlag")
+            badService(simulatorException = FeilISimuleringsgrunnlagetException("feil i grunnlag"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "feil i grunnlag")
         }
 
         should("return ANNEN_KLIENTFEIL problem on InvalidArgumentException") {
-            val result = serviceWithThrowingSimulator(InvalidArgumentException("ugyldig argument"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "ugyldig argument")
+            badService(simulatorException = InvalidArgumentException("ugyldig argument"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "ugyldig argument")
         }
 
         should("return ANNEN_KLIENTFEIL problem on InvalidEnumValueException") {
-            val result = serviceWithThrowingSimulator(InvalidEnumValueException("ugyldig enum"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "ugyldig enum")
+            badService(simulatorException = InvalidEnumValueException("ugyldig enum"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "ugyldig enum")
         }
 
         should("return ANNEN_KLIENTFEIL problem on KanIkkeBeregnesException") {
-            val result = serviceWithThrowingSimulator(KanIkkeBeregnesException("kan ikke beregnes"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "kan ikke beregnes")
+            badService(simulatorException = KanIkkeBeregnesException("kan ikke beregnes"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "kan ikke beregnes")
         }
 
         should("return ANNEN_KLIENTFEIL problem on KonsistensenIGrunnlagetErFeilException") {
-            val cause = RuntimeException("inkonsistent")
-            val result = serviceWithThrowingSimulator(KonsistensenIGrunnlagetErFeilException(cause))
-                .simuler(validSpec())
+            val result = badService(
+                simulatorException = KonsistensenIGrunnlagetErFeilException(RuntimeException("inkonsistent"))
+            ).simuler(validSpec)
 
-            result.suksess shouldBe false
-            result.problem?.type shouldBe ProblemType.ANNEN_KLIENTFEIL
+            with(result) {
+                suksess shouldBe false
+                problem?.type shouldBe ProblemType.ANNEN_KLIENTFEIL
+            }
         }
 
         should("return ANNEN_KLIENTFEIL problem on PersonForUngException") {
-            val result = serviceWithThrowingSimulator(PersonForUngException("for ung"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "for ung")
+            badService(simulatorException = PersonForUngException("for ung"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "for ung")
         }
 
         should("return ANNEN_KLIENTFEIL problem on RegelmotorValideringException") {
-            val result = serviceWithThrowingSimulator(RegelmotorValideringException("validering feilet"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "validering feilet")
+            badService(simulatorException = RegelmotorValideringException("validering feilet"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "validering feilet")
         }
     }
 
     context("serverfeil") {
-        should("return SERVERFEIL problem on EgressException") {
-            val result = serviceWithThrowingSimulator(EgressException("egress error"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.SERVERFEIL, "egress error")
+        should("return TREDJEPARTSFEIL problem on EgressException") {
+            badService(simulatorException = EgressException("egress error"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.TREDJEPARTSFEIL, "egress error")
         }
 
         should("return SERVERFEIL problem on ImplementationUnrecoverableException") {
-            val result = serviceWithThrowingSimulator(ImplementationUnrecoverableException("implementation error"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.SERVERFEIL, "implementation error")
+            badService(simulatorException = ImplementationUnrecoverableException("implementation error"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_SERVERFEIL, "implementation error")
         }
     }
 
     context("kategorisert feilsituasjon") {
         should("return PERSON_FOR_HOEY_ALDER problem on PersonForGammelException") {
-            val result = serviceWithThrowingSimulator(PersonForGammelException("for gammel"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.PERSON_FOR_HOEY_ALDER, "for gammel")
+            badService(simulatorException = PersonForGammelException("for gammel"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.PERSON_FOR_HOEY_ALDER, "for gammel")
         }
 
         should("return UTILSTREKKELIG_OPPTJENING problem on UtilstrekkeligOpptjeningException") {
-            val result = serviceWithThrowingSimulator(UtilstrekkeligOpptjeningException("for lav opptjening"))
-                .simuler(validSpec())
-
-            result shouldBe errorResult(ProblemType.UTILSTREKKELIG_OPPTJENING, "for lav opptjening")
+            badService(simulatorException = UtilstrekkeligOpptjeningException("for lav opptjening"))
+                .simuler(validSpec) shouldBe errorResult(ProblemType.UTILSTREKKELIG_OPPTJENING, "for lav opptjening")
         }
 
         should("return UTILSTREKKELIG_TRYGDETID problem on UtilstrekkeligTrygdetidException") {
-            val result = serviceWithThrowingSimulator(UtilstrekkeligTrygdetidException())
-                .simuler(validSpec())
+            val result = badService(simulatorException = UtilstrekkeligTrygdetidException()).simuler(validSpec)
 
-            result.suksess shouldBe false
-            result.problem?.type shouldBe ProblemType.UTILSTREKKELIG_TRYGDETID
-            result.problem?.beskrivelse shouldBe "Ukjent feil - UtilstrekkeligTrygdetidException"
+            with(result) {
+                suksess shouldBe false
+                problem?.type shouldBe ProblemType.UTILSTREKKELIG_TRYGDETID
+                problem?.beskrivelse shouldBe "Ukjent feil - UtilstrekkeligTrygdetidException"
+            }
         }
     }
 
     context("bad request") {
         should("return error result with empty lists and false flags") {
-            val result = serviceWithThrowingSimulator(BadRequestException("error"))
-                .simuler(validSpec())
+            val result = badService(simulatorException = BadRequestException("error")).simuler(validSpec)
 
-            result.suksess shouldBe false
-            result.alderspensjonsperiodeListe shouldBe emptyList()
-            result.privatAfpPeriodeListe shouldBe emptyList()
-            result.harNaavaerendeUttak shouldBe false
-            result.harTidligereUttak shouldBe false
-            result.harLoependePrivatAfp shouldBe false
+            with(result) {
+                suksess shouldBe false
+                alderspensjonsperiodeListe shouldBe emptyList()
+                privatAfpPeriodeListe shouldBe emptyList()
+                harNaavaerendeUttak shouldBe false
+                harTidligereUttak shouldBe false
+                harLoependePrivatAfp shouldBe false
+            }
         }
     }
 })
+
+private val today = LocalDate.of(2024, 1, 1)
+
+private val validSpec = simuleringSpec(foersteUttakDato = LocalDate.of(2029, 1, 1))
+
+private val goodService =
+    AlderspensjonOgPrivatAfpService(
+        simulatorCore = mockk(),
+        ytelseService = mockk(),
+        resultPreparer = mockk()
+    ) { today }
+
+private fun badService(simulatorException: Exception) =
+    AlderspensjonOgPrivatAfpService(
+        simulatorCore = mockk<SimulatorCore> { every { simuler(any()) } throws simulatorException },
+        ytelseService = mockk(),
+        resultPreparer = mockk()
+    ) { today }
+
+private fun errorResult(problemType: ProblemType, beskrivelse: String) =
+    AlderspensjonOgPrivatAfpResult(
+        suksess = false,
+        alderspensjonsperiodeListe = emptyList(),
+        privatAfpPeriodeListe = emptyList(),
+        harNaavaerendeUttak = false,
+        harTidligereUttak = false,
+        harLoependePrivatAfp = false,
+        problem = Problem(problemType, beskrivelse)
+    )

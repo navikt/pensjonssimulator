@@ -44,11 +44,11 @@ class AlderspensjonOgPrivatAfpService(
         } catch (e: DateTimeParseException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
-            problem(e, type = ProblemType.SERVERFEIL)
+            problem(e, type = if (e.isClientError) ProblemType.ANNEN_SERVERFEIL else ProblemType.TREDJEPARTSFEIL)
         } catch (e: FeilISimuleringsgrunnlagetException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.SERVERFEIL)
+            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
         } catch (e: InvalidArgumentException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: InvalidEnumValueException) {

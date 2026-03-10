@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.stereotype.Component
@@ -45,7 +46,7 @@ class UttakService(
 
             TidligstMuligUttak(
                 uttaksdato = tmuAlder.uttakDato,
-                uttaksgrad = Uttaksgrad.from(newSpec.uttakGrad.value.toInt()),
+                uttaksgrad = Uttaksgrad.from(prosentsats = newSpec.uttakGrad.value.toInt()),
                 problem = null
             )
         } catch (e: BadRequestException) {
@@ -55,11 +56,13 @@ class UttakService(
         } catch (e: DateTimeParseException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
-            problem(e, type = ProblemType.SERVERFEIL)
+            problem(e, type = if (e.isClientError) ProblemType.ANNEN_SERVERFEIL else ProblemType.TREDJEPARTSFEIL)
         } catch (e: FeilISimuleringsgrunnlagetException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.SERVERFEIL)
+            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
+        } catch (e: InternDataInkonsistensException) {
+            problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: InvalidArgumentException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: InvalidEnumValueException) {

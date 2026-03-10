@@ -138,7 +138,7 @@ object SimuleringResultMapper {
 
     private fun problem(source: Problem) =
         ProblemDto(
-            kode = ProblemTypeDto.entries.firstOrNull { it.internalValue == source.type } ?: ProblemTypeDto.SERVERFEIL,
+            kode = ProblemTypeDto.entries.firstOrNull { it.internalValue == source.type } ?: ProblemTypeDto.ANNEN_SERVERFEIL,
             beskrivelse = source.beskrivelse
         )
 }

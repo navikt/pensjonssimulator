@@ -14,12 +14,12 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeParseException
 
-// PEN: SimpleSimuleringService
 // Vil brukes av Nav-klienter og tjenestepensjonsordninger
 @Service
 class SimuleringFacade(
@@ -61,15 +61,17 @@ class SimuleringFacade(
         } catch (e: BadRequestException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: BadSpecException) {
-            problem(e)
+            problem(e, type = e.problemType)
         } catch (e: DateTimeParseException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
-            problem(e, type = ProblemType.SERVERFEIL)
+            problem(e, type = if (e.isClientError) ProblemType.ANNEN_SERVERFEIL else ProblemType.TREDJEPARTSFEIL)
         } catch (e: FeilISimuleringsgrunnlagetException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.SERVERFEIL)
+            problem(e, type = ProblemType.IMPLEMENTASJONSFEIL)
+        } catch (e: InternDataInkonsistensException) {
+            problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: InvalidArgumentException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: InvalidEnumValueException) {
@@ -77,7 +79,7 @@ class SimuleringFacade(
         } catch (e: KanIkkeBeregnesException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: PersonForGammelException) {
             problem(e, type = ProblemType.PERSON_FOR_HOEY_ALDER)
         } catch (e: PersonForUngException) {
@@ -118,9 +120,6 @@ class SimuleringFacade(
         private fun isReducible(grad: UttakGradKode): Boolean =
             grad !== UttakGradKode.P_20 // 20 % is lowest gradert uttak
                     && grad !== UttakGradKode.P_100 // 100 % is not gradert uttak and hence not "adjustable" to a lower grad
-
-        private fun problem(e: BadSpecException) =
-            problem(e, type = e.problemType)
 
         private fun problem(e: RuntimeException, type: ProblemType) =
             SimulertPensjonEllerAlternativ(

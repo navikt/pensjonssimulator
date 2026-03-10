@@ -23,17 +23,17 @@ class LocalDateExtensionTest : ShouldSpec({
 
     context("isBeforeOrSame") {
         should("treat nulls as same") {
-            DateUtil.isBeforeByDay(null as? Date, null as? Date, allowSameDay = true) shouldBe true
+            DateUtil.isBeforeByDay(null as? Date?, null as? Date?, allowSameDay = true) shouldBe true
             null.isBeforeOrSame(null) shouldBe true
         }
 
         should("treat null as year zero") {
-            DateUtil.isBeforeByDay(null as? Date, LocalDate.of(2021, 1, 1), allowSameDay = true) shouldBe true
+            DateUtil.isBeforeByDay(null as? Date?, LocalDate.of(2021, 1, 1), allowSameDay = true) shouldBe true
             null.isBeforeOrSame(LocalDate.of(2021, 1, 1)) shouldBe true
         }
 
         should("treat other null as year zero") {
-            DateUtil.isBeforeByDay(LocalDate.of(2021, 1, 1), null as? Date, allowSameDay = true) shouldBe false
+            DateUtil.isBeforeByDay(LocalDate.of(2021, 1, 1), null as? Date?, allowSameDay = true) shouldBe false
             LocalDate.of(2021, 1, 1).isBeforeOrSame(null) shouldBe false
         }
 

@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
+import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -38,7 +39,7 @@ import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
-import no.nav.pensjon.simulator.ytelse.AvdoedYtelser
+import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -247,13 +248,18 @@ class SimulatorCore(
         /**
          * Hvis spesifikasjonen ikke inneholder informasjon om avdød, hent det fra eventuell eksisterende ytelse.
          */
-        private fun specWithEventuellAvdoed(spec: SimuleringSpec, ytelser: AvdoedYtelser?) =
+        private fun specWithEventuellAvdoed(spec: SimuleringSpec, info: InformasjonOmAvdoed?) =
             if (spec.avdoed == null)
-                ytelser?.pid?.let {
+                info?.pid?.let {
                     spec.withAvdoed(
-                        avdoedPid = it,
-                        doedsdato = ytelser.doedsdato
-                            ?: throw EgressException("Missing dødsdato in PEN response")
+                        Avdoed(
+                            pid = it,
+                            antallAarUtenlands = info.antallAarUtenlands ?: 0,
+                            inntektFoerDoed = 0, //TODO get from spec or from POPP
+                            doedDato = info.doedsdato ?: throw EgressException("Missing dødsdato in ytelse"),
+                            erMedlemAvFolketrygden = info.harTilstrekkeligMedlemskapIFolketrygden == true,
+                            harInntektOver1G = info.aarligPensjonsgivendeInntektErMinst1G == true
+                        )
                     )
                 } ?: spec
             else

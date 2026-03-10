@@ -472,7 +472,7 @@ private val objectMapper = JsonMapper()
 private inline fun <K, reified T : Any> arrangeRegler(response: K): GenericRegelClient =
     mockk<GenericRegelClient>().apply {
         every {
-            makeRegelCall<K, T>( //BeregnAlderspensjon2011ForsteUttakResponse, BeregnAlderspensjon2011ForsteUttakRequest>(
+            makeRegelCall<K, T>(
                 any(), any(), any(), any(), any()
             )
         } returns response

@@ -157,7 +157,6 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
     }
 
     test("fromSimuleringSpecV0 sets foedselDato to null when fnr is null") {
-        val personService = mockk<GeneralPersonService>()
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = null)
 
         // pid will be null, which causes SimuleringSpec init to fail (erAnonym=false requires pid!=null)
@@ -271,8 +270,10 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
 
         val result = mapper().fromSimuleringSpecV0(source)
 
-        result.pre2025OffentligAfp!!.inntektMaanedenFoerAfpUttakBeloep shouldBe 0
-        result.pre2025OffentligAfp!!.inntektUnderAfpUttakBeloep shouldBe 0
+        with(result.pre2025OffentligAfp!!) {
+            inntektMaanedenFoerAfpUttakBeloep shouldBe 0
+            inntektUnderAfpUttakBeloep shouldBe 0
+        }
     }
 
     // --- Date conversion ---

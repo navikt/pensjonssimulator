@@ -42,6 +42,13 @@ spec:
         maintenance:
           day: 7
           hour: 3
+        flags:
+          - name: cloudsql.enable_pgaudit
+            value: "on"
+          - name: pgaudit.log_parameter
+            value: "on"
+          - name: pgaudit.log
+            value: "write,ddl,role,read"
         databases:
           - name: psdb
             envVarPrefix: PSDB

@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
@@ -25,6 +24,7 @@ import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.FULL_TRYGDETID_ANTALL_AA
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.util.*
@@ -276,12 +276,8 @@ class FppSimuleringService(
                 rolle?.let { kravlinjeType(simuleringType, rolle = it, persongrunnlag, personDetalj, grunnbeloep) }
 
             kravlinjeType?.let {
-                vedtak.kravlinje = Kravlinje().apply {
-                    kravlinjeTypeEnum = it
-                    hovedKravlinje = it.erHovedkravlinje
-                    relatertPerson = persongrunnlag.penPerson
-                }
-
+                vedtak.kravlinje = VilkaarsvedtakKravlinje(type = it, person = persongrunnlag.penPerson)
+                vedtak.penPerson = persongrunnlag.penPerson
                 vedtak.kravlinjeTypeEnum = it
                 vedtak.forsteVirk = vedtak.virkFom
                 spec.vilkarsvedtakliste.add(vedtak)

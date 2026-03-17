@@ -28,6 +28,7 @@ import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.trygdetidSpec
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -235,7 +236,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     periodiserGrunnlagAndModifyKravhode(knekkpunktDato, kravhode, beholdningListe, spec.sakType)
 
                 val vilkarsvedtak: VilkarsVedtak = vilkaarsproever.innvilgetVedtak(
-                    kravlinje = folketrygdBeholdningKravhode.findHovedKravlinje(spec.kravGjelder),
+                    kravlinje = folketrygdBeholdningKravhode.findHovedKravlinje(spec.kravGjelder)?.let(::VilkaarsvedtakKravlinje),
                     virkningFom = knekkpunktDato
                 )
 

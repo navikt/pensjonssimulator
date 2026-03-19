@@ -21,7 +21,8 @@ data class SimulertAarligAlderspensjon(
     val alderAar: Int,
     val beloep: Int,
     val inntektspensjon: Int?,
-    val garantipensjon: Int?,
+    val garantipensjon: SimulertGarantipensjon?, // kapittel 20
+    val garantitillegg: Int?, // kapittel 20
     val delingstall: Double?,
     val pensjonBeholdningFoerUttak: Int?,
     val andelsbroekKap19: Double?,
@@ -32,11 +33,14 @@ data class SimulertAarligAlderspensjon(
     val poengaarFoer92: Int?,
     val poengaarEtter91: Int?,
     val forholdstall: Double?,
+    val basispensjon: Int?, // kapittel 19
     val grunnpensjon: Int?,
     val tilleggspensjon: Int?,
+    val restpensjon: Int?, // kapittel 19
     val pensjonstillegg: Int?,
     val skjermingstillegg: Int?,
-    val kapittel19Gjenlevendetillegg: Int?
+    val kapittel19Gjenlevendetillegg: Int?,
+    var minstePensjonsnivaaSats: Double? // kapittel 19
 )
 
 data class SimulertAlderspensjonFraFolketrygden(
@@ -84,6 +88,11 @@ data class SimulertPensjonBeholdningPeriode(
     val garantitilleggBeholdning: Double,
     val datoFom: LocalDate,
     var garantipensjonNivaa: SimulertGarantipensjonNivaa
+)
+
+data class SimulertGarantipensjon(
+    val aarligBeloep: Int,
+    val sats: Double
 )
 
 data class SimulertGarantipensjonNivaa(

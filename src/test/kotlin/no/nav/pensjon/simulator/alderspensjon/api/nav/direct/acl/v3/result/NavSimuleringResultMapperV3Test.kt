@@ -26,7 +26,8 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                             alderAar = 65,
                             beloep = 123,
                             inntektspensjon = 234,
-                            garantipensjon = 345,
+                            garantipensjon = SimulertGarantipensjon(aarligBeloep = 345, sats = 1.1),
+                            garantitillegg = 432,
                             delingstall = 1.2,
                             pensjonBeholdningFoerUttak = 456,
                             andelsbroekKap19 = 0.3,
@@ -37,11 +38,14 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                             poengaarFoer92 = 10,
                             poengaarEtter91 = 20,
                             forholdstall = 0.8,
+                            basispensjon = 321,
                             grunnpensjon = 567,
                             tilleggspensjon = 678,
+                            restpensjon = 876,
                             pensjonstillegg = 789,
                             skjermingstillegg = 890,
-                            kapittel19Gjenlevendetillegg = 321
+                            kapittel19Gjenlevendetillegg = 321,
+                            minstePensjonsnivaaSats = 0.9
                         )
                     ),
                     alderspensjonFraFolketrygden = listOf(

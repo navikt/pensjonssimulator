@@ -92,7 +92,13 @@ object SimulatorOutputConverter {
             alderAar = source.alderAar ?: ALDER_REPRESENTING_LOEPENDE_YTELSER,
             beloep = source.beloep ?: 0,
             inntektspensjon = info?.inntektspensjon,
-            garantipensjon = info?.garantipensjon,
+            garantipensjon = info?.garantipensjon?.let {
+                SimulertGarantipensjon(
+                    aarligBeloep = it,
+                    sats = info.garantipensjonssats ?: 0.0
+                )
+            },
+            garantitillegg = info?.garantitillegg,
             delingstall = info?.delingstall,
             pensjonBeholdningFoerUttak = beholdningFoerUttak(source.simulertBeregningInformasjonListe),
             andelsbroekKap19 = pensjon?.kapittel19Andel ?: 0.0,
@@ -103,11 +109,14 @@ object SimulatorOutputConverter {
             poengaarFoer92 = info?.pa_f92,
             poengaarEtter91 = info?.pa_e91,
             forholdstall = info?.forholdstall,
+            basispensjon = info?.basispensjon,
             grunnpensjon = info?.grunnpensjon,
             tilleggspensjon = info?.tilleggspensjon,
+            restpensjon = info?.restBasisPensjon,
             pensjonstillegg = info?.pensjonstillegg,
             skjermingstillegg = info?.skjermingstillegg,
-            kapittel19Gjenlevendetillegg = info?.gjtAPKap19
+            kapittel19Gjenlevendetillegg = info?.gjtAPKap19,
+            minstePensjonsnivaaSats = info?.minstePensjonsnivaSats
         )
     }
 

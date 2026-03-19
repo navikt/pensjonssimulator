@@ -1,10 +1,10 @@
-package no.nav.pensjon.simulator.api.nav.v1.acl.spec
+package no.nav.pensjon.simulator.api.nav.v2.acl.spec
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.api.nav.v1.acl.UttaksgradDto
+import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
@@ -19,7 +19,7 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
 
     context("tidsbegrenset offentlig AFP") {
         should("henter AFP-info fra info om gradert uttak") {
-            SimuleringSpecMapperForNav(
+            SimuleringSpecMapperForNavV2(
                 personService = arrangePerson(foedselsaarOgMaaned = YearMonth.of(1964, 1)),
                 inntektService = arrangeInntekt(beloep = 199000),
                 grunnbeloepService = mockk()
@@ -64,7 +64,7 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
         }
 
         should("bruker 'kommunal AFP' som default AFP-ordningstype") {
-            SimuleringSpecMapperForNav(
+            SimuleringSpecMapperForNavV2(
                 personService = arrangePerson(foedselsaarOgMaaned = YearMonth.of(1963, 2)),
                 inntektService = arrangeInntekt(beloep = 198000),
                 grunnbeloepService = mockk()

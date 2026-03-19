@@ -35,7 +35,7 @@ class SamhandlerAlderspensjonResultMapperTest : FunSpec({
                             alderAar = 65,
                             beloep = 1000,
                             inntektspensjon = 500,
-                            garantipensjon = SimulertGarantipensjon( 400, 1.1),
+                            garantipensjon = SimulertGarantipensjon(aarligBeloep = 400, sats = 1.1),
                             garantitillegg = 600,
                             delingstall = 1.2,
                             pensjonBeholdningFoerUttak = 1000000,
@@ -67,9 +67,24 @@ class SamhandlerAlderspensjonResultMapperTest : FunSpec({
                             maanedligBeloep = 500
                         )
                     ),
-                    privatAfp = listOf(SimulertPrivatAfp(alderAar = 63, beloep = 5000, kompensasjonstillegg = 123, kronetillegg = 5, livsvarig = 93, maanedligBeloep = 900)),
+                    privatAfp = listOf(
+                        SimulertPrivatAfp(
+                            alderAar = 63,
+                            beloep = 5000,
+                            kompensasjonstillegg = 123,
+                            kronetillegg = 5,
+                            livsvarig = 93,
+                            maanedligBeloep = 900
+                        )
+                    ),
                     pre2025OffentligAfp = null,
-                    livsvarigOffentligAfp = listOf(SimulertLivsvarigOffentligAfp(alderAar = 66, beloep = 6000, maanedligBeloep = 500)),
+                    livsvarigOffentligAfp = listOf(
+                        SimulertLivsvarigOffentligAfp(
+                            alderAar = 66,
+                            beloep = 6000,
+                            maanedligBeloep = 500
+                        )
+                    ),
                     pensjonBeholdningPeriodeListe = listOf(
                         SimulertPensjonBeholdningPeriode(
                             pensjonBeholdning = 100.2,

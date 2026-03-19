@@ -1,9 +1,9 @@
-package no.nav.pensjon.simulator.api.nav.v1.acl.result
+package no.nav.pensjon.simulator.api.nav.v2.acl.result
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
 import jakarta.validation.constraints.NotNull
-import no.nav.pensjon.simulator.api.nav.v1.acl.UttaksgradDto
+import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.http.HttpStatus
 
@@ -25,7 +25,6 @@ data class AlderspensjonDto(
     @field:NotNull val alderAar: Int,
     @field:NotNull val beloep: Int,
     val inntektspensjon: Int?,
-    val garantipensjon: Int?,
     val delingstall: Double?,
     val pensjonsbeholdningFoerUttak: Int?,
     val sluttpoengtall: Double?,
@@ -44,13 +43,23 @@ data class AlderspensjonDto(
 data class Kapittel19PensjonDto(
     val andelsbroek: Double?,
     val trygdetidAntallAar: Int?,
-    val gjenlevendetillegg: Int?
+    val basispensjon: Int?,
+    val restpensjon: Int?,
+    val gjenlevendetillegg: Int?,
+    var minstePensjonsnivaaSats: Double?
 )
 
 @JsonInclude(NON_NULL)
 data class Kapittel20PensjonDto(
     val andelsbroek: Double?,
-    val trygdetidAntallAar: Int?
+    val trygdetidAntallAar: Int?,
+    val garantipensjon: GarantipensjonDto?,
+    val garantitillegg: Int?
+)
+
+data class GarantipensjonDto(
+    @field:NotNull val aarligBeloep: Int,
+    @field:NotNull val sats: Double
 )
 
 @JsonInclude(NON_NULL)

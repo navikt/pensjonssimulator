@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.api.nav.v1.acl.result
+package no.nav.pensjon.simulator.api.nav.v2.acl.result
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe

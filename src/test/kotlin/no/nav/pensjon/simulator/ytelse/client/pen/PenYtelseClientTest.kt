@@ -2,11 +2,17 @@ package no.nav.pensjon.simulator.ytelse.client.pen
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
@@ -18,6 +24,7 @@ import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -32,7 +39,7 @@ class PenYtelseClientTest : ShouldSpec({
         PenYtelseClient(
             baseUrl!!,
             retryAttempts = "0",
-            webClientBase = context.getBean(WebClientBase::class.java),
+            webClientBase = context.getBean<WebClientBase>(),
             cacheManager = CaffeineCacheManager(),
             traceAid = mockk(relaxed = true),
         )
@@ -62,6 +69,21 @@ class PenYtelseClientTest : ShouldSpec({
             with(result) {
                 with(alderspensjon!!) {
                     sokerVirkningFom shouldBe LocalDate.of(2022, 12, 1)
+                    forrigeVilkarsvedtakListe shouldHaveSize 2
+                    with(forrigeVilkarsvedtakListe[0]) {
+                        anbefaltResultatEnum shouldBe VedtakResultatEnum.INNV
+                        with(kravlinje!!) {
+                            type shouldBe KravlinjeTypeEnum.AP
+                            person?.penPersonId shouldBe 39990393
+                            status shouldBe KravlinjeStatus.FERDIG
+                            land shouldBe LandkodeEnum.NOR
+                        }
+                    }
+                    with(forrigeVilkarsvedtakListe[1]) {
+                        vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
+                        virkFom shouldBe LocalDate.of(2025, 5, 1).toNorwegianDateAtNoon()
+                        kravlinje?.type shouldBe KravlinjeTypeEnum.GJR
+                    }
                     avdoed shouldBe InformasjonOmAvdoed(
                         pid = pid,
                         doedsdato = LocalDate.of(2022, 12, 13),

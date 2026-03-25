@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbehol
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InfoPavirkendeYtelse
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensjonResultat
@@ -20,6 +19,7 @@ import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -138,7 +138,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         )
 
         // VilkarsprovOgBeregnAlderHelper.createInnvilgetVilkarsvedtak
-        private fun innvilgetVedtak(kravlinje: Kravlinje, virkningFom: LocalDate): VilkarsVedtak {
+        private fun innvilgetVedtak(kravlinje: VilkaarsvedtakKravlinje, virkningFom: LocalDate): VilkarsVedtak {
             val vedtakResultat = VedtakResultatEnum.INNV
 
             return VilkarsVedtak().apply {
@@ -147,8 +147,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 this.virkFom = virkningFom.toNorwegianDateAtNoon()
                 this.virkTom = null
                 this.kravlinje = kravlinje
-                this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
-                this.penPerson = kravlinje.relatertPerson
+                this.kravlinjeTypeEnum = kravlinje.type
+                this.penPerson = kravlinje.person
                 this.forsteVirk = virkningFom.toNorwegianDateAtNoon()
                 this.finishInit()
             }
@@ -256,13 +256,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
         }
 
         // VilkarsprovOgBeregnAlderHelper.createFerdigApKravlinje
-        private fun alderspensjonKravlinje(gjelderPerson: PenPerson) =
-            Kravlinje().apply {
-                kravlinjeTypeEnum = KravlinjeTypeEnum.AP
-                hovedKravlinje = KravlinjeTypeEnum.AP.erHovedkravlinje
-                relatertPerson = gjelderPerson
-                // NB apparently not used (no kravlinjeStatus field): setKravlinjeStatus(KravlinjeStatus.FERDIG)
-            }
+        private fun alderspensjonKravlinje(person: PenPerson) =
+            VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.AP, person)
 
         // PEN: VilkarsprovOgBeregnAlderHelper.createInfoPavirkendeYtelse
         private fun paavirkendeYtelseInfo(virkningDato: LocalDate, kravhode: Kravhode): InfoPavirkendeYtelse {
@@ -426,7 +421,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             }
 
         private fun involvererGjenlevende(vedtakListe: List<VilkarsVedtak>): Boolean =
-            vedtakListe.any { it.kravlinje?.kravlinjeTypeEnum == KravlinjeTypeEnum.GJR }
+            vedtakListe.any { it.kravlinjeTypeEnum == KravlinjeTypeEnum.GJR }
 
         private fun anyMatchingKode(merknadListe: List<Merknad>, kode: String): Boolean =
             merknadListe.any { it.kode == kode }

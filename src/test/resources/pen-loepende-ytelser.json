@@ -65,6 +65,70 @@
                 "barnetilleggFellesbarn": null
             }
         },
+        "forrigeVilkarsvedtakListe": [
+            {
+                "anbefaltResultatEnum": "INNV",
+                "vilkarsvedtakResultatEnum": "INNV",
+                "kravlinjeTypeEnum": "AP",
+                "anvendtVurderingEnum": null,
+                "virkFom": "2025-05-01T12:00:00+0200",
+                "virkTom": null,
+                "forsteVirk": "2023-06-01T12:00:00+0200",
+                "kravlinjeForsteVirk": null,
+                "kravlinje": {
+                    "kravlinjeTypeEnum": "AP",
+                    "relatertPerson": {
+                        "penPersonId": 39990393
+                    },
+                    "hovedKravlinje": false,
+                    "kravlinjeStatus": "FERDIG",
+                    "land": "NOR"
+                },
+                "penPerson": {
+                    "penPersonId": 30190393
+                },
+                "vilkarsprovresultat": null,
+                "begrunnelseEnum": null,
+                "avslattKapittel19": false,
+                "avslattGarantipensjon": false,
+                "vurderSkattefritakET": false,
+                "unntakHalvMinstepensjon": false,
+                "epsRettEgenPensjon": false,
+                "beregningsvilkarPeriodeListe": [],
+                "merknadListe": []
+            },
+            {
+                "anbefaltResultatEnum": "INNV",
+                "vilkarsvedtakResultatEnum": "INNV",
+                "kravlinjeTypeEnum": "GJR",
+                "anvendtVurderingEnum": null,
+                "virkFom": "2025-05-01T12:00:00+0200",
+                "virkTom": null,
+                "forsteVirk": "2023-08-01T12:00:00+0200",
+                "kravlinjeForsteVirk": null,
+                "kravlinje": {
+                    "kravlinjeTypeEnum": "GJR",
+                    "relatertPerson": {
+                        "penPersonId": 38880340
+                    },
+                    "hovedKravlinje": false,
+                    "kravlinjeStatus": "FERDIG",
+                    "land": "NOR"
+                },
+                "penPerson": {
+                    "penPersonId": 30190340
+                },
+                "vilkarsprovresultat": null,
+                "begrunnelseEnum": null,
+                "avslattKapittel19": false,
+                "avslattGarantipensjon": false,
+                "vurderSkattefritakET": false,
+                "unntakHalvMinstepensjon": false,
+                "epsRettEgenPensjon": false,
+                "beregningsvilkarPeriodeListe": [],
+                "merknadListe": []
+            }
+        ],
         "avdoed": {
             "pid": "12345678910",
             "doedsdato": "2022-12-13",

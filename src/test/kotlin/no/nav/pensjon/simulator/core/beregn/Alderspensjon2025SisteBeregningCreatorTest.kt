@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.mockk
@@ -33,114 +34,109 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
         )
 
         with(beregning.pensjonUnderUtbetaling!!) {
-            ytelseskomponenter.size shouldBe 2
+            ytelseskomponenter shouldHaveSize 2
             ytelseskomponenter[0].brutto shouldBe 100
             ytelseskomponenter[1].brutto shouldBe 400
         }
     }
 
     test("createBeregning should handle empty ytelseskomponenter list") {
-        val beregning = createBeregning(
+        createBeregning(
             ytelseskomponentListe = mutableListOf(
                 Garantipensjon().apply { brukt = true; opphort = true; brutto = 100 } // all irrelevant
             )
-        )
-
-        beregning.pensjonUnderUtbetaling?.ytelseskomponenter?.size shouldBe 0
+        ).pensjonUnderUtbetaling?.ytelseskomponenter!! shouldHaveSize 0
     }
 
     // --- Tests for regelverkTypeEnum ---
 
     test("createBeregning should set regelverkTypeEnum from spec") {
-        val beregning = createBeregning(regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ)
-        beregning.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
+        createBeregning(
+            regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ
+        ).regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
     }
 
     test("createBeregning should handle null regelverkTypeEnum") {
-        val beregning = createBeregning(regelverkType = null)
-        beregning.regelverkTypeEnum shouldBe null
+        createBeregning(regelverkType = null).regelverkTypeEnum shouldBe null
     }
 
     // --- Tests for virkDato ---
 
     test("createBeregning should set virkDato from beregningsresultat") {
         val virkFom = dateAtNoon(2025, Calendar.MARCH, 1)
-        val beregning = createBeregning(virkFom = virkFom)
-        beregning.virkDato shouldBe virkFom
+        createBeregning(virkFom = virkFom).virkDato shouldBe virkFom
     }
 
     test("createBeregning should handle null virkFom") {
-        val beregning = createBeregning(virkFom = null)
-        beregning.virkDato shouldBe null
+        createBeregning(virkFom = null).virkDato shouldBe null
     }
 
     // --- Tests for benyttetSivilstand ---
 
     test("createBeregning should set benyttetSivilstandEnum from beregningsresultat") {
-        val beregning = createBeregning(benyttetSivilstand = BorMedTypeEnum.J_EKTEF)
-        beregning.benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
+        createBeregning(
+            benyttetSivilstand = BorMedTypeEnum.J_EKTEF
+        ).benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
     }
 
     test("createBeregning should handle different benyttetSivilstand values") {
-        val beregning = createBeregning(benyttetSivilstand = BorMedTypeEnum.SAMBOER1_5)
-        beregning.benyttetSivilstandEnum shouldBe BorMedTypeEnum.SAMBOER1_5
+        createBeregning(
+            benyttetSivilstand = BorMedTypeEnum.SAMBOER1_5
+        ).benyttetSivilstandEnum shouldBe BorMedTypeEnum.SAMBOER1_5
     }
 
     // --- Tests for kapittel 20 data ---
 
     test("createBeregning should set beregningsMetodeEnum from beregningKapittel20") {
-        val beregning = createBeregning(beregningsMetode = BeregningsmetodeEnum.FOLKETRYGD)
-        beregning.beregningsMetodeEnum shouldBe BeregningsmetodeEnum.FOLKETRYGD
+        createBeregning(
+            beregningsmetode = BeregningsmetodeEnum.FOLKETRYGD
+        ).beregningsMetodeEnum shouldBe BeregningsmetodeEnum.FOLKETRYGD
     }
 
     test("createBeregning should set EOS beregningsMetodeEnum") {
-        val beregning = createBeregning(beregningsMetode = BeregningsmetodeEnum.EOS)
-        beregning.beregningsMetodeEnum shouldBe BeregningsmetodeEnum.EOS
+        createBeregning(
+            beregningsmetode = BeregningsmetodeEnum.EOS
+        ).beregningsMetodeEnum shouldBe BeregningsmetodeEnum.EOS
     }
 
     test("createBeregning should set prorataBrok_kap_20 from beregningKapittel20") {
-        val brok = Brok().apply { teller = 30; nevner = 40 }
-        val beregning = createBeregning(prorataBrok = brok)
-        beregning.prorataBrok_kap_20?.teller shouldBe 30
-        beregning.prorataBrok_kap_20?.nevner shouldBe 40
+        val beregning = createBeregning(prorataBroek = Brok().apply { teller = 30; nevner = 40 })
+
+        with(beregning.prorataBrok_kap_20!!) {
+            teller shouldBe 30
+            nevner shouldBe 40
+        }
     }
 
     test("createBeregning should set tt_anv_kap_20 from beregningKapittel20") {
-        val beregning = createBeregning(tt_anv_kapittel20 = 35)
-        beregning.tt_anv_kap_20 shouldBe 35
+        createBeregning(anvendtTrygdetid = 35).tt_anv_kap_20 shouldBe 35
     }
 
     test("createBeregning should set resultatTypeEnum from beregningKapittel20") {
-        val beregning = createBeregning(resultatType = ResultattypeEnum.AP2025)
-        beregning.resultatTypeEnum shouldBe ResultattypeEnum.AP2025
+        createBeregning(resultatType = ResultattypeEnum.AP2025).resultatTypeEnum shouldBe ResultattypeEnum.AP2025
     }
 
     test("createBeregning should set beholdninger from beregningKapittel20") {
         val beholdninger = Beholdninger()
-        val beregning = createBeregning(beholdninger = beholdninger)
-        beregning.beholdninger shouldBe beholdninger
+        createBeregning(beholdninger = beholdninger).beholdninger shouldBe beholdninger
     }
 
     // --- Tests for beregningsInformasjon ---
 
     test("createBeregning should set epsMottarPensjon from beregningsInformasjonKapittel20") {
-        val beregning = createBeregning(epsMottarPensjon = true)
-        beregning.epsMottarPensjon shouldBe true
+        createBeregning(epsMottarPensjon = true).epsMottarPensjon shouldBe true
     }
 
     test("createBeregning should set epsMottarPensjon false") {
-        val beregning = createBeregning(epsMottarPensjon = false)
-        beregning.epsMottarPensjon shouldBe false
+        createBeregning(epsMottarPensjon = false).epsMottarPensjon shouldBe false
     }
 
     test("createBeregning should set gjenlevenderettAnvendt from beregningsInformasjonKapittel20") {
-        val beregning = createBeregning(gjenlevenderettAnvendt = true)
-        beregning.gjenlevenderettAnvendt shouldBe true
+        createBeregning(gjenlevenderettAnvendt = true).gjenlevenderettAnvendt shouldBe true
     }
 
     test("createBeregning should set gjenlevenderettAnvendt false") {
-        val beregning = createBeregning(gjenlevenderettAnvendt = false)
-        beregning.gjenlevenderettAnvendt shouldBe false
+        createBeregning(gjenlevenderettAnvendt = false).gjenlevenderettAnvendt shouldBe false
     }
 
     // --- Tests for alternativ konvensjon data (tapende delberegning) ---
@@ -150,43 +146,51 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
             Garantipensjon().apply { brukt = true; opphort = false; brutto = 999 }
         )
         val tapendeBeholdninger = Beholdninger()
-        val tapendeBrok = Brok().apply { teller = 10; nevner = 20 }
+        val tapendeBroek = Brok().apply { teller = 10; nevner = 20 }
 
         val beregning = createBeregning(
-            beregningsMetode = BeregningsmetodeEnum.FOLKETRYGD,
+            beregningsmetode = BeregningsmetodeEnum.FOLKETRYGD,
             tapendeDelberegning = AldersberegningKapittel20().apply {
                 beregningsMetodeEnum = BeregningsmetodeEnum.EOS // different from winning
                 pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                     ytelseskomponenter = tapendeYtelseskomponenter
                 }
                 beholdninger = tapendeBeholdninger
-                prorataBrok = tapendeBrok
+                prorataBrok = tapendeBroek
                 tt_anv = 25
             }
         )
 
-        beregning.pensjonUnderUtbetaling2025AltKonv shouldNotBe null
-        beregning.pensjonUnderUtbetaling2025AltKonv?.ytelseskomponenter?.size shouldBe 1
-        beregning.pensjonUnderUtbetaling2025AltKonv?.ytelseskomponenter?.get(0)?.brutto shouldBe 999
-        beregning.beholdningerAltKonv shouldBe tapendeBeholdninger
-        beregning.prorataBrok_kap_20AltKonv?.teller shouldBe 10
-        beregning.prorataBrok_kap_20AltKonv?.nevner shouldBe 20
-        beregning.tt_anv_kap_20AltKonv shouldBe 25
+        with(beregning) {
+            pensjonUnderUtbetaling2025AltKonv shouldNotBe null
+            with(pensjonUnderUtbetaling2025AltKonv!!) {
+                ytelseskomponenter shouldHaveSize 1
+                ytelseskomponenter[0].brutto shouldBe 999
+            }
+            beholdningerAltKonv shouldBe tapendeBeholdninger
+            with(prorataBrok_kap_20AltKonv!!) {
+                teller shouldBe 10
+                nevner shouldBe 20
+            }
+            tt_anv_kap_20AltKonv shouldBe 25
+        }
     }
 
     test("createBeregning should not set alternativ konvensjon data when no tapende delberegning") {
         val beregning = createBeregning(
-            beregningsMetode = BeregningsmetodeEnum.FOLKETRYGD,
+            beregningsmetode = BeregningsmetodeEnum.FOLKETRYGD,
             tapendeDelberegning = null
         )
 
-        beregning.pensjonUnderUtbetaling2025AltKonv shouldBe null
-        beregning.beholdningerAltKonv shouldBe null
+        with(beregning) {
+            pensjonUnderUtbetaling2025AltKonv shouldBe null
+            beholdningerAltKonv shouldBe null
+        }
     }
 
     test("createBeregning should filter alternativ konvensjon ytelseskomponenter") {
         val beregning = createBeregning(
-            beregningsMetode = BeregningsmetodeEnum.FOLKETRYGD,
+            beregningsmetode = BeregningsmetodeEnum.FOLKETRYGD,
             tapendeDelberegning = AldersberegningKapittel20().apply {
                 beregningsMetodeEnum = BeregningsmetodeEnum.EOS
                 pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
@@ -198,117 +202,89 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
             }
         )
 
-        beregning.pensjonUnderUtbetaling2025AltKonv?.ytelseskomponenter?.size shouldBe 1
-        beregning.pensjonUnderUtbetaling2025AltKonv?.ytelseskomponenter?.get(0)?.brutto shouldBe 100
+        with(beregning.pensjonUnderUtbetaling2025AltKonv!!) {
+            ytelseskomponenter shouldHaveSize 1
+            ytelseskomponenter[0].brutto shouldBe 100
+        }
     }
 
     // --- Tests from base class populate() ---
 
     test("createBeregning should set sivilstandTypeEnum from forrigeKravhode søker detalj") {
-        val beregning = createBeregning(
-            forrigeKravhode = kravhodeWithSoker(SivilstandEnum.GIFT)
-        )
-        beregning.sivilstandTypeEnum shouldBe SivilstandEnum.GIFT
+        createBeregning(
+            forrigeKravhode = kravhodeWithSoeker(SivilstandEnum.GIFT)
+        ).sivilstandTypeEnum shouldBe SivilstandEnum.GIFT
     }
 
     test("createBeregning should set sivilstandTypeEnum UGIF") {
-        val beregning = createBeregning(
-            forrigeKravhode = kravhodeWithSoker(SivilstandEnum.UGIF)
-        )
-        beregning.sivilstandTypeEnum shouldBe SivilstandEnum.UGIF
+        createBeregning(
+            forrigeKravhode = kravhodeWithSoeker(SivilstandEnum.UGIF)
+        ).sivilstandTypeEnum shouldBe SivilstandEnum.UGIF
     }
 
     test("createBeregning should set vilkarsvedtakEktefelletillegg from filtrertVilkarsvedtakList") {
-        val etVedtak = VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.ET }
-        val beregning = createBeregning(
-            filtrertVilkarsvedtakList = listOf(
+        val ektefelletilleggVedtak = VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.ET }
+
+        createBeregning(
+            filtrertVilkaarsvedtakListe = listOf(
                 VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.AP },
-                etVedtak
+                ektefelletilleggVedtak
             )
-        )
-        beregning.vilkarsvedtakEktefelletillegg shouldBe etVedtak
+        ).vilkarsvedtakEktefelletillegg shouldBe ektefelletilleggVedtak
     }
 
     test("createBeregning should not set vilkarsvedtakEktefelletillegg when no ET vedtak") {
-        val beregning = createBeregning(
-            filtrertVilkarsvedtakList = listOf(
+        createBeregning(
+            filtrertVilkaarsvedtakListe = listOf(
                 VilkarsVedtak().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.AP }
             )
-        )
-        beregning.vilkarsvedtakEktefelletillegg shouldBe null
+        ).vilkarsvedtakEktefelletillegg shouldBe null
     }
 
     test("createBeregning should set avdodesPersongrunnlag from forrigeKravhode") {
-        val avdodGrunnlag = Persongrunnlag().apply {
+        val avdoedGrunnlag = Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = 99L }
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.AVDOD))
         }
-        val beregning = createBeregning(
-            forrigeKravhode = Kravhode().apply {
-                persongrunnlagListe = mutableListOf(avdodGrunnlag)
-            }
-        )
-        beregning.avdodesPersongrunnlag shouldBe avdodGrunnlag
+
+        createBeregning(
+            forrigeKravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(avdoedGrunnlag) }
+        ).avdodesPersongrunnlag shouldBe avdoedGrunnlag
     }
 
     test("createBeregning should not set avdodesPersongrunnlag when no AVDOD role") {
-        val beregning = createBeregning(
+        createBeregning(
             forrigeKravhode = Kravhode().apply {
                 persongrunnlagListe = mutableListOf(
                     Persongrunnlag().apply {
                         penPerson = PenPerson().apply { penPersonId = 1L }
-                        personDetaljListe = mutableListOf(
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                            }
-                        )
+                        personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.SOKER))
                     }
                 )
             }
-        )
-        beregning.avdodesPersongrunnlag shouldBe null
+        ).avdodesPersongrunnlag shouldBe null
     }
 
     test("createBeregning should set eps from forrigeKravhode with EKTEF role") {
         val epsGrunnlag = Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = 88L }
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.EKTEF))
         }
-        val beregning = createBeregning(
-            forrigeKravhode = Kravhode().apply {
-                persongrunnlagListe = mutableListOf(epsGrunnlag)
-            }
-        )
-        beregning.eps shouldNotBe null
+
+        createBeregning(
+            forrigeKravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(epsGrunnlag) }
+        ).eps shouldNotBe null
     }
 
     test("createBeregning should set eps from forrigeKravhode with SAMBO role") {
         val epsGrunnlag = Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = 88L }
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.SAMBO
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.SAMBO))
         }
-        val beregning = createBeregning(
-            forrigeKravhode = Kravhode().apply {
-                persongrunnlagListe = mutableListOf(epsGrunnlag)
-            }
-        )
-        beregning.eps shouldNotBe null
+
+        createBeregning(
+            forrigeKravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(epsGrunnlag) }
+        ).eps shouldNotBe null
     }
 
     // --- Integration-style tests ---
@@ -316,15 +292,14 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
     test("createBeregning should correctly populate all fields from full spec") {
         val virkFom = dateAtNoon(2025, Calendar.JUNE, 1)
         val beholdninger = Beholdninger()
-        val brok = Brok().apply { teller = 35; nevner = 40 }
 
         val beregning = createBeregning(
             regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ,
             virkFom = virkFom,
             benyttetSivilstand = BorMedTypeEnum.J_EKTEF,
-            beregningsMetode = BeregningsmetodeEnum.FOLKETRYGD,
-            prorataBrok = brok,
-            tt_anv_kapittel20 = 40,
+            beregningsmetode = BeregningsmetodeEnum.FOLKETRYGD,
+            prorataBroek = Brok().apply { teller = 35; nevner = 40 },
+            anvendtTrygdetid = 40,
             resultatType = ResultattypeEnum.AP2025,
             beholdninger = beholdninger,
             epsMottarPensjon = true,
@@ -332,38 +307,46 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
             ytelseskomponentListe = mutableListOf(
                 Inntektspensjon().apply { brukt = true; opphort = false; brutto = 5000 }
             ),
-            forrigeKravhode = kravhodeWithSoker(SivilstandEnum.GIFT)
+            forrigeKravhode = kravhodeWithSoeker(SivilstandEnum.GIFT)
         )
 
-        beregning.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
-        beregning.virkDato shouldBe virkFom
-        beregning.benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
-        beregning.beregningsMetodeEnum shouldBe BeregningsmetodeEnum.FOLKETRYGD
-        beregning.prorataBrok_kap_20?.teller shouldBe 35
-        beregning.tt_anv_kap_20 shouldBe 40
-        beregning.resultatTypeEnum shouldBe ResultattypeEnum.AP2025
-        beregning.beholdninger shouldBe beholdninger
-        beregning.epsMottarPensjon shouldBe true
-        beregning.gjenlevenderettAnvendt shouldBe false
-        beregning.pensjonUnderUtbetaling?.ytelseskomponenter?.size shouldBe 1
-        beregning.sivilstandTypeEnum shouldBe SivilstandEnum.GIFT
+        with(beregning) {
+            regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
+            virkDato shouldBe virkFom
+            benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
+            beregningsMetodeEnum shouldBe BeregningsmetodeEnum.FOLKETRYGD
+            prorataBrok_kap_20?.teller shouldBe 35
+            tt_anv_kap_20 shouldBe 40
+            resultatTypeEnum shouldBe ResultattypeEnum.AP2025
+            this.beholdninger shouldBe beholdninger
+            epsMottarPensjon shouldBe true
+            gjenlevenderettAnvendt shouldBe false
+            pensjonUnderUtbetaling?.ytelseskomponenter?.size shouldBe 1
+            sivilstandTypeEnum shouldBe SivilstandEnum.GIFT
+        }
     }
 })
+
+private fun persondetalj(grunnlagsrolle: GrunnlagsrolleEnum) =
+    PersonDetalj().apply {
+        bruk = true
+        grunnlagsrolleEnum = grunnlagsrolle
+    }
 
 private fun createBeregning(
     ytelseskomponentListe: MutableList<Ytelseskomponent> = mutableListOf(),
     regelverkType: RegelverkTypeEnum? = RegelverkTypeEnum.N_REG_N_OPPTJ,
     virkFom: Date? = null,
     benyttetSivilstand: BorMedTypeEnum? = null,
-    beregningsMetode: BeregningsmetodeEnum? = null,
-    prorataBrok: Brok? = null,
-    tt_anv_kapittel20: Int? = null,
+    beregningsmetode: BeregningsmetodeEnum? = null,
+    prorataBroek: Brok? = null,
+    anvendtTrygdetid: Int? = null,
     resultatType: ResultattypeEnum? = null,
     beholdninger: Beholdninger? = null,
     epsMottarPensjon: Boolean? = null,
     gjenlevenderettAnvendt: Boolean? = null,
     tapendeDelberegning: AldersberegningKapittel20? = null,
-    filtrertVilkarsvedtakList: List<VilkarsVedtak> = emptyList(),
+    filtrertVilkaarsvedtakListe: List<VilkarsVedtak> = emptyList(),
     forrigeKravhode: Kravhode? = null
 ): SisteAldersberegning2011 {
     val spec = SisteBeregningSpec(
@@ -378,9 +361,9 @@ private fun createBeregning(
             }
 
             beregningKapittel20 = AldersberegningKapittel20().apply {
-                beregningsMetodeEnum = beregningsMetode
-                this.prorataBrok = prorataBrok
-                tt_anv = tt_anv_kapittel20 ?: 0
+                beregningsMetodeEnum = beregningsmetode
+                prorataBrok = prorataBroek
+                tt_anv = anvendtTrygdetid ?: 0
                 this.beholdninger = beholdninger
                 resultatTypeEnum = resultatType
 
@@ -400,7 +383,7 @@ private fun createBeregning(
         },
         regelverkKodePaNyttKrav = regelverkType,
         forrigeKravhode = forrigeKravhode,
-        filtrertVilkarsvedtakList = filtrertVilkarsvedtakList,
+        filtrertVilkarsvedtakList = filtrertVilkaarsvedtakListe,
         isRegelverk1967 = false,
         vilkarsvedtakListe = emptyList(),
         kravhode = null,
@@ -410,21 +393,18 @@ private fun createBeregning(
         regelverk1967VirkToEarly = false
     )
 
-    return Alderspensjon2025SisteBeregningCreator(kravService = mockk()).createBeregning(
-        spec,
-        BeregningsResultatAlderspensjon2025()
-    ) as SisteAldersberegning2011
+    return Alderspensjon2025SisteBeregningCreator(
+        kravService = mockk()
+    ).createBeregning(spec, beregningResultat = BeregningsResultatAlderspensjon2025())
 }
 
-private fun kravhodeWithSoker(sivilstand: SivilstandEnum): Kravhode =
+private fun kravhodeWithSoeker(sivilstand: SivilstandEnum) =
     Kravhode().apply {
         persongrunnlagListe = mutableListOf(
             Persongrunnlag().apply {
                 penPerson = PenPerson().apply { penPersonId = 1L }
                 personDetaljListe = mutableListOf(
-                    PersonDetalj().apply {
-                        bruk = true
-                        grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
+                    persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.SOKER).apply {
                         sivilstandTypeEnum = sivilstand
                     }
                 )

@@ -52,6 +52,11 @@ class AlternativtUttakServiceTest : FunSpec({
         ) shouldBe SimulertPensjonEllerAlternativ(
             pensjon = SimulertPensjon(
                 alderspensjon = emptyList(),
+                maanedligAlderspensjonForKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+                    vedGradertUttak = null,
+                    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null),
+                    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null)
+                ),
                 alderspensjonFraFolketrygden = emptyList(),
                 privatAfp = emptyList(),
                 pre2025OffentligAfp = null,

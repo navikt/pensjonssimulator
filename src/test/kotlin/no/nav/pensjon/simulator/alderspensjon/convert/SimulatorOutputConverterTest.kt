@@ -2,10 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.convert
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAarligAlderspensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlderspensjonFraFolketrygden
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjon
+import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -103,6 +100,11 @@ class SimulatorOutputConverterTest : FunSpec({
                     kapittel19Gjenlevendetillegg = 800,
                     minstePensjonsnivaaSats = 11.22
                 )
+            ),
+            maanedligAlderspensjonForKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+                vedGradertUttak = null,
+                vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null),
+                vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null)
             ),
             alderspensjonFraFolketrygden = listOf(
                 SimulertAlderspensjonFraFolketrygden(

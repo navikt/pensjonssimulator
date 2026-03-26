@@ -10,6 +10,12 @@ import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
+private val dummyKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+    vedGradertUttak = null,
+    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null),
+    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null)
+)
+
 // Copied from PEN
 class NavSimuleringResultMapperV3Test2 : FunSpec({
 
@@ -105,7 +111,8 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         minstePensjonsnivaaSats = 20.0
                     )
                 ),
-                alderspensjonFraFolketrygden,
+                maanedligAlderspensjonForKnekkpunkter = dummyKnekkpunkter,
+                alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
                 privatAfp = listOf(
                     SimulertPrivatAfp(
                         alderAar = 9,

@@ -9,6 +9,12 @@ import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
+private val dummyKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+    vedGradertUttak = null,
+    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null),
+    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null)
+)
+
 class SamhandlerAlderspensjonResultMapperTest : FunSpec({
 
     test("mapPensjonEllerAlternativ for null should resultere i tomt resultat") {
@@ -101,6 +107,7 @@ class SamhandlerAlderspensjonResultMapperTest : FunSpec({
                     ),
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 40),
+                    maanedligAlderspensjonForKnekkpunkter = dummyKnekkpunkter,
                     opptjeningGrunnlagListe = listOf(
                         OpptjeningGrunnlag(aar = 2024, pensjonsgivendeInntekt = 50000)
                     )
@@ -247,7 +254,8 @@ private fun simulertPensjon(alderspensjonFraFolketrygden: List<SimulertAlderspen
     SimulertPensjonEllerAlternativ(
         SimulertPensjon(
             alderspensjon = emptyList(),
-            alderspensjonFraFolketrygden,
+            maanedligAlderspensjonForKnekkpunkter = dummyKnekkpunkter,
+            alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
             privatAfp = emptyList(),
             pre2025OffentligAfp = null,
             livsvarigOffentligAfp = emptyList(),

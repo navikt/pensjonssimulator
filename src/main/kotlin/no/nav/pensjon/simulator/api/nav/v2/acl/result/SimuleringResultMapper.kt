@@ -18,6 +18,9 @@ object SimuleringResultMapper {
         return SimuleringResultDto(
             alderspensjonListe = pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
             alderspensjonMaanedsbeloep = maanedsbeloep(pensjon?.alderspensjonFraFolketrygden.orEmpty()),
+            maanedligAlderspensjonForKnekkpunkter = pensjon?.maanedligAlderspensjonForKnekkpunkter?.let(
+                ::maanedligAlderspensjonForKnekkpunkter
+            ),
             livsvarigOffentligAfpListe = pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             tidsbegrensetOffentligAfp = pensjon?.pre2025OffentligAfp?.let(::tidsbegrensetOffentligAfp),
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
@@ -63,6 +66,26 @@ object SimuleringResultMapper {
         GarantipensjonDto(
             aarligBeloep = source.aarligBeloep,
             sats = source.sats
+        )
+
+    private fun maanedligAlderspensjonForKnekkpunkter(source: SimulertMaanedligAlderspensjonForKnekkpunkter) =
+        MaanedligAlderspensjonForKnekkpunkter(
+            vedGradertUttak = source.vedGradertUttak?.let(::maanedligAlderspensjon),
+            vedHeltUttak = maanedligAlderspensjon(source.vedHeltUttak),
+            vedNormertPensjonsalder = maanedligAlderspensjon(source.vedNormertPensjonsalder)
+        )
+
+    private fun maanedligAlderspensjon(source: SimulertMaanedligAlderspensjon) =
+        MaanedligAlderspensjon(
+            beloep = source.beloep,
+            grunnpensjon = source.grunnpensjon,
+            tilleggspensjon = source.tilleggspensjon,
+            pensjonstillegg = source.pensjonstillegg,
+            gjenlevendetillegg = source.gjenlevendetillegg,
+            inntektspensjon = source.inntektspensjon,
+            garantipensjon = source.garantipensjon,
+            garantitillegg = source.garantitillegg,
+            pensjonBeholdningEtterUttak = source.pensjonBeholdningEtterUttak
         )
 
     private fun maanedsbeloep(source: List<SimulertAlderspensjonFraFolketrygden>) =

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus
 data class SimuleringResultDto(
     @field:NotNull val alderspensjonListe: List<AlderspensjonDto>,
     val alderspensjonMaanedsbeloep: UttaksbeloepDto?,
+    val maanedligAlderspensjonForKnekkpunkter: MaanedligAlderspensjonForKnekkpunkter?,
     @field:NotNull val livsvarigOffentligAfpListe: List<AldersbestemtUtbetalingDto>,
     val tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpDto?,
     @field:NotNull val privatAfpListe: List<PrivatAfpDto>,
@@ -66,6 +67,26 @@ data class GarantipensjonDto(
 data class UttaksbeloepDto(
     val gradertUttakBeloep: Int?,
     @field:NotNull val heltUttakBeloep: Int
+)
+
+@JsonInclude(NON_NULL)
+data class MaanedligAlderspensjonForKnekkpunkter(
+    val vedGradertUttak: MaanedligAlderspensjon?,
+    val vedHeltUttak: MaanedligAlderspensjon,
+    val vedNormertPensjonsalder: MaanedligAlderspensjon
+)
+
+@JsonInclude(NON_NULL)
+data class MaanedligAlderspensjon(
+    @field:NotNull val beloep: Int,
+    @field:NotNull val grunnpensjon: Int,
+    val tilleggspensjon: Int?,
+    val pensjonstillegg: Int?,
+    val gjenlevendetillegg: Int?,
+    val inntektspensjon: Int?,
+    val garantipensjon: Int?,
+    val garantitillegg: Int?,
+    val pensjonBeholdningEtterUttak: Int?
 )
 
 data class AldersbestemtUtbetalingDto(

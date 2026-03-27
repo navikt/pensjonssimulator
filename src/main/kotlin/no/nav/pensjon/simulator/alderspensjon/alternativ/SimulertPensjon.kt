@@ -59,14 +59,27 @@ data class SimulertMaanedligAlderspensjonForKnekkpunkter(
 
 data class SimulertMaanedligAlderspensjon(
     val beloep: Int,
-    val grunnpensjon: Int,
+    val inntektspensjon: Int?,
+    val delingstall: Double?,
+    val pensjonBeholdningEtterUttak: Int?,
+    val sluttpoengtall: Double?,
+    val poengaarFoer92: Int?,
+    val poengaarEtter91: Int?,
+    val forholdstall: Double?,
+    val grunnpensjon: Int?,
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
+    val skjermingstillegg: Int?,
+    val andelsbroekKap19: Double?,
+    val andelsbroekKap20: Double?,
+    val basispensjon: Int?,
+    val restpensjon: Int?,
     val gjenlevendetillegg: Int?,
-    val inntektspensjon: Int?,
-    val garantipensjon: Int?,
-    val garantitillegg: Int?,
-    val pensjonBeholdningEtterUttak: Int?
+    val minstePensjonsnivaaSats: Double?,
+    val trygdetidKap19: Int?,
+    val trygdetidKap20: Int?,
+    val garantipensjon: SimulertGarantipensjon?,
+    val garantitillegg: Int?
 )
 
 data class SimulertPrivatAfp(

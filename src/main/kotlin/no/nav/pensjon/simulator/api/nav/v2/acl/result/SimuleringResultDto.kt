@@ -79,14 +79,19 @@ data class MaanedligAlderspensjonForKnekkpunkter(
 @JsonInclude(NON_NULL)
 data class MaanedligAlderspensjon(
     @field:NotNull val beloep: Int,
-    @field:NotNull val grunnpensjon: Int,
+    val inntektspensjon: Int?,
+    val delingstall: Double?,
+    val pensjonsbeholdningEtterUttak: Int?,
+    val sluttpoengtall: Double?,
+    val poengaarFoer92: Int?,
+    val poengaarEtter91: Int?,
+    val forholdstall: Double?,
+    val grunnpensjon: Int?,
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
-    val gjenlevendetillegg: Int?,
-    val inntektspensjon: Int?,
-    val garantipensjon: Int?,
-    val garantitillegg: Int?,
-    val pensjonBeholdningEtterUttak: Int?
+    val skjermingstillegg: Int?,
+    val kapittel19Pensjon: Kapittel19PensjonDto?,
+    val kapittel20Pensjon: Kapittel20PensjonDto?
 )
 
 data class AldersbestemtUtbetalingDto(

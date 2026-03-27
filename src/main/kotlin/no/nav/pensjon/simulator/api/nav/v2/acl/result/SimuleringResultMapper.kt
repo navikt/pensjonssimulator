@@ -78,14 +78,31 @@ object SimuleringResultMapper {
     private fun maanedligAlderspensjon(source: SimulertMaanedligAlderspensjon) =
         MaanedligAlderspensjon(
             beloep = source.beloep,
+            inntektspensjon = source.inntektspensjon,
+            delingstall = source.delingstall,
+            pensjonsbeholdningEtterUttak = source.pensjonBeholdningEtterUttak,
+            sluttpoengtall = source.sluttpoengtall,
+            poengaarFoer92 = source.poengaarFoer92,
+            poengaarEtter91 = source.poengaarEtter91,
+            forholdstall = source.forholdstall,
             grunnpensjon = source.grunnpensjon,
             tilleggspensjon = source.tilleggspensjon,
             pensjonstillegg = source.pensjonstillegg,
-            gjenlevendetillegg = source.gjenlevendetillegg,
-            inntektspensjon = source.inntektspensjon,
-            garantipensjon = source.garantipensjon,
-            garantitillegg = source.garantitillegg,
-            pensjonBeholdningEtterUttak = source.pensjonBeholdningEtterUttak
+            skjermingstillegg = source.skjermingstillegg,
+            kapittel19Pensjon = Kapittel19PensjonDto(
+                andelsbroek = source.andelsbroekKap19,
+                trygdetidAntallAar = source.trygdetidKap19 ?: 0,
+                basispensjon = source.basispensjon,
+                restpensjon = source.restpensjon,
+                gjenlevendetillegg = source.gjenlevendetillegg,
+                minstePensjonsnivaaSats = source.minstePensjonsnivaaSats
+            ),
+            kapittel20Pensjon = Kapittel20PensjonDto(
+                andelsbroek = source.andelsbroekKap20,
+                trygdetidAntallAar = source.trygdetidKap20 ?: 0,
+                garantipensjon = source.garantipensjon?.let(::garantipensjon),
+                garantitillegg = source.garantitillegg
+            )
         )
 
     private fun maanedsbeloep(source: List<SimulertAlderspensjonFraFolketrygden>) =

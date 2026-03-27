@@ -11,8 +11,8 @@ import java.time.LocalDate
 
 private val dummyKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
     vedGradertUttak = null,
-    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null),
-    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, grunnpensjon = 0, tilleggspensjon = null, pensjonstillegg = null, gjenlevendetillegg = null, inntektspensjon = null, garantipensjon = null, garantitillegg = null, pensjonBeholdningEtterUttak = null)
+    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null),
+    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null)
 )
 
 class SamhandlerAlderspensjonResultMapperTest : FunSpec({

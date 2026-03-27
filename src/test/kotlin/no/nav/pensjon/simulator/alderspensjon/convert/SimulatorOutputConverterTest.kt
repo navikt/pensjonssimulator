@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAarligAlderspensjon
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlderspensjonFraFolketrygden
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjon
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjon
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
@@ -44,6 +45,8 @@ class SimulatorOutputConverterTest : FunSpec({
                                     datoFom = LocalDate.of(2031, 2, 1) // not mapped
                                     inntektspensjon = 200
                                     garantipensjon = 300
+                                    garantipensjonssats = 1.1
+                                    garantitillegg = 21
                                     delingstall = 1.2
                                     pensjonBeholdningFoerUttak = 123000
                                     spt = 2.3
@@ -52,11 +55,14 @@ class SimulatorOutputConverterTest : FunSpec({
                                     pa_f92 = 5
                                     pa_e91 = 6
                                     forholdstall = 3.4
+                                    basispensjon = 350
                                     grunnpensjon = 400
                                     tilleggspensjon = 500
+                                    restBasisPensjon = 550
                                     pensjonstillegg = 600
                                     skjermingstillegg = 700
                                     gjtAPKap19 = 800
+                                    minstePensjonsnivaSats = 11.22
                                 })
                             uttakGradListe = listOf(
                                 Uttaksgrad().apply {
@@ -76,7 +82,8 @@ class SimulatorOutputConverterTest : FunSpec({
                     alderAar = 64,
                     beloep = 1000,
                     inntektspensjon = 200,
-                    garantipensjon = 300,
+                    garantipensjon = SimulertGarantipensjon(aarligBeloep = 300, sats = 1.1),
+                    garantitillegg = 21,
                     delingstall = 1.2,
                     pensjonBeholdningFoerUttak = 123000,
                     andelsbroekKap19 = 0.2,
@@ -87,11 +94,14 @@ class SimulatorOutputConverterTest : FunSpec({
                     poengaarFoer92 = 5,
                     poengaarEtter91 = 6,
                     forholdstall = 3.4,
+                    basispensjon = 350,
                     grunnpensjon = 400,
                     tilleggspensjon = 500,
+                    restpensjon = 550,
                     pensjonstillegg = 600,
                     skjermingstillegg = 700,
-                    kapittel19Gjenlevendetillegg = 800
+                    kapittel19Gjenlevendetillegg = 800,
+                    minstePensjonsnivaaSats = 11.22
                 )
             ),
             alderspensjonFraFolketrygden = listOf(

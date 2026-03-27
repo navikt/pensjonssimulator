@@ -128,7 +128,7 @@ class KlpMapperTest : ShouldSpec({
 
             val result: KlpSimulerTjenestepensjonRequest = KlpMapper.toRequestDto(request)
 
-            val expectedInntekter = request.fremtidigeInntekter!!
+            val expectedInntekter = request.fremtidigeInntekter
             with(result) {
                 personId shouldBe request.pid.value
                 uttaksListe shouldHaveSize 1

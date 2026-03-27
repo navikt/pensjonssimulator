@@ -43,8 +43,8 @@ class SimuleringResultMapperTest : ShouldSpec({
                             garantipensjon = SimulertGarantipensjon(aarligBeloep = 125, sats = 1.2),
                             garantitillegg = 126,
                             delingstall = 1.3,
-                            pensjonBeholdningFoerUttak = 127,
-                            andelsbroekKap19 = 1.4,
+                             pensjonBeholdningFoerUttak = 127,
+                             andelsbroekKap19 = 1.4,
                             andelsbroekKap20 = 1.5,
                             sluttpoengtall = 1.6,
                             trygdetidKap19 = 19,
@@ -71,8 +71,8 @@ class SimuleringResultMapperTest : ShouldSpec({
                     primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 20),
                     maanedligAlderspensjonForKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
                         vedGradertUttak = null,
-                        vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null),
-                        vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null)
+                        vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null),
+                        vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null)
                     ),
                     opptjeningGrunnlagListe = emptyList()
                 ),
@@ -117,8 +117,8 @@ class SimuleringResultMapperTest : ShouldSpec({
             ),
             maanedligAlderspensjonForKnekkpunkter = MaanedligAlderspensjonForKnekkpunkter(
                 vedGradertUttak = null,
-                vedHeltUttak = MaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonsbeholdningFoerUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, kapittel19Pensjon = Kapittel19PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null), kapittel20Pensjon = Kapittel20PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, garantipensjon = null, garantitillegg = null)),
-                vedNormertPensjonsalder = MaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonsbeholdningFoerUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, kapittel19Pensjon = Kapittel19PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null), kapittel20Pensjon = Kapittel20PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, garantipensjon = null, garantitillegg = null))
+                vedHeltUttak = MaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonsbeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, kapittel19Pensjon = Kapittel19PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null), kapittel20Pensjon = Kapittel20PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, garantipensjon = null, garantitillegg = null)),
+                vedNormertPensjonsalder = MaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonsbeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, kapittel19Pensjon = Kapittel19PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null), kapittel20Pensjon = Kapittel20PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, garantipensjon = null, garantitillegg = null))
             ),
             livsvarigOffentligAfpListe = emptyList(),
             tidsbegrensetOffentligAfp = null,

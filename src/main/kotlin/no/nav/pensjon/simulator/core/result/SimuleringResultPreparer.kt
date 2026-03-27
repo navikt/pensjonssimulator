@@ -97,12 +97,7 @@ class SimuleringResultPreparer(
         // Del 5
         simulatorOutput.pre2025OffentligAfp = preparerSpec.pre2025OffentligAfpBeregningResultat
         simulatorOutput.livsvarigOffentligAfp = preparerSpec.livsvarigOffentligAfpBeregningResultatListe
-        simulatorOutput.registerData = RegisterData(
-            sisteLignetInntektAar = null, // irrelevant her
-            sisteGyldigeOpptjeningAar = preparerSpec.sisteGyldigeOpptjeningAar,
-            grunnbeloep = preparerSpec.grunnbeloep,
-            soekerFoedselsdato = null // irrelevant her
-        )
+        simulatorOutput.registerData = preparerSpec.registerData
 
         return simulatorOutput
     }

@@ -59,7 +59,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
         spec: SimuleringSpec
     ): FolketrygdberegnetAfpV0 {
         val beregnetTidligereInntekt = afp.tp!!.spt!!.poengrekke!!.tpi
-        val sisteLignetInntektAar = spec.registerData?.xsisteLignetInntektAar
+        val sisteLignetInntektAar = spec.registerData?.sisteLignetInntektAar
 
         return FolketrygdberegnetAfpV0(
             fraOgMedDato = fom,

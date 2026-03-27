@@ -31,6 +31,7 @@ import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
 import no.nav.pensjon.simulator.core.krav.KravhodeCreator
 import no.nav.pensjon.simulator.core.krav.KravhodeUpdater
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -169,7 +170,7 @@ class SimulatorCoreTest : ShouldSpec({
 
     context("simuler - anonymous vs personal") {
         should("not add personal data to output when anonym") {
-            val result = simulatorCore().simuler(
+            val result = simulatorCore(soekerFoedselsdato = null).simuler(
                 initialSpec = simuleringSpec(erAnonym = true, pid = null)
             )
 
@@ -186,7 +187,10 @@ class SimulatorCoreTest : ShouldSpec({
                 }
             }
 
-            val result = simulatorCore(personService = personService).simuler(
+            val result = simulatorCore(
+                soekerFoedselsdato = LocalDate.of(1963, 1, 1),
+                personService = personService
+            ).simuler(
                 initialSpec = simuleringSpec(erAnonym = false)
             )
 
@@ -359,6 +363,7 @@ class SimulatorCoreTest : ShouldSpec({
 })
 
 private fun simulatorCore(
+    soekerFoedselsdato: LocalDate? = null,
     kravhodeCreator: KravhodeCreator = mockKravhodeCreator(),
     kravhodeUpdater: KravhodeUpdater = mockKravhodeUpdater(),
     knekkpunktFinder: KnekkpunktFinder = mockKnekkpunktFinder(),
@@ -372,23 +377,24 @@ private fun simulatorCore(
     grunnbeloepService: GrunnbeloepService = mockGrunnbeloepService(),
     normalderService: NormertPensjonsalderService = mockNormalderService(),
     generelleDataHolder: GenerelleDataHolder = mockGenerelleDataHolder(),
-    resultPreparer: SimuleringResultPreparer = mockResultPreparer()
-): SimulatorCore = SimulatorCore(
-    kravhodeCreator,
-    kravhodeUpdater,
-    knekkpunktFinder,
-    alderspensjonVilkaarsproeverOgBeregner,
-    privatAfpBeregner,
-    generalPersonService,
-    personService,
-    sakService,
-    ytelseService,
-    offentligAfpBeregner,
-    grunnbeloepService,
-    normalderService,
-    generelleDataHolder,
-    resultPreparer
-)
+    resultPreparer: SimuleringResultPreparer = mockResultPreparer(soekerFoedselsdato)
+) =
+    SimulatorCore(
+        kravhodeCreator,
+        kravhodeUpdater,
+        knekkpunktFinder,
+        alderspensjonVilkaarsproeverOgBeregner,
+        privatAfpBeregner,
+        generalPersonService,
+        personService,
+        sakService,
+        ytelseService,
+        offentligAfpBeregner,
+        grunnbeloepService,
+        normalderService,
+        generelleDataHolder,
+        resultPreparer
+    )
 
 private fun mockKravhodeCreator(): KravhodeCreator = mockk {
     every { opprettKravhode(any(), any(), any()) } returns kravhode()
@@ -457,9 +463,12 @@ private fun mockGenerelleDataHolder(): GenerelleDataHolder = mockk {
     every { getSisteGyldigeOpptjeningsaar() } returns 2023
 }
 
-private fun mockResultPreparer(): SimuleringResultPreparer = mockk {
-    every { opprettOutput(any()) } returns SimulatorOutput()
-}
+private fun mockResultPreparer(soekerFoedselsdato: LocalDate?): SimuleringResultPreparer =
+    mockk {
+        every { opprettOutput(any()) } returns SimulatorOutput().apply {
+            registerData = RegisterData(soekerFoedselsdato = soekerFoedselsdato)
+        }
+    }
 
 private fun kravhode() =
     Kravhode().apply {

@@ -5,7 +5,10 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -13,18 +16,14 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.BarnetilleggFellesb
 import no.nav.pensjon.simulator.core.domain.regler.beregning.BarnetilleggSerkullsbarn
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ektefelletillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AldersberegningKapittel19
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AldersberegningKapittel20
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Basispensjon
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdninger
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
@@ -146,7 +145,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { normalderService.opptjeningMaxAlderAar(foedselsdato) } returns 75
         every { time.today() } returns LocalDate.of(2025, 1, 1)
 
-        val pre2025OffentligAfpResultat = mockk<no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat>()
+        val pre2025OffentligAfpResultat = mockk<Simuleringsresultat>()
         val spec = resultPreparerSpec(
             foedselsdato = foedselsdato,
             pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResultat
@@ -339,7 +338,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { normalderService.opptjeningMaxAlderAar(foedselsdato) } returns 75
         every { time.today() } returns LocalDate.of(2025, 1, 1)
 
-        val uttaksgrad = no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad().apply {
+        val uttaksgrad = Uttaksgrad().apply {
             uttaksgrad = 50
             fomDato = dateAtNoon(2030, 2, 1)
         }
@@ -436,7 +435,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { normalderService.opptjeningMaxAlderAar(foedselsdato) } returns 75
         every { time.today() } returns LocalDate.of(2025, 1, 1)
 
-        val livsvarigAfpOutput = mockk<no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput>()
+        val livsvarigAfpOutput = mockk<LivsvarigOffentligAfpOutput>()
         val spec = resultPreparerSpec(
             foedselsdato = foedselsdato,
             livsvarigOffentligAfpBeregningResultatListe = listOf(livsvarigAfpOutput)
@@ -715,20 +714,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2023
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, null, sisteGyldigeOpptjeningAar = 2023)
 
         val result = preparer.opprettOutput(spec)
 
@@ -1257,7 +1243,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2036
                     totalbelop = 2500000.0
                 }
@@ -1311,24 +1297,9 @@ class SimuleringResultPreparerTest : FunSpec({
             }
         }
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2025),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2034
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2034)
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
+        preparer.opprettOutput(spec).alderspensjon shouldNotBe null
     }
 
     test("opprettOutput correctly calculates beloep for partial year coverage") {
@@ -1801,10 +1772,10 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns LocalDate.of(2025, 1, 1)
 
         // Create a BeregningsResultatAlderspensjon2016 with beholdning in beregningsResultat2025
-        val pensjonsbeholdning = no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+        val pensjonsbeholdning = Pensjonsbeholdning().apply {
             ar = 2026
             totalbelop = 2500000.0
-            beholdningsTypeEnum = no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum.PEN_B
+            beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
         }
 
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
@@ -1856,10 +1827,10 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns LocalDate.of(2035, 1, 1)
 
         // Create a BeregningsResultatAlderspensjon2025 with beholdning
-        val pensjonsbeholdning = no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+        val pensjonsbeholdning = Pensjonsbeholdning().apply {
             ar = 2036
             totalbelop = 3000000.0
-            beholdningsTypeEnum = no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum.PEN_B
+            beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
         }
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
@@ -1911,11 +1882,12 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns today
 
         // Create forrigeResultat (existing/running pension) with beholdning
-        val forrigePensjonsbeholdning = no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
-            ar = 2025
-            totalbelop = 2200000.0
-            beholdningsTypeEnum = no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum.PEN_B
-        }
+        val forrigePensjonsbeholdning =
+            Pensjonsbeholdning().apply {
+                ar = 2025
+                totalbelop = 2200000.0
+                beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
+            }
 
         val forrigeResultat = BeregningsResultatAlderspensjon2016().apply {
             virkFom = dateAtNoon(2025, 7, 1)
@@ -1982,11 +1954,12 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns today
 
         // Create forrigeResultat (existing/running pension) with beholdning
-        val forrigePensjonsbeholdning = no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
-            ar = 2035
-            totalbelop = 3200000.0
-            beholdningsTypeEnum = no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum.PEN_B
-        }
+        val forrigePensjonsbeholdning =
+            Pensjonsbeholdning().apply {
+                ar = 2035
+                totalbelop = 3200000.0
+                beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
+            }
 
         val forrigeResultat = BeregningsResultatAlderspensjon2025().apply {
             virkFom = dateAtNoon(2035, 2, 1)
@@ -2068,7 +2041,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2027 // Matches year of 2027-06-30
                     totalbelop = 2450000.0
                 }
@@ -2125,20 +2098,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2016),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null, // No forrigeResultat
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2025
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2016, sisteGyldigeOpptjeningAar = 2034)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2192,7 +2152,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2037 // Matches year of 2037-01-31
                     totalbelop = 3650000.0
                 }
@@ -2247,20 +2207,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2025),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2035
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2314,7 +2261,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2025
                     totalbelop = 1800000.0
                 }
@@ -2369,20 +2316,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2011),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2023
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2011, sisteGyldigeOpptjeningAar = 2023)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2436,17 +2370,17 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2036 // Different year - should be filtered out
                     totalbelop = 3000000.0
                     fom = dateAtNoon(2036, 0, 1) // January 2036
                 },
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2037 // Matching year - first entry
                     totalbelop = 3400000.0
                     fom = dateAtNoon(2037, 0, 1) // January 2037
                 },
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2037 // Matching year - second entry (should be picked as "latest" due to later fom)
                     totalbelop = 3500000.0
                     fom = dateAtNoon(2037, 6, 1) // July 2037 - later than first 2037 entry
@@ -2502,20 +2436,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2025),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2035
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2568,7 +2489,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2036 // Wrong year - should not match
                     totalbelop = 3000000.0
                 }
@@ -2623,20 +2544,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2025),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2035
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2687,7 +2595,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2026 // Year before virkFom
                     totalbelop = 2200000.0
                 }
@@ -2745,20 +2653,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2016),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2025
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2016, sisteGyldigeOpptjeningAar = 2025)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2797,7 +2692,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2036 // Year before virkFom
                     totalbelop = 3500000.0
                 }
@@ -2853,20 +2748,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2025),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2035
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
@@ -2904,7 +2786,7 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2024
                     totalbelop = 1500000.0
                 }
@@ -2958,20 +2840,7 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2011),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2023
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2011, sisteGyldigeOpptjeningAar = 2023)
 
         val result = preparer.opprettOutput(spec)
 
@@ -3010,15 +2879,15 @@ class SimuleringResultPreparerTest : FunSpec({
                 }
             )
             beholdninger = mutableListOf(
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2036
                     totalbelop = 3000000.0
                 },
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2036
                     totalbelop = 3100000.0 // This is the "latest" one added
                 },
-                no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
+                Pensjonsbeholdning().apply {
                     ar = 2035 // Different year - should not be used
                     totalbelop = 2900000.0
                 }
@@ -3073,24 +2942,9 @@ class SimuleringResultPreparerTest : FunSpec({
             epsKanOverskrives = false
         )
 
-        val spec = ResultPreparerSpec(
-            simuleringSpec = simuleringSpec,
-            kravhode = kravhode,
-            alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat2025),
-            privatAfpBeregningResultatListe = mutableListOf(),
-            forrigeAlderspensjonBeregningResultat = null,
-            forrigePrivatAfpBeregningResultat = null,
-            pre2025OffentligAfpBeregningResultat = null,
-            livsvarigOffentligAfpBeregningResultatListe = null,
-            grunnbeloep = 118620,
-            pensjonBeholdningPeriodeListe = emptyList(),
-            outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
-            sisteGyldigeOpptjeningAar = 2035
-        )
+        val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
+        preparer.opprettOutput(spec).alderspensjon shouldNotBe null
         // sortedSubset filters by year (2036) and findLatest returns the last one after sorting by year
     }
 })
@@ -3109,11 +2963,11 @@ private fun resultPreparerSpec(
     privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf(),
     forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat? = null,
     forrigePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat? = null,
-    pre2025OffentligAfpBeregningResultat: no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat? = null,
-    livsvarigOffentligAfpBeregningResultatListe: List<no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput>? = null,
+    pre2025OffentligAfpBeregningResultat: Simuleringsresultat? = null,
+    livsvarigOffentligAfpBeregningResultatListe: List<LivsvarigOffentligAfpOutput>? = null,
     pensjonBeholdningPeriodeListe: List<BeholdningPeriode> = emptyList(),
     outputSimulertBeregningsInformasjonForAllKnekkpunkter: Boolean = false,
-    uttaksgradListe: MutableList<no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad> = mutableListOf()
+    uttaksgradListe: MutableList<Uttaksgrad> = mutableListOf()
 ): ResultPreparerSpec {
     val soekerGrunnlag = Persongrunnlag().apply {
         fodselsdato = foedselsdato.atStartOfDay().let {
@@ -3180,9 +3034,34 @@ private fun resultPreparerSpec(
         forrigePrivatAfpBeregningResultat = forrigePrivatAfpBeregningResultat,
         pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpBeregningResultat,
         livsvarigOffentligAfpBeregningResultatListe = livsvarigOffentligAfpBeregningResultatListe,
-        grunnbeloep = grunnbeloep,
         pensjonBeholdningPeriodeListe = pensjonBeholdningPeriodeListe,
         outputSimulertBeregningsInformasjonForAllKnekkpunkter = outputSimulertBeregningsInformasjonForAllKnekkpunkter,
-        sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar
+        registerData = RegisterData(
+            sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar,
+            grunnbeloep = grunnbeloep
+        )
     )
 }
+
+private fun preparerSpec(
+    simuleringSpec: SimuleringSpec,
+    kravhode: Kravhode,
+    beregningsresultat: AbstraktBeregningsResultat?,
+    sisteGyldigeOpptjeningAar: Int
+) =
+    ResultPreparerSpec(
+        simuleringSpec = simuleringSpec,
+        kravhode = kravhode,
+        alderspensjonBeregningResultatListe = beregningsresultat?.let { mutableListOf(it) } ?: mutableListOf(),
+        privatAfpBeregningResultatListe = mutableListOf(),
+        forrigeAlderspensjonBeregningResultat = null,
+        forrigePrivatAfpBeregningResultat = null,
+        pre2025OffentligAfpBeregningResultat = null,
+        livsvarigOffentligAfpBeregningResultatListe = null,
+        pensjonBeholdningPeriodeListe = emptyList(),
+        outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
+        registerData = RegisterData(
+            sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar,
+            grunnbeloep = 118620
+        )
+    )

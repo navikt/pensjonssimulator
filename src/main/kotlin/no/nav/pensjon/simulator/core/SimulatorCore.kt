@@ -202,6 +202,13 @@ class SimulatorCore(
 
         log.debug { "Simulator steg 8 - Opprett output" }
 
+        val registerData = RegisterData(
+            sisteLignetInntektAar = initialSpec.registerData?.sisteLignetInntektAar,
+            sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar(),
+            soekerFoedselsdato = foedselsdato,
+            grunnbeloep = grunnbeloep
+        )
+
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
                 SimulatorOutput().apply {
@@ -223,10 +230,9 @@ class SimulatorCore(
                                     ?: simulertOffentligAfp.livsvarig,
                                 foedselMaaned = foedselsdato?.monthValue
                             ),
-                        grunnbeloep = grunnbeloep,
                         pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
                         outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-                        sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
+                        registerData
                     )
                 )
 
@@ -236,11 +242,6 @@ class SimulatorCore(
             output.apply {
                 this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
                 this.heltUttakDato = spec.heltUttakDato
-                this.registerData = RegisterData(
-                    sisteLignetInntektAar = initialSpec.registerData?.sisteLignetInntektAar,
-                    soekerFoedselsdato = foedselsdato,
-                    grunnbeloep = grunnbeloep
-                )
             }
     }
 

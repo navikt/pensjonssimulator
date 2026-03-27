@@ -4,18 +4,20 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import java.time.LocalDate
 
 class AlderspensjonBeregnerTest : FunSpec({
@@ -253,10 +255,12 @@ class AlderspensjonBeregnerTest : FunSpec({
             ignoreAvslag = true
         )
 
-        vedtakListe[0].anbefaltResultatEnum shouldBe VedtakResultatEnum.INNV
-        vedtakListe[0].vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
-        vedtakListe[0].begrunnelseEnum shouldBe null
-        vedtakListe[0].merknadListe shouldBe mutableListOf<Merknad>()
+        with(vedtakListe[0]) {
+            anbefaltResultatEnum shouldBe VedtakResultatEnum.INNV
+            vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
+            begrunnelseEnum shouldBe null
+            merknadListe shouldBe mutableListOf()
+        }
     }
 
     test("beregnAlderspensjon should not modify vedtak when ignoreAvslag is true and vedtak is already innvilget") {
@@ -385,14 +389,15 @@ class AlderspensjonBeregnerTest : FunSpec({
             every { revurderAlderspensjon2016(any(), any()) } throws originalException
         }
 
-        val apVedtak = VilkarsVedtak().apply {
-            kravlinje = Kravlinje().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.AP }
+        val alderspensjonsvedtak = VilkarsVedtak().apply {
+            kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.AP, person = null)
+            kravlinjeTypeEnum = KravlinjeTypeEnum.AP
         }
 
         shouldThrow<RegelmotorValideringException> {
             AlderspensjonBeregner(context).beregnAlderspensjon(
                 kravhode = kravhode(RegelverkTypeEnum.N_REG_G_N_OPPTJ),
-                vedtakListe = mutableListOf(apVedtak), // no GJR vedtak
+                vedtakListe = mutableListOf(alderspensjonsvedtak), // no GJR vedtak
                 virkningDato = LocalDate.of(2025, 3, 1),
                 sisteAldersberegning2011 = SisteAldersberegning2016(),
                 privatAfp = null,
@@ -720,10 +725,6 @@ class AlderspensjonBeregnerTest : FunSpec({
     }
 })
 
-// ===========================================
-// Helper functions
-// ===========================================
-
 private fun kravhode(regelverkType: RegelverkTypeEnum) =
     Kravhode().apply {
         regelverkTypeEnum = regelverkType
@@ -731,7 +732,8 @@ private fun kravhode(regelverkType: RegelverkTypeEnum) =
 
 private fun gjenlevenderettVedtak() =
     VilkarsVedtak().apply {
-        kravlinje = Kravlinje().apply { kravlinjeTypeEnum = KravlinjeTypeEnum.GJR }
+        kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.GJR, person = null)
+        kravlinjeTypeEnum = KravlinjeTypeEnum.GJR
     }
 
 private fun merknad(kode: String) =

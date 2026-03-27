@@ -237,7 +237,7 @@ class SimulatorCore(
                 this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
                 this.heltUttakDato = spec.heltUttakDato
                 this.registerData = RegisterData(
-                    xsisteLignetInntektAar = initialSpec.registerData?.xsisteLignetInntektAar,
+                    sisteLignetInntektAar = initialSpec.registerData?.sisteLignetInntektAar,
                     soekerFoedselsdato = foedselsdato,
                     grunnbeloep = grunnbeloep
                 )

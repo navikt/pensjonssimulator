@@ -7,6 +7,7 @@ import java.time.LocalDate
 
 data class SimulertPensjon(
     val alderspensjon: List<SimulertAarligAlderspensjon>,
+    val maanedligAlderspensjonForKnekkpunkter: SimulertMaanedligAlderspensjonForKnekkpunkter,
     val alderspensjonFraFolketrygden: List<SimulertAlderspensjonFraFolketrygden>,
     val privatAfp: List<SimulertPrivatAfp>,
     val pre2025OffentligAfp: SimulertPre2025OffentligAfp?,
@@ -48,6 +49,38 @@ data class SimulertAlderspensjonFraFolketrygden(
     val delytelseListe: List<SimulertDelytelse>,
     val uttakGrad: Int,
     val maanedligBeloep: Int
+)
+
+data class SimulertMaanedligAlderspensjonForKnekkpunkter(
+    val vedGradertUttak: SimulertMaanedligAlderspensjon?,
+    val vedHeltUttak: SimulertMaanedligAlderspensjon,
+    val vedNormertPensjonsalder: SimulertMaanedligAlderspensjon
+)
+
+data class SimulertMaanedligAlderspensjon(
+    val beloep: Int,
+    val inntektspensjon: Int?,
+    val delingstall: Double?,
+    val pensjonBeholdningFoerUttak: Int?,
+    val pensjonBeholdningEtterUttak: Int?,
+    val sluttpoengtall: Double?,
+    val poengaarFoer92: Int?,
+    val poengaarEtter91: Int?,
+    val forholdstall: Double?,
+    val grunnpensjon: Int?,
+    val tilleggspensjon: Int?,
+    val pensjonstillegg: Int?,
+    val skjermingstillegg: Int?,
+    val andelsbroekKap19: Double?,
+    val andelsbroekKap20: Double?,
+    val basispensjon: Int?,
+    val restpensjon: Int?,
+    val gjenlevendetillegg: Int?,
+    val minstePensjonsnivaaSats: Double?,
+    val trygdetidKap19: Int?,
+    val trygdetidKap20: Int?,
+    val garantipensjon: SimulertGarantipensjon?,
+    val garantitillegg: Int?
 )
 
 data class SimulertPrivatAfp(

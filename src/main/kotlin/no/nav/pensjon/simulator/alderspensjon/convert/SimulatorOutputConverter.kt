@@ -33,15 +33,26 @@ object SimulatorOutputConverter {
     fun pensjon(
         source: SimulatorOutput,
         today: LocalDate,
-        inntektVedFase1Uttak: Int? = null
+        inntektVedFase1Uttak: Int? = null,
+        gradertUttakDato: LocalDate? = null,
+        heltUttakDato: LocalDate? = null,
+        normertPensjoneringsdato: LocalDate? = null
     ): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
         val periodeListe: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
+        val beregningsinfoListe = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
 
         return SimulertPensjon(
             alderspensjon = periodeListe.map { aarligAlderspensjon(it, alderspensjon) },
-            alderspensjonFraFolketrygden = alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
-                .map(::alderspensjonFraFolketrygden),
+            maanedligAlderspensjonForKnekkpunkter = maanedligAlderspensjonForKnekkpunkter(
+                beregningsinfoListe,
+                periodeListe,
+                alderspensjon,
+                gradertUttakDato,
+                heltUttakDato,
+                normertPensjoneringsdato
+            ),
+            alderspensjonFraFolketrygden = beregningsinfoListe.map(::alderspensjonFraFolketrygden),
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
                 tidsbegrensetOffentligAfp(
                     beregning = it,
@@ -122,6 +133,114 @@ object SimulatorOutputConverter {
 
     private fun beholdningFoerUttak(list: List<SimulertBeregningInformasjon>): Int? =
         list.firstOrNull { it.pensjonBeholdningFoerUttak != null }?.pensjonBeholdningFoerUttak
+
+    private fun maanedligAlderspensjonForKnekkpunkter(
+        beregningsinfoListe: List<SimulertBeregningInformasjon>,
+        periodeListe: List<PensjonPeriode>,
+        alderspensjon: SimulertAlderspensjon?,
+        gradertUttakDato: LocalDate?,
+        heltUttakDato: LocalDate?,
+        normertPensjoneringsdato: LocalDate?
+    ): SimulertMaanedligAlderspensjonForKnekkpunkter {
+        val vedGradertUttak = gradertUttakDato?.let {
+            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+            }
+        }
+
+        val vedHeltUttak = heltUttakDato?.let {
+            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+            }
+        } ?: emptyMaanedligAlderspensjon()
+
+        val vedNormertPensjonsalder = normertPensjoneringsdato?.let {
+            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+            }
+        } ?: emptyMaanedligAlderspensjon()
+
+        return SimulertMaanedligAlderspensjonForKnekkpunkter(
+            vedGradertUttak = vedGradertUttak,
+            vedHeltUttak = vedHeltUttak,
+            vedNormertPensjonsalder = vedNormertPensjonsalder
+        )
+    }
+
+    private fun finnBeregningsinfoForDato(
+        beregningsinfoListe: List<SimulertBeregningInformasjon>,
+        dato: LocalDate
+    ): SimulertBeregningInformasjon? =
+        beregningsinfoListe.firstOrNull { it.datoFom == dato }
+
+    private fun beholdningFoerUttakForDato(periodeListe: List<PensjonPeriode>, dato: LocalDate): Int? =
+        periodeListe
+            .flatMap { it.simulertBeregningInformasjonListe }
+            .firstOrNull { it.datoFom == dato }
+            ?.pensjonBeholdningFoerUttak
+
+    private fun maanedligAlderspensjon(
+        source: SimulertBeregningInformasjon,
+        alderspensjon: SimulertAlderspensjon?,
+        pensjonBeholdningFoerUttak: Int?
+    ) =
+        SimulertMaanedligAlderspensjon(
+            beloep = source.maanedligBeloep ?: 0,
+            inntektspensjon = source.inntektspensjonPerMaaned,
+            delingstall = source.delingstall,
+            pensjonBeholdningFoerUttak = pensjonBeholdningFoerUttak,
+            pensjonBeholdningEtterUttak = source.pensjonBeholdningEtterUttak,
+            sluttpoengtall = source.spt,
+            poengaarFoer92 = source.pa_f92,
+            poengaarEtter91 = source.pa_e91,
+            forholdstall = source.forholdstall,
+            grunnpensjon = source.grunnpensjonPerMaaned,
+            tilleggspensjon = source.tilleggspensjonPerMaaned,
+            pensjonstillegg = source.pensjonstilleggPerMaaned,
+            skjermingstillegg = source.skjermingstillegg,
+            andelsbroekKap19 = alderspensjon?.kapittel19Andel,
+            andelsbroekKap20 = alderspensjon?.kapittel20Andel,
+            basispensjon = source.basispensjon,
+            restpensjon = source.restBasisPensjon,
+            gjenlevendetillegg = source.gjtAPKap19,
+            minstePensjonsnivaaSats = source.minstePensjonsnivaSats,
+            trygdetidKap19 = source.tt_anv_kap19,
+            trygdetidKap20 = source.tt_anv_kap20,
+            garantipensjon = source.garantipensjon?.let {
+                SimulertGarantipensjon(
+                    aarligBeloep = it,
+                    sats = source.garantipensjonssats ?: 0.0
+                )
+            },
+            garantitillegg = source.garantitillegg
+        )
+
+    private fun emptyMaanedligAlderspensjon() =
+        SimulertMaanedligAlderspensjon(
+            beloep = 0,
+            inntektspensjon = null,
+            delingstall = null,
+            pensjonBeholdningFoerUttak = null,
+            pensjonBeholdningEtterUttak = null,
+            sluttpoengtall = null,
+            poengaarFoer92 = null,
+            poengaarEtter91 = null,
+            forholdstall = null,
+            grunnpensjon = null,
+            tilleggspensjon = null,
+            pensjonstillegg = null,
+            skjermingstillegg = null,
+            andelsbroekKap19 = null,
+            andelsbroekKap20 = null,
+            basispensjon = null,
+            restpensjon = null,
+            gjenlevendetillegg = null,
+            minstePensjonsnivaaSats = null,
+            trygdetidKap19 = null,
+            trygdetidKap20 = null,
+            garantipensjon = null,
+            garantitillegg = null
+        )
 
     // SimulerAlderspensjonResponseV3Converter.convertSimulertBeregningsinfoToAlderspensjonFraFolketrygden
     private fun alderspensjonFraFolketrygden(source: SimulertBeregningInformasjon) =

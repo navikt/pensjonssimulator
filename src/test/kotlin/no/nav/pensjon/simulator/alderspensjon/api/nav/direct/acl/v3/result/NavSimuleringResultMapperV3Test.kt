@@ -10,6 +10,12 @@ import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
+private val dummyKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+    vedGradertUttak = null,
+    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null),
+    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null)
+)
+
 class NavSimuleringResultMapperV3Test : FunSpec({
 
     /**
@@ -48,6 +54,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                             minstePensjonsnivaaSats = 0.9
                         )
                     ),
+                    maanedligAlderspensjonForKnekkpunkter = dummyKnekkpunkter,
                     alderspensjonFraFolketrygden = listOf(
                         SimulertAlderspensjonFraFolketrygden(
                             datoFom = LocalDate.of(2021, 1, 1),
@@ -208,6 +215,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
             SimulertPensjonEllerAlternativ(
                 pensjon = SimulertPensjon(
                     alderspensjon = emptyList(),
+                    maanedligAlderspensjonForKnekkpunkter = dummyKnekkpunkter,
                     alderspensjonFraFolketrygden = listOf(
                         SimulertAlderspensjonFraFolketrygden(
                             datoFom = LocalDate.of(2021, 1, 1),

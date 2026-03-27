@@ -2,10 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.convert
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAarligAlderspensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAlderspensjonFraFolketrygden
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjon
+import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
@@ -103,6 +100,11 @@ class SimulatorOutputConverterTest : FunSpec({
                     kapittel19Gjenlevendetillegg = 800,
                     minstePensjonsnivaaSats = 11.22
                 )
+            ),
+            maanedligAlderspensjonForKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+                vedGradertUttak = null,
+                vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null),
+                vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null)
             ),
             alderspensjonFraFolketrygden = listOf(
                 SimulertAlderspensjonFraFolketrygden(

@@ -18,6 +18,9 @@ object SimuleringResultMapper {
         return SimuleringResultDto(
             alderspensjonListe = pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
             alderspensjonMaanedsbeloep = maanedsbeloep(pensjon?.alderspensjonFraFolketrygden.orEmpty()),
+            maanedligAlderspensjonForKnekkpunkter = pensjon?.maanedligAlderspensjonForKnekkpunkter?.let(
+                ::maanedligAlderspensjonForKnekkpunkter
+            ),
             livsvarigOffentligAfpListe = pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             tidsbegrensetOffentligAfp = pensjon?.pre2025OffentligAfp?.let(::tidsbegrensetOffentligAfp),
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
@@ -63,6 +66,44 @@ object SimuleringResultMapper {
         GarantipensjonDto(
             aarligBeloep = source.aarligBeloep,
             sats = source.sats
+        )
+
+    private fun maanedligAlderspensjonForKnekkpunkter(source: SimulertMaanedligAlderspensjonForKnekkpunkter) =
+        MaanedligAlderspensjonForKnekkpunkter(
+            vedGradertUttak = source.vedGradertUttak?.let(::maanedligAlderspensjon),
+            vedHeltUttak = maanedligAlderspensjon(source.vedHeltUttak),
+            vedNormertPensjonsalder = maanedligAlderspensjon(source.vedNormertPensjonsalder)
+        )
+
+    private fun maanedligAlderspensjon(source: SimulertMaanedligAlderspensjon) =
+        MaanedligAlderspensjon(
+            beloep = source.beloep,
+            inntektspensjon = source.inntektspensjon,
+            delingstall = source.delingstall,
+            pensjonsbeholdningFoerUttak = source.pensjonBeholdningFoerUttak,
+            pensjonsbeholdningEtterUttak = source.pensjonBeholdningEtterUttak,
+            sluttpoengtall = source.sluttpoengtall,
+            poengaarFoer92 = source.poengaarFoer92,
+            poengaarEtter91 = source.poengaarEtter91,
+            forholdstall = source.forholdstall,
+            grunnpensjon = source.grunnpensjon,
+            tilleggspensjon = source.tilleggspensjon,
+            pensjonstillegg = source.pensjonstillegg,
+            skjermingstillegg = source.skjermingstillegg,
+            kapittel19Pensjon = Kapittel19PensjonDto(
+                andelsbroek = source.andelsbroekKap19,
+                trygdetidAntallAar = source.trygdetidKap19 ?: 0,
+                basispensjon = source.basispensjon,
+                restpensjon = source.restpensjon,
+                gjenlevendetillegg = source.gjenlevendetillegg,
+                minstePensjonsnivaaSats = source.minstePensjonsnivaaSats
+            ),
+            kapittel20Pensjon = Kapittel20PensjonDto(
+                andelsbroek = source.andelsbroekKap20,
+                trygdetidAntallAar = source.trygdetidKap20 ?: 0,
+                garantipensjon = source.garantipensjon?.let(::garantipensjon),
+                garantitillegg = source.garantitillegg
+            )
         )
 
     private fun maanedsbeloep(source: List<SimulertAlderspensjonFraFolketrygden>) =

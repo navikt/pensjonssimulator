@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus
 data class SimuleringResultDto(
     @field:NotNull val alderspensjonListe: List<AlderspensjonDto>,
     val alderspensjonMaanedsbeloep: UttaksbeloepDto?,
+    val maanedligAlderspensjonForKnekkpunkter: MaanedligAlderspensjonForKnekkpunkter?,
     @field:NotNull val livsvarigOffentligAfpListe: List<AldersbestemtUtbetalingDto>,
     val tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpDto?,
     @field:NotNull val privatAfpListe: List<PrivatAfpDto>,
@@ -66,6 +67,32 @@ data class GarantipensjonDto(
 data class UttaksbeloepDto(
     val gradertUttakBeloep: Int?,
     @field:NotNull val heltUttakBeloep: Int
+)
+
+@JsonInclude(NON_NULL)
+data class MaanedligAlderspensjonForKnekkpunkter(
+    val vedGradertUttak: MaanedligAlderspensjon?,
+    val vedHeltUttak: MaanedligAlderspensjon,
+    val vedNormertPensjonsalder: MaanedligAlderspensjon
+)
+
+@JsonInclude(NON_NULL)
+data class MaanedligAlderspensjon(
+    @field:NotNull val beloep: Int,
+    val inntektspensjon: Int?,
+    val delingstall: Double?,
+    val pensjonsbeholdningFoerUttak: Int?,
+    val pensjonsbeholdningEtterUttak: Int?,
+    val sluttpoengtall: Double?,
+    val poengaarFoer92: Int?,
+    val poengaarEtter91: Int?,
+    val forholdstall: Double?,
+    val grunnpensjon: Int?,
+    val tilleggspensjon: Int?,
+    val pensjonstillegg: Int?,
+    val skjermingstillegg: Int?,
+    val kapittel19Pensjon: Kapittel19PensjonDto?,
+    val kapittel20Pensjon: Kapittel20PensjonDto?
 )
 
 data class AldersbestemtUtbetalingDto(

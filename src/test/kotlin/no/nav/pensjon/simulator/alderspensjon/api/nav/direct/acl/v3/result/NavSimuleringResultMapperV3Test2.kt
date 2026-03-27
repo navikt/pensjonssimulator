@@ -83,7 +83,8 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         alderAar = 1,
                         beloep = 2,
                         inntektspensjon = 3,
-                        garantipensjon = 4,
+                        garantipensjon = SimulertGarantipensjon(aarligBeloep = 4, sats = 1.1),
+                        garantitillegg = 44,
                         delingstall = 5.0,
                         pensjonBeholdningFoerUttak = 6,
                         andelsbroekKap19 = 0.3,
@@ -94,11 +95,14 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         poengaarFoer92 = 12,
                         poengaarEtter91 = 13,
                         forholdstall = 14.0,
+                        basispensjon = 41,
                         grunnpensjon = 15,
                         tilleggspensjon = 16,
+                        restpensjon = 61,
                         pensjonstillegg = 17,
                         skjermingstillegg = 18,
-                        kapittel19Gjenlevendetillegg = 19
+                        kapittel19Gjenlevendetillegg = 19,
+                        minstePensjonsnivaaSats = 20.0
                     )
                 ),
                 alderspensjonFraFolketrygden,

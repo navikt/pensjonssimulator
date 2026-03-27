@@ -33,7 +33,7 @@ object SimuleringResultMapper {
             alderAar = source.alderAar,
             beloep = source.beloep,
             inntektspensjon = source.inntektspensjon,
-            garantipensjon = source.garantipensjon,
+            garantipensjon = source.garantipensjon?.aarligBeloep,
             delingstall = source.delingstall,
             pensjonsbeholdningFoerUttak = source.pensjonBeholdningFoerUttak,
             sluttpoengtall = source.sluttpoengtall,

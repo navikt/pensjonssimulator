@@ -3,21 +3,16 @@ package no.nav.pensjon.simulator.core.result
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Grunnpensjon
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengrekke
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
-import java.util.*
 
 class SimulatorOutputMapperTest : FunSpec({
 
@@ -71,8 +66,7 @@ class SimulatorOutputMapperTest : FunSpec({
 
         val result = SimulatorOutputMapper.mapToSimulatorOutput(
             simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
+            soekerGrunnlag = persongrunnlag
         )
 
         result.epsHarInntektOver2G shouldBe true
@@ -84,24 +78,10 @@ class SimulatorOutputMapperTest : FunSpec({
 
         val result = SimulatorOutputMapper.mapToSimulatorOutput(
             simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
+            soekerGrunnlag = persongrunnlag
         )
 
         result.epsHarPensjon shouldBe true
-    }
-
-    test("mapToSimulatorOutput should map grunnbeloep") {
-        val spec = createSimuleringSpec()
-        val persongrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.UGIF)
-
-        val result = SimulatorOutputMapper.mapToSimulatorOutput(
-            simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
-        )
-
-        result.grunnbeloep shouldBe 118620
     }
 
     test("mapToSimulatorOutput should map sivilstand from first person detail") {
@@ -110,8 +90,7 @@ class SimulatorOutputMapperTest : FunSpec({
 
         val result = SimulatorOutputMapper.mapToSimulatorOutput(
             simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
+            soekerGrunnlag = persongrunnlag
         )
 
         result.sivilstand shouldBe SivilstandEnum.GIFT
@@ -950,7 +929,7 @@ class SimulatorOutputMapperTest : FunSpec({
             forstegangstjenestegrunnlag = Forstegangstjeneste().apply {
                 periodeListe = mutableListOf(
                     ForstegangstjenestePeriode().apply {
-                        fomDato = Date(124, 0, 1) // Jan 1, 2024
+                        fomDato = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
                     }
                 )
             }
@@ -972,8 +951,8 @@ class SimulatorOutputMapperTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = Date(124, 0, 1) // Jan 1, 2024
-                        ufgTom = Date(124, 11, 31) // Dec 31, 2024
+                        ufgFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
+                        ufgTom = LocalDate.of(2024, 12, 31).toNorwegianDateAtNoon()
                         uforeTypeEnum = UforetypeEnum.UF_M_YRKE
                     }
                 )
@@ -996,8 +975,8 @@ class SimulatorOutputMapperTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = Date(124, 0, 1)
-                        ufgTom = Date(124, 11, 31)
+                        ufgFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
+                        ufgTom = LocalDate.of(2024, 12, 31).toNorwegianDateAtNoon()
                         uforeTypeEnum = UforetypeEnum.VIRK_IKKE_UFOR // should be filtered
                     }
                 )
@@ -1019,8 +998,8 @@ class SimulatorOutputMapperTest : FunSpec({
         val persongrunnlag = Persongrunnlag().apply {
             afpHistorikkListe = listOf(
                 AfpHistorikk().apply {
-                    virkFom = Date(124, 0, 1) // Jan 1, 2024
-                    virkTom = Date(124, 11, 31) // Dec 31, 2024
+                    virkFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
+                    virkTom = LocalDate.of(2024, 12, 31).toNorwegianDateAtNoon()
                 }
             )
         }
@@ -1055,7 +1034,7 @@ class SimulatorOutputMapperTest : FunSpec({
     test("mapToSimulertOpptjening should get pensjonBeholdning from beregningsresultat when not in persongrunnlag") {
         val persongrunnlag = Persongrunnlag()
         val beregningsResultat = BeregningsResultatAlderspensjon2025().apply {
-            virkFom = Date(124, 0, 1) // Jan 1, 2024
+            virkFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
             uttaksgrad = 100
             beregningKapittel20 = AldersberegningKapittel20().apply {
                 beholdninger = Beholdninger().apply {

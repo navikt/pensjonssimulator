@@ -55,8 +55,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.grunnbeloep shouldBe 118620
-        result.sisteGyldigeOpptjeningAar shouldBe 2023
+        with(result.registerData!!) {
+            grunnbeloep shouldBe 118620
+            sisteGyldigeOpptjeningAar shouldBe 2023
+        }
     }
 
     test("opprettOutput calls opptjeningAdder.addToOpptjeningListe") {
@@ -290,11 +292,12 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        // After forceKap19OutputIfSimulerForTp, regelverkType changes to N_REG_G_OPPTJ
+        // After forceKap19OutputIfSimulerForTp, regelverkType changes to N_REG_G_OPPTJ,
         // which results in kapittel19Andel = 1.0
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 1.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 0.0
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 1.0
+            kapittel20Andel shouldBe 0.0
+        }
     }
 
     test("opprettOutput does not modify regelverkType when simulerForTp is false") {
@@ -317,7 +320,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        // When simulerForTp is false, regelverkType stays N_REG_N_OPPTJ
+        // When simulerForTp is false, regelverkType stays N_REG_N_OPPTJ,
         // which results in kapittel20Andel = 1.0
         result.alderspensjon shouldNotBe null
         result.alderspensjon!!.kapittel19Andel shouldBe 0.0
@@ -1045,11 +1048,8 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
         // Age 67 periode should have contributions from both resultater
-        val periode67 = result.alderspensjon!!.pensjonPeriodeListe.find { it.alderAar == 67 }
-        periode67 shouldNotBe null
-        periode67!!.maanedsutbetalinger.size shouldBe 2
+        result.alderspensjon!!.pensjonPeriodeListe.find { it.alderAar == 67 }!!.maanedsutbetalinger shouldHaveSize 2
     }
 
     test("opprettOutput with empty resultatListe for forrige AFP sets virkTom to null") {
@@ -1147,7 +1147,7 @@ class SimuleringResultPreparerTest : FunSpec({
         val result = preparer.opprettOutput(spec)
 
         // opprettOutput sets basic output fields from SimulatorOutputMapper
-        result.grunnbeloep shouldBe 118620
+        result.registerData?.grunnbeloep shouldBe 118620
         result.sivilstand shouldBe SivilstandEnum.UGIF
     }
 
@@ -1368,7 +1368,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // beloep calculation is based on months of intersection between period and resultat
         // The exact value depends on the beloepPeriode calculation which considers
         // periodeStart (1st day of month after birth month + alderAar years) to periodeSlutt
-        periode67!!.beloep shouldBe 20000 * 11 // 11 months coverage in age 67 year
+        periode67!!.beloep shouldBe 20000 * 11 // 11-month coverage in age 67 year
     }
 
     test("opprettOutput with gjelderPre2025OffentligAfp uses heltUttakDato for foersteHeleUttak in beregningsinfo") {
@@ -1394,7 +1394,7 @@ class SimuleringResultPreparerTest : FunSpec({
             }
         }
 
-        // Using AFP_ETTERF_ALDER which makes gjelderPre2025OffentligAfp() return true
+        // Using AFP_ETTERF_ALDER, which makes gjelderPre2025OffentligAfp() return true
         val spec = resultPreparerSpec(
             foedselsdato = foedselsdato,
             foersteUttakDato = afpUttakDato,
@@ -3019,7 +3019,7 @@ class SimuleringResultPreparerTest : FunSpec({
                     totalbelop = 3100000.0 // This is the "latest" one added
                 },
                 no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning().apply {
-                    ar = 2035 // Different year, should not be used
+                    ar = 2035 // Different year - should not be used
                     totalbelop = 2900000.0
                 }
             )
@@ -3186,9 +3186,3 @@ private fun resultPreparerSpec(
         sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar
     )
 }
-
-private fun dateAtNoon(year: Int, month: Int, day: Int): Date =
-    Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-        clear()
-        set(year, month - 1, day, 12, 0, 0)
-    }.time

@@ -28,15 +28,13 @@ object SimulatorOutputMapper {
     // SimuleringEtter2011ResultatMapper.mapToSimuleringEtter2011Resultat
     fun mapToSimulatorOutput(
         simuleringSpec: SimuleringSpec,
-        soekerGrunnlag: Persongrunnlag,
-        grunnbeloep: Int
+        soekerGrunnlag: Persongrunnlag
     ) =
         SimulatorOutput().apply {
             this.epsHarInntektOver2G = simuleringSpec.epsHarInntektOver2G
             this.epsHarPensjon = simuleringSpec.epsHarPensjon
-            this.grunnbeloep = grunnbeloep
-            this.sivilstand =
-                soekerGrunnlag.personDetaljListe[0].sivilstandTypeEnum ?: throw RuntimeException("Undefined sivilstand")
+            this.sivilstand = soekerGrunnlag.personDetaljListe[0].sivilstandTypeEnum
+                ?: throw RuntimeException("Undefined sivilstand")
         }
 
     fun simulertPrivatAfpPeriode(

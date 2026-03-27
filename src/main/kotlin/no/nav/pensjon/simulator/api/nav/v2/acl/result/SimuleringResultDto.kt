@@ -81,6 +81,7 @@ data class MaanedligAlderspensjon(
     @field:NotNull val beloep: Int,
     val inntektspensjon: Int?,
     val delingstall: Double?,
+    val pensjonsbeholdningFoerUttak: Int?,
     val pensjonsbeholdningEtterUttak: Int?,
     val sluttpoengtall: Double?,
     val poengaarFoer92: Int?,

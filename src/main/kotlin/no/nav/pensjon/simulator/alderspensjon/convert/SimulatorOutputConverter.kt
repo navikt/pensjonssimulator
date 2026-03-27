@@ -46,6 +46,7 @@ object SimulatorOutputConverter {
             alderspensjon = periodeListe.map { aarligAlderspensjon(it, alderspensjon) },
             maanedligAlderspensjonForKnekkpunkter = maanedligAlderspensjonForKnekkpunkter(
                 beregningsinfoListe,
+                periodeListe,
                 alderspensjon,
                 gradertUttakDato,
                 heltUttakDato,
@@ -135,21 +136,28 @@ object SimulatorOutputConverter {
 
     private fun maanedligAlderspensjonForKnekkpunkter(
         beregningsinfoListe: List<SimulertBeregningInformasjon>,
+        periodeListe: List<PensjonPeriode>,
         alderspensjon: SimulertAlderspensjon?,
         gradertUttakDato: LocalDate?,
         heltUttakDato: LocalDate?,
         normertPensjoneringsdato: LocalDate?
     ): SimulertMaanedligAlderspensjonForKnekkpunkter {
         val vedGradertUttak = gradertUttakDato?.let {
-            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info -> maanedligAlderspensjon(info, alderspensjon) }
+            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+            }
         }
 
         val vedHeltUttak = heltUttakDato?.let {
-            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info -> maanedligAlderspensjon(info, alderspensjon) }
+            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+            }
         } ?: emptyMaanedligAlderspensjon()
 
         val vedNormertPensjonsalder = normertPensjoneringsdato?.let {
-            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info -> maanedligAlderspensjon(info, alderspensjon) }
+            finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+            }
         } ?: emptyMaanedligAlderspensjon()
 
         return SimulertMaanedligAlderspensjonForKnekkpunkter(
@@ -165,11 +173,22 @@ object SimulatorOutputConverter {
     ): SimulertBeregningInformasjon? =
         beregningsinfoListe.firstOrNull { it.datoFom == dato }
 
-    private fun maanedligAlderspensjon(source: SimulertBeregningInformasjon, alderspensjon: SimulertAlderspensjon?) =
+    private fun beholdningFoerUttakForDato(periodeListe: List<PensjonPeriode>, dato: LocalDate): Int? =
+        periodeListe
+            .flatMap { it.simulertBeregningInformasjonListe }
+            .firstOrNull { it.datoFom == dato }
+            ?.pensjonBeholdningFoerUttak
+
+    private fun maanedligAlderspensjon(
+        source: SimulertBeregningInformasjon,
+        alderspensjon: SimulertAlderspensjon?,
+        pensjonBeholdningFoerUttak: Int?
+    ) =
         SimulertMaanedligAlderspensjon(
             beloep = source.maanedligBeloep ?: 0,
             inntektspensjon = source.inntektspensjonPerMaaned,
             delingstall = source.delingstall,
+            pensjonBeholdningFoerUttak = pensjonBeholdningFoerUttak,
             pensjonBeholdningEtterUttak = source.pensjonBeholdningEtterUttak,
             sluttpoengtall = source.spt,
             poengaarFoer92 = source.pa_f92,
@@ -201,6 +220,7 @@ object SimulatorOutputConverter {
             beloep = 0,
             inntektspensjon = null,
             delingstall = null,
+            pensjonBeholdningFoerUttak = null,
             pensjonBeholdningEtterUttak = null,
             sluttpoengtall = null,
             poengaarFoer92 = null,

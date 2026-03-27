@@ -61,6 +61,7 @@ data class SimulertMaanedligAlderspensjon(
     val beloep: Int,
     val inntektspensjon: Int?,
     val delingstall: Double?,
+    val pensjonBeholdningFoerUttak: Int?,
     val pensjonBeholdningEtterUttak: Int?,
     val sluttpoengtall: Double?,
     val poengaarFoer92: Int?,

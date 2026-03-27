@@ -80,6 +80,7 @@ object SimuleringResultMapper {
             beloep = source.beloep,
             inntektspensjon = source.inntektspensjon,
             delingstall = source.delingstall,
+            pensjonsbeholdningFoerUttak = source.pensjonBeholdningFoerUttak,
             pensjonsbeholdningEtterUttak = source.pensjonBeholdningEtterUttak,
             sluttpoengtall = source.sluttpoengtall,
             poengaarFoer92 = source.poengaarFoer92,

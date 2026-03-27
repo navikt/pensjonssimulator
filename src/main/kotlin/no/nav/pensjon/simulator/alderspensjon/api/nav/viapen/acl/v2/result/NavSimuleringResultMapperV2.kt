@@ -23,7 +23,7 @@ object NavSimuleringResultMapperV2 {
             afpPrivat = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
             afpOffentlig = source.pre2025OffentligAfp?.let(::simuleringResultat),
             opptjeningListe = source.opptjeningListe.map(::opptjening),
-            grunnbelop = source.grunnbeloep,
+            grunnbelop = source.registerData?.grunnbeloep,
             sivilstand = source.sivilstand,
             epsPensjon = source.epsHarPensjon,
             eps2G = source.epsHarInntektOver2G

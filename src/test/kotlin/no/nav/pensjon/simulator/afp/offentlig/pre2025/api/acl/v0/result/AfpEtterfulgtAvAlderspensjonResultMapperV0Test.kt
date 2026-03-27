@@ -27,7 +27,7 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         val foedselsdato = LocalDate.of(1963, 2, 22)
         val nesteMaaned = LocalDate.now().plusMonths(1).withDayOfMonth(1)
         val simuleringSpec = simuleringSpec(uttakDato = nesteMaaned, foedselsdato)
-        val simulatorOutput = mockSimulatorOutput(fom = nesteMaaned, foedselsdato)
+        val simulatorOutput = mockSimulatorOutput(fom = nesteMaaned)
 
         val dto: AfpEtterfulgtAvAlderspensjonResultV0 =
             AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
@@ -36,7 +36,7 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
             simuleringSuksess shouldBe true
             aarsakListeIkkeSuksess shouldBe emptyList()
             folketrygdberegnetAfp shouldBe folketrygdberegnetAfp(
-                pre2025OffentligAfp = simulatorOutput.pre2025OffentligAfp!!,
+                tidsbegrensetOffentligAfp = simulatorOutput.pre2025OffentligAfp!!,
                 inntektUnderGradertUttakBeloep = simuleringSpec.inntektUnderGradertUttakBeloep
             )
             alderspensjonFraFolketrygden shouldBe alderspensjonFraFolketrygdenResultatListe(
@@ -46,11 +46,11 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         }
     }
 
-    "toDto haandterer alderspensjon med uten kapittel19" {
+    "toDto håndterer alderspensjon med uten kapittel 19" {
         val foedselsdato = LocalDate.of(1963, 2, 22)
         val nesteMaaned = LocalDate.now().plusMonths(1).withDayOfMonth(1)
         val simuleringSpec = simuleringSpec(uttakDato = nesteMaaned, foedselsdato)
-        val simulatorOutput = mockSimulatorOutput(fom = nesteMaaned, foedselsdato, kapittel19Andel = 0.0)
+        val simulatorOutput = mockSimulatorOutput(fom = nesteMaaned, kapittel19Andel = 0.0)
 
         val dto: AfpEtterfulgtAvAlderspensjonResultV0 =
             AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
@@ -120,33 +120,30 @@ private fun simuleringSpec(uttakDato: LocalDate, foedselsdato: LocalDate) =
 
 private fun mockSimulatorOutput(
     fom: LocalDate,
-    foedselsdato: LocalDate,
     kapittel19Andel: Double = 3.0
 ) =
     SimulatorOutput().apply {
-        pre2025OffentligAfp = pre2025OffentligAfp(fom)
+        pre2025OffentligAfp = tidsbegrensetOffentligAfp(fom)
         alderspensjon = alderspensjon(kapittel19Andel, foersteUtbetalingFom = fom)
-        sisteGyldigeOpptjeningAar = 1
         sivilstand = SivilstandEnum.GIFT
-        grunnbeloep = 2
         epsHarPensjon = true
         epsHarInntektOver2G = true
-        foedselDato = foedselsdato
         heltUttakDato = fom
+        registerData = RegisterData(grunnbeloep = 2)
     }
 
 private fun folketrygdberegnetAfp(
-    pre2025OffentligAfp: Simuleringsresultat,
+    tidsbegrensetOffentligAfp: Simuleringsresultat,
     inntektUnderGradertUttakBeloep: Int
 ): FolketrygdberegnetAfpV0 {
-    val beregning = pre2025OffentligAfp.beregning!!
+    val beregning = tidsbegrensetOffentligAfp.beregning!!
     val grunnpensjon = beregning.gp!!
     val tilleggspensjon = beregning.tp!!
     val sluttpoengtall = tilleggspensjon.spt!!
     val poengrekke = sluttpoengtall.poengrekke!!
 
     return FolketrygdberegnetAfpV0(
-        fraOgMedDato = pre2025OffentligAfp.virk!!.toNorwegianLocalDate(),
+        fraOgMedDato = tidsbegrensetOffentligAfp.virk!!.toNorwegianLocalDate(),
         beregnetTidligereInntekt = poengrekke.tpi,
         sisteLignetInntektBrukt = false,
         sisteLignetInntektAar = null,
@@ -186,13 +183,13 @@ private fun alderspensjonFraFolketrygdenResultatListe(
             alderspensjonKapittel19 = AlderspensjonKapittel19V0(
                 grunnpensjon = GrunnpensjonV0(
                     maanedligUtbetaling = beregningsinfo.grunnpensjonPerMaaned!!,
-                    grunnbeloep = output.grunnbeloep,
+                    grunnbeloep = output.registerData?.grunnbeloep!!,
                     grunnpensjonsats = beregningsinfo.grunnpensjonsats,
                     trygdetid = beregningsinfo.tt_anv_kap19!!
                 ),
                 tilleggspensjon = TilleggspensjonV0(
                     maanedligUtbetaling = beregningsinfo.tilleggspensjonPerMaaned!!,
-                    grunnbeloep = output.grunnbeloep,
+                    grunnbeloep = output.registerData?.grunnbeloep!!,
                     sluttpoengTall = beregningsinfo.spt!!,
                     antallPoengaarTilOgMed1991 = beregningsinfo.pa_f92!!,
                     antallPoengaarFraOgMed1992 = beregningsinfo.pa_e91!!
@@ -245,7 +242,7 @@ private fun pensjonsperiode(foersteUtbetalingFom: LocalDate) =
         simulertBeregningInformasjonListe = mutableListOf(simulertBeregningInformasjon(foersteUtbetalingFom))
     }
 
-private fun pre2025OffentligAfp(fom: LocalDate) =
+private fun tidsbegrensetOffentligAfp(fom: LocalDate) =
     Simuleringsresultat().apply {
         virk = fom.toNorwegianDate()
         beregning = Beregning().apply {

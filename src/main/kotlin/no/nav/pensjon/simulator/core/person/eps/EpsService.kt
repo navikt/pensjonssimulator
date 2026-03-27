@@ -41,7 +41,11 @@ class EpsService(
     // OpprettKravHodeHelper.opprettPersongrunnlagForEPS
     fun addPersongrunnlagForEpsToKravhode(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
         if (gjelderGjenlevenderett(spec.type)) {
-            kravhode.persongrunnlagListe.add(gjenlevenderettPersongrunnlag(spec.avdoed, spec.pid, kravhode))
+            spec.avdoed?.let {
+                kravhode.persongrunnlagListe.add(
+                    gjenlevenderettPersongrunnlag(avdoed = it, soekerPid = spec.pid, kravhode)
+                )
+            } ?: throw BadSpecException("Gjenlevenderett: Informasjon om den avdøde må spesifiseres")
         } else if (erEps(spec.sivilstatus)) {
             kravhode.persongrunnlagListe.add(persongrunnlagBasedOnSivilstatus(spec, grunnbeloep))
         }
@@ -69,10 +73,10 @@ class EpsService(
     }
 
     // OpprettKravHodeHelper.createPersongrunnlagInCaseOfGjenlevenderett
-    private fun gjenlevenderettPersongrunnlag(avdoed: Avdoed?, soekerPid: Pid?, kravhode: Kravhode): Persongrunnlag {
+    private fun gjenlevenderettPersongrunnlag(avdoed: Avdoed, soekerPid: Pid?, kravhode: Kravhode): Persongrunnlag {
         // Del 1
-        val avdoedPerson = avdoed?.pid?.let(pensjonPersonService::person)
-            ?: throw BadSpecException("Gjenlevenderett: Avdød person med PID ${avdoed?.pid} ikke funnet")
+        val avdoedPerson = pensjonPersonService.person(avdoed.pid)
+            ?: throw BadSpecException("Gjenlevenderett: Avdød med person-ID ${avdoed.pid} ikke funnet")
 
         val persongrunnlag: Persongrunnlag =
             persongrunnlagMapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid).apply {

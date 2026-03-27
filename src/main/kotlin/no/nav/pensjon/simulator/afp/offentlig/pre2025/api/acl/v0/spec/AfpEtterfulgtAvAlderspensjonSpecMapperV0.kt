@@ -69,7 +69,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             avdoed = null,
             isTpOrigSimulering = true,
             uttakGrad = UttakGradKode.P_100,
-            registerData = RegisterData(sisteLignetInntektAar = sisteLignetInntekt?.fom?.year)
+            registerData = RegisterData(xsisteLignetInntektAar = sisteLignetInntekt?.fom?.year)
         )
     }
 }

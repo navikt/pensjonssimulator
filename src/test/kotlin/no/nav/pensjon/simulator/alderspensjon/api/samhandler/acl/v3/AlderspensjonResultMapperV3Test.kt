@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
+import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
@@ -33,7 +34,9 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             normertPensjonsalderService = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
-            simuleringResult = SimulatorOutput().apply { sisteGyldigeOpptjeningAar = 2023 },
+            simuleringResult = SimulatorOutput().apply {
+                registerData = RegisterData(sisteGyldigeOpptjeningAar = 2023)
+            },
             pid,
             foersteUttakFom = LocalDate.of(2037, 3, 1),
             heltUttakFom = null

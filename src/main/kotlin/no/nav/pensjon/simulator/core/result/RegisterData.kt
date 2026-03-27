@@ -7,7 +7,7 @@ import java.time.LocalDate
  */
 data class RegisterData(
     val sisteLignetInntektAar: Int? = null,
-    var sisteGyldigeOpptjeningAar: Int? = null,
+    val sisteGyldigeOpptjeningAar: Int? = null,
     val grunnbeloep: Int? = null,
-    var soekerFoedselsdato: LocalDate? = null
+    val soekerFoedselsdato: LocalDate? = null
 )

@@ -46,7 +46,7 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         }
     }
 
-    "toDto håndterer alderspensjon med uten kapittel 19" {
+    "toDto håndterer alderspensjon uten kapittel 19" {
         val foedselsdato = LocalDate.of(1963, 2, 22)
         val nesteMaaned = LocalDate.now().plusMonths(1).withDayOfMonth(1)
         val simuleringSpec = simuleringSpec(uttakDato = nesteMaaned, foedselsdato)

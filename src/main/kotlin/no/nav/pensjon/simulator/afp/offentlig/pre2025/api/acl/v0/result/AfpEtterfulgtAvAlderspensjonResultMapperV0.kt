@@ -28,7 +28,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             ),
             alderspensjonFraFolketrygden = alderspensjonFraFolketrygdenListe(
                 pensjon = validAlderspensjon(source),
-                grunnbeloep = source.grunnbeloep,
+                grunnbeloep = validGrunnbeloep(source),
                 uttakDato = spec.foersteUttakDato!!
             )
         )
@@ -48,6 +48,10 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun validAlderspensjon(source: SimulatorOutput): SimulertAlderspensjon =
         source.alderspensjon
             ?: throw ImplementationUnrecoverableException("alderspensjon mangler i beregningsresultatet")
+
+    private fun validGrunnbeloep(source: SimulatorOutput): Int =
+        source.registerData?.grunnbeloep
+            ?: throw ImplementationUnrecoverableException("grunnbeløp mangler i beregningsresultatet")
 
     private fun folketrygdberegnetAfp(
         fom: LocalDate,

@@ -55,18 +55,17 @@ class SimuleringResultPreparer(
         val kravhode = preparerSpec.kravhode
         val simuleringSpec = preparerSpec.simuleringSpec
         val soekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
-        val grunnbeloep = preparerSpec.grunnbeloep
 
         // If simulation is called from eksterne ordninger, then force the output to be mapped as
         // Kap 19 (2011). This line of code should be removed as soon as they're able to receive Kap 20 results.
         forceKap19OutputIfSimulerForTp(kravhode, simuleringSpec)
 
         // Del 1
-        val simuleringResult = createAndMapSimuleringEtter2011Resultat(simuleringSpec, soekerGrunnlag, grunnbeloep)
+        val simulatorOutput = SimulatorOutputMapper.mapToSimulatorOutput(simuleringSpec, soekerGrunnlag)
 
         // Del 2
         opptjeningAdder.addToOpptjeningListe(
-            opptjeningListe = simuleringResult.opptjeningListe,
+            opptjeningListe = simulatorOutput.opptjeningListe,
             beregningsresultatListe = preparerSpec.alderspensjonBeregningResultatListe,
             soekerGrunnlag,
             kravhode.regelverkTypeEnum
@@ -74,7 +73,7 @@ class SimuleringResultPreparer(
 
         // Del 3
         createAndMapSimulertAlderspensjon(
-            simuleringResult,
+            simulatorOutput,
             simuleringSpec,
             kravhode,
             soekerGrunnlag,
@@ -87,7 +86,7 @@ class SimuleringResultPreparer(
         // Del 4
         if (preparerSpec.privatAfpBeregningResultatListe.isNotEmpty() || preparerSpec.forrigePrivatAfpBeregningResultat != null) {
             createAndMapSimulertPrivatAfpPeriodeListe(
-                simuleringResult,
+                simulatorOutput,
                 simuleringSpec,
                 preparerSpec.privatAfpBeregningResultatListe,
                 soekerGrunnlag,
@@ -96,10 +95,11 @@ class SimuleringResultPreparer(
         }
 
         // Del 5
-        simuleringResult.pre2025OffentligAfp = preparerSpec.pre2025OffentligAfpBeregningResultat
-        simuleringResult.livsvarigOffentligAfp = preparerSpec.livsvarigOffentligAfpBeregningResultatListe
-        simuleringResult.sisteGyldigeOpptjeningAar = preparerSpec.sisteGyldigeOpptjeningAar
-        return simuleringResult
+        simulatorOutput.pre2025OffentligAfp = preparerSpec.pre2025OffentligAfpBeregningResultat
+        simulatorOutput.livsvarigOffentligAfp = preparerSpec.livsvarigOffentligAfpBeregningResultatListe
+        simulatorOutput.registerData = preparerSpec.registerData
+
+        return simulatorOutput
     }
 
     // OpprettOutputHelper.addPensjonsperioderToSimulertAlder
@@ -454,13 +454,6 @@ class SimuleringResultPreparer(
                 kravhode.regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
             }
         }
-
-        private fun createAndMapSimuleringEtter2011Resultat(
-            spec: SimuleringSpec,
-            soekerGrunnlag: Persongrunnlag,
-            grunnbeloep: Int
-        ) =
-            SimulatorOutputMapper.mapToSimulatorOutput(spec, soekerGrunnlag, grunnbeloep)
 
         // OpprettOutputHelper.setRatioKap19Kap20OnSimulertAlder
         private fun simulertAlderspensjonMedRegelverkAndel(

@@ -54,7 +54,7 @@ class AlderspensjonResultMapperV3(
             harUttak,
             harTidligereUttak = harUttak.not() && harHattUttakFoer(uttakListe, dato = idag),
             afpPrivatBeholdningVedUttak = privatAfpBeholdningVedUttak(simuleringResult.privatAfpPeriodeListe),
-            sisteGyldigeOpptjeningsAr = simuleringResult.sisteGyldigeOpptjeningAar
+            sisteGyldigeOpptjeningsAr = simuleringResult.registerData?.sisteGyldigeOpptjeningAar
         )
     }
 

@@ -393,9 +393,8 @@ private fun createBeregning(
         regelverk1967VirkToEarly = false
     )
 
-    return Alderspensjon2025SisteBeregningCreator(
-        kravService = mockk()
-    ).createBeregning(spec, beregningResultat = BeregningsResultatAlderspensjon2025())
+    return Alderspensjon2025SisteBeregningCreator(kravService = mockk())
+        .createBeregning(spec, beregningResultat = BeregningsResultatAlderspensjon2025())
 }
 
 private fun kravhodeWithSoeker(sivilstand: SivilstandEnum) =

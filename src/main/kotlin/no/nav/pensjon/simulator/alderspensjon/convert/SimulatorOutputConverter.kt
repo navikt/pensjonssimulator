@@ -45,7 +45,7 @@ object SimulatorOutputConverter {
             pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
                 tidsbegrensetOffentligAfp(
                     beregning = it,
-                    foedselsdato = source.foedselDato,
+                    foedselsdato = source.registerData?.soekerFoedselsdato,
                     inntektVedAfpUttak = inntektVedFase1Uttak
                 )
             },

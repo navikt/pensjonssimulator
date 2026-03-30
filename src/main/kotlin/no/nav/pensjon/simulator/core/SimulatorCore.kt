@@ -20,6 +20,7 @@ import no.nav.pensjon.simulator.core.endring.EndringValidator
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktFinder
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktSpec
 import no.nav.pensjon.simulator.core.krav.*
+import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.result.ResultPreparerSpec
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
@@ -201,6 +202,13 @@ class SimulatorCore(
 
         log.debug { "Simulator steg 8 - Opprett output" }
 
+        val registerData = RegisterData(
+            sisteLignetInntektAar = initialSpec.registerData?.sisteLignetInntektAar,
+            sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar(),
+            soekerFoedselsdato = foedselsdato,
+            grunnbeloep = grunnbeloep
+        )
+
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
                 SimulatorOutput().apply {
@@ -222,10 +230,9 @@ class SimulatorCore(
                                     ?: simulertOffentligAfp.livsvarig,
                                 foedselMaaned = foedselsdato?.monthValue
                             ),
-                        grunnbeloep = grunnbeloep,
                         pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
                         outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-                        sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
+                        registerData
                     )
                 )
 
@@ -233,10 +240,8 @@ class SimulatorCore(
             output
         else
             output.apply {
-                this.foedselDato = foedselsdato
                 this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
                 this.heltUttakDato = spec.heltUttakDato
-                this.registerData = initialSpec.registerData
             }
     }
 
@@ -255,8 +260,8 @@ class SimulatorCore(
                         Avdoed(
                             pid = it,
                             antallAarUtenlands = info.antallAarUtenlands ?: 0,
-                            inntektFoerDoed = 0, //TODO get from spec or from POPP
-                            doedDato = info.doedsdato ?: throw EgressException("Missing dødsdato in ytelse"),
+                            inntektFoerDoed = 0, // hypotese: inntekten er irrelevant ved endring
+                            doedDato = info.doedsdato ?: throw EgressException("Mangler dødsdato i ytelse"),
                             erMedlemAvFolketrygden = info.harTilstrekkeligMedlemskapIFolketrygden == true,
                             harInntektOver1G = info.aarligPensjonsgivendeInntektErMinst1G == true
                         )

@@ -22,6 +22,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -38,13 +39,13 @@ class Vilkaarsproever(
 
         createGjenlevenderettVedtakIfGjenlevenderettKravlinjePresent(
             spec.virkningFom,
-            spec.kravhode,
+            spec.kravhode.kravlinjeListe,
             vedtakListe
         )
 
         postprocessVedtakAndKravhode(
             vedtakListe,
-            spec.kravhode,
+            spec.kravhode.kravlinjeListe,
             spec.soekerFoersteVirkning,
             spec.avdoedFoersteVirkning
         )
@@ -54,7 +55,7 @@ class Vilkaarsproever(
         return Tuple2(vedtakListe, spec.kravhode)
     }
 
-    fun innvilgetVedtak(kravlinje: Kravlinje?, virkningFom: LocalDate): VilkarsVedtak =
+    fun innvilgetVedtak(kravlinje: VilkaarsvedtakKravlinje?, virkningFom: LocalDate): VilkarsVedtak =
         manueltVedtak(kravlinje, virkningFom).also {
             it.forsteVirk = virkningFom.toNorwegianDateAtNoon()
             it.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
@@ -83,7 +84,8 @@ class Vilkaarsproever(
                 thisDate = spec.virkningFom,
                 thatDate = normalderService.normertPensjoneringsdato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()),
                 allowSameDay = true
-            ))
+            )
+        )
             context.vilkaarsproevUbetingetAlderspensjon(ubetingetVilkaarsproevingRequest(spec), spec.sakId)
         else
             vilkaarsproevBetingetAlderspensjon(spec)
@@ -109,17 +111,16 @@ class Vilkaarsproever(
         // VilkarsprovOgBeregnAlderHelper.postProcessVilkarsvedtakAndKravHode
         private fun postprocessVedtakAndKravhode(
             vedtakListe: List<VilkarsVedtak>,
-            kravhode: Kravhode,
+            kravlinjeListe: MutableList<Kravlinje>,
             soekerFoersteVirkning: LocalDate,
             avdoedFoersteVirkning: LocalDate?
         ) {
             vedtakListe.forEach {
-                it.kravlinje!!.kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                it.kravlinje!!.land = LandkodeEnum.NOR
+                it.kravlinje = it.kravlinje?.with(status = KravlinjeStatus.VILKARSPROVD, land = LandkodeEnum.NOR)
                 it.vilkarsvedtakResultatEnum = it.anbefaltResultatEnum
 
                 val localFoersteVirk: LocalDate =
-                    if (avdoedFoersteVirkning != null && isGjenlevenderettighet(it.kravlinjeTypeEnum))
+                    if (avdoedFoersteVirkning != null && gjelderGjenlevenderett(it.kravlinjeTypeEnum))
                         avdoedFoersteVirkning
                     else
                         soekerFoersteVirkning
@@ -130,7 +131,7 @@ class Vilkaarsproever(
                 it.finishInit()
             }
 
-            kravhode.kravlinjeListe.forEach {
+            kravlinjeListe.forEach {
                 it.kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 it.land = LandkodeEnum.NOR
             }
@@ -139,25 +140,27 @@ class Vilkaarsproever(
         // VilkarsprovOgBeregnAlderHelper.createGJRVilkarsvedtakIfGJRKravlinjePresent
         private fun createGjenlevenderettVedtakIfGjenlevenderettKravlinjePresent(
             virkningDato: LocalDate,
-            kravhode: Kravhode,
+            kravlinjeListe: MutableList<Kravlinje>,
             vedtakListe: MutableList<VilkarsVedtak>
         ) {
-            kravlinjeForGjenlevenderett(kravhode.kravlinjeListe)?.let {
+            kravlinjeForGjenlevenderett(kravlinjeListe)?.let {
                 addManueltInnvilgetVedtak(virkningDato, vedtakListe, kravlinje = it)
             }
         }
 
         // Extracted from VilkarsprovOgBeregnAlderHelper.createGJRVilkarsvedtakIfGJRKravlinjePresent
-        private fun kravlinjeForGjenlevenderett(list: List<Kravlinje>): Kravlinje? =
-            list.firstOrNull { isGjenlevenderettighet(it.kravlinjeTypeEnum) }
+        private fun kravlinjeForGjenlevenderett(list: List<Kravlinje>): VilkaarsvedtakKravlinje? =
+            list.firstOrNull {
+                gjelderGjenlevenderett(it.kravlinjeTypeEnum)
+            }?.let(::VilkaarsvedtakKravlinje)
 
-        private fun isGjenlevenderettighet(kravlinjeType: KravlinjeTypeEnum?): Boolean =
+        private fun gjelderGjenlevenderett(kravlinjeType: KravlinjeTypeEnum?): Boolean =
             KravlinjeTypeEnum.GJR == kravlinjeType
 
         private fun addManueltInnvilgetVedtak(
             virkningDato: LocalDate,
             vedtakListe: MutableList<VilkarsVedtak>,
-            kravlinje: Kravlinje
+            kravlinje: VilkaarsvedtakKravlinje
         ) {
             vedtakListe.add(manueltVedtak(kravlinje, virkningDato).also {
                 it.anbefaltResultatEnum = VedtakResultatEnum.INNV
@@ -165,15 +168,15 @@ class Vilkaarsproever(
         }
 
         // SimpleFpenService.opprettManueltVilkarsvedtak
-        private fun manueltVedtak(kravlinje: Kravlinje?, virkningFom: LocalDate) =
+        private fun manueltVedtak(kravlinje: VilkaarsvedtakKravlinje?, virkningFom: LocalDate) =
             VilkarsVedtak().apply {
                 this.anbefaltResultatEnum = VedtakResultatEnum.VELG
                 this.vilkarsvedtakResultatEnum = VedtakResultatEnum.VELG
                 this.virkFom = virkningFom.toNorwegianDateAtNoon()
                 this.virkTom = null
                 this.kravlinje = kravlinje
-                this.kravlinjeTypeEnum = kravlinje?.kravlinjeTypeEnum
-                this.penPerson = kravlinje?.relatertPerson
+                this.kravlinjeTypeEnum = kravlinje?.type
+                this.penPerson = kravlinje?.person
                 this.finishInit()
             }
 

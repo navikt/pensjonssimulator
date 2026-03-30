@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.beregn
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -18,6 +19,7 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import java.util.*
 
 class SisteBeregningCreatorTest : FunSpec({
@@ -28,7 +30,7 @@ class SisteBeregningCreatorTest : FunSpec({
 
     test("opprettSisteBeregning should use alderspensjon2011SisteBeregningCreator for N_REG_G_OPPTJ") {
         val expectedResult = SisteAldersberegning2011()
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         val creator2011 = mockk<Alderspensjon2011SisteBeregningCreator> {
@@ -54,7 +56,7 @@ class SisteBeregningCreatorTest : FunSpec({
 
     test("opprettSisteBeregning should use alderspensjon2016SisteBeregningCreator for N_REG_G_N_OPPTJ") {
         val expectedResult = SisteAldersberegning2016()
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_N_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_N_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         val creator2011 = mockk<Alderspensjon2011SisteBeregningCreator>()
@@ -81,7 +83,7 @@ class SisteBeregningCreatorTest : FunSpec({
     test("opprettSisteBeregning should use alderspensjon2025SisteBeregningCreator for N_REG_N_OPPTJ") {
         // Note: Alderspensjon2025SisteBeregningCreator returns SisteAldersberegning2011, not a 2025-specific type
         val expectedResult = SisteAldersberegning2011()
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_N_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_N_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         val creator2011 = mockk<Alderspensjon2011SisteBeregningCreator>()
@@ -106,7 +108,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should throw for unexpected regelverkType") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.G_REG)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.G_REG)
         val beregningsresultat = createBeregningsresultat()
 
         val sisteBeregningCreator = createSisteBeregningCreator()
@@ -121,7 +123,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should throw for null regelverkType") {
-        val kravhode = createKravhodeWithSoker(regelverkType = null)
+        val kravhode = createKravhodeWithSoeker(regelverkType = null)
         val beregningsresultat = createBeregningsresultat()
 
         val sisteBeregningCreator = createSisteBeregningCreator()
@@ -140,7 +142,7 @@ class SisteBeregningCreatorTest : FunSpec({
     // ===========================================
 
     test("opprettSisteBeregning should throw when beregningsresultat is null") {
-        val kravhode = createKravhodeWithSoker()
+        val kravhode = createKravhodeWithSoeker()
 
         val sisteBeregningCreator = createSisteBeregningCreator()
 
@@ -159,7 +161,7 @@ class SisteBeregningCreatorTest : FunSpec({
 
     test("opprettSisteBeregning should use periodized kravhode from spec when kravId matches") {
         // When beregningsresultat.kravId == kravhode.kravId, forrigeKravhode should come from spec.kravhode
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ).apply {
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ).apply {
             kravId = 123L
         }
         val beregningsresultat = createBeregningsresultat().apply {
@@ -190,10 +192,10 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should fetch kravhode from service when kravId differs") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ).apply {
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ).apply {
             kravId = 123L
         }
-        val forrigeKravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ).apply {
+        val forrigeKravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ).apply {
             kravId = 456L
         }
         val beregningsresultat = createBeregningsresultat().apply {
@@ -230,7 +232,7 @@ class SisteBeregningCreatorTest : FunSpec({
     // ===========================================
 
     test("opprettSisteBeregning should filter vedtak to only innvilget") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         val innvilgetVedtak = createVedtak(VedtakResultatEnum.INNV)
@@ -262,7 +264,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should filter vedtak to only vilkarsprovd or ferdig status") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         val vedtakVilkarsprovd = createVedtak(VedtakResultatEnum.INNV, KravlinjeStatus.VILKARSPROVD)
@@ -294,7 +296,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should filter vedtak to only Norwegian kravlinje") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         val norskVedtak = createVedtak(VedtakResultatEnum.INNV, KravlinjeStatus.VILKARSPROVD, LandkodeEnum.NOR)
@@ -326,7 +328,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should filter vedtak by virkFom before beregningsresultat virkFom") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
             virkFom = dateAtNoon(2025, Calendar.JUNE, 1)
         }
@@ -363,7 +365,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should filter vedtak by virkTom after beregningsresultat virkTom") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
             virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
             virkTom = dateAtNoon(2025, Calendar.JUNE, 1)
@@ -411,7 +413,7 @@ class SisteBeregningCreatorTest : FunSpec({
     // ===========================================
 
     test("opprettSisteBeregning should set regelverkKodePaNyttKrav from kravhode") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         var capturedSpec: SisteBeregningSpec? = null
@@ -438,7 +440,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should set fomDato and tomDato from beregningsresultat") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val fomDate = dateAtNoon(2025, Calendar.JANUARY, 1)
         val tomDate = dateAtNoon(2025, Calendar.DECEMBER, 31)
         val beregningsresultat = createBeregningsresultat().apply {
@@ -471,7 +473,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should pass beregningsresultat to creator") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat()
 
         var capturedBeregningsresultat: AbstraktBeregningsResultat? = null
@@ -501,7 +503,7 @@ class SisteBeregningCreatorTest : FunSpec({
     // ===========================================
 
     test("opprettSisteBeregning should include vedtak when both virkTom and beregningsresultat.virkTom are null") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
             virkTom = null
         }
@@ -535,7 +537,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should include vedtak when vedtak virkTom is null and beregningsresultat.virkTom is set") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
             virkTom = dateAtNoon(2025, Calendar.JUNE, 1)
         }
@@ -569,7 +571,7 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 
     test("opprettSisteBeregning should exclude vedtak when vedtak virkTom is set and beregningsresultat.virkTom is null") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
             virkTom = null
         }
@@ -599,7 +601,7 @@ class SisteBeregningCreatorTest : FunSpec({
 
         // When vedtak.virkTom is set but beregningsresultat.virkTom is null, vedtak is excluded
         capturedSpec shouldNotBe null
-        capturedSpec!!.filtrertVilkarsvedtakList.size shouldBe 0
+        capturedSpec!!.filtrertVilkarsvedtakList shouldHaveSize 0
     }
 
     // ===========================================
@@ -607,7 +609,7 @@ class SisteBeregningCreatorTest : FunSpec({
     // ===========================================
 
     test("opprettSisteBeregning should filter vedtak by all criteria combined") {
-        val kravhode = createKravhodeWithSoker(RegelverkTypeEnum.N_REG_G_OPPTJ)
+        val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
             virkFom = dateAtNoon(2025, Calendar.JUNE, 1)
             virkTom = dateAtNoon(2025, Calendar.DECEMBER, 31)
@@ -616,10 +618,7 @@ class SisteBeregningCreatorTest : FunSpec({
         // This vedtak passes all filters
         val validVedtak = VilkarsVedtak().apply {
             vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-            kravlinje = Kravlinje().apply {
-                kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                land = LandkodeEnum.NOR
-            }
+            kravlinje = kravlinje(status = KravlinjeStatus.VILKARSPROVD)
             virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
             virkTom = null
         }
@@ -627,10 +626,7 @@ class SisteBeregningCreatorTest : FunSpec({
         // This vedtak fails: not innvilget
         val failsInnvilget = VilkarsVedtak().apply {
             vilkarsvedtakResultatEnum = VedtakResultatEnum.AVSL
-            kravlinje = Kravlinje().apply {
-                kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                land = LandkodeEnum.NOR
-            }
+            kravlinje = kravlinje(status = KravlinjeStatus.VILKARSPROVD)
             virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
             virkTom = null
         }
@@ -638,10 +634,7 @@ class SisteBeregningCreatorTest : FunSpec({
         // This vedtak fails: wrong status
         val failsStatus = VilkarsVedtak().apply {
             vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-            kravlinje = Kravlinje().apply {
-                kravlinjeStatus = KravlinjeStatus.TIL_BEHANDLING
-                land = LandkodeEnum.NOR
-            }
+            kravlinje = kravlinje(status = KravlinjeStatus.TIL_BEHANDLING)
             virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
             virkTom = null
         }
@@ -649,10 +642,7 @@ class SisteBeregningCreatorTest : FunSpec({
         // This vedtak fails: not Norwegian
         val failsLand = VilkarsVedtak().apply {
             vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-            kravlinje = Kravlinje().apply {
-                kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                land = LandkodeEnum.SWE
-            }
+            kravlinje = kravlinje(status = KravlinjeStatus.VILKARSPROVD, land = LandkodeEnum.SWE)
             virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
             virkTom = null
         }
@@ -660,10 +650,7 @@ class SisteBeregningCreatorTest : FunSpec({
         // This vedtak fails: virkFom after beregningsresultat.virkFom
         val failsVirkFom = VilkarsVedtak().apply {
             vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-            kravlinje = Kravlinje().apply {
-                kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
-                land = LandkodeEnum.NOR
-            }
+            kravlinje = kravlinje(status = KravlinjeStatus.VILKARSPROVD)
             virkFom = dateAtNoon(2025, Calendar.JULY, 1) // After beregningsresultat.virkFom
             virkTom = null
         }
@@ -694,10 +681,6 @@ class SisteBeregningCreatorTest : FunSpec({
     }
 })
 
-// ===========================================
-// Helper functions
-// ===========================================
-
 private fun createSisteBeregningCreator(): SisteBeregningCreator {
     val kravService = mockk<KravService>()
     val creator2011 = mockk<Alderspensjon2011SisteBeregningCreator> {
@@ -713,7 +696,7 @@ private fun createSisteBeregningCreator(): SisteBeregningCreator {
     return SisteBeregningCreator(kravService, creator2011, creator2016, creator2025)
 }
 
-private fun createKravhodeWithSoker(regelverkType: RegelverkTypeEnum? = RegelverkTypeEnum.N_REG_G_OPPTJ): Kravhode =
+private fun createKravhodeWithSoeker(regelverkType: RegelverkTypeEnum? = RegelverkTypeEnum.N_REG_G_OPPTJ) =
     Kravhode().apply {
         regelverkTypeEnum = regelverkType
         persongrunnlagListe = mutableListOf(
@@ -734,7 +717,15 @@ private fun createKravhodeWithSoker(regelverkType: RegelverkTypeEnum? = Regelver
         )
     }
 
-private fun createBeregningsresultat(): BeregningsResultatAlderspensjon2011 =
+private fun kravlinje(status: KravlinjeStatus, land: LandkodeEnum = LandkodeEnum.NOR) =
+    VilkaarsvedtakKravlinje(
+        type = KravlinjeTypeEnum.AP,
+        person = null,
+        status,
+        land
+    )
+
+private fun createBeregningsresultat() =
     BeregningsResultatAlderspensjon2011().apply {
         virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
         beregningKapittel19 = AldersberegningKapittel19().apply {
@@ -749,10 +740,7 @@ private fun createVedtak(
 ): VilkarsVedtak =
     VilkarsVedtak().apply {
         vilkarsvedtakResultatEnum = resultat
-        kravlinje = Kravlinje().apply {
-            kravlinjeStatus = status
-            this.land = land
-        }
+        kravlinje = kravlinje(status, land)
         virkFom = dateAtNoon(2024, Calendar.JANUARY, 1)
         virkTom = null
     }

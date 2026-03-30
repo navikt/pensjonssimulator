@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
@@ -495,11 +495,8 @@ class Pre2025OffentligAfpFoerstegangBeregner(
 
             // Add the vilkårsvedtak to the simulation:
             kravlinjeType?.let {
-                vedtak.kravlinje = Kravlinje().apply {
-                    this.kravlinjeTypeEnum = it
-                    this.hovedKravlinje = it.erHovedkravlinje
-                    this.relatertPerson = persongrunnlag.penPerson
-                }
+                vedtak.kravlinje = VilkaarsvedtakKravlinje(it, persongrunnlag.penPerson)
+                vedtak.penPerson = persongrunnlag.penPerson
                 vedtak.kravlinjeTypeEnum = it
                 vedtak.forsteVirk = virkningFom
                 spec.vilkarsvedtakliste.add(vedtak)

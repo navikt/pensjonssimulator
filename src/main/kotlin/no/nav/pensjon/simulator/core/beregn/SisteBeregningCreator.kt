@@ -6,13 +6,13 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -169,11 +169,11 @@ class SisteBeregningCreator(
             VedtakResultatEnum.INNV == vedtak
 
         // FiltrerVilkarsvedtakCommand.isKravlinjeStatusVilkarsprovdOrFerdig
-        private fun isVilkarsprovdOrFerdig(kravlinje: Kravlinje?): Boolean =
-            EnumSet.of(KravlinjeStatus.VILKARSPROVD, KravlinjeStatus.FERDIG).contains(kravlinje?.kravlinjeStatus)
+        private fun isVilkarsprovdOrFerdig(kravlinje: VilkaarsvedtakKravlinje?): Boolean =
+            EnumSet.of(KravlinjeStatus.VILKARSPROVD, KravlinjeStatus.FERDIG).contains(kravlinje?.status)
 
         // FiltrerVilkarsvedtakCommand.isKravlinjeNor
-        private fun isNorsk(kravlinje: Kravlinje?): Boolean =
+        private fun isNorsk(kravlinje: VilkaarsvedtakKravlinje?): Boolean =
             LandkodeEnum.NOR == kravlinje?.land
 
         // FiltrerVilkarsvedtakCommand.isVirkFomBeforeFomDate

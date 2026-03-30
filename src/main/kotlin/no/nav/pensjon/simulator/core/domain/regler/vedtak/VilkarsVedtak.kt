@@ -8,8 +8,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BegrunnelseTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VilkarVurderingEnum
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import java.util.*
 
 // 2026-03-04
@@ -68,8 +68,8 @@ class VilkarsVedtak {
     /**
      * Kravlinje som er vilkårsprøvd.
      */
-    @Deprecated("Redundant, finnes som penPerson, kravlinjeTypeEnum og for hovedkrav, se kravlinjeListe i kravhode")
-    var kravlinje: Kravlinje? = null
+    @JsonIgnore
+    var kravlinje: VilkaarsvedtakKravlinje? = null
 
     /**
      * Id for personen

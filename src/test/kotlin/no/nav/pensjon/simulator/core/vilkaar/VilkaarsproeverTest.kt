@@ -21,6 +21,7 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import java.time.LocalDate
 
 class VilkaarsproeverTest : FunSpec({
@@ -30,13 +31,9 @@ class VilkaarsproeverTest : FunSpec({
         test("oppretter vedtak med korrekt forsteVirk") {
             val context = mockk<SimulatorContext>()
             val normalderService = mockk<NormertPensjonsalderService>()
-
             val vilkaarsproever = Vilkaarsproever(context, normalderService)
             val virkningFom = LocalDate.of(2025, 1, 1)
-            val kravlinje = Kravlinje().apply {
-                kravlinjeTypeEnum = KravlinjeTypeEnum.AP
-            }
-
+            val kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.AP, person = null)
             val vedtak = vilkaarsproever.innvilgetVedtak(kravlinje, virkningFom)
 
             vedtak.forsteVirk shouldNotBe null
@@ -47,30 +44,23 @@ class VilkaarsproeverTest : FunSpec({
         test("oppretter vedtak med korrekt virkFom") {
             val context = mockk<SimulatorContext>()
             val normalderService = mockk<NormertPensjonsalderService>()
-
             val vilkaarsproever = Vilkaarsproever(context, normalderService)
             val virkningFom = LocalDate.of(2025, 6, 15)
-            val kravlinje = Kravlinje().apply {
-                kravlinjeTypeEnum = KravlinjeTypeEnum.AP
-            }
+            val kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.AP, person = null)
 
-            val vedtak = vilkaarsproever.innvilgetVedtak(kravlinje, virkningFom)
-
-            vedtak.virkFom shouldNotBe null
+            vilkaarsproever.innvilgetVedtak(kravlinje, virkningFom).virkFom shouldNotBe null
         }
 
         test("oppretter vedtak med kravlinjeType fra kravlinje") {
             val context = mockk<SimulatorContext>()
             val normalderService = mockk<NormertPensjonsalderService>()
-
             val vilkaarsproever = Vilkaarsproever(context, normalderService)
-            val kravlinje = Kravlinje().apply {
-                kravlinjeTypeEnum = KravlinjeTypeEnum.GJR
-            }
+            val kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.GJR, person = null)
 
-            val vedtak = vilkaarsproever.innvilgetVedtak(kravlinje, LocalDate.of(2025, 1, 1))
-
-            vedtak.kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.GJR
+            vilkaarsproever.innvilgetVedtak(
+                kravlinje,
+                virkningFom = LocalDate.of(2025, 1, 1)
+            ).kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.GJR
         }
 
         test("håndterer null kravlinje") {
@@ -80,9 +70,11 @@ class VilkaarsproeverTest : FunSpec({
             val vilkaarsproever = Vilkaarsproever(context, normalderService)
             val vedtak = vilkaarsproever.innvilgetVedtak(null, LocalDate.of(2025, 1, 1))
 
-            vedtak.kravlinje shouldBe null
-            vedtak.kravlinjeTypeEnum shouldBe null
-            vedtak.vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
+            with(vedtak) {
+                kravlinje shouldBe null
+                kravlinjeTypeEnum shouldBe null
+                vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
+            }
         }
     }
 
@@ -109,7 +101,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevUbetingetAlderspensjon(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -158,7 +150,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevAlderspensjon2011(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -204,7 +196,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevAlderspensjon2016(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -250,7 +242,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevAlderspensjon2025(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -297,7 +289,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevUbetingetAlderspensjon(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -344,7 +336,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevUbetingetAlderspensjon(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = apKravlinje
+                    kravlinje = VilkaarsvedtakKravlinje(apKravlinje)
                 }
             )
 
@@ -368,12 +360,15 @@ class VilkaarsproeverTest : FunSpec({
             val resultKravhode = result.second
 
             // Verifiser at kravlinje på vedtak er oppdatert
-            vedtakListe[0].kravlinje!!.kravlinjeStatus shouldBe KravlinjeStatus.VILKARSPROVD
-            vedtakListe[0].kravlinje!!.land shouldBe LandkodeEnum.NOR
-
+            with(vedtakListe[0].kravlinje!!) {
+                status shouldBe KravlinjeStatus.VILKARSPROVD
+                land shouldBe LandkodeEnum.NOR
+            }
             // Verifiser at kravlinjer i kravhode er oppdatert
-            resultKravhode.kravlinjeListe[0].kravlinjeStatus shouldBe KravlinjeStatus.VILKARSPROVD
-            resultKravhode.kravlinjeListe[0].land shouldBe LandkodeEnum.NOR
+            with(resultKravhode.kravlinjeListe[0]) {
+                kravlinjeStatus shouldBe KravlinjeStatus.VILKARSPROVD
+                land shouldBe LandkodeEnum.NOR
+            }
         }
 
         test("setter vilkarsvedtakResultat fra anbefaltResultat") {
@@ -398,7 +393,7 @@ class VilkaarsproeverTest : FunSpec({
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
                     vilkarsvedtakResultatEnum = VedtakResultatEnum.VELG // Satt til noe annet
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -446,7 +441,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevUbetingetAlderspensjon(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -496,7 +491,7 @@ class VilkaarsproeverTest : FunSpec({
             every { context.vilkaarsproevUbetingetAlderspensjon(any(), any()) } returns mutableListOf(
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.INNV
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 
@@ -546,7 +541,7 @@ class VilkaarsproeverTest : FunSpec({
                 VilkarsVedtak().apply {
                     anbefaltResultatEnum = VedtakResultatEnum.AVSL
                     begrunnelseEnum = null
-                    kravlinje = kravhode.kravlinjeListe[0]
+                    kravlinje = VilkaarsvedtakKravlinje(kravhode.kravlinjeListe[0])
                 }
             )
 

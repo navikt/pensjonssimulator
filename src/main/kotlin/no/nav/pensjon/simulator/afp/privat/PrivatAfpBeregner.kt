@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -154,8 +155,10 @@ class PrivatAfpBeregner(
     private fun handleException(e: RegelmotorValideringException, vedtak: VilkarsVedtak): Nothing {
         throw if (indikererTrygdetidFeil(e.merknadListe))
             framtidig(dato = vedtak.virkFom)?.let {
-                BadSpecException(message = "Personen har et vedtak med virkning f.o.m. $it;" +
-                        " uttaksdato må være etter denne datoen")
+                BadSpecException(
+                    message = "Personen har et vedtak med virkning f.o.m. $it;" +
+                            " uttaksdato må være etter denne datoen"
+                )
             } ?: e
         else
             e
@@ -197,7 +200,7 @@ class PrivatAfpBeregner(
 
         /**
          * Creates a kravhode specific for privat AFP, based on existing kravhode.
-         * NB: Need to copy persongrunnlag (which will be modified in AFP-specific way).
+         * NB: Need to copy persongrunnlag (which will be modified in an AFP-specific way).
          */
         private fun privatAfpKravhode(kravhode: Kravhode) =
             Kravhode().apply {
@@ -229,7 +232,7 @@ class PrivatAfpBeregner(
             VilkarsVedtak().apply {
                 this.forsteVirk = foersteVirkningFom?.toNorwegianDateAtNoon()
                 this.penPerson = soeker
-                this.kravlinje = kravlinje
+                this.kravlinje = VilkaarsvedtakKravlinje(kravlinje)
                 this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
                 this.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
                 this.virkFom = virkningFom.toNorwegianDateAtNoon()

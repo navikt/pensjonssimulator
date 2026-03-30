@@ -767,7 +767,6 @@ class KravhodeCreator(
                 kravlinjeTypeEnum = kravlinjeType
                 hovedKravlinje = kravlinjeType.erHovedkravlinje
                 relatertPerson = person
-                hovedKravlinje = kravlinjeType.erHovedkravlinje
                 kravlinjeStatus = KravlinjeStatus.VILKARSPROVD
                 land = LandkodeEnum.NOR
             }

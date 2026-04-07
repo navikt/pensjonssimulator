@@ -38,7 +38,7 @@ class FppSimuleringSpecCreator(
     ) =
         Simulering().apply {
             simuleringTypeEnum = simuleringType
-            this.uttaksdato = uttaksdato.toNorwegianDateAtNoon()
+            this.uttaksdatoLd = uttaksdato
 
             if (simuleringType == AFP) {
                 afpOrdningEnum = personopplysninger.valgtAfpOrdning

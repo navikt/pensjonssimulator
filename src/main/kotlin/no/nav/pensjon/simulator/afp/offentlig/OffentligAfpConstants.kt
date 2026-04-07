@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.afp.offentlig
 
 object OffentligAfpConstants {
+    const val AFP_MIN_AGE = 62
+
     /**
      * Fødselsåret som markerer overgang fra "gamle" til "nye" regler for AFP i offentlig sektor.
      * "Gamle" regler gjelder før 2025.

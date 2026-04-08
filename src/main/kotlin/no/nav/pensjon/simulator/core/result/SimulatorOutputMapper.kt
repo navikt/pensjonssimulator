@@ -100,6 +100,7 @@ object SimulatorOutputMapper {
                     this.apKap19medGJR = it.apKap19MedGJR
                     this.apKap19utenGJR = it.apKap19UtenGJR
                     this.gjtAP = it.bruttoPerAr.toInt()
+                    this.gjtAPPerMaaned = it.brutto
                 }
 
                 val pensjonKapittel20: Int =
@@ -113,6 +114,7 @@ object SimulatorOutputMapper {
             if (beregningsresultatKapittel19 != null) { // ref. jira.adeo.no/browse/PEB-442
                 pensjon?.gjenlevendetilleggAPKap19?.let {
                     this.gjtAPKap19 = it.bruttoPerAr.toInt()
+                    this.gjtAPKap19PerMaaned = it.brutto
                 }
             }
 

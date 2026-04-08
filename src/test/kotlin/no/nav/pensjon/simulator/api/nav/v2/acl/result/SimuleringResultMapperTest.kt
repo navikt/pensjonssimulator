@@ -106,7 +106,7 @@ class SimuleringResultMapperTest : ShouldSpec({
                     kapittel20Pensjon = Kapittel20PensjonDto(
                         andelsbroek = 1.5,
                         trygdetidAntallAar = 20,
-                        garantipensjon = GarantipensjonDto(aarligBeloep = 125, sats = 1.2),
+                        garantipensjon = GarantipensjonDto(aarligBeloep = 125, maanedligBeloep = null, sats = 1.2),
                         garantitillegg = 126
                     )
                 )

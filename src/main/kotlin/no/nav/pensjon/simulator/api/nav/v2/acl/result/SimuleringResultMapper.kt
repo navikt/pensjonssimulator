@@ -57,14 +57,22 @@ object SimuleringResultMapper {
             kapittel20Pensjon = Kapittel20PensjonDto(
                 andelsbroek = source.andelsbroekKap20,
                 trygdetidAntallAar = source.trygdetidKap20 ?: 0,
-                garantipensjon = source.garantipensjon?.let(::garantipensjon),
+                garantipensjon = source.garantipensjon?.let(::aarligGarantipensjon),
                 garantitillegg = source.garantitillegg
             )
         )
 
-    private fun garantipensjon(source: SimulertGarantipensjon) =
+    private fun aarligGarantipensjon(source: SimulertGarantipensjon) =
         GarantipensjonDto(
             aarligBeloep = source.aarligBeloep,
+            maanedligBeloep = null,
+            sats = source.sats
+        )
+
+    private fun maanedligGarantipensjon(source: SimulertMaanedligGarantipensjon) =
+        GarantipensjonDto(
+            aarligBeloep = 0,
+            maanedligBeloep = source.maanedligBeloep,
             sats = source.sats
         )
 
@@ -101,7 +109,7 @@ object SimuleringResultMapper {
             kapittel20Pensjon = Kapittel20PensjonDto(
                 andelsbroek = source.andelsbroekKap20,
                 trygdetidAntallAar = source.trygdetidKap20 ?: 0,
-                garantipensjon = source.garantipensjon?.let(::garantipensjon),
+                garantipensjon = source.garantipensjon?.let(::maanedligGarantipensjon),
                 garantitillegg = source.garantitillegg
             )
         )

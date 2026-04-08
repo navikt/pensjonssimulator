@@ -206,9 +206,19 @@ class SimulertBeregningInformasjon {
     var gjtAP: Int? = null
 
     /**
+     * Brutto per måned for gjenlevendetillegg.
+     */
+    var gjtAPPerMaaned: Int? = null
+
+    /**
      * Brutto per år for gjenlevendetillegg kap19.
      */
     var gjtAPKap19: Int? = null
+
+    /**
+     * Brutto per måned for gjenlevendetillegg kap19.
+     */
+    var gjtAPKap19PerMaaned: Int? = null
 
     /**
      * Trygdetid anvendt i beregningen for kapittel 20.

@@ -202,7 +202,7 @@ object SimulatorOutputConverter {
             andelsbroekKap20 = alderspensjon?.kapittel20Andel,
             basispensjon = source.basispensjon,
             restpensjon = source.restBasisPensjon,
-            gjenlevendetillegg = source.gjtAPKap19,
+            gjenlevendetillegg = source.gjtAPKap19PerMaaned,
             minstePensjonsnivaaSats = source.minstePensjonsnivaSats,
             trygdetidKap19 = source.tt_anv_kap19,
             trygdetidKap20 = source.tt_anv_kap20,

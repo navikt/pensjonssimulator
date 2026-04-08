@@ -115,13 +115,13 @@ class FppSimuleringService(
 
         relevantUfoerehistorikk(
             person = grunnlag.penPerson,
-            virkningFom = spec.uttaksdatoLd
+            virkningFom = spec.uttaksdatoLd!!
         )?.let {
             grunnlag.uforeHistorikk = it
         }
     }
 
-    private fun relevantUfoerehistorikk(person: PenPerson?, virkningFom: LocalDate?): Uforehistorikk? {
+    private fun relevantUfoerehistorikk(person: PenPerson?, virkningFom: LocalDate): Uforehistorikk? {
         val historikk: Uforehistorikk = person?.pid?.let(personService::person)?.uforehistorikk ?: return null
 
         historikk.uforeperiodeListe = historikk.uforeperiodeListe
@@ -363,7 +363,7 @@ class FppSimuleringService(
                 penPerson = person
             }
 
-        private fun isRelevant(periode: Uforeperiode, virkningFom: LocalDate?): Boolean =
+        private fun isRelevant(periode: Uforeperiode, virkningFom: LocalDate): Boolean =
             periode.isRealUforeperiode() &&
                     periode.virk?.toNorwegianLocalDate()?.isBefore(virkningFom) == true
     }

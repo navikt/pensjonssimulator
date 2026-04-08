@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
-import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.AFP_MIN_AGE
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.minsteUttaksalderForAfp
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -44,8 +44,10 @@ object Pre2025OffentligAfpSpecValidator {
         }
 
         if (SimuleringTypeEnum.AFP == simuleringType) {
-            if (uttaksalderAar < AFP_MIN_AGE || uttaksalderAar == AFP_MIN_AGE && uttaksmaaned <= foedselsmaaned) {
-                throw PersonForUngException("AFP;$AFP_MIN_AGE;0")
+            val minstealderAar = minsteUttaksalderForAfp.aar
+
+            if (uttaksalderAar < minstealderAar || uttaksalderAar == minstealderAar && uttaksmaaned <= foedselsmaaned) {
+                throw PersonForUngException("AFP;$minstealderAar;0")
             }
         }
     }

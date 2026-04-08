@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.util.toNorwegianDate
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -64,7 +63,7 @@ object NavSimuleringResultMapperV2 {
 
         return SimuleringResultatV2(
             status = source.statusEnum,
-            virk = source.virk?.toNorwegianNoon(),
+            virk = source.virkLd?.toNorwegianDate(),
             beregning = source.beregning?.let(::beregning),
             delberegninger = beregningerPerId,
             merknader = source.merknadListe.map(::merknad)

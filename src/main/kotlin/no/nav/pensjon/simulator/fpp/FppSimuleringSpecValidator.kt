@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.fpp
 
-import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.AFP_MIN_AGE
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.minsteUttaksalderForAfp
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.AFP
@@ -49,8 +49,8 @@ object FppSimuleringSpecValidator {
 
         if (simuleringType == AFP) {
             //TODO normert aldersgrense
-            if (forUng(soekersFoedselsdato, uttaksdato, minimumAlderAar = AFP_MIN_AGE))
-                throw PersonForUngException("AFP $AFP_MIN_AGE")
+            if (forUng(soekersFoedselsdato, uttaksdato, minimumAlderAar = minsteUttaksalderForAfp.aar))
+                throw PersonForUngException("AFP $minsteUttaksalderForAfp")
         }
     }
 

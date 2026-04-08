@@ -79,7 +79,7 @@ data class SimulertMaanedligAlderspensjon(
     val minstePensjonsnivaaSats: Double?,
     val trygdetidKap19: Int?,
     val trygdetidKap20: Int?,
-    val garantipensjon: SimulertGarantipensjon?,
+    val garantipensjon: SimulertMaanedligGarantipensjon?,
     val garantitillegg: Int?
 )
 
@@ -125,6 +125,11 @@ data class SimulertPensjonBeholdningPeriode(
 
 data class SimulertGarantipensjon(
     val aarligBeloep: Int,
+    val sats: Double
+)
+
+data class SimulertMaanedligGarantipensjon(
+    val maanedligBeloep: Int,
     val sats: Double
 )
 

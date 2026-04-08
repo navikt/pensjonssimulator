@@ -120,15 +120,14 @@ class SimuleringFacade(
 
         /**
          * Bestemmer datoen for helt uttak (100 %) basert på spec:
-         * - For pre-2025 offentlig AFP etterfulgt av alderspensjon: heltUttakDato
          * - For ugradert uttak: foersteUttakDato (eller heltUttakDato som fallback)
          * - For gradert uttak: heltUttakDato (eller foersteUttakDato som fallback)
          */
         private fun heltUttakDato(spec: SimuleringSpec): LocalDate? =
-            if (spec.heltUttakDato == null)
-                spec.foersteUttakDato
-            else
-                spec.heltUttakDato
+            when (spec.uttakGrad) {
+                UttakGradKode.P_100 -> spec.foersteUttakDato ?: spec.heltUttakDato
+                else -> spec.heltUttakDato ?: spec.foersteUttakDato
+            }
 
         private fun isGradertAndReducible(spec: SimuleringSpec): Boolean =
             spec.isGradert() && isReducible(spec.uttakGrad)

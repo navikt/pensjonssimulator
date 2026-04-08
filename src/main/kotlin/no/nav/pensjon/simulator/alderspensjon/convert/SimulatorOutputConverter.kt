@@ -206,9 +206,9 @@ object SimulatorOutputConverter {
             minstePensjonsnivaaSats = source.minstePensjonsnivaSats,
             trygdetidKap19 = source.tt_anv_kap19,
             trygdetidKap20 = source.tt_anv_kap20,
-            garantipensjon = source.garantipensjon?.let {
-                SimulertGarantipensjon(
-                    aarligBeloep = it,
+            garantipensjon = source.garantipensjonPerMaaned?.let {
+                SimulertMaanedligGarantipensjon(
+                    maanedligBeloep = it,
                     sats = source.garantipensjonssats ?: 0.0
                 )
             },

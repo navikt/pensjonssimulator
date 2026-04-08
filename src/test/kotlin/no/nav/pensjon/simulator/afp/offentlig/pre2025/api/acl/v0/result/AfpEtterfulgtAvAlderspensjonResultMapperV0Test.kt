@@ -14,8 +14,6 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDate
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 import kotlin.reflect.full.companionObject
@@ -143,7 +141,7 @@ private fun folketrygdberegnetAfp(
     val poengrekke = sluttpoengtall.poengrekke!!
 
     return FolketrygdberegnetAfpV0(
-        fraOgMedDato = tidsbegrensetOffentligAfp.virk!!.toNorwegianLocalDate(),
+        fraOgMedDato = tidsbegrensetOffentligAfp.virkLd!!,
         beregnetTidligereInntekt = poengrekke.tpi,
         sisteLignetInntektBrukt = false,
         sisteLignetInntektAar = null,
@@ -244,7 +242,7 @@ private fun pensjonsperiode(foersteUtbetalingFom: LocalDate) =
 
 private fun tidsbegrensetOffentligAfp(fom: LocalDate) =
     Simuleringsresultat().apply {
-        virk = fom.toNorwegianDate()
+        virkLd = fom
         beregning = Beregning().apply {
             g = 33
             gpAfpPensjonsregulert = Grunnpensjon().apply { brukt = true }

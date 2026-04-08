@@ -10,9 +10,11 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.*
+import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
-import no.nav.pensjon.simulator.core.util.isBefore
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
@@ -113,13 +115,13 @@ class FppSimuleringService(
 
         relevantUfoerehistorikk(
             person = grunnlag.penPerson,
-            virkningFom = spec.uttaksdato
+            virkningFom = spec.uttaksdatoLd
         )?.let {
             grunnlag.uforeHistorikk = it
         }
     }
 
-    private fun relevantUfoerehistorikk(person: PenPerson?, virkningFom: Date?): Uforehistorikk? {
+    private fun relevantUfoerehistorikk(person: PenPerson?, virkningFom: LocalDate?): Uforehistorikk? {
         val historikk: Uforehistorikk = person?.pid?.let(personService::person)?.uforehistorikk ?: return null
 
         historikk.uforeperiodeListe = historikk.uforeperiodeListe
@@ -130,7 +132,7 @@ class FppSimuleringService(
     }
 
     private fun createVilkaarsvedtakListe(spec: Simulering) {
-        val virkningFom: LocalDate = spec.uttaksdato!!.toNorwegianLocalDate().withDayOfYear(1)
+        val virkningFom: LocalDate = spec.uttaksdatoLd!!.withDayOfYear(1)
         val legacyVirkningFom: Date = virkningFom.toNorwegianDateAtNoon()
         val grunnbeloep: Int = grunnbeloepService.grunnbeloep(dato = virkningFom)
 
@@ -168,7 +170,7 @@ class FppSimuleringService(
 
     private fun simulerBarnepensjon(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat {
         var antallBarn = 1
-        val uttaksaar: Int = coreSpec.uttaksdato!!.toNorwegianLocalDate().year
+        val uttaksaar: Int = coreSpec.uttaksdatoLd!!.year
         var soekersPersongrunnlag: Persongrunnlag? = null
 
         for (persongrunnlag in coreSpec.persongrunnlagListe) {
@@ -361,8 +363,8 @@ class FppSimuleringService(
                 penPerson = person
             }
 
-        private fun isRelevant(periode: Uforeperiode, virkningFom: Date?): Boolean =
+        private fun isRelevant(periode: Uforeperiode, virkningFom: LocalDate?): Boolean =
             periode.isRealUforeperiode() &&
-                    periode.virk?.isBefore(virkningFom) == true
+                    periode.virk?.toNorwegianLocalDate()?.isBefore(virkningFom) == true
     }
 }

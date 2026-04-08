@@ -16,6 +16,6 @@ class AfpVilkaarsproever(private val simulator: SimulatorContext) {
     //   -> SimulerVilkarsprovAfpConsumerCommand.execute
     fun vilkaarsproevTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
         simulator.simulerVilkarsprovPre2025OffentligAfp(
-            spec = SimuleringRequest(simulering = spec, fom = spec.uttaksdato)
+            spec = SimuleringRequest(simulering = spec, fom = spec.uttaksdatoLd)
         )
 }

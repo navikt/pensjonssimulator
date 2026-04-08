@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import java.time.LocalDate
 
+//TODO align with Pre2025OffentligAfpSpecValidator
 object FppSimuleringSpecValidator {
     private const val AP_MIN_AGE = 67 //TODO normert aldersgrense
 
@@ -50,7 +51,7 @@ object FppSimuleringSpecValidator {
         if (simuleringType == AFP) {
             //TODO normert aldersgrense
             if (forUng(soekersFoedselsdato, uttaksdato, minimumAlderAar = minsteUttaksalderForAfp.aar))
-                throw PersonForUngException("AFP $minsteUttaksalderForAfp")
+                throw PersonForUngException("AFP ${minsteUttaksalderForAfp.aar}")
         }
     }
 

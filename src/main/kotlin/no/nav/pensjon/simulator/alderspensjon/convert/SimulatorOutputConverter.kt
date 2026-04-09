@@ -212,7 +212,7 @@ object SimulatorOutputConverter {
                     sats = source.garantipensjonssats ?: 0.0
                 )
             },
-            garantitillegg = source.garantitillegg
+            garantitillegg = source.garantitilleggPerMaaned
         )
 
     private fun emptyMaanedligAlderspensjon() =

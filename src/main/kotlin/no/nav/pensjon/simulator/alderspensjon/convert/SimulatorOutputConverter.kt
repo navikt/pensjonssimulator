@@ -142,21 +142,23 @@ object SimulatorOutputConverter {
         heltUttakDato: LocalDate?,
         normertPensjoneringsdato: LocalDate?
     ): SimulertMaanedligAlderspensjonForKnekkpunkter {
+        val garantipensjonssats = finnGarantipensjonssats(beregningsinfoListe, periodeListe)
+
         val vedGradertUttak = gradertUttakDato?.let {
             finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
-                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it), garantipensjonssats)
             }
         }
 
         val vedHeltUttak = heltUttakDato?.let {
             finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
-                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it), garantipensjonssats)
             }
         } ?: emptyMaanedligAlderspensjon()
 
         val vedNormertPensjonsalder = normertPensjoneringsdato?.let {
             finnBeregningsinfoForDato(beregningsinfoListe, it)?.let { info ->
-                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it))
+                maanedligAlderspensjon(info, alderspensjon, beholdningFoerUttakForDato(periodeListe, it), garantipensjonssats)
             }
         } ?: emptyMaanedligAlderspensjon()
 
@@ -166,6 +168,15 @@ object SimulatorOutputConverter {
             vedNormertPensjonsalder = vedNormertPensjonsalder
         )
     }
+
+    private fun finnGarantipensjonssats(
+        beregningsinfoListe: List<SimulertBeregningInformasjon>,
+        periodeListe: List<PensjonPeriode>
+    ): Double? =
+        beregningsinfoListe.firstNotNullOfOrNull { it.garantipensjonssats }
+            ?: periodeListe
+                .flatMap { it.simulertBeregningInformasjonListe }
+                .firstNotNullOfOrNull { it.garantipensjonssats }
 
     private fun finnBeregningsinfoForDato(
         beregningsinfoListe: List<SimulertBeregningInformasjon>,
@@ -182,7 +193,8 @@ object SimulatorOutputConverter {
     private fun maanedligAlderspensjon(
         source: SimulertBeregningInformasjon,
         alderspensjon: SimulertAlderspensjon?,
-        pensjonBeholdningFoerUttak: Int?
+        pensjonBeholdningFoerUttak: Int?,
+        garantipensjonssats: Double?
     ) =
         SimulertMaanedligAlderspensjon(
             beloep = source.maanedligBeloep ?: 0,
@@ -209,7 +221,7 @@ object SimulatorOutputConverter {
             garantipensjon = source.garantipensjonPerMaaned?.let {
                 SimulertMaanedligGarantipensjon(
                     maanedligBeloep = it,
-                    sats = source.garantipensjonssats ?: 0.0
+                    sats = garantipensjonssats ?: 0.0
                 )
             },
             garantitillegg = source.garantitilleggPerMaaned

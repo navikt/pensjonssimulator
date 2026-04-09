@@ -177,6 +177,7 @@ object SimulatorOutputMapper {
             this.garantipensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GAP)
             this.garantipensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GAP)
             this.garantitillegg = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GAT)
+            this.garantitilleggPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GAT)
             this.grunnpensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GP)
             this.grunnpensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GP)
             this.grunnpensjonsats = pensjon?.grunnpensjon?.pSats_gp

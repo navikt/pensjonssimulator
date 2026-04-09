@@ -78,6 +78,11 @@ class SimulertBeregningInformasjon {
     var garantitillegg: Int? = null
 
     /**
+     * Beregnet garantitillegg per måned.
+     */
+    var garantitilleggPerMaaned: Int? = null
+
+    /**
      * Pensjonsbeholdning før beregning.
      */
     var pensjonBeholdningFoerUttak: Int? = null

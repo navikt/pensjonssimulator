@@ -15,8 +15,8 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import java.util.*
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import java.time.LocalDate
 
 class Alderspensjon2016SisteBeregningCreatorTest : FunSpec({
 
@@ -97,15 +97,15 @@ class Alderspensjon2016SisteBeregningCreatorTest : FunSpec({
     // --- Tests for virkDato ---
 
     test("createBeregning should set virkDato from beregningsresultat") {
-        val virkFom = dateAtNoon(2025, Calendar.MARCH, 1)
+        val virkFom = LocalDate.of(2025, 3, 1)
         val beregning = createBeregning(virkFom = virkFom)
-        beregning.virkDato shouldBe virkFom
+        beregning.virkDato shouldBe virkFom.toNorwegianDateAtNoon()
     }
 
     // --- Tests for kapittel 19 data ---
 
     test("createBeregning should copy tt_anv from beregningKapittel19") {
-        val beregning = createBeregning(tt_anv_kapittel19 = 40)
+        val beregning = createBeregning(kapittel19Trygdetid = 40)
         beregning.tt_anv shouldBe 40
     }
 
@@ -156,7 +156,7 @@ class Alderspensjon2016SisteBeregningCreatorTest : FunSpec({
     }
 
     test("createBeregning should set tt_anv_kap_20 from beregningKapittel20") {
-        val beregning = createBeregning(tt_anv_kapittel20 = 35)
+        val beregning = createBeregning(kapittel20Trygdetid = 35)
         beregning.tt_anv_kap_20 shouldBe 35
     }
 
@@ -345,9 +345,9 @@ private fun createBeregning(
     ytelseskomponentListe2011: MutableList<Ytelseskomponent> = mutableListOf(),
     ytelseskomponentListe2025: MutableList<Ytelseskomponent> = mutableListOf(),
     regelverkType: RegelverkTypeEnum = RegelverkTypeEnum.N_REG_G_N_OPPTJ,
-    virkFom: Date? = null,
-    tt_anv_kapittel19: Int? = null,
-    tt_anv_kapittel20: Int? = null,
+    virkFom: LocalDate? = null,
+    kapittel19Trygdetid: Int? = null,
+    kapittel20Trygdetid: Int? = null,
     restpensjon: Basispensjon? = null,
     basispensjon: Basispensjon? = null,
     restpensjonUtenGJR: Basispensjon? = null,
@@ -371,7 +371,7 @@ private fun createBeregning(
     includeKapittel19: Boolean = true
 ): SisteAldersberegning2016 {
     val beregningsResultat2011 = if (includeKapittel19 || ytelseskomponentListe2011.isNotEmpty() ||
-        pensjonUnderUtbetalingUtenGJR != null || tt_anv_kapittel19 != null ||
+        pensjonUnderUtbetalingUtenGJR != null || kapittel19Trygdetid != null ||
         restpensjon != null || basispensjon != null || restpensjonUtenGJR != null ||
         basispensjonUtenGJR != null || resultatTypeKapittel19 != null ||
         benyttetSivilstand2011 != null || epsMottarPensjon19 != null || gjenlevenderettAnvendt19 != null
@@ -386,7 +386,7 @@ private fun createBeregning(
             benyttetSivilstandEnum = benyttetSivilstand2011
 
             beregningKapittel19 = AldersberegningKapittel19().apply {
-                tt_anv = tt_anv_kapittel19 ?: 0
+                tt_anv = kapittel19Trygdetid ?: 0
                 this.restpensjon = restpensjon
                 this.basispensjon = basispensjon
                 this.restpensjonUtenGJR = restpensjonUtenGJR
@@ -412,7 +412,7 @@ private fun createBeregning(
         beregningKapittel20 = AldersberegningKapittel20().apply {
             beregningsMetodeEnum = beregningsMetode
             this.prorataBrok = prorataBrok
-            tt_anv = tt_anv_kapittel20 ?: 0
+            tt_anv = kapittel20Trygdetid ?: 0
             this.beholdninger = beholdninger
             resultatTypeEnum = resultatTypeKapittel20
 
@@ -433,7 +433,7 @@ private fun createBeregning(
 
     val spec = SisteBeregningSpec(
         beregningsresultat = BeregningsResultatAlderspensjon2016().apply {
-            this.virkFom = virkFom
+            this.virkFomLd = virkFom
             this.beregningsResultat2011 = beregningsResultat2011
             this.beregningsResultat2025 = beregningsResultat2025
             this.pensjonUnderUtbetaling = topLevelPensjonUnderUtbetaling

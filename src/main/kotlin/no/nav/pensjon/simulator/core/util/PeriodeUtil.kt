@@ -58,14 +58,6 @@ object PeriodeUtil {
     fun findValidForDate(list: List<AbstraktBeregningsResultat>, date: LocalDate): AbstraktBeregningsResultat? =
         list.firstOrNull { isValidForDate(it, date.toNorwegianDateAtNoon()) }
 
-    // PeriodisertInformasjonListeUtils.findValidForDate
-    fun findValidForDate(list: List<Pensjonsbeholdning>, date: Date): Pensjonsbeholdning? =
-        list.firstOrNull { isValidForDate(it, date) }
-
-    // PeriodisertInformasjonListeUtils.findAllValidForDate
-    fun findAllValidForDate(list: List<VilkarsVedtak>, date: Date): List<VilkarsVedtak> =
-        list.filter { isValidForDate(it, date) }
-
     // PeriodisertInformasjonListeUtils.findEarliest
     fun findEarliest(list: List<AbstraktBeregningsResultat>): AbstraktBeregningsResultat? =
         when {
@@ -119,7 +111,7 @@ object PeriodeUtil {
 
     // PeriodisertInformasjonUtils.isValidForDate
     private fun isValidForDate(tidsbegrenset: AbstraktBeregningsResultat, date: Date): Boolean =
-        isDateInPeriod(date, tidsbegrenset.virkFom, tidsbegrenset.virkTom)
+        isDateInPeriod(date, tidsbegrenset.virkFomLd, tidsbegrenset.virkTom)
 
     // PeriodisertInformasjonUtils.isValidForDate
     private fun isValidForDate(tidsbegrenset: Pensjonsbeholdning, date: Date): Boolean =
@@ -135,9 +127,10 @@ object PeriodeUtil {
         var earliestFom = ETERNITY
 
         list.forEach {
-            if (isBeforeByDay(it.virkFom, earliestFom, false)) {
+            val virkFom = it.virkFomLd!!.toNorwegianDateAtNoon()
+            if (isBeforeByDay(virkFom, earliestFom, false)) {
                 result = it
-                earliestFom = it.virkFom!!
+                earliestFom = virkFom
             }
         }
 
@@ -165,9 +158,10 @@ object PeriodeUtil {
         var latestFom: Date? = null
 
         list.forEach {
-            if (isAfterByDay(it.virkFom, latestFom, false)) {
+            val virkFom = it.virkFomLd?.toNorwegianDateAtNoon()
+            if (isAfterByDay(virkFom, latestFom, false)) {
                 result = it
-                latestFom = it.virkFom
+                latestFom = virkFom
             }
         }
 
@@ -180,9 +174,10 @@ object PeriodeUtil {
         var latestFom: Date? = null
 
         list.forEach {
-            if (isAfterByDay(it.fom, latestFom, false)) {
+            val fom = it.fom.toNorwegianDateAtNoon()
+            if (isAfterByDay(fom, latestFom, false)) {
                 result = it
-                latestFom = it.fom.toNorwegianDateAtNoon()
+                latestFom = fom
             }
         }
 

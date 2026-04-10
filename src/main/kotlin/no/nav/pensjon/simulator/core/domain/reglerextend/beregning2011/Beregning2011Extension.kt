@@ -390,7 +390,7 @@ fun LonnsvekstDetaljer.copy() =
 fun LonnsvekstInformasjon.copy() =
     LonnsvekstInformasjon().also {
         it.lonnsvekst = this.lonnsvekst
-        it.reguleringsDato = this.reguleringsDato?.copy()
+        it.reguleringsDatoLd = this.reguleringsDatoLd
         it.uttaksgradVedRegulering = this.uttaksgradVedRegulering
     }
 
@@ -615,7 +615,7 @@ private fun copyBeregningsgrunnlag(source: AbstraktBeregningsgrunnlag, target: A
 }
 
 private fun copyBeregningsResultat(source: AbstraktBeregningsResultat, target: AbstraktBeregningsResultat) {
-    target.virkFom = source.virkFom?.copy()
+    target.virkFomLd = source.virkFomLd
     target.virkTom = source.virkTom?.copy()
     target.merknadListe = source.merknadListe.map { o -> o.copy() }.toMutableList()
     target.pensjonUnderUtbetaling = source.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)

@@ -258,7 +258,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                         beregningResultat.beregningsResultat2025!!.beregningKapittel20!!.beholdningerForForsteuttak!!
                     pensjonBeholdningPeriodeListe.add(
                         beholdningPeriode(
-                            virkningFom = beregningResultat.virkFom!!.toNorwegianLocalDate(),
+                            virkningFom = beregningResultat.virkFomLd!!,
                             beholdninger,
                             foedselsdato
                         )
@@ -267,7 +267,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
                     val beholdninger = beregningResultat.beregningKapittel20!!.beholdningerForForsteuttak!!
                     pensjonBeholdningPeriodeListe.add(
                         beholdningPeriode(
-                            virkningFom = beregningResultat.virkFom!!.toNorwegianLocalDate(),
+                            virkningFom = beregningResultat.virkFomLd!!,
                             beholdninger,
                             foedselsdato
                         )
@@ -512,7 +512,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         }
 
         private fun findValidForDate(list: MutableList<BeregningsResultatAfpPrivat>, date: LocalDate) =
-            list.firstOrNull { isDateInPeriod(date, it.virkFom, it.virkTom) }
+            list.firstOrNull { isDateInPeriod(date, it.virkFomLd?.toNorwegianDateAtNoon(), it.virkTom) }
 
         private fun periodiserGrunnlag(kravhode: Kravhode): Kravhode {
             kravhode.persongrunnlagListe.forEach { periodiserDetaljer(it.personDetaljListe) }

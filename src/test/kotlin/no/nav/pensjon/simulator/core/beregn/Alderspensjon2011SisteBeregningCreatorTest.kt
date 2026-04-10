@@ -13,9 +13,10 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import java.time.LocalDate
 import java.util.*
 
 class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
@@ -87,9 +88,9 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
     // ===========================================
 
     test("createBeregning should set virkDato from beregningsresultat virkFom") {
-        val virkFom = dateAtNoon(2024, Calendar.MARCH, 1)
+        val virkFom = LocalDate.of(2024, 3, 1)
         val beregning = createBeregning(virkFom = virkFom)
-        beregning.virkDato shouldBe virkFom
+        beregning.virkDato shouldBe virkFom.toNorwegianDateAtNoon()
     }
 
     test("createBeregning should not set virkDato when virkFom is null") {
@@ -335,7 +336,7 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
 
         val beregning = createBeregning(
             regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ,
-            virkFom = dateAtNoon(2024, Calendar.JANUARY, 1),
+            virkFom = LocalDate.of(2024, 1, 1),
             benyttetSivilstand = BorMedTypeEnum.J_EKTEF,
             kap19TtAnv = 35,
             kap19ResultatType = ResultattypeEnum.AP2011,
@@ -374,7 +375,7 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
 
 private fun createBeregning(
     regelverkType: RegelverkTypeEnum? = null,
-    virkFom: Date? = null,
+    virkFom: LocalDate? = null,
     benyttetSivilstand: BorMedTypeEnum? = null,
     kap19TtAnv: Int? = null,
     kap19ResultatType: ResultattypeEnum? = null,
@@ -387,7 +388,7 @@ private fun createBeregning(
     ytelseskomponentListe: MutableList<Ytelseskomponent> = mutableListOf()
 ): SisteAldersberegning2011 {
     val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
-        this.virkFom = virkFom
+        this.virkFomLd = virkFom
         this.benyttetSivilstandEnum = benyttetSivilstand
         this.pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
             ytelseskomponenter = ytelseskomponentListe

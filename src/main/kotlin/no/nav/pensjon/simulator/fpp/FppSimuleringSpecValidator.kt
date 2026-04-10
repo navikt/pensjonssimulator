@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.fpp
 
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.minsteUttaksalderForAfp
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.AFP
@@ -12,15 +13,15 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import java.time.LocalDate
 
+//TODO align with Pre2025OffentligAfpSpecValidator
 object FppSimuleringSpecValidator {
-    private const val AFP_MIN_AGE = 62
     private const val AP_MIN_AGE = 67 //TODO normert aldersgrense
 
     fun validate(spec: Simulering) {
         val simuleringType: SimuleringTypeEnum = spec.simuleringTypeEnum
             ?: throw ImplementationUnrecoverableException("simulering.simuleringType")
 
-        if (spec.uttaksdato == null)
+        if (spec.uttaksdatoLd == null)
             throw ImplementationUnrecoverableException("simulering.uttaksdato")
 
         if (AFP == simuleringType && spec.afpOrdningEnum == null)
@@ -39,7 +40,7 @@ object FppSimuleringSpecValidator {
         val soekersFoedselsdato: LocalDate = soeker.fodselsdato?.toNorwegianLocalDate()
             ?: throw ImplementationUnrecoverableException("simulering.persongrunnlagListe.soeker.fodselsdato")
 
-        val uttaksdato: LocalDate = spec.uttaksdato!!.toNorwegianLocalDate()
+        val uttaksdato: LocalDate = spec.uttaksdatoLd!!
 
         if (simuleringType == ALDER) {
             //TODO normert aldersgrense
@@ -49,8 +50,8 @@ object FppSimuleringSpecValidator {
 
         if (simuleringType == AFP) {
             //TODO normert aldersgrense
-            if (forUng(soekersFoedselsdato, uttaksdato, minimumAlderAar = AFP_MIN_AGE))
-                throw PersonForUngException("AFP $AFP_MIN_AGE")
+            if (forUng(soekersFoedselsdato, uttaksdato, minimumAlderAar = minsteUttaksalderForAfp.aar))
+                throw PersonForUngException("AFP ${minsteUttaksalderForAfp.aar}")
         }
     }
 

@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 
 /**
@@ -22,7 +21,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
             folketrygdberegnetAfp = folketrygdberegnetAfp(
-                fom = source.pre2025OffentligAfp!!.virk!!.toNorwegianLocalDate(),
+                fom = source.pre2025OffentligAfp!!.virkLd!!,
                 afp = validAfpBeregning(source),
                 spec
             ),
@@ -113,8 +112,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     ): List<AlderspensjonFraFolketrygdenV0> =
         pensjon.pensjonPeriodeListe
             .filter { it.simulertBeregningInformasjonListe.isNotEmpty() }
-            .map { simuleringsperiodeListe(it, pensjon, uttakDato) }
-            .flatten()
+            .flatMap { simuleringsperiodeListe(it, pensjon, uttakDato) }
             .map { alderspensjonFraFolketrygden(it, pensjon, grunnbeloep) }
 
     private fun simuleringsperiodeListe(

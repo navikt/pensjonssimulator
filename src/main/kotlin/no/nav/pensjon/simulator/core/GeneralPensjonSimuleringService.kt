@@ -19,7 +19,7 @@ class GeneralPensjonSimuleringService(private val simulator: SimulatorContext) {
     ): Simuleringsresultat {
         val spec = SimuleringRequest(
             simulering = coreSpec,
-            fom = coreSpec.uttaksdato,
+            fom = coreSpec.uttaksdatoLd,
             ektefelleMottarPensjon = extraSpec.epsMottarPensjon,
             beregnForsorgingstillegg = extraSpec.beregnForsoergingstillegg,
             beregnInstitusjonsopphold = extraSpec.beregnInstitusjonsopphold

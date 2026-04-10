@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.fpp.InvalidArgumentException
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.fpp.api.acl.v1.RelasjonTypeCodeV1
 import no.nav.pensjon.simulator.g.GrunnbeloepService
@@ -24,41 +23,6 @@ import no.nav.pensjon.simulator.tech.time.Time
 import java.time.LocalDate
 
 class FppSimuleringSpecCreatorTest : ShouldSpec({
-
-    val soekerPid = Pid("12345678901")
-    val epsPid = Pid("98765432101")
-    val foedselsdato = LocalDate.of(1960, 1, 15)
-    val uttaksdato = LocalDate.of(2027, 3, 1)
-    val grunnbeloep = 124028
-
-    fun arrangePersonService(
-        soekerPerson: Person = Person(
-            foedselsdato = foedselsdato,
-            sivilstand = Sivilstandstype.UGIFT,
-            statsborgerskap = LandkodeEnum.NOR
-        ),
-        epsFoedselsdato: LocalDate = LocalDate.of(1961, 5, 10),
-        epsPerson: Person = Person(
-            foedselsdato = epsFoedselsdato,
-            sivilstand = null,
-            statsborgerskap = LandkodeEnum.SWE
-        ),
-        borSammen: Boolean = false
-    ): GeneralPersonService =
-        mockk<GeneralPersonService>().apply {
-            every { person(soekerPid) } returns soekerPerson
-            every { person(epsPid) } returns epsPerson
-            every { foedselsdato(any()) } returns epsFoedselsdato
-            every { statsborgerskap(any()) } returns LandkodeEnum.NOR
-            every { borSammen(any()) } returns borSammen
-        }
-
-    fun arrangeGrunnbeloepService(): GrunnbeloepService =
-        mockk<GrunnbeloepService>().apply {
-            every { naavaerendeGrunnbeloep() } returns grunnbeloep
-        }
-
-    fun arrangeTime(today: LocalDate = LocalDate.of(2027, 1, 15)): Time = Time { today }
 
     fun creator(
         personService: GeneralPersonService = arrangePersonService(),
@@ -178,9 +142,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 barneopplysninger = null
             )
 
-            result.simuleringTypeEnum shouldBe ALDER
-            result.uttaksdato shouldBe uttaksdato.toNorwegianDateAtNoon()
-            result.afpOrdningEnum.shouldBeNull()
+            with(result) {
+                simuleringTypeEnum shouldBe ALDER
+                uttaksdatoLd shouldBe uttaksdato
+                afpOrdningEnum.shouldBeNull()
+            }
         }
 
         should("opprette persongrunnlag for søker med korrekte verdier") {
@@ -196,16 +162,19 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val soeker = result.persongrunnlagListe.first()
-            soeker.penPerson?.penPersonId shouldBe 1L
-            soeker.penPerson?.pid shouldBe soekerPid
-            soeker.fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
-            soeker.dodsdato.shouldBeNull()
-            soeker.antallArUtland shouldBe 5
-            soeker.flyktning shouldBe true
-            soeker.over60ArKanIkkeForsorgesSelv shouldBe false
-            soeker.dodAvYrkesskade shouldBe false
-            soeker.medlemIFolketrygdenSiste3Ar shouldBe true
-            soeker.statsborgerskapEnum shouldBe LandkodeEnum.NOR
+
+            with(soeker) {
+                penPerson?.penPersonId shouldBe 1L
+                penPerson?.pid shouldBe soekerPid
+                fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
+                dodsdato.shouldBeNull()
+                antallArUtland shouldBe 5
+                flyktning shouldBe true
+                over60ArKanIkkeForsorgesSelv shouldBe false
+                dodAvYrkesskade shouldBe false
+                medlemIFolketrygdenSiste3Ar shouldBe true
+                statsborgerskapEnum shouldBe LandkodeEnum.NOR
+            }
         }
 
         should("opprette persondetalj for søker med rolle SOKER og sivilstand fra personservice") {
@@ -226,10 +195,13 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val personDetalj = result.persongrunnlagListe.first().personDetaljListe.first()
-            personDetalj.grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
-            personDetalj.bruk shouldBe true
-            personDetalj.sivilstandTypeEnum shouldBe SivilstandEnum.UGIF
-            personDetalj.penRolleFom shouldBe foedselsdato.toNorwegianDateAtNoon()
+
+            with(personDetalj) {
+                grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
+                bruk shouldBe true
+                sivilstandTypeEnum shouldBe SivilstandEnum.UGIF
+                penRolleFom shouldBe foedselsdato.toNorwegianDateAtNoon()
+            }
         }
 
         should("bruke mappet sivilstand fra personservice for diverse sivilstandstyper") {
@@ -267,13 +239,16 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val grunnlag = result.persongrunnlagListe.first().opptjeningsgrunnlagListe
+
             grunnlag shouldHaveSize 1
-            grunnlag[0].opptjeningTypeEnum shouldBe OpptjeningtypeEnum.PPI
-            grunnlag[0].pi shouldBe 600000
-            grunnlag[0].pp shouldBe 5.0
-            grunnlag[0].ar shouldBe 2020
-            grunnlag[0].bruk shouldBe true
-            grunnlag[0].grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
+            with(grunnlag[0]) {
+                opptjeningTypeEnum shouldBe OpptjeningtypeEnum.PPI
+                pi shouldBe 600000
+                pp shouldBe 5.0
+                ar shouldBe 2020
+                bruk shouldBe true
+                grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
+            }
         }
 
         should("inkludere opptjeningsgrunnlag med OSFE når omsorgspoeng > 0") {
@@ -518,7 +493,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 barneopplysninger = null
             )
 
-            result.persongrunnlagListe[1].inntektsgrunnlagListe.first().belop shouldBe grunnbeloep * 2 + 1
+            result.persongrunnlagListe[1].inntektsgrunnlagListe.first().belop shouldBe GRUNNBELOEP * 2 + 1
         }
 
         should("beregne EPS-beløp som G+1 når erEpsInntektOver1G er true") {
@@ -536,7 +511,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 barneopplysninger = null
             )
 
-            result.persongrunnlagListe[1].inntektsgrunnlagListe.first().belop shouldBe grunnbeloep + 1
+            result.persongrunnlagListe[1].inntektsgrunnlagListe.first().belop shouldBe GRUNNBELOEP + 1
         }
 
         should("beregne EPS-beløp som 0 for SAMB uten tidligereGiftEllerBarnMedSamboer") {
@@ -1009,7 +984,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 barneopplysninger = null
             )
 
-            result.persongrunnlagListe[1].inntektsgrunnlagListe.first().belop shouldBe grunnbeloep + 1
+            result.persongrunnlagListe[1].inntektsgrunnlagListe.first().belop shouldBe GRUNNBELOEP + 1
         }
 
         should("beregne EPS FPI-beløp som 0 når avdødInntektMinst1G er false") {
@@ -1074,13 +1049,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
     context("BARN simulering") {
         should("ikke inkludere EPS-persongrunnlag") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(
-                foedselsdato = LocalDate.of(1970, 3, 10),
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.NOR
-            )
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
@@ -1114,13 +1083,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("sette antallArUtland til 0 for søker") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(
-                foedselsdato = LocalDate.of(1970, 3, 10),
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.NOR
-            )
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
@@ -1145,13 +1108,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("bruke 2*G som søker-beløp når erUnderUtdanning er true") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(
-                foedselsdato = LocalDate.of(1970, 3, 10),
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.NOR
-            )
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
@@ -1171,18 +1128,12 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 barneopplysninger = null
             )
 
-            result.persongrunnlagListe.first().inntektsgrunnlagListe.first().belop shouldBe grunnbeloep * 2
+            result.persongrunnlagListe.first().inntektsgrunnlagListe.first().belop shouldBe GRUNNBELOEP * 2
         }
 
         should("bruke 0 som søker-beløp når erUnderUtdanning er false") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(
-                foedselsdato = LocalDate.of(1970, 3, 10),
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.NOR
-            )
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
@@ -1207,13 +1158,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("sette tom opptjeningsgrunnlag for søker ved BARN") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(
-                foedselsdato = LocalDate.of(1970, 3, 10),
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.NOR
-            )
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
@@ -1238,13 +1183,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         should("opprette forelder-persongrunnlag med MOR-rolle") {
             val morPid = Pid("22222222222")
             val morFoedselsdato = LocalDate.of(1970, 3, 10)
-            val morPerson = Person(
-                foedselsdato = morFoedselsdato,
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.NOR
-            )
             val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            every { personService.person(morPid) } returns norskPerson(morFoedselsdato)
 
             val doedsdato = LocalDate.of(2026, 6, 15)
             val avdoed = avdoedData(
@@ -1288,13 +1228,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         should("opprette forelder-persongrunnlag med FAR-rolle") {
             val farPid = Pid("33333333333")
             val farFoedselsdato = LocalDate.of(1968, 8, 20)
-            val farPerson = Person(
-                foedselsdato = farFoedselsdato,
-                sivilstand = null,
-                statsborgerskap = LandkodeEnum.SWE
-            )
             val personService = arrangePersonService()
-            every { personService.person(farPid) } returns farPerson
+            every { personService.person(farPid) } returns svenskPerson(farFoedselsdato)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
@@ -1319,11 +1254,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         should("opprette to forelder-persongrunnlag når begge foreldre er døde") {
             val morPid = Pid("22222222222")
             val farPid = Pid("33333333333")
-            val morPerson = Person(foedselsdato = LocalDate.of(1970, 3, 10), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val farPerson = Person(foedselsdato = LocalDate.of(1968, 8, 20), sivilstand = null, statsborgerskap = LandkodeEnum.SWE)
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
-            every { personService.person(farPid) } returns farPerson
+            val personService = arrangeMor(morPid)
+            every { personService.person(farPid) } returns svenskPerson(LocalDate.of(1968, 8, 20))
 
             val avdoedMor = avdoedData(
                 relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
@@ -1363,9 +1295,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("ikke inkludere opptjeningsgrunnlag for forelder når kun én forelder er død") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(foedselsdato = LocalDate.of(1970, 3, 10), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
@@ -1388,9 +1318,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("sette yrkesskadegrunnlag for forelder når avdød døde av yrkesskade") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(foedselsdato = LocalDate.of(1970, 3, 10), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val doedsdato = LocalDate.of(2026, 6, 15)
             val avdoed = avdoedData(
@@ -1419,11 +1347,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val morPid = Pid("22222222222")
             val soeskenPid = Pid("44444444444")
             val soeskenFoedselsdato = LocalDate.of(2010, 5, 20)
-            val morPerson = Person(foedselsdato = LocalDate.of(1970, 3, 10), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val soeskenPerson = Person(foedselsdato = soeskenFoedselsdato, sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
-            every { personService.person(soeskenPid) } returns soeskenPerson
+            val personService = arrangeMor(morPid)
+            every { personService.person(soeskenPid) } returns norskPerson(soeskenFoedselsdato)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
@@ -1471,11 +1396,10 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         should("sette N_SOSKEN som borMedType for søsken ikke oppdratt sammen") {
             val morPid = Pid("22222222222")
             val soeskenPid = Pid("44444444444")
-            val morPerson = Person(foedselsdato = LocalDate.of(1970, 3, 10), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val soeskenPerson = Person(foedselsdato = LocalDate.of(2012, 7, 1), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
-            every { personService.person(soeskenPid) } returns soeskenPerson
+            val personService = arrangePersonService().apply {
+                every { person(morPid) } returns mor()
+                every { person(soeskenPid) } returns norskPerson(LocalDate.of(2012, 7, 1))
+            }
 
             val avdoed = avdoedData(
                 relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
@@ -1505,9 +1429,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("ikke inkludere barn-persongrunnlag for BARN-simulering") {
             val morPid = Pid("22222222222")
-            val morPerson = Person(foedselsdato = LocalDate.of(1970, 3, 10), sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
-            val personService = arrangePersonService()
-            every { personService.person(morPid) } returns morPerson
+            val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
                 relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
@@ -1728,7 +1650,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
     context("sivilstand-mapping fra personservice") {
         should("mappe UOPPGITT til NULL") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.UOPPGITT, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.UOPPGITT,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1745,7 +1671,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe SEPARERT til SEPR") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.SEPARERT, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.SEPARERT,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1762,7 +1692,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe REGISTRERT_PARTNER til REPA") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.REGISTRERT_PARTNER, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.REGISTRERT_PARTNER,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1779,7 +1713,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe SKILT til SKIL") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.SKILT, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.SKILT,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1796,7 +1734,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe SEPARERT_PARTNER til SEPA") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.SEPARERT_PARTNER, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.SEPARERT_PARTNER,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1813,7 +1755,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe SKILT_PARTNER til SKPA") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.SKILT_PARTNER, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.SKILT_PARTNER,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1830,7 +1776,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe GJENLEVENDE_PARTNER til GJPA") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.GJENLEVENDE_PARTNER, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.GJENLEVENDE_PARTNER,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1847,7 +1797,11 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
         should("mappe GIFT til null (ubehandlet i mapSivilstand)") {
             val personService = arrangePersonService(
-                soekerPerson = Person(foedselsdato = foedselsdato, sivilstand = Sivilstandstype.GIFT, statsborgerskap = LandkodeEnum.NOR)
+                soekerPerson = Person(
+                    foedselsdato = foedselsdato,
+                    sivilstand = Sivilstandstype.GIFT,
+                    statsborgerskap = LandkodeEnum.NOR
+                )
             )
 
             val result = creator(personService = personService).createSpec(
@@ -2015,3 +1969,48 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         }
     }
 })
+
+private const val GRUNNBELOEP = 124028
+private val soekerPid = Pid("12345678901")
+private val epsPid = Pid("98765432101")
+private val foedselsdato = LocalDate.of(1960, 1, 15)
+private val uttaksdato = LocalDate.of(2027, 3, 1)
+
+private fun arrangeGrunnbeloepService(): GrunnbeloepService =
+    mockk<GrunnbeloepService>().apply {
+        every { naavaerendeGrunnbeloep() } returns GRUNNBELOEP
+    }
+
+private fun arrangeTime(today: LocalDate = LocalDate.of(2027, 1, 15)): Time =
+    Time { today }
+
+private fun arrangePersonService(
+    soekerPerson: Person = Person(
+        foedselsdato = foedselsdato,
+        sivilstand = Sivilstandstype.UGIFT,
+        statsborgerskap = LandkodeEnum.NOR
+    ),
+    epsFoedselsdato: LocalDate = LocalDate.of(1961, 5, 10),
+    borSammen: Boolean = false
+): GeneralPersonService =
+    mockk<GeneralPersonService>().apply {
+        every { person(soekerPid) } returns soekerPerson
+        every { person(epsPid) } returns svenskPerson(epsFoedselsdato)
+        every { foedselsdato(any()) } returns epsFoedselsdato
+        every { statsborgerskap(any()) } returns LandkodeEnum.NOR
+        every { borSammen(any()) } returns borSammen
+    }
+
+private fun arrangeMor(pid: Pid): GeneralPersonService =
+    arrangePersonService().apply {
+        every { person(pid) } returns mor()
+    }
+
+private fun mor() =
+    norskPerson(foedselsdato = LocalDate.of(1970, 3, 10))
+
+private fun norskPerson(foedselsdato: LocalDate?) =
+    Person(foedselsdato, sivilstand = null, statsborgerskap = LandkodeEnum.NOR)
+
+private fun svenskPerson(foedselsdato: LocalDate?) =
+    Person(foedselsdato, sivilstand = null, statsborgerskap = LandkodeEnum.SWE)

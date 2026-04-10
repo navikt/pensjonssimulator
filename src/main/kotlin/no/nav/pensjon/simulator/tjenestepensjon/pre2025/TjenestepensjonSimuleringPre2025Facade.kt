@@ -37,7 +37,7 @@ class TjenestepensjonSimuleringPre2025Facade(
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             problem(e)
         } catch (e: Pre2025OffentligAfpAvslaattException) {
-            problem(e)
+            problem(e, type = e.aarsak?.problemType)
         } catch (e: RegelmotorValideringException) {
             problem(e)
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -46,12 +46,12 @@ class TjenestepensjonSimuleringPre2025Facade(
             problem(e)
         }
 
-    private fun problem(e: RuntimeException) =
+    private fun problem(e: RuntimeException, type: ProblemType? = null) =
         SimulerOffentligTjenestepensjonResult(
             tpnr = "",
             navnOrdning = "",
             problem = Problem(
-                type = ProblemType.ANNEN_KLIENTFEIL,
+                type ?: ProblemType.ANNEN_KLIENTFEIL,
                 beskrivelse = message(e).also { log.warn { it } }
             )
         )

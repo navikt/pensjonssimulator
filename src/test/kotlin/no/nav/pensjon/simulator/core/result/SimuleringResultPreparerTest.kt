@@ -1436,7 +1436,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val gradertResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2028, 3, 1)
-            virkTom = LocalDate.of(2030, 2, 31).toNorwegianDateAtNoon()
+            virkTom = LocalDate.of(2030, 2, 28).toNorwegianDateAtNoon()
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 10000
             }

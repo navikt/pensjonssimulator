@@ -383,7 +383,7 @@ object SimulatorOutputMapper {
 
     // From PeriodisertInformasjonUtils
     private fun isValidForDate(element: AbstraktBeregningsResultat, date: LocalDate) =
-        isDateInPeriod(date, element.virkFom, element.virkTom)
+        isDateInPeriod(date, element.virkFomLd, element.virkTom)
 
     // From ArligInformasjonListeUtils
     private fun containsValidForstegangstjenestePeriodeForAr(list: List<ForstegangstjenestePeriode>, year: Int) =

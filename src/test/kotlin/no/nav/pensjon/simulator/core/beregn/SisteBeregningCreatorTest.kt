@@ -17,9 +17,11 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
+import java.time.LocalDate
 import java.util.*
 
 class SisteBeregningCreatorTest : FunSpec({
@@ -330,7 +332,7 @@ class SisteBeregningCreatorTest : FunSpec({
     test("opprettSisteBeregning should filter vedtak by virkFom before beregningsresultat virkFom") {
         val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
-            virkFom = dateAtNoon(2025, Calendar.JUNE, 1)
+            virkFomLd = LocalDate.of(2025, 6, 1)
         }
 
         val vedtakBefore = createVedtak(VedtakResultatEnum.INNV).apply {
@@ -367,7 +369,7 @@ class SisteBeregningCreatorTest : FunSpec({
     test("opprettSisteBeregning should filter vedtak by virkTom after beregningsresultat virkTom") {
         val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
-            virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
+            virkFomLd = LocalDate.of(2025, 1, 1)
             virkTom = dateAtNoon(2025, Calendar.JUNE, 1)
         }
 
@@ -441,10 +443,10 @@ class SisteBeregningCreatorTest : FunSpec({
 
     test("opprettSisteBeregning should set fomDato and tomDato from beregningsresultat") {
         val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
-        val fomDate = dateAtNoon(2025, Calendar.JANUARY, 1)
-        val tomDate = dateAtNoon(2025, Calendar.DECEMBER, 31)
+        val fomDate = LocalDate.of(2025, 1, 1)
+        val tomDate = LocalDate.of(2025, 12, 31).toNorwegianDateAtNoon()
         val beregningsresultat = createBeregningsresultat().apply {
-            virkFom = fomDate
+            virkFomLd = fomDate
             virkTom = tomDate
         }
 
@@ -611,8 +613,8 @@ class SisteBeregningCreatorTest : FunSpec({
     test("opprettSisteBeregning should filter vedtak by all criteria combined") {
         val kravhode = createKravhodeWithSoeker(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsresultat = createBeregningsresultat().apply {
-            virkFom = dateAtNoon(2025, Calendar.JUNE, 1)
-            virkTom = dateAtNoon(2025, Calendar.DECEMBER, 31)
+            virkFomLd = LocalDate.of(2025, 6, 1)
+            virkTom = LocalDate.of(2025, 12, 31).toNorwegianDateAtNoon()
         }
 
         // This vedtak passes all filters
@@ -727,7 +729,7 @@ private fun kravlinje(status: KravlinjeStatus, land: LandkodeEnum = LandkodeEnum
 
 private fun createBeregningsresultat() =
     BeregningsResultatAlderspensjon2011().apply {
-        virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
+        virkFomLd = LocalDate.of(2025, 1, 1)
         beregningKapittel19 = AldersberegningKapittel19().apply {
             pensjonUnderUtbetaling = PensjonUnderUtbetaling()
         }

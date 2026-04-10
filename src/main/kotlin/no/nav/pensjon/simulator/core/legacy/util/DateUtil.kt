@@ -193,6 +193,12 @@ object DateUtil {
     fun isDateInPeriod(dato: LocalDate?, fom: Date?, tom: Date?): Boolean =
         isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom, tom)
 
+    fun isDateInPeriod(dato: Date?, fom: LocalDate?, tom: Date?): Boolean =
+        isDateInPeriod(dato, fom?.toNorwegianDateAtNoon(), tom)
+
+    fun isDateInPeriod(dato: LocalDate?, fom: LocalDate?, tom: Date?): Boolean =
+        isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom?.toNorwegianDateAtNoon(), tom)
+
     /**
      * Returns true if the dates are the same day.
      * Hours, minutes, seconds and milliseconds are not regarded.

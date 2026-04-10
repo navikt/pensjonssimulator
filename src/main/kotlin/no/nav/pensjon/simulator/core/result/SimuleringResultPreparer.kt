@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersects
@@ -142,7 +141,7 @@ class SimuleringResultPreparer(
                     maanedsutbetalinger = listOf(
                         Maanedsutbetaling(
                             beloep = maanedsbeloepVedPeriodeStart,
-                            fom = it.virkFom!!.toNorwegianLocalDate()
+                            fom = it.virkFomLd!!
                         )
                     )
                 )
@@ -402,8 +401,8 @@ class SimuleringResultPreparer(
         val alderToday: Int = calculateAgeInYears(foedselsdato, time.today())
 
         return copy(beregningResultat).apply {
-            virkFom = firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato, alderToday)
-            virkTom = dayBefore(earliestVirkningFom(resultatListe))
+            virkFomLd = firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato, alderToday).toNorwegianLocalDate()
+            virkTom = earliestVirkningFom(resultatListe)?.minusDays(1)?.toNorwegianDateAtNoon()
             removeEktefelleAndBarnetilleggFromTotalbeloep(this)
         }
     }
@@ -418,8 +417,8 @@ class SimuleringResultPreparer(
 
         // Make a copy in order to preserve the original beregningResultat:
         return beregningResultat.copy().apply {
-            virkFom = firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato, alderToday)
-            virkTom = if (resultatListe.isEmpty()) null else dayBefore(earliestVirkningFom(resultatListe))
+            virkFomLd = firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato, alderToday).toNorwegianLocalDate()
+            virkTom = if (resultatListe.isEmpty()) null else earliestVirkningFom(resultatListe)?.minusDays(1)?.toNorwegianDateAtNoon()
         }
     }
 
@@ -503,7 +502,7 @@ class SimuleringResultPreparer(
             var beloep = 0
             val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
             for (resultat in resultatListe) {
-                val fom: Date = resultat.virkFom!!.toNorwegianNoon()
+                val fom: Date = resultat.virkFomLd!!.toNorwegianDateAtNoon()
                 val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
 
                 if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
@@ -512,7 +511,7 @@ class SimuleringResultPreparer(
                     maanedsutbetalinger.add(
                         Maanedsutbetaling(
                             resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0,
-                            resultat.virkFom!!.toNorwegianLocalDate()
+                            resultat.virkFomLd!!
                         )
                     )
                 }
@@ -521,8 +520,8 @@ class SimuleringResultPreparer(
             return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsutbetalinger)
         }
 
-        private fun earliestVirkningFom(resultater: List<AbstraktBeregningsResultat>): Date? =
-            PeriodeUtil.findEarliest(resultater)?.virkFom
+        private fun earliestVirkningFom(resultater: List<AbstraktBeregningsResultat>): LocalDate? =
+            PeriodeUtil.findEarliest(resultater)?.virkFomLd
 
         // OpprettOutputHelper.getBelop
         private fun getBeloep(
@@ -660,7 +659,7 @@ class SimuleringResultPreparer(
             forrigeResultat: AbstraktBeregningsResultat?,
             beregningResultat: AbstraktBeregningsResultat
         ): Pensjonsbeholdning? {
-            val dagenFoerBeregningsresultatVirkFom = getRelativeDateByDays(beregningResultat.virkFom!!, -1)
+            val dagenFoerBeregningsresultatVirkFom = beregningResultat.virkFomLd!!.minusDays(1).toNorwegianDateAtNoon()
             val forrigeResultatMedBeholdning =
                 findForrigeBeregningsresultatMedBeholdning(
                     forrigeResultat,
@@ -674,8 +673,6 @@ class SimuleringResultPreparer(
                 forrigeResultatMedBeholdning
             )
         }
-
-        private fun dayBefore(earliestVirkningFom: Date?): Date = getRelativeDateByDays(earliestVirkningFom!!, -1)
 
         private fun findForrigeBeregningsresultatMedBeholdning(
             forrigeResultat: AbstraktBeregningsResultat?,
@@ -771,9 +768,11 @@ class SimuleringResultPreparer(
             var earliestDate: Date? = ETERNITY
 
             for (element in list) {
-                if (intersectsWithPossiblyOpenEndings(startDate, endDate, element.virkFom, element.virkTom, true)) {
-                    if (isBeforeByDay(element.virkFom, earliestDate, false)) {
-                        earliestDate = element.virkFom
+                val virkFom = element.virkFomLd?.toNorwegianDateAtNoon()
+
+                if (intersectsWithPossiblyOpenEndings(startDate, endDate, virkFom, element.virkTom, true)) {
+                    if (isBeforeByDay(virkFom, earliestDate, false)) {
+                        earliestDate = virkFom
                         result = element
                     }
                 }

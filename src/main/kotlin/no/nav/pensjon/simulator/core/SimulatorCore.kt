@@ -26,7 +26,6 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
@@ -160,7 +159,7 @@ class SimulatorCore(
                 soekerVirkningFom = ytelser.soekerVirkningFom,
                 avdoedVirkningFom = ytelser.avdoed?.foersteVirkningsdato,
                 forrigeAlderspensjonBeregningResultatVirkningFom =
-                    ytelser.forrigeAlderspensjonBeregningResultat?.virkFom?.toNorwegianLocalDate(),
+                    ytelser.forrigeAlderspensjonBeregningResultat?.virkFomLd,
                 sakId = kravhode.sakId
             )
         )

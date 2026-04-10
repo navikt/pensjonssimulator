@@ -11,21 +11,12 @@ import java.util.*
 class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
 
     test("toResultV1 returns null when pre2025OffentligAfp is null") {
-        val output = SimulatorOutput()
-
-        val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)
-
-        result shouldBe null
+        FolketrygdberegnetAfpResultMapperV1.toResultV1(SimulatorOutput()) shouldBe null
     }
 
     test("toResultV1 returns null when beregning is null") {
-        val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = null)
-        }
-
-        val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)
-
-        result shouldBe null
+        val output = SimulatorOutput().apply { pre2025OffentligAfp = Simuleringsresultat() }
+        FolketrygdberegnetAfpResultMapperV1.toResultV1(output) shouldBe null
     }
 
     test("toResultV1 maps all fields from fully populated beregning") {
@@ -56,7 +47,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
             st = Sertillegg().apply { netto = 2000 }
         }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -79,7 +70,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
     test("toResultV1 converts virkFom to Norwegian noon") {
         val beregning = Beregning().apply { virkFom = dateAtNoon(2029, Calendar.JUNE, 15) }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -95,7 +86,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
     test("toResultV1 sets virkFom to null when beregning virkFom is null") {
         val beregning = Beregning().apply { virkFom = null }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -106,7 +97,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
     test("toResultV1 handles null tilleggspensjon") {
         val beregning = Beregning().apply { tp = null }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -128,7 +119,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
             }
         }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -150,7 +141,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
             }
         }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -173,7 +164,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
             }
         }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -189,7 +180,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
             st = null
         }
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!
@@ -202,7 +193,7 @@ class FolketrygdberegnetAfpResultMapperV1Test : FunSpec({
     test("toResultV1 uses default zero values for netto, tt_anv, and g on empty beregning") {
         val beregning = Beregning()
         val output = SimulatorOutput().apply {
-            pre2025OffentligAfp = Simuleringsresultat(beregning = beregning)
+            pre2025OffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
         }
 
         val result = FolketrygdberegnetAfpResultMapperV1.toResultV1(output)!!

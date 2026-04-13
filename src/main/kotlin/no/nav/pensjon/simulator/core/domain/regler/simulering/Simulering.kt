@@ -4,9 +4,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import java.util.*
+import java.time.LocalDate
 
-// 2025-03-09
+// 2026-04-07
 class Simulering {
 
     /**
@@ -22,11 +22,12 @@ class Simulering {
     /**
      * Dato for når bruker ønsker å simulere uttak av pensjon fra.
      */
-    var uttaksdato: Date? = null
+    var uttaksdatoLd: LocalDate? = null
 
     /**
      * Liste av tilknyttede personer.
      */
     var persongrunnlagListe: List<Persongrunnlag> = mutableListOf()
+
     var vilkarsvedtakliste: MutableList<VilkarsVedtak> = mutableListOf()
 }

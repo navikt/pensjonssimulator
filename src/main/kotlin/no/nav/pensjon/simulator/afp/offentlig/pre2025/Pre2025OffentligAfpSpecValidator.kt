@@ -1,14 +1,15 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.minsteUttaksalderForAfp
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.util.NorwegianCalendar
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.validity.BadSpecException
-import java.util.*
+import java.time.LocalDate
 
 /**
  * Validerer spesifikasjonen for simulering av førstegangsuttak av offentlig AFP
@@ -16,38 +17,37 @@ import java.util.*
  */
 object Pre2025OffentligAfpSpecValidator {
 
-    private const val AFP_MIN_AGE: Int = 62
-
     // PEN: SimulerPensjonsberegningCommand.validateInput
     fun validateInput(spec: Simulering, normalder: Alder) {
-        val simuleringType = spec.simuleringTypeEnum ?: throw BadSpecException("Pre2025-AFP-spec mangler simuleringType")
-        val uttaksdato: Date = spec.uttaksdato ?: throw BadSpecException("Pre2025-AFP-spec mangler uttaksdato")
+        val simuleringType = spec.simuleringTypeEnum ?: throw BadSpecException("Spec for tidsbegrenset AFP mangler simuleringType")
+        val uttaksdato: LocalDate = spec.uttaksdatoLd ?: throw BadSpecException("Spec for tidsbegrenset AFP mangler uttaksdato")
 
         if (SimuleringTypeEnum.AFP == simuleringType && spec.afpOrdningEnum == null) {
-            throw BadSpecException("Pre2025-AFP-spec mangler AFP-ordning")
+            throw BadSpecException("Spec for tidsbegrenset AFP mangler AFP-ordning")
         }
 
         // PEN: SimulerPensjonsberegningCommand.findPersongrunnlagWithGivenRole
         val soekerGrunnlag: Persongrunnlag =
             spec.persongrunnlagListe.firstOrNull { hasRolle(persongrunnlag = it, rolle = GrunnlagsrolleEnum.SOKER) }
-                ?: throw BadSpecException("Pre2025-AFP-spec mangler persongrunnlag for søker")
+                ?: throw BadSpecException("Spec for tidsbegrenset AFP mangler persongrunnlag for søker")
 
-        val soekerFoedselsdato: Calendar = NorwegianCalendar.forNoon(soekerGrunnlag.fodselsdato!!)
-        val uttakDato: Calendar = NorwegianCalendar.forNoon(uttaksdato)
-        val foedselMaaned = soekerFoedselsdato[Calendar.MONTH]
-        val uttakMaaned = uttakDato[Calendar.MONTH]
-        val uttakAlderAar = uttakDato[Calendar.YEAR] - soekerFoedselsdato[Calendar.YEAR]
+        val foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
+        val foedselsmaaned: Int = foedselsdato.monthValue
+        val uttaksmaaned = uttaksdato.monthValue
+        val uttaksalderAar = uttaksdato.year - foedselsdato.year
 
         if (SimuleringTypeEnum.ALDER == simuleringType) {
             //TODO should 'uttakMaaned <= foedselMaaned' be 'uttakMaaned <= foedselMaaned + normalder.maaneder'?
-            if (uttakAlderAar < normalder.aar || uttakAlderAar == normalder.aar && uttakMaaned <= foedselMaaned) {
+            if (uttaksalderAar < normalder.aar || uttaksalderAar == normalder.aar && uttaksmaaned <= foedselsmaaned) {
                 throw PersonForUngException("Alderspensjon;${normalder.aar};${normalder.maaneder}")
             }
         }
 
         if (SimuleringTypeEnum.AFP == simuleringType) {
-            if (uttakAlderAar < AFP_MIN_AGE || uttakAlderAar == AFP_MIN_AGE && uttakMaaned <= foedselMaaned) {
-                throw PersonForUngException("AFP;$AFP_MIN_AGE;0")
+            val minstealderAar = minsteUttaksalderForAfp.aar
+
+            if (uttaksalderAar < minstealderAar || uttaksalderAar == minstealderAar && uttaksmaaned <= foedselsmaaned) {
+                throw PersonForUngException("AFP;$minstealderAar;0")
             }
         }
     }

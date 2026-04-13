@@ -1,6 +1,13 @@
 package no.nav.pensjon.simulator.afp.offentlig
 
+import no.nav.pensjon.simulator.alder.Alder
+
 object OffentligAfpConstants {
+    /**
+     * Minste uttaksalder (antall år) for AFP i offentlig sektor.
+     */
+    val minsteUttaksalderForAfp = Alder(aar = 62, maaneder = 0)
+
     /**
      * Fødselsåret som markerer overgang fra "gamle" til "nye" regler for AFP i offentlig sektor.
      * "Gamle" regler gjelder før 2025.

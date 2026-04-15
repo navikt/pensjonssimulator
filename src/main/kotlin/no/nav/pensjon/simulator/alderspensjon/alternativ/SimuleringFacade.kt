@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore
@@ -86,6 +87,8 @@ class SimuleringFacade(
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: RegelmotorValideringException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+        } catch (e: Pre2025OffentligAfpAvslaattException) {
+            problem(e, type = e.aarsak?.problemType ?: ProblemType.ANNEN_KLIENTFEIL)
         }
     }
 

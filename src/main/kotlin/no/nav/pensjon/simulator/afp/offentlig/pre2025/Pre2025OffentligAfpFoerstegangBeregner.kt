@@ -74,11 +74,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
 
         val normalder: Alder = normalderService.normalder(spec.pid!!)
         val simuleringResultat: Simuleringsresultat = simulerPensjonsberegning(spec, persongrunnlagListe, normalder)
-
-        if (ikkeInnvilget(simuleringResultat.statusEnum)) {
-            throw Pre2025OffentligAfpAvslaattException(simuleringResultat.merknadListe.joinToString(", ") { it.asString() })
-        }
-
+        sjekkAvslag(simuleringResultat)
         populateKravhodeWithAfpHistorikk(kravhode, simuleringResultat.beregning, spec)
         return Pre2025OffentligAfpResult(simuleringResultat, kravhode)
     }
@@ -108,12 +104,12 @@ class Pre2025OffentligAfpFoerstegangBeregner(
 
         if (SimuleringTypeEnum.AFP == spec.simuleringTypeEnum) {
             setBeregnForsoergingstilleggAndEktefelleMottarPensjon(spec)
-            simuleringsresultat = simulerVilkarsprovAfp(spec)
+            simuleringsresultat = vilkarsproevAfp(spec)
             simuleringsresultat.statusEnum?.let { simuleringAvslag = avslag(it) }
         }
 
-        if (!simuleringAvslag) {
-            simuleringsresultat = simulerPre2025OffentligAfp(spec)
+        if (simuleringAvslag.not()) {
+            simuleringsresultat = simulerAfp(spec)
         }
 
         // Must be set explicitly, because pensjon-regler does not simulate "vilkår"
@@ -127,7 +123,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
     // PEN: SimulerPensjonsberegningCommand.simulateVilkarsprvAFP
     //   -> DefaultSimuleringConsumerService.simulerVilkarsprovAfp
     //   -> SimulerVilkarsprovAfpConsumerCommand.execute
-    private fun simulerVilkarsprovAfp(spec: Simulering): Simuleringsresultat =
+    private fun vilkarsproevAfp(spec: Simulering): Simuleringsresultat =
         try {
             context.simulerVilkarsprovPre2025OffentligAfp(SimuleringRequest(fjernTrygdeavtale(spec), spec.uttaksdatoLd))
         } catch (e: KanIkkeBeregnesException) {
@@ -256,13 +252,12 @@ class Pre2025OffentligAfpFoerstegangBeregner(
     }
 
     // PEN: SimulerPensjonsberegningCommand.simulate -> SimulerPensjonsberegningCommand.simulateCorrectTypeOfPensjon
-    private fun simulerPre2025OffentligAfp(spec: Simulering): Simuleringsresultat {
+    private fun simulerAfp(spec: Simulering): Simuleringsresultat {
         setBeregnForsoergingstilleggAndEktefelleMottarPensjon(spec) // TODO use function arguments instead?
 
         try {
-            // SIMDOM: Only AFP (pre-2025 offentlig AFP) supported in this context
             if (SimuleringTypeEnum.AFP == spec.simuleringTypeEnum) {
-                return simulerPre2025OffentligAfp(
+                return simulerAfp(
                     spec,
                     beregnInstopphold,
                     beregnForsorgingstillegg,
@@ -280,7 +275,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
 
     // PEN: DefaultSimuleringConsumerService.simulerAFP
     //   -> SimulerPensjonsberegningConsumerCommand.execute with ytelse = SimulerPensjonsberegningConsumerCommand.AFP
-    private fun simulerPre2025OffentligAfp(
+    private fun simulerAfp(
         spec: Simulering,
         beregnInstitusjonsopphold: Boolean,
         beregnForsoergingstillegg: Boolean,
@@ -614,6 +609,18 @@ class Pre2025OffentligAfpFoerstegangBeregner(
                 SimuleringTypeEnum.ALDER_M_GJEN -> KravlinjeTypeEnum.GJR
                 else -> null
             }
+
+        private fun sjekkAvslag(resultat: Simuleringsresultat) {
+            if (ikkeInnvilget(resultat.statusEnum)) {
+                throw exception(resultat.merknadListe)
+            }
+        }
+
+        private fun exception(merknadListe: List<Merknad>) =
+            Pre2025OffentligAfpAvslaattException(
+                message = merknadListe.joinToString(", ") { it.asString() },
+                aarsak = merknadListe.firstOrNull()?.kode?.let(TidsbegrensetOffentligAfpAvslagAarsak::fromExternalValue)
+            )
 
         private data class Eps(
             val harInntektOver2G: Boolean,

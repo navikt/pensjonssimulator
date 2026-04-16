@@ -204,8 +204,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
-                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
-                virkTom = null // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
+                virkFomLd = spec.virkFom
+                virkTomLd = null // set to null in legacy SimuleringEtter2011Context.beregnAlderspensjon2011ForsteUttak
                 ektefellenMottarPensjon = spec.epsMottarPensjon
                 afpPrivatLivsvarig = spec.privatAfp
             }

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.beregn
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
@@ -55,7 +56,7 @@ class Alderspensjon2016SisteBeregningCreator(kravService: KravService) : SisteBe
             sink.resultatTypeEnum = beregningKapittel19?.resultatTypeEnum ?: it.resultatTypeEnum
         }
 
-        sink.virkDato = source.virkFom
+        sink.virkDato = source.virkFomLd?.toNorwegianDateAtNoon()
 
         resultat2011?.pensjonUnderUtbetalingUtenGJR?.let {
             sink.pensjonUnderUtbetaling2011UtenGJR = utenIrrelevanteYtelseskomponenter(it)

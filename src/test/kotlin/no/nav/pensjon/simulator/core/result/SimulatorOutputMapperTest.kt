@@ -1034,7 +1034,7 @@ class SimulatorOutputMapperTest : FunSpec({
     test("mapToSimulertOpptjening should get pensjonBeholdning from beregningsresultat when not in persongrunnlag") {
         val persongrunnlag = Persongrunnlag()
         val beregningsResultat = BeregningsResultatAlderspensjon2025().apply {
-            virkFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
+            virkFomLd = LocalDate.of(2024, 1, 1)
             uttaksgrad = 100
             beregningKapittel20 = AldersberegningKapittel20().apply {
                 beholdninger = Beholdninger().apply {

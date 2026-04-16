@@ -30,7 +30,9 @@ object PenLoependeYtelserResultMapper {
             forrigeBeregningsresultat = source.forrigeBeregningsresultat,
             forrigeVilkarsvedtakListe = source.forrigeVilkarsvedtakListe.orEmpty().map(::vilkaarsvedtak),
             avdoed = source.avdoed?.let(::avdoedYtelser)
-        )
+        ).apply {
+            this.forrigeBeregningsresultat?.let { it.virkFomLd = it.virkFom?.toNorwegianLocalDate() }
+        }
 
     private fun vilkaarsvedtak(source: PenVilkaarsvedtak) =
         VilkarsVedtak().apply {

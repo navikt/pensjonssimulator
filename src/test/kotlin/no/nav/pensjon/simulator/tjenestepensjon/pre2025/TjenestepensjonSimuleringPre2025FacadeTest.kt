@@ -7,6 +7,7 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.TidsbegrensetOffentligAfpAvslagAarsak
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -34,6 +35,16 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
                 tjenestepensjonSimulator = mockk()
             ).simuler(simuleringSpec, stillingsprosentSpec)
                 .problem shouldBe Problem(type = ProblemType.PERSON_FOR_LAV_ALDER, beskrivelse = AVSLAGSBESKRIVELSE)
+        }
+    }
+
+    context("utilstrekkelig opptjening") {
+        should("gi resultat med 'utilstrekkelig opptjening' og problembeskrivelse") {
+            TjenestepensjonSimuleringPre2025Facade(
+                beregningService = arrangeProblem(e = UtilstrekkeligOpptjeningException(message = "10 kroner")),
+                tjenestepensjonSimulator = mockk()
+            ).simuler(simuleringSpec, stillingsprosentSpec)
+                .problem shouldBe Problem(type = ProblemType.UTILSTREKKELIG_OPPTJENING, beskrivelse = "10 kroner")
         }
     }
 

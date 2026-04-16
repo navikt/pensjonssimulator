@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.ytelse.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelser
@@ -29,7 +30,9 @@ object PenLoependeYtelserResultMapper {
             forrigeBeregningsresultat = source.forrigeBeregningsresultat,
             forrigeVilkarsvedtakListe = source.forrigeVilkarsvedtakListe.orEmpty().map(::vilkaarsvedtak),
             avdoed = source.avdoed?.let(::avdoedYtelser)
-        )
+        ).apply {
+            this.forrigeBeregningsresultat?.let { it.virkFomLd = it.virkFom?.toNorwegianLocalDate() }
+        }
 
     private fun vilkaarsvedtak(source: PenVilkaarsvedtak) =
         VilkarsVedtak().apply {
@@ -66,7 +69,9 @@ object PenLoependeYtelserResultMapper {
         PrivatAfpYtelser(
             virkningFom = source.virkningFom,
             forrigeBeregningsresultat = source.forrigeBeregningsresultat
-        )
+        ).apply {
+            this.forrigeBeregningsresultat?.let { it.virkFomLd = it.virkFom?.toNorwegianLocalDate() }
+        }
 
     private fun avdoedYtelser(source: PenInformasjonOmAvdoed) =
         InformasjonOmAvdoed(

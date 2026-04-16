@@ -19,6 +19,8 @@ import java.util.*
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 abstract class AbstraktBeregningsResultat {
+    @Deprecated("Use virkFomLd instead")
+    var virkFom: Date? = null // NB: required in call to PEN
     var virkFomLd: LocalDate? = null
     var pensjonUnderUtbetaling: PensjonUnderUtbetaling? = null
     var uttaksgrad = 0

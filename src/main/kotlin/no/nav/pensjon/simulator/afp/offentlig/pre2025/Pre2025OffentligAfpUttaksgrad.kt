@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.afp.offentlig.pre2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -27,27 +28,24 @@ class Pre2025OffentligAfpUttaksgrad(
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?,
         foedselsdato: LocalDate
     ): MutableList<Uttaksgrad> {
-        val ubetingetUttakDato: LocalDate = ubetingetUttakDato(foedselsdato)
+        val ubetingetUttakFom: LocalDate = ubetingetUttakDato(foedselsdato)
 
         if (forrigeAlderspensjonBeregningResultat == null) {
-            return mutableListOf(ubetingetHeltUttak(fom = ubetingetUttakDato))
+            return mutableListOf(ubetingetHeltUttak(fom = ubetingetUttakFom))
         }
 
         val eksisterendeKravhode: Kravhode? =
             forrigeAlderspensjonBeregningResultat.kravId?.let(kravService::fetchKravhode)
 
         val afpFom: LocalDate = spec.foersteUttakDato!!
-        val uttaksgradListe: MutableList<Uttaksgrad> = behandleVedtatteUttaksgrader(eksisterendeKravhode, afpFom)
-        val minimumAfpFom: LocalDate? = alderspensjonTom(uttaksgradListe)?.plusDays(1)
-        minimumAfpFom?.let { validateAfpStart(afpFom, minimumFom = it) }
-        val alderspensjonTerminertFom = minimumAfpFom?.coerceAtMost(afpFom)
 
-        // Fra alderspensjonens slutt t.o.m. AFP-periodens slutt må uttaksgraden være 0:
-        val afpTom: LocalDate = ubetingetUttakDato.minusDays(1)
-        uttaksgradListe.add(uttaksgrad(fom = alderspensjonTerminertFom, grad = 0, tom = afpTom))
+        val uttaksgradListe: MutableList<Uttaksgrad> = behandleVedtatteUttaksgrader(eksisterendeKravhode, afpFom)
+        // I uttaksgradListe har alle elementer nå en definert t.o.m.-dato
+
+        terminerEksisterendeAlderspensjon(uttaksgradListe, afpFom, ubetingetUttakFom)
 
         // Ta ut hel alderspensjon ved normert pensjonsalder (dagen etter AFP-periodens slutt):
-        uttaksgradListe.add(ubetingetHeltUttak(fom = ubetingetUttakDato))
+        uttaksgradListe.add(ubetingetHeltUttak(fom = ubetingetUttakFom))
 
         return uttaksgradListe
     }
@@ -62,8 +60,30 @@ class Pre2025OffentligAfpUttaksgrad(
 
     private companion object {
 
-        private fun alderspensjonTom(uttaksgradListe: List<Uttaksgrad>): LocalDate? =
+        /**
+         * Sikrer at det ikke tas ut alderspensjon før eller i AFP-perioden,
+         * siden tidsbegrenset AFP må være avsluttet før alderspensjonen kan starte.
+         */
+        private fun terminerEksisterendeAlderspensjon(
+            uttaksgradListe: MutableList<Uttaksgrad>,
+            afpFom: LocalDate,
+            ubetingetUttakFom: LocalDate
+        ) {
+            if (uttaksgradListe.isEmpty()) return
+
+            val minimumAfpFom: LocalDate = alderspensjonTom(uttaksgradListe).plusDays(1)
+            validateAfpStart(afpFom, minimumFom = minimumAfpFom)
+            val alderspensjonTerminertFom = minimumAfpFom.coerceAtMost(afpFom)
+            // Fra alderspensjonens slutt t.o.m. AFP-periodens slutt må uttaksgraden være 0:
+            val afpTom: LocalDate = ubetingetUttakFom.minusDays(1)
+            uttaksgradListe.add(uttaksgrad(fom = alderspensjonTerminertFom, grad = 0, tom = afpTom))
+        }
+
+        private fun alderspensjonTom(uttaksgradListe: List<Uttaksgrad>): LocalDate =
             uttaksgradListe.maxByOrNull { it.tomDato!! }?.tomDato?.toNorwegianLocalDate()
+                ?: throw IllegalStateException(
+                    "uttaksgradListe må inneholde minst ett element og alle elementer må ha definert tomDato"
+                )
 
         private fun ubetingetHeltUttak(fom: LocalDate): Uttaksgrad =
             uttaksgrad(fom, grad = 100, tom = null)
@@ -72,8 +92,10 @@ class Pre2025OffentligAfpUttaksgrad(
             kravhode: Kravhode?,
             afpFom: LocalDate
         ): MutableList<Uttaksgrad> {
-            // Fjern eksisterende uttaksgradperioder med 0 %, da det skal legges til en 0-periode som dekker AFP-perioden:
-            val uttaksgradListe = uttaksgraderUten0(kravhode).toMutableList()
+            // Fjern eksisterende uttaksgradperioder med 0 %,
+            // da det skal legges til en 0-periode som dekker AFP-perioden
+            // (gjøres på en kopi av uttaksgradperiodene, slik at det ikke er noen endringer i originalen):
+            val uttaksgradListe = uttaksgraderUten0(kravhode).map { it.copy() }.toMutableList()
 
             // Terminer alderspensjon (kan ikke kombineres med tidsbegrenset AFP):
             replaceNullTom(uttaksgradListe, tom = afpFom.minusDays(1))

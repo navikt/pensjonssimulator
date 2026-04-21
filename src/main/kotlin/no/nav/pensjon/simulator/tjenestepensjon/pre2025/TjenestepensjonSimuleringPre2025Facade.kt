@@ -41,9 +41,9 @@ class TjenestepensjonSimuleringPre2025Facade(
         } catch (e: RegelmotorValideringException) {
             problem(e)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            problem(e)
+            problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
-            problem(e)
+            problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
         }
 
     private fun problem(e: RuntimeException, type: ProblemType? = null) =

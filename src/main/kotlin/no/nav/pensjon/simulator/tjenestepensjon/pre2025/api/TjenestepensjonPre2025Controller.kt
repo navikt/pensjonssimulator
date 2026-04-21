@@ -19,6 +19,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v1.SimulerOffent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonResultMapperV2.toDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV2
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.FeilkodeV3
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.Pre2025TpV3Problem
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.Pre2025TpV3ProblemType
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultMapperV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonResultV3
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimulerOffentligTjenestepensjonSpecV3
@@ -163,7 +165,7 @@ class TjenestepensjonPre2025Controller(
             log.debug { "$FUNCTION_ID_V3 response: $resultV3" }
 
             return ResponseEntity
-                .status(result.problem?.let { HttpStatus.UNPROCESSABLE_ENTITY } ?: HttpStatus.OK)
+                .status(resultV3.problem?.kode?.httpStatus ?: HttpStatus.OK)
                 .body(resultV3)
         } catch (e: Exception) {
             log.error(e) { "$FUNCTION_ID intern feil for spec ${jsonMapper.writeValueAsRedactedString(specV3)}" }
@@ -177,7 +179,7 @@ class TjenestepensjonPre2025Controller(
 
     @ExceptionHandler(value = [Exception::class])
     private fun internalError(e: Exception): ResponseEntity<SimulerOffentligTjenestepensjonResultV3> =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem())
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem(e))
 
     companion object {
         const val FUNCTION_ID = "nav-tps-pre-2025"
@@ -185,11 +187,15 @@ class TjenestepensjonPre2025Controller(
         const val FUNCTION_ID_V3 = "nav-tps-pre-2025-v3"
         const val ERROR_MESSAGE = "feil ved simulering av tjenestepensjon pre 2025"
 
-        private fun problem() =
+        private fun problem(e: Exception) =
             SimulerOffentligTjenestepensjonResultV3(
                 simulertPensjonListe = emptyList(),
                 feilkode = FeilkodeV3.TEKNISK_FEIL,
-                relevanteTpOrdninger = emptyList()
+                relevanteTpOrdninger = emptyList(),
+                problem = Pre2025TpV3Problem(
+                    kode = Pre2025TpV3ProblemType.ANNEN_SERVERFEIL,
+                    beskrivelse = e.message ?: ERROR_MESSAGE
+                )
             )
     }
 }

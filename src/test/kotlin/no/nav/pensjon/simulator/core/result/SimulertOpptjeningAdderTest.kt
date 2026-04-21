@@ -66,7 +66,7 @@ class SimulertOpptjeningAdderTest : FunSpec({
 
 private fun beregningsresultat2016(kalenderAar: Int, pensjonspoeng: Double) =
     BeregningsResultatAlderspensjon2016().apply {
-        virkFom = dateAtMidnight(kalenderAar, Calendar.JANUARY, 1)
+        virkFomLd = LocalDate.of(kalenderAar, 1, 1)
         beregningsResultat2011 = BeregningsResultatAlderspensjon2011().apply {
             beregningsInformasjonKapittel19 = BeregningsInformasjon().apply {
                 spt = Sluttpoengtall().apply {

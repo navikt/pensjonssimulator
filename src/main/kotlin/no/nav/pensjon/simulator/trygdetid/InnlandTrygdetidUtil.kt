@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.util.isOnOrAfter
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
 import java.time.LocalDate
@@ -62,14 +63,15 @@ object InnlandTrygdetidUtil {
             val firstGrunnlagTom: LocalDate? =
                 grunnlagBefore.periode.tom?.toNorwegianLocalDate() ?: secondGrunnlagFom?.minusDays(1)
             val dayAfterFirstGrunnlagTom: LocalDate? = firstGrunnlagTom?.plusDays(1)
+            val oppholdTom = secondGrunnlagFom?.minusDays(1)
 
-            if (secondGrunnlagFom != dayAfterFirstGrunnlagTom) {
+            if (dayAfterFirstGrunnlagTom != null && oppholdTom?.isOnOrAfter(dayAfterFirstGrunnlagTom) == true) {
                 // Add new TrygdetidsgrunnlagWithArbeid in the gap between trygdetidsgrunnlagWithArbeidBefore and trygdetidsgrunnlagWithArbeidAfter
                 oppholdListe.add(
                     index = index + 1,
                     element = trygdetidMedArbeid(
                         fom = dayAfterFirstGrunnlagTom,
-                        tom = secondGrunnlagFom?.minusDays(1)
+                        tom = oppholdTom
                     )
                 )
 

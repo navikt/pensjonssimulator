@@ -6,9 +6,10 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.enum.Beregningsarsak
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
+import java.time.LocalDate
 import java.util.*
 
-// 2025-03-10
+// 2026-04-10
 @JsonSubTypes(
     JsonSubTypes.Type(value = BeregningsresultatUforetrygd::class),
     JsonSubTypes.Type(value = BeregningsResultatAlderspensjon2016::class),
@@ -18,7 +19,9 @@ import java.util.*
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 abstract class AbstraktBeregningsResultat {
-    var virkFom: Date? = null
+    @Deprecated("Use virkFomLd instead")
+    var virkFom: Date? = null // NB: required in call to PEN
+    var virkFomLd: LocalDate? = null
     var pensjonUnderUtbetaling: PensjonUnderUtbetaling? = null
     var uttaksgrad = 0
 
@@ -33,10 +36,12 @@ abstract class AbstraktBeregningsResultat {
     var gjennomsnittligUttaksgradSisteAr = 0.0
 
     //--- Extra:
-
     // from PEN no.nav.domain.pensjon.kjerne.beregning2011.BeregningHoveddel
+    // Dette er felter som ikke returneres av pensjon-regler, men som returneres av pensjon-pen:
     var kravId: Long? = null
+    @Deprecated("Use virkTomLd instead")
     var virkTom: Date? = null
+    var virkTomLd: LocalDate? = null
     var beregningsinformasjon: SpecialBeregningInformasjon? = null
     var epsMottarPensjon: Boolean = false // deprecated; use beregningInformasjon
     var epsPaavirkerBeregning: Boolean = false // deprecated
@@ -50,7 +55,7 @@ abstract class AbstraktBeregningsResultat {
     protected constructor() : super()
 
     override fun toString(): String =
-        "virk: $virkFom-$virkTom, pensjonUnderUtbetaling: [$pensjonUnderUtbetaling]"
+        "virk: $virkFomLd-$virkTom, pensjonUnderUtbetaling: [$pensjonUnderUtbetaling]"
 
     // end extra
 }

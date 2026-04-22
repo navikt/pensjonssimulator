@@ -45,12 +45,15 @@ class PensjonForNorskPensjonController(
 ) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
-    //TODO Avtal med Norsk Pensjon å endre URL til v2/simuler-alderspensjon-privat-afp
-    @PostMapping("v3/simuler-alderspensjon-privat-afp")
+    @PostMapping(
+        value = [
+            "v2/simuler-alderspensjon-privat-afp",
+            "v3/simuler-alderspensjon-privat-afp" // v3 skal fjernes (ny versjonering starter med v2)
+        ])
     @Operation(
         summary = "Simuler alderspensjon og privat AFP for samhandleren Norsk Pensjon",
         description = "Lager en prognose for utbetaling av alderspensjon og privat avtalefestet pensjon" +
-                " (versjon 3 av tjenesten)." +
+                " (versjon 2 av tjenesten; versjon 1 er den foreldede SOAP-tjenesten 'SimulerePensjon' som tilbys av PEN)." +
                 "\\\n\\\n*Scope*: **nav:pensjon/simulering/alderspensjonogprivatafp**"
     )
     @ApiResponses(

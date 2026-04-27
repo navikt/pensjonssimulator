@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -22,7 +23,6 @@ class EndringUttaksgrad(private val kravService: KravService) {
     }
 
     private companion object {
-        private const val HELT_UTTAK_GRAD = 100
 
         // SimulerEndringAvAPCommandHelper.createUttaksgradListe
         private fun newUttaksgradListe(
@@ -30,7 +30,7 @@ class EndringUttaksgrad(private val kravService: KravService) {
             spec: SimuleringSpec
         ): MutableList<Uttaksgrad> {
             val uttaksgrad: Int = spec.uttakGrad.value.toInt()
-            val gradert: Boolean = uttaksgrad < HELT_UTTAK_GRAD
+            val gradert: Boolean = uttaksgrad < HUNDRE_PROSENT.prosentsats
             val foersteUttakFom: LocalDate = spec.foersteUttakDato!!
             val andreUttakFom: LocalDate? = if (gradert) spec.heltUttakDato else null
 
@@ -51,7 +51,7 @@ class EndringUttaksgrad(private val kravService: KravService) {
             val filtrertListe: MutableList<Uttaksgrad> = mutableListOf()
 
             uttaksgradListe.forEach {
-                inkluderHvisFomFoerDato(uttaksgrad = it, dato = dato, targetList = filtrertListe)
+                inkluderHvisFomFoerDato(uttaksgrad = it, dato, targetList = filtrertListe)
             }
 
             return filtrertListe
@@ -60,24 +60,24 @@ class EndringUttaksgrad(private val kravService: KravService) {
         // Extracted from SimulerEndringAvAPCommandHelper.createUttaksgradListe
         private fun inkluderHvisFomFoerDato(
             uttaksgrad: Uttaksgrad,
-            dato: LocalDate?,
+            dato: LocalDate,
             targetList: MutableList<Uttaksgrad>
         ) {
             if (uttaksgrad.fomDatoLd?.isBefore(dato) == true) {
                 // NB: A difference from SimulerEndringAvAPCommandHelper is that here the copying of Uttaksgrad
                 // is done within the 'if' statement - this avoids unnecessary copying
                 uttaksgrad.copy().also {
-                    begrensTomDato(it, dato) // <--- NB: side-effect
+                    begrensTomDato(grad = it, maxTomDato = dato) // <--- NB: side-effect
                     targetList.add(it)
                 }
             }
         }
 
         // Extracted from SimulerEndringAvAPCommandHelper.createUttaksgradListe
-        private fun begrensTomDato(grad: Uttaksgrad, maxTomDato: LocalDate?) {
+        private fun begrensTomDato(grad: Uttaksgrad, maxTomDato: LocalDate) {
             //TODO should this be maxTomDato minus 1 day?
             if (grad.tomDatoLd == null || grad.tomDatoLd!!.isAfter(maxTomDato)) {
-                grad.tomDatoLd = maxTomDato?.minusDays(1)
+                grad.tomDatoLd = maxTomDato.minusDays(1)
             }
         }
 
@@ -98,7 +98,7 @@ class EndringUttaksgrad(private val kravService: KravService) {
             Uttaksgrad().apply {
                 fomDatoLd = fom
                 tomDatoLd = null
-                uttaksgrad = HELT_UTTAK_GRAD
+                uttaksgrad = HUNDRE_PROSENT.prosentsats
             }
     }
 }

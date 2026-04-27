@@ -76,7 +76,7 @@ object TrygdetidTrimmer {
         return trygdetidPeriode
     }
 
-    private fun adjustTom(periode: TTPeriode, maxTom: LocalDate?): TTPeriode {
+    private fun adjustTom(periode: TTPeriode, maxTom: LocalDate): TTPeriode {
         if (periode.tomLd == null || periode.tomLd!!.isAfter(maxTom)) {
             periode.tomLd = maxTom
         }

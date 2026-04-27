@@ -1,11 +1,12 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.enum.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.person.Pid
 
@@ -19,8 +20,8 @@ object PenKravhodeMapper {
     fun kravhode(source: PenKravhode) =
         Kravhode().apply {
             kravId = source.kravId
-            kravFremsattDatoLd = source.kravFremsattDato?.toNorwegianLocalDate()
-            onsketVirkningsdatoLd = source.onsketVirkningsdato?.toNorwegianLocalDate()
+            kravFremsattDatoLd = source.kravFremsattDatoLd
+            onsketVirkningsdatoLd = source.onsketVirkningsdatoLd
             gjelder = source.gjelder
             sakId = source.sakId
             sakType = source.sakType
@@ -55,7 +56,7 @@ object PenKravhodeMapper {
         FoersteVirkningDato(
             sakType = source.sakType?.let(SakTypeEnum::valueOf),
             kravlinjeType = source.kravlinjeTypeEnum?.let(KravlinjeTypeEnum::valueOf),
-            virkningDato = source.virkningsdato?.toNorwegianLocalDate(),
+            virkningDato = source.virkningsdatoLd,
             annenPerson = source.annenPerson?.let(::penPerson)
         )
 
@@ -64,8 +65,8 @@ object PenKravhodeMapper {
             bruker = source.bruker?.let(::penPerson)
             annenPerson = source.annenPerson?.let(::penPerson)
             kravlinjeTypeEnum = source.kravlinjeTypeEnum
-            virkningsdatoLd = source.virkningsdato?.toNorwegianLocalDate()
-            kravFremsattDatoLd = source.kravFremsattDato?.toNorwegianLocalDate()
+            virkningsdatoLd = source.virkningsdatoLd
+            kravFremsattDatoLd = source.kravFremsattDatoLd
         }
 
     private fun kravlinje(source: PenKravlinje) =
@@ -92,8 +93,8 @@ object PenKravhodeMapper {
 
     private fun pensjonsbeholdning(source: PenPensjonsbeholdning) =
         Pensjonsbeholdning().apply {
-            fomLd = source.fom?.toNorwegianLocalDate()
-            tomLd = source.tom?.toNorwegianLocalDate()
+            fomLd = source.fomLd
+            tomLd = source.tomLd
             ar = source.ar
             totalbelop = source.totalbelop
             opptjening = source.opptjening
@@ -111,8 +112,8 @@ object PenKravhodeMapper {
     private fun personDetalj(source: PenPersonDetalj) =
         PersonDetalj().apply {
             grunnlagsrolleEnum = source.grunnlagsrolleEnum
-            rolleFomDatoLd = source.virkFom?.toNorwegianLocalDate() // yes, virkFom is actually mapped to rolleFomDato
-            rolleTomDatoLd = source.virkTom?.toNorwegianLocalDate() // ... and virkTom is mapped to rolleTomDato
+            rolleFomDatoLd = source.virkFomLd // yes, virkFom is actually mapped to rolleFomDato
+            rolleTomDatoLd = source.virkTomLd // ... and virkTom is mapped to rolleTomDato
             sivilstandTypeEnum = source.sivilstandTypeEnum
             sivilstandRelatertPerson = source.sivilstandRelatertPerson?.let(::penPerson)
             borMedEnum = source.borMedEnum
@@ -123,19 +124,19 @@ object PenKravhodeMapper {
             serskiltSatsUtenET = source.serskiltSatsUtenET
             epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
             //--- Extra:
-            penRolleFom = source.rolleFomDato?.toNorwegianLocalDate() // the original 'rolle f.o.m.-dato' in PEN
-            penRolleTom = source.rolleTomDato?.toNorwegianLocalDate() // the original 'rolle t.o.m.-dato' in PEN
-            virkFom = source.virkFom?.toNorwegianLocalDate()
-            virkTom = source.virkTom?.toNorwegianLocalDate()
+            penRolleFom = source.rolleFomDatoLd // the original 'rolle f.o.m.-dato' in PEN
+            penRolleTom = source.rolleTomDatoLd // the original 'rolle t.o.m.-dato' in PEN
+            virkFom = source.virkFomLd
+            virkTom = source.virkTomLd
         } // do not call finishInit() here; the values received from PEN are already 'finished'
 
     private fun persongrunnlag(source: PenPersongrunnlag) =
         Persongrunnlag().apply {
             penPerson = source.penPerson?.let(::penPerson)
-            fodselsdatoLd = source.fodselsdato?.toNorwegianLocalDate()
-            dodsdatoLd = source.dodsdato?.toNorwegianLocalDate()
+            fodselsdatoLd = source.fodselsdatoLd
+            dodsdatoLd = source.dodsdatoLd
             flyktning = source.flyktning
-            sistMedlITrygdenLd = source.sistMedlITrygden?.toNorwegianLocalDate()
+            sistMedlITrygdenLd = source.sistMedlITrygdenLd
             sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
             hentetPopp = source.hentetPopp
             hentetInnt = source.hentetInnt

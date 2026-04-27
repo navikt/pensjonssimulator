@@ -34,13 +34,13 @@ data class TrygdetidOpphold(
         periode.tomLd?.plusDays(1)
 
     fun endsBefore(other: TrygdetidOpphold): Boolean =
-        periode.tomLd?.isBefore(other.periode.fomLd) == true
+        periode.tomLd?.isBeforeLd(other.periode.fomLd) == true
 
     fun startsBeforeAndEndsIn(other: TrygdetidOpphold): Boolean {
         val a = periode
         val b = other.periode
 
-        return a.fomLd!!.isBefore(b.fomLd)
+        return a.fomLd!!.isBeforeLd(b.fomLd)
                 && a.tomLd != null && b.fomLd!!.isBeforeOrSame(a.tomLd)
                 && a.tomLd!!.isBeforeOrSame(b.tomLd)
     }
@@ -49,16 +49,15 @@ data class TrygdetidOpphold(
         val a = periode
         val b = other.periode
 
-        return a.fomLd!!.isBefore(b.fomLd)
-                && (a.tomLd == null || a.tomLd!!.toNorwegianDateAtNoon().isAfter(b.tomLd?.toNorwegianDateAtNoon()))
-        // NB: Cannot use LocalDate.isAfter here
+        return a.fomLd!!.isBeforeLd(b.fomLd)
+                && (a.tomLd == null || a.tomLd!!.isAfterLd(b.tomLd))
     }
 
     fun startsAndEndsIn(other: TrygdetidOpphold): Boolean {
         val a = periode
         val b = other.periode
 
-        return a.fomLd!!.toNorwegianDateAtNoon().isAfterOrSame(b.fomLd?.toNorwegianDateAtNoon())
+        return a.fomLd!!.isAfterOrSame(b.fomLd)
                 && a.tomLd != null && a.tomLd!!.isBeforeOrSame(b.tomLd)
     }
 
@@ -66,8 +65,8 @@ data class TrygdetidOpphold(
         val a = periode
         val b = other.periode
 
-        return a.fomLd!!.toNorwegianDateAtNoon().isAfterOrSame(b.fomLd?.toNorwegianDateAtNoon())
+        return a.fomLd!!.isAfterOrSame(b.fomLd)
                 && a.fomLd!!.isBeforeOrSame(b.tomLd)
-                && (a.tomLd == null || a.tomLd!!.isAfter(b.tomLd))
+                && (a.tomLd == null || a.tomLd!!.isAfterLd(b.tomLd))
     }
 }

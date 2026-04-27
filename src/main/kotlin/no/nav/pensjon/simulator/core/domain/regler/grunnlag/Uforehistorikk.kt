@@ -35,8 +35,6 @@ class Uforehistorikk {
     }
 
     // Extra:
-    //fun realUforePeriodeList(): List<Uforeperiode> = uforeperiodeListe.filter { it.isRealUforeperiode() }
-
     fun containsActualUforeperiode(): Boolean = uforeperiodeListe.any { it.isRealUforeperiode() }
     // end extra
 }

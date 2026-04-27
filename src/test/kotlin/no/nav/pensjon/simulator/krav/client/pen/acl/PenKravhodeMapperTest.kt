@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class PenKravhodeMapperTest : FunSpec({
@@ -19,8 +18,8 @@ class PenKravhodeMapperTest : FunSpec({
                     personDetaljListe = mutableListOf(
                         PenPersonDetalj(
                             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER,
-                            rolleFomDato = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon(),
-                            rolleTomDato = LocalDate.of(2022, 2, 2).toNorwegianDateAtNoon(),
+                            rolleFomDatoLd = LocalDate.of(2021, 1, 1),
+                            rolleTomDatoLd = LocalDate.of(2022, 2, 2),
                             sivilstandTypeEnum = SivilstandEnum.GIFT,
                             sivilstandRelatertPerson = PenPenPerson().apply { penPersonId = 1 },
                             borMedEnum = BorMedTypeEnum.SAMBOER3_2,
@@ -30,8 +29,8 @@ class PenKravhodeMapperTest : FunSpec({
                             grunnlagKildeEnum = GrunnlagkildeEnum.PEN,
                             serskiltSatsUtenET = true,
                             epsAvkallEgenPensjon = false,
-                            virkFom = LocalDate.of(2023, 3, 3).toNorwegianDateAtNoon(),
-                            virkTom = LocalDate.of(2024, 4, 4).toNorwegianDateAtNoon()
+                            virkFomLd = LocalDate.of(2023, 3, 3),
+                            virkTomLd = LocalDate.of(2024, 4, 4)
                         )
                     )
                 })

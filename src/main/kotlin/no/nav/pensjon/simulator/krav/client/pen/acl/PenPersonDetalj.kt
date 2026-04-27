@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
-import java.util.*
+import java.time.LocalDate
 
 /**
  * Persondetalj DTO (data transfer object) received from PEN.
@@ -13,8 +13,8 @@ import java.util.*
  */
 data class PenPersonDetalj(
     val grunnlagsrolleEnum: GrunnlagsrolleEnum? = null,
-    val rolleFomDato: Date? = null, //TODO: LocalDate
-    val rolleTomDato: Date? = null,
+    val rolleFomDatoLd: LocalDate? = null,
+    val rolleTomDatoLd: LocalDate? = null,
     val sivilstandTypeEnum: SivilstandEnum? = null,
     val sivilstandRelatertPerson: PenPenPerson? = null,
     val borMedEnum: BorMedTypeEnum? = null,
@@ -25,6 +25,6 @@ data class PenPersonDetalj(
     val serskiltSatsUtenET: Boolean? = null,
     val epsAvkallEgenPensjon: Boolean? = null,
     //--- Extra:
-    val virkFom: Date? = null,
-    val virkTom: Date? = null
+    val virkFomLd: LocalDate? = null,
+    val virkTomLd: LocalDate? = null
 )

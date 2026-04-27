@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
@@ -81,7 +80,7 @@ class PenYtelseClientTest : ShouldSpec({
                     }
                     with(forrigeVilkarsvedtakListe[1]) {
                         vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
-                        virkFom shouldBe LocalDate.of(2025, 5, 1).toNorwegianDateAtNoon()
+                        virkFomLd shouldBe LocalDate.of(2025, 5, 1)
                         kravlinje?.type shouldBe KravlinjeTypeEnum.GJR
                     }
                     avdoed shouldBe InformasjonOmAvdoed(

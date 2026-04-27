@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -45,8 +44,8 @@ class AlderspensjonOgPrivatAfpResultPreparerTest : ShouldSpec({
                 alderspensjon = SimulertAlderspensjon().apply {
                     uttakGradListe = listOf(
                         Uttaksgrad().apply {
-                            fomDato = today.toNorwegianDateAtNoon()
-                            tomDato = null
+                            fomDatoLd = today
+                            tomDatoLd = null
                             uttaksgrad = 50
                         })
                 }
@@ -72,14 +71,14 @@ class AlderspensjonOgPrivatAfpResultPreparerTest : ShouldSpec({
                     uttakGradListe = listOf(
                         // Skal ikke medføre 'har uttak', siden uttaksgrad = 0:
                         Uttaksgrad().apply {
-                            fomDato = today.toNorwegianDateAtNoon()
-                            tomDato = null
+                            fomDatoLd = today
+                            tomDatoLd = null
                             uttaksgrad = 0
                         },
                         // Skal medføre 'har tidligere uttak', siden både fomDato og tomDato er før dagens dato:
                         Uttaksgrad().apply {
-                            fomDato = today.minusYears(1).toNorwegianDateAtNoon() // fomDato < dagens dato
-                            tomDato = today.minusDays(1).toNorwegianDateAtNoon() // tomDato < dagens dato
+                            fomDatoLd = today.minusYears(1) // fomDato < dagens dato
+                            tomDatoLd = today.minusDays(1) // tomDato < dagens dato
                             uttaksgrad = 20
                         })
                 }

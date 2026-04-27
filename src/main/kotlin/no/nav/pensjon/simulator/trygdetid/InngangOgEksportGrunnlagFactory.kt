@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.isAlderspensjon2011
 import no.nav.pensjon.simulator.core.krav.isAlderspensjon2016
 import no.nav.pensjon.simulator.core.krav.isAlderspensjon2025
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.InngangOgEksportGrunnlagFactory
@@ -46,5 +47,5 @@ object InngangOgEksportGrunnlagFactory {
     private fun trygetidMillisekunder(periodeListe: List<TTPeriode>) =
         periodeListe
             .filter { it.landEnum == LandkodeEnum.NOR }
-            .sumOf { it.tom!!.time - it.fom!!.time }
+            .sumOf { it.tomLd!!.toNorwegianDateAtNoon().time - it.fomLd!!.toNorwegianDateAtNoon().time }
 }

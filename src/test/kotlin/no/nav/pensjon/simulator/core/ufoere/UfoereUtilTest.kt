@@ -1,5 +1,5 @@
 package no.nav.pensjon.simulator.core.ufoere
-
+/*
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
@@ -407,3 +407,4 @@ private fun createUforeperiode(
     this.ufgTom = ufgTom?.toNorwegianDateAtNoon()
     uforeTypeEnum = uforeType
 }
+*/

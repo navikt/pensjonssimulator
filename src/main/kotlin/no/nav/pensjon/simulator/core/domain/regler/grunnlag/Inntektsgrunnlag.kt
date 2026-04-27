@@ -1,15 +1,12 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class Inntektsgrunnlag {
-
-    /**
+    /*
      * Unik identifikator for Inntektsgrunnlag. Endres ikke av regelmotoren,
      * men Inntektsgrunnlag med null id kan opprettes av batchtjenestene,
      * derfor settes den til typen wrapperobjekt Long i stedet for primitiven long.
@@ -43,36 +40,28 @@ class Inntektsgrunnlag {
     /**
      * fra-og-med dato for gyldigheten av inntektsgrunnlaget.
      */
-    var fom: Date? = null
-        set(value) { // SIMDOM-ADD
-            rawFom = value
-            field = value?.toNorwegianNoon()
-        }
+    var fomLd: LocalDate? = null
 
     /**
      * til-og-med dato for gyldigheten av inntektsgrunnlaget.
      */
-    var tom: Date? = null
-        set(value) { // SIMDOM-ADD
-            rawTom = value
-            field = value?.toNorwegianNoon()
-        }
+    var tomLd: LocalDate? = null
 
     /**
      * Angir om inntektsgrunnlaget brukes som grunnlag på kravet.
      */
-    var bruk: Boolean? = null // SIMDOM-EDIT true -> null, since nullable in Inntektsgrunnlag in PEN
+    var bruk: Boolean = true
 
     /**
      * Kilden til inntektsgrunnlaget.
      */
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
 
-    @JsonIgnore
-    var rawFom: Date? = null // SIMDOM-ADD
-
-    @JsonIgnore
-    var rawTom: Date? = null // SIMDOM-ADD
+    //@JsonIgnore
+    //var rawFom: Date? = null // SIMDOM-ADD
+//
+    //@JsonIgnore
+    //var rawTom: Date? = null // SIMDOM-ADD
 
     constructor()
 
@@ -80,8 +69,8 @@ class Inntektsgrunnlag {
         inntektsgrunnlagId = source.inntektsgrunnlagId
         belop = source.belop
         inntektTypeEnum = source.inntektTypeEnum
-        fom = source.fom?.clone() as? Date
-        tom = source.tom?.clone() as? Date
+        fomLd = source.fomLd
+        tomLd = source.tomLd
         bruk = source.bruk
         grunnlagKildeEnum = source.grunnlagKildeEnum
     }

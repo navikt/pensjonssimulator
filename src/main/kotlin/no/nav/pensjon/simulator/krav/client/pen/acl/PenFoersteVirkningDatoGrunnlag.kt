@@ -8,7 +8,7 @@ import java.util.Date
  * Corresponds to no.nav.pensjon.pen.domain.api.simulator.grunnlag.ForsteVirkningsdatoGrunnlag in PEN.
  */
 class PenFoersteVirkningDatoGrunnlag {
-    var virkningsdato: Date? = null
+    var virkningsdato: Date? = null //TODO: LocalDate
     var kravFremsattDato: Date? = null
     var bruker: PenPenPerson? = null
     var annenPerson: PenPenPerson? = null

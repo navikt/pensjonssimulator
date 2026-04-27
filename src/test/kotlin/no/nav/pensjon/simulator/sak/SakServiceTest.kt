@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoG
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.client.SakClient
-import java.util.*
+import java.time.LocalDate
 
 class SakServiceTest : FunSpec({
 
@@ -38,7 +38,7 @@ class SakServiceTest : FunSpec({
             val expectedResult = FoersteVirkningDatoCombo(
                 foersteVirkningDatoGrunnlagListe = listOf(
                     ForsteVirkningsdatoGrunnlag().apply {
-                        virkningsdato = Date()
+                        virkningsdatoLd = LocalDate.now()
                         kravlinjeTypeEnum = KravlinjeTypeEnum.AP
                         sakType = SakTypeEnum.ALDER
                     }
@@ -72,17 +72,17 @@ class SakServiceTest : FunSpec({
             val expectedResult = FoersteVirkningDatoCombo(
                 foersteVirkningDatoGrunnlagListe = listOf(
                     ForsteVirkningsdatoGrunnlag().apply {
-                        virkningsdato = Date()
+                        virkningsdatoLd = LocalDate.now()
                         kravlinjeTypeEnum = KravlinjeTypeEnum.AP
                         sakType = SakTypeEnum.ALDER
                     },
                     ForsteVirkningsdatoGrunnlag().apply {
-                        virkningsdato = Date()
+                        virkningsdatoLd = LocalDate.now()
                         kravlinjeTypeEnum = KravlinjeTypeEnum.UP
                         sakType = SakTypeEnum.UFOREP
                     },
                     ForsteVirkningsdatoGrunnlag().apply {
-                        virkningsdato = Date()
+                        virkningsdatoLd = LocalDate.now()
                         kravlinjeTypeEnum = KravlinjeTypeEnum.GJP
                         sakType = SakTypeEnum.GJENLEV
                     }
@@ -108,7 +108,7 @@ class SakServiceTest : FunSpec({
             val expectedResult = FoersteVirkningDatoCombo(
                 foersteVirkningDatoGrunnlagListe = listOf(
                     ForsteVirkningsdatoGrunnlag().apply {
-                        virkningsdato = Date()
+                        virkningsdatoLd = LocalDate.now()
                         kravlinjeTypeEnum = KravlinjeTypeEnum.ET
                         sakType = SakTypeEnum.ALDER
                         this.bruker = bruker

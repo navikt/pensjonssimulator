@@ -3,11 +3,9 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SettTrygdetidHelper
@@ -20,7 +18,7 @@ class TrygdetidAdjuster(private val time: Time) {
     // PEN: SettTrygdetidHelper.conditionallyAdjustLastTrygdetidsgrunnlag
      fun conditionallyAdjustLastTrygdetidPeriode(periodeListe: List<TTPeriode>, tom: LocalDate?) {
         val idag = time.today()
-        val twoYearsBeforeToday: Date = idag.minusYears(2).toNorwegianDateAtNoon() //TODO magic value 2
+        val twoYearsBeforeToday: LocalDate = idag.minusYears(2) //TODO magic value 2
 
         // Periode-relevans:
         //                                                           nå
@@ -29,14 +27,14 @@ class TrygdetidAdjuster(private val time: Time) {
         // relevant:      ---------------------<================............. (isAfterByDay)
         // ikke-relevant: ---<=========>-------------------------------------
         val relevantePerioder = periodeListe.filter {
-            isDateInPeriod(twoYearsBeforeToday, it.fom, it.tom) ||
-                    isAfterByDay(thisDate = it.fom, thatDate = twoYearsBeforeToday, allowSameDay = false)
+            isDateInPeriod(twoYearsBeforeToday, it.fomLd, it.tomLd) ||
+                    isAfterByDay(thisDate = it.fomLd, thatDate = twoYearsBeforeToday, allowSameDay = false)
         }
 
         if (relevantePerioder.isEmpty()) return
 
         denMedSenesteFom(periodeListe)?.apply { // NB: Using periodeListe, not relevantePerioder (same as in PEN)
-            this.tom = tom.begrensetTilDagenFoer(idag).toNorwegianDateAtNoon()
+            this.tomLd = tom.begrensetTilDagenFoer(idag)
             this.poengIUtAr = false
         }
     }
@@ -53,12 +51,12 @@ class TrygdetidAdjuster(private val time: Time) {
             if (list.size == 1) return list[0]
 
             var result: TTPeriode? = null
-            var latestDate: Date? = null
+            var latestDate: LocalDate? = null
 
             for (element in list) {
-                if (isAfterByDay(element.fom, latestDate, allowSameDay = false)) {
+                if (isAfterByDay(element.fomLd, latestDate, allowSameDay = false)) {
                     result = element
-                    latestDate = element.fom
+                    latestDate = element.fomLd
                 }
             }
 

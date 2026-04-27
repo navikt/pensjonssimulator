@@ -19,8 +19,8 @@ object PenKravhodeMapper {
     fun kravhode(source: PenKravhode) =
         Kravhode().apply {
             kravId = source.kravId
-            kravFremsattDato = source.kravFremsattDato
-            onsketVirkningsdato = source.onsketVirkningsdato?.toNorwegianLocalDate()
+            kravFremsattDatoLd = source.kravFremsattDato?.toNorwegianLocalDate()
+            onsketVirkningsdatoLd = source.onsketVirkningsdato?.toNorwegianLocalDate()
             gjelder = source.gjelder
             sakId = source.sakId
             sakType = source.sakType
@@ -64,8 +64,8 @@ object PenKravhodeMapper {
             bruker = source.bruker?.let(::penPerson)
             annenPerson = source.annenPerson?.let(::penPerson)
             kravlinjeTypeEnum = source.kravlinjeTypeEnum
-            virkningsdato = source.virkningsdato
-            kravFremsattDato = source.kravFremsattDato
+            virkningsdatoLd = source.virkningsdato?.toNorwegianLocalDate()
+            kravFremsattDatoLd = source.kravFremsattDato?.toNorwegianLocalDate()
         }
 
     private fun kravlinje(source: PenKravlinje) =
@@ -92,8 +92,8 @@ object PenKravhodeMapper {
 
     private fun pensjonsbeholdning(source: PenPensjonsbeholdning) =
         Pensjonsbeholdning().apply {
-            fom = source.fom
-            tom = source.tom
+            fomLd = source.fom?.toNorwegianLocalDate()
+            tomLd = source.tom?.toNorwegianLocalDate()
             ar = source.ar
             totalbelop = source.totalbelop
             opptjening = source.opptjening
@@ -111,8 +111,8 @@ object PenKravhodeMapper {
     private fun personDetalj(source: PenPersonDetalj) =
         PersonDetalj().apply {
             grunnlagsrolleEnum = source.grunnlagsrolleEnum
-            rolleFomDato = source.virkFom // yes, virkFom is actually mapped to rolleFomDato
-            rolleTomDato = source.virkTom // ... and virkTom is mapped to rolleTomDato
+            rolleFomDatoLd = source.virkFom?.toNorwegianLocalDate() // yes, virkFom is actually mapped to rolleFomDato
+            rolleTomDatoLd = source.virkTom?.toNorwegianLocalDate() // ... and virkTom is mapped to rolleTomDato
             sivilstandTypeEnum = source.sivilstandTypeEnum
             sivilstandRelatertPerson = source.sivilstandRelatertPerson?.let(::penPerson)
             borMedEnum = source.borMedEnum
@@ -123,19 +123,19 @@ object PenKravhodeMapper {
             serskiltSatsUtenET = source.serskiltSatsUtenET
             epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
             //--- Extra:
-            penRolleFom = source.rolleFomDato // the original 'rolle f.o.m.-dato' in PEN
-            penRolleTom = source.rolleTomDato // the original 'rolle t.o.m.-dato' in PEN
-            virkFom = source.virkFom
-            virkTom = source.virkTom
+            penRolleFom = source.rolleFomDato?.toNorwegianLocalDate() // the original 'rolle f.o.m.-dato' in PEN
+            penRolleTom = source.rolleTomDato?.toNorwegianLocalDate() // the original 'rolle t.o.m.-dato' in PEN
+            virkFom = source.virkFom?.toNorwegianLocalDate()
+            virkTom = source.virkTom?.toNorwegianLocalDate()
         } // do not call finishInit() here; the values received from PEN are already 'finished'
 
     private fun persongrunnlag(source: PenPersongrunnlag) =
         Persongrunnlag().apply {
             penPerson = source.penPerson?.let(::penPerson)
-            fodselsdato = source.fodselsdato
-            dodsdato = source.dodsdato
+            fodselsdatoLd = source.fodselsdato?.toNorwegianLocalDate()
+            dodsdatoLd = source.dodsdato?.toNorwegianLocalDate()
             flyktning = source.flyktning
-            sistMedlITrygden = source.sistMedlITrygden
+            sistMedlITrygdenLd = source.sistMedlITrygden?.toNorwegianLocalDate()
             sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
             hentetPopp = source.hentetPopp
             hentetInnt = source.hentetInnt
@@ -193,8 +193,5 @@ object PenKravhodeMapper {
             trygdetider = source.trygdetider ?: mutableListOf()
             gjelderOmsorg = source.gjelderOmsorg
             gjelderUforetrygd = source.gjelderUforetrygd
-        }.also {
-            it.finishInit()
-            //TODO should noon() be called in finishInit here or in mapper in PEN?
         }
 }

@@ -19,7 +19,6 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import tools.jackson.databind.json.JsonMapper
@@ -30,7 +29,7 @@ class SimulatorContextTest : ShouldSpec({
     context("beregnAlderspensjon2011FoersteUttak") {
         should("returnere beregningsresultat med nullstilte felter") {
             val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
-                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                virkTomLd = LocalDate.of(2030, 1, 1)
                 epsMottarPensjon = true
             }
             val regelmotor =
@@ -47,7 +46,7 @@ class SimulatorContextTest : ShouldSpec({
             )
 
             with(result) {
-                virkTom shouldBe null
+                virkTomLd shouldBe null
                 epsMottarPensjon shouldBe false
                 beregningsinformasjon shouldBe null
             }
@@ -93,7 +92,7 @@ class SimulatorContextTest : ShouldSpec({
     context("beregnAlderspensjon2016FoersteUttak") {
         should("returnere beregningsresultat med nullstilte felter") {
             val beregningsresultat = BeregningsResultatAlderspensjon2016().apply {
-                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                virkTomLd = LocalDate.of(2030, 1, 1)
                 epsMottarPensjon = true
             }
             val regelmotor =
@@ -110,7 +109,7 @@ class SimulatorContextTest : ShouldSpec({
             )
 
             with(result) {
-                virkTom shouldBe null
+                virkTomLd shouldBe null
                 epsMottarPensjon shouldBe false
                 beregningsinformasjon shouldBe null
             }
@@ -137,7 +136,7 @@ class SimulatorContextTest : ShouldSpec({
     context("beregnAlderspensjon2025FoersteUttak") {
         should("returnere beregningsresultat med nullstilte felter") {
             val beregningsresultat = BeregningsResultatAlderspensjon2025().apply {
-                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                virkTomLd = LocalDate.of(2030, 1, 1)
                 epsMottarPensjon = true
             }
             val regelmotor =
@@ -154,7 +153,7 @@ class SimulatorContextTest : ShouldSpec({
             )
 
             with(result) {
-                virkTom shouldBe null
+                virkTomLd shouldBe null
                 epsMottarPensjon shouldBe false
                 beregningsinformasjon shouldBe null
             }
@@ -369,8 +368,8 @@ class SimulatorContextTest : ShouldSpec({
     context("beregnOpptjening") {
         should("returnere pensjonsbeholdninger") {
             val beholdning = Pensjonsbeholdning().apply {
-                fom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                tom = LocalDate.of(2025, 12, 31).toNorwegianDateAtNoon()
+                fomLd = LocalDate.of(2020, 1, 1)
+                tomLd = LocalDate.of(2025, 12, 31)
             }
             val regelmotor = arrangeRegler<BeregnPensjonsBeholdningResponse, BeregnPensjonsBeholdningRequest>(
                 serviceName = "beregnPensjonsBeholdning",
@@ -383,8 +382,8 @@ class SimulatorContextTest : ShouldSpec({
                 personDetaljListe = mutableListOf(
                     PersonDetalj().apply {
                         grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                        virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                        virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                        virkFom = LocalDate.of(2020, 1, 1)
+                        virkTom = LocalDate.of(2030, 1, 1)
                     }
                 )
             }

@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.core.util.isBefore
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.trygdetid.cache.RollebasertTrygdetidCache
 import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
@@ -50,7 +50,7 @@ class TrygdetidBeregnerProxy(private val context: SimulatorContext) {
 
     private fun kapittel20TrygdetidStarterFoerUttak(spec: TrygdetidRequest): Boolean =
         spec.persongrunnlag?.trygdetidPerioderKapittel20.orEmpty().all {
-            it.fom?.isBefore(spec.virkFom) == true
+            it.fomLd?.isBefore(spec.virkFom?.toNorwegianLocalDate()) == true
         }
 
     // SimuleringEtter2011Context.fastsettTrygdetid

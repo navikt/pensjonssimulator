@@ -1,22 +1,22 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
-import java.util.*
+import java.time.LocalDate
 
+// 2026-04-23
 /**
  * Klassen beskriver et poengår opptjent i utlandet. Settes av saksbehandler.
  */
-// Checked 2025-02-28
 class PoengarManuell {
     /**
      * Poengåret fra og med dato.
      */
-    var fom: Date? = null
+    var fomLd: LocalDate? = null
 
     /**
      * Poengåret til og med dato.
      */
-    var tom: Date? = null
+    var tomLd: LocalDate? = null
 
     /**
      * Angir om poengåret skal brukes i pro rata beregning.
@@ -36,8 +36,8 @@ class PoengarManuell {
     constructor()
 
     constructor(source: PoengarManuell) : this() {
-        fom = source.fom?.clone() as? Date
-        tom = source.tom?.clone() as? Date
+        fomLd = source.fomLd
+        tomLd = source.tomLd
         ikkeProrata = source.ikkeProrata
         ikkeAlternativProrata = source.ikkeAlternativProrata
         avtalelandEnum = source.avtalelandEnum

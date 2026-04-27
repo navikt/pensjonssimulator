@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.ytelse.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelser
@@ -30,9 +29,7 @@ object PenLoependeYtelserResultMapper {
             forrigeBeregningsresultat = source.forrigeBeregningsresultat,
             forrigeVilkarsvedtakListe = source.forrigeVilkarsvedtakListe.orEmpty().map(::vilkaarsvedtak),
             avdoed = source.avdoed?.let(::avdoedYtelser)
-        ).apply {
-            this.forrigeBeregningsresultat?.let { it.virkFomLd = it.virkFom?.toNorwegianLocalDate() }
-        }
+        )
 
     private fun vilkaarsvedtak(source: PenVilkaarsvedtak) =
         VilkarsVedtak().apply {
@@ -40,10 +37,10 @@ object PenLoependeYtelserResultMapper {
             vilkarsvedtakResultatEnum = source.vilkarsvedtakResultatEnum
             kravlinjeTypeEnum = source.kravlinjeTypeEnum
             anvendtVurderingEnum = source.anvendtVurderingEnum
-            virkFom = source.virkFom
-            virkTom = source.virkTom
-            forsteVirk = source.forsteVirk
-            kravlinjeForsteVirk = source.kravlinjeForsteVirk
+            virkFomLd = source.virkFomLd
+            virkTomLd = source.virkTomLd
+            forsteVirkLd = source.forsteVirkLd
+            kravlinjeForsteVirkLd = source.kravlinjeForsteVirkLd
             kravlinje = source.kravlinje?.let(::kravlinje)
             penPerson = source.penPerson
             vilkarsprovresultat = source.vilkarsprovresultat
@@ -69,9 +66,7 @@ object PenLoependeYtelserResultMapper {
         PrivatAfpYtelser(
             virkningFom = source.virkningFom,
             forrigeBeregningsresultat = source.forrigeBeregningsresultat
-        ).apply {
-            this.forrigeBeregningsresultat?.let { it.virkFomLd = it.virkFom?.toNorwegianLocalDate() }
-        }
+        )
 
     private fun avdoedYtelser(source: PenInformasjonOmAvdoed) =
         InformasjonOmAvdoed(

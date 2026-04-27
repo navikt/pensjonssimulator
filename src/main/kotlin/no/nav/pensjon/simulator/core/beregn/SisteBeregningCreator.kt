@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableExcept
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
@@ -72,7 +71,7 @@ class SisteBeregningCreator(
             periodiserGrunnlag(
                 kravhode = kravService.fetchKravhode(it),
                 fom = beregningsresultat.virkFomLd,
-                tom = beregningsresultat.virkTom?.toNorwegianLocalDate()
+                tom = beregningsresultat.virkTomLd
             )
         }
     }
@@ -128,7 +127,7 @@ class SisteBeregningCreator(
                     vilkarsvedtakListe = vedtakListe,
                     regelverk1967VirkToEarly = etterRegulering,
                     fomDato = if (etterRegulering) null else beregning.virkFomLd,
-                    tomDato = if (etterRegulering) null else beregning.virkTom?.toNorwegianLocalDate(),
+                    tomDato = if (etterRegulering) null else beregning.virkTomLd,
                     filtrertVilkarsvedtakList = emptyList(),
                     forrigeKravhode = null,
                     regelverkKodePaNyttKrav = null
@@ -136,7 +135,7 @@ class SisteBeregningCreator(
             }
 
             val filtrertVedtakListe: List<VilkarsVedtak> =
-                beregningResultat?.virkFomLd?.let { filtrerVedtak(it, beregningResultat.virkTom, vedtakListe) }
+                beregningResultat?.virkFomLd?.let { filtrerVedtak(it, beregningResultat.virkTomLd, vedtakListe) }
                     ?: throw ImplementationUnrecoverableException("Missing beregningsresultat.virkFom")
 
             return SisteBeregningSpec(
@@ -146,7 +145,7 @@ class SisteBeregningCreator(
                 beregningsresultat = beregningResultat,
                 vilkarsvedtakListe = vedtakListe,
                 fomDato = beregningResultat.virkFomLd!!,
-                tomDato = beregningResultat.virkTom?.toNorwegianLocalDate(),
+                tomDato = beregningResultat.virkTomLd,
                 filtrertVilkarsvedtakList = filtrertVedtakListe,
                 forrigeKravhode = null,
                 regelverkKodePaNyttKrav = null
@@ -155,13 +154,13 @@ class SisteBeregningCreator(
 
         // SimpleBeregningService.filtrerVilkarsvedtak
         // -> FiltrerVilkarsvedtakCommand.execute
-        private fun filtrerVedtak(fom: LocalDate, tom: Date?, vedtakListe: List<VilkarsVedtak>): List<VilkarsVedtak> =
+        private fun filtrerVedtak(fom: LocalDate, tom: LocalDate?, vedtakListe: List<VilkarsVedtak>): List<VilkarsVedtak> =
             vedtakListe.filter {
                 isInnvilget(it.vilkarsvedtakResultatEnum)
                         && isVilkarsprovdOrFerdig(it.kravlinje)
                         && isNorsk(it.kravlinje)
-                        && isVirkFomBeforeDate(it.virkFom, fom)
-                        && isVirkTomAfterDate(it.virkTom, tom)
+                        && isVirkFomBeforeDate(it.virkFomLd, fom)
+                        && isVirkTomAfterDate(it.virkTomLd, tom)
             }
 
         // FiltrerVilkarsvedtakCommand.isVilkarsvedtakInnvilget
@@ -177,11 +176,11 @@ class SisteBeregningCreator(
             LandkodeEnum.NOR == kravlinje?.land
 
         // FiltrerVilkarsvedtakCommand.isVirkFomBeforeFomDate
-        private fun isVirkFomBeforeDate(virkFom: Date?, date: LocalDate): Boolean =
+        private fun isVirkFomBeforeDate(virkFom: LocalDate?, date: LocalDate): Boolean =
             isBeforeByDay(virkFom, date, true)
 
         // FiltrerVilkarsvedtakCommand.isVirkTomAfterTomDate
-        private fun isVirkTomAfterDate(virkTom: Date?, date: Date?): Boolean =
+        private fun isVirkTomAfterDate(virkTom: LocalDate?, date: LocalDate?): Boolean =
             when {
                 virkTom == null && date == null -> true
                 virkTom == null -> true

@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.util.isOnOrAfter
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.trygdetidPeriode
 import java.time.LocalDate
 
@@ -16,7 +15,7 @@ object InnlandTrygdetidUtil {
     ): List<TrygdetidOpphold> {
         if (oppholdListe.isEmpty()) return emptyList()
 
-        with(oppholdListe.sortedBy { it.periode.fom }.toMutableList()) {
+        with(oppholdListe.sortedBy { it.periode.fomLd }.toMutableList()) {
             addGrunnlagFraFoedselsdato(this, foedselsdato)
             addGrunnlagAfterLastUtlandTrygdetidsgrunnlag(this)
             addGrunnlagBetweenUtlandTrygdetidsgrunnlag(this)
@@ -35,7 +34,7 @@ object InnlandTrygdetidUtil {
         )
 
     private fun addGrunnlagFraFoedselsdato(oppholdListe: MutableList<TrygdetidOpphold>, foedselsdato: LocalDate?) {
-        val fom: LocalDate? = oppholdListe.firstOrNull()?.periode?.fom?.toNorwegianLocalDate()
+        val fom: LocalDate? = oppholdListe.firstOrNull()?.periode?.fomLd
         if (fom == foedselsdato) return
 
         oppholdListe.add(
@@ -49,8 +48,8 @@ object InnlandTrygdetidUtil {
 
     // PEN: createTrygdetidsgrunnlagAfterLastUtlandTrygdetidsgrunnlag
     private fun addGrunnlagAfterLastUtlandTrygdetidsgrunnlag(oppholdListe: MutableList<TrygdetidOpphold>) {
-        val tom = oppholdListe[oppholdListe.size - 1].periode.tom ?: return
-        oppholdListe.add(trygdetidMedArbeid(tom.toNorwegianLocalDate().plusDays(1), null))
+        val tom = oppholdListe[oppholdListe.size - 1].periode.tomLd ?: return
+        oppholdListe.add(trygdetidMedArbeid(tom.plusDays(1), null))
     }
 
     private fun addGrunnlagBetweenUtlandTrygdetidsgrunnlag(oppholdListe: MutableList<TrygdetidOpphold>) {
@@ -59,9 +58,9 @@ object InnlandTrygdetidUtil {
         while (index < oppholdListe.size - 1) {
             val grunnlagBefore: TrygdetidOpphold = oppholdListe[index]
             val grunnlagAfter: TrygdetidOpphold = oppholdListe[index + 1]
-            val secondGrunnlagFom: LocalDate? = grunnlagAfter.periode.fom?.toNorwegianLocalDate()
+            val secondGrunnlagFom: LocalDate? = grunnlagAfter.periode.fomLd
             val firstGrunnlagTom: LocalDate? =
-                grunnlagBefore.periode.tom?.toNorwegianLocalDate() ?: secondGrunnlagFom?.minusDays(1)
+                grunnlagBefore.periode.tomLd ?: secondGrunnlagFom?.minusDays(1)
             val dayAfterFirstGrunnlagTom: LocalDate? = firstGrunnlagTom?.plusDays(1)
             val oppholdTom = secondGrunnlagFom?.minusDays(1)
 

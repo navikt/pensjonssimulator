@@ -9,6 +9,15 @@ data class Interval(val fom: LocalDate?, val tom: LocalDate?) {
     private val fomDate2 = fom?.toNorwegianDateAtNoon()
     private val tomDate2 = tom?.toNorwegianDateAtNoon()
 
+    fun intersectsWith(fomDate1: LocalDate?, tomDate1: LocalDate?) =
+        intersectsWithPossiblyOpenEndings(
+            o1Start = fomDate1,
+            o1End = tomDate1,
+            o2Start = fomDate2,
+            o2End = tomDate2,
+            considerContactByDayAsIntersection = true
+        )
+
     fun intersectsWith(fomDate1: Date?, tomDate1: Date?) =
         intersectsWithPossiblyOpenEndings(
             o1Start = fomDate1,

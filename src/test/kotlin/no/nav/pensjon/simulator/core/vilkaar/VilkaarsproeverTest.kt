@@ -8,18 +8,13 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import java.time.LocalDate
@@ -36,7 +31,7 @@ class VilkaarsproeverTest : FunSpec({
             val kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.AP, person = null)
             val vedtak = vilkaarsproever.innvilgetVedtak(kravlinje, virkningFom)
 
-            vedtak.forsteVirk shouldNotBe null
+            vedtak.forsteVirkLd shouldNotBe null
             vedtak.vilkarsvedtakResultatEnum shouldBe VedtakResultatEnum.INNV
             vedtak.kravlinje shouldBe kravlinje
         }
@@ -48,7 +43,7 @@ class VilkaarsproeverTest : FunSpec({
             val virkningFom = LocalDate.of(2025, 6, 15)
             val kravlinje = VilkaarsvedtakKravlinje(type = KravlinjeTypeEnum.AP, person = null)
 
-            vilkaarsproever.innvilgetVedtak(kravlinje, virkningFom).virkFom shouldNotBe null
+            vilkaarsproever.innvilgetVedtak(kravlinje, virkningFom).virkFomLd shouldNotBe null
         }
 
         test("oppretter vedtak med kravlinjeType fra kravlinje") {
@@ -463,7 +458,7 @@ class VilkaarsproeverTest : FunSpec({
             val result = vilkaarsproever.vilkaarsproevKrav(spec)
             val vedtakListe = result.first
 
-            vedtakListe[0].forsteVirk shouldNotBe null
+            vedtakListe[0].forsteVirkLd shouldNotBe null
         }
 
         test("bruker avdoedFoersteVirkning for GJR vedtak") {
@@ -515,7 +510,7 @@ class VilkaarsproeverTest : FunSpec({
 
             // Skal ha GJR vedtak som bruker avdoedFoersteVirkning
             val gjrVedtak = vedtakListe.first { v -> v.kravlinjeTypeEnum == KravlinjeTypeEnum.GJR }
-            gjrVedtak.forsteVirk shouldNotBe null
+            gjrVedtak.forsteVirkLd shouldNotBe null
         }
 
         test("ignoreAvslag=true hopper over avslag-håndtering") {
@@ -561,8 +556,7 @@ class VilkaarsproeverTest : FunSpec({
             )
 
             // Skal ikke kaste exception når ignoreAvslag=true
-            val result = vilkaarsproever.vilkaarsproevKrav(spec)
-            result.first shouldHaveSize 1
+            vilkaarsproever.vilkaarsproevKrav(spec).first shouldHaveSize 1
         }
 
         test("returnerer tom vedtak liste når regelverk ikke matcher") {
@@ -609,7 +603,7 @@ private fun createPersongrunnlag(
     fodselsdato: LocalDate,
     rolle: GrunnlagsrolleEnum
 ) = Persongrunnlag().apply {
-    this.fodselsdato = fodselsdato.toNorwegianDateAtNoon()
+    this.fodselsdatoLd = fodselsdato
     personDetaljListe = mutableListOf(
         PersonDetalj().apply {
             grunnlagsrolleEnum = rolle

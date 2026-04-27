@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import java.time.LocalDate
 
@@ -143,5 +142,5 @@ fun vedtak(kravlinjeType: KravlinjeTypeEnum, vedtakResultat: VedtakResultatEnum,
     VilkarsVedtak().apply {
         kravlinjeTypeEnum = kravlinjeType
         vilkarsvedtakResultatEnum = vedtakResultat
-        virkFom = LocalDate.of(aar, 6, 15).toNorwegianDateAtNoon()
+        virkFomLd = LocalDate.of(aar, 6, 15)
     }

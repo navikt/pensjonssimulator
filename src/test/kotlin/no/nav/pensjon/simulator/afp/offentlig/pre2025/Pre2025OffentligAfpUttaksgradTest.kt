@@ -8,14 +8,11 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.testutil.Arrange
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
-import java.util.*
 
 class Pre2025OffentligAfpUttaksgradTest : ShouldSpec({
 
@@ -39,8 +36,8 @@ class Pre2025OffentligAfpUttaksgradTest : ShouldSpec({
 
             uttaksgradListe.size shouldBe 1
             with(uttaksgradListe[0]) {
-                fomDato shouldBe dateAtNoon(2030, Calendar.FEBRUARY, 1)
-                tomDato shouldBe null // => tidsubegrenset
+                fomDatoLd shouldBe LocalDate.of(2030, 2, 1)
+                tomDatoLd shouldBe null // => tidsubegrenset
                 uttaksgrad shouldBe 100
             }
         }
@@ -86,20 +83,20 @@ class Pre2025OffentligAfpUttaksgradTest : ShouldSpec({
             uttaksgradListe.size shouldBe 3
             with(uttaksgradListe[0]) {
                 // Terminert alderspensjonsperiode:
-                fomDato shouldBe LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
-                tomDato shouldBe historiskAlderspensjonTom.toNorwegianDateAtNoon()
+                fomDatoLd shouldBe LocalDate.of(2024, 1, 1)
+                tomDatoLd shouldBe historiskAlderspensjonTom
                 uttaksgrad shouldBe 100
             }
             with(uttaksgradListe[1]) {
                 // AFP-periode:
-                fomDato shouldBe LocalDate.of(2026, 3, 1).toNorwegianDateAtNoon()
-                tomDato shouldBe LocalDate.of(2029, 1, 31).toNorwegianDateAtNoon()
+                fomDatoLd shouldBe LocalDate.of(2026, 3, 1)
+                tomDatoLd shouldBe LocalDate.of(2029, 1, 31)
                 uttaksgrad shouldBe 0
             }
             with(uttaksgradListe[2]) {
                 // Alderspensjon etter AFP, f.o.m. ubetinget uttaksdato:
-                fomDato shouldBe LocalDate.of(2029, 2, 1).toNorwegianDateAtNoon()
-                tomDato shouldBe null // => tidsubegrenset
+                fomDatoLd shouldBe LocalDate.of(2029, 2, 1)
+                tomDatoLd shouldBe null // => tidsubegrenset
                 uttaksgrad shouldBe 100
             }
         }
@@ -125,20 +122,20 @@ class Pre2025OffentligAfpUttaksgradTest : ShouldSpec({
             uttaksgradListe.size shouldBe 3
             with(uttaksgradListe[0]) {
                 // Terminert alderspensjonsperiode:
-                fomDato shouldBe LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
-                tomDato shouldBe historiskAlderspensjonTom.toNorwegianDateAtNoon()
+                fomDatoLd shouldBe LocalDate.of(2024, 1, 1)
+                tomDatoLd shouldBe historiskAlderspensjonTom
                 uttaksgrad shouldBe 100
             }
             with(uttaksgradListe[1]) {
                 // AFP-periode:
-                fomDato shouldBe LocalDate.of(2026, 3, 1).toNorwegianDateAtNoon()
-                tomDato shouldBe LocalDate.of(2029, 1, 31).toNorwegianDateAtNoon()
+                fomDatoLd shouldBe LocalDate.of(2026, 3, 1)
+                tomDatoLd shouldBe LocalDate.of(2029, 1, 31)
                 uttaksgrad shouldBe 0
             }
             with(uttaksgradListe[2]) {
                 // Alderspensjon etter AFP, f.o.m. ubetinget uttaksdato:
-                fomDato shouldBe LocalDate.of(2029, 2, 1).toNorwegianDateAtNoon()
-                tomDato shouldBe null // => tidsubegrenset
+                fomDatoLd shouldBe LocalDate.of(2029, 2, 1)
+                tomDatoLd shouldBe null // => tidsubegrenset
                 uttaksgrad shouldBe 100
             }
         }
@@ -153,8 +150,8 @@ private fun arrangeKrav(loepende0Uttak: Uttaksgrad): KravService =
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
                     uttaksgrad = 100
-                    fomDato = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
-                    tomDato = historiskAlderspensjonTom.toNorwegianDateAtNoon()
+                    fomDatoLd = LocalDate.of(2024, 1, 1)
+                    tomDatoLd = historiskAlderspensjonTom
                 },
                 loepende0Uttak
             )
@@ -164,6 +161,6 @@ private fun arrangeKrav(loepende0Uttak: Uttaksgrad): KravService =
 private fun loepende0Uttak(fom: LocalDate) =
     Uttaksgrad().apply {
         uttaksgrad = 0
-        fomDato = fom.toNorwegianDateAtNoon()
-        tomDato = null
+        fomDatoLd = fom
+        tomDatoLd = null
     }

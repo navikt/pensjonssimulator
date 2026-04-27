@@ -1,23 +1,22 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.ForstegangstjenestetypeEnum
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class ForstegangstjenestePeriode {
-    var fomDato: Date? = null
-    var tomDato: Date? = null
+    var fomDatoLd: LocalDate? = null
+    var tomDatoLd: LocalDate? = null
     var periodeTypeEnum: ForstegangstjenestetypeEnum? = null
 
-    //SIMDOM-ADD
-    fun ar(): Int? = fomDato?.let(::getYear)
+    // Extra:
+    fun ar(): Int? = fomDatoLd?.year
 
     constructor()
 
     constructor(source: ForstegangstjenestePeriode) : this() {
-        fomDato = source.fomDato?.clone() as? Date
-        tomDato = source.tomDato?.clone() as? Date
+        fomDatoLd = source.fomDatoLd
+        tomDatoLd = source.tomDatoLd
         periodeTypeEnum = source.periodeTypeEnum
     }
 }

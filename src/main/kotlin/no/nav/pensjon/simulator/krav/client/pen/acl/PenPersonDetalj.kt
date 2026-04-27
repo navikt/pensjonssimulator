@@ -13,7 +13,7 @@ import java.util.*
  */
 data class PenPersonDetalj(
     val grunnlagsrolleEnum: GrunnlagsrolleEnum? = null,
-    val rolleFomDato: Date? = null,
+    val rolleFomDato: Date? = null, //TODO: LocalDate
     val rolleTomDato: Date? = null,
     val sivilstandTypeEnum: SivilstandEnum? = null,
     val sivilstandRelatertPerson: PenPenPerson? = null,

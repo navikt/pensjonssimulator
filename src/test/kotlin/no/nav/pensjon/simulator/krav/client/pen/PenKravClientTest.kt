@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
@@ -51,7 +50,7 @@ class PenKravClientTest : ShouldSpec({
             with(result.persongrunnlagListe[0]) {
                 personDetaljListe shouldHaveSize 1
                 personDetaljListe[0].bruk shouldBe true
-                fodselsdato shouldBe LocalDate.of(1974, 3, 30).toNorwegianDateAtNoon()
+                fodselsdatoLd shouldBe LocalDate.of(1974, 3, 30)
             }
             result.kravlinjeListe shouldHaveSize 1
             result.kravlinjeListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.UT

@@ -15,13 +15,10 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.createDate
 import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
-import java.util.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
 object SimulatorContextUtil {
@@ -37,8 +34,8 @@ object SimulatorContextUtil {
     // SimuleringEtter2011Context.updateBeholdningerWithFomAndTomDate
     fun tidsbegrensedeBeholdninger(beholdningListe: MutableList<Pensjonsbeholdning>): MutableList<Pensjonsbeholdning> {
         beholdningListe.forEach {
-            it.fom = createDate(it.ar, Calendar.JANUARY, 1)
-            it.tom = createDate(it.ar, Calendar.DECEMBER, 31)
+            it.fomLd = LocalDate.of(it.ar, 1, 1)
+            it.tomLd = LocalDate.of(it.ar, 12, 31)
         }
 
         return beholdningListe
@@ -49,7 +46,6 @@ object SimulatorContextUtil {
         spec.fom = spec.fom?.noon()
         spec.tom = spec.tom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
-        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
@@ -58,7 +54,6 @@ object SimulatorContextUtil {
     fun preprocess(spec: VilkarsprovAlderpensjon2016Request) {
         spec.virkFom = spec.virkFom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
-        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.setDatesToNoon() }
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
@@ -67,13 +62,12 @@ object SimulatorContextUtil {
     fun preprocess(spec: VilkarsprovAlderpensjon2025Request) {
         spec.fom = spec.fom?.noon()
         spec.afpVirkFom = spec.afpVirkFom?.noon()
-        spec.kravhode?.uttaksgradListe.orEmpty().forEach { it.fomDato = it.fomDato?.noon() }
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     fun postprocess(result: BeregningsResultatAfpPrivat) {
-        result.virkTom = null
+        result.virkTomLd = null
         result.afpPrivatBeregning?.afpPrivatLivsvarig?.let(::roundNettoPerAar)
     }
 
@@ -90,8 +84,8 @@ object SimulatorContextUtil {
             tt_67_75 = 0 // since this value is not mapped to PEN domain in original PEN code
 
             if (kravGjelderUfoeretrygd) {
-                virkFom = null
-                virkTom = null
+                virkFomLd = null
+                virkTomLd = null
             }
         }
     }
@@ -99,7 +93,7 @@ object SimulatorContextUtil {
     fun personOpptjeningsgrunnlag(opptjeningGrunnlag: Opptjeningsgrunnlag, foedselsdato: LocalDate?) =
         PersonOpptjeningsgrunnlag().apply {
             opptjening = opptjeningGrunnlag
-            fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
+            fodselsdatoLd = foedselsdato
         }
 
     // PEN: SimulatorContext.updatePersonOpptjeningsFieldFromPregResponse
@@ -213,5 +207,5 @@ object SimulatorContextUtil {
 
     private fun uttaksgraderString(request: RevurderingAlderspensjon2025Request): String =
         request.kravhode?.uttaksgradListe
-            ?.map { "${it.uttaksgrad} fom ${it.fomDato} tom ${it.tomDato}" }.orEmpty().joinToString("; ")
+            ?.map { "${it.uttaksgrad} fom ${it.fomDatoLd} tom ${it.tomDatoLd}" }.orEmpty().joinToString("; ")
 }

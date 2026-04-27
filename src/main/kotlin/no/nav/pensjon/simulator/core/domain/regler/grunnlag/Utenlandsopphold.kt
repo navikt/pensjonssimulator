@@ -1,19 +1,19 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class Utenlandsopphold {
     /**
      * Fra og med dato
      */
-    var fom: Date? = null
+    var fomLd: LocalDate? = null
 
     /**
      * Til og med dato
      */
-    var tom: Date? = null
+    var tomLd: LocalDate? = null
 
     /**
      * Landet hvor oppholdet har funnet sted
@@ -38,8 +38,8 @@ class Utenlandsopphold {
     constructor()
 
     constructor(source: Utenlandsopphold) : this() {
-        fom = source.fom?.clone() as? Date
-        tom = source.tom?.clone() as? Date
+        fomLd = source.fomLd
+        tomLd = source.tomLd
         landEnum = source.landEnum
         pensjonsordning = source.pensjonsordning
         bodd = source.bodd

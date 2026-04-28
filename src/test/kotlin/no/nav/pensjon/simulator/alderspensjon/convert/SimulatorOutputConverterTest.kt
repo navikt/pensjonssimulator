@@ -310,7 +310,7 @@ class SimulatorOutputConverterTest : FunSpec({
         )
     }
 
-    test("'pensjon' should return null vedGradertUttak and empty vedHeltUttak/vedNormertPensjonsalder when no exact date match exists") {
+    test("'pensjon' should return null vedGradertUttak and default-value vedHeltUttak/vedNormertPensjonsalder when no exact date match exists") {
         val gradertDato = LocalDate.of(2030, 1, 1)
         val heltDato = LocalDate.of(2032, 1, 1)
         val normertDato = LocalDate.of(2034, 1, 1)

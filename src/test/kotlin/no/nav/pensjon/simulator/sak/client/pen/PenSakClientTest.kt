@@ -8,17 +8,18 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import java.util.*
+import java.time.LocalDate
+import java.util.TimeZone
 
 class PenSakClientTest : FunSpec({
     var server: MockWebServer? = null
@@ -29,7 +30,7 @@ class PenSakClientTest : FunSpec({
         PenSakClient(
             baseUrl!!,
             retryAttempts = "0",
-            webClientBase = context.getBean(WebClientBase::class.java),
+            webClientBase = context.getBean<WebClientBase>(),
             cacheManager = CaffeineCacheManager(),
             traceAid = mockk<TraceAid>(relaxed = true),
         )
@@ -60,13 +61,13 @@ class PenSakClientTest : FunSpec({
                 foersteVirkningDatoGrunnlagListe.size shouldBe 2
 
                 with(foersteVirkningDatoGrunnlagListe[0]) {
-                    virkningsdato shouldBe dateAtNoon(2020, Calendar.FEBRUARY, 1)
+                    virkningsdatoLd shouldBe LocalDate.of(2020, 2, 1)
                     kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.UT
                 }
 
                 with(foersteVirkningDatoGrunnlagListe[1]) {
                     kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
-                    kravFremsattDato shouldBe dateAtNoon(2024, Calendar.OCTOBER, 17)
+                    kravFremsattDatoLd shouldBe LocalDate.of(2024, 10, 17)
                 }
             }
         }

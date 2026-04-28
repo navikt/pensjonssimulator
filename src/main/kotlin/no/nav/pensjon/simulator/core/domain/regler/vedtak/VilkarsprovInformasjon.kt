@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.FremskrevetAfpL
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.FremskrevetPensjonUnderUtbetaling
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling
 
-// 2025-03-18
+// 2026-04-23
 @JsonSubTypes(
     JsonSubTypes.Type(value = VilkarsprovInformasjon2011::class),
     JsonSubTypes.Type(value = VilkarsprovInformasjon2016::class),
@@ -17,13 +17,17 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtb
 abstract class VilkarsprovInformasjon {
     var ektefelleInntektOver2g = false
     var flyktning = false
+    @Deprecated("Avvikles.", replaceWith = ReplaceWith("fullPensjonVedNormertPensjonsalder"))
     var fullPensjonVed67: FremskrevetPensjonUnderUtbetaling? = null
+    var fullPensjonVedNormertPensjonsalder: FremskrevetPensjonUnderUtbetaling? = null
     var pensjonVedUttak: PensjonUnderUtbetaling? = null
     var fremskrevetAfpLivsvarig: FremskrevetAfpLivsvarig? = null
-    //@Deprecated("Avvikles. Erstattes av afpPrivatLivsvarigVedUttak.")
-    //var afpLivsvarigVedUttak: AfpLivsvarig? = null
     var afpPrivatLivsvarigVedUttak: AfpPrivatLivsvarig? = null
     var afpLivsvarigBrukt = false
+    @Deprecated("Avvikles.", replaceWith = ReplaceWith("fremskrevetPensjonVedNormertPensjonsAlder"))
     var fremskrevetPensjonVed67 = 0.0
+    var fremskrevetPensjonVedNormertPensjonsAlder = 0.0
+    @Deprecated("Avvikles.", replaceWith = ReplaceWith("samletPensjonVedNormertPensjonsAlder"))
     var samletPensjonVed67PerAr = 0.0
+    var samletPensjonVedNormertPensjonsAlder = 0.0
 }

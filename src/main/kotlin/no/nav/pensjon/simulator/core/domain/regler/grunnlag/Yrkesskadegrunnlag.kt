@@ -1,24 +1,24 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YrkeYrkesskadeEnum
-import java.util.*
+import java.time.LocalDate
 
+// 2026-04-23
 /**
  * Grunnlagsdata for yrkesskade. Denne er et tillegg til Uforegrunnlag. Hvis
  * dette objektet finnes (!=null) må det finnes et Uforegrunnlag. Dersom dette
  * objektet er null og Uforegrunnlaget != null betyr det at personen ikke har
  * yrkesskade.
  */
-// Checked 2025-02-28
 class Yrkesskadegrunnlag {
     /**
      * Dato for skadetidspunkt.
      */
-    var yst: Date? = null
+    var ystLd: LocalDate? = null
 
     /**
      * Uføregrad ved yrkesskade, heltall 0-100.Kan ikke være større enn
-     * uføregraden(ufg).For avdød pga yrkesskade settes yug til 100.
+     * Uføregraden(ufg).For avdød pga yrkesskade settes yug til 100.
      */
     var yug = 0
 
@@ -52,7 +52,7 @@ class Yrkesskadegrunnlag {
     constructor()
 
     constructor(source: Yrkesskadegrunnlag) : this() {
-        yst = source.yst?.clone() as? Date
+        ystLd = source.ystLd
         yug = source.yug
         yrkessykdom = source.yrkessykdom
         yrkeEnum = source.yrkeEnum

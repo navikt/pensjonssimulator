@@ -17,11 +17,9 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
-import java.util.*
 
 /**
  * Converts from simulator output to pensjon in an intermediate format.
@@ -287,7 +285,7 @@ object SimulatorOutputConverter {
         if (foedselsdato == null)
             null
         else
-            beregning.virkFom?.let {
+            beregning.virkFomLd?.let {
                 val sluttpoengtall = beregning.tp?.spt
                 val poengrekke = sluttpoengtall?.poengrekke
 
@@ -347,14 +345,14 @@ object SimulatorOutputConverter {
             pensjonsgivendeInntekt = source.pi
         )
 
-    private fun alderAar(foedselsdato: LocalDate, dato: Date): Int =
-        PensjonAlderDato(foedselsdato, dato = dato.toNorwegianLocalDate()).alder.aar
+    private fun alderAar(foedselsdato: LocalDate, dato: LocalDate): Int =
+        PensjonAlderDato(foedselsdato, dato = dato).alder.aar
 
     private fun harUttakToday(grad: Uttaksgrad, today: LocalDate) =
-        grad.uttaksgrad > 0 && coversToday(grad.fomDato, grad.tomDato, today)
+        grad.uttaksgrad > 0 && coversToday(grad.fomDatoLd, grad.tomDatoLd, today)
 
     // SimulerAlderspensjonResponseV3Converter.isUttaksgradToday
-    private fun coversToday(fom: Date?, tom: Date?, today: LocalDate): Boolean {
+    private fun coversToday(fom: LocalDate?, tom: LocalDate?, today: LocalDate): Boolean {
         if (isAfterByDay(today, fom, true)) {
             return tom == null || isBeforeByDay(today, tom, true)
         }

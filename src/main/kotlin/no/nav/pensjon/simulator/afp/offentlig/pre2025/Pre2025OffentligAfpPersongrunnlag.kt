@@ -14,7 +14,6 @@ import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
@@ -181,7 +180,7 @@ class Pre2025OffentligAfpPersongrunnlag(
 
     private fun virksom(detalj: PersonDetalj, allowSameDay: Boolean) =
         detalj.virkTom == null ||
-                isAfterByDay(detalj.virkTom?.toNorwegianNoon(), time.today().toNorwegianDateAtNoon(), allowSameDay)
+                isAfterByDay(detalj.virkTom, time.today().toNorwegianDateAtNoon(), allowSameDay)
 
     companion object {
 
@@ -209,12 +208,12 @@ class Pre2025OffentligAfpPersongrunnlag(
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
-                fom = fomDatoInntekt.toNorwegianDateAtNoon()
+                fomLd = fomDatoInntekt
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 inntektTypeEnum = InntekttypeEnum.FPI
                 //kopiertFraGammeltKrav = false <--- not used by pensjon-regler
                 //registerKilde = null <--- not used by pensjon-regler
-                tom = null
+                tomLd = null
             }
 
         // SimulerAFPogAPCommandHelper.removeInvalidPersondetaljFromPersongrunnlag
@@ -274,7 +273,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         private fun beholdForventetPensjongivendeInntekt(persongrunnlag: Persongrunnlag) {
             persongrunnlag.inntektsgrunnlagListe =
                 persongrunnlag.inntektsgrunnlagListe
-                    .filter { it.bruk == true && isForventetPensjongivendeInntekt(it) }
+                    .filter { it.bruk && isForventetPensjongivendeInntekt(it) }
                     .toMutableList()
         }
 

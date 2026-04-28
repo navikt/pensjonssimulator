@@ -5,6 +5,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
+import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
@@ -68,11 +69,5 @@ class AlderspensjonOgPrivatAfpResultPreparer(
 
         private fun harHattUttakFoer(uttakListe: List<Uttaksgrad>, dato: LocalDate): Boolean =
             uttakListe.none { it.tasUt(dato) } && uttakListe.any { it.tattUtFoer(dato) }
-
-        private fun foersteDagMaanedenEtterBursdag(foedselsdato: LocalDate, alderAar: Int): LocalDate =
-            foedselsdato
-                .plusYears(alderAar.toLong())
-                .plusMonths(1)
-                .withDayOfMonth(1)
     }
 }

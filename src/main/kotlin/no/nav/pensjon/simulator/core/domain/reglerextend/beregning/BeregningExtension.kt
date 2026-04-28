@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copyBarnetillegg
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import no.nav.pensjon.simulator.core.util.copy
 
 fun AfpTillegg.copy() =
     AfpTillegg().also {
@@ -27,8 +26,8 @@ fun BarnetilleggSerkullsbarn.copy() =
 fun Beregning.copy() =
     Beregning().also {
         it.penPerson = this.penPerson?.copy()
-        it.virkFom = this.virkFom?.copy()
-        it.virkTom = this.virkTom?.copy()
+        it.virkFomLd = this.virkFomLd
+        it.virkTomLd = this.virkTomLd
         it.brutto = this.brutto
         it.netto = this.netto
         it.gp = this.gp?.let(::Grunnpensjon)
@@ -90,8 +89,8 @@ fun Beregning.copy() =
         it.pubReguleringFratrekk = this.pubReguleringFratrekk
         it.ttBeregnetForGrunnlagsrolle = this.ttBeregnetForGrunnlagsrolle
         it.ungUforGarantiFrafalt = this.ungUforGarantiFrafalt
-        it.uft = this.uft?.copy()
-        it.yst = this.yst?.copy()
+        it.uftLd = this.uftLd
+        it.ystLd = this.ystLd
         it.merknadListe = this.merknadListe.map { o -> o.copy() }
     }
 

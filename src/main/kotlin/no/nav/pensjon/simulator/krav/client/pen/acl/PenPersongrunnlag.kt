@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.OvergangsinfoUP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import java.util.*
+import java.time.LocalDate
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag as LivsvarigOffentligAfpGrunnlag
 
 /**
@@ -15,12 +15,12 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLiv
  */
 class PenPersongrunnlag(
     var penPerson: PenPenPerson? = null,
-    var fodselsdato: Date? = null,
-    var dodsdato: Date? = null,
+    var fodselsdatoLd: LocalDate? = null,
+    var dodsdatoLd: LocalDate? = null,
     var statsborgerskapEnum: LandkodeEnum? = null,
     var flyktning: Boolean? = null,
     var personDetaljListe: MutableList<PenPersonDetalj> = mutableListOf(),
-    var sistMedlITrygden: Date? = null,
+    var sistMedlITrygdenLd: LocalDate? = null,
     var sisteGyldigeOpptjeningsAr: Int = 0,
     var hentetPopp: Boolean? = null,
     var hentetInnt: Boolean? = null,
@@ -72,7 +72,6 @@ class PenPersongrunnlag(
     var personDetalj: PenPersonDetalj? = null,
     var poengtillegg: Double = 0.0,
     var boddEllerArbeidetIUtlandet: Boolean = false,
-    var forsteVirk: Date? = null,
     var afpTpoUpGrunnlag: AfpTpoUpGrunnlag? = null,
     var normertPensjonsalderGrunnlag: NormertPensjonsalderGrunnlag? = null,
 

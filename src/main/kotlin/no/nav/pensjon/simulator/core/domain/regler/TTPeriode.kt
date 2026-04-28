@@ -2,19 +2,19 @@ package no.nav.pensjon.simulator.core.domain.regler
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import java.util.*
+import java.time.LocalDate
 
-// Copied from pensjon-regler-api 2026-01-16
+// 2026-04-23
 class TTPeriode {
     /**
      * Fra-og-med dato for perioden.
      */
-    var fom: Date? = null
+    var fomLd: LocalDate? = null
 
     /**
      * Til-og-med dato for perioden.
      */
-    var tom: Date? = null
+    var tomLd: LocalDate? = null
 
     /**
      * Skal bruker ha poeng for hele året i fom-datoen

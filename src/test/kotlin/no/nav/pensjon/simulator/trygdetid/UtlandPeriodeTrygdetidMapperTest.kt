@@ -4,14 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
-import java.util.Calendar.DECEMBER
-import java.util.Calendar.FEBRUARY
-import java.util.Calendar.JANUARY
-import java.util.Calendar.MARCH
-import java.util.Calendar.MAY
 
 class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
@@ -34,13 +27,13 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
         result.size shouldBe 2
         with(result[0].periode) {
-            fom shouldBe dateAtNoon(2024, JANUARY, 1)
-            tom shouldBe dateAtNoon(2024, JANUARY, 31) // overlap removed
+            fomLd shouldBe LocalDate.of(2024, 1, 1)
+            tomLd shouldBe LocalDate.of(2024, 1, 31) // overlap removed
             landEnum shouldBe LandkodeEnum.DNK
         }
         with(result[1].periode) {
-            fom shouldBe dateAtNoon(2024, FEBRUARY, 1)
-            tom shouldBe dateAtNoon(2024, MARCH, 31)
+            fomLd shouldBe LocalDate.of(2024, 2, 1)
+            tomLd shouldBe LocalDate.of(2024, 3, 31)
             landEnum shouldBe LandkodeEnum.SWE
         }
     }
@@ -65,13 +58,13 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
         result.size shouldBe 2
         with(result[0].periode) {
-            fom shouldBe dateAtNoon(2024, JANUARY, 1)
-            tom shouldBe dateAtNoon(2024, JANUARY, 31)
+            fomLd shouldBe LocalDate.of(2024, 1, 1)
+            tomLd shouldBe LocalDate.of(2024, 1, 31)
             landEnum shouldBe LandkodeEnum.DNK
         }
         with(result[1].periode) {
-            fom shouldBe dateAtNoon(2024, FEBRUARY, 1)
-            tom shouldBe dateAtNoon(2024, MARCH, 31)
+            fomLd shouldBe LocalDate.of(2024, 2, 1)
+            tomLd shouldBe LocalDate.of(2024, 3, 31)
             landEnum shouldBe LandkodeEnum.SWE
         }
     }
@@ -90,8 +83,8 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
 
         result.size shouldBe 1
         with(result[0].periode) {
-            fom shouldBe dateAtNoon(2024, JANUARY, 1)
-            tom shouldBe dateAtNoon(2024, FEBRUARY, 1)
+            fomLd shouldBe LocalDate.of(2024, 1, 1)
+            tomLd shouldBe LocalDate.of(2024, 2, 1)
             landEnum shouldBe LandkodeEnum.DNK
         }
     }
@@ -119,7 +112,13 @@ class UtlandPeriodeTrygdetidMapperTest : FunSpec({
         assertOpphold(actual = result[5], fomAar = 1984, tomAar = 1985, land = LandkodeEnum.LTU, arbeidet = false)
         assertOpphold(actual = result[6], fomAar = 1986, tomAar = 1986, land = LandkodeEnum.NOR, arbeidet = true)
         assertOpphold(actual = result[7], fomAar = 1987, tomAar = 1987, land = LandkodeEnum.NOR, arbeidet = true)
-        assertOpphold(actual = result[8], fomAar = 1988, tomDato = dateAtNoon(2027, MAY, 1), land = LandkodeEnum.LTU, arbeidet = false)
+        assertOpphold(
+            actual = result[8],
+            fomAar = 1988,
+            tomDato = LocalDate.of(2027, 5, 1),
+            land = LandkodeEnum.LTU,
+            arbeidet = false
+        )
     }
 
     test("utlandTrygdetidGrunnlag when open utenlandsperiode") {
@@ -157,8 +156,8 @@ private fun norskTrygdetid(vararg aarListe: Int): List<TrygdetidOpphold> =
     aarListe.map {
         TrygdetidOpphold(
             periode = TTPeriode().apply {
-                fom = dateAtNoon(it, JANUARY, 1)
-                tom = dateAtNoon(it, DECEMBER, 31)
+                fomLd = LocalDate.of(it, 1, 1)
+                tomLd = LocalDate.of(it, 12, 31)
                 landEnum = LandkodeEnum.NOR
             },
             arbeidet = true
@@ -169,7 +168,7 @@ private fun assertOpphold(
     actual: TrygdetidOpphold,
     fomAar: Int,
     tomAar: Int? = null,
-    tomDato: Date? = null,
+    tomDato: LocalDate? = null,
     land: LandkodeEnum,
     arbeidet: Boolean
 ) {
@@ -177,8 +176,8 @@ private fun assertOpphold(
         this.arbeidet shouldBe arbeidet
         with(periode) {
             landEnum shouldBe land
-            fom shouldBe dateAtNoon(fomAar, JANUARY, 1)
-            tom shouldBe (tomDato ?: tomAar?.let { dateAtNoon(it, DECEMBER, 31) })
+            fomLd shouldBe LocalDate.of(fomAar, 1, 1)
+            tomLd shouldBe (tomDato ?: tomAar?.let { LocalDate.of(it, 12, 31) })
         }
     }
 }

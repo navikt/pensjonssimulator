@@ -13,14 +13,13 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
 import no.nav.pensjon.simulator.trygdetid.Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe
@@ -90,13 +89,13 @@ class KravhodeUpdater(
         if (avdoedGrunnlag != null) {
             log.debug { "STEP 4.4 - Sett trygdetidsgrunnlag for avdød" }
             // Dodsdato set to Dec 31 the previous year
-            val lastDayOfYearBeforeDoedDato = getLastDateInYear(getRelativeDateByYear(avdoedGrunnlag.dodsdato!!, -1))
+            val lastDayOfYearBeforeDoedDato = sisteDag(avdoedGrunnlag.dodsdatoLd!!.year - 1)
 
             avdoedGrunnlag = setTrygdetid(
                 TrygdetidGrunnlagSpec(
                     persongrunnlag = avdoedGrunnlag,
                     utlandAntallAar = simuleringSpec.avdoed?.antallAarUtenlands,
-                    tom = lastDayOfYearBeforeDoedDato.toNorwegianLocalDate(),
+                    tom = lastDayOfYearBeforeDoedDato,
                     forrigeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResult,
                     simuleringSpec = simuleringSpec
                 ),
@@ -120,27 +119,27 @@ class KravhodeUpdater(
         }
 
     private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag) {
-        setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdato)
+        setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdatoLd)
     }
 
     // PEN: SettUforehistorikkHelper.settUforehistorikk
-    private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag, tom: Date?) {
+    private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag, tom: LocalDate?) {
         val historikk = persongrunnlag.uforeHistorikk
         if (historikk?.uforeperiodeListe == null) return
 
         val historikkCopy = Uforehistorikk(historikk)
 
         historikkCopy.uforeperiodeListe.forEach {
-            if (it.ufgTom == null) {
-                it.ufgTom = tom
+            if (it.ufgTomLd == null) {
+                it.ufgTomLd = tom
             }
         }
 
         persongrunnlag.uforeHistorikk = historikkCopy
     }
 
-    private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): Date {
-        val sisteDagIMaanedenForNormalder: Date = sisteDagIMaanedenForNormalder(soekerGrunnlag.fodselsdato!!)
+    private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): LocalDate {
+        val sisteDagIMaanedenForNormalder: Date = sisteDagIMaanedenForNormalder(soekerGrunnlag.fodselsdatoLd!!)
 
         return if (spec.type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT &&
             isBeforeByDay(
@@ -149,16 +148,16 @@ class KravhodeUpdater(
                 allowSameDay = false
             )
         )
-            spec.foersteUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
+            spec.foersteUttakDato!!.minusDays(1)
         else
-            sisteDagIMaanedenForNormalder
+            sisteDagIMaanedenForNormalder.toNorwegianLocalDate()
     }
 
     // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
-    private fun sisteDagIMaanedenForNormalder(foedselsdato: Date): Date =
+    private fun sisteDagIMaanedenForNormalder(foedselsdato: LocalDate): Date =
         lastDayOfMonthUserTurnsGivenAge(
-            foedselsdato,
-            alder = normalderService.normalder(foedselsdato.toNorwegianLocalDate())
+            foedselsdato.toNorwegianDateAtNoon(),
+            alder = normalderService.normalder(foedselsdato)
         )
 
     // SimulerFleksibelAPCommand.settTrygdetid
@@ -208,7 +207,7 @@ class KravhodeUpdater(
         val periodeListe = kapittel19TrygdetidsperiodeListe(
             opptjeningsgrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
             utlandPeriodeListe = spec.utlandPeriodeListe,
-            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
+            foedselsdato = persongrunnlag.fodselsdatoLd!!,
             foersteUttakDato = spec.foersteAlderspensjonUttaksdato()
         )
 
@@ -219,7 +218,7 @@ class KravhodeUpdater(
     private fun addKapittel20Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
         val periodeListe = kapittel20TrygdetidsperiodeListe(
             utlandPeriodeListe = spec.utlandPeriodeListe,
-            foedselsdato = persongrunnlag.fodselsdato!!.toNorwegianLocalDate(),
+            foedselsdato = persongrunnlag.fodselsdatoLd!!,
             foersteUttakDato = spec.foersteAlderspensjonUttaksdato()
         )
 

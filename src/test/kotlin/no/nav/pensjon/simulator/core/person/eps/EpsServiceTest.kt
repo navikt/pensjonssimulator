@@ -9,8 +9,6 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -33,10 +31,8 @@ import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
-import java.util.*
 
 class EpsServiceTest : FunSpec({
 
@@ -460,7 +456,7 @@ class EpsServiceTest : FunSpec({
 
         val inntektsgrunnlag = kravhode.persongrunnlagListe[0].inntektsgrunnlagListe[0]
         // fom should be first day of 2025 (today's year) since foersteUttakDato is in the future
-        inntektsgrunnlag.fom shouldNotBe null
+        inntektsgrunnlag.fomLd shouldNotBe null
     }
 
     test("addPersongrunnlagForEpsToKravhode should use foersteUttakDato when it is in the past") {
@@ -497,7 +493,7 @@ class EpsServiceTest : FunSpec({
         service.addPersongrunnlagForEpsToKravhode(spec, kravhode, grunnbeloep = 118620)
 
         val inntektsgrunnlag = kravhode.persongrunnlagListe[0].inntektsgrunnlagListe[0]
-        inntektsgrunnlag.fom shouldNotBe null
+        inntektsgrunnlag.fomLd shouldNotBe null
     }
 
     test("addPersongrunnlagForEpsToKravhode should not add inntektsgrunnlag when epsHarInntektOver2G is false") {
@@ -768,7 +764,7 @@ private fun createEpsService(
 )
 
 private fun createAvdoedPersongrunnlag(): Persongrunnlag = Persongrunnlag().apply {
-    fodselsdato = dateAtNoon(1960, Calendar.MAY, 15)
+    fodselsdatoLd = LocalDate.of(1960, 5, 15)
     penPerson = PenPerson().apply { penPersonId = 2L }
     personDetaljListe = mutableListOf(
         PersonDetalj().apply {

@@ -4,9 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class InntektsgrunnlagValidityTest : FunSpec({
 
@@ -37,8 +35,8 @@ class InntektsgrunnlagValidityTest : FunSpec({
         ).test(Inntektsgrunnlag().apply {
             bruk = true
             inntektTypeEnum = InntekttypeEnum.PGI
-            fom = null
-            tom = null
+            fomLd = null
+            tomLd = null
         }) shouldBe true
     }
 
@@ -51,8 +49,8 @@ class InntektsgrunnlagValidityTest : FunSpec({
         ).test(Inntektsgrunnlag().apply {
             bruk = true
             inntektTypeEnum = InntekttypeEnum.PGI
-            fom = dateAtNoon(2018, Calendar.JANUARY, 1)
-            tom = dateAtNoon(2019, Calendar.FEBRUARY, 1) // overlap: 2019-01-01 to 2019-02-01
+            fomLd = LocalDate.of(2018, 1, 1)
+            tomLd = LocalDate.of(2019, 2, 1) // overlap: 2019-01-01 to 2019-02-01
         }) shouldBe true
     }
 
@@ -65,8 +63,8 @@ class InntektsgrunnlagValidityTest : FunSpec({
         ).test(Inntektsgrunnlag().apply {
             bruk = true
             inntektTypeEnum = InntekttypeEnum.PGI
-            fom = dateAtNoon(2018, Calendar.JANUARY, 1)
-            tom = dateAtNoon(2018, Calendar.DECEMBER, 1) // no overlap
+            fomLd = LocalDate.of(2018, 1, 1)
+            tomLd = LocalDate.of(2018, 12, 1) // no overlap
         }) shouldBe false
     }
 })

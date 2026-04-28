@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class PersonOpptjeningsgrunnlag {
     /**
      * Brukes ikke av pensjon-regler
@@ -18,13 +18,13 @@ class PersonOpptjeningsgrunnlag {
     /**
      * Brukers Fødselsdato
      */
-    var fodselsdato: Date? = null
+    var fodselsdatoLd: LocalDate? = null
 
     constructor()
 
-    constructor(source: PersonOpptjeningsgrunnlag) : this() {
-        fnr = source.fnr
-        source.opptjening?.let { opptjening = Opptjeningsgrunnlag(it) }
-        fodselsdato = source.fodselsdato?.clone() as? Date
-    }
+  //  constructor(source: PersonOpptjeningsgrunnlag) : this() {
+  //      fnr = source.fnr
+  //      source.opptjening?.let { opptjening = Opptjeningsgrunnlag(it) }
+  //      fodselsdato = source.fodselsdato?.clone() as? Date
+  //  }
 }

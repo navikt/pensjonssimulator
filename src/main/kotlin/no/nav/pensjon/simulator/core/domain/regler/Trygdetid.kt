@@ -4,9 +4,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.TrygdetidGarantitypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UtfallEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AntallArMndDag
-import java.util.*
+import java.time.LocalDate
 
-// 2025-03-10
+// 2026-04-23
 /**
  * Trygdetid - framtidig trygdetid
  */
@@ -46,7 +46,7 @@ class Trygdetid {
     /**
      * Dato fremtidig trygdetid regnes fra.
      */
-    var ftt_fom: Date? = null
+    var ftt_fomLd: LocalDate? = null
 
     /**
      * Faktiske trygdetidsmåneder. Brukes etter EØS og land med bilaterale
@@ -117,7 +117,6 @@ class Trygdetid {
      * Liste av merknader.
      */
     var merknadListe: List<Merknad> = mutableListOf()
-
     var garantiTypeEnum: TrygdetidGarantitypeEnum? = null
 
     /**
@@ -137,11 +136,12 @@ class Trygdetid {
     /**
      * Trygdetidens virkningsdato fom. Brukes ved fastsettelse av periodisert trygdetid for AP2011/AP2016 og AP2025
      */
-    var virkFom: Date? = null
+    var virkFomLd: LocalDate? = null
 
     /**
      * Trygdetidens virkningsdato tom. Brukes ved fastsettelse av periodisert trygdetid for AP2011/AP2016 og AP2025
      */
-    var virkTom: Date? = null
+    var virkTomLd: LocalDate? = null
+
     var anvendtFlyktningEnum: UtfallEnum? = null
 }

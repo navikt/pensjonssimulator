@@ -7,8 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoG
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.util.*
 
 /**
@@ -69,8 +67,8 @@ object FoersteVirkningDatoRepopulator {
 
     private fun copy(grunnlag: ForsteVirkningsdatoGrunnlag) =
         ForsteVirkningsdatoGrunnlag().apply {
-            virkningsdato = grunnlag.virkningsdato
-            kravFremsattDato = grunnlag.kravFremsattDato
+            virkningsdatoLd = grunnlag.virkningsdatoLd
+            kravFremsattDatoLd = grunnlag.kravFremsattDatoLd
             bruker = grunnlag.bruker // NB in ForsteVirkningsDatoMapper this is grunnlag.sak.penPerson
             annenPerson = grunnlag.annenPerson
             kravlinjeTypeEnum = grunnlag.kravlinjeTypeEnum
@@ -103,8 +101,8 @@ object FoersteVirkningDatoRepopulator {
         annenPerson: PenPerson?
     ) =
         ForsteVirkningsdatoGrunnlag().apply {
-            this.virkningsdato = kravhode.onsketVirkningsdato?.toNorwegianDateAtNoon()
-            this.kravFremsattDato = kravhode.kravFremsattDato?.noon()
+            this.virkningsdatoLd = kravhode.onsketVirkningsdatoLd
+            this.kravFremsattDatoLd = kravhode.kravFremsattDatoLd
             this.bruker = soeker
             this.annenPerson = if (gjelderForsorgingstillegg(kravlinjeType)) annenPerson else null
             this.kravlinjeTypeEnum = kravlinjeType

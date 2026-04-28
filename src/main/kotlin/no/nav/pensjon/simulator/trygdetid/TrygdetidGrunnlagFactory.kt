@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.util.*
 
@@ -11,12 +12,9 @@ import java.util.*
 object TrygdetidGrunnlagFactory {
 
     fun trygdetidPeriode(fom: LocalDate?, tom: LocalDate?) =
-        trygdetidPeriode(fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon())
-
-    fun trygdetidPeriode(fom: Date?, tom: Date?) =
         TTPeriode().apply {
-            this.fom = fom?.let { Date(it.time) }
-            this.tom = tom?.let { Date(it.time) }
+            this.fomLd = fom
+            this.tomLd = tom
             this.poengIInnAr = false
             this.poengIUtAr = false
             this.landEnum = LandkodeEnum.NOR
@@ -27,8 +25,8 @@ object TrygdetidGrunnlagFactory {
     // PEN: SettTrygdetidHelper.createTrygdetidsgrunnlagNorge + TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
     fun trygdetidPeriode(fom: Date, tom: Date?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean?) =
         TTPeriode().apply {
-            this.fom = fom
-            this.tom = tom
+            this.fomLd = fom.toNorwegianLocalDate()
+            this.tomLd = tom?.toNorwegianLocalDate()
             this.poengIInnAr = false
             this.poengIUtAr = false
             this.landEnum = land
@@ -38,12 +36,13 @@ object TrygdetidGrunnlagFactory {
 
     fun trygdetidPeriode(fom: LocalDate, tom: LocalDate?, land: LandkodeEnum?, ikkeProRata: Boolean, bruk: Boolean?) =
         trygdetidPeriode(fom.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon(), land, ikkeProRata, bruk)
+    //TODO: fix
 
     // PEN: TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlag
     fun trygdetidPeriode(fom: Date?, tom: Date?, land: LandkodeEnum?) =
         TTPeriode().apply {
-            this.fom = fom?.let { Date(it.time) }
-            this.tom = tom?.let { Date(it.time) }
+            this.fomLd = fom?.toNorwegianLocalDate()
+            this.tomLd = tom?.toNorwegianLocalDate()
             this.poengIInnAr = false
             this.poengIUtAr = false
             this.landEnum = land
@@ -51,14 +50,14 @@ object TrygdetidGrunnlagFactory {
             this.bruk = true
         }
 
-    fun trygdetidPeriode(fom: LocalDate?, tom: LocalDate?, land: LandkodeEnum) =
+    fun trygdetidPeriode(fom: LocalDate?, tom: LocalDate?, land: LandkodeEnum?) =
         trygdetidPeriode(fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon(), land)
 
     // PEN: TrygdetidsgrunnlagFactory.createTrygdetidsgrunnlagForenkletSimulering + createTrygdetidsgrunnlag
     fun anonymSimuleringTrygdetidPeriode(fom: Date?, tom: Date?) =
         TTPeriode().apply {
-            this.fom = fom?.let { Date(it.time) }
-            this.tom = tom?.let { Date(it.time) }
+            this.fomLd = fom?.toNorwegianLocalDate()
+            this.tomLd = tom?.toNorwegianLocalDate()
             this.poengIInnAr = false
             this.poengIUtAr = false
             this.landEnum = LandkodeEnum.NOR

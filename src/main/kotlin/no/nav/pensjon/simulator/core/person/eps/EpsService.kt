@@ -13,8 +13,6 @@ import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.erEps
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
@@ -107,7 +105,7 @@ class EpsService(
             opptjeningUpdater.oppdaterOpptjeningsgrunnlagFraInntekter(
                 originalGrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
                 inntektListe = epsInntektListe,
-                foedselsdato = persongrunnlag.fodselsdato?.toNorwegianLocalDate()
+                foedselsdato = persongrunnlag.fodselsdatoLd
             )
 
         return persongrunnlag
@@ -131,8 +129,8 @@ class EpsService(
         private fun epsInntektGrunnlag(grunnbeloep: Int, foersteUttakAar: Int) =
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
-                fom = foersteDag(foersteUttakAar).toNorwegianDateAtNoon() // noon: ref. GrunnlagToReglerMapper.mapToInntektsgrunnlag in PEN
-                tom = null
+                fomLd = foersteDag(foersteUttakAar)
+                tomLd = null
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 inntektTypeEnum = InntekttypeEnum.FPI
                 bruk = true

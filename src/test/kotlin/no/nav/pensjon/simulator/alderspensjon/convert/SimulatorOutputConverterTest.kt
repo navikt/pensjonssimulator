@@ -8,10 +8,8 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
-import java.util.*
 
 class SimulatorOutputConverterTest : FunSpec({
 
@@ -63,8 +61,8 @@ class SimulatorOutputConverterTest : FunSpec({
                                 })
                             uttakGradListe = listOf(
                                 Uttaksgrad().apply {
-                                    fomDato = dateAtNoon(2030, Calendar.JANUARY, 1)
-                                    tomDato = dateAtNoon(2040, Calendar.DECEMBER, 1)
+                                    fomDatoLd = LocalDate.of(2030, 1, 1)
+                                    tomDatoLd = LocalDate.of(2040, 12, 1)
                                     uttaksgrad = 50
                                 }
                             )
@@ -132,8 +130,8 @@ class SimulatorOutputConverterTest : FunSpec({
                         PensjonPeriode().apply {
                             uttakGradListe = listOf(
                                 Uttaksgrad().apply {
-                                    fomDato = dateAtNoon(2020, Calendar.JANUARY, 1)
-                                    tomDato = dateAtNoon(2030, Calendar.DECEMBER, 1)
+                                    fomDatoLd = LocalDate.of(2020, 1, 1)
+                                    tomDatoLd = LocalDate.of(2030, 12, 1)
                                     uttaksgrad = 50
                                 }
                             )
@@ -152,8 +150,8 @@ class SimulatorOutputConverterTest : FunSpec({
                         PensjonPeriode().apply {
                             uttakGradListe = listOf(
                                 Uttaksgrad().apply {
-                                    fomDato = dateAtNoon(2020, Calendar.JANUARY, 1)
-                                    tomDato = dateAtNoon(2030, Calendar.DECEMBER, 1)
+                                    fomDatoLd = LocalDate.of(2020, 1, 1)
+                                    tomDatoLd = LocalDate.of(2030, 12, 1)
                                     uttaksgrad = 0
                                 }
                             )

@@ -109,7 +109,7 @@ class NavAnonymAlderspensjonController(
                 AnonymSimuleringResultEnvelopeV1(
                     error = AnonymSimuleringErrorV1(
                         status = status.reasonPhrase,
-                        message = extractMessages(e) ?: e.javaClass.simpleName
+                        message = e.javaClass.simpleName
                     )
                 ),
                 status

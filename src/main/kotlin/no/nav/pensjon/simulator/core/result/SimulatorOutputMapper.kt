@@ -100,6 +100,7 @@ object SimulatorOutputMapper {
                     this.apKap19medGJR = it.apKap19MedGJR
                     this.apKap19utenGJR = it.apKap19UtenGJR
                     this.gjtAP = it.bruttoPerAr.toInt()
+                    this.gjtAPPerMaaned = it.brutto
                 }
 
                 val pensjonKapittel20: Int =
@@ -113,6 +114,7 @@ object SimulatorOutputMapper {
             if (beregningsresultatKapittel19 != null) { // ref. jira.adeo.no/browse/PEB-442
                 pensjon?.gjenlevendetilleggAPKap19?.let {
                     this.gjtAPKap19 = it.bruttoPerAr.toInt()
+                    this.gjtAPKap19PerMaaned = it.brutto
                 }
             }
 
@@ -175,6 +177,7 @@ object SimulatorOutputMapper {
             this.garantipensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GAP)
             this.garantipensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GAP)
             this.garantitillegg = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GAT)
+            this.garantitilleggPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GAT)
             this.grunnpensjon = bruttoPerAar(pensjon, YtelseskomponentTypeEnum.GP)
             this.grunnpensjonPerMaaned = bruttoPerMaaned(pensjon, YtelseskomponentTypeEnum.GP)
             this.grunnpensjonsats = pensjon?.grunnpensjon?.pSats_gp

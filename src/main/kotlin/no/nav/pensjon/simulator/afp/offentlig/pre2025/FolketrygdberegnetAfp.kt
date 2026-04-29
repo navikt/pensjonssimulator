@@ -19,5 +19,6 @@ data class FolketrygdberegnetAfp(
     val tilleggspensjon: Int?,
     val afpTillegg: Int?, // AFP-tillegg
     val fpp: Double?, // framtidige pensjonspoeng
-    val sertillegg: Int? // særtillegg
+    val sertillegg: Int?, // særtillegg
+    val erAvkortet: Boolean? = null
 )

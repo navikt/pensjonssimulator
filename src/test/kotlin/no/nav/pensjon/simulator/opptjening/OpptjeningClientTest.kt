@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.opptjening
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
@@ -44,7 +44,7 @@ class OpptjeningClientTest : FunSpec({
 
         Arrange.security()
         Arrange.webClientContextRunner().run {
-            client(context = it).hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(
+            client(context = it).fetchSistLignedeInntekt(Pid("12345678910")) shouldBe LoependeInntekt(
                 aarligBeloep = 123456,
                 fom = LocalDate.of(2025, 1, 1)
             )
@@ -56,7 +56,7 @@ class OpptjeningClientTest : FunSpec({
 
         Arrange.security()
         Arrange.webClientContextRunner().run {
-            client(context = it).hentSisteLignetInntekt(Pid("12345678910")) shouldBe Inntekt(
+            client(context = it).fetchSistLignedeInntekt(Pid("12345678910")) shouldBe LoependeInntekt(
                 aarligBeloep = 0,
                 fom = LocalDate.of(2024, 1, 1) // "inneværende år" er 2024 siden "dagens dato" er 2024-06-15
             )
@@ -69,7 +69,7 @@ class OpptjeningClientTest : FunSpec({
 
         Arrange.security()
         Arrange.webClientContextRunner().run {
-            client(context = it).hentSisteLignetInntekt(Pid("12345678910")).aarligBeloep shouldBe 123456
+            client(context = it).fetchSistLignedeInntekt(Pid("12345678910")).aarligBeloep shouldBe 123456
         }
     }
 })

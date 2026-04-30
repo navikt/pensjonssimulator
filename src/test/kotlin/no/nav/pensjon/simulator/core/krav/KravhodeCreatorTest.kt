@@ -52,6 +52,7 @@ class KravhodeCreatorTest : ShouldSpec({
     should("opprette kravhode") {
         val kravhode = KravhodeCreator(
             epsService = mockk(relaxed = true),
+            lignetInntektService = mockk(relaxed = true),
             persongrunnlagService = arrangePersongrunnlag(),
             opptjeningUpdater = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
@@ -1922,13 +1923,11 @@ class KravhodeCreatorTest : ShouldSpec({
                 inntektOver1GAntallAar = 10 // gjeldendeAar = 2020
             )
 
-            val kravhode = creator.opprettKravhode(
+            creator.opprettKravhode(
                 kravhodeSpec = KravhodeSpec(spec, null, 123000),
                 person = null,
                 virkningDatoGrunnlagListe = emptyList()
-            )
-
-            kravhode shouldNotBe null
+            ) shouldNotBe null
         }
 
         should("håndtere gradert uttak for anonym simulering") {
@@ -1985,20 +1984,17 @@ class KravhodeCreatorTest : ShouldSpec({
                 inntektOver1GAntallAar = 5
             )
 
-            val kravhode = creator.opprettKravhode(
+            creator.opprettKravhode(
                 kravhodeSpec = KravhodeSpec(spec, null, 123000),
                 person = null,
                 virkningDatoGrunnlagListe = emptyList()
-            )
-
-            kravhode shouldNotBe null
+            ) shouldNotBe null
         }
-
     }
 })
 
 private fun arrangePersongrunnlag(): PersongrunnlagService =
-    mockk<PersongrunnlagService>().apply {
+    mockk<PersongrunnlagService> {
         every { getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any()) } returns persongrunnlag()
     }
 
@@ -2025,6 +2021,7 @@ private fun createKravhodeCreator(
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = arrangePersongrunnlag(),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2055,11 +2052,13 @@ private fun createKravhodeCreatorWithInntektGrunnlag(
     today: LocalDate = LocalDate.of(2025, 1, 1),
     sisteGyldigeOpptjeningsaar: Int = 2024
 ): KravhodeCreator {
-    val generelleDataHolder = mockk<GenerelleDataHolder>()
-    every { generelleDataHolder.getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+    val generelleDataHolder = mockk<GenerelleDataHolder> {
+        every { getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+    }
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = arrangePersongrunnlagWithInntektsgrunnlag(),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2083,6 +2082,7 @@ private fun createKravhodeCreatorForAnonym(
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = mockk(relaxed = true),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2097,8 +2097,10 @@ private fun createKravhodeCreatorForAnonym(
 }
 
 private fun arrangePersongrunnlagWithInntektsgrunnlag(): PersongrunnlagService =
-    mockk<PersongrunnlagService>().apply {
-        every { getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any()) } returns persongrunnlagWithInntektsgrunnlag()
+    mockk<PersongrunnlagService> {
+        every {
+            getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any())
+        } returns persongrunnlagWithInntektsgrunnlag()
     }
 
 private fun persongrunnlagWithInntektsgrunnlag() =
@@ -2145,6 +2147,7 @@ private fun createKravhodeCreatorForPre2025Afp(
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = arrangePersongrunnlag(),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2188,6 +2191,7 @@ private fun createKravhodeCreatorForPre2025AfpWithInntektGrunnlag(
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = arrangePersongrunnlagWithInntektsgrunnlag(),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2205,32 +2209,35 @@ private fun createKravhodeCreatorForEndring(
     today: LocalDate = LocalDate.of(2025, 1, 1),
     sisteGyldigeOpptjeningsaar: Int = 2024
 ): KravhodeCreator {
-    val generelleDataHolder = mockk<GenerelleDataHolder>()
-    every { generelleDataHolder.getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+    val generelleDataHolder = mockk<GenerelleDataHolder> {
+        every { getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+    }
+    val kravService = mockk<KravService> {
+        every { fetchKravhode(any()) } returns Kravhode()
+    }
+    val endringPersongrunnlag = mockk<EndringPersongrunnlag> {
+        every {
+            getPersongrunnlagForSoeker(any(), any(), any(), any())
+        } returns persongrunnlag()
+        every {
+            addPersongrunnlagForEpsToKravhode(any(), any(), any(), any())
+        } answers { secondArg() } // returns the kravhode parameter
+    }
 
-    val kravService = mockk<KravService>()
-    every { kravService.fetchKravhode(any()) } returns Kravhode()
-
-    val endringPersongrunnlag = mockk<EndringPersongrunnlag>()
-    every {
-        endringPersongrunnlag.getPersongrunnlagForSoeker(any(), any(), any(), any())
-    } returns persongrunnlag()
-    every {
-        endringPersongrunnlag.addPersongrunnlagForEpsToKravhode(any(), any(), any(), any())
-    } answers { secondArg() } // returns the kravhode parameter
-
-    val endringUttaksgrad = mockk<EndringUttaksgrad>()
-    every {
-        endringUttaksgrad.uttaksgradListe(any(), any())
-    } returns mutableListOf(
-        Uttaksgrad().apply {
-            fomDato = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
-            uttaksgrad = 100
-        }
-    )
+    val endringUttaksgrad = mockk<EndringUttaksgrad> {
+        every {
+            uttaksgradListe(any(), any())
+        } returns mutableListOf(
+            Uttaksgrad().apply {
+                fomDato = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+                uttaksgrad = 100
+            }
+        )
+    }
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = arrangePersongrunnlag(),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2248,21 +2255,24 @@ private fun createKravhodeCreatorWithAvdoed(
     today: LocalDate = LocalDate.of(2025, 1, 1),
     sisteGyldigeOpptjeningsaar: Int = 2024
 ): KravhodeCreator {
-    val generelleDataHolder = mockk<GenerelleDataHolder>()
-    every { generelleDataHolder.getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+    val generelleDataHolder = mockk<GenerelleDataHolder> {
+        every { getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+    }
 
-    val persongrunnlagService = mockk<PersongrunnlagService>()
-    every {
-        persongrunnlagService.getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any())
-    } answers {
-        val kravhode = secondArg<Kravhode>()
-        // Add avdød persongrunnlag to kravhode
-        kravhode.persongrunnlagListe.add(avdoedPersongrunnlag())
-        persongrunnlag()
+    val persongrunnlagService = mockk<PersongrunnlagService> {
+        every {
+            getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any())
+        } answers {
+            val kravhode = secondArg<Kravhode>()
+            // Add avdød persongrunnlag to kravhode
+            kravhode.persongrunnlagListe.add(avdoedPersongrunnlag())
+            persongrunnlag()
+        }
     }
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = persongrunnlagService,
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,
@@ -2304,12 +2314,14 @@ private fun createKravhodeCreatorForAnonymWithVeietGrunnbeloep(
     sisteGyldigeOpptjeningsaar: Int = 2024,
     veietGrunnbeloepListe: List<VeietSatsResultat> = emptyList()
 ): KravhodeCreator {
-    val generelleDataHolder = mockk<GenerelleDataHolder>()
-    every { generelleDataHolder.getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
-    every { generelleDataHolder.getVeietGrunnbeloepListe(any(), any()) } returns veietGrunnbeloepListe
+    val generelleDataHolder = mockk<GenerelleDataHolder> {
+        every { getSisteGyldigeOpptjeningsaar() } returns sisteGyldigeOpptjeningsaar
+        every { getVeietGrunnbeloepListe(any(), any()) } returns veietGrunnbeloepListe
+    }
 
     return KravhodeCreator(
         epsService = mockk(relaxed = true),
+        lignetInntektService = mockk(relaxed = true),
         persongrunnlagService = mockk(relaxed = true),
         opptjeningUpdater = mockk(relaxed = true),
         generelleDataHolder = generelleDataHolder,

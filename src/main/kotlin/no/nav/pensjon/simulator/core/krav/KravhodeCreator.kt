@@ -34,17 +34,21 @@ import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
+import no.nav.pensjon.simulator.inntekt.LignetInntektService
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
+import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
 import java.util.stream.IntStream
+import kotlin.math.roundToInt
 import kotlin.streams.toList
 
 /**
@@ -55,6 +59,7 @@ import kotlin.streams.toList
 @Component
 class KravhodeCreator(
     private val epsService: EpsService,
+    private val lignetInntektService: LignetInntektService,
     private val persongrunnlagService: PersongrunnlagService,
     private val opptjeningUpdater: OpptjeningUpdater,
     private val generelleDataHolder: GenerelleDataHolder,
@@ -309,7 +314,7 @@ class KravhodeCreator(
         }
 
         val persongrunnlag = kravhode.hentPersongrunnlagForSoker()
-        val inntektListe: MutableList<Inntekt>
+        val inntektListe: MutableList<AarligInntekt>
 
         if (spec.brukFremtidigInntekt) {
             val gjeldendeAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar() + 1
@@ -403,21 +408,26 @@ class KravhodeCreator(
         spec: SimuleringSpec,
         grunnbeloep: Int,
         foedselsdato: LocalDate? // null if anonym
-    ): MutableList<Inntekt> {
+    ): MutableList<AarligInntekt> {
         var veietGrunnbeloepListe: List<VeietSatsResultat> = emptyList()
         val innevaerendeAar = time.today().year
         val gjeldendeAar: Int
         val aarSoekerBlirMaxAlder: Int
+        val inntektListe: MutableList<AarligInntekt> = mutableListOf()
 
         if (spec.erAnonym) {
             gjeldendeAar = (spec.foersteUttakDato?.year ?: 0) - spec.inntektOver1GAntallAar
             aarSoekerBlirMaxAlder = MAX_OPPTJENING_ALDER + spec.foedselAar
+
             if (gjeldendeAar < innevaerendeAar) {
                 veietGrunnbeloepListe =
-                    generelleDataHolder.getVeietGrunnbeloepListe(gjeldendeAar, aarSoekerBlirMaxAlder)
+                    generelleDataHolder.getVeietGrunnbeloepListe(
+                        fomAar = gjeldendeAar,
+                        tomAar = aarSoekerBlirMaxAlder
+                    )
             }
         } else {
-            gjeldendeAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar() + 1
+            gjeldendeAar = lignetInntektService.behandleSistLignedeInntekt(pid = spec.pid!!, inntektListe)
             aarSoekerBlirMaxAlder = yearUserTurnsGivenAge(foedselsdato!!, MAX_OPPTJENING_ALDER)
         }
 
@@ -430,7 +440,6 @@ class KravhodeCreator(
                 ?: if (spec.uttakErGradertEllerNull()) spec.inntektUnderGradertUttakBeloep else 0
 
         val inntektEtterHeltUttak = spec.inntektEtterHeltUttakBeloep
-        val inntekter: MutableList<Inntekt> = mutableListOf()
 
         for (aar in gjeldendeAar..aarSoekerBlirMaxAlder) {
             val beregnetForventetInntekt =
@@ -441,15 +450,15 @@ class KravhodeCreator(
                     antallMaanederMedInntektEtterHeltUttak(aar, spec) / MAANEDER_PER_AAR).toLong()
             val forhold = calculateGrunnbeloepForhold(aar, spec, veietGrunnbeloepListe, grunnbeloep)
 
-            inntekter.add(
-                Inntekt(
+            inntektListe.add(
+                AarligInntekt(
                     inntektAar = aar,
-                    beloep = Math.round(forhold * (beregnetForventetInntekt + beregnetInntektUnderAfpEllerGradertUttak + beregnetInntektEtterHeltUttak))
+                    beloep = (forhold * (beregnetForventetInntekt + beregnetInntektUnderAfpEllerGradertUttak + beregnetInntektEtterHeltUttak)).roundToInt()
                 )
             )
         }
 
-        return inntekter
+        return inntektListe
     }
 
     // PEN: antallMndMedInntektUnderGradertUttak
@@ -590,7 +599,6 @@ class KravhodeCreator(
     private companion object {
         private const val MAX_ALDER = 80 // normert?
         private const val MAX_OPPTJENING_ALDER = 75 // normert?
-        private const val MAX_UTTAKSGRAD = 100
         private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
         private val log = KotlinLogging.logger {}
@@ -702,8 +710,8 @@ class KravhodeCreator(
 
         private fun inntektListe(grunnlagListe: MutableList<Inntektsgrunnlag>) =
             grunnlagListe.map {
-                Inntekt(
-                    beloep = it.belop.toLong(),
+                AarligInntekt(
+                    beloep = it.belop,
                     inntektAar = getYear(it.fom!!)
                 )
             }.toMutableList()
@@ -774,7 +782,7 @@ class KravhodeCreator(
         private fun uttaksgradForHeltUttak(fom: LocalDate?) =
             Uttaksgrad().apply {
                 fomDato = fom?.toNorwegianDateAtNoon()
-                uttaksgrad = MAX_UTTAKSGRAD
+                uttaksgrad = HUNDRE_PROSENT.prosentsats
             }
 
         private fun doesNotHaveFremtidigInntektBeforeFom(spec: SimuleringSpec, fom: LocalDate) =

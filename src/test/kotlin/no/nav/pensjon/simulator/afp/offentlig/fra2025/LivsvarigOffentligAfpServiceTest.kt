@@ -6,7 +6,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beregning.LivsvarigOffentligAfpBeregningService
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
-import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
 
@@ -56,8 +56,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
                     foedselsdato,
                     fom = virkningDato,
                     fremtidigInntektListe = listOf(
-                        Inntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
-                        Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
+                        LoependeInntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
+                        LoependeInntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
                     )
                 )
             )
@@ -106,8 +106,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
                     foedselsdato,
                     fom = virkningDato,
                     fremtidigInntektListe = listOf(
-                        Inntekt(aarligBeloep = 234000, LocalDate.of(2024, 2, 1)),
-                        Inntekt(aarligBeloep = 123000, LocalDate.of(2025, 3, 1))
+                        LoependeInntekt(aarligBeloep = 234000, LocalDate.of(2024, 2, 1)),
+                        LoependeInntekt(aarligBeloep = 123000, LocalDate.of(2025, 3, 1))
                     )
                 )
             )

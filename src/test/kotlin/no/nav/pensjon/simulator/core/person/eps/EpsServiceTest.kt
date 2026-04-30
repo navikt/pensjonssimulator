@@ -9,8 +9,6 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -66,9 +64,6 @@ class EpsServiceTest : FunSpec({
         val generelleDataHolder = mockk<GenerelleDataHolder> {
             every { getSisteGyldigeOpptjeningsaar() } returns 2023
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             pensjonPersonService = pensjonPersonService,
@@ -76,7 +71,7 @@ class EpsServiceTest : FunSpec({
             persongrunnlagService = persongrunnlagService,
             opptjeningUpdater = opptjeningUpdater,
             generelleDataHolder = generelleDataHolder,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -122,9 +117,6 @@ class EpsServiceTest : FunSpec({
         val generelleDataHolder = mockk<GenerelleDataHolder> {
             every { getSisteGyldigeOpptjeningsaar() } returns 2023
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             pensjonPersonService = pensjonPersonService,
@@ -132,7 +124,7 @@ class EpsServiceTest : FunSpec({
             persongrunnlagService = persongrunnlagService,
             opptjeningUpdater = opptjeningUpdater,
             generelleDataHolder = generelleDataHolder,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -204,9 +196,6 @@ class EpsServiceTest : FunSpec({
         val generelleDataHolder = mockk<GenerelleDataHolder> {
             every { getSisteGyldigeOpptjeningsaar() } returns 2022
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             pensjonPersonService = pensjonPersonService,
@@ -214,7 +203,7 @@ class EpsServiceTest : FunSpec({
             persongrunnlagService = persongrunnlagService,
             opptjeningUpdater = opptjeningUpdater,
             generelleDataHolder = generelleDataHolder,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -254,14 +243,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -288,14 +274,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -321,14 +304,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -392,14 +372,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 6, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime(month = 6)
         )
 
         val kravhode = Kravhode().apply {
@@ -436,14 +413,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 6, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime(month = 6)
         )
 
         val kravhode = Kravhode().apply {
@@ -474,14 +448,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 6, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime(month = 6)
         )
 
         val kravhode = Kravhode().apply {
@@ -511,14 +482,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), any()) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 6, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime(month = 6)
         )
 
         val kravhode = Kravhode().apply {
@@ -577,9 +545,6 @@ class EpsServiceTest : FunSpec({
         val generelleDataHolder = mockk<GenerelleDataHolder> {
             every { getSisteGyldigeOpptjeningsaar() } returns 2023
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             pensjonPersonService = pensjonPersonService,
@@ -587,7 +552,7 @@ class EpsServiceTest : FunSpec({
             persongrunnlagService = persongrunnlagService,
             opptjeningUpdater = opptjeningUpdater,
             generelleDataHolder = generelleDataHolder,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -636,9 +601,6 @@ class EpsServiceTest : FunSpec({
         val generelleDataHolder = mockk<GenerelleDataHolder> {
             every { getSisteGyldigeOpptjeningsaar() } returns 2023
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             pensjonPersonService = pensjonPersonService,
@@ -646,7 +608,7 @@ class EpsServiceTest : FunSpec({
             persongrunnlagService = persongrunnlagService,
             opptjeningUpdater = opptjeningUpdater,
             generelleDataHolder = generelleDataHolder,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -667,7 +629,7 @@ class EpsServiceTest : FunSpec({
         verify {
             opptjeningUpdater.oppdaterOpptjeningsgrunnlagFraInntekter(
                 any(),
-                match { it.size == 1 && it[0].beloep == 500000L && it[0].inntektAar == 2024 },
+                match { it.size == 1 && it[0].beloep == 500000 && it[0].inntektAar == 2024 },
                 any()
             )
         }
@@ -688,14 +650,11 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), LocalDate.of(1965, 3, 20)) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             generalPersonService = generalPersonService,
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -719,13 +678,10 @@ class EpsServiceTest : FunSpec({
         val persongrunnlagMapper = mockk<PersongrunnlagMapper> {
             every { mapToEpsPersongrunnlag(any(), LocalDate.of(1963, 1, 1)) } returns epsPersongrunnlag
         }
-        val time = mockk<Time> {
-            every { today() } returns LocalDate.of(2025, 1, 15)
-        }
 
         val service = createEpsService(
             persongrunnlagMapper = persongrunnlagMapper,
-            time = time
+            time = arrangeTime()
         )
 
         val kravhode = Kravhode().apply {
@@ -756,7 +712,7 @@ private fun createEpsService(
     persongrunnlagMapper: PersongrunnlagMapper = mockk(relaxed = true),
     opptjeningUpdater: OpptjeningUpdater = mockk(relaxed = true),
     generelleDataHolder: GenerelleDataHolder = mockk(relaxed = true),
-    time: Time = mockk { every { today() } returns LocalDate.of(2025, 1, 15) }
+    time: Time = arrangeTime()
 ): EpsService = EpsService(
     pensjonPersonService,
     generalPersonService,
@@ -822,3 +778,8 @@ private fun createSimuleringSpec(
     onlyVilkaarsproeving = false,
     epsKanOverskrives = false
 )
+
+private fun arrangeTime(month: Int = 1): Time =
+    mockk<Time> {
+        every { today() } returns LocalDate.of(2025, month, 15)
+    }

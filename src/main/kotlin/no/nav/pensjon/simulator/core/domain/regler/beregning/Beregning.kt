@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
@@ -10,11 +11,9 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Minstenivatille
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.MinstenivatilleggPensjonistpar
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.EosEkstra
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
-import java.util.*
+import java.time.LocalDate
 
-// 2025-03-23
+// 2026-04-23
 /**
  * Beregning er resultatet fra en beregning i pensjon-regler.
  */
@@ -28,12 +27,12 @@ class Beregning {
     /**
      * Virkningstidspunktet ytelsen kan utbetales fra.
      */
-    var virkFom: Date? = null
+    var virkFomLd: LocalDate? = null
 
     /**
      * Virkningstidspunktet ytelsen kan utbetales til.
      */
-    var virkTom: Date? = null
+    var virkTomLd: LocalDate? = null
 
     /**
      * beløp før avkorting.
@@ -362,14 +361,14 @@ class Beregning {
      * Anvendt uføretidspunkt. Hentes normalt fra Uføregrunnlag men kan være hentet fra Uførehistorikk ved
      * lønnsomhetsberegning.
      */
-    var uft: Date? = null
+    var uftLd: LocalDate? = null
 
     /**
      * Intern pensjon-regler variabel.
      * Anvendt yrkesskadetidspunkt. Hentes normalt fra yrkesskadegrunnlag men kan være hentet fra yrkesskadehistorikk
      * ved lønnsomhetsberegning.
      */
-    var yst: Date? = null
+    var ystLd: LocalDate? = null
 
     /**
      * Liste av merknader - forklaringer,unntak og avvisningsgrunner fra regelmotoren.
@@ -421,7 +420,7 @@ class Beregning {
 
         return FolketrygdberegnetAfp(
             totalbelopAfp = netto,
-            virkFom = virkFom?.toNorwegianLocalDate(),
+            virkFom = virkFomLd,
             trygdetid = tt_anv,
             grunnbelop = g,
             tidligereArbeidsinntekt = poengrekke?.tpi,

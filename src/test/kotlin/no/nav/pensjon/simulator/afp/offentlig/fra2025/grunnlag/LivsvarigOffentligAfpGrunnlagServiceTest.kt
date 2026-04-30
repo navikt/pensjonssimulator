@@ -42,7 +42,7 @@ class LivsvarigOffentligAfpGrunnlagServiceTest : ShouldSpec({
             innvilgetAfpSpec = null,
             simulertAfpYtelseListe = emptyList(), // ingen ytelser => use gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag
             kravhode = Kravhode().apply {
-                onsketVirkningsdato = LocalDate.of(2025, 2, 1)
+                onsketVirkningsdatoLd = LocalDate.of(2025, 2, 1)
                 persongrunnlagListe = mutableListOf(persongrunnlag())
             },
             maxGjelderFom = LocalDate.of(2025, 2, 1)
@@ -70,7 +70,7 @@ class LivsvarigOffentligAfpGrunnlagServiceTest : ShouldSpec({
                 ytelse(afpYtelsePerAar = 999.9, gjelderFom = LocalDate.of(2025, 2, 1)),
             ),
             kravhode = Kravhode().apply {
-                onsketVirkningsdato = LocalDate.of(2025, 6, 1)
+                onsketVirkningsdatoLd = LocalDate.of(2025, 6, 1)
                 persongrunnlagListe = mutableListOf(persongrunnlag()) // saksbehandlet AFP skal ignoreres
             },
             maxGjelderFom = LocalDate.of(2025, 2, 1)

@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.InnlandTrygdetidUtil.norskTrygdetidPeriode
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.antallAarMedOpptjening
@@ -47,11 +46,10 @@ class TrygdetidSetter(
         tom: LocalDate?,
         foersteUttakDato: LocalDate
     ) {
-        val foedselsdato: Date = persongrunnlag.fodselsdato!!
-        val localFoedselsdato: LocalDate = foedselsdato.toNorwegianLocalDate()
+        val foedselsdato: LocalDate = persongrunnlag.fodselsdatoLd!!
 
         norskTrygdetidPeriode(
-            localFoedselsdato,
+            foedselsdato,
             utlandAntallAar = kapittel19UtlandAntallAar(
                 angittUtlandAntallAar,
                 foedselsdato,
@@ -62,7 +60,7 @@ class TrygdetidSetter(
         )?.let { persongrunnlag.trygdetidPerioder.add(it) }
 
         norskTrygdetidPeriode(
-            localFoedselsdato,
+            foedselsdato,
             utlandAntallAar = angittUtlandAntallAar,
             tom
         )?.let { persongrunnlag.trygdetidPerioderKapittel20.add(it) }
@@ -107,18 +105,21 @@ class TrygdetidSetter(
      */
     private fun kapittel19UtlandAntallAar(
         utlandAntallAar: Int,
-        foedselsdato: Date,
+        foedselsdato: LocalDate,
         foersteUttakDato: LocalDate,
         opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>
     ): Int {
         val opptjeningAntallAar = kapittel19OpptjeningAntallAar(opptjeningsgrunnlagListe, foedselsdato)
-        val uttakAlderAar = calculateAgeInYears(foedselsdato.toNorwegianLocalDate(), foersteUttakDato)
+        val uttakAlderAar = calculateAgeInYears(foedselsdato, foersteUttakDato)
         val maxAntallAarUtland = uttakAlderAar - NEDRE_ALDERSGRENSE - opptjeningAntallAar
         return utlandAntallAar.coerceAtMost(maxAntallAarUtland)
     }
 
     // PEN: SettTrygdetidHelper.findAntallArMedOpptjening
-    private fun kapittel19OpptjeningAntallAar(opptjeningListe: List<Opptjeningsgrunnlag>, foedselsdato: Date): Int {
+    private fun kapittel19OpptjeningAntallAar(
+        opptjeningListe: List<Opptjeningsgrunnlag>,
+        foedselsdato: LocalDate
+    ): Int {
         val registrerteAarMedOpptjening: SortedSet<Int> =
             opptjeningListe.filter { it.pp > 0.0 }.map { it.ar }.toSortedSet()
 

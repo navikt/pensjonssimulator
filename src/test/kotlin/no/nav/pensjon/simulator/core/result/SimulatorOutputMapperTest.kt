@@ -10,7 +10,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
@@ -929,7 +928,7 @@ class SimulatorOutputMapperTest : FunSpec({
             forstegangstjenestegrunnlag = Forstegangstjeneste().apply {
                 periodeListe = mutableListOf(
                     ForstegangstjenestePeriode().apply {
-                        fomDato = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
+                        fomDatoLd = LocalDate.of(2024, 1, 1)
                     }
                 )
             }
@@ -951,8 +950,8 @@ class SimulatorOutputMapperTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
-                        ufgTom = LocalDate.of(2024, 12, 31).toNorwegianDateAtNoon()
+                        ufgFomLd = LocalDate.of(2024, 1, 1)
+                        ufgTomLd = LocalDate.of(2024, 12, 31)
                         uforeTypeEnum = UforetypeEnum.UF_M_YRKE
                     }
                 )
@@ -975,44 +974,40 @@ class SimulatorOutputMapperTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
-                        ufgTom = LocalDate.of(2024, 12, 31).toNorwegianDateAtNoon()
+                        ufgFomLd = LocalDate.of(2024, 1, 1)
+                        ufgTomLd = LocalDate.of(2024, 12, 31)
                         uforeTypeEnum = UforetypeEnum.VIRK_IKKE_UFOR // should be filtered
                     }
                 )
             }
         }
 
-        val result = SimulatorOutputMapper.mapToSimulertOpptjening(
+        SimulatorOutputMapper.mapToSimulertOpptjening(
             kalenderAar = 2024,
             resultatListe = emptyList(),
             soekerGrunnlag = persongrunnlag,
             poengtallListe = emptyList(),
             useNullAsDefaultPensjonspoeng = true
-        )
-
-        result.harUfoere shouldBe false
+        ).harUfoere shouldBe false
     }
 
     test("mapToSimulertOpptjening should map harOffentligAfp") {
         val persongrunnlag = Persongrunnlag().apply {
             afpHistorikkListe = listOf(
                 AfpHistorikk().apply {
-                    virkFom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2024, 12, 31).toNorwegianDateAtNoon()
+                    virkFomLd = LocalDate.of(2024, 1, 1)
+                    virkTomLd = LocalDate.of(2024, 12, 31)
                 }
             )
         }
 
-        val result = SimulatorOutputMapper.mapToSimulertOpptjening(
+        SimulatorOutputMapper.mapToSimulertOpptjening(
             kalenderAar = 2024,
             resultatListe = emptyList(),
             soekerGrunnlag = persongrunnlag,
             poengtallListe = emptyList(),
             useNullAsDefaultPensjonspoeng = true
-        )
-
-        result.harOffentligAfp shouldBe true
+        ).harOffentligAfp shouldBe true
     }
 
     test("mapToSimulertOpptjening should return false for harOffentligAfp when afpHistorikkListe is empty") {

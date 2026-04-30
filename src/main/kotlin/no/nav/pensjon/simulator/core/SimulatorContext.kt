@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
@@ -54,7 +53,7 @@ class SimulatorContext(
         validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2011FoersteUttak")
 
         return response.beregningsResultat?.apply {
-            virkTom = null
+            virkTomLd = null
             epsMottarPensjon = false
             beregningsinformasjon = null
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2011ForsteUttak")
@@ -77,7 +76,7 @@ class SimulatorContext(
         validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2016FoersteUttak")
 
         return response.beregningsResultat?.apply {
-            virkTom = null
+            virkTomLd = null
             epsMottarPensjon = false
             beregningsinformasjon = null
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2016ForsteUttak")
@@ -100,7 +99,7 @@ class SimulatorContext(
         validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2025FoersteUttak")
 
         return response.beregningsResultat?.apply {
-            virkTom = null
+            virkTomLd = null
             epsMottarPensjon = false
             beregningsinformasjon = null
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2025ForsteUttak")
@@ -402,7 +401,7 @@ class SimulatorContext(
 
     // TODO: May be unnecessary, since this is done in PersonDetalj.finishInit
     private fun setRollePeriode(detalj: PersonDetalj) {
-        detalj.virkFom?.let { detalj.rolleFomDato = it.noon() }
-        detalj.virkTom?.let { detalj.rolleTomDato = it.noon() }
+        detalj.virkFom?.let { detalj.rolleFomDatoLd = it }
+        detalj.virkTom?.let { detalj.rolleTomDatoLd = it }
     }
 }

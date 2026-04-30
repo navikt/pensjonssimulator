@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 
 /**
  * Maps from to domain object to DTO for result of 'simulering av folketrygdberegnet AFP'.
@@ -21,7 +21,7 @@ object FolketrygdberegnetAfpResultMapperV1 {
 
         return FolketrygdberegnetAfpResultV1(
             totalbelopAfp = source.netto,
-            virkFom = source.virkFom?.toNorwegianNoon(),
+            virkFom = source.virkFomLd?.toNorwegianDateAtNoon(),
             trygdetid = source.tt_anv,
             grunnbelop = source.g,
             tidligereArbeidsinntekt = poengrekke?.tpi,

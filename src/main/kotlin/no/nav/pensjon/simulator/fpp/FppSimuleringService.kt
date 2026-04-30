@@ -15,8 +15,6 @@ import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import no.nav.pensjon.simulator.g.GrunnbeloepService
@@ -29,7 +27,6 @@ import no.nav.pensjon.simulator.validity.ProblemType
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Service
 import java.time.LocalDate
-import java.util.*
 
 @Service
 class FppSimuleringService(
@@ -133,14 +130,13 @@ class FppSimuleringService(
 
     private fun createVilkaarsvedtakListe(spec: Simulering) {
         val virkningFom: LocalDate = spec.uttaksdatoLd!!.withDayOfYear(1)
-        val legacyVirkningFom: Date = virkningFom.toNorwegianDateAtNoon()
         val grunnbeloep: Int = grunnbeloepService.grunnbeloep(dato = virkningFom)
 
         for (persongrunnlag in spec.persongrunnlagListe) {
             persongrunnlag.personDetaljListe.forEach {
                 updateVilkaarsvedtak(
                     spec,
-                    vedtak = innvilgetVedtak(virkningFom = legacyVirkningFom, person = persongrunnlag.penPerson),
+                    vedtak = innvilgetVedtak(virkningFom, person = persongrunnlag.penPerson),
                     persongrunnlag,
                     personDetalj = it,
                     grunnbeloep
@@ -174,7 +170,7 @@ class FppSimuleringService(
         var soekersPersongrunnlag: Persongrunnlag? = null
 
         for (persongrunnlag in coreSpec.persongrunnlagListe) {
-            val soekersFoedselsaar: Int = persongrunnlag.fodselsdato!!.toNorwegianLocalDate().year
+            val soekersFoedselsaar: Int = persongrunnlag.fodselsdatoLd!!.year
 
             for (personDetalj in persongrunnlag.personDetaljListe) {
                 personDetalj.grunnlagsrolleEnum?.let {
@@ -281,7 +277,7 @@ class FppSimuleringService(
                 vedtak.kravlinje = VilkaarsvedtakKravlinje(type = it, person = persongrunnlag.penPerson)
                 vedtak.penPerson = persongrunnlag.penPerson
                 vedtak.kravlinjeTypeEnum = it
-                vedtak.forsteVirk = vedtak.virkFom
+                vedtak.forsteVirkLd = vedtak.virkFomLd
                 spec.vilkarsvedtakliste.add(vedtak)
             }
         }
@@ -354,17 +350,17 @@ class FppSimuleringService(
         private fun inntektBeloep(grunnlag: Persongrunnlag, type: InntekttypeEnum): Int =
             grunnlag.inntektsgrunnlagListe.firstOrNull { it.inntektTypeEnum == type }?.belop ?: 0
 
-        private fun innvilgetVedtak(virkningFom: Date, person: PenPerson?) =
+        private fun innvilgetVedtak(virkningFom: LocalDate, person: PenPerson?) =
             VilkarsVedtak().apply {
                 vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-                virkFom = virkningFom
-                virkTom = null
+                virkFomLd = virkningFom
+                virkTomLd = null
                 gjelderPerson = person
                 penPerson = person
             }
 
         private fun isRelevant(periode: Uforeperiode, virkningFom: LocalDate): Boolean =
             periode.isRealUforeperiode() &&
-                    periode.virk?.toNorwegianLocalDate()?.isBefore(virkningFom) == true
+                    periode.virkLd?.isBefore(virkningFom) == true
     }
 }

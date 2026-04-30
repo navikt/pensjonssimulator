@@ -10,7 +10,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.inntekt.InntektsgrunnlagValidity
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.dateIsValid
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.tech.time.Interval
@@ -41,7 +41,7 @@ object BehandlingPeriodeUtil {
                 Persongrunnlag(originalPersongrunnlag).apply {
                     gjelderOmsorg = false
                     gjelderUforetrygd = true
-                }.also { it.finishInit() }
+                }
 
             originalPersongrunnlag.overgangsInfoUPtilUT?.let { newPersongrunnlag.overgangsInfoUPtilUT = it }
             newPersongrunnlag.personDetaljListe.removeIf { it.virkFom == null }
@@ -59,7 +59,7 @@ object BehandlingPeriodeUtil {
                 if (detalj.bruk == true
                     && (detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.MOR
                             || detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.FAR
-                            || DateUtil.dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
+                            || dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
                 ) {
                     usePersongrunnlag = true
                 } else {
@@ -105,20 +105,20 @@ object BehandlingPeriodeUtil {
                 }
 
                 newPersongrunnlag.utenlandsoppholdListe.removeIf {
-                    virkningPeriode.intersectsWith(it.fom!!, it.tom).not()
+                    virkningPeriode.intersectsWith(it.fomLd!!, it.tomLd).not()
                 }
 
                 newPersongrunnlag.instOpphFasteUtgifterperiodeListe.removeIf {
-                    virkningPeriode.intersectsWith(it.fom!!, it.tom).not()
+                    virkningPeriode.intersectsWith(it.fomLd!!, it.tomLd).not()
                 }
 
                 newPersongrunnlag.barnetilleggVurderingsperioder.removeIf {
-                    virkningPeriode.intersectsWith(it.fomDato!!, it.tomDato).not()
+                    virkningPeriode.intersectsWith(it.fomDatoLd!!, it.tomDatoLd).not()
                 }
 
                 newPersongrunnlag.beholdninger.removeIf {
                     it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B &&
-                            virkningPeriode.intersectsWith(it.fom!!, it.tom).not()
+                            virkningPeriode.intersectsWith(it.fomLd!!, it.tomLd).not()
                 }
 
                 /* NB Tjenestepensjonsgrunnlag ikke brukt?
@@ -126,7 +126,7 @@ object BehandlingPeriodeUtil {
                     TjenestepensjonsgrunnlagPredicate(newPersongrunnlag, virkDatoFom, periodiserFomTomDatoUtenUnntak, virkDatoTom)
                 )*/
 
-                newPersongrunnlag.trygdetider.removeIf { !isDateInPeriod(virkningFom, it.virkFom, it.virkTom) }
+                newPersongrunnlag.trygdetider.removeIf { isDateInPeriod(virkningFom, it.virkFomLd, it.virkTomLd).not() }
                 persongrunnlagList.add(newPersongrunnlag)
             }
         }
@@ -199,12 +199,11 @@ object BehandlingPeriodeUtil {
     // This method skips the Persongrunnlag and some other lists of objects (which ones? NB)
     private fun copyKravhodeExceptPersongrunnlag(kravhode: Kravhode, persongrunnlagListe: List<Persongrunnlag>) =
         Kravhode().also {
-            it.kravFremsattDato = kravhode.kravFremsattDato
-            it.onsketVirkningsdato = kravhode.onsketVirkningsdato
+            it.kravFremsattDatoLd = kravhode.kravFremsattDatoLd
+            it.onsketVirkningsdatoLd = kravhode.onsketVirkningsdatoLd
             it.gjelder = kravhode.gjelder
             it.sakId = kravhode.sakId
             it.sakType = kravhode.sakType
-
             it.persongrunnlagListe = mutableListOf() // NB persongrunnlag list contents not copied
             copyRelevantKravlinjer(kravhode, it, persongrunnlagListe)
             it.afpOrdningEnum = kravhode.afpOrdningEnum
@@ -224,7 +223,7 @@ object BehandlingPeriodeUtil {
                     it.uttaksgradListe.add(iterator.next().copy())
                 }
 
-                it.uttaksgradListe.sortByDescending { it.fomDato }
+                it.uttaksgradListe.sortByDescending { o -> o.fomDatoLd }
             }
 
             it.regelverkTypeEnum = kravhode.regelverkTypeEnum

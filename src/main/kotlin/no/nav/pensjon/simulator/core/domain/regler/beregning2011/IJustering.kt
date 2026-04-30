@@ -2,9 +2,10 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import java.time.LocalDate
 import java.util.*
 
-// 2025-06-13
+// 2026-04-23
 @JsonSubTypes(
     JsonSubTypes.Type(value = IFremskriving::class),
     JsonSubTypes.Type(value = ILonnsvekst::class)
@@ -12,5 +13,5 @@ import java.util.*
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 interface IJustering {
     var justeringsfaktor: Double
-    var justeringTomDato: Date?
+    var justeringTomDatoLd: LocalDate?
 }

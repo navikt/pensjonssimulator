@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class InngangOgEksportGrunnlagFactoryTest : FunSpec({
@@ -242,8 +241,8 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         ),
                         // Utenlandsk periode - skal ikke telles
                         TTPeriode().apply {
-                            fom = LocalDate.of(2001, 1, 1).toNorwegianDateAtNoon()
-                            tom = LocalDate.of(2005, 1, 1).toNorwegianDateAtNoon() // 4 år
+                            fomLd = LocalDate.of(2001, 1, 1)
+                            tomLd = LocalDate.of(2005, 1, 1) // 4 år
                             landEnum = LandkodeEnum.SWE // Sverige
                         }
                     )
@@ -365,7 +364,7 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
 
 private fun norskTrygdetidPeriode(fom: LocalDate, tom: LocalDate) =
     TTPeriode().apply {
-        this.fom = fom.toNorwegianDateAtNoon()
-        this.tom = tom.toNorwegianDateAtNoon()
-        this.landEnum = LandkodeEnum.NOR
+        fomLd = fom
+        tomLd = tom
+        landEnum = LandkodeEnum.NOR
     }

@@ -10,12 +10,10 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
@@ -337,7 +335,7 @@ object SimulatorOutputMapper {
         if (element == null) return false
         val jan1st = firstDayOf(year)
         val dec31st = LocalDate.of(year, 12, 31)
-        return intersectsWithPossiblyOpenEndings(jan1st, dec31st, element.virkFom, element.virkTom, true)
+        return intersectsWithPossiblyOpenEndings(jan1st, dec31st, element.virkFomLd, element.virkTomLd, true)
     }
 
     // Specific variant of TypedInformationListeUtils.subsetOfTypes
@@ -380,7 +378,7 @@ object SimulatorOutputMapper {
 
     // From PeriodisertInformasjonUtils
     private fun isValidForDate(element: AbstraktBeregningsResultat, date: LocalDate) =
-        isDateInPeriod(date, element.virkFomLd, element.virkTom)
+        isDateInPeriod(date, element.virkFomLd, element.virkTomLd)
 
     // From ArligInformasjonListeUtils
     private fun containsValidForstegangstjenestePeriodeForAr(list: List<ForstegangstjenestePeriode>, year: Int) =
@@ -392,7 +390,7 @@ object SimulatorOutputMapper {
 
     // Specific variant of ArligInformasjonListeUtils.findValidForYear
     private fun findValidForAar(list: List<ForstegangstjenestePeriode>, aar: Int): ForstegangstjenestePeriode? =
-        list.firstOrNull { it.fomDato?.let(::getYear) == aar }
+        list.firstOrNull { it.fomDatoLd?.year == aar }
 
     // Specific variant of ArligInformasjonListeUtils.findValidForYear
     private fun findValidForAar(list: List<Omsorgsgrunnlag>, aar: Int): Omsorgsgrunnlag? =
@@ -419,9 +417,9 @@ object SimulatorOutputMapper {
         var earliestDate: LocalDate? = LOCAL_ETERNITY
 
         for (element in list) {
-            if (intersectsWithPossiblyOpenEndings(startDate, endDate, element.ufgFom, element.ufgTom, true)) {
-                if (isBeforeByDay(element.ufgFom, earliestDate, false)) {
-                    earliestDate = element.ufgFom?.toNorwegianLocalDate()
+            if (intersectsWithPossiblyOpenEndings(startDate, endDate, element.ufgFomLd, element.ufgTomLd, true)) {
+                if (isBeforeByDay(element.ufgFomLd, earliestDate, false)) {
+                    earliestDate = element.ufgFomLd
                     result = element
                 }
             }

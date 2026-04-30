@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
@@ -70,32 +69,32 @@ private fun persongrunnlag() =
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
-                penRolleTom = LocalDate.of(1901, 1, 1).toNorwegianDateAtNoon() // NB: penRolleTom has no effect
+                virkTom = LocalDate.of(2026, 1, 1)
+                penRolleTom = LocalDate.of(1901, 1, 1) // NB: penRolleTom has no effect
             },
             PersonDetalj().apply {
                 bruk = false // => dvs. denne persondetaljen er irrelevant
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: penRolleTom has no effect
+                virkTom = LocalDate.of(2026, 1, 1)
+                penRolleTom = LocalDate.of(2026, 1, 1) // NB: penRolleTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.MOR
-                virkTom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon() // => i fortid => irrelevant
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: penRolleTom has no effect
+                virkTom = LocalDate.of(2024, 1, 1) // => i fortid => irrelevant
+                penRolleTom = LocalDate.of(2026, 1, 1) // NB: penRolleTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.FAR
                 virkTom = null
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: penRolleTom has no effect
+                penRolleTom = LocalDate.of(2026, 1, 1) // NB: penRolleTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
-                virkTom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon() // => tom = "i dag" => detaljen er relevant
-                penRolleTom = LocalDate.of(1901, 1, 1).toNorwegianDateAtNoon() // NB: penRolleTom has no effect
+                virkTom = LocalDate.of(2025, 1, 1) // => tom = "i dag" => detaljen er relevant
+                penRolleTom = LocalDate.of(1901, 1, 1) // NB: penRolleTom has no effect
             }
         )
     }

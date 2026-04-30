@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.core.beregn
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteAldersberegning2011
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
 import org.springframework.stereotype.Component
 
@@ -29,7 +28,7 @@ class Alderspensjon2025SisteBeregningCreator(kravService: KravService) : SisteBe
         source: BeregningsResultatAlderspensjon2025,
         sink: SisteAldersberegning2011
     ) {
-        source.virkFomLd?.let { sink.virkDato = it.toNorwegianDateAtNoon() }
+        source.virkFomLd?.let { sink.virkDatoLd = it }
         source.benyttetSivilstandEnum?.let { sink.benyttetSivilstandEnum = it }
         source.pensjonUnderUtbetaling?.let { sink.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(it) }
 

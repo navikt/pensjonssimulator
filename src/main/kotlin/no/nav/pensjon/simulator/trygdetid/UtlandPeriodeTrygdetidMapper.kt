@@ -26,8 +26,8 @@ object UtlandPeriodeTrygdetidMapper {
         trygdetidsgrunnlagMedPensjonspoengListe: List<TrygdetidOpphold>
     ): List<TrygdetidOpphold> =
         merge(
-            outerList = utlandPeriodeListe.map(::trygdetidsgrunnlag).sortedBy { it.periode.fom },
-            innerList = trygdetidsgrunnlagMedPensjonspoengListe.sortedBy { it.periode.fom }
+            outerList = utlandPeriodeListe.map(::trygdetidsgrunnlag).sortedBy { it.periode.fomLd },
+            innerList = trygdetidsgrunnlagMedPensjonspoengListe.sortedBy { it.periode.fomLd }
         )
 
     // PEN: extract from createTrygdetidsgrunnlagForUtenlandsperioder
@@ -49,17 +49,17 @@ object UtlandPeriodeTrygdetidMapper {
                 if (outer.endsBefore(inner)) {
                     break@innerLoop
                 } else if (outer.startsBeforeAndEndsIn(inner)) {
-                    outer.periode.tom = inner.dayBefore()
+                    outer.periode.tomLd = inner.dagenFoer()
                     break@innerLoop
                 } else if (outer.startsAndEndsIn(inner)) {
                     continue@outerLoop
                 } else if (outer.startsBeforeAndEndsAfter(inner)) {
-                    resultList.add(outer.withPeriodeTom(dato = inner.dayBefore()))
-                    outer.periode.fom = inner.dayAfter()
+                    resultList.add(outer.withPeriodeTom(dato = inner.dagenFoer()))
+                    outer.periode.fomLd = inner.dagenEtter()
                 } else if (inner.endsBefore(outer)) {
                     // No action
                 } else if (outer.startsInAndEndsAfter(inner)) {
-                    outer.periode.fom = inner.dayAfter()
+                    outer.periode.fomLd = inner.dagenEtter()
                 }
 
                 innerIndex++
@@ -69,7 +69,7 @@ object UtlandPeriodeTrygdetidMapper {
         }
 
         resultList.addAll(innerList)
-        return resultList.sortedBy { it.periode.fom }
+        return resultList.sortedBy { it.periode.fomLd }
     }
 
     private fun trygdetidsgrunnlag(periode: UtlandPeriode, nestePeriode: UtlandPeriode) =

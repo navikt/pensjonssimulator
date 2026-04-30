@@ -21,18 +21,6 @@ fun Date.toNorwegianDate(): Date =
 fun Date.toNorwegianNoon(): Date =
     NorwegianCalendar.norwegianNoon(this)
 
-fun Date.isBefore(other: Date?): Boolean =
-    other?.let { this.toNorwegianLocalDate().isBefore(it.toNorwegianLocalDate()) } == true
-
-fun Date.isBeforeOrSame(other: Date?): Boolean =
-    other?.let { this.toNorwegianLocalDate().isAfter(it.toNorwegianLocalDate()).not() } == true
-
-fun Date.isAfterOrSame(other: Date?): Boolean =
-    other?.let { this.toNorwegianLocalDate().isBefore(it.toNorwegianLocalDate()).not() } ?: true
-
-fun Date.isAfter(other: Date?): Boolean =
-    other?.let { this.toNorwegianLocalDate().isAfter(it.toNorwegianLocalDate()) } ?: true
-
 object NorwegianCalendar {
     val locale = Locale.of("nb", "NO")
     val timeZone = TimeZone.getTimeZone("Europe/Oslo")

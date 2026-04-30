@@ -14,9 +14,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtMidnight
 import java.time.LocalDate
-import java.util.Calendar
 
 class SimulertOpptjeningAdderTest : FunSpec({
 
@@ -40,7 +38,7 @@ class SimulertOpptjeningAdderTest : FunSpec({
                 beregningsresultat2016(kalenderAar = 2026, pensjonspoeng = 2.34), // ikke siste beregningsresultat
             ),
             soekerGrunnlag = Persongrunnlag().apply {
-                fodselsdato = dateAtMidnight(1960, Calendar.JANUARY, 1)
+                fodselsdatoLd = LocalDate.of(1960, 1, 1)
                 opptjeningsgrunnlagListe = mutableListOf(
                     Opptjeningsgrunnlag().apply { ar = 2027 },
                     Opptjeningsgrunnlag().apply { ar = 2026 } // => foersteKalenderAar = 2026

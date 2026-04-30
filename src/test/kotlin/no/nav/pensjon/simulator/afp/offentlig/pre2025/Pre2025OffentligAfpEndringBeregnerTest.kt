@@ -11,10 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.Calendar
-import java.util.Date
 
 class Pre2025OffentligAfpEndringBeregnerTest : FunSpec({
 
@@ -26,7 +23,7 @@ class Pre2025OffentligAfpEndringBeregnerTest : FunSpec({
      */
     test("beregnAfp should remove AFP-historikk if calculated virkningTom is before AFP virkFom") {
         // virkningTom (2024-12-31) er før afpVirkFom (2025-02-01) => AFP-listen skal tømmes
-        val persongrunnlag = persongrunnlag(afpVirkFom = dateAtNoon(2025, Calendar.FEBRUARY, 1))
+        val persongrunnlag = persongrunnlag(afpVirkFom = LocalDate.of(2025, 2, 1))
 
         Pre2025OffentligAfpEndringBeregner(
             normalderService = mockk<NormertPensjonsalderService>().apply {
@@ -48,7 +45,7 @@ class Pre2025OffentligAfpEndringBeregnerTest : FunSpec({
      */
     test("beregnAfp should set AFP virkning t.o.m.-dato if calculated virkningTom is after AFP virkFom") {
         // virkningTom (2024-06-30) er etter afpVirkFom (2024-02-01) => AFP virkTom skal settes
-        val persongrunnlag = persongrunnlag(afpVirkFom = dateAtNoon(2024, Calendar.FEBRUARY, 1))
+        val persongrunnlag = persongrunnlag(afpVirkFom = LocalDate.of(2024, 2, 1))
 
         Pre2025OffentligAfpEndringBeregner(
             normalderService = mockk<NormertPensjonsalderService>().apply {
@@ -61,32 +58,32 @@ class Pre2025OffentligAfpEndringBeregnerTest : FunSpec({
 
         with(persongrunnlag) {
             afpHistorikkListe.size shouldBe 2
-            afpHistorikkListe[0].virkTom shouldBe dateAtNoon(2024, Calendar.JUNE, 30)
-            afpHistorikkListe[1].virkTom shouldBe null
+            afpHistorikkListe[0].virkTomLd shouldBe LocalDate.of(2024, 6, 30)
+            afpHistorikkListe[1].virkTomLd shouldBe null
         }
     }
 })
 
-private fun persongrunnlag(afpVirkFom: Date) =
+private fun persongrunnlag(afpVirkFom: LocalDate) =
     Persongrunnlag().apply {
         afpHistorikkListe = mutableListOf(
             AfpHistorikk().apply {
-                virkFom = afpVirkFom
-                virkTom = null // skal settes til virkningTom (2024-12-31)
+                virkFomLd = afpVirkFom
+                virkTomLd = null // skal settes til virkningTom (2024-12-31)
             },
             // Denne skal ignoreres (kun første element tas i betraktning):
             AfpHistorikk().apply {
-                virkFom = dateAtNoon(2023, Calendar.JANUARY, 1)
-                virkTom = null
+                virkFomLd = LocalDate.of(2023, 1, 1)
+                virkTomLd = null
             }
         )
         penPerson = PenPerson()
-        fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+        fodselsdatoLd = LocalDate.of(1963, 1, 1)
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
+                penRolleTom = LocalDate.of(2026, 1, 1)
             }
         )
     }

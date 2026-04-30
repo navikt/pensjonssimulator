@@ -9,15 +9,13 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class Pre2025OffentligAfpBeholdningTest : FunSpec({
 
     test("setPensjonsbeholdning should add missing beholdninger to persongrunnlag") {
         val persongrunnlag = Persongrunnlag().apply {
-            fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+            fodselsdatoLd = LocalDate.of(1963, 1, 1)
             beholdninger = mutableListOf(pensjonsbeholdning(aar = 2002))
         }
 
@@ -48,7 +46,7 @@ class Pre2025OffentligAfpBeholdningTest : FunSpec({
 private fun pensjonsbeholdning(aar: Int) =
     Pensjonsbeholdning().apply {
         beholdningsTypeEnum = BeholdningtypeEnum.PEN_B // => pensjonsbeholdning
-        fom = dateAtNoon(aar, Calendar.JANUARY, 1)
+        fomLd = LocalDate.of(aar, 1, 1)
         ar = aar
     }
 

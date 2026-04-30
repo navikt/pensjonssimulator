@@ -1,15 +1,12 @@
 package no.nav.pensjon.simulator.core.ufoere
+/*
+This may be used in SimulatorCore in the future
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.validity.BadSpecException
-import kotlin.collections.filter
-import kotlin.collections.maxByOrNull
-import kotlin.collections.orEmpty
 
-//TODO vurdere å fjerne ubrukt kode
 object UfoereUtil {
 
     private const val MAX_SUM_AV_UFOEREGRAD_OG_UTTAKSGRAD = 100 // prosent
@@ -30,8 +27,8 @@ object UfoereUtil {
             .maxByOrNull { it.ufg }?.ufg
 
     private fun gjelderForAar(periode: Uforeperiode, aar: Int): Boolean {
-        val ufoereFomAar = periode.ufgFom!!.toNorwegianLocalDate().year
-        val ufoereTomAar = periode.ufgTom?.toNorwegianLocalDate()?.year
+        val ufoereFomAar = periode.ufgFomLd!!.year
+        val ufoereTomAar = periode.ufgTomLd?.year
 
         return (ufoereFomAar == aar
                 || ufoereFomAar < aar && ufoereTomAar == null
@@ -39,3 +36,4 @@ object UfoereUtil {
                 )
     }
 }
+*/

@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class TrygdetidTrimmerTest : ShouldSpec({
@@ -20,8 +19,8 @@ class TrygdetidTrimmerTest : ShouldSpec({
             val result = TrygdetidTrimmer.aldersbegrens(
                 trygdetidsperiodeListe = listOf(
                     TTPeriode().apply {
-                        fom = LocalDate.of(2015, 1, 1).toNorwegianDateAtNoon() // dvs. før 16 år
-                        tom = LocalDate.of(2067, 12, 31).toNorwegianDateAtNoon() // dvs. etter 66 år
+                        fomLd = LocalDate.of(2015, 1, 1) // dvs. før 16 år
+                        tomLd = LocalDate.of(2067, 12, 31) // dvs. etter 66 år
                     }),
                 foersteUttakDato = LocalDate.of(2070, 1, 1),
                 foedselsdato = LocalDate.of(2000, 1, 15)
@@ -30,8 +29,8 @@ class TrygdetidTrimmerTest : ShouldSpec({
 
             result shouldHaveSize 1
             with(result[0]) {
-                fom shouldBe LocalDate.of(2016, 1, 15).toNorwegianDateAtNoon()
-                tom shouldBe LocalDate.of(2066, 12, 31).toNorwegianDateAtNoon()
+                fomLd shouldBe LocalDate.of(2016, 1, 15)
+                tomLd shouldBe LocalDate.of(2066, 12, 31)
             }
         }
     }
@@ -65,8 +64,8 @@ class TrygdetidTrimmerTest : ShouldSpec({
 
             result shouldHaveSize 3
             with(result[0]) {
-                fom shouldBe LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-                tom shouldBe LocalDate.of(2000, 12, 31).toNorwegianDateAtNoon()
+                fomLd shouldBe LocalDate.of(2000, 1, 1)
+                tomLd shouldBe LocalDate.of(2000, 12, 31)
                 landEnum shouldBe LandkodeEnum.NLD
             }
             result[1].landEnum shouldBe LandkodeEnum.EST
@@ -77,7 +76,7 @@ class TrygdetidTrimmerTest : ShouldSpec({
 
 private fun trygdetidsperiode(aar: Int, land: LandkodeEnum) =
     TTPeriode().apply {
-        fom = LocalDate.of(aar, 1, 1).toNorwegianDateAtNoon()
-        tom = LocalDate.of(aar, 12, 31).toNorwegianDateAtNoon()
+        fomLd = LocalDate.of(aar, 1, 1)
+        tomLd = LocalDate.of(aar, 12, 31)
         landEnum = land
     }

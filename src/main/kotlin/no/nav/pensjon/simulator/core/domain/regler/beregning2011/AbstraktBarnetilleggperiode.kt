@@ -2,11 +2,10 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.util.Date
-
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
+import java.time.LocalDate
 
-// 2025-06-06
+// 2026-04-23
 @JsonSubTypes(
     JsonSubTypes.Type(value = TidligereBarnetilleggperiode::class),
     JsonSubTypes.Type(value = FremtidigBarnetilleggperiode::class),
@@ -17,12 +16,12 @@ abstract class AbstraktBarnetilleggperiode {
     /**
      * Start for periode med et antall barn.
      */
-    var fomDato: Date? = null
+    var fomDatoLd: LocalDate? = null
 
     /**
      * Stopp for periode med et antall barn.
      */
-    var tomDato: Date? = null
+    var tomDatoLd: LocalDate? = null
 
     /**
      * Periodens lengde i antall måneder.

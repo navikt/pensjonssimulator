@@ -16,7 +16,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
@@ -64,11 +63,11 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
 
     test("createBeregning should set virkDato from beregningsresultat") {
         val virkFom = LocalDate.of(2025, 3, 1)
-        createBeregning(virkFom = virkFom).virkDato shouldBe virkFom.toNorwegianDateAtNoon()
+        createBeregning(virkFom = virkFom).virkDatoLd shouldBe virkFom
     }
 
     test("createBeregning should handle null virkFom") {
-        createBeregning(virkFom = null).virkDato shouldBe null
+        createBeregning(virkFom = null).virkDatoLd shouldBe null
     }
 
     // --- Tests for benyttetSivilstand ---
@@ -312,7 +311,7 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
 
         with(beregning) {
             regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
-            virkDato shouldBe virkFom.toNorwegianDateAtNoon()
+            virkDatoLd shouldBe virkFom
             benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
             beregningsMetodeEnum shouldBe BeregningsmetodeEnum.FOLKETRYGD
             prorataBrok_kap_20?.teller shouldBe 35

@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Person
@@ -20,7 +19,6 @@ import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
-import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 
 @Component
@@ -144,8 +142,8 @@ class FppSimuleringSpecCreator(
                 pid = soekerPid
             }
 
-            fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
-            dodsdato = null
+            fodselsdatoLd = foedselsdato
+            dodsdatoLd = null
             antallArUtland = if (simuleringType == BARN) 0 else personopplysninger.antAarIUtlandet ?: 0
             flyktning = personopplysninger.flyktning
 
@@ -214,15 +212,15 @@ class FppSimuleringSpecCreator(
 
             if (relasjon == null || sivilstatusMatch(epsData).not()) {
                 person.penPersonId = -2L
-                persongrunnlag.fodselsdato = epsFoedselsdato()
+                persongrunnlag.fodselsdatoLd = epsFoedselsdato()
             } else {
                 person.pid = relasjon.person?.pid?.let(::Pid)
-                persongrunnlag.fodselsdato = personopplysninger.fodselsdato?.toNorwegianDateAtNoon()
+                persongrunnlag.fodselsdatoLd = personopplysninger.fodselsdato
             }
         } else if (simuleringType == GJENLEVENDE) {
             val pid = personopplysninger.avdodList.firstOrNull()?.relasjon?.person?.pid?.let(::Pid)
             person.pid = pid
-            persongrunnlag.fodselsdato = pid?.let(personService::foedselsdato)?.toNorwegianDateAtNoon()
+            persongrunnlag.fodselsdatoLd = pid?.let(personService::foedselsdato)
         }
 
         persongrunnlag.penPerson = person
@@ -266,8 +264,8 @@ class FppSimuleringSpecCreator(
             val relatertPenPerson = PenPerson().apply { pid = relatertPid }
             val relatertPerson: Person? = relatertPid?.let(personService::person)
             val foedselsdato: LocalDate? = relatertPerson?.foedselsdato
-            fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
-            dodsdato = avdoed?.datoForDodsfall?.toNorwegianDateAtNoon()
+            fodselsdatoLd = foedselsdato
+            dodsdatoLd = avdoed?.datoForDodsfall
             flyktning = avdoed?.avdodFlyktning
             arligPGIMinst1G = avdoed?.avdodInntektMinst1G
             antallArUtland = avdoed?.avdodAntAarIUtlandet ?: 0
@@ -334,7 +332,7 @@ class FppSimuleringSpecCreator(
                     pid = soeskenPid
                 }
 
-                fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
+                fodselsdatoLd = foedselsdato
                 antallArUtland = 0
 
                 /* This code in PEN will always return soeskenFoedselsdato
@@ -374,7 +372,7 @@ class FppSimuleringSpecCreator(
                 pid = barnPid
             }
 
-            fodselsdato = personopplysninger.fodselsdato?.toNorwegianDateAtNoon()
+            fodselsdatoLd = personopplysninger.fodselsdato
             antallArUtland = 0
             flyktning = false
             personDetaljListe.add(persondetaljForBarn(personopplysninger, barn, uttaksdato))
@@ -389,7 +387,7 @@ class FppSimuleringSpecCreator(
         grunnlag: Persongrunnlag,
         avdoed: AvdoedData
     ) {
-        grunnlag.dodsdato = avdoed.datoForDodsfall?.toNorwegianDateAtNoon()
+        grunnlag.dodsdatoLd = avdoed.datoForDodsfall
         grunnlag.flyktning = avdoed.avdodFlyktning
         grunnlag.antallArUtland = avdoed.avdodAntAarIUtlandet ?: 0
         grunnlag.medlemIFolketrygdenSiste3Ar = avdoed.avdodMedlemFolketrygden
@@ -409,7 +407,7 @@ class FppSimuleringSpecCreator(
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
             bruk = true
-            penRolleFom = personopplysninger.fodselsdato?.toNorwegianDateAtNoon()
+            penRolleFom = personopplysninger.fodselsdato
             borMedEnum = personopplysninger.ident?.let {
                 borMedBarnStatus(
                     soekerPid = Pid(it),
@@ -438,8 +436,8 @@ class FppSimuleringSpecCreator(
             )
         } == true
 
-    private fun epsFoedselsdato(): Date =
-        time.today().minusYears(UNKNOWN_EPS_DEFAULT_AGE).toNorwegianDateAtNoon()
+    private fun epsFoedselsdato(): LocalDate =
+        time.today().minusYears(UNKNOWN_EPS_DEFAULT_AGE)
 
     companion object {
         private const val UNKNOWN_EPS_DEFAULT_AGE = 59L
@@ -454,7 +452,7 @@ class FppSimuleringSpecCreator(
         private fun persondetaljForSoeker(rolleFom: LocalDate?, sivilstand: SivilstandEnum?) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleFom = rolleFom?.toNorwegianDateAtNoon()
+                penRolleFom = rolleFom
                 sivilstandTypeEnum = sivilstand
                 bruk = true
                 finishInit()
@@ -468,13 +466,12 @@ class FppSimuleringSpecCreator(
             PersonDetalj().apply {
                 if (simuleringType == GJENLEVENDE) {
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
-                    penRolleFom = personopplysninger.avdodList.firstOrNull()?.datoForDodsfall?.toNorwegianDateAtNoon()
+                    penRolleFom = personopplysninger.avdodList.firstOrNull()?.datoForDodsfall
                     borMedEnum = BorMedTypeEnum.J_AVDOD
                 } else {
                     val epsData: EpsData? = personopplysninger.epsData
                     grunnlagsrolleEnum = grunnlagsrolleForEps(epsData?.valgtSivilstatus)
-                    penRolleFom = epsData?.eps?.fom?.toNorwegianDateAtNoon()
-                        ?: uttaksdato.minusDays(1).toNorwegianDateAtNoon()
+                    penRolleFom = epsData?.eps?.fom                        ?: uttaksdato.minusDays(1)
                     borMedEnum = epsData?.let(::borMedTypeForEps)
                 }
 
@@ -485,7 +482,7 @@ class FppSimuleringSpecCreator(
         private fun persondetaljForSoesken(rolleFom: LocalDate?, soesken: BarneopplysningerSoeskenData) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOSKEN
-                penRolleFom = rolleFom?.toNorwegianDateAtNoon()
+                penRolleFom = rolleFom
                 bruk = true
                 borMedEnum = soesken.oppdrattSammen?.let(::borMedTypeForSoesken)
                 barnDetalj = BarnDetalj().apply { underUtdanning = soesken.underUtdanning == true }
@@ -496,7 +493,7 @@ class FppSimuleringSpecCreator(
         private fun persondetaljForForelder(rolleFom: LocalDate?, rolle: GrunnlagsrolleEnum) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = rolle
-                penRolleFom = rolleFom?.toNorwegianDateAtNoon()
+                penRolleFom = rolleFom
                 borMedEnum = BorMedTypeEnum.J_BARN
                 bruk = true
                 finishInit()
@@ -563,7 +560,7 @@ class FppSimuleringSpecCreator(
                 bruk = true
                 inntektTypeEnum = InntekttypeEnum.FPI
                 grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
-                fom = uttaksdato.toNorwegianDateAtNoon()
+                fomLd = uttaksdato
                 belop = soekerBeloep(simuleringType, personopplysninger, grunnbeloep)
             }
 
@@ -596,7 +593,7 @@ class FppSimuleringSpecCreator(
                 bruk = true
                 inntektTypeEnum = InntekttypeEnum.FPI
                 grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
-                fom = uttaksdato.toNorwegianDateAtNoon()
+                fomLd = uttaksdato
                 belop =
                     if (simuleringType == GJENLEVENDE) {
                         if (personopplysninger.avdodList.firstOrNull()?.avdodInntektMinst1G == true)
@@ -614,7 +611,7 @@ class FppSimuleringSpecCreator(
                 val pensjonsinntektFraFolketrygden = Inntektsgrunnlag().apply {
                     bruk = true
                     inntektTypeEnum = InntekttypeEnum.PENF
-                    fom = uttaksdato.toNorwegianDateAtNoon()
+                    fomLd = uttaksdato
                     belop = if (personopplysninger.epsData?.epsMottarPensjon == true) 1 else 0
                     grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
                 }
@@ -633,8 +630,8 @@ class FppSimuleringSpecCreator(
             bruk = true
             inntektTypeEnum = InntekttypeEnum.IMFU
             grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
-            fom = fomDato.toNorwegianDateAtNoon()
-            tom = fomDato.with(lastDayOfMonth()).toNorwegianDateAtNoon()
+            fomLd = fomDato
+            tomLd = fomDato.with(lastDayOfMonth())
             belop = inntektMaanedenFoerAfp ?: 0
         }
 
@@ -645,7 +642,7 @@ class FppSimuleringSpecCreator(
             Yrkesskadegrunnlag().apply {
                 yrkeEnum = YrkeYrkesskadeEnum.ARB
                 yug = 100
-                yst = avdoed.datoForDodsfall?.toNorwegianDateAtNoon()
+                ystLd = avdoed.datoForDodsfall
                 antattArligInntekt = avdoed.inntektPaaDodstidspunktHvisYrkesskade ?: 0
                 bruk = true
             }

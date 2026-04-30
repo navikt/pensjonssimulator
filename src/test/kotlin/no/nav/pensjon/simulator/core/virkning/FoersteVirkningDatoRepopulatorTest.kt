@@ -12,9 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class FoersteVirkningDatoRepopulatorTest : FunSpec({
 
@@ -23,8 +21,8 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
         val soeker = createPenPerson(1L)
         val annenPerson = createPenPerson(2L)
         val originalGrunnlag = ForsteVirkningsdatoGrunnlag().apply {
-            virkningsdato = dateAtNoon(2024, Calendar.JUNE, 1)
-            kravFremsattDato = dateAtNoon(2024, Calendar.MAY, 15)
+            virkningsdatoLd = LocalDate.of(2024, 6, 1)
+            kravFremsattDatoLd = LocalDate.of(2024, 5, 15)
             bruker = soeker
             this.annenPerson = annenPerson
             kravlinjeTypeEnum = KravlinjeTypeEnum.AP
@@ -42,8 +40,8 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
 
         val copiedGrunnlag = kravhode.persongrunnlagListe[0].forsteVirkningsdatoGrunnlagListe[0]
-        copiedGrunnlag.virkningsdato shouldBe dateAtNoon(2024, Calendar.JUNE, 1)
-        copiedGrunnlag.kravFremsattDato shouldBe dateAtNoon(2024, Calendar.MAY, 15)
+        copiedGrunnlag.virkningsdatoLd shouldBe LocalDate.of(2024, 6, 1)
+        copiedGrunnlag.kravFremsattDatoLd shouldBe LocalDate.of(2024, 5, 15)
         copiedGrunnlag.bruker shouldBe soeker
         copiedGrunnlag.annenPerson shouldBe annenPerson
         copiedGrunnlag.kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
@@ -53,8 +51,8 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
     test("datoGrunnlag oppretter nytt grunnlag basert på kravlinje") {
         val soeker = createPenPerson(1L)
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
-            kravFremsattDato = dateAtNoon(2024, Calendar.MAY, 15)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
+            kravFremsattDatoLd = LocalDate.of(2024, 5, 15)
             persongrunnlagListe = mutableListOf(createSoekerPersongrunnlag(soeker))
             kravlinjeListe = mutableListOf(
                 Kravlinje().apply {
@@ -66,18 +64,21 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
         FoersteVirkningDatoRepopulator.mapFoersteVirkningDatoGrunnlagTransfer(kravhode)
 
         val grunnlagListe = kravhode.persongrunnlagListe[0].forsteVirkningsdatoGrunnlagListe
+
         grunnlagListe shouldHaveSize 1
-        grunnlagListe[0].virkningsdato shouldNotBe null
-        grunnlagListe[0].kravFremsattDato shouldBe dateAtNoon(2024, Calendar.MAY, 15)
-        grunnlagListe[0].bruker shouldBe soeker
-        grunnlagListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
+        with(grunnlagListe.first()) {
+            virkningsdatoLd shouldNotBe null
+            kravFremsattDatoLd shouldBe LocalDate.of(2024, 5, 15)
+            bruker shouldBe soeker
+            kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
+        }
     }
 
     test("datoGrunnlag setter annenPerson kun for forsørgingstillegg (ET)") {
         val soeker = createPenPerson(1L)
         val relatert = createPenPerson(2L)
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
             persongrunnlagListe = mutableListOf(createSoekerPersongrunnlag(soeker))
             kravlinjeListe = mutableListOf(
                 Kravlinje().apply {
@@ -98,7 +99,7 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
         val soeker = createPenPerson(1L)
         val relatert = createPenPerson(2L)
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
             persongrunnlagListe = mutableListOf(createSoekerPersongrunnlag(soeker))
             kravlinjeListe = mutableListOf(
                 Kravlinje().apply {
@@ -118,7 +119,7 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
         val soeker = createPenPerson(1L)
         val relatert = createPenPerson(2L)
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
             persongrunnlagListe = mutableListOf(createSoekerPersongrunnlag(soeker))
             kravlinjeListe = mutableListOf(
                 Kravlinje().apply {
@@ -142,7 +143,7 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
             kravlinjeTypeEnum = KravlinjeTypeEnum.AP
         }
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
             persongrunnlagListe = mutableListOf(
                 createSoekerPersongrunnlag(soeker).apply {
                     forsteVirkningsdatoGrunnlagListe = mutableListOf(eksisterendeGrunnlag)
@@ -168,7 +169,7 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
             kravlinjeTypeEnum = KravlinjeTypeEnum.AP
         }
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
             persongrunnlagListe = mutableListOf(
                 createSoekerPersongrunnlag(soeker).apply {
                     forsteVirkningsdatoGrunnlagListe = mutableListOf(eksisterendeGrunnlag)
@@ -196,7 +197,7 @@ class FoersteVirkningDatoRepopulatorTest : FunSpec({
             kravlinjeTypeEnum = KravlinjeTypeEnum.ET
         }
         val kravhode = Kravhode().apply {
-            onsketVirkningsdato = LocalDate.of(2024, 6, 1)
+            onsketVirkningsdatoLd = LocalDate.of(2024, 6, 1)
             persongrunnlagListe = mutableListOf(
                 createSoekerPersongrunnlag(soeker).apply {
                     forsteVirkningsdatoGrunnlagListe = mutableListOf(eksisterendeGrunnlag)

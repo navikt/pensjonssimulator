@@ -15,11 +15,9 @@ import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.security.oauth2.jwt.Jwt
 import java.time.LocalDate
-import java.util.*
 
 object TestObjects {
     val jwt = Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
@@ -31,12 +29,12 @@ object TestObjects {
     val persongrunnlag =
         Persongrunnlag().apply {
             penPerson = PenPerson()
-            fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+            fodselsdatoLd = LocalDate.of(1963, 1, 1)
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                    penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
+                    penRolleTom = LocalDate.of(2026, 1, 1)
                 }
             )
         }

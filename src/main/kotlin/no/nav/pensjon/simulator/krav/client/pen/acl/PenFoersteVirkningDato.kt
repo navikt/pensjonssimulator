@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
+import java.time.LocalDate
 import java.util.*
 
 /**
@@ -8,7 +9,7 @@ import java.util.*
 data class PenFoersteVirkningDato(
     val sakType: String?, // SakTypeEnum
     val kravlinjeTypeEnum: String?, // KravlinjeTypeEnum
-    val virkningsdato: Date?,
+    val virkningsdatoLd: LocalDate?,
     val annenPerson: PenPenPerson?,
     // Not mapped; included to avoid UnrecognizedPropertyException:
     val kravFremsattDato: Date? = null,

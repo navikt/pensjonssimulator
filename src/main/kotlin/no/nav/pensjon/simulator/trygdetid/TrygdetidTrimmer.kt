@@ -3,11 +3,8 @@ package no.nav.pensjon.simulator.trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleLandEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import java.time.LocalDate
-import java.util.*
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.simulerendringavap.utenlandsopphold.AdjustPeriodsAtTheEndOfTrygdetidsgrunnlagList
@@ -33,9 +30,9 @@ object TrygdetidTrimmer {
 
     private fun removeLavAlder(trygdetidPeriodeListe: List<TTPeriode>, foedselsdato: LocalDate): List<TTPeriode> =
         trygdetidPeriodeListe
-            .filter { isBeforeNedreDatogrense(it.tom?.toNorwegianLocalDate(), foedselsdato).not() }
+            .filter { isBeforeNedreDatogrense(it.tomLd, foedselsdato).not() }
             .map {
-                if (isBeforeNedreDatogrense(it.fom?.toNorwegianLocalDate(), foedselsdato))
+                if (isBeforeNedreDatogrense(it.fomLd, foedselsdato))
                     adjustFom(it, foedselsdato)
                 else
                     it
@@ -46,10 +43,10 @@ object TrygdetidTrimmer {
         foersteUttakDato: LocalDate,
         foedselsdato: LocalDate
     ): List<TTPeriode> {
-        val maxDato: Date = sisteMuligeTrygdetidDato(foedselsdato, foersteUttakDato).toNorwegianDateAtNoon()
+        val maxDato: LocalDate = sisteMuligeTrygdetidDato(foedselsdato, foersteUttakDato)
 
         return trygdetidsperiodeListe
-            .filter { it.fom!!.after(maxDato).not() }
+            .filter { it.fomLd!!.isAfter(maxDato).not() }
             .map { adjustTom(periode = it, maxTom = maxDato) }
     }
 
@@ -75,13 +72,13 @@ object TrygdetidTrimmer {
     }
 
     private fun adjustFom(trygdetidPeriode: TTPeriode, foedselsdato: LocalDate): TTPeriode {
-        trygdetidPeriode.fom = nedreDatogrense(foedselsdato).toNorwegianDateAtNoon()
+        trygdetidPeriode.fomLd = nedreDatogrense(foedselsdato)
         return trygdetidPeriode
     }
 
-    private fun adjustTom(periode: TTPeriode, maxTom: Date?): TTPeriode {
-        if (periode.tom == null || periode.tom!!.after(maxTom)) {
-            periode.tom = maxTom
+    private fun adjustTom(periode: TTPeriode, maxTom: LocalDate): TTPeriode {
+        if (periode.tomLd == null || periode.tomLd!!.isAfter(maxTom)) {
+            periode.tomLd = maxTom
         }
 
         return periode

@@ -4,29 +4,10 @@ import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sertillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
-import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.Fravik_19_3_Enum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.PoengtilleggEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.ProRataBeregningTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.EosEkstra
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GarantiTrygdetid
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GenerellHistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Ventetilleggsgrunnlag
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.person.Pid
-import kotlin.collections.orEmpty
-import kotlin.collections.toMutableList
 
 object PenVirkningsdatoResultMapper {
 
@@ -38,8 +19,8 @@ object PenVirkningsdatoResultMapper {
     private fun afpHistorikk(source: PenAfpHistorikk) =
         AfpHistorikk().apply {
             afpFpp = source.afpFpp
-            virkFom = source.virkFom?.toNorwegianDateAtNoon()
-            virkTom = source.virkTom?.toNorwegianDateAtNoon()
+            virkFomLd = source.virkFom
+            virkTomLd = source.virkTom
             afpPensjonsgrad = source.afpPensjonsgrad
             afpOrdningEnum = source.afpOrdning?.let(AFPtypeEnum::valueOf)
         }
@@ -56,8 +37,8 @@ object PenVirkningsdatoResultMapper {
 
     private fun virkningsdatoGrunnlag(source: PenSpecialForsteVirkningsdatoGrunnlag) =
         ForsteVirkningsdatoGrunnlag().apply {
-            virkningsdato = source.virkningsdato?.toNorwegianDateAtNoon()
-            kravFremsattDato = source.kravFremsattDato?.toNorwegianDateAtNoon()
+            virkningsdatoLd = source.virkningsdato
+            kravFremsattDatoLd = source.kravFremsattDato
             bruker = source.bruker?.let(::penPerson)
             annenPerson = source.annenPerson?.let(::penPerson)
             kravlinjeTypeEnum = source.kravlinjeType?.let(KravlinjeTypeEnum::valueOf)
@@ -66,8 +47,8 @@ object PenVirkningsdatoResultMapper {
     private fun garantiTrygdetid(source: PenGarantiTrygdetid) =
         GarantiTrygdetid().apply {
             trygdetid_garanti = source.trygdetid_garanti
-            fomDato = source.fomDato?.toNorwegianDateAtNoon()
-            tomDato = source.tomDato?.toNorwegianDateAtNoon()
+            fomDatoLd = source.fomDato
+            tomDatoLd = source.tomDato
         }
 
     private fun generellHistorikk(source: PenGenerellHistorikk) =
@@ -134,19 +115,19 @@ object PenVirkningsdatoResultMapper {
             uforeperiodeListe = source.uforeperiodeListe.map(::ufoereperiode).toMutableList()
             garantigrad = source.garantigrad
             garantigradYrke = source.garantigradYrke
-            sistMedlITrygden = source.sistMedlITrygden?.toNorwegianDateAtNoon()
+            sistMedlITrygdenLd = source.sistMedlITrygden
         }
 
     private fun ufoereperiode(source: PenUfoereperiode) =
         Uforeperiode().apply {
             ufg = source.ufg
-            uft = source.uft?.toNorwegianDateAtNoon()
+            uftLd = source.uft
             redusertAntFppAr = source.redusertAntFppAr
             redusertAntFppAr_proRata = source.redusertAntFppAr_proRata
-            virk = source.virk?.toNorwegianDateAtNoon()
-            uftTom = source.uftTom?.toNorwegianDateAtNoon()
-            ufgFom = source.ufgFom?.toNorwegianDateAtNoon()
-            ufgTom = source.ufgTom?.toNorwegianDateAtNoon()
+            virkLd = source.virk
+            uftTomLd = source.uftTom
+            ufgFomLd = source.ufgFom
+            ufgTomLd = source.ufgTom
             fodselsArYngsteBarn = source.fodselsArYngsteBarn
             spt = source.spt
             spt_proRata = source.spt_proRata
@@ -167,7 +148,7 @@ object PenVirkningsdatoResultMapper {
             spt_pa_e91_eos = source.spt_pa_e91_eos
             spt_pa_f92_eos = source.spt_pa_f92_eos
             beregningsgrunnlag = source.beregningsgrunnlag
-            angittUforetidspunkt = source.angittUforetidspunkt?.toNorwegianDateAtNoon()
+            angittUforetidspunktLd = source.angittUforetidspunkt
             antattInntektFaktorKap19 = source.antattInntektFaktorKap19
             antattInntektFaktorKap20 = source.antattInntektFaktorKap20
             fppGaranti = source.fppGaranti

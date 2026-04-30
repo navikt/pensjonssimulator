@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 // Extracts from VilkarsprovOgBeregnAlderHelper + SimpleFpenService in PEN
@@ -42,7 +41,7 @@ object PeriodiseringUtil {
         dato: LocalDate
     ) {
         val retainedBeholdninger = beholdningListe.filter {
-            isBeforeByDay(it.fom, dato, allowSameDay = true)
+            isBeforeByDay(it.fomLd, dato, allowSameDay = true)
         }
 
         kravhode.hentPersongrunnlagForSoker().also {
@@ -54,8 +53,8 @@ object PeriodiseringUtil {
     // VilkarsprovOgBeregnAlderHelper.setUttaksgradListeOnKravhodeWithFullUttakAndVirkDatoFom
     private fun setLivsvarigFulltUttak(kravhode: Kravhode, virkningFom: LocalDate) {
         val uttaksgrad = Uttaksgrad().apply {
-            fomDato = virkningFom.toNorwegianDateAtNoon()
-            tomDato = null
+            fomDatoLd = virkningFom
+            tomDatoLd = null
             uttaksgrad = 100
             // uttaksgradKopiert = false <----- seemingly unused in simulering context
         }

@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
+import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -160,11 +161,5 @@ class AlderspensjonResultMapperV3(
         ): SimulertBeregningInformasjon =
             beregningsinformasjonListe.firstOrNull { isSameDay(it.datoFom, dato) }
                 ?: SimulertBeregningInformasjon()
-
-        private fun foersteDagMaanedenEtterBursdag(foedselsdato: LocalDate, alderAar: Int): LocalDate =
-            foedselsdato
-                .plusYears(alderAar.toLong())
-                .plusMonths(1)
-                .withDayOfMonth(1)
     }
 }

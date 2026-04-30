@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import java.time.LocalDate
 
@@ -22,6 +23,10 @@ class SimuleringRequest() : ServiceRequest() {
         this.ektefelleMottarPensjon = ektefelleMottarPensjon
         this.beregnForsorgingstillegg = beregnForsorgingstillegg
         this.beregnInstitusjonsopphold = beregnInstitusjonsopphold
+        //TODO: FJERN
+        simulering?.simuleringTypeEnum.also { // Satsstabell skal kun settes for alderspensjon, og skal være null for alle andre simuleringstyper}
+            if (it == SimuleringTypeEnum.AFP) this.satstabell = null
+        }
     }
 
     constructor(simulering: Simulering?, fom: LocalDate?) : this() {

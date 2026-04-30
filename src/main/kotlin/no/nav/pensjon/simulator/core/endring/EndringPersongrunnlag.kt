@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregni
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.person.BeholdningUtil.beholdningSpec
@@ -19,6 +18,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
@@ -95,8 +95,8 @@ class EndringPersongrunnlag(
     // -> OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
     private fun oppdaterOpptjeningsgrunnlagFraInntekt(
         opprinneligOpptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
-        inntektListe: List<Inntekt>,
-        foedselDato: LocalDate?
+        inntektListe: List<AarligInntekt>,
+        foedselsdato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag> {
         val opptjeningType = OpptjeningtypeEnum.PPI
 
@@ -107,7 +107,7 @@ class EndringPersongrunnlag(
                 .toMutableList()
 
         inntektsbasertOpptjeningsgrunnlagListe =
-            context.beregnPoengtallBatch(inntektsbasertOpptjeningsgrunnlagListe, foedselDato)
+            context.beregnPoengtallBatch(inntektsbasertOpptjeningsgrunnlagListe, foedselsdato)
         return komplettOpptjeningsgrunnlag(opprinneligOpptjeningsgrunnlagListe, inntektsbasertOpptjeningsgrunnlagListe)
     }
 
@@ -202,7 +202,7 @@ class EndringPersongrunnlag(
         eps.opptjeningsgrunnlagListe = oppdaterOpptjeningsgrunnlagFraInntekt(
             opprinneligOpptjeningsgrunnlagListe = eps.opptjeningsgrunnlagListe,
             inntektListe = mutableListOf(inntekt(avdoed)),
-            foedselDato = eps.fodselsdato?.toNorwegianLocalDate()
+            foedselsdato = eps.fodselsdato?.toNorwegianLocalDate()
         )
     }
 
@@ -235,12 +235,12 @@ class EndringPersongrunnlag(
 
     // SimulerEndringAvAPCommandHelper.addInntektgrunnlagForEPS
     private fun addInntektsgrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {
-        val inntektFom: LocalDate = findFomDatoInntekt(foersteUttakDato)
+        val inntektFom: LocalDate = inntektFom(foersteUttakDato)
         eps.inntektsgrunnlagListe.add(epsInntektsgrunnlag(grunnbeloep, inntektFom))
     }
 
     // SimulerEndringAvAPCommandHelper.findFomDatoInntekt
-    private fun findFomDatoInntekt(foersteUttakDato: LocalDate?): LocalDate {
+    private fun inntektFom(foersteUttakDato: LocalDate?): LocalDate {
         val today = time.today()
         val dato = foersteUttakDato?.let { if (it.isBefore(today)) it else today } ?: today
         return LocalDate.of(dato.year, 1, 1)
@@ -248,9 +248,9 @@ class EndringPersongrunnlag(
 
     // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun inntekt(avdoed: Avdoed) =
-        Inntekt(
+        AarligInntekt(
             inntektAar = time.today().year - 1,
-            beloep = avdoed.inntektFoerDoed.toLong()
+            beloep = avdoed.inntektFoerDoed
         )
 
     // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
@@ -301,10 +301,10 @@ class EndringPersongrunnlag(
             }
 
         // Extracted from OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
-        private fun opptjeningsgrunnlag(inntekt: Inntekt, type: OpptjeningtypeEnum) =
+        private fun opptjeningsgrunnlag(inntekt: AarligInntekt, type: OpptjeningtypeEnum) =
             Opptjeningsgrunnlag().apply {
                 ar = inntekt.inntektAar
-                pi = inntekt.beloep.toInt()
+                pi = inntekt.beloep
                 opptjeningTypeEnum = type
             }
 

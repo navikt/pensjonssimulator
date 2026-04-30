@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.g.GrunnbeloepService
-import no.nav.pensjon.simulator.opptjening.SisteLignetInntekt
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -15,12 +14,12 @@ import java.time.LocalDate
 class InntektServiceTest : FunSpec({
 
     val service = InntektService(
-        lignetInntektService = arrangeInntekt(),
+        inntektClient = arrangeInntekt(),
         grunnbeloepService = arrangeGrunnbeloep()
     )
 
     test("hentSisteLignetInntekt should return inntekt") {
-        service.hentSisteLignetInntekt(pid) shouldBe Inntekt(aarligBeloep = 321000, fom = LocalDate.of(2025, 1, 1))
+        service.hentSisteLignetInntekt(pid) shouldBe LoependeInntekt(aarligBeloep = 321000, fom = LocalDate.of(2025, 1, 1))
     }
 
     test("hentSisteMaanedsInntektOver1G should return amount higher than 1G if harInntektSisteMaanedOver1G is true") {
@@ -39,11 +38,11 @@ class InntektServiceTest : FunSpec({
 
 private const val GRUNNBELOEP = 123000.0
 
-private fun arrangeInntekt(): SisteLignetInntekt =
-    mockk<SisteLignetInntekt>().also {
+private fun arrangeInntekt(): InntektClient =
+    mockk<InntektClient>().also {
         every {
-            it.hentSisteLignetInntekt(pid)
-        } returns Inntekt(
+            it.fetchSistLignedeInntekt(pid)
+        } returns LoependeInntekt(
             aarligBeloep = 321000,
             fom = LocalDate.of(2025, 1, 1)
         )

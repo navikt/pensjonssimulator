@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.krav.Inntekt
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -19,7 +19,7 @@ class OpptjeningUpdater(private val context: SimulatorContext) {
     // -> OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
     fun oppdaterOpptjeningsgrunnlagFraInntekter(
         originalGrunnlagListe: List<Opptjeningsgrunnlag>,
-        inntektListe: List<Inntekt>,
+        inntektListe: List<AarligInntekt>,
         foedselsdato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag> {
         val resultGrunnlagListe = mutableListOf<Opptjeningsgrunnlag>().apply {
@@ -30,9 +30,12 @@ class OpptjeningUpdater(private val context: SimulatorContext) {
 
         inntektListe
             .filter { it.beloep > 0L }
-            .forEach { inntektbasertGrunnlagListe.add(opptjeningGrunnlag(it)) }
+            .forEach { inntektbasertGrunnlagListe.add(opptjeningsgrunnlag(inntekt = it)) }
 
-        inntektbasertGrunnlagListe = context.beregnPoengtallBatch(inntektbasertGrunnlagListe, foedselsdato)
+        inntektbasertGrunnlagListe = context.beregnPoengtallBatch(
+            opptjeningGrunnlagListe = inntektbasertGrunnlagListe,
+            foedselsdato
+        )
 
         inntektbasertGrunnlagListe.forEach {
             it.bruk = true
@@ -44,10 +47,10 @@ class OpptjeningUpdater(private val context: SimulatorContext) {
     }
 
     private companion object {
-        private fun opptjeningGrunnlag(inntekt: Inntekt) =
+        private fun opptjeningsgrunnlag(inntekt: AarligInntekt) =
             Opptjeningsgrunnlag().apply {
                 ar = inntekt.inntektAar
-                pi = inntekt.beloep.toInt()
+                pi = inntekt.beloep
                 opptjeningTypeEnum = OpptjeningtypeEnum.PPI
                 bruk = true
             }

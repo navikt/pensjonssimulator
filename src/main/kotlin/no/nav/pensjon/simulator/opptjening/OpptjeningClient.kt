@@ -2,7 +2,8 @@ package no.nav.pensjon.simulator.opptjening
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
+import no.nav.pensjon.simulator.inntekt.InntektClient
 import no.nav.pensjon.simulator.opptjening.dto.OpptjeningsgrunnlagExtractor
 import no.nav.pensjon.simulator.opptjening.dto.OpptjeningsgrunnlagResponseDto
 import no.nav.pensjon.simulator.person.Pid
@@ -28,12 +29,12 @@ class OpptjeningClient(
     webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val time: Time
-) : ExternalServiceClient(retryAttempts), SisteLignetInntekt {
+) : ExternalServiceClient(retryAttempts), InntektClient {
 
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val log = KotlinLogging.logger {}
 
-    override fun hentSisteLignetInntekt(pid: Pid): Inntekt {
+    override fun fetchSistLignedeInntekt(pid: Pid): LoependeInntekt {
         val url = "$baseUrl/$OPPTJENINGSGRUNNLAG_PATH"
         log.debug { "GET from URL: '$url'" }
 
@@ -63,7 +64,7 @@ class OpptjeningClient(
     }
 
     private fun zeroInntekt() =
-        Inntekt(
+        LoependeInntekt(
             aarligBeloep = 0,
             fom = LocalDate.of(time.today().year, 1, 1)
         )

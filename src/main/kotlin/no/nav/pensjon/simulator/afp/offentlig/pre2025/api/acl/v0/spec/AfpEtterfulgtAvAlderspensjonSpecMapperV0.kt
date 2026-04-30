@@ -6,8 +6,8 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.inntekt.InntektService
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
@@ -25,7 +25,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
     fun fromDto(source: AfpEtterfulgtAvAlderspensjonSpecV0.AfpEtterfulgtAvAlderspensjonValidatedSpecV0): SimuleringSpec {
         val pid = Pid(source.personId)
 
-        val sisteLignetInntekt: Inntekt? =
+        val sisteLignetInntekt: LoependeInntekt? =
             if (source.fremtidigAarligInntektTilAfpUttak == null) inntektService.hentSisteLignetInntekt(pid)
             else null
 

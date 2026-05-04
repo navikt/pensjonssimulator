@@ -576,7 +576,7 @@ class KravhodeCreator(
         }
 
         inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
-            it.bruk && !isForventetPensjongivendeInntekt(it)
+            it.bruk == true && !isForventetPensjongivendeInntekt(it)
         })
 
         return inntektsgrunnlagListe
@@ -684,7 +684,7 @@ class KravhodeCreator(
         }
 
         private fun fjernForventetArbeidsinntektFraInntektGrunnlag(grunnlagListe: List<Inntektsgrunnlag>) =
-            grunnlagListe.filter { it.bruk && InntekttypeEnum.FPI != it.inntektTypeEnum }
+            grunnlagListe.filter { it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum }
 
         private fun isForventetPensjongivendeInntekt(grunnlag: Inntektsgrunnlag): Boolean =
             grunnlag.inntektTypeEnum == InntekttypeEnum.FPI

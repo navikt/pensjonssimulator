@@ -21,10 +21,4 @@ class PersonOpptjeningsgrunnlag {
     var fodselsdatoLd: LocalDate? = null
 
     constructor()
-
-  //  constructor(source: PersonOpptjeningsgrunnlag) : this() {
-  //      fnr = source.fnr
-  //      source.opptjening?.let { opptjening = Opptjeningsgrunnlag(it) }
-  //      fodselsdato = source.fodselsdato?.clone() as? Date
-  //  }
 }

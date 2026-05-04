@@ -273,7 +273,7 @@ class Pre2025OffentligAfpPersongrunnlag(
         private fun beholdForventetPensjongivendeInntekt(persongrunnlag: Persongrunnlag) {
             persongrunnlag.inntektsgrunnlagListe =
                 persongrunnlag.inntektsgrunnlagListe
-                    .filter { it.bruk && isForventetPensjongivendeInntekt(it) }
+                    .filter { it.bruk == true && isForventetPensjongivendeInntekt(it) }
                     .toMutableList()
         }
 

@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import java.time.LocalDate
-import java.util.Date
 
 class TrygdetidGrunnlagFactoryTest : FunSpec({
 
@@ -98,13 +97,15 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
                 bruk = false
             )
 
-            result.fomLd shouldBe fom
-            result.tomLd shouldBe tom
-            result.poengIInnAr shouldBe false
-            result.poengIUtAr shouldBe false
-            result.landEnum shouldBe LandkodeEnum.SWE
-            result.ikkeProRata shouldBe true
-            result.bruk shouldBe false
+            with(result) {
+                fomLd shouldBe fom
+                tomLd shouldBe tom
+                poengIInnAr shouldBe false
+                poengIUtAr shouldBe false
+                landEnum shouldBe LandkodeEnum.SWE
+                ikkeProRata shouldBe true
+                bruk shouldBe false
+            }
         }
 
         test("håndterer null land") {
@@ -208,19 +209,9 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
             result.bruk shouldBe true
         }
 
-        test("kopierer Date-objekter med land") {
-            val fom = LocalDate.of(2000, 1, 1)
-            val tom = LocalDate.of(2010, 12, 31)
-
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom, LandkodeEnum.NOR)
-
-            // Skal være kopier, ikke samme objekt
-            (result.fomLd === fom) shouldBe false
-            (result.tomLd === tom) shouldBe false
-        }
-
         test("håndterer null fom og tom med land") {
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(null as Date?, null as Date?, LandkodeEnum.GBR)
+            val result =
+                TrygdetidGrunnlagFactory.trygdetidPeriode(null as LocalDate?, null as LocalDate?, LandkodeEnum.GBR)
 
             result.fomLd shouldBe null
             result.tomLd shouldBe null
@@ -284,19 +275,9 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
             result.bruk shouldBe true
         }
 
-        test("kopierer Date-objekter for anonym simulering") {
-            val fom = LocalDate.of(2000, 1, 1)
-            val tom = LocalDate.of(2010, 12, 31)
-
-            val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(fom, tom)
-
-            // Skal være kopier, ikke samme objekt
-            (result.fomLd === fom) shouldBe false
-            (result.tomLd === tom) shouldBe false
-        }
-
         test("håndterer null verdier for anonym simulering") {
-            val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(null as Date?, null as Date?)
+            val result =
+                TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(null as LocalDate?, null as LocalDate?)
 
             result.fomLd shouldBe null
             result.tomLd shouldBe null

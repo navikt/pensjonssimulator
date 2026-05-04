@@ -50,18 +50,12 @@ class Inntektsgrunnlag {
     /**
      * Angir om inntektsgrunnlaget brukes som grunnlag på kravet.
      */
-    var bruk: Boolean = true
+    var bruk: Boolean? = null // NB: default true i pensjon-regler-api, but nullable in Inntektsgrunnlag in PEN
 
     /**
      * Kilden til inntektsgrunnlaget.
      */
     var grunnlagKildeEnum: GrunnlagkildeEnum? = null
-
-    //@JsonIgnore
-    //var rawFom: Date? = null // SIMDOM-ADD
-//
-    //@JsonIgnore
-    //var rawTom: Date? = null // SIMDOM-ADD
 
     constructor()
 

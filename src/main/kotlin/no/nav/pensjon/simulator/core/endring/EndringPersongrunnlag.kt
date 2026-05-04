@@ -359,7 +359,7 @@ class EndringPersongrunnlag(
         private fun relevantPersongrunnlag(source: Persongrunnlag) =
             Persongrunnlag(source).apply {
                 inntektsgrunnlagListe = inntektsgrunnlagListe.filter {
-                    it.bruk && InntekttypeEnum.FPI != it.inntektTypeEnum
+                    it.bruk == true && InntekttypeEnum.FPI != it.inntektTypeEnum
                 }.toMutableList()
 
                 personDetaljListe = personDetaljListe.filter {

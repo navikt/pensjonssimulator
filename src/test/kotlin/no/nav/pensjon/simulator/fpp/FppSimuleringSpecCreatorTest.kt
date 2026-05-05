@@ -168,7 +168,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 penPerson?.pid shouldBe soekerPid
                 fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
                 dodsdato.shouldBeNull()
-                antallArUtland shouldBe 5
+                antallArUtland shouldBe 0
                 flyktning shouldBe true
                 over60ArKanIkkeForsorgesSelv shouldBe false
                 dodAvYrkesskade shouldBe false

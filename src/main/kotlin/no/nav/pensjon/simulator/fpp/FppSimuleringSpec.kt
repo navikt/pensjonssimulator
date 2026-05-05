@@ -1,10 +1,13 @@
 package no.nav.pensjon.simulator.fpp
 
+import no.nav.pensjon.simulator.api.nav.v2.acl.spec.UtlandSpecDto
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Utenlandsopphold
 import no.nav.pensjon.simulator.fpp.api.acl.v1.RelasjonTypeCodeV1
 import no.nav.pensjon.simulator.fpp.api.acl.v1.SimuleringTypeV1
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.UtenlandsperiodeForSimuleringV3
 import java.time.LocalDate
 
 // PEN: no.nav.pensjon.pen.domain.api.kalkulator.PensjonskalkulatorInput
@@ -22,6 +25,7 @@ class Personopplysninger {
     var valgtAfpOrdning: AFPtypeEnum? = null // PEN: String
     var flyktning: Boolean? = null
     var antAarIUtlandet: Int? = null
+    var utenlandsopphold: List<UtlandSpecDto>? = null
     var forventetArbeidsinntekt: Int? = null
     var forventetArbeidsinntektGjenlevende: Long? = null
     var inntektMndForAfp: Int? = null

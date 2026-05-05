@@ -35,7 +35,7 @@ class FppSimuleringSpecCreator(
 ) {
     fun createSpec(
         simuleringType: SimuleringTypeEnum,
-        utenlandsopphold: List<UtlandSpecDto>,
+        utenlandsopphold: List<UtlandSpecDto>? = null,
         uttaksdato: LocalDate,
         personopplysninger: Personopplysninger,
         opptjeningFolketrygden: OpptjeningFolketrygden?,
@@ -62,7 +62,7 @@ class FppSimuleringSpecCreator(
 
     private fun persongrunnlagListe(
         simuleringType: SimuleringTypeEnum,
-        utenlandsopphold: List<UtlandSpecDto>,
+        utenlandsopphold: List<UtlandSpecDto>?,
         uttaksdato: LocalDate,
         personopplysninger: Personopplysninger,
         barneopplysninger: Barneopplysninger?,
@@ -133,7 +133,7 @@ class FppSimuleringSpecCreator(
 
     private fun persongrunnlagForSoeker(
         simuleringType: SimuleringTypeEnum,
-        utenlandsopphold: List<UtlandSpecDto>,
+        utenlandsopphold: List<UtlandSpecDto>?,
         uttaksdato: LocalDate,
         personopplysninger: Personopplysninger,
         opptjeningFolketrygden: OpptjeningFolketrygden?,
@@ -156,7 +156,7 @@ class FppSimuleringSpecCreator(
             fodselsdato = foedselsdato?.toNorwegianDateAtNoon()
             dodsdato = null
             antallArUtland = if (simuleringType == BARN) 0 else foedselsdato?.let {
-                UtlandPeriodeConverter.limitedAntallAar(utenlandsopphold.map(::utlandPeriode), it)
+                UtlandPeriodeConverter.limitedAntallAar(utenlandsopphold?.map(::utlandPeriode) ?: emptyList(), it)
             } ?: 0
             flyktning = personopplysninger.flyktning
 

@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class FppSimuleringSpecValidatorTest : ShouldSpec({
@@ -103,6 +102,6 @@ private fun soekergrunnlag(foedselsaar: Int?): List<Persongrunnlag> =
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                    fodselsdato = foedselsaar?.let { LocalDate.of(it, 1, 1).toNorwegianDateAtNoon() }
+                    fodselsdatoLd = foedselsaar?.let { LocalDate.of(it, 1, 1) }
                 })
         })

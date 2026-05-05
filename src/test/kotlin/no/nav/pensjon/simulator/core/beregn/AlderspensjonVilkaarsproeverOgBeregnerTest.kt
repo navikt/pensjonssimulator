@@ -25,12 +25,11 @@ import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.krav.KravGjelder
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
 import java.time.LocalDate
-import java.util.*
+import java.util.SortedMap
 
 class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
 
@@ -384,7 +383,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
 
         // The result from first iteration should have virkTom set to day before second knekkpunkt
         // virkTom is set on forrigeAlderspensjonBeregningResultat (line 89) which is the result from previous iteration
-        firstIterationResult.virkTom shouldNotBe null
+        firstIterationResult.virkTomLd shouldNotBe null
     }
 
     // ===========================================
@@ -895,7 +894,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
             regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
             persongrunnlagListe = mutableListOf(
                 Persongrunnlag().apply {
-                    fodselsdato = dateAtNoon(1960, Calendar.JANUARY, 1)
+                    fodselsdatoLd = LocalDate.of(1960, 1, 1)
                     penPerson = PenPerson().apply { penPersonId = 1L }
                     personDetaljListe = mutableListOf(
                         PersonDetalj().apply {
@@ -1024,13 +1023,13 @@ private fun createKravhodeWithSoker(): Kravhode {
 
 private fun createPersongrunnlag(rolle: GrunnlagsrolleEnum): Persongrunnlag =
     Persongrunnlag().apply {
-        fodselsdato = dateAtNoon(1960, Calendar.JANUARY, 1)
+        fodselsdatoLd = LocalDate.of(1960, 1, 1)
         penPerson = PenPerson().apply { penPersonId = 1L }
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = rolle
-                virkFom = dateAtNoon(2020, Calendar.JANUARY, 1)
+                virkFom = LocalDate.of(2020, 1, 1)
             }
         )
     }

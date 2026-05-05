@@ -37,9 +37,8 @@ class PersongrunnlagMapperTest : FunSpec({
             foedselsdato = LocalDate.of(1963, 1, 1)
         }
 
-        val result = mapper.mapToPersongrunnlag(person, simuleringSpec)
-
-        result.penPerson shouldBe person
+        mapper.mapToPersongrunnlag(person, simuleringSpec)
+            .penPerson shouldBe person
     }
 
     test("mapToPersongrunnlag should set fodselsdato from person") {
@@ -48,9 +47,7 @@ class PersongrunnlagMapperTest : FunSpec({
             foedselsdato = LocalDate.of(1965, 5, 15)
         }
 
-        val result = mapper.mapToPersongrunnlag(person, simuleringSpec)
-
-        result.fodselsdato shouldNotBe null
+        mapper.mapToPersongrunnlag(person, simuleringSpec).fodselsdatoLd shouldNotBe null
     }
 
     test("mapToPersongrunnlag should set gjelderOmsorg to false") {
@@ -379,89 +376,98 @@ class PersongrunnlagMapperTest : FunSpec({
         val mapper = createMapper()
         val foedselsdato = LocalDate.of(1965, 3, 20)
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, foedselsdato)
-
-        result.fodselsdato shouldNotBe null
+        mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, foedselsdato)
+            .fodselsdatoLd shouldNotBe null
     }
 
     test("mapToEpsPersongrunnlag should set gjelderOmsorg to false") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.gjelderOmsorg shouldBe false
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).gjelderOmsorg shouldBe false
     }
 
     test("mapToEpsPersongrunnlag should set gjelderUforetrygd to false") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.gjelderUforetrygd shouldBe false
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).gjelderUforetrygd shouldBe false
     }
 
     test("mapToEpsPersongrunnlag should set antallArUtland to 0") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.antallArUtland shouldBe 0
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).antallArUtland shouldBe 0
     }
 
     test("mapToEpsPersongrunnlag should set dodsdato to null") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.dodsdato shouldBe null
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).dodsdatoLd shouldBe null
     }
 
     test("mapToEpsPersongrunnlag should set statsborgerskapEnum to NOR") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.statsborgerskapEnum shouldBe LandkodeEnum.NOR
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).statsborgerskapEnum shouldBe LandkodeEnum.NOR
     }
 
     test("mapToEpsPersongrunnlag should set flyktning to false") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.flyktning shouldBe false
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).flyktning shouldBe false
     }
 
     test("mapToEpsPersongrunnlag should set bosattLandEnum to NOR") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.bosattLandEnum shouldBe LandkodeEnum.NOR
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).bosattLandEnum shouldBe LandkodeEnum.NOR
     }
 
     test("mapToEpsPersongrunnlag should set empty afpHistorikkListe") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.afpHistorikkListe.shouldBeEmpty()
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).afpHistorikkListe.shouldBeEmpty()
     }
 
     test("mapToEpsPersongrunnlag should set uforeHistorikk to null") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.uforeHistorikk shouldBe null
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).uforeHistorikk shouldBe null
     }
 
     test("mapToEpsPersongrunnlag should set generellHistorikk to null") {
         val mapper = createMapper()
 
-        val result = mapper.mapToEpsPersongrunnlag(SivilstatusType.GIFT, LocalDate.of(1965, 3, 20))
-
-        result.generellHistorikk shouldBe null
+        mapper.mapToEpsPersongrunnlag(
+            sivilstatus = SivilstatusType.GIFT,
+            foedselsdato = LocalDate.of(1965, 3, 20)
+        ).generellHistorikk shouldBe null
     }
 
     // ===========================================
@@ -577,9 +583,8 @@ class PersongrunnlagMapperTest : FunSpec({
         }
         val avdoed = createAvdoed(doedDato = LocalDate.of(2020, 11, 25))
 
-        val result = mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
-
-        result.dodsdato shouldNotBe null
+        mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
+            .dodsdatoLd shouldNotBe null
     }
 
     test("avdoedPersongrunnlag should set dodAvYrkesskade to false") {
@@ -589,9 +594,8 @@ class PersongrunnlagMapperTest : FunSpec({
         }
         val avdoed = createAvdoed()
 
-        val result = mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
-
-        result.dodAvYrkesskade shouldBe false
+        mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
+            .dodAvYrkesskade shouldBe false
     }
 
     test("avdoedPersongrunnlag should set arligPGIMinst1G from avdoed.harInntektOver1G") {
@@ -601,9 +605,8 @@ class PersongrunnlagMapperTest : FunSpec({
         }
         val avdoed = createAvdoed(harInntektOver1G = true)
 
-        val result = mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
-
-        result.arligPGIMinst1G shouldBe true
+        mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
+            .arligPGIMinst1G shouldBe true
     }
 
     test("avdoedPersongrunnlag should set antallArUtland from avdoed") {
@@ -613,9 +616,8 @@ class PersongrunnlagMapperTest : FunSpec({
         }
         val avdoed = createAvdoed(antallAarUtenlands = 7)
 
-        val result = mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
-
-        result.antallArUtland shouldBe 7
+        mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
+            .antallArUtland shouldBe 7
     }
 
     test("avdoedPersongrunnlag should set medlemIFolketrygdenSiste3Ar from avdoed.erMedlemAvFolketrygden") {
@@ -625,9 +627,8 @@ class PersongrunnlagMapperTest : FunSpec({
         }
         val avdoed = createAvdoed(erMedlemAvFolketrygden = true)
 
-        val result = mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
-
-        result.medlemIFolketrygdenSiste3Ar shouldBe true
+        mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
+            .medlemIFolketrygdenSiste3Ar shouldBe true
     }
 
     test("avdoedPersongrunnlag should set flyktning to false") {
@@ -637,9 +638,8 @@ class PersongrunnlagMapperTest : FunSpec({
         }
         val avdoed = createAvdoed()
 
-        val result = mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
-
-        result.flyktning shouldBe false
+        mapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid = null)
+            .flyktning shouldBe false
     }
 
     // ===========================================

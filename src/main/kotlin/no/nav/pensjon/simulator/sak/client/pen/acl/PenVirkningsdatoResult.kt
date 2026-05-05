@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.sak.client.pen.acl
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
-import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
 /**

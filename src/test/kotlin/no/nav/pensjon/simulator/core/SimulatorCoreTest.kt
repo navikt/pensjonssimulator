@@ -44,11 +44,9 @@ import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import java.time.LocalDate
-import java.util.*
 
 class SimulatorCoreTest : ShouldSpec({
 
@@ -474,7 +472,7 @@ private fun kravhode() =
     Kravhode().apply {
         persongrunnlagListe = mutableListOf(
             Persongrunnlag().apply {
-                fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+                fodselsdatoLd = LocalDate.of(1963, 1, 1)
                 penPerson = PenPerson().apply { penPersonId = 1L }
                 personDetaljListe = mutableListOf(
                     PersonDetalj().apply {

@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
@@ -104,7 +103,7 @@ class Pre2025OffentligAfpSpecValidatorTest : FunSpec({
                     simuleringTypeEnum = SimuleringTypeEnum.ALDER
                     uttaksdatoLd = LocalDate.of(2025, 7, 1)
                     persongrunnlagListe = mutableListOf(Persongrunnlag().apply {
-                        fodselsdato = dateAtNoon(1958, 6, 15) // blir 67 år 2 måneder 2025-08-15 => for ung
+                        fodselsdatoLd = LocalDate.of(1958, 7, 15) // blir 67 år 2 måneder 2025-09-15 => for ung
                         personDetaljListe = soeker
                     })
                 },
@@ -121,7 +120,7 @@ class Pre2025OffentligAfpSpecValidatorTest : FunSpec({
                     afpOrdningEnum = AFPtypeEnum.AFPSTAT
                     uttaksdatoLd = LocalDate.of(2025, 7, 1)
                     persongrunnlagListe = mutableListOf(Persongrunnlag().apply {
-                        fodselsdato = dateAtNoon(1963, 6, 15) // blir 62 år 2025-06-15 => for ung
+                        fodselsdatoLd = LocalDate.of(1963, 7, 15) // blir 62 år 2025-07-15 => for ung
                         personDetaljListe = soeker
                     })
                 },

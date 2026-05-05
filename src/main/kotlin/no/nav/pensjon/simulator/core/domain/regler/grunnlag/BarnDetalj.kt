@@ -1,9 +1,10 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import java.time.LocalDate
 import java.util.*
 
-// 2025-06-06
+// 2026-04-23
 class BarnDetalj {
     /**
      * Angir barnets andre forelder enn søker.
@@ -19,12 +20,12 @@ class BarnDetalj {
     /**
      * Fra-og-med dato for når barnet bor sammen med begge foreldrene.
      */
-    var borFomDato: Date? = null
+    var borFomDatoLd: LocalDate? = null
 
     /**
      * Til-og-med dato for når barnet bor sammen med begge foreldrene.
      */
-    var borTomDato: Date? = null
+    var borTomDatoLd: LocalDate? = null
 
     /**
      * Angir om barnet har hatt inntekt over 1G.

@@ -4,21 +4,21 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.JustertPeriodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseVedDodEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
-import java.util.*
+import java.time.LocalDate
 
+// 2026-04-23
 class Uforetrygdberegning : Beregning2011() {
-
     var bruttoPerAr = 0
     var formelKodeEnum: FormelKodeEnum? = null
     override var grunnbelop = 0
     var minsteytelse: Minsteytelse? = null
     var prorataBrok: Brok? = null
     var uforegrad = 0
-    var uforetidspunkt: Date? = null
+    var uforetidspunktLd: LocalDate? = null
     var egenopptjentUforetrygd: EgenopptjentUforetrygd? = null
     var egenopptjentUforetrygdBest = false
     var yrkesskadegrad = 0
-    var yrkesskadetidspunkt: Date? = null
+    var yrkesskadetidspunktLd: LocalDate? = null
     var mottarMinsteytelse = false
 
     /* Bygger opp årsakskoder som viser hvorfor personen mottar minsteytelse */

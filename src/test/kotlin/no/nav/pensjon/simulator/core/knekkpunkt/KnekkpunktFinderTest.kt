@@ -25,11 +25,9 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
 import java.time.LocalDate
-import java.util.*
 
 class KnekkpunktFinderTest : FunSpec({
 
@@ -85,7 +83,7 @@ class KnekkpunktFinderTest : FunSpec({
         val spec = createKnekkpunktSpec(
             foersteUttakDato = LocalDate.of(2025, 1, 1), // Set early enough so knekkpunkter are not stripped
             avdoedGrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.AVDOD).apply {
-                dodsdato = dateAtNoon(2020, Calendar.DECEMBER, 15)
+                dodsdatoLd = LocalDate.of(2020, 12, 15)
                 opptjeningsgrunnlagListe = mutableListOf(
                     Opptjeningsgrunnlag().apply {
                         ar = 2024 // Creates knekkpunkt at 2026 (ar + 2)
@@ -112,11 +110,11 @@ class KnekkpunktFinderTest : FunSpec({
         val spec = createKnekkpunktSpec(
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2030, Calendar.MARCH, 1)
+                    fomDatoLd = LocalDate.of(2030, 3, 1)
                     uttaksgrad = 50
                 },
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2032, Calendar.JUNE, 1)
+                    fomDatoLd = LocalDate.of(2032, 6, 1)
                     uttaksgrad = 100
                 }
             )
@@ -165,7 +163,7 @@ class KnekkpunktFinderTest : FunSpec({
         val finder = createKnekkpunktFinder()
         val spec = createKnekkpunktSpec(
             avdoedGrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.AVDOD).apply {
-                dodsdato = dateAtNoon(2020, Calendar.DECEMBER, 15)
+                dodsdatoLd = LocalDate.of(2020, 12, 15)
             },
             avdoedVirkningFom = LocalDate.of(2021, 1, 1)
         )
@@ -205,7 +203,7 @@ class KnekkpunktFinderTest : FunSpec({
 
         // Returns full trygdetid (40 years) immediately
         every { trygdetidBeregner.fastsettTrygdetidForPeriode(any(), any(), any(), any()) } returns
-            TrygdetidCombo(Trygdetid().apply { tt = 40 }, Trygdetid().apply { tt = 40 })
+                TrygdetidCombo(Trygdetid().apply { tt = 40 }, Trygdetid().apply { tt = 40 })
 
         val finder = createKnekkpunktFinder(trygdetidBeregner = trygdetidBeregner)
         val spec = createKnekkpunktSpec(
@@ -217,7 +215,14 @@ class KnekkpunktFinderTest : FunSpec({
         // Called twice: once for initial foersteBeregningDato, once for first loop iteration
         // Then breaks because full trygdetid was reached
         // This is much fewer calls than would happen if trygdetid was not full (would iterate until age 76)
-        verify(exactly = 2) { trygdetidBeregner.fastsettTrygdetidForPeriode(any(), eq(GrunnlagsrolleEnum.SOKER), any(), any()) }
+        verify(exactly = 2) {
+            trygdetidBeregner.fastsettTrygdetidForPeriode(
+                any(),
+                eq(GrunnlagsrolleEnum.SOKER),
+                any(),
+                any()
+            )
+        }
     }
 
     // =====================================================
@@ -275,7 +280,7 @@ class KnekkpunktFinderTest : FunSpec({
             simulerForTp = true,
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2031, Calendar.JUNE, 1) // After normalder
+                    fomDatoLd = LocalDate.of(2031, 6, 1) // After normalder
                     uttaksgrad = 100
                 }
             )
@@ -354,7 +359,7 @@ class KnekkpunktFinderTest : FunSpec({
             foersteUttakDato = LocalDate.of(2030, 1, 1),
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2030, Calendar.JANUARY, 1) // Same date as normalder and foersteUttak
+                    fomDatoLd = LocalDate.of(2030, 1, 1) // Same date as normalder and foersteUttak
                     uttaksgrad = 100
                 }
             )
@@ -393,15 +398,15 @@ class KnekkpunktFinderTest : FunSpec({
             foersteUttakDato = LocalDate.of(2025, 1, 1),
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2028, Calendar.MARCH, 1)
+                    fomDatoLd = LocalDate.of(2028, 3, 1)
                     uttaksgrad = 50
                 },
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2026, Calendar.JUNE, 1)
+                    fomDatoLd = LocalDate.of(2026, 6, 1)
                     uttaksgrad = 30
                 },
                 Uttaksgrad().apply {
-                    fomDato = dateAtNoon(2030, Calendar.JANUARY, 1)
+                    fomDatoLd = LocalDate.of(2030, 1, 1)
                     uttaksgrad = 100
                 }
             )
@@ -423,7 +428,7 @@ class KnekkpunktFinderTest : FunSpec({
 
         // Returns null trygdetid (considered as full trygdetid)
         every { trygdetidBeregner.fastsettTrygdetidForPeriode(any(), any(), any(), any()) } returns
-            TrygdetidCombo(null, null)
+                TrygdetidCombo(null, null)
 
         val finder = createKnekkpunktFinder(trygdetidBeregner = trygdetidBeregner)
         val spec = createKnekkpunktSpec(
@@ -435,7 +440,14 @@ class KnekkpunktFinderTest : FunSpec({
         // Called twice: once for initial foersteBeregningDato, once for first loop iteration
         // Then breaks because null is considered full trygdetid
         // This is much fewer calls than would happen if trygdetid was not full (would iterate until age 76)
-        verify(exactly = 2) { trygdetidBeregner.fastsettTrygdetidForPeriode(any(), eq(GrunnlagsrolleEnum.SOKER), any(), any()) }
+        verify(exactly = 2) {
+            trygdetidBeregner.fastsettTrygdetidForPeriode(
+                any(),
+                eq(GrunnlagsrolleEnum.SOKER),
+                any(),
+                any()
+            )
+        }
     }
 
     test("finnKnekkpunkter should detect difference when one trygdetid is null and other is not") {
@@ -467,22 +479,27 @@ private fun createKnekkpunktFinder(
     normalderDato: LocalDate = LocalDate.of(2030, 2, 1),
     today: LocalDate = LocalDate.of(2025, 1, 1)
 ): KnekkpunktFinder {
-    val normalderService = mockk<NormertPensjonsalderService>()
-    every { normalderService.normalderDato(any()) } returns normalderDato
-    every { normalderService.normalder(any<LocalDate>()) } returns Alder(67, 0)
+    val normalderService = mockk<NormertPensjonsalderService>().apply {
+        every { normalderDato(any()) } returns normalderDato
+        every { normalder(any<LocalDate>()) } returns Alder(67, 0)
+    }
 
-    val time = mockk<Time>()
-    every { time.today() } returns today
+    val time = mockk<Time>().apply {
+        every { today() } returns today
+    }
 
     return KnekkpunktFinder(trygdetidBeregner, normalderService, time)
 }
 
-private fun mockTrygdetidBeregner(): TrygdetidBeregnerProxy {
-    val trygdetidBeregner = mockk<TrygdetidBeregnerProxy>()
-    every { trygdetidBeregner.fastsettTrygdetidForPeriode(any(), any(), any(), any()) } returns
-        TrygdetidCombo(Trygdetid().apply { tt = 40 }, Trygdetid().apply { tt = 40 }) // Full trygdetid
-    return trygdetidBeregner
-}
+private fun mockTrygdetidBeregner(): TrygdetidBeregnerProxy =
+    mockk<TrygdetidBeregnerProxy>().apply {
+        every {
+            fastsettTrygdetidForPeriode(any(), any(), any(), any())
+        } returns TrygdetidCombo(
+            kapittel19 = Trygdetid().apply { tt = 40 },
+            kapittel20 = Trygdetid().apply { tt = 40 } // Full trygdetid
+        )
+    }
 
 private fun createKnekkpunktSpec(
     type: SimuleringTypeEnum = SimuleringTypeEnum.ALDER,
@@ -525,7 +542,7 @@ private fun createKnekkpunktSpec(
 
 private fun createPersongrunnlag(rolle: GrunnlagsrolleEnum): Persongrunnlag =
     Persongrunnlag().apply {
-        fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+        fodselsdatoLd = LocalDate.of(1963, 1, 1)
         penPerson = PenPerson().apply { penPersonId = if (rolle == GrunnlagsrolleEnum.SOKER) 1L else 2L }
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {

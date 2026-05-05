@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.krav.KravGjelder
-import java.util.*
+import java.time.LocalDate
 
 /**
  * Kravhode DTO (data transfer object) received from PEN.
@@ -14,8 +14,8 @@ import java.util.*
  */
 class PenKravhode {
     var kravId: Long? = null
-    var kravFremsattDato: Date? = null
-    var onsketVirkningsdato: Date? = null
+    var kravFremsattDatoLd: LocalDate? = null
+    var onsketVirkningsdatoLd: LocalDate? = null
     var gjelder: KravGjelder? = null // PEN: KravGjelderCode
     var sakId: Long? = null
     var sakType: SakTypeEnum? = null // PEN: SakTypeCode

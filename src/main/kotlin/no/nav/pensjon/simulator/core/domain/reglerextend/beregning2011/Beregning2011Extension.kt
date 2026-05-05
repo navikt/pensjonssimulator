@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.util.formula.Formel
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning.copyYtelseskomponent
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import no.nav.pensjon.simulator.core.util.copy
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktAfpLivsvarig as LivsvarigAfp
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarig as LivsvarigOffentligAfp
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLivsvarigGrunnlag as LivsvarigOffentligAfpGrunnlag
@@ -240,7 +239,7 @@ fun FremskrevetAfpLivsvarig.copy() =
 
 fun FremskrivingsDetaljer.copy() =
     FremskrivingsDetaljer().also {
-        it.justeringTomDato = this.justeringTomDato?.copy()
+        it.justeringTomDatoLd = this.justeringTomDatoLd
         it.justeringsfaktor = this.justeringsfaktor
         it.teller = this.teller
         it.nevner = this.nevner
@@ -382,7 +381,7 @@ fun LivsvarigOffentligAfpGrunnlag.copy() =
 
 fun LonnsvekstDetaljer.copy() =
     LonnsvekstDetaljer().also {
-        it.justeringTomDato = this.justeringTomDato?.copy()
+        it.justeringTomDatoLd = this.justeringTomDatoLd
         it.justeringsfaktor = this.justeringsfaktor
         it.lonnsvekst = this.lonnsvekst
     }
@@ -496,11 +495,11 @@ fun Uforetrygdberegning.copy() =
         it.minsteytelse = this.minsteytelse?.let(::Minsteytelse)
         it.prorataBrok = this.prorataBrok?.let(::Brok)
         it.uforegrad = this.uforegrad
-        it.uforetidspunkt = this.uforetidspunkt?.copy()
+        it.uforetidspunktLd = this.uforetidspunktLd
         it.egenopptjentUforetrygd = this.egenopptjentUforetrygd?.let(::EgenopptjentUforetrygd)
         it.egenopptjentUforetrygdBest = this.egenopptjentUforetrygdBest
         it.yrkesskadegrad = this.yrkesskadegrad
-        it.yrkesskadetidspunkt = this.yrkesskadetidspunkt?.copy()
+        it.yrkesskadetidspunktLd = this.yrkesskadetidspunktLd
         it.mottarMinsteytelse = this.mottarMinsteytelse
         it.minsteytelseArsak = this.minsteytelseArsak
         it.instOppholdTypeEnum = this.instOppholdTypeEnum
@@ -562,8 +561,8 @@ fun copyBarnetilleggperiode(
     source: AbstraktBarnetilleggperiode,
     target: AbstraktBarnetilleggperiode
 ) {
-    target.fomDato = source.fomDato?.copy()
-    target.tomDato = source.tomDato?.copy()
+    target.fomDatoLd = source.fomDatoLd
+    target.tomDatoLd = source.tomDatoLd
     target.lengde = source.lengde
     target.antallBarn = source.antallBarn
     target.fribelop = source.fribelop
@@ -616,7 +615,7 @@ private fun copyBeregningsgrunnlag(source: AbstraktBeregningsgrunnlag, target: A
 
 private fun copyBeregningsResultat(source: AbstraktBeregningsResultat, target: AbstraktBeregningsResultat) {
     target.virkFomLd = source.virkFomLd
-    target.virkTom = source.virkTom?.copy()
+    target.virkTomLd = source.virkTomLd
     target.merknadListe = source.merknadListe.map { o -> o.copy() }.toMutableList()
     target.pensjonUnderUtbetaling = source.pensjonUnderUtbetaling?.let(::PensjonUnderUtbetaling)
     target.brukersSivilstandEnum = source.brukersSivilstandEnum

@@ -22,12 +22,9 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class SimuleringResultPreparerTest : FunSpec({
 
@@ -169,7 +166,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2027, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -204,7 +201,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 18000
             }
@@ -212,7 +209,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 19000
             }
@@ -249,7 +246,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val afpResultat = BeregningsResultatAfpPrivat().apply {
             virkFomLd = LocalDate.of(2030, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 5000
                 totalbelopNettoAr = 60000.0
@@ -337,7 +334,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val uttaksgrad = Uttaksgrad().apply {
             uttaksgrad = 50
-            fomDato = LocalDate.of(2030, 3, 1).toNorwegianDateAtNoon()
+            fomDatoLd = LocalDate.of(2030, 3, 1)
         }
 
         val spec = resultPreparerSpec(
@@ -401,7 +398,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 22000
             }
@@ -460,7 +457,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2027, 8, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5 // 50%
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 25000
@@ -498,18 +495,14 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val gradertResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2028, 3, 1)
-            virkTom = LocalDate.of(2030, 2, 28).toNorwegianDateAtNoon()
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-                totalbelopNetto = 10000 // 50 % uttak
-            }
+            virkTomLd = LocalDate.of(2030, 2, 28)
+            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply { totalbelopNetto = 10000 } // 50 % uttak
         }
 
         val heltResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 3, 1)
-            virkTom = null
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-                totalbelopNetto = 20000 // 100 % uttak
-            }
+            virkTomLd = null
+            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply { totalbelopNetto = 20000 } // 100 % uttak
         }
 
         val spec = resultPreparerSpec(
@@ -542,7 +535,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -576,7 +569,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeAfpResultat = BeregningsResultatAfpPrivat().apply {
             virkFomLd = LocalDate.of(2023, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 4500
                 totalbelopNettoAr = 54000.0
@@ -585,7 +578,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttAfpResultat = BeregningsResultatAfpPrivat().apply {
             virkFomLd = LocalDate.of(2025, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 4800
                 totalbelopNettoAr = 57600.0
@@ -624,7 +617,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -657,12 +650,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns LocalDate.of(2025, 1, 1)
 
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -783,7 +771,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 18000
             }
@@ -796,7 +784,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2026, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 19000
             }
@@ -831,7 +819,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2027, 8, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 22000
@@ -847,7 +835,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2028, 10, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 23000
@@ -885,7 +873,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -893,7 +881,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2038, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 29000
             }
@@ -929,7 +917,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 15000
             }
@@ -964,7 +952,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 18000
             }
@@ -972,7 +960,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 19000
             }
@@ -1009,7 +997,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val resultat1 = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 3, 1)
-            virkTom = LocalDate.of(2030, 7, 30).toNorwegianDateAtNoon()
+            virkTomLd = LocalDate.of(2030, 7, 30)
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 18000
             }
@@ -1017,7 +1005,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val resultat2 = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -1051,7 +1039,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeAfpResultat = BeregningsResultatAfpPrivat().apply {
             virkFomLd = LocalDate.of(2023, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 4500
                 totalbelopNettoAr = 54000.0
@@ -1088,7 +1076,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // BeregningsResultatAlderspensjon2016 with andelKapittel19 not set (defaults to 0)
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2027, 8, 1)
-            virkTom = null
+            virkTomLd = null
             // andelKapittel19 not explicitly set, uses default 0
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 25000
@@ -1151,7 +1139,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2027, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -1190,7 +1178,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2027, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -1226,12 +1214,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns LocalDate.of(2035, 1, 1)
 
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -1288,7 +1271,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -1315,7 +1298,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 8, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -1356,7 +1339,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2027, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -1397,7 +1380,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2027, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
             }
@@ -1436,18 +1419,14 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val gradertResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2028, 3, 1)
-            virkTom = LocalDate.of(2030, 2, 28).toNorwegianDateAtNoon()
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-                totalbelopNetto = 10000
-            }
+            virkTomLd = LocalDate.of(2030, 2, 28)
+            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply { totalbelopNetto = 10000 }
         }
 
         val heltResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2030, 3, 1)
-            virkTom = null
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-                totalbelopNetto = 20000
-            }
+            virkTomLd = null
+            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply { totalbelopNetto = 20000 }
         }
 
         // When heltUttakDato is set, gradertUttak = foersteUttakDato
@@ -1493,7 +1472,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000 // Before subtraction
                 ytelseskomponenter.add(ektefelletillegg)
@@ -1502,7 +1481,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2026, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 21000
             }
@@ -1550,7 +1529,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 20000
                 ytelseskomponenter.add(ektefelletillegg)
@@ -1559,7 +1538,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2026, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 21000
             }
@@ -1604,7 +1583,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 22000
                 ytelseskomponenter.add(barnetilleggFellesbarn)
@@ -1613,7 +1592,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2026, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 23000
             }
@@ -1658,7 +1637,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 25000
                 ytelseskomponenter.add(barnetilleggSaerkullsbarn)
@@ -1667,7 +1646,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2026, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 26000
             }
@@ -1721,7 +1700,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 30000
                 ytelseskomponenter.add(ektefelletillegg)
@@ -1732,7 +1711,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val nyttResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2026, 5, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 31000
             }
@@ -1777,7 +1756,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2027, 8, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5 // 50%
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 25000
@@ -1832,7 +1811,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -1888,7 +1867,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2025, 8, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 22000
@@ -1905,7 +1884,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create new beregningsresultat for the simulation
         val nyttResultat = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2026, 10, 1) // After today
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 24000
@@ -1960,7 +1939,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val forrigeResultat = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2035, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 26000
             }
@@ -1974,7 +1953,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create new beregningsresultat for the simulation
         val nyttResultat = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2036, 5, 1) // After today
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -2024,12 +2003,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create persongrunnlag with beholdninger for year 2027
         // (year of dagenFoerBeregningsresultatVirkFom = 2027-06-30)
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2053,7 +2027,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create beregningsresultat - no forrigeResultat triggers findBeholdningFraPersongrunnlag
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2027, 7, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 25000
@@ -2134,12 +2108,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create persongrunnlag with beholdninger for year 2037
         // (year of dagenFoerBeregningsresultatVirkFom = 2037-01-31)
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2162,7 +2131,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 2, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -2242,12 +2211,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // Create persongrunnlag with beholdninger - but these should NOT be used for N_REG_G_OPPTJ
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2270,7 +2234,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2011 = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 2, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 18000
             }
@@ -2350,12 +2314,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // - Two for year 2037 (should filter to these and pick latest)
         // - One for year 2036 (should be filtered out)
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2367,17 +2326,17 @@ class SimuleringResultPreparerTest : FunSpec({
                 Pensjonsbeholdning().apply {
                     ar = 2036 // Different year - should be filtered out
                     totalbelop = 3000000.0
-                    fom = LocalDate.of(2036, 1, 1).toNorwegianDateAtNoon()
+                    fomLd = LocalDate.of(2036, 1, 1)
                 },
                 Pensjonsbeholdning().apply {
                     ar = 2037 // Matching year - first entry
                     totalbelop = 3400000.0
-                    fom = LocalDate.of(2037, 1, 1).toNorwegianDateAtNoon()
+                    fomLd = LocalDate.of(2037, 1, 1)
                 },
                 Pensjonsbeholdning().apply {
                     ar = 2037 // Matching year - second entry (should be picked as "latest" due to later fom)
                     totalbelop = 3500000.0
-                    fom = LocalDate.of(2037, 7, 1).toNorwegianDateAtNoon() // later than first 2037 entry
+                    fomLd = LocalDate.of(2037, 7, 1) // later than first 2037 entry
                 }
             )
         }
@@ -2389,7 +2348,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 2, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -2468,12 +2427,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // Create persongrunnlag with beholdninger for WRONG year (2036 instead of 2037)
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2496,7 +2450,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 2, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -2573,12 +2527,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // Create persongrunnlag with beholdninger
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2602,7 +2551,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create beregningsresultat without beholdning (to trigger findBeholdningFraPersongrunnlag)
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
             virkFomLd = LocalDate.of(2027, 8, 1)
-            virkTom = null
+            virkTomLd = null
             andelKapittel19 = 5
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 25000
@@ -2670,12 +2619,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // Create persongrunnlag with beholdninger
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2699,7 +2643,7 @@ class SimuleringResultPreparerTest : FunSpec({
         // Create beregningsresultat without beholdning
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -2764,12 +2708,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // Create persongrunnlag with beholdninger (but these should not be used for N_REG_G_OPPTJ)
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2792,7 +2731,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2011 = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 18000
             }
@@ -2834,9 +2773,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2011, sisteGyldigeOpptjeningAar = 2023)
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
+        preparer.opprettOutput(spec).alderspensjon shouldNotBe null
         // For N_REG_G_OPPTJ, beholdning should NOT be looked up from persongrunnlag
         // The findBeholdningFraPersongrunnlag returns null for this regelverkType
     }
@@ -2857,12 +2794,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // Create persongrunnlag with multiple beholdninger for same year
         val soekerGrunnlag = Persongrunnlag().apply {
-            fodselsdato = foedselsdato.atStartOfDay().let {
-                Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                    clear()
-                    set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-                }.time
-            }
+            fodselsdatoLd = foedselsdato
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
@@ -2893,7 +2825,7 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
             virkFomLd = LocalDate.of(2037, 3, 1)
-            virkTom = null
+            virkTomLd = null
             pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
                 totalbelopNetto = 28000
             }
@@ -2962,12 +2894,7 @@ private fun resultPreparerSpec(
     uttaksgradListe: MutableList<Uttaksgrad> = mutableListOf()
 ): ResultPreparerSpec {
     val soekerGrunnlag = Persongrunnlag().apply {
-        fodselsdato = foedselsdato.atStartOfDay().let {
-            Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo")).apply {
-                clear()
-                set(it.year, it.monthValue - 1, it.dayOfMonth, 12, 0, 0)
-            }.time
-        }
+        fodselsdatoLd = foedselsdato
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true

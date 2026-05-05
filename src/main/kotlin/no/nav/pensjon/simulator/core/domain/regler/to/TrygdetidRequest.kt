@@ -53,7 +53,7 @@ class TrygdetidRequest : ServiceRequest() {
      */
     var uttaksgradListe: List<Uttaksgrad> = mutableListOf()
         set(value) {
-            field = value.sortedByDescending { it.fomDato }
+            field = value.sortedByDescending { it.fomDatoLd }
         }
 
     var redusertFTTUT: Boolean? = null

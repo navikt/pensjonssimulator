@@ -11,16 +11,9 @@ import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksg
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
-import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
+import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.ForsteVirkningsdatoGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
@@ -30,7 +23,6 @@ import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttaksgrad
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.person.Pid
@@ -73,8 +65,8 @@ class KravhodeCreatorTest : ShouldSpec({
         )
 
         with(kravhode) {
-            kravFremsattDato shouldBe LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon() // = "dagens dato"
-            onsketVirkningsdato shouldBe LocalDate.of(2032, 6, 1) // = heltUttakDato
+            kravFremsattDatoLd shouldBe LocalDate.of(2025, 1, 1) // = "dagens dato"
+            onsketVirkningsdatoLd shouldBe LocalDate.of(2032, 6, 1) // = heltUttakDato
             gjelder shouldBe null
             sakId shouldBe null
             sakType shouldBe SakTypeEnum.ALDER
@@ -102,7 +94,7 @@ class KravhodeCreatorTest : ShouldSpec({
 
         with(kravhode.hentPersongrunnlagForSoker()) {
             penPerson?.penPersonId shouldBe -1L
-            fodselsdato shouldBe LocalDate.of(1963, 1, 1).toNorwegianDateAtNoon()
+            fodselsdatoLd shouldBe LocalDate.of(1963, 1, 1)
             statsborgerskapEnum shouldBe LandkodeEnum.NOR
             bosattLandEnum shouldBe LandkodeEnum.NOR
         }
@@ -216,9 +208,11 @@ class KravhodeCreatorTest : ShouldSpec({
         )
 
         kravhode.kravlinjeListe shouldHaveSize 1
-        kravhode.kravlinjeListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
-        kravhode.kravlinjeListe[0].land shouldBe LandkodeEnum.NOR
-        kravhode.kravlinjeListe[0].kravlinjeStatus shouldBe KravlinjeStatus.VILKARSPROVD
+        with(kravhode.kravlinjeListe.first()) {
+            kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
+            land shouldBe LandkodeEnum.NOR
+            kravlinjeStatus shouldBe KravlinjeStatus.VILKARSPROVD
+        }
     }
 
     should("sette onsketVirkningsdato til heltUttakDato når definert") {
@@ -228,13 +222,11 @@ class KravhodeCreatorTest : ShouldSpec({
             heltUttakDato = LocalDate.of(2032, 6, 1)
         )
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(spec, null, 123000),
             person = penPerson(),
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.onsketVirkningsdato shouldBe LocalDate.of(2032, 6, 1)
+        ).onsketVirkningsdatoLd shouldBe LocalDate.of(2032, 6, 1)
     }
 
     should("sette onsketVirkningsdato til foersteUttakDato når heltUttakDato ikke er definert") {
@@ -245,25 +237,21 @@ class KravhodeCreatorTest : ShouldSpec({
             uttakGrad = UttakGradKode.P_100
         )
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(spec, null, 123000),
             person = penPerson(),
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.onsketVirkningsdato shouldBe LocalDate.of(2030, 1, 1)
+        ).onsketVirkningsdatoLd shouldBe LocalDate.of(2030, 1, 1)
     }
 
     should("sette onsketVirkningsdato til null for anonym simulering") {
         val creator = createKravhodeCreator()
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(anonymSimuleringSpec(), null, 123000),
             person = null,
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.onsketVirkningsdato shouldBe null
+        ).onsketVirkningsdatoLd shouldBe null
     }
 
     should("sette regelverkType til N_REG_G_OPPTJ for årskull 1953") {
@@ -417,7 +405,7 @@ class KravhodeCreatorTest : ShouldSpec({
         val creator = createKravhodeCreator()
         val person = penPerson()
         val virkningDatoGrunnlag = ForsteVirkningsdatoGrunnlag().apply {
-            virkningsdato = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
+            virkningsdatoLd = LocalDate.of(2020, 1, 1)
             kravlinjeTypeEnum = KravlinjeTypeEnum.AP
         }
 
@@ -428,8 +416,8 @@ class KravhodeCreatorTest : ShouldSpec({
         )
 
         kravhode.hentPersongrunnlagForSoker().forsteVirkningsdatoGrunnlagListe shouldHaveSize 1
-        kravhode.hentPersongrunnlagForSoker().forsteVirkningsdatoGrunnlagListe[0].virkningsdato shouldBe
-                LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
+        kravhode.hentPersongrunnlagForSoker().forsteVirkningsdatoGrunnlagListe[0].virkningsdatoLd shouldBe
+                LocalDate.of(2020, 1, 1)
     }
 
     should("sette sisteGyldigeOpptjeningsAr på persongrunnlag basert på fødselsår") {
@@ -486,8 +474,7 @@ class KravhodeCreatorTest : ShouldSpec({
             virkningDatoGrunnlagListe = emptyList()
         )
 
-        kravhode.hentPersongrunnlagForSoker().personDetaljListe[0].penRolleFom shouldBe
-                foedselsdato.toNorwegianDateAtNoon()
+        kravhode.hentPersongrunnlagForSoker().personDetaljListe[0].penRolleFom shouldBe foedselsdato
     }
 
     should("sette kravlinjeStatus til VILKARSPROVD på kravlinje") {
@@ -529,7 +516,7 @@ class KravhodeCreatorTest : ShouldSpec({
             virkningDatoGrunnlagListe = emptyList()
         )
 
-        kravhode.uttaksgradListe[0].fomDato shouldBe foersteUttakDato.toNorwegianDateAtNoon()
+        kravhode.uttaksgradListe[0].fomDatoLd shouldBe foersteUttakDato
     }
 
     should("opprette gradert uttaksgrad med tomDato dagen før heltUttakDato") {
@@ -551,10 +538,10 @@ class KravhodeCreatorTest : ShouldSpec({
         // Uttaksgradliste er sortert synkende på fomDato, så 100% (2032-06-01) kommer først
         kravhode.uttaksgradListe shouldHaveSize 2
         kravhode.uttaksgradListe[0].uttaksgrad shouldBe 100
-        kravhode.uttaksgradListe[0].fomDato shouldBe heltUttakDato.toNorwegianDateAtNoon()
+        kravhode.uttaksgradListe[0].fomDatoLd shouldBe heltUttakDato
         kravhode.uttaksgradListe[1].uttaksgrad shouldBe 40
-        kravhode.uttaksgradListe[1].fomDato shouldBe foersteUttakDato.toNorwegianDateAtNoon()
-        kravhode.uttaksgradListe[1].tomDato shouldBe heltUttakDato.minusDays(1).toNorwegianDateAtNoon()
+        kravhode.uttaksgradListe[1].fomDatoLd shouldBe foersteUttakDato
+        kravhode.uttaksgradListe[1].tomDatoLd shouldBe heltUttakDato.minusDays(1)
     }
 
     should("opprette uttaksgradliste med uttaksgrad 0% når uttakGrad er P_0") {
@@ -659,39 +646,33 @@ class KravhodeCreatorTest : ShouldSpec({
         val today = LocalDate.of(2025, 6, 15)
         val creator = createKravhodeCreator(today = today)
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(simuleringSpec(), null, 123000),
             person = penPerson(),
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.kravFremsattDato shouldBe today.toNorwegianDateAtNoon()
+        ).kravFremsattDatoLd shouldBe today
     }
 
     should("sette relatertPerson på kravlinje til søkers PenPerson") {
         val creator = createKravhodeCreator()
         val person = penPerson()
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(simuleringSpec(), null, 123000),
             person = person,
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.kravlinjeListe[0].relatertPerson shouldNotBe null
+        ).kravlinjeListe[0].relatertPerson shouldNotBe null
     }
 
     should("sette boddEllerArbeidetIUtlandet til false når utlandAntallAar er null og ingen trygdetidPerioder utenlands") {
         val creator = createKravhodeCreator()
         val spec = simuleringSpec().copy(utlandAntallAar = 0, utlandPeriodeListe = mutableListOf())
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(spec, null, 123000),
             person = penPerson(),
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.boddEllerArbeidetIUtlandet shouldBe false
+        ).boddEllerArbeidetIUtlandet shouldBe false
     }
 
     should("sette regelverkType til N_REG_G_OPPTJ for årskull 1950") {
@@ -701,13 +682,11 @@ class KravhodeCreatorTest : ShouldSpec({
             foedselsdato = LocalDate.of(1950, 1, 1)
         }
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(simuleringSpec(), null, 123000),
             person = person,
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_OPPTJ
+        ).regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_OPPTJ
     }
 
     should("sette regelverkType til N_REG_G_N_OPPTJ for årskull 1958") {
@@ -717,13 +696,11 @@ class KravhodeCreatorTest : ShouldSpec({
             foedselsdato = LocalDate.of(1958, 1, 1)
         }
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(simuleringSpec(), null, 123000),
             person = person,
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_N_OPPTJ
+        ).regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_N_OPPTJ
     }
 
     should("sette sisteGyldigeOpptjeningsaar fra generelleDataHolder for anonymt persongrunnlag") {
@@ -731,13 +708,11 @@ class KravhodeCreatorTest : ShouldSpec({
         val creator = createKravhodeCreator(sisteGyldigeOpptjeningsaar = sisteGyldigeOpptjeningsaar)
         val spec = anonymSimuleringSpec()
 
-        val kravhode = creator.opprettKravhode(
+        creator.opprettKravhode(
             kravhodeSpec = KravhodeSpec(spec, null, 123000),
             person = null,
             virkningDatoGrunnlagListe = emptyList()
-        )
-
-        kravhode.hentPersongrunnlagForSoker().sisteGyldigeOpptjeningsAr shouldNotBe null
+        ).hentPersongrunnlagForSoker().sisteGyldigeOpptjeningsAr shouldNotBe null
     }
 
     // ==========================================
@@ -881,7 +856,7 @@ class KravhodeCreatorTest : ShouldSpec({
             kravhode.uttaksgradListe shouldHaveSize 2
             // Sortert synkende på fomDato
             kravhode.uttaksgradListe[0].uttaksgrad shouldBe 100
-            kravhode.uttaksgradListe[0].fomDato shouldBe heltUttakDato.toNorwegianDateAtNoon()
+            kravhode.uttaksgradListe[0].fomDatoLd shouldBe heltUttakDato
             kravhode.uttaksgradListe[1].uttaksgrad shouldBe 50
         }
 
@@ -1847,13 +1822,11 @@ class KravhodeCreatorTest : ShouldSpec({
                 inntektOver1GAntallAar = 10 // gjeldendeAar = 2030 - 10 = 2020
             )
 
-            val kravhode = creator.opprettKravhode(
+            creator.opprettKravhode(
                 kravhodeSpec = KravhodeSpec(spec, null, 123000),
                 person = null,
                 virkningDatoGrunnlagListe = emptyList()
-            )
-
-            kravhode shouldNotBe null
+            ) shouldNotBe null
         }
 
         should("ikke hente veietGrunnbeloepListe når gjeldendeAar er etter inneværende år") {
@@ -2005,12 +1978,12 @@ private fun arrangePersongrunnlag(): PersongrunnlagService =
 private fun persongrunnlag() =
     Persongrunnlag().apply {
         penPerson = PenPerson().apply { penPersonId = 1L }
-        fodselsdato = LocalDate.of(1963, 1, 1).toNorwegianDateAtNoon()
+        fodselsdatoLd = LocalDate.of(1963, 1, 1)
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+                penRolleTom = LocalDate.of(2026, 1, 1)
             }
         )
     }
@@ -2098,18 +2071,24 @@ private fun createKravhodeCreatorForAnonym(
 
 private fun arrangePersongrunnlagWithInntektsgrunnlag(): PersongrunnlagService =
     mockk<PersongrunnlagService>().apply {
-        every { getPersongrunnlagForSoeker(spec = any(), kravhode = any(), person = any()) } returns persongrunnlagWithInntektsgrunnlag()
+        every {
+            getPersongrunnlagForSoeker(
+                spec = any(),
+                kravhode = any(),
+                person = any()
+            )
+        } returns persongrunnlagWithInntektsgrunnlag()
     }
 
 private fun persongrunnlagWithInntektsgrunnlag() =
     Persongrunnlag().apply {
         penPerson = PenPerson().apply { penPersonId = 1L }
-        fodselsdato = LocalDate.of(1963, 1, 1).toNorwegianDateAtNoon()
+        fodselsdatoLd = LocalDate.of(1963, 1, 1)
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+                penRolleTom = LocalDate.of(2026, 1, 1)
             }
         )
         inntektsgrunnlagListe = mutableListOf()
@@ -2138,7 +2117,7 @@ private fun createKravhodeCreatorForPre2025Afp(
         pre2025OffentligAfpUttaksgrad.uttaksgradListe(any(), any(), any())
     } returns mutableListOf(
         Uttaksgrad().apply {
-            fomDato = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+            fomDatoLd = LocalDate.of(2026, 1, 1)
             uttaksgrad = 100
         }
     )
@@ -2181,7 +2160,7 @@ private fun createKravhodeCreatorForPre2025AfpWithInntektGrunnlag(
         pre2025OffentligAfpUttaksgrad.uttaksgradListe(any(), any(), any())
     } returns mutableListOf(
         Uttaksgrad().apply {
-            fomDato = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+            fomDatoLd = LocalDate.of(2026, 1, 1)
             uttaksgrad = 100
         }
     )
@@ -2224,7 +2203,7 @@ private fun createKravhodeCreatorForEndring(
         endringUttaksgrad.uttaksgradListe(any(), any())
     } returns mutableListOf(
         Uttaksgrad().apply {
-            fomDato = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
+            fomDatoLd = LocalDate.of(2026, 1, 1)
             uttaksgrad = 100
         }
     )
@@ -2279,12 +2258,12 @@ private fun createKravhodeCreatorWithAvdoed(
 private fun avdoedPersongrunnlag() =
     Persongrunnlag().apply {
         penPerson = PenPerson().apply { penPersonId = 2L }
-        fodselsdato = LocalDate.of(1960, 1, 1).toNorwegianDateAtNoon()
+        fodselsdatoLd = LocalDate.of(1960, 1, 1)
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
-                penRolleTom = LocalDate.of(2020, 11, 11).toNorwegianDateAtNoon()
+                penRolleTom = LocalDate.of(2020, 11, 11)
             }
         )
     }

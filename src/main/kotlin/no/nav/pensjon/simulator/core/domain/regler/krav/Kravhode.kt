@@ -12,9 +12,10 @@ import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDato
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Periode
 import java.time.LocalDate
-import java.util.*
+import java.util.Collections
+import java.util.EnumSet
 
-// 2025-04-05
+// 2026-04-23 minus sorterUttaksgradListe
 /**
  * Kravhode utgjør, sammen med en liste av VilkarsVedtak, hele inndata for
  * de fleste regeltjenestene.
@@ -77,7 +78,7 @@ open class Kravhode {
      */
     var uttaksgradListe: MutableList<Uttaksgrad> = mutableListOf()
         set(value) {
-            field = value.sortedByDescending { it.fomDato }.toMutableList()
+            field = value.sortedByDescending { it.fomDatoLd }.toMutableList()
         }
 
     var regelverkTypeEnum: RegelverkTypeEnum? = null
@@ -103,10 +104,10 @@ open class Kravhode {
     var kravId: Long? = null
 
     @JsonIgnore
-    var kravFremsattDato: Date? = null
+    var kravFremsattDatoLd: LocalDate? = null
 
     @JsonIgnore
-    var onsketVirkningsdato: LocalDate? = null
+    var onsketVirkningsdatoLd: LocalDate? = null
 
     @JsonIgnore
     var gjelder: KravGjelder? = null
@@ -122,9 +123,6 @@ open class Kravhode {
 
     @JsonIgnore
     var sakForsteVirkningsdatoListe: List<FoersteVirkningDato> = emptyList() // PEN: sak.forsteVirkningsdatoList
-
-    fun sakForsteVirkningsdato(): LocalDate? =
-        sakForsteVirkningsdatoListe.mapNotNull { it.virkningDato }.minOfOrNull { it }
 
     fun hentPersongrunnlagForRolle(rolle: GrunnlagsrolleEnum, checkBruk: Boolean): Persongrunnlag? {
         persongrunnlagListe.forEach {
@@ -207,8 +205,8 @@ open class Kravhode {
                 periodFallsWithin(
                     p1Start = it.uttaksdato,
                     p1End = it.virkTom,
-                    p2Start = onsketVirkningsdato,
-                    p2End = onsketVirkningsdato,
+                    p2Start = onsketVirkningsdatoLd,
+                    p2End = onsketVirkningsdatoLd,
                     considerSameDayAsFallsWithin = true
                 )
             }

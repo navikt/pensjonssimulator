@@ -5,8 +5,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.validity.BadSpecException
@@ -80,7 +78,7 @@ class Pre2025OffentligAfpUttaksgrad(
         }
 
         private fun alderspensjonTom(uttaksgradListe: List<Uttaksgrad>): LocalDate =
-            uttaksgradListe.maxByOrNull { it.tomDato!! }?.tomDato?.toNorwegianLocalDate()
+            uttaksgradListe.maxByOrNull { it.tomDatoLd!! }?.tomDatoLd
                 ?: throw IllegalStateException(
                     "uttaksgradListe må inneholde minst ett element og alle elementer må ha definert tomDato"
                 )
@@ -109,17 +107,16 @@ class Pre2025OffentligAfpUttaksgrad(
         // PEN: SimulerAFPogAPCommandHelper.updateUttaksgradWithTomDateNull
         private fun replaceNullTom(uttaksgradListe: List<Uttaksgrad>, tom: LocalDate) {
             uttaksgradListe.forEach {
-                if (it.tomDato == null) {
-                    it.tomDato = tom.toNorwegianDateAtNoon()
-                    it.setDatesToNoon()
+                if (it.tomDatoLd == null) {
+                    it.tomDatoLd = tom
                 }
             }
         }
 
         private fun uttaksgrad(fom: LocalDate?, grad: Int, tom: LocalDate?) =
             Uttaksgrad().apply {
-                fomDato = fom?.toNorwegianDateAtNoon()
-                tomDato = tom?.toNorwegianDateAtNoon()
+                fomDatoLd = fom
+                tomDatoLd = tom
                 uttaksgrad = grad
             }
 

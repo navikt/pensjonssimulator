@@ -15,7 +15,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class Alderspensjon2016SisteBeregningCreatorTest : FunSpec({
@@ -99,7 +98,7 @@ class Alderspensjon2016SisteBeregningCreatorTest : FunSpec({
     test("createBeregning should set virkDato from beregningsresultat") {
         val virkFom = LocalDate.of(2025, 3, 1)
         val beregning = createBeregning(virkFom = virkFom)
-        beregning.virkDato shouldBe virkFom.toNorwegianDateAtNoon()
+        beregning.virkDatoLd shouldBe virkFom
     }
 
     // --- Tests for kapittel 19 data ---

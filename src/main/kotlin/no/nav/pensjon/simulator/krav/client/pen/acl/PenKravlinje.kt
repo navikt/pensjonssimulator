@@ -14,10 +14,4 @@ class PenKravlinje {
     var kravlinjeTypeEnum: KravlinjeTypeEnum? = null // includes 'hovedKravlinje'
     var hovedKravlinje: Boolean? = null // not used; avoids UnrecognizedPropertyException
     var relatertPerson: PenPenPerson? = null
-
-    fun distinguisher(): String =
-        (kravlinjeStatus?.name ?: "s?") +
-                (kravlinjeTypeEnum?.name ?: "t?") +
-                (land?.name ?: "l?") +
-                (relatertPerson?.penPersonId ?: "p?")
 }

@@ -339,10 +339,9 @@ class KravhodeUpdaterTest : FunSpec({
             foersteUttakDato = foersteUttakDato
         )
 
-        val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
-
-        val uforeperiode = result.hentPersongrunnlagForSoker().uforeHistorikk?.uforeperiodeListe?.first()
-        uforeperiode?.ufgTomLd shouldBe foersteUttakDato.minusDays(1)
+        updater.updateKravhodeForFoersteKnekkpunkt(spec)
+            .hentPersongrunnlagForSoker().uforeHistorikk?.uforeperiodeListe?.first()
+            ?.ufgTomLd shouldBe foersteUttakDato.minusDays(1)
     }
 
     // =====================================================
@@ -464,7 +463,11 @@ private fun createKravhodeUpdater(
 
     return KravhodeUpdater(
         context = context,
-        normalderService = normalderService,
+        ufoereperiodeService = mockk {
+            every {
+                ufoereperiodeTom(any(), any())
+            } returns LocalDate.of(2028, 5, 31)
+        },
         tidsbegrensetOffentligAfpBeholdning = tidsbegrensetOffentligAfpBeholdning,
         trygdetidSetter = trygdetidSetter,
         time = { today }

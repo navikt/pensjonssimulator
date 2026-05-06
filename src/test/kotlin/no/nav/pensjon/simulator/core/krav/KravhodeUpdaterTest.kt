@@ -311,7 +311,6 @@ class KravhodeUpdaterTest : FunSpec({
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should use foersteUttakDato minus 1 day for ALDER_M_AFP_PRIVAT when before normalder") {
-        val foersteUttakDato = LocalDate.of(2028, 6, 1)
         val updater = createKravhodeUpdater()
         val persongrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.SOKER).apply {
             uforeHistorikk = Uforehistorikk().apply {
@@ -327,12 +326,12 @@ class KravhodeUpdaterTest : FunSpec({
             type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
             regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ,
             persongrunnlag = persongrunnlag,
-            foersteUttakDato = foersteUttakDato
+            foersteUttakDato = LocalDate.of(2028, 6, 1)
         )
 
         updater.updateKravhodeForFoersteKnekkpunkt(spec)
             .hentPersongrunnlagForSoker().uforeHistorikk?.uforeperiodeListe?.first()
-            ?.ufgTomLd shouldBe foersteUttakDato.minusDays(1)
+            ?.ufgTomLd shouldBe LocalDate.of(2028, 5, 31)
     }
 
     // =====================================================

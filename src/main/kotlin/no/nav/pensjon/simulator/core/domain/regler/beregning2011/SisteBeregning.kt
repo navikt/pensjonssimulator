@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
-import java.util.*
+import java.time.LocalDate
 
+// 2026-04-23
 /**
  * Felles grensesnitt for Siste beregninger slik som SisteBeregning1967, SisteAldersberegning2011, SisteGjenlevendeberegning
  */
@@ -17,8 +18,7 @@ import java.util.*
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 abstract class SisteBeregning protected constructor() {
-
-    var virkDato: Date? = null
+    var virkDatoLd: LocalDate? = null
     var tt_anv = 0
     var resultatTypeEnum: ResultattypeEnum? = null
     var sivilstandTypeEnum: SivilstandEnum? = null

@@ -18,7 +18,6 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUs
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersects
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
@@ -32,7 +31,6 @@ import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForDate
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.numberOfMonths
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
@@ -109,7 +107,7 @@ class SimuleringResultPreparer(
         forrigeResultat: AbstraktBeregningsResultat?,
         resultatListe: MutableList<AbstraktBeregningsResultat>
     ) {
-        val foedselsdato = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
+        val foedselsdato = soekerGrunnlag.fodselsdatoLd!!
         val startAlderAar = calculateStartAlder(
             spec,
             foedselsdato,
@@ -188,7 +186,7 @@ class SimuleringResultPreparer(
             forrigeBeholdning = 0
         }
 
-        val foedselsdato = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate()
+        val foedselsdato = soekerGrunnlag.fodselsdatoLd
         val punkter: SortedSet<LocalDate> = findKnekkpunkter(spec, foedselsdato)
 
         createSimulertBeregningsinfoForKnekkpunkter(
@@ -333,7 +331,7 @@ class SimuleringResultPreparer(
         soekerGrunnlag: Persongrunnlag,
         forrigeAfpBeregningResultat: BeregningsResultatAfpPrivat?
     ) {
-        val foedselsdato: LocalDate? = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate()
+        val foedselsdato: LocalDate? = soekerGrunnlag.fodselsdatoLd
         val startAlder = calculateStartAlder(simuleringSpec, foedselsdato!!, forrigeAfpBeregningResultat, false)
         var forrigeAfpBeregningsresultatKopi: BeregningsResultatAfpPrivat? = null
 
@@ -402,7 +400,7 @@ class SimuleringResultPreparer(
 
         return copy(beregningResultat).apply {
             virkFomLd = firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato, alderToday).toNorwegianLocalDate()
-            virkTom = earliestVirkningFom(resultatListe)?.minusDays(1)?.toNorwegianDateAtNoon()
+            virkTomLd = earliestVirkningFom(resultatListe)?.minusDays(1)
             removeEktefelleAndBarnetilleggFromTotalbeloep(this)
         }
     }
@@ -418,7 +416,7 @@ class SimuleringResultPreparer(
         // Make a copy in order to preserve the original beregningResultat:
         return beregningResultat.copy().apply {
             virkFomLd = firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato, alderToday).toNorwegianLocalDate()
-            virkTom = if (resultatListe.isEmpty()) null else earliestVirkningFom(resultatListe)?.minusDays(1)?.toNorwegianDateAtNoon()
+            virkTomLd = if (resultatListe.isEmpty()) null else earliestVirkningFom(resultatListe)?.minusDays(1)
         }
     }
 
@@ -503,7 +501,7 @@ class SimuleringResultPreparer(
             val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
             for (resultat in resultatListe) {
                 val fom: Date = resultat.virkFomLd!!.toNorwegianDateAtNoon()
-                val tom: Date = resultat.virkTom?.toNorwegianNoon() ?: ETERNITY
+                val tom: Date = resultat.virkTomLd?.toNorwegianDateAtNoon() ?: ETERNITY
 
                 if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
                     beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
@@ -659,13 +657,15 @@ class SimuleringResultPreparer(
             forrigeResultat: AbstraktBeregningsResultat?,
             beregningResultat: AbstraktBeregningsResultat
         ): Pensjonsbeholdning? {
-            val dagenFoerBeregningsresultatVirkFom = beregningResultat.virkFomLd!!.minusDays(1).toNorwegianDateAtNoon()
+            val dagenFoerBeregningsresultatVirkFom = beregningResultat.virkFomLd!!.minusDays(1)
+
             val forrigeResultatMedBeholdning =
                 findForrigeBeregningsresultatMedBeholdning(
                     forrigeResultat,
                     dagenFoerBeregningsresultatVirkFom,
                     resultatListe
                 )
+
             return findPensjonsbeholdning(
                 kravhode,
                 soekerGrunnlag,
@@ -676,7 +676,7 @@ class SimuleringResultPreparer(
 
         private fun findForrigeBeregningsresultatMedBeholdning(
             forrigeResultat: AbstraktBeregningsResultat?,
-            dagenFoerBeregningResultatVirkningFom: Date,
+            dagenFoerBeregningResultatVirkningFom: LocalDate,
             resultatListe: List<AbstraktBeregningsResultat>
         ): AbstraktBeregningsResultat? =
             findValidForDate(resultatListe, dagenFoerBeregningResultatVirkningFom) ?: forrigeResultat
@@ -684,7 +684,7 @@ class SimuleringResultPreparer(
         private fun findPensjonsbeholdning(
             kravhode: Kravhode,
             soekerGrunnlag: Persongrunnlag,
-            dagenFoerBeregningsresultatVirkFom: Date,
+            dagenFoerBeregningsresultatVirkFom: LocalDate,
             beregningsresultat: AbstraktBeregningsResultat?
         ): Pensjonsbeholdning? =
             kravhode.regelverkTypeEnum?.let {
@@ -720,20 +720,19 @@ class SimuleringResultPreparer(
         private fun findBeholdningFraPersongrunnlag(
             soekerGrunnlag: Persongrunnlag,
             regelverkType: RegelverkTypeEnum,
-            dagenFoerBeregningsresultatVirkFom: Date
-        ): Pensjonsbeholdning? {
-            var beholdning: Pensjonsbeholdning? = null
-
-            if (EnumSet.of(RegelverkTypeEnum.N_REG_G_N_OPPTJ, RegelverkTypeEnum.N_REG_N_OPPTJ)
-                    .contains(regelverkType)
+            dagenFoerBeregningsresultatVirkFom: LocalDate
+        ): Pensjonsbeholdning? =
+            if (EnumSet.of(
+                    RegelverkTypeEnum.N_REG_G_N_OPPTJ,
+                    RegelverkTypeEnum.N_REG_N_OPPTJ
+                ).contains(regelverkType)
             ) {
-                val aar = getYear(dagenFoerBeregningsresultatVirkFom)
-                val beholdninger = sortedSubset(soekerGrunnlag.beholdninger, aar)
-                beholdning = findLatest(beholdninger)
-            }
-
-            return beholdning
-        }
+                val beholdninger = sortedSubset(
+                    list = soekerGrunnlag.beholdninger,
+                    aar = dagenFoerBeregningsresultatVirkFom.year
+                )
+                findLatest(beholdninger)
+            } else null
 
         private fun findPensjonPeriodeForAlder(
             pensjonsperiodeListe: List<PensjonPeriode>,
@@ -770,7 +769,14 @@ class SimuleringResultPreparer(
             for (element in list) {
                 val virkFom = element.virkFomLd?.toNorwegianDateAtNoon()
 
-                if (intersectsWithPossiblyOpenEndings(startDate, endDate, virkFom, element.virkTom, true)) {
+                if (intersectsWithPossiblyOpenEndings(
+                        startDate,
+                        endDate,
+                        virkFom,
+                        element.virkTomLd?.toNorwegianDateAtNoon(),
+                        true
+                    )
+                ) {
                     if (isBeforeByDay(virkFom, earliestDate, false)) {
                         earliestDate = virkFom
                         result = element

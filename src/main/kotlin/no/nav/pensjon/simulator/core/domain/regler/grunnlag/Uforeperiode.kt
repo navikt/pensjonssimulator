@@ -3,19 +3,19 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ProRataBeregningTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class Uforeperiode {
     /**
      * Uføregraden, heltall 0-100.
      */
-    var ufg: Int = 0 // SIMDOM-EDIT null -> 0
+    var ufg: Int = 0 // NB: nullable in regler
 
     /**
      * Dato for uføretidspunktet.
      */
-    var uft: Date? = null
+    var uftLd: LocalDate? = null
 
     /**
      * Angir om Uføregraden er ren Uføre,inneholder delvis yrke eller bare yrke.
@@ -29,11 +29,11 @@ class Uforeperiode {
 
     /**
      * Kode for fpp_garanti<br></br>
-     * `A = UNG UFØR SOM VENTER PÅ RETT TIL 3.3 PENSJONSPOENG`<br></br>
-     * `B = UNG UFØR MED RETT TIL 3.3 PENSJONSPOENG`<br></br>
+     * `A = UNG Ufør SOM VENTER på RETT TIL 3.3 PENSJONSPOENG`<br></br>
+     * `B = UNG Ufør MED RETT TIL 3.3 PENSJONSPOENG`<br></br>
      * `C = ung ufør som venter, og som ble ufør 20 år gammel`<br></br>
      * `D = Ung ufør med rett til 3.3 poeng fra mai 1992`<br></br>
-     * `E = unge uføre før 1967`
+     * `E = unge Uføre før 1967`
      */
     var fppGarantiKodeEnum: FppGarantiKodeEnum? = null
 
@@ -53,24 +53,24 @@ class Uforeperiode {
     var proRataBeregningTypeEnum: ProRataBeregningTypeEnum? = null
 
     /**
-     * Dato for virkningsåret for denne uføreperioden.
+     * Dato for virkningsåret for denne Uføreperioden.
      */
-    var virk: Date? = null
+    var virkLd: LocalDate? = null
 
     /**
-     * Dato for når uføreperioden avsluttes.
+     * Dato for når Uføreperioden avsluttes.
      */
-    var uftTom: Date? = null
+    var uftTomLd: LocalDate? = null
 
     /**
-     * Dato for når uføregraden starter.
+     * Dato for når Uføregraden starter.
      */
-    var ufgFom: Date? = null
+    var ufgFomLd: LocalDate? = null
 
     /**
-     * Dato for når uføregraden avsluttes.
+     * Dato for når Uføregraden avsluttes.
      */
-    var ufgTom: Date? = null
+    var ufgTomLd: LocalDate? = null
 
     /**
      * Fødselsår for yngste barn.
@@ -168,16 +168,19 @@ class Uforeperiode {
     var spt_pa_f92_eos: Int? = null
 
     /**
+     * Flag som angir om perioden angir en nedsettelse av grad. Intern pensjon-regler variabel.
+     */
+    /*
      * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
-     * Dette er beregningsgrunnlagOrdinært når uforeType er UFORE eller UF_M_YRKE,
+     * Dette er beregningsgrunnlagOrdinårt når uforeType er UFORE eller UF_M_YRKE,
      * og beregningsgrunnlagYrkesskade når type er YRKE
      */
     var beregningsgrunnlag = 0
 
-    /**
-     * Det uføretidspunkt som er angitt for perioden, men ikke nødvendigvis anvendt.
-     */
-    var angittUforetidspunkt: Date? = null
+    /*
+          * Det uføretidspunkt som er angitt for perioden, men ikke nødvendigvis anvendt.
+          */
+    var angittUforetidspunktLd: LocalDate? = null
 
     /**
      * Antatt årlig inntekt før uføretidspunktet (brukes i fastsettelse av opptjening til alderspensjon etter kapittel 19).
@@ -193,15 +196,15 @@ class Uforeperiode {
 
     constructor(source: Uforeperiode) : this() {
         ufg = source.ufg
-        uft = source.uft?.clone() as? Date
+        uftLd = source.uftLd
         uforeTypeEnum = source.uforeTypeEnum
         fppGaranti = source.fppGaranti
         fppGarantiKodeEnum = source.fppGarantiKodeEnum
         redusertAntFppAr = source.redusertAntFppAr
-        virk = source.virk?.clone() as? Date
-        uftTom = source.uftTom?.clone() as? Date
-        ufgFom = source.ufgFom?.clone() as? Date
-        ufgTom = source.ufgTom?.clone() as? Date
+        virkLd = source.virkLd
+        uftTomLd = source.uftTomLd
+        ufgFomLd = source.ufgFomLd
+        ufgTomLd = source.ufgTomLd
         fodselsArYngsteBarn = source.fodselsArYngsteBarn
         spt = source.spt
         opt = source.opt
@@ -223,13 +226,13 @@ class Uforeperiode {
         proRata_teller = source.proRata_teller
         proRata_nevner = source.proRata_nevner
         spt_proRata = source.spt_proRata
-        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as? Date
+        angittUforetidspunktLd = source.angittUforetidspunktLd
         beregningsgrunnlag = source.beregningsgrunnlag
         antattInntektFaktorKap19 = source.antattInntektFaktorKap19
         antattInntektFaktorKap20 = source.antattInntektFaktorKap20
     }
 
-    //SIMDOM-ADD:
+    // Extra:
     fun isRealUforeperiode(): Boolean {
         val kode = uforeTypeEnum ?: return false
 

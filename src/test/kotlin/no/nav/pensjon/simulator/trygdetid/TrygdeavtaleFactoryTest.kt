@@ -7,7 +7,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleDatoEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleKritEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class TrygdeavtaleFactoryTest : ShouldSpec({
@@ -33,7 +32,7 @@ class TrygdeavtaleFactoryTest : ShouldSpec({
                 avtaleKriterieEnum shouldBe AvtaleKritEnum.YRK_TRYGD
                 avtaleTypeEnum shouldBe AvtaletypeEnum.EOS_NOR
                 bostedslandEnum shouldBe LandkodeEnum.NOR
-                kravDatoIAvtaleland shouldBe dato.toNorwegianDateAtNoon() // according to input
+                kravDatoIAvtalelandLd shouldBe dato // according to input
                 omfattesavAvtalensPersonkrets shouldBe true
             }
         }

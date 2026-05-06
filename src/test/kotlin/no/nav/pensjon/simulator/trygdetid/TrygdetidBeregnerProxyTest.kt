@@ -36,10 +36,10 @@ class TrygdetidBeregnerProxyTest : ShouldSpec({
 
     should("gi klar feilmelding når kapittel 20-trygdetid ikke starter før uttak") {
         val spec = TrygdetidRequest().apply {
-            val uttakFom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon()
-            virkFom = uttakFom
+            val uttakFom = LocalDate.of(2025, 1, 1)
+            virkFom = uttakFom.toNorwegianDateAtNoon()
             persongrunnlag = Persongrunnlag().apply {
-                trygdetidPerioderKapittel20 = mutableListOf(TTPeriode().apply { fom = uttakFom })
+                trygdetidPerioderKapittel20 = mutableListOf(TTPeriode().apply { fomLd = uttakFom })
             }
         }
         val context = mockk<SimulatorContext> {

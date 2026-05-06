@@ -19,16 +19,14 @@ import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetExcepti
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ufoere.UfoereService
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 /**
  * Beregner førstegangsuttak av offentlig AFP i henhold til reglene som gjaldt før 2025 ("gammel offentlig AFP").
@@ -234,13 +232,12 @@ class Pre2025OffentligAfpFoerstegangBeregner(
     private fun createVedtakListe(spec: Simulering) {
         val virkningFom: LocalDate = spec.uttaksdatoLd!!.withDayOfMonth(1)
         val grunnbeloep = grunnbeloepService.grunnbeloep(virkningFom)
-        val virkningFomDato: Date = virkningFom.toNorwegianDateAtNoon()
 
         for (persongrunnlag in spec.persongrunnlagListe) {
             val vedtak = VilkarsVedtak().apply {
                 vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-                virkFom = virkningFomDato
-                virkTom = null
+                virkFomLd = virkningFom
+                virkTomLd = null
                 gjelderPerson = persongrunnlag.penPerson
                 penPerson = persongrunnlag.penPerson // ref. PEN: VilkarsVedtakToReglerMapper.mapVilkarsVedtak
             }
@@ -318,7 +315,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
         if (eps.harPensjon) {
             inntektGrunnlagListe.add(
                 inntektsgrunnlag(
-                    fom = foersteUttakDato?.toNorwegianDateAtNoon(),
+                    fom = foersteUttakDato,
                     type = InntekttypeEnum.PENF, // Pensjonsinntekt fra folketrygden
                     beloep = 1
                 )
@@ -329,7 +326,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
         if (eps.harInntektOver2G) {
             inntektGrunnlagListe.add(
                 inntektsgrunnlag(
-                    fom = foersteUttakDato?.toNorwegianDateAtNoon(),
+                    fom = foersteUttakDato,
                     type = InntekttypeEnum.FPI, // Forventet pensjongivende inntekt
                     beloep = 3 * grunnbeloepService.naavaerendeGrunnbeloep()
                 )
@@ -369,9 +366,9 @@ class Pre2025OffentligAfpFoerstegangBeregner(
                 afpFpp = beregning?.tp?.spt?.poengrekke?.fpp?.pt ?: 0.0
                 afpOrdningEnum = spec.pre2025OffentligAfp?.afpOrdning
                 afpPensjonsgrad = beregning?.afpPensjonsgrad ?: 0
-                virkFom = spec.foersteUttakDato?.toNorwegianDateAtNoon()
-                virkTom = persongrunnlag.fodselsdato?.let {
-                    firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
+                virkFomLd = spec.foersteUttakDato
+                virkTomLd = persongrunnlag.fodselsdatoLd?.let {
+                    foersteDagMaanedenEtterBursdag(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
                 }
             })
         }
@@ -385,10 +382,10 @@ class Pre2025OffentligAfpFoerstegangBeregner(
         }
 
         // PEN: SimulerAFPogAPCommand.createInntektsgrunnlag
-        private fun inntektsgrunnlag(fom: Date?, type: InntekttypeEnum, beloep: Int) =
+        private fun inntektsgrunnlag(fom: LocalDate?, type: InntekttypeEnum, beloep: Int) =
             Inntektsgrunnlag().apply {
                 inntektTypeEnum = type
-                this.fom = fom
+                this.fomLd = fom
                 this.belop = beloep
                 grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
                 bruk = true
@@ -400,8 +397,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
             Inntektsgrunnlag().apply {
                 bruk = true
                 inntektTypeEnum = InntekttypeEnum.IMFU // IMFU = Inntekt måneden før uttak
-                //fom = spec.foersteUttakDato?.toNorwegianDateAtNoon()?.let { getRelativeDateByMonth(it, -1) }
-                fom = spec.foersteUttakDato?.minusMonths(1)?.toNorwegianDateAtNoon()
+                fomLd = spec.foersteUttakDato?.minusMonths(1)
                 belop = spec.pre2025OffentligAfp?.inntektMaanedenFoerAfpUttakBeloep ?: 0
                 grunnlagKildeEnum = GrunnlagkildeEnum.SIMULERING
             }
@@ -463,7 +459,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
             grunnbeloep: Int
         ) {
             // Based on the type of simulation and "grunnlagsrolle", set the type of "vilkårsvedtak" and find the "første virkningsdato"
-            var virkningFom = vedtak.virkFom
+            var virkningFom = vedtak.virkFomLd
             var kravlinjeType: KravlinjeTypeEnum? = null
             val rolle = personDetalj.grunnlagsrolleEnum
             val simuleringType: SimuleringTypeEnum? = spec.simuleringTypeEnum
@@ -476,13 +472,13 @@ class Pre2025OffentligAfpFoerstegangBeregner(
                 if (SimuleringTypeEnum.ALDER == simuleringType || SimuleringTypeEnum.ALDER_M_GJEN == simuleringType) {
                     if (personDetalj.barnDetalj?.inntektOver1G != true) {
                         kravlinjeType = KravlinjeTypeEnum.BT // Barnetillegg
-                        virkningFom = vedtak.virkFom
+                        virkningFom = vedtak.virkFomLd
                     }
                 }
             } else if (gjelderEps(rolle?.name, personDetalj)) {
                 if (opprettEktefelleTillegg(spec, persongrunnlag, grunnbeloep)) {
                     kravlinjeType = KravlinjeTypeEnum.ET // Ektefelletillegg
-                    virkningFom = vedtak.virkFom
+                    virkningFom = vedtak.virkFomLd
                 }
             }
 
@@ -491,7 +487,7 @@ class Pre2025OffentligAfpFoerstegangBeregner(
                 vedtak.kravlinje = VilkaarsvedtakKravlinje(it, persongrunnlag.penPerson)
                 vedtak.penPerson = persongrunnlag.penPerson
                 vedtak.kravlinjeTypeEnum = it
-                vedtak.forsteVirk = virkningFom
+                vedtak.forsteVirkLd = virkningFom
                 spec.vilkarsvedtakliste.add(vedtak)
             }
         }

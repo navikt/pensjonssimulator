@@ -15,22 +15,15 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagSpec
 import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
-import java.util.*
 
 class KravhodeUpdaterTest : FunSpec({
 
@@ -45,7 +38,7 @@ class KravhodeUpdaterTest : FunSpec({
 
         with(kravhode) {
             persongrunnlagListe shouldHaveSize 1
-            persongrunnlagListe[0].trygdeavtale!!.kravDatoIAvtaleland shouldBe idag.toNorwegianDateAtNoon()
+            persongrunnlagListe[0].trygdeavtale!!.kravDatoIAvtalelandLd shouldBe idag
         }
     }
 
@@ -65,7 +58,7 @@ class KravhodeUpdaterTest : FunSpec({
 
         val soeker = result.hentPersongrunnlagForSoker()
         soeker.trygdeavtale.shouldNotBeNull()
-        soeker.trygdeavtale!!.kravDatoIAvtaleland shouldBe today.toNorwegianDateAtNoon()
+        soeker.trygdeavtale!!.kravDatoIAvtalelandLd shouldBe today
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should set trygdeavtaledetaljer when boddUtenlands") {
@@ -287,8 +280,8 @@ class KravhodeUpdaterTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = dateAtNoon(2010, Calendar.JANUARY, 1)
-                        ufgTom = null // Not set
+                        ufgFomLd = LocalDate.of(2010, 1, 1)
+                        ufgTomLd = null // Not set
                     }
                 )
             }
@@ -298,21 +291,19 @@ class KravhodeUpdaterTest : FunSpec({
             persongrunnlag = persongrunnlag
         )
 
-        val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
-
-        val uforeperiode = result.hentPersongrunnlagForSoker().uforeHistorikk?.uforeperiodeListe?.first()
-        uforeperiode?.ufgTom.shouldNotBeNull()
+        updater.updateKravhodeForFoersteKnekkpunkt(spec).hentPersongrunnlagForSoker()
+            .uforeHistorikk?.uforeperiodeListe?.first()?.ufgTomLd.shouldNotBeNull()
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should not modify ufgTom when already set") {
-        val existingTom = dateAtNoon(2020, Calendar.DECEMBER, 31)
+        val existingTom = LocalDate.of(2020, 12, 31)
         val updater = createKravhodeUpdater()
         val persongrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.SOKER).apply {
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = dateAtNoon(2010, Calendar.JANUARY, 1)
-                        ufgTom = existingTom
+                        ufgFomLd = LocalDate.of(2010, 1, 1)
+                        ufgTomLd = existingTom
                     }
                 )
             }
@@ -325,20 +316,18 @@ class KravhodeUpdaterTest : FunSpec({
         val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
 
         val uforeperiode = result.hentPersongrunnlagForSoker().uforeHistorikk?.uforeperiodeListe?.first()
-        uforeperiode?.ufgTom shouldBe existingTom
+        uforeperiode?.ufgTomLd shouldBe existingTom
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should use foersteUttakDato minus 1 day for ALDER_M_AFP_PRIVAT when before normalder") {
         val foersteUttakDato = LocalDate.of(2028, 6, 1)
-        val normalderDato = LocalDate.of(2030, 2, 1) // After foersteUttakDato
-
         val updater = createKravhodeUpdater(normalderAlder = Alder(67, 1))
         val persongrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.SOKER).apply {
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = dateAtNoon(2010, Calendar.JANUARY, 1)
-                        ufgTom = null
+                        ufgFomLd = LocalDate.of(2010, 1, 1)
+                        ufgTomLd = null
                     }
                 )
             }
@@ -353,7 +342,7 @@ class KravhodeUpdaterTest : FunSpec({
         val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
 
         val uforeperiode = result.hentPersongrunnlagForSoker().uforeHistorikk?.uforeperiodeListe?.first()
-        uforeperiode?.ufgTom shouldBe foersteUttakDato.minusDays(1).toNorwegianDateAtNoon()
+        uforeperiode?.ufgTomLd shouldBe foersteUttakDato.minusDays(1)
     }
 
     // =====================================================
@@ -363,7 +352,7 @@ class KravhodeUpdaterTest : FunSpec({
     test("updateKravhodeForFoersteKnekkpunkt should set trygdetid for avdod when present") {
         val updater = createKravhodeUpdater()
         val avdoedGrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.AVDOD).apply {
-            dodsdato = dateAtNoon(2020, Calendar.DECEMBER, 15)
+            dodsdatoLd = LocalDate.of(2020, 12, 15)
         }
         val spec = createUpdateSpec(
             regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ,
@@ -379,15 +368,15 @@ class KravhodeUpdaterTest : FunSpec({
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should set uforehistorikk for avdod with dodsdato as tom") {
-        val dodsdato = dateAtNoon(2020, Calendar.DECEMBER, 15)
+        val dodsdato = LocalDate.of(2020, 12, 15)
         val updater = createKravhodeUpdater()
         val avdoedGrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.AVDOD).apply {
-            this.dodsdato = dodsdato
+            this.dodsdatoLd = dodsdato
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = dateAtNoon(2010, Calendar.JANUARY, 1)
-                        ufgTom = null
+                        ufgFomLd = LocalDate.of(2010, 1, 1)
+                        ufgTomLd = null
                     }
                 )
             }
@@ -401,7 +390,7 @@ class KravhodeUpdaterTest : FunSpec({
 
         val avdoed = result.hentPersongrunnlagForRolle(GrunnlagsrolleEnum.AVDOD, false)
         val uforeperiode = avdoed?.uforeHistorikk?.uforeperiodeListe?.first()
-        uforeperiode?.ufgTom shouldBe dodsdato
+        uforeperiode?.ufgTomLd shouldBe dodsdato
     }
 
     // =====================================================
@@ -512,12 +501,12 @@ private fun createUpdateSpec(
 private fun createPersongrunnlag(rolle: GrunnlagsrolleEnum): Persongrunnlag =
     Persongrunnlag().apply {
         penPerson = PenPerson().apply { penPersonId = if (rolle == GrunnlagsrolleEnum.SOKER) 1L else 2L }
-        fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 1)
+        fodselsdatoLd = LocalDate.of(1963, 1, 1)
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = rolle
-                penRolleTom = dateAtNoon(2050, Calendar.JANUARY, 1)
+                penRolleTom = LocalDate.of(2050, 1, 1)
             }
         )
     }

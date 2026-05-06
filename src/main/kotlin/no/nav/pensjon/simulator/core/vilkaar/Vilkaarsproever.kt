@@ -20,7 +20,6 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
@@ -57,7 +56,7 @@ class Vilkaarsproever(
 
     fun innvilgetVedtak(kravlinje: VilkaarsvedtakKravlinje?, virkningFom: LocalDate): VilkarsVedtak =
         manueltVedtak(kravlinje, virkningFom).also {
-            it.forsteVirk = virkningFom.toNorwegianDateAtNoon()
+            it.forsteVirkLd = virkningFom
             it.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
         }
 
@@ -82,7 +81,7 @@ class Vilkaarsproever(
     ): MutableList<VilkarsVedtak> =
         if (isAfterByDay(
                 thisDate = spec.virkningFom,
-                thatDate = normalderService.normertPensjoneringsdato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()),
+                thatDate = normalderService.normertPensjoneringsdato(soekerGrunnlag.fodselsdatoLd!!),
                 allowSameDay = true
             )
         )
@@ -119,16 +118,14 @@ class Vilkaarsproever(
                 it.kravlinje = it.kravlinje?.with(status = KravlinjeStatus.VILKARSPROVD, land = LandkodeEnum.NOR)
                 it.vilkarsvedtakResultatEnum = it.anbefaltResultatEnum
 
-                val localFoersteVirk: LocalDate =
+                val foersteVirkning: LocalDate =
                     if (avdoedFoersteVirkning != null && gjelderGjenlevenderett(it.kravlinjeTypeEnum))
                         avdoedFoersteVirkning
                     else
                         soekerFoersteVirkning
 
-                val foersteVirk = localFoersteVirk.toNorwegianDateAtNoon()
-                it.forsteVirk = foersteVirk // NB: modified in VilkarsprovOgBeregnAlderHelper 2023-08-30
+                it.forsteVirkLd = foersteVirkning // NB: modified in VilkarsprovOgBeregnAlderHelper 2023-08-30
                 // Not setting kravlinjeForsteVirk, ref. github.com/navikt/pensjon-pen/pull/14573
-                it.finishInit()
             }
 
             kravlinjeListe.forEach {
@@ -172,12 +169,11 @@ class Vilkaarsproever(
             VilkarsVedtak().apply {
                 this.anbefaltResultatEnum = VedtakResultatEnum.VELG
                 this.vilkarsvedtakResultatEnum = VedtakResultatEnum.VELG
-                this.virkFom = virkningFom.toNorwegianDateAtNoon()
-                this.virkTom = null
+                this.virkFomLd = virkningFom
+                this.virkTomLd = null
                 this.kravlinje = kravlinje
                 this.kravlinjeTypeEnum = kravlinje?.type
                 this.penPerson = kravlinje?.person
-                this.finishInit()
             }
 
         private fun ubetingetVilkaarsproevingRequest(spec: VilkaarsproevingSpec) =

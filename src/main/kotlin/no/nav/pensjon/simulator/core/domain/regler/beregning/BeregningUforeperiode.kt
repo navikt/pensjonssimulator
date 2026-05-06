@@ -4,28 +4,33 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FppGarantiKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ProRataBeregningTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
+import java.time.LocalDate
 import java.util.*
 
-// Checked 2025-02-28
+// 2026-04-23
 class BeregningUforeperiode {
     /**
      * Uføregraden, heltall 0-100.
      */
+    @JvmField
     var ufg: Int? = null
 
     /**
      * Dato for uføretidspunktet.
      */
-    var uft: Date? = null
+    @JvmField
+    var uftLd: LocalDate? = null
 
     /**
-     * Angir om uføregraden er ren uføre,inneholder delvis yrke eller bare yrke.
+     * Angir om Uføregraden er ren Uføre,inneholder delvis yrke eller bare yrke.
      */
+    @JvmField
     var uforeTypeEnum: UforetypeEnum? = null
 
     /**
      * Framtidige pensjonspoengtall garanti, f.eks ung ufør har i dag en garanti på 3.3.
      */
+    @JvmField
     var fppGaranti: Double? = null
 
     /**
@@ -34,160 +39,199 @@ class BeregningUforeperiode {
      * `B = UNG Ufør MED RETT TIL 3.3 PENSJONSPOENG`<br></br>
      * `C = ung ufør som venter, og som ble ufør 20 år gammel`<br></br>
      * `D = Ung ufør med rett til 3.3 poeng fra mai 1992`<br></br>
-     * `E = unge uføre før 1967`
+     * `E = unge Uføre før 1967`
      */
+    @JvmField
     var fppGarantiKodeEnum: FppGarantiKodeEnum? = null
 
     /**
      * Antall godskrevet framtidig poengtall, ikke full framtidig godskriving.
      */
+    @JvmField
     var redusertAntFppAr: Int? = null
 
     /**
      * Antall godskrevet framtidig poengtall, ikke full framtidig godskriving. EØS eller annen pro-rata beregning.
      */
+    @JvmField
     var redusertAntFppAr_proRata: Int? = null
 
     /**
      * Angir hva utfallet av pro-rata beregningen var. Hvis satt er EØS eneste alternativ eller bedre enn alternativet (Folketrygd).
      */
+    @JvmField
     var proRataBeregningTypeEnum: ProRataBeregningTypeEnum? = null
 
     /**
-     * Dato for virkningsåret for denne uføreperioden.
+     * Dato for virkningsåret for denne Uføreperioden.
      */
-    var virk: Date? = null
+    @JvmField
+    var virkLd: LocalDate? = null
 
     /**
-     * Dato for når uføreperioden avsluttes.
+     * Dato for når Uføreperioden avsluttes.
      */
-    var uftTom: Date? = null
+    @JvmField
+    var uftTomLd: LocalDate? = null
 
     /**
-     * Dato for når uføregraden starter.
+     * Dato for når Uføregraden starter.
      */
-    var ufgFom: Date? = null
+    @JvmField
+    var ufgFomLd: LocalDate? = null
 
     /**
-     * Dato for når uføregraden avsluttes.
+     * Dato for når Uføregraden avsluttes.
      */
-    var ufgTom: Date? = null
+    @JvmField
+    var ufgTomLd: LocalDate? = null
 
     /**
      * Fødselsår for yngste barn.
      */
+    @JvmField
     var fodselsArYngsteBarn: Int? = null
 
     /**
      * Sluttpoengtall på tilleggspensjonen.
      */
+    @JvmField
     var spt: Double? = null
 
     /**
      * Sluttpoengtall på tilleggspensjonen. Pro-rata beregning variant.
      */
+    @JvmField
     var spt_proRata: Double? = null
 
     /**
      * Sluttpoengtall på tilleggspensjonen ved overkomp.
      */
+    @JvmField
     var opt: Double? = null
 
     /**
      * Sluttpoengtall på tilleggspensjonen ved yrkesskade.
      */
+    @JvmField
     var ypt: Double? = null
 
     /**
      * Antall poengår før 1992 på sluttpoengtallet.
      */
+    @JvmField
     var spt_pa_f92: Int? = null
 
     /**
      * Antall poengår etter 1991 på sluttpoengtallet
      */
+    @JvmField
     var spt_pa_e91: Int? = null
 
     /**
      * Antall poengår før 1992 på sluttpoengtallet.
      */
+    @JvmField
     var proRata_teller: Int? = null
 
     /**
      * Antall poengår etter 1991 på sluttpoengtallet
      */
+    @JvmField
     var proRata_nevner: Int? = null
 
     /**
      * Antall poengår før 1992 på sluttpoengtallet med overkomp
      */
+    @JvmField
     var opt_pa_f92: Int? = null
 
     /**
      * Antall poengår etter 1992 på sluttpoengtallet med overkomp
      */
+    @JvmField
     var opt_pa_e91: Int? = null
 
     /**
      * Antall poengår før 1992 på sluttpoengtallet ved yrkesskade
      */
+    @JvmField
     var ypt_pa_f92: Int? = null
 
     /**
      * Antall poengår etter 1992 på sluttpoengtallet ved yrkesskade
      */
+    @JvmField
     var ypt_pa_e91: Int? = null
 
     /**
      * Poengtall ut fra antatt årlig inntekt på skadetidspunktet
      */
+    @JvmField
     var paa: Double? = null
 
     /**
      * Fremtidige pensjonspoeng
      */
+    @JvmField
     var fpp: Double? = null
 
     /**
      * Fremtidige omregnete pensjonspoeng
      */
+    @JvmField
     var fpp_omregnet: Double? = null
 
     /**
      * Sluttpoengtall i EØS
      */
+    @JvmField
     var spt_eos: Double? = null
 
     /**
      * Antall poengår etter 1991 etter EØS-alternativet for sluttpoengtall
      */
+    @JvmField
     var spt_pa_e91_eos: Int? = null
 
     /**
      * Antall poengår før 1992 etter EØS-alternativet for sluttpoengtall
      */
+    @JvmField
     var spt_pa_f92_eos: Int? = null
-
     /**
-     * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
-     * Dette er beregningsgrunnlagOrdinårt når uforeType er UFORE eller UF_M_YRKE
-     * og beregningsgrunnlagYrkesskade når type er YRKE
+     * @return the beregningsgrunnlag
      */
+    /**
+     * @param beregningsgrunnlag the beregningsgrunnlag to set
+     */
+    /*
+            * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
+            * Dette er beregningsgrunnlagOrdinårt når uforeType er UFORE eller UF_M_YRKE
+            * og beregningsgrunnlagYrkesskade når type er YRKE
+            */
+    @JvmField
     var beregningsgrunnlag = 0
-
     /**
-     * Det uføretidspunkt som er angitt for perioden, men ikke nødvendigvis anvendt.
+     * @return the angittUforetidspunkt
      */
-    var angittUforetidspunkt: Date? = null
+    /**
+     * @param angittUforetidspunkt the angittUforetidspunkt to set
+     * Det uføretidspunkt som er angitt for perioden, men ikke nødvendigvis anvendt.
+     * **/
+    @JvmField
+    var angittUforetidspunktLd: LocalDate? = null
 
     /**
      * Antatt årlig inntekt før uføretidspunktet (brukes i fastsettelse av opptjening til alderspensjon etter kapittel 19).
      */
+    @JvmField
     var antattInntektFaktorKap19 = 0.0
 
     /**
      * Antatt årlig inntekt før uføretidspunktet (brukes i fastsettelse av opptjening til alderspensjon etter kapittel 20).
      */
+    @JvmField
     var antattInntektFaktorKap20 = 0.0
 
     constructor()
@@ -214,34 +258,34 @@ class BeregningUforeperiode {
         spt_pa_f92_eos = source.spt_pa_f92_eos
         spt_proRata = source.spt_proRata
         ufg = source.ufg
-        ufgFom = source.ufgFom?.clone() as? Date
-        ufgTom = source.ufgTom?.clone() as? Date
+        ufgFomLd = source.ufgFomLd
+        ufgTomLd = source.ufgTomLd
         uforeTypeEnum = source.uforeTypeEnum
-        uft = source.uft?.clone() as? Date
-        uftTom = source.uftTom?.clone() as? Date
-        virk = source.virk?.clone() as? Date
+        uftLd = source.uftLd
+        uftTomLd = source.uftTomLd
+        virkLd = source.virkLd
         ypt = source.ypt
         ypt_pa_e91 = source.ypt_pa_e91
         ypt_pa_f92 = source.ypt_pa_f92
         beregningsgrunnlag = source.beregningsgrunnlag
-        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as? Date
+        angittUforetidspunktLd = source.angittUforetidspunktLd
         antattInntektFaktorKap19 = source.antattInntektFaktorKap19
         antattInntektFaktorKap20 = source.antattInntektFaktorKap20
     }
 
     constructor(source: Uforeperiode) : super() {
         ufg = source.ufg
-        uft = source.uft?.clone() as? Date
+        uftLd = source.uftLd
         uforeTypeEnum = source.uforeTypeEnum
         fppGaranti = source.fppGaranti
         fppGarantiKodeEnum = source.fppGarantiKodeEnum
         redusertAntFppAr = source.redusertAntFppAr
         redusertAntFppAr_proRata = source.redusertAntFppAr_proRata
         proRataBeregningTypeEnum = source.proRataBeregningTypeEnum
-        virk = source.virk?.clone() as? Date
-        uftTom = source.uftTom?.clone() as? Date
-        ufgFom = source.ufgFom?.clone() as? Date
-        ufgTom = source.ufgTom?.clone() as? Date
+        virkLd = source.virkLd
+        uftTomLd = source.uftTomLd
+        ufgFomLd = source.ufgFomLd
+        ufgTomLd = source.ufgTomLd
         fodselsArYngsteBarn = source.fodselsArYngsteBarn
         spt = source.spt
         spt_proRata = source.spt_proRata
@@ -262,7 +306,7 @@ class BeregningUforeperiode {
         spt_pa_e91_eos = source.spt_pa_e91_eos
         spt_pa_f92_eos = source.spt_pa_f92_eos
         beregningsgrunnlag = source.beregningsgrunnlag
-        angittUforetidspunkt = source.angittUforetidspunkt?.clone() as? Date
+        angittUforetidspunktLd = source.angittUforetidspunktLd
         antattInntektFaktorKap19 = source.antattInntektFaktorKap19
         antattInntektFaktorKap20 = source.antattInntektFaktorKap20
     }

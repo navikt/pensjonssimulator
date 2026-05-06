@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import org.springframework.stereotype.Component
@@ -24,7 +23,7 @@ class Pre2025OffentligAfpBeholdning(
     ): Persongrunnlag {
         if (forrigeAlderspensjonBeregningResult != null) return persongrunnlag
 
-       val normalderOppnaasAar = normalderService.normalderOppnaasDato(persongrunnlag.fodselsdato!!.toNorwegianLocalDate()).year
+       val normalderOppnaasAar = normalderService.normalderOppnaasDato(persongrunnlag.fodselsdatoLd!!).year
 
         val beholdningListe: List<Beholdning> =
             context.beregnOpptjening(foersteDag(normalderOppnaasAar), persongrunnlag)
@@ -49,8 +48,8 @@ class Pre2025OffentligAfpBeholdning(
                     // Check if this beholding already exists in persongrunnlag.
                     for (persongrunnlagBeholdning in persongrunnlag.beholdninger) {
                         val isSameDay = no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay(
-                            persongrunnlagBeholdning.fom,
-                            (it as Pensjonsbeholdning).fom
+                            persongrunnlagBeholdning.fomLd,
+                            (it as Pensjonsbeholdning).fomLd
                         )
 
                         if (isSameDay && persongrunnlagBeholdning.beholdningsTypeEnum == it.beholdningsTypeEnum) {

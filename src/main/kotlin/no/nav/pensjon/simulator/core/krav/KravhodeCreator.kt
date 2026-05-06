@@ -21,7 +21,6 @@ import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederFraAarStartTilF
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.monthOfYearRange1To12
@@ -31,8 +30,6 @@ import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.spec.UttakValidator.validateGradertUttak
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findValidForYear
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.inntekt.LignetInntektService
@@ -46,7 +43,6 @@ import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 import java.util.stream.IntStream
 import kotlin.math.roundToInt
 import kotlin.streams.toList
@@ -85,8 +81,8 @@ class KravhodeCreator(
         val gjelderPre2025OffentligAfp = spec.gjelderPre2025OffentligAfp()
 
         val kravhode = Kravhode().apply {
-            kravFremsattDato = time.today().toNorwegianDateAtNoon()
-            onsketVirkningsdato = oensketVirkningDato(spec)
+            kravFremsattDatoLd = time.today()
+            onsketVirkningsdatoLd = oensketVirkningDato(spec)
             gjelder = null
             sakId = null
             sakType = SakTypeEnum.ALDER
@@ -168,7 +164,7 @@ class KravhodeCreator(
         // feilutsatt område. Merk også at dette feltet er satt fra før under opprettelse av persongrunnlag, men da er det satt
         // til verdien som gjelder for normal beregning. Dette fordi det trengs til utplukk av beholdninger fra POPP via
         // FPEN027.
-        val foedselsdato: Date = kravhode.hentPersongrunnlagForSoker().fodselsdato!!
+        val foedselsdato: LocalDate = kravhode.hentPersongrunnlagForSoker().fodselsdatoLd!!
         val sisteGyldigeOpptjeningAar = yearUserTurnsGivenAge(foedselsdato, MAX_ALDER)
         kravhode.persongrunnlagListe.forEach { it.sisteGyldigeOpptjeningsAr = sisteGyldigeOpptjeningAar }
     }
@@ -251,7 +247,7 @@ class KravhodeCreator(
     private fun anonymPersongrunnlag(spec: SimuleringSpec) =
         Persongrunnlag().apply {
             penPerson = PenPerson().apply { penPersonId = ANONYM_PERSON_ID }
-            fodselsdato = spec.foedselDato?.toNorwegianDateAtNoon()
+            fodselsdatoLd = spec.foedselDato
             antallArUtland = spec.utlandAntallAar
             statsborgerskapEnum = norge
             flyktning = false
@@ -259,7 +255,6 @@ class KravhodeCreator(
             personDetaljListe = mutableListOf(anonymPersondetalj(spec))
             inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
             sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
-            finishInit()
         }
 
     // SimulerFleksibelAPCommand.createPersonDetaljerForenkletSimulering
@@ -267,7 +262,7 @@ class KravhodeCreator(
         PersonDetalj().apply {
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-            penRolleFom = spec.foedselDato?.toNorwegianDateAtNoon()
+            penRolleFom = spec.foedselDato
             sivilstandTypeEnum = anonymSivilstand(spec.sivilstatus)
             bruk = true
             finishInit()
@@ -346,7 +341,7 @@ class KravhodeCreator(
             opptjeningUpdater.oppdaterOpptjeningsgrunnlagFraInntekter(
                 originalGrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
                 inntektListe,
-                foedselsdato = persongrunnlag.fodselsdato?.toNorwegianLocalDate()
+                foedselsdato = persongrunnlag.fodselsdatoLd
             )
     }
 
@@ -618,12 +613,12 @@ class KravhodeCreator(
         // SimulerFleksibelAPCommand.createUttaksgradChosenByUser
         private fun angittUttaksgrad(spec: SimuleringSpec) =
             Uttaksgrad().apply {
-                fomDato = spec.foersteUttakDato?.toNorwegianDateAtNoon()
+                fomDatoLd = spec.foersteUttakDato
                 uttaksgrad = spec.uttakGrad.value.toInt()
 
                 if (spec.uttakErGradertEllerNull()) {
                     validateGradertUttak(spec)
-                    tomDato = spec.heltUttakDato!!.minusDays(1).toNorwegianDateAtNoon()
+                    tomDatoLd = spec.heltUttakDato!!.minusDays(1)
                 }
             }
 
@@ -712,7 +707,7 @@ class KravhodeCreator(
             grunnlagListe.map {
                 AarligInntekt(
                     beloep = it.belop,
-                    inntektAar = getYear(it.fom!!)
+                    inntektAar = it.fomLd!!.year
                 )
             }.toMutableList()
 
@@ -751,8 +746,8 @@ class KravhodeCreator(
 
         private fun inntektsgrunnlagForAaret(aar: Int, aaretsInntektListe: List<FremtidigInntekt>) =
             Inntektsgrunnlag().apply {
-                fom = foersteDag(aar).toNorwegianDateAtNoon()
-                tom = sisteDag(aar).toNorwegianDateAtNoon()
+                fomLd = foersteDag(aar)
+                tomLd = sisteDag(aar)
                 belop = faktiskAarligInntekt(aaretsInntektListe).toInt()
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
@@ -764,10 +759,10 @@ class KravhodeCreator(
             Inntektsgrunnlag().apply {
                 this.belop = beloep
                 this.bruk = true
-                this.fom = fom?.toNorwegianDateAtNoon()
+                this.fomLd = fom
                 this.grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 this.inntektTypeEnum = InntekttypeEnum.FPI
-                this.tom = tom?.toNorwegianDateAtNoon()
+                this.tomLd = tom
             }
 
         private fun norskKravlinje(kravlinjeType: KravlinjeTypeEnum, person: PenPerson) =
@@ -781,7 +776,7 @@ class KravhodeCreator(
 
         private fun uttaksgradForHeltUttak(fom: LocalDate?) =
             Uttaksgrad().apply {
-                fomDato = fom?.toNorwegianDateAtNoon()
+                fomDatoLd = fom
                 uttaksgrad = HUNDRE_PROSENT.prosentsats
             }
 

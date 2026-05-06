@@ -3,13 +3,12 @@ package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
-import java.util.*
+import java.time.LocalDate
 
-// 2025-03-10
+// 2026-04-23
 class ForsteVirkningsdatoGrunnlag {
-
-    var virkningsdato: Date? = null
-    var kravFremsattDato: Date? = null
+    var virkningsdatoLd: LocalDate? = null
+    var kravFremsattDatoLd: LocalDate? = null
     var bruker: PenPerson? = null
     var annenPerson: PenPerson? = null
     var kravlinjeTypeEnum: KravlinjeTypeEnum? = null
@@ -20,8 +19,8 @@ class ForsteVirkningsdatoGrunnlag {
     constructor()
 
     constructor(source: ForsteVirkningsdatoGrunnlag) {
-        virkningsdato = source.virkningsdato
-        kravFremsattDato = source.kravFremsattDato
+        virkningsdatoLd = source.virkningsdatoLd
+        kravFremsattDatoLd = source.kravFremsattDatoLd
         bruker = source.bruker
         annenPerson = source.annenPerson
         kravlinjeTypeEnum = source.kravlinjeTypeEnum

@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInfor
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
-import java.util.Date
+import java.time.LocalDate
 
 /**
  * 'Flattened' variant of Pensjonsbeholdning + Beholdning.
@@ -14,8 +14,8 @@ import java.util.Date
 class PenPensjonsbeholdning {
     var type: String? = null // avoids UnrecognizedPropertyException
     // From PEN domain:
-    var fom: Date? = null
-    var tom: Date? = null
+    var fomLd: LocalDate? = null
+    var tomLd: LocalDate? = null
     // From regler domain (Beholdning):
     var ar: Int = 0
     var totalbelop: Double = 0.0

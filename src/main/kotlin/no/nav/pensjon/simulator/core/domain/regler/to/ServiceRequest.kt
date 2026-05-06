@@ -1,11 +1,11 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-// 2025-03-18
+// 2026-04-23 + default satstabell
 abstract class ServiceRequest {
 
     /**
      * Satsstabell som skal benyttes ved beregning.
      * Kun lest av pensjon-regler i test miljø.
      */
-    var satstabell: String? = null
+    var satstabell: String? = "PROD_20250701"
 }

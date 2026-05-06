@@ -16,7 +16,7 @@ object PenPersonHistorikkMapper {
     fun person(source: PenPersonHistorikk) =
         PenPerson(source.penPersonId).apply {
             pid = source.pid?.let(::Pid)
-            foedselsdato = source.fodselsdato?.toNorwegianLocalDate()
+            foedselsdato = source.fodselsdatoLd
             afpHistorikkListe = source.afpHistorikkListe.toMutableList()
             uforehistorikk = source.uforehistorikk
             generellHistorikk = source.generellHistorikk

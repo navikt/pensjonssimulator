@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import java.time.LocalDate
 
@@ -37,7 +36,7 @@ object FppSimuleringSpecValidator {
             persongrunnlagForRolle(grunnlagListe = spec.persongrunnlagListe, rolle = GrunnlagsrolleEnum.SOKER)
                 ?: throw ImplementationUnrecoverableException("simulering.persongrunnlagListe.soeker")
 
-        val soekersFoedselsdato: LocalDate = soeker.fodselsdato?.toNorwegianLocalDate()
+        val soekersFoedselsdato: LocalDate = soeker.fodselsdatoLd
             ?: throw ImplementationUnrecoverableException("simulering.persongrunnlagListe.soeker.fodselsdato")
 
         val uttaksdato: LocalDate = spec.uttaksdatoLd!!

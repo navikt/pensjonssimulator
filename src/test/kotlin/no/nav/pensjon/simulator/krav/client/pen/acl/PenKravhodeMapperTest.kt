@@ -7,8 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import java.util.Calendar
+import java.time.LocalDate
 
 class PenKravhodeMapperTest : FunSpec({
 
@@ -19,8 +18,8 @@ class PenKravhodeMapperTest : FunSpec({
                     personDetaljListe = mutableListOf(
                         PenPersonDetalj(
                             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER,
-                            rolleFomDato = dateAtNoon(2021, Calendar.JANUARY, 1),
-                            rolleTomDato = dateAtNoon(2022, Calendar.FEBRUARY, 2),
+                            rolleFomDatoLd = LocalDate.of(2021, 1, 1),
+                            rolleTomDatoLd = LocalDate.of(2022, 2, 2),
                             sivilstandTypeEnum = SivilstandEnum.GIFT,
                             sivilstandRelatertPerson = PenPenPerson().apply { penPersonId = 1 },
                             borMedEnum = BorMedTypeEnum.SAMBOER3_2,
@@ -30,8 +29,8 @@ class PenKravhodeMapperTest : FunSpec({
                             grunnlagKildeEnum = GrunnlagkildeEnum.PEN,
                             serskiltSatsUtenET = true,
                             epsAvkallEgenPensjon = false,
-                            virkFom = dateAtNoon(2023, Calendar.MARCH, 3),
-                            virkTom = dateAtNoon(2024, Calendar.APRIL, 4)
+                            virkFomLd = LocalDate.of(2023, 3, 3),
+                            virkTomLd = LocalDate.of(2024, 4, 4)
                         )
                     )
                 })
@@ -43,12 +42,12 @@ class PenKravhodeMapperTest : FunSpec({
             with(persongrunnlagListe.first()) {
                 with(personDetaljListe.first()) {
                     grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
-                    penRolleFom shouldBe dateAtNoon(2021, Calendar.JANUARY, 1)
-                    penRolleTom shouldBe dateAtNoon(2022, Calendar.FEBRUARY, 2)
-                    rolleFomDato shouldBe dateAtNoon(2023, Calendar.MARCH, 3) // set to virkFom in mapper
-                    rolleTomDato shouldBe dateAtNoon(2024, Calendar.APRIL, 4) // set to virkTom in mapper
-                    virkFom shouldBe dateAtNoon(2023, Calendar.MARCH, 3)
-                    virkTom shouldBe dateAtNoon(2024, Calendar.APRIL, 4)
+                    penRolleFom shouldBe LocalDate.of(2021, 1, 1)
+                    penRolleTom shouldBe LocalDate.of(2022, 2, 2)
+                    rolleFomDatoLd shouldBe LocalDate.of(2023, 3, 3) // set to virkFom in mapper
+                    rolleTomDatoLd shouldBe LocalDate.of(2024, 4, 4) // set to virkTom in mapper
+                    virkFom shouldBe LocalDate.of(2023, 3, 3)
+                    virkTom shouldBe LocalDate.of(2024, 4, 4)
                     sivilstandTypeEnum shouldBe SivilstandEnum.GIFT
                     with(sivilstandRelatertPerson!!) { penPersonId shouldBe 1 }
                     borMedEnum shouldBe BorMedTypeEnum.SAMBOER3_2

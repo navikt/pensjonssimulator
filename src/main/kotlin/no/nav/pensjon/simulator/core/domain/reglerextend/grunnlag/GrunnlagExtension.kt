@@ -6,13 +6,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
-import no.nav.pensjon.simulator.core.util.copy
 
 fun AfpHistorikk.copy() =
     AfpHistorikk().also {
         it.afpFpp = this.afpFpp
-        it.virkFom = this.virkFom?.copy()
-        it.virkTom = this.virkTom?.copy()
+        it.virkFomLd = this.virkFomLd
+        it.virkTomLd = this.virkTomLd
         it.afpPensjonsgrad = this.afpPensjonsgrad
         it.afpOrdningEnum = this.afpOrdningEnum
     }
@@ -25,7 +24,7 @@ fun AfpOpptjening.copy() =
 fun AfpTpoUpGrunnlag.copy() =
     AfpTpoUpGrunnlag().also {
         it.belop = this.belop
-        it.virkFom = this.virkFom?.copy()
+        it.virkFomLd = this.virkFomLd
     }
 
 fun AntallArMndDag.copy() =
@@ -43,15 +42,15 @@ fun AntallArOgMnd.copy() =
 
 fun ArbeidsforholdEtterUforgrunnlag.copy() =
     ArbeidsforholdEtterUforgrunnlag().also {
-        it.fomDato = this.fomDato?.copy()
+        it.fomDatoLd = this.fomDatoLd
         it.stillingsprosent = this.stillingsprosent
         it.varigTilrettelagtArbeid = this.varigTilrettelagtArbeid
     }
 
 fun Arbeidsforholdsgrunnlag.copy() =
     Arbeidsforholdsgrunnlag().also {
-        it.fomDato = this.fomDato?.copy()
-        it.tomDato = this.tomDato?.copy()
+        it.fomDatoLd = this.fomDatoLd
+        it.tomDatoLd = this.tomDatoLd
         it.stillingsprosent = this.stillingsprosent
         it.arbeidsgiver = this.arbeidsgiver
         it.orgNummer = this.orgNummer
@@ -61,8 +60,8 @@ fun BarnDetalj.copy() =
     BarnDetalj().also {
         it.annenForelder = this.annenForelder?.copy()
         it.borMedBeggeForeldre = this.borMedBeggeForeldre
-        it.borFomDato = this.borFomDato?.copy()
-        it.borTomDato = this.borTomDato?.copy()
+        it.borFomDatoLd = this.borFomDatoLd
+        it.borTomDatoLd = this.borTomDatoLd
         it.inntektOver1G = this.inntektOver1G
         it.underUtdanning = this.underUtdanning
     }
@@ -81,8 +80,8 @@ fun BarnetilleggVilkar.copy() =
 
 fun BarnetilleggVurderingsperiode.copy() =
     BarnetilleggVurderingsperiode().also {
-        it.fomDato = this.fomDato?.copy()
-        it.tomDato = this.tomDato?.copy()
+        it.fomDatoLd = this.fomDatoLd
+        it.tomDatoLd = this.tomDatoLd
         it.btVilkarListe = this.btVilkarListe.map { o -> o.copy() }
     }
 
@@ -126,8 +125,8 @@ fun Garantitilleggsbeholdning.copy() =
 fun GarantiTrygdetid.copy() =
     GarantiTrygdetid().also {
         it.trygdetid_garanti = this.trygdetid_garanti
-        it.fomDato = this.fomDato?.copy()
-        it.tomDato = this.tomDato?.copy()
+        it.fomDatoLd = this.fomDatoLd
+        it.tomDatoLd = this.tomDatoLd
     }
 
 fun InngangOgEksportGrunnlag.copy() =
@@ -166,8 +165,8 @@ fun InngangOgEksportGrunnlag.copy() =
 fun InstOpphFasteUtgifterperiode.copy() =
     InstOpphFasteUtgifterperiode().also {
         it.instOpphFasteUtgifterperiodeId = this.instOpphFasteUtgifterperiodeId
-        it.fom = this.fom?.copy()
-        it.tom = this.tom?.copy()
+        it.fomLd = this.fomLd
+        it.tomLd = this.tomLd
         it.fasteUtgifter = this.fasteUtgifter
     }
 
@@ -192,8 +191,8 @@ fun Omsorgsgrunnlag.copy() =
 
 fun Pensjonsbeholdning.copy() =
     Pensjonsbeholdning().also {
-        it.fom = this.fom?.copy()
-        it.tom = this.tom?.copy()
+        it.fomLd = this.fomLd
+        it.tomLd = this.tomLd
         copyBeholdning(source = this, target = it)
     }
 
@@ -206,8 +205,8 @@ fun Unntak.copy() =
 
 fun Uttaksgrad.copy() =
     Uttaksgrad().also {
-        it.fomDato = this.fomDato?.copy()
-        it.tomDato = this.tomDato?.copy()
+        it.fomDatoLd = this.fomDatoLd
+        it.tomDatoLd = this.tomDatoLd
         it.uttaksgrad = this.uttaksgrad
     }
 

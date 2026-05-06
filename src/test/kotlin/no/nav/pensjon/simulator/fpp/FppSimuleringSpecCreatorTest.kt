@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.fpp.api.acl.v1.RelasjonTypeCodeV1
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -166,8 +165,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             with(soeker) {
                 penPerson?.penPersonId shouldBe 1L
                 penPerson?.pid shouldBe soekerPid
-                fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
-                dodsdato.shouldBeNull()
+                fodselsdatoLd shouldBe foedselsdato
+                dodsdatoLd.shouldBeNull()
                 antallArUtland shouldBe 5
                 flyktning shouldBe true
                 over60ArKanIkkeForsorgesSelv shouldBe false
@@ -200,7 +199,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
                 bruk shouldBe true
                 sivilstandTypeEnum shouldBe SivilstandEnum.UGIF
-                penRolleFom shouldBe foedselsdato.toNorwegianDateAtNoon()
+                penRolleFom shouldBe foedselsdato
             }
         }
 
@@ -300,11 +299,14 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val inntektsgrunnlag = result.persongrunnlagListe.first().inntektsgrunnlagListe
+
             inntektsgrunnlag shouldHaveSize 1
-            inntektsgrunnlag[0].belop shouldBe 750000
-            inntektsgrunnlag[0].inntektTypeEnum shouldBe InntekttypeEnum.FPI
-            inntektsgrunnlag[0].grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
-            inntektsgrunnlag[0].fom shouldBe uttaksdato.toNorwegianDateAtNoon()
+            with(inntektsgrunnlag.first()) {
+                belop shouldBe 750000
+                inntektTypeEnum shouldBe InntekttypeEnum.FPI
+                grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
+                fomLd shouldBe uttaksdato
+            }
         }
 
         should("ikke inkludere EPS-persongrunnlag når epsData er null") {
@@ -476,7 +478,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             result.persongrunnlagListe[1].personDetaljListe.first()
-                .penRolleFom shouldBe uttaksdato.minusDays(1).toNorwegianDateAtNoon()
+                .penRolleFom shouldBe uttaksdato.minusDays(1)
         }
 
         should("beregne EPS-beløp som 2G+1 når epsInntektOver2G er true") {
@@ -696,7 +698,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val imfu = soekerInntekt.first { it.inntektTypeEnum == InntekttypeEnum.IMFU }
             imfu.belop shouldBe 45000
-            imfu.fom shouldBe uttaksdato.minusMonths(1).toNorwegianDateAtNoon()
+            imfu.fomLd shouldBe uttaksdato.minusMonths(1)
         }
 
         should("inkludere PENF-inntektsgrunnlag for EPS ved AFP når epsMottarPensjon er true") {
@@ -770,7 +772,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val eps = result.persongrunnlagListe[1]
             eps.penPerson?.penPersonId shouldBe -2L
-            eps.fodselsdato shouldBe today.minusYears(59).toNorwegianDateAtNoon()
+            eps.fodselsdatoLd shouldBe today.minusYears(59)
         }
 
         should("bruke EPS pid og søker fødselsdato for EPS ved AFP når sivilstatus matcher") {
@@ -792,7 +794,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val eps = result.persongrunnlagListe[1]
             eps.penPerson?.penPersonId shouldBe 2L
             eps.penPerson?.pid shouldBe epsPid
-            eps.fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
+            eps.fodselsdatoLd shouldBe foedselsdato
         }
 
         should("ikke inkludere barn-persongrunnlag for AFP-simulering") {
@@ -857,7 +859,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             result.persongrunnlagListe.first().personDetaljListe.first()
-                .penRolleFom shouldBe doedsdato.toNorwegianDateAtNoon()
+                .penRolleFom shouldBe doedsdato
         }
 
         should("sette opptjeningsgrunnlag til tom liste for søker ved GJENLEVENDE") {
@@ -915,7 +917,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val eps = result.persongrunnlagListe[1]
-            eps.dodsdato shouldBe doedsdato.toNorwegianDateAtNoon()
+            eps.dodsdatoLd shouldBe doedsdato
             eps.flyktning shouldBe true
             eps.antallArUtland shouldBe 3
             eps.medlemIFolketrygdenSiste3Ar shouldBe true
@@ -942,11 +944,12 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val eps = result.persongrunnlagListe[1]
             eps.dodAvYrkesskade shouldBe true
-            eps.yrkesskadegrunnlag.shouldNotBeNull()
-            eps.yrkesskadegrunnlag!!.antattArligInntekt shouldBe 750000
-            eps.yrkesskadegrunnlag!!.yrkeEnum shouldBe YrkeYrkesskadeEnum.ARB
-            eps.yrkesskadegrunnlag!!.yug shouldBe 100
-            eps.yrkesskadegrunnlag!!.yst shouldBe doedsdato.toNorwegianDateAtNoon()
+            with(eps.yrkesskadegrunnlag!!) {
+                antattArligInntekt shouldBe 750000
+                yrkeEnum shouldBe YrkeYrkesskadeEnum.ARB
+                yug shouldBe 100
+                ystLd shouldBe doedsdato
+            }
         }
 
         should("bruke avdødes opptjeningsgrunnlag for EPS ved GJENLEVENDE") {
@@ -1207,22 +1210,25 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val forelderGrunnlag = result.persongrunnlagListe[1]
-            forelderGrunnlag.penPerson?.penPersonId shouldBe 3L
-            forelderGrunnlag.penPerson?.pid shouldBe morPid
-            forelderGrunnlag.fodselsdato shouldBe morFoedselsdato.toNorwegianDateAtNoon()
-            forelderGrunnlag.dodsdato shouldBe doedsdato.toNorwegianDateAtNoon()
-            forelderGrunnlag.flyktning shouldBe true
-            forelderGrunnlag.antallArUtland shouldBe 2
-            forelderGrunnlag.arligPGIMinst1G shouldBe true
-            forelderGrunnlag.over60ArKanIkkeForsorgesSelv shouldBe false
-            forelderGrunnlag.dodAvYrkesskade shouldBe false
-            forelderGrunnlag.medlemIFolketrygdenSiste3Ar shouldBe true
-            forelderGrunnlag.statsborgerskapEnum shouldBe LandkodeEnum.NOR
-
+            with(forelderGrunnlag) {
+                penPerson?.penPersonId shouldBe 3L
+                penPerson?.pid shouldBe morPid
+                fodselsdatoLd shouldBe morFoedselsdato
+                dodsdatoLd shouldBe doedsdato
+                flyktning shouldBe true
+                antallArUtland shouldBe 2
+                arligPGIMinst1G shouldBe true
+                over60ArKanIkkeForsorgesSelv shouldBe false
+                dodAvYrkesskade shouldBe false
+                medlemIFolketrygdenSiste3Ar shouldBe true
+                statsborgerskapEnum shouldBe LandkodeEnum.NOR
+            }
             val forelderDetalj = forelderGrunnlag.personDetaljListe.first()
-            forelderDetalj.grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.MOR
-            forelderDetalj.penRolleFom shouldBe morFoedselsdato.toNorwegianDateAtNoon()
-            forelderDetalj.borMedEnum shouldBe BorMedTypeEnum.J_BARN
+            with(forelderDetalj) {
+                grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.MOR
+                penRolleFom shouldBe morFoedselsdato
+                borMedEnum shouldBe BorMedTypeEnum.J_BARN
+            }
         }
 
         should("opprette forelder-persongrunnlag med FAR-rolle") {
@@ -1379,7 +1385,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val soeskenGrunnlag = result.persongrunnlagListe[2]
             soeskenGrunnlag.penPerson?.penPersonId shouldBe 50L
             soeskenGrunnlag.penPerson?.pid shouldBe soeskenPid
-            soeskenGrunnlag.fodselsdato shouldBe soeskenFoedselsdato.toNorwegianDateAtNoon()
+            soeskenGrunnlag.fodselsdatoLd shouldBe soeskenFoedselsdato
             soeskenGrunnlag.antallArUtland shouldBe 0
             soeskenGrunnlag.over60ArKanIkkeForsorgesSelv shouldBe false
             soeskenGrunnlag.dodAvYrkesskade shouldBe false

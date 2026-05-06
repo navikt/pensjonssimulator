@@ -9,25 +9,22 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.vedtak.VedtakUtil
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.beholdning
 import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.setEpsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.core.vilkaar.VilkaarsproevingSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.trygdetidSpec
+import no.nav.pensjon.simulator.vedtak.VedtakUtil
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -108,7 +105,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             // Corresponds to part 3
-            val foedselsdato: LocalDate = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
+            val foedselsdato: LocalDate = soekerGrunnlag.fodselsdatoLd!!
 
             // Corresponds to part 4
             val gjeldendePrivatAfp = getPrivatAfp(privatAfpBeregningResultatListe, knekkpunktDato)
@@ -165,13 +162,13 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             for (vedtak in vedtakListeAllePerioder) {
-                if (vedtak.kravlinjeForsteVirk == null) { // ref. github.com/navikt/pensjon-pen/pull/11703
-                    vedtak.kravlinjeForsteVirk = VedtakUtil.foersteVirkningsdato(
+                if (vedtak.kravlinjeForsteVirkLd == null) { // ref. github.com/navikt/pensjon-pen/pull/11703
+                    vedtak.kravlinjeForsteVirkLd = VedtakUtil.foersteVirkningsdato(
                         vedtakListe = vedtakListeAllePerioder,
                         virkningListe = kravhode.sakForsteVirkningsdatoListe,
                         kravlinjetype = vedtak.kravlinjeTypeEnum,
                         gjelderPerson = vedtak.gjelderPerson
-                    )?.toNorwegianDateAtNoon()
+                    )
                 }
             }
 
@@ -483,7 +480,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
         ) {
             if (vedtak.kravlinjeTypeEnum == kravlinjeType) {
                 foersteVirkningGrunnlagListe.firstOrNull { it.kravlinjeTypeEnum == kravlinjeType }?.let {
-                    vedtak.kravlinjeForsteVirk = it.virkningsdato
+                    vedtak.kravlinjeForsteVirkLd = it.virkningsdatoLd
                 }
             }
         }
@@ -508,11 +505,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             forrigeResultat: AbstraktBeregningsResultat,
             knekkpunktDato: LocalDate
         ) {
-            forrigeResultat.virkTom = getRelativeDateByDays(knekkpunktDato, -1).toNorwegianDateAtNoon()
+            forrigeResultat.virkTomLd =knekkpunktDato.minusDays(1)
         }
 
         private fun findValidForDate(list: MutableList<BeregningsResultatAfpPrivat>, date: LocalDate) =
-            list.firstOrNull { isDateInPeriod(date, it.virkFomLd?.toNorwegianDateAtNoon(), it.virkTom) }
+            list.firstOrNull { isDateInPeriod(date, it.virkFomLd, it.virkTomLd) }
 
         private fun periodiserGrunnlag(kravhode: Kravhode): Kravhode {
             kravhode.persongrunnlagListe.forEach { periodiserDetaljer(it.personDetaljListe) }

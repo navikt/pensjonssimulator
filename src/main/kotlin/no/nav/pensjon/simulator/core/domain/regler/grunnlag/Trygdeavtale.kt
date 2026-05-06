@@ -4,9 +4,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleDatoEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaleKritEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class Trygdeavtale {
     /**
      * Hvilket land personen bor i. Se /2/, arkfane K_AVTALELAND_T
@@ -38,7 +38,7 @@ class Trygdeavtale {
     /**
      * Dato for kravdato i avtale
      */
-    var kravDatoIAvtaleland: Date? = null
+    var kravDatoIAvtalelandLd: LocalDate? = null
 
     constructor()
 
@@ -48,6 +48,6 @@ class Trygdeavtale {
         avtaledatoEnum = source.avtaledatoEnum
         avtaleKriterieEnum = source.avtaleKriterieEnum
         omfattesavAvtalensPersonkrets = source.omfattesavAvtalensPersonkrets
-        kravDatoIAvtaleland = source.kravDatoIAvtaleland?.clone() as? Date
+        kravDatoIAvtalelandLd = source.kravDatoIAvtalelandLd
     }
 }

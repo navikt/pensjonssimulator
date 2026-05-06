@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.Gjenlevendetill
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAP
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.GjenlevendetilleggAPKap19
 
+// 2026-05-05
 @JsonSubTypes(
     JsonSubTypes.Type(value = Tilleggspensjon::class),
     JsonSubTypes.Type(value = Gjenlevendetillegg::class),

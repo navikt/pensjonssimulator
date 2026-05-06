@@ -201,7 +201,7 @@ class BeregningUforeperiode {
 
     /**
      * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
-     * Dette er beregningsgrunnlagOrdinårt når uforeType er UFORE eller UF_M_YRKE
+     * Dette er beregningsgrunnlagOrdinært når uforeType er UFORE eller UF_M_YRKE
      * og beregningsgrunnlagYrkesskade når type er YRKE
      */
     @JvmField

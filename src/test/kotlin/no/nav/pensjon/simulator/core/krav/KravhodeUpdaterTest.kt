@@ -10,7 +10,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
-import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -18,7 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagSpec
 import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
@@ -54,11 +52,8 @@ class KravhodeUpdaterTest : FunSpec({
             utlandPeriodeListe = utlandPeriodeListe()
         )
 
-        val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
-
-        val soeker = result.hentPersongrunnlagForSoker()
-        soeker.trygdeavtale.shouldNotBeNull()
-        soeker.trygdeavtale!!.kravDatoIAvtalelandLd shouldBe today
+        updater.updateKravhodeForFoersteKnekkpunkt(spec)
+            .hentPersongrunnlagForSoker().trygdeavtale!!.kravDatoIAvtalelandLd shouldBe today
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should set trygdeavtaledetaljer when boddUtenlands") {
@@ -68,9 +63,8 @@ class KravhodeUpdaterTest : FunSpec({
             utlandPeriodeListe = utlandPeriodeListe()
         )
 
-        val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
-
-        result.hentPersongrunnlagForSoker().trygdeavtaledetaljer.shouldNotBeNull()
+        updater.updateKravhodeForFoersteKnekkpunkt(spec)
+            .hentPersongrunnlagForSoker().trygdeavtaledetaljer.shouldNotBeNull()
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should set inngangOgEksportGrunnlag when boddUtenlands") {
@@ -80,9 +74,8 @@ class KravhodeUpdaterTest : FunSpec({
             utlandPeriodeListe = utlandPeriodeListe()
         )
 
-        val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
-
-        result.hentPersongrunnlagForSoker().inngangOgEksportGrunnlag.shouldNotBeNull()
+        updater.updateKravhodeForFoersteKnekkpunkt(spec)
+            .hentPersongrunnlagForSoker().inngangOgEksportGrunnlag.shouldNotBeNull()
     }
 
     test("updateKravhodeForFoersteKnekkpunkt should set boddEllerArbeidetIUtlandet on kravhode when boddUtenlands") {
@@ -92,9 +85,7 @@ class KravhodeUpdaterTest : FunSpec({
             utlandPeriodeListe = utlandPeriodeListe()
         )
 
-        val result = updater.updateKravhodeForFoersteKnekkpunkt(spec)
-
-        result.boddEllerArbeidetIUtlandet shouldBe true
+        updater.updateKravhodeForFoersteKnekkpunkt(spec).boddEllerArbeidetIUtlandet shouldBe true
     }
 
     // =====================================================
@@ -321,7 +312,7 @@ class KravhodeUpdaterTest : FunSpec({
 
     test("updateKravhodeForFoersteKnekkpunkt should use foersteUttakDato minus 1 day for ALDER_M_AFP_PRIVAT when before normalder") {
         val foersteUttakDato = LocalDate.of(2028, 6, 1)
-        val updater = createKravhodeUpdater(normalderAlder = Alder(67, 1))
+        val updater = createKravhodeUpdater()
         val persongrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.SOKER).apply {
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
@@ -451,17 +442,13 @@ class KravhodeUpdaterTest : FunSpec({
 
 private fun createKravhodeUpdater(
     context: SimulatorContext = mockk(relaxed = true),
-    normalderAlder: Alder = Alder(67, 0),
     tidsbegrensetOffentligAfpBeholdning: Pre2025OffentligAfpBeholdning = mockk(),
     trygdetidSetter: TrygdetidSetter = mockk {
         every { settTrygdetid(any()) } answers { firstArg<TrygdetidGrunnlagSpec>().persongrunnlag }
     },
     today: LocalDate = LocalDate.of(2025, 1, 1)
-): KravhodeUpdater {
-    val normalderService = mockk<NormertPensjonsalderService>()
-    every { normalderService.normalder(any<LocalDate>()) } returns normalderAlder
-
-    return KravhodeUpdater(
+) =
+    KravhodeUpdater(
         context = context,
         ufoereperiodeService = mockk {
             every {
@@ -472,7 +459,6 @@ private fun createKravhodeUpdater(
         trygdetidSetter = trygdetidSetter,
         time = { today }
     )
-}
 
 private fun createUpdateSpec(
     type: SimuleringTypeEnum = SimuleringTypeEnum.ALDER,
@@ -501,7 +487,7 @@ private fun createUpdateSpec(
     )
 }
 
-private fun createPersongrunnlag(rolle: GrunnlagsrolleEnum): Persongrunnlag =
+private fun createPersongrunnlag(rolle: GrunnlagsrolleEnum) =
     Persongrunnlag().apply {
         penPerson = PenPerson().apply { penPersonId = if (rolle == GrunnlagsrolleEnum.SOKER) 1L else 2L }
         fodselsdatoLd = LocalDate.of(1963, 1, 1)
@@ -519,7 +505,7 @@ private fun createSimuleringSpec(
     utlandPeriodeListe: List<UtlandPeriode> = emptyList(),
     erAnonym: Boolean = false,
     foersteUttakDato: LocalDate = LocalDate.of(2029, 1, 1)
-): SimuleringSpec = SimuleringSpec(
+) = SimuleringSpec(
     type = type,
     sivilstatus = SivilstatusType.UGIF,
     epsHarPensjon = false,
@@ -553,11 +539,12 @@ private fun createSimuleringSpec(
     epsKanOverskrives = false
 )
 
-private fun utlandPeriodeListe(): List<UtlandPeriode> = listOf(
-    UtlandPeriode(
-        fom = LocalDate.of(2010, 1, 1),
-        tom = LocalDate.of(2012, 12, 31),
-        land = LandkodeEnum.SWE,
-        arbeidet = false
+private fun utlandPeriodeListe(): List<UtlandPeriode> =
+    listOf(
+        UtlandPeriode(
+            fom = LocalDate.of(2010, 1, 1),
+            tom = LocalDate.of(2012, 12, 31),
+            land = LandkodeEnum.SWE,
+            arbeidet = false
+        )
     )
-)

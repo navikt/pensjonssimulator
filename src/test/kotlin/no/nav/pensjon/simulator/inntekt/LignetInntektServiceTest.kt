@@ -31,7 +31,7 @@ class LignetInntektServiceTest : ShouldSpec({
             inntekter shouldHaveSize 1
             with(inntekter.first()) {
                 inntektAar shouldBe 2025
-                beloep shouldBe 100000L
+                beloep shouldBe 100000
             }
         }
     }

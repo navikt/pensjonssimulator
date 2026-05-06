@@ -29,7 +29,7 @@ class OpptjeningUpdater(private val context: SimulatorContext) {
         var inntektbasertGrunnlagListe: MutableList<Opptjeningsgrunnlag> = mutableListOf()
 
         inntektListe
-            .filter { it.beloep > 0L }
+            .filter { it.beloep > 0 }
             .forEach { inntektbasertGrunnlagListe.add(opptjeningsgrunnlag(inntekt = it)) }
 
         inntektbasertGrunnlagListe = context.beregnPoengtallBatch(

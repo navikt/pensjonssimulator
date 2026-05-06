@@ -19,7 +19,7 @@ class LignetInntektService(
      * Dette for å unngå at en estimert inntekt brukes istedenfor den reelle (lignede) inntekten i perioden
      * fra lignet inntekt foreligger (typisk i juni) til 'siste gyldige opptjeningsår' oppdateres i PEN
      * (typisk i november).
-     * Funksjonen returner årstallet for neste inntekt som skal legges til inntektlisten.
+     * Funksjonen returnerer årstallet for neste inntekt som skal legges til inntektlisten.
      */
     fun behandleSistLignedeInntekt(pid: Pid, inntektListe: MutableList<AarligInntekt>): Int {
         val sistLignedeInntekt = inntektService.hentSisteLignetInntekt(pid)

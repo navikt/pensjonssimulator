@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
-import java.util.Date
+import java.time.LocalDate
 
-// Copied from pensjon-regler-api 2026-01-16
+// 2026-05-05
 /**
  * Angir inntekt etter uførhet (IEU).
  */
@@ -15,5 +15,5 @@ class InntektEtterUforhet : AbstraktBeregningsvilkar() {
     /**
      * Virkningstidspunktet for inntekt etter uførhet.
      */
-    var ieuDato: Date? = null
+    var ieuDatoLd: LocalDate? = null
 }

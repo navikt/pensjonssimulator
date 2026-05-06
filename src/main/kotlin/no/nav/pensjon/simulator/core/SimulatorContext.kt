@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.regel.client.RegelClient
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
@@ -25,7 +24,6 @@ import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.stereotype.Component
 import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
-import java.util.*
 
 @Component
 class SimulatorContext(
@@ -348,7 +346,7 @@ class SimulatorContext(
         persongrunnlag.personDetaljListe.forEach(::setRollePeriode)
 
         val request = BeregnPensjonsBeholdningRequest().apply {
-            this.beholdningTom = beholdningTom?.toNorwegianDateAtNoon()
+            this.beholdningTomLd = beholdningTom
             this.persongrunnlag = persongrunnlag
             this.beholdning = beholdning
         }
@@ -372,32 +370,26 @@ class SimulatorContext(
     override fun fetchGrunnbeloepListe(dato: LocalDate): SatsResponse =
         grunnbeloepCache.getIfPresent(dato) ?: fetchFreshGrunnbeloep(dato).also { grunnbeloepCache.put(dato, it) }
 
-    override fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse {
-        val response: HentDelingstallResponse = regelService.makeRegelCall(
+    override fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse =
+        regelService.makeRegelCall(
             request,
-            HentDelingstallResponse::class.java,
-            "delingstall",
-            null,
-            null
+            responseClass = HentDelingstallResponse::class.java,
+            serviceName = "delingstall",
+            map = null,
+            sakId = null
         )
-        return response
-    }
 
-    // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
-    private fun fetchFreshGrunnbeloep(localDate: LocalDate): SatsResponse {
-        val date: Date = localDate.toNorwegianDateAtNoon()
-
-        return regelService.makeRegelCall(
+    private fun fetchFreshGrunnbeloep(dato: LocalDate): SatsResponse =
+        regelService.makeRegelCall(
             request = HentGrunnbelopListeRequest().apply {
-                fom = date
-                tom = date
+                fomLd = dato
+                tomLd = dato
             },
             responseClass = SatsResponse::class.java,
             serviceName = "hentGrunnbelopListe",
             map = null,
             sakId = null
         )
-    }
 
     // TODO: May be unnecessary, since this is done in PersonDetalj.finishInit
     private fun setRollePeriode(detalj: PersonDetalj) {

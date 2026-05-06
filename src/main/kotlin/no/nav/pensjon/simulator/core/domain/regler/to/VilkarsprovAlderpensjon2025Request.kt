@@ -4,14 +4,14 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpOffentligLiv
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteAldersberegning2011
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import java.util.*
+import java.time.LocalDate
 
-// 2025-06-13
+// 2026-05-05
 class VilkarsprovAlderpensjon2025Request : ServiceRequest() {
     var kravhode: Kravhode? = null
-    var fom: Date? = null
+    var fomLd: LocalDate? = null
     var afpPrivatLivsvarig: AfpPrivatLivsvarig? = null
-    var afpVirkFom: Date? = null
+    var afpVirkFomLd: LocalDate? = null
     var sisteBeregning: SisteAldersberegning2011? = null
     var utforVilkarsberegning = false
     var afpOffentligLivsvarigGrunnlag: AfpOffentligLivsvarigGrunnlag? = null

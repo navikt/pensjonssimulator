@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core.util
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
@@ -86,10 +86,10 @@ object PeriodeUtil {
     // Extracted from PeriodisertInformasjonListeUtils.findEarliest
     private fun earliestAmong(list: List<AbstraktBeregningsResultat>): AbstraktBeregningsResultat? {
         var result: AbstraktBeregningsResultat? = null
-        var earliestFom = ETERNITY
+        var earliestFom = LOCAL_ETERNITY
 
         list.forEach {
-            val virkFom = it.virkFomLd!!.toNorwegianDateAtNoon()
+            val virkFom = it.virkFomLd!!
             if (isBeforeByDay(virkFom, earliestFom, false)) {
                 result = it
                 earliestFom = virkFom

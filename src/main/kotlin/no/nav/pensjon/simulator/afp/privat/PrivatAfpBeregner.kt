@@ -14,7 +14,6 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.validity.BadSpecException
@@ -135,13 +134,12 @@ class PrivatAfpBeregner(
         val spec = BeregnAfpPrivatRequest().apply {
             kravhode = afpKravhode
             vilkarsvedtakListe = arrayListOf(afpVedtak)
-            virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-            ft = satser.forholdstall
+            virkFomLd = knekkpunktDato
             justeringsbelop = satser.justeringsbeloep
             referansebelop = satser.referansebeloep
             ftKompensasjonstillegg = satser.kompensasjonstilleggForholdstall
             sisteAfpPrivatBeregning = forrigeAfpBeregningResultat
-            virkFomAfpPrivatUttak = afpFoersteVirkning?.toNorwegianDateAtNoon()
+            virkFomAfpPrivatUttakLd = afpFoersteVirkning
         }
 
         try {

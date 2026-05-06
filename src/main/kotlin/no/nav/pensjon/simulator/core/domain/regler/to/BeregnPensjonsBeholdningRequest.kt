@@ -2,12 +2,11 @@ package no.nav.pensjon.simulator.core.domain.regler.to
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import java.util.Date
+import java.time.LocalDate
 
-// https://github.com/navikt/pensjon-regler/blob/master/system/nav-system-pensjon-domain/src/main/kotlin/no/nav/pensjon/regler/internal/to/BeregnPensjonsBeholdningRequest.kt
+// 2026-05-05
 class BeregnPensjonsBeholdningRequest : ServiceRequest() {
-
-    var beholdningTom: Date? = null
+    var beholdningTomLd: LocalDate? = null
     var persongrunnlag: Persongrunnlag? = null
     var beholdning: Pensjonsbeholdning? = null
 }

@@ -592,7 +592,7 @@ class AlderspensjonBeregnerTest : ShouldSpec({
                 ignoreAvslag = false
             )
 
-            capturedRequest!!.virkFom shouldNotBe null
+            capturedRequest!!.virkFomLd shouldNotBe null
         }
     }
 

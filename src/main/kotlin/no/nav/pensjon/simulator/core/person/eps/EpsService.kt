@@ -7,13 +7,13 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
-import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.erEps
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -92,13 +92,12 @@ class EpsService(
         filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlag)
 
         // Del 3.1
-        val inntekt = Inntekt(
+        val inntekt = AarligInntekt(
             inntektAar = time.today().year - 1,
-            beloep = avdoed.inntektFoerDoed.toLong(),
-            inntektType = null
+            beloep = avdoed.inntektFoerDoed
         )
 
-        val epsInntektListe: MutableList<Inntekt> = mutableListOf(inntekt)
+        val epsInntektListe: MutableList<AarligInntekt> = mutableListOf(inntekt)
 
         // Del 3.2
         persongrunnlag.opptjeningsgrunnlagListe =

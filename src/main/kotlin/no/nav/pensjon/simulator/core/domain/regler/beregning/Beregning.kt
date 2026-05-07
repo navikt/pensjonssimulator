@@ -434,6 +434,7 @@ class Beregning {
             grunnpensjon = gp?.netto,
             afpTillegg = afpTillegg?.netto,
             sertillegg = st?.netto,
+            grad = afpPensjonsgrad,
             erAvkortet = gpAfpPensjonsregulert?.brukt == true
         )
     }

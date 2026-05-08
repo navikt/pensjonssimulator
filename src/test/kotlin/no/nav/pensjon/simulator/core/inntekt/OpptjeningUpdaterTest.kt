@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
-import no.nav.pensjon.simulator.core.krav.Inntekt
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import java.time.LocalDate
 
 class OpptjeningUpdaterTest : FunSpec({
@@ -48,8 +48,8 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2020, beloep = 0L),
-            Inntekt(inntektAar = 2021, beloep = 500000L)
+            AarligInntekt(inntektAar = 2020, beloep = 0),
+            AarligInntekt(inntektAar = 2021, beloep = 500000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -70,8 +70,8 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2020, beloep = -100L),
-            Inntekt(inntektAar = 2021, beloep = 500000L)
+            AarligInntekt(inntektAar = 2020, beloep = -100),
+            AarligInntekt(inntektAar = 2021, beloep = 500000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -91,7 +91,7 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2022, beloep = 650000L)
+            AarligInntekt(inntektAar = 2022, beloep = 650000)
         )
 
         updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -118,7 +118,7 @@ class OpptjeningUpdaterTest : FunSpec({
 
         updater.oppdaterOpptjeningsgrunnlagFraInntekter(
             originalGrunnlagListe = emptyList(),
-            inntektListe = listOf(Inntekt(inntektAar = 2022, beloep = 500000L)),
+            inntektListe = listOf(AarligInntekt(inntektAar = 2022, beloep = 500000)),
             foedselsdato = foedselsdato
         )
 
@@ -135,7 +135,7 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2022, beloep = 500000L)
+            AarligInntekt(inntektAar = 2022, beloep = 500000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -164,7 +164,7 @@ class OpptjeningUpdaterTest : FunSpec({
             }
         )
         val inntekter = listOf(
-            Inntekt(inntektAar = 2022, beloep = 600000L)
+            AarligInntekt(inntektAar = 2022, beloep = 600000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -190,9 +190,9 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2020, beloep = 400000L),
-            Inntekt(inntektAar = 2021, beloep = 500000L),
-            Inntekt(inntektAar = 2022, beloep = 600000L)
+            AarligInntekt(inntektAar = 2020, beloep = 400000),
+            AarligInntekt(inntektAar = 2021, beloep = 500000),
+            AarligInntekt(inntektAar = 2022, beloep = 600000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -216,8 +216,8 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2020, beloep = 0L),
-            Inntekt(inntektAar = 2021, beloep = 0L)
+            AarligInntekt(inntektAar = 2020, beloep = 0),
+            AarligInntekt(inntektAar = 2021, beloep = 0)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -236,7 +236,7 @@ class OpptjeningUpdaterTest : FunSpec({
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2022, beloep = 500000L)
+            AarligInntekt(inntektAar = 2022, beloep = 500000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -250,19 +250,20 @@ class OpptjeningUpdaterTest : FunSpec({
     }
 
     test("oppdaterOpptjeningsgrunnlagFraInntekter bevarer beregnede verdier fra beregnPoengtallBatch") {
-        val context = mockk<SimulatorContext>()
-        every { context.beregnPoengtallBatch(any(), any()) } answers {
-            val grunnlag = firstArg<MutableList<Opptjeningsgrunnlag>>()
-            grunnlag.forEach {
-                it.pia = it.pi - 50000
-                it.pp = 5.5
+        val context = mockk<SimulatorContext> {
+            every { beregnPoengtallBatch(any(), any()) } answers {
+                val grunnlag = firstArg<MutableList<Opptjeningsgrunnlag>>()
+                grunnlag.forEach {
+                    it.pia = it.pi - 50000
+                    it.pp = 5.5
+                }
+                grunnlag
             }
-            grunnlag
         }
 
         val updater = OpptjeningUpdater(context)
         val inntekter = listOf(
-            Inntekt(inntektAar = 2022, beloep = 600000L)
+            AarligInntekt(inntektAar = 2022, beloep = 600000)
         )
 
         val result = updater.oppdaterOpptjeningsgrunnlagFraInntekter(
@@ -272,9 +273,11 @@ class OpptjeningUpdaterTest : FunSpec({
         )
 
         result shouldHaveSize 1
-        result[0].pi shouldBe 600000
-        result[0].pia shouldBe 550000
-        result[0].pp shouldBe 5.5
+        with(result.first()) {
+            pi shouldBe 600000
+            pia shouldBe 550000
+            pp shouldBe 5.5
+        }
     }
 
     test("oppdaterOpptjeningsgrunnlagFraInntekter endrer ikke original grunnlag liste") {

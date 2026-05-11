@@ -2,14 +2,13 @@ package no.nav.pensjon.simulator.fpp
 
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
-import no.nav.pensjon.simulator.fpp.api.acl.v1.RelasjonTypeCodeV1
-import no.nav.pensjon.simulator.fpp.api.acl.v1.SimuleringTypeV1
+import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
-// PEN: no.nav.pensjon.pen.domain.api.kalkulator.PensjonskalkulatorInput
 data class FppSimuleringSpec(
-    val simuleringstype: SimuleringTypeV1,
+    val simuleringstype: SimuleringTypeEnum,
     val uttaksdato: LocalDate,
     val personopplysninger: Personopplysninger,
     val barneopplysninger: Barneopplysninger?,
@@ -19,7 +18,7 @@ data class FppSimuleringSpec(
 class Personopplysninger {
     var ident: String? = null
     var fodselsdato: LocalDate? = null
-    var valgtAfpOrdning: AFPtypeEnum? = null // PEN: String
+    var valgtAfpOrdning: AFPtypeEnum? = null
     var flyktning: Boolean? = null
     var antAarIUtlandet: Int? = null
     var forventetArbeidsinntekt: Int? = null
@@ -31,7 +30,7 @@ class Personopplysninger {
 }
 
 class AvdoedData {
-    var datoForDodsfall: LocalDate? = null // PEN: Date
+    var datoForDodsfall: LocalDate? = null
     var avdodAntAarIUtlandet: Int? = null
     var inntektPaaDodstidspunktHvisYrkesskade: Int? = null
     var avdodInntektMinst1G: Boolean? = null
@@ -43,8 +42,8 @@ class AvdoedData {
 
 class EpsData {
     var eps: Relasjon? = null
-    var valgtSivilstatus: SivilstatusType? = null // PEN: String
-    var registrertSivilstatus: SivilstandEnum? = null // PEN: String
+    var valgtSivilstatus: SivilstatusType? = null
+    var registrertSivilstatus: SivilstandEnum? = null
     var epsMottarPensjon: Boolean? = null
     var epsInntektOver2G: Boolean? = null
     var tidligereGiftEllerBarnMedSamboer: Boolean? = null
@@ -80,19 +79,17 @@ class OpptjeningFolketrygdenData {
     var ar: Int? = null
     var pensjonsgivendeInntekt: Int? = null
     var omsorgspoeng: Double? = null
-    var maksUforegrad: Int? = null // PEN: Int 0
+    var maksUforegrad: Int? = null
     var registrertePensjonspoeng: Double? = null
 }
 
-// PEN: no.nav.domain.pensjon.common.person.Person
-class PersonV1 {
-    var pid: String? = null // PEN: Pid
+class FppPerson {
+    var pid: Pid? = null
     var personUtland: PersonUtland? = null
 }
 
-// PEN: no.nav.domain.pensjon.common.person.Relasjon
 class Relasjon {
-    var relasjonsType: RelasjonTypeCodeV1? = null // PEN: String
-    var fom: LocalDate? = null // PEN: Calendar
-    var person: PersonV1? = null
+    var relasjonsType: RelasjonTypeCode? = null
+    var fom: LocalDate? = null
+    var person: FppPerson? = null
 }

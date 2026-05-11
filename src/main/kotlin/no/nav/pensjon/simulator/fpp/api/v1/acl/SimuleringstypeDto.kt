@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.fpp.api.acl.v1
+package no.nav.pensjon.simulator.fpp.api.v1.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 
@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
  * Anti-corruption.
  * Versjonert utgave av simuleringstyper for bruk i API-et (isolerer API-et fra den interne representasjonen i domenet).
  */
-enum class SimuleringTypeV1(val internalValue: SimuleringTypeEnum) {
+enum class SimuleringstypeDto(val internalValue: SimuleringTypeEnum) {
     /**
      * Tidsbegrenset AFP i offentlig sektor
      */

@@ -14,8 +14,8 @@ class TrygdetidOppholdTest : ShouldSpec({
         should("create new instance with default boolean values and periode with given t.o.m.-dato") {
             TrygdetidOpphold(
                 periode = TTPeriode().apply {
-                    fom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
-                    tom = LocalDate.of(2022, 12, 31).toNorwegianDateAtNoon()
+                    fomLd = LocalDate.of(2021, 1, 1)
+                    tomLd = LocalDate.of(2022, 12, 31)
                     poengIInnAr = true // NB value is ignored
                     poengIUtAr = true // NB value is ignored
                     landEnum = LandkodeEnum.EST
@@ -24,12 +24,12 @@ class TrygdetidOppholdTest : ShouldSpec({
                 },
                 arbeidet = true
             ).withPeriodeTom(
-                dato = LocalDate.of(2023, 11, 30).toNorwegianDateAtNoon()
+                dato = LocalDate.of(2023, 11, 30)
             ) shouldBeEqualToComparingFields
                     TrygdetidOpphold(
                         periode = TTPeriode().apply {
-                            fom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
-                            tom = LocalDate.of(2023, 11, 30).toNorwegianDateAtNoon()
+                            fomLd = LocalDate.of(2021, 1, 1)
+                            tomLd = LocalDate.of(2023, 11, 30)
                             poengIInnAr = false // NB always false
                             poengIUtAr = false // NB always false
                             landEnum = LandkodeEnum.EST
@@ -243,8 +243,8 @@ private fun date(month: Int): LocalDate =
 private fun opphold(fom: LocalDate? = null, tom: LocalDate? = null) =
     TrygdetidOpphold(
         periode = TTPeriode().apply {
-            this.fom = fom?.toNorwegianDateAtNoon()
-            this.tom = tom?.toNorwegianDateAtNoon()
+            fomLd = fom
+            tomLd = tom
         },
         arbeidet = false
     )

@@ -3,12 +3,7 @@ package no.nav.pensjon.simulator.core.result
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Grunnpensjon
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengrekke
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
-import no.nav.pensjon.simulator.core.domain.regler.beregning.penobjekter.*
+import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -17,7 +12,6 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
-import java.util.*
 
 class SimulatorOutputMapperTest : FunSpec({
 
@@ -71,8 +65,7 @@ class SimulatorOutputMapperTest : FunSpec({
 
         val result = SimulatorOutputMapper.mapToSimulatorOutput(
             simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
+            soekerGrunnlag = persongrunnlag
         )
 
         result.epsHarInntektOver2G shouldBe true
@@ -84,24 +77,10 @@ class SimulatorOutputMapperTest : FunSpec({
 
         val result = SimulatorOutputMapper.mapToSimulatorOutput(
             simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
+            soekerGrunnlag = persongrunnlag
         )
 
         result.epsHarPensjon shouldBe true
-    }
-
-    test("mapToSimulatorOutput should map grunnbeloep") {
-        val spec = createSimuleringSpec()
-        val persongrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.UGIF)
-
-        val result = SimulatorOutputMapper.mapToSimulatorOutput(
-            simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
-        )
-
-        result.grunnbeloep shouldBe 118620
     }
 
     test("mapToSimulatorOutput should map sivilstand from first person detail") {
@@ -110,8 +89,7 @@ class SimulatorOutputMapperTest : FunSpec({
 
         val result = SimulatorOutputMapper.mapToSimulatorOutput(
             simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag,
-            grunnbeloep = 118620
+            soekerGrunnlag = persongrunnlag
         )
 
         result.sivilstand shouldBe SivilstandEnum.GIFT
@@ -950,7 +928,7 @@ class SimulatorOutputMapperTest : FunSpec({
             forstegangstjenestegrunnlag = Forstegangstjeneste().apply {
                 periodeListe = mutableListOf(
                     ForstegangstjenestePeriode().apply {
-                        fomDato = Date(124, 0, 1) // Jan 1, 2024
+                        fomDatoLd = LocalDate.of(2024, 1, 1)
                     }
                 )
             }
@@ -972,8 +950,8 @@ class SimulatorOutputMapperTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = Date(124, 0, 1) // Jan 1, 2024
-                        ufgTom = Date(124, 11, 31) // Dec 31, 2024
+                        ufgFomLd = LocalDate.of(2024, 1, 1)
+                        ufgTomLd = LocalDate.of(2024, 12, 31)
                         uforeTypeEnum = UforetypeEnum.UF_M_YRKE
                     }
                 )
@@ -996,44 +974,40 @@ class SimulatorOutputMapperTest : FunSpec({
             uforeHistorikk = Uforehistorikk().apply {
                 uforeperiodeListe = mutableListOf(
                     Uforeperiode().apply {
-                        ufgFom = Date(124, 0, 1)
-                        ufgTom = Date(124, 11, 31)
+                        ufgFomLd = LocalDate.of(2024, 1, 1)
+                        ufgTomLd = LocalDate.of(2024, 12, 31)
                         uforeTypeEnum = UforetypeEnum.VIRK_IKKE_UFOR // should be filtered
                     }
                 )
             }
         }
 
-        val result = SimulatorOutputMapper.mapToSimulertOpptjening(
+        SimulatorOutputMapper.mapToSimulertOpptjening(
             kalenderAar = 2024,
             resultatListe = emptyList(),
             soekerGrunnlag = persongrunnlag,
             poengtallListe = emptyList(),
             useNullAsDefaultPensjonspoeng = true
-        )
-
-        result.harUfoere shouldBe false
+        ).harUfoere shouldBe false
     }
 
     test("mapToSimulertOpptjening should map harOffentligAfp") {
         val persongrunnlag = Persongrunnlag().apply {
             afpHistorikkListe = listOf(
                 AfpHistorikk().apply {
-                    virkFom = Date(124, 0, 1) // Jan 1, 2024
-                    virkTom = Date(124, 11, 31) // Dec 31, 2024
+                    virkFomLd = LocalDate.of(2024, 1, 1)
+                    virkTomLd = LocalDate.of(2024, 12, 31)
                 }
             )
         }
 
-        val result = SimulatorOutputMapper.mapToSimulertOpptjening(
+        SimulatorOutputMapper.mapToSimulertOpptjening(
             kalenderAar = 2024,
             resultatListe = emptyList(),
             soekerGrunnlag = persongrunnlag,
             poengtallListe = emptyList(),
             useNullAsDefaultPensjonspoeng = true
-        )
-
-        result.harOffentligAfp shouldBe true
+        ).harOffentligAfp shouldBe true
     }
 
     test("mapToSimulertOpptjening should return false for harOffentligAfp when afpHistorikkListe is empty") {
@@ -1055,7 +1029,7 @@ class SimulatorOutputMapperTest : FunSpec({
     test("mapToSimulertOpptjening should get pensjonBeholdning from beregningsresultat when not in persongrunnlag") {
         val persongrunnlag = Persongrunnlag()
         val beregningsResultat = BeregningsResultatAlderspensjon2025().apply {
-            virkFom = Date(124, 0, 1) // Jan 1, 2024
+            virkFomLd = LocalDate.of(2024, 1, 1)
             uttaksgrad = 100
             beregningKapittel20 = AldersberegningKapittel20().apply {
                 beholdninger = Beholdninger().apply {

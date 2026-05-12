@@ -11,9 +11,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
-import java.util.Date
 
 class FppSimuleringSpecValidatorTest : ShouldSpec({
 
@@ -27,7 +25,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
         shouldThrow<ImplementationUnrecoverableException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.GJENLEVENDE
-                uttaksdato = null
+                uttaksdatoLd = null
             })
         }.message shouldBe "simulering.uttaksdato"
     }
@@ -36,7 +34,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
         shouldThrow<ImplementationUnrecoverableException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.AFP
-                uttaksdato = uttaksdato()
+                uttaksdatoLd = uttaksdato()
                 afpOrdningEnum = null
             })
         }.message shouldBe "simulering.afpordning"
@@ -46,7 +44,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
         shouldThrow<ImplementationUnrecoverableException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER_M_GJEN
-                uttaksdato = uttaksdato()
+                uttaksdatoLd = uttaksdato()
                 persongrunnlagListe = emptyList()
             })
         }.message shouldBe "simulering.persongrunnlagListe"
@@ -56,7 +54,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
         shouldThrow<ImplementationUnrecoverableException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER_M_GJEN
-                uttaksdato = uttaksdato()
+                uttaksdatoLd = uttaksdato()
                 persongrunnlagListe = listOf(Persongrunnlag().apply { personDetaljListe = mutableListOf() })
             })
         }.message shouldBe "simulering.persongrunnlagListe.persondetaljliste"
@@ -66,7 +64,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
         shouldThrow<ImplementationUnrecoverableException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER
-                uttaksdato = uttaksdato()
+                uttaksdatoLd = uttaksdato()
                 persongrunnlagListe = soekergrunnlag(foedselsaar = null)
             })
         }.message shouldBe "simulering.persongrunnlagListe.soeker.fodselsdato"
@@ -77,7 +75,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.AFP
                 afpOrdningEnum = AFPtypeEnum.AFPSTAT
-                uttaksdato = uttaksdato(aar = 2025)
+                uttaksdatoLd = uttaksdato(aar = 2025)
                 persongrunnlagListe = soekergrunnlag(foedselsaar = 1964) // 61 år i 2025
             })
         }.message shouldBe "AFP 62"
@@ -87,7 +85,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
         shouldThrow<PersonForUngException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER
-                uttaksdato = uttaksdato(aar = 2020)
+                uttaksdatoLd = uttaksdato(aar = 2020)
                 persongrunnlagListe = soekergrunnlag(foedselsaar = 1954) // 66 år i 2020
 
             })
@@ -95,8 +93,8 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
     }
 })
 
-private fun uttaksdato(aar: Int = 2026): Date =
-    LocalDate.of(aar, 1, 1).toNorwegianDateAtNoon()
+private fun uttaksdato(aar: Int = 2026) =
+    LocalDate.of(aar, 1, 1)
 
 private fun soekergrunnlag(foedselsaar: Int?): List<Persongrunnlag> =
     listOf(
@@ -104,6 +102,6 @@ private fun soekergrunnlag(foedselsaar: Int?): List<Persongrunnlag> =
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                    fodselsdato = foedselsaar?.let { LocalDate.of(it, 1, 1).toNorwegianDateAtNoon() }
+                    fodselsdatoLd = foedselsaar?.let { LocalDate.of(it, 1, 1) }
                 })
         })

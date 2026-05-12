@@ -4,9 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class TrygdetidGrunnlagFactoryTest : FunSpec({
 
@@ -18,13 +16,15 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom)
 
-            result.fom shouldBe fom.toNorwegianDateAtNoon()
-            result.tom shouldBe tom.toNorwegianDateAtNoon()
-            result.poengIInnAr shouldBe false
-            result.poengIUtAr shouldBe false
-            result.landEnum shouldBe LandkodeEnum.NOR
-            result.ikkeProRata shouldBe false
-            result.bruk shouldBe true
+            with(result) {
+                fomLd shouldBe fom
+                tomLd shouldBe tom
+                poengIInnAr shouldBe false
+                poengIUtAr shouldBe false
+                landEnum shouldBe LandkodeEnum.NOR
+                ikkeProRata shouldBe false
+                bruk shouldBe true
+            }
         }
 
         test("håndterer null fom") {
@@ -32,8 +32,8 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(null as LocalDate?, tom)
 
-            result.fom shouldBe null
-            result.tom shouldBe tom.toNorwegianDateAtNoon()
+            result.fomLd shouldBe null
+            result.tomLd shouldBe tom
         }
 
         test("håndterer null tom") {
@@ -41,15 +41,15 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, null as LocalDate?)
 
-            result.fom shouldBe fom.toNorwegianDateAtNoon()
-            result.tom shouldBe null
+            result.fomLd shouldBe fom
+            result.tomLd shouldBe null
         }
 
         test("håndterer både fom og tom som null") {
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(null as LocalDate?, null as LocalDate?)
 
-            result.fom shouldBe null
-            result.tom shouldBe null
+            result.fomLd shouldBe null
+            result.tomLd shouldBe null
             result.landEnum shouldBe LandkodeEnum.NOR
         }
     }
@@ -57,49 +57,37 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
     context("trygdetidPeriode med Date fom og tom") {
 
         test("oppretter TTPeriode med standardverdier for Norge") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
+            val tom = LocalDate.of(2010, 12, 31)
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom)
 
-            result.fom shouldNotBe null
-            result.fom!!.time shouldBe fom.time
-            result.tom shouldNotBe null
-            result.tom!!.time shouldBe tom.time
-            result.poengIInnAr shouldBe false
-            result.poengIUtAr shouldBe false
-            result.landEnum shouldBe LandkodeEnum.NOR
-            result.ikkeProRata shouldBe false
-            result.bruk shouldBe true
-        }
-
-        test("kopierer Date-objekter (ikke samme referanse)") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
-
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom)
-
-            // Skal være kopier, ikke samme objekt
-            (result.fom === fom) shouldBe false
-            (result.tom === tom) shouldBe false
-            // Men med samme tidspunkt
-            result.fom!!.time shouldBe fom.time
-            result.tom!!.time shouldBe tom.time
+            with(result) {
+                fomLd shouldNotBe null
+                fomLd shouldBe fom
+                tomLd shouldNotBe null
+                tomLd shouldBe tom
+                poengIInnAr shouldBe false
+                poengIUtAr shouldBe false
+                landEnum shouldBe LandkodeEnum.NOR
+                ikkeProRata shouldBe false
+                bruk shouldBe true
+            }
         }
 
         test("håndterer null verdier") {
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(null as Date?, null as Date?)
+            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom = null as LocalDate?, tom = null as LocalDate?)
 
-            result.fom shouldBe null
-            result.tom shouldBe null
+            result.fomLd shouldBe null
+            result.tomLd shouldBe null
         }
     }
 
     context("trygdetidPeriode med land, ikkeProRata og bruk (Date versjon)") {
 
         test("oppretter TTPeriode med angitte verdier") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
+            val tom = LocalDate.of(2010, 12, 31)
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(
                 fom = fom,
@@ -109,17 +97,19 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
                 bruk = false
             )
 
-            result.fom shouldBe fom
-            result.tom shouldBe tom
-            result.poengIInnAr shouldBe false
-            result.poengIUtAr shouldBe false
-            result.landEnum shouldBe LandkodeEnum.SWE
-            result.ikkeProRata shouldBe true
-            result.bruk shouldBe false
+            with(result) {
+                fomLd shouldBe fom
+                tomLd shouldBe tom
+                poengIInnAr shouldBe false
+                poengIUtAr shouldBe false
+                landEnum shouldBe LandkodeEnum.SWE
+                ikkeProRata shouldBe true
+                bruk shouldBe false
+            }
         }
 
         test("håndterer null land") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(
                 fom = fom,
@@ -133,7 +123,7 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
         }
 
         test("håndterer null bruk") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(
                 fom = fom,
@@ -147,7 +137,7 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
         }
 
         test("håndterer null tom") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(
                 fom = fom,
@@ -157,8 +147,8 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
                 bruk = true
             )
 
-            result.fom shouldBe fom
-            result.tom shouldBe null
+            result.fomLd shouldBe fom
+            result.tomLd shouldBe null
         }
     }
 
@@ -176,8 +166,8 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
                 bruk = true
             )
 
-            result.fom shouldBe fom.toNorwegianDateAtNoon()
-            result.tom shouldBe tom.toNorwegianDateAtNoon()
+            result.fomLd shouldBe fom
+            result.tomLd shouldBe tom
             result.landEnum shouldBe LandkodeEnum.DNK
             result.ikkeProRata shouldBe true
             result.bruk shouldBe true
@@ -194,8 +184,8 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
                 bruk = null
             )
 
-            result.fom shouldBe fom.toNorwegianDateAtNoon()
-            result.tom shouldBe null
+            result.fomLd shouldBe fom
+            result.tomLd shouldBe null
             result.landEnum shouldBe LandkodeEnum.FIN
         }
     }
@@ -203,15 +193,15 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
     context("trygdetidPeriode med kun land (Date versjon)") {
 
         test("oppretter TTPeriode med angitt land og standardverdier") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
+            val tom = LocalDate.of(2010, 12, 31)
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom, LandkodeEnum.SWE)
 
-            result.fom shouldNotBe null
-            result.fom!!.time shouldBe fom.time
-            result.tom shouldNotBe null
-            result.tom!!.time shouldBe tom.time
+            result.fomLd shouldNotBe null
+            result.fomLd shouldBe fom
+            result.tomLd shouldNotBe null
+            result.tomLd shouldBe tom
             result.poengIInnAr shouldBe false
             result.poengIUtAr shouldBe false
             result.landEnum shouldBe LandkodeEnum.SWE
@@ -219,33 +209,25 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
             result.bruk shouldBe true
         }
 
-        test("kopierer Date-objekter med land") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
-
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom, LandkodeEnum.NOR)
-
-            // Skal være kopier, ikke samme objekt
-            (result.fom === fom) shouldBe false
-            (result.tom === tom) shouldBe false
-        }
-
         test("håndterer null fom og tom med land") {
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(null as Date?, null as Date?, LandkodeEnum.GBR)
+            val result =
+                TrygdetidGrunnlagFactory.trygdetidPeriode(null as LocalDate?, null as LocalDate?, LandkodeEnum.GBR)
 
-            result.fom shouldBe null
-            result.tom shouldBe null
+            result.fomLd shouldBe null
+            result.tomLd shouldBe null
             result.landEnum shouldBe LandkodeEnum.GBR
             result.ikkeProRata shouldBe false
             result.bruk shouldBe true
         }
 
         test("håndterer null land") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
 
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, null as Date?, null as LandkodeEnum?)
-
-            result.landEnum shouldBe null
+            TrygdetidGrunnlagFactory.trygdetidPeriode(
+                fom = fom,
+                tom = null as LocalDate?,
+                land = null as LandkodeEnum?
+            ).landEnum shouldBe null
         }
     }
 
@@ -257,18 +239,19 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
 
             val result = TrygdetidGrunnlagFactory.trygdetidPeriode(fom, tom, LandkodeEnum.DEU)
 
-            result.fom shouldBe fom.toNorwegianDateAtNoon()
-            result.tom shouldBe tom.toNorwegianDateAtNoon()
+            result.fomLd shouldBe fom
+            result.tomLd shouldBe tom
             result.landEnum shouldBe LandkodeEnum.DEU
             result.ikkeProRata shouldBe false
             result.bruk shouldBe true
         }
 
         test("håndterer null fom og tom med land via LocalDate") {
-            val result = TrygdetidGrunnlagFactory.trygdetidPeriode(null as LocalDate?, null as LocalDate?, LandkodeEnum.FRA)
+            val result =
+                TrygdetidGrunnlagFactory.trygdetidPeriode(null as LocalDate?, null as LocalDate?, LandkodeEnum.FRA)
 
-            result.fom shouldBe null
-            result.tom shouldBe null
+            result.fomLd shouldBe null
+            result.tomLd shouldBe null
             result.landEnum shouldBe LandkodeEnum.FRA
         }
     }
@@ -276,15 +259,15 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
     context("anonymSimuleringTrygdetidPeriode med Date") {
 
         test("oppretter TTPeriode med ikkeProRata=true for anonym simulering") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
+            val fom = LocalDate.of(2000, 1, 1)
+            val tom = LocalDate.of(2010, 12, 31)
 
             val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(fom, tom)
 
-            result.fom shouldNotBe null
-            result.fom!!.time shouldBe fom.time
-            result.tom shouldNotBe null
-            result.tom!!.time shouldBe tom.time
+            result.fomLd shouldNotBe null
+            result.fomLd shouldBe fom
+            result.tomLd shouldNotBe null
+            result.tomLd shouldBe tom
             result.poengIInnAr shouldBe false
             result.poengIUtAr shouldBe false
             result.landEnum shouldBe LandkodeEnum.NOR
@@ -292,22 +275,12 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
             result.bruk shouldBe true
         }
 
-        test("kopierer Date-objekter for anonym simulering") {
-            val fom = LocalDate.of(2000, 1, 1).toNorwegianDateAtNoon()
-            val tom = LocalDate.of(2010, 12, 31).toNorwegianDateAtNoon()
-
-            val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(fom, tom)
-
-            // Skal være kopier, ikke samme objekt
-            (result.fom === fom) shouldBe false
-            (result.tom === tom) shouldBe false
-        }
-
         test("håndterer null verdier for anonym simulering") {
-            val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(null as Date?, null as Date?)
+            val result =
+                TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(null as LocalDate?, null as LocalDate?)
 
-            result.fom shouldBe null
-            result.tom shouldBe null
+            result.fomLd shouldBe null
+            result.tomLd shouldBe null
             result.landEnum shouldBe LandkodeEnum.NOR
             result.ikkeProRata shouldBe true
         }
@@ -321,17 +294,18 @@ class TrygdetidGrunnlagFactoryTest : FunSpec({
 
             val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(fom, tom)
 
-            result.fom shouldBe fom.toNorwegianDateAtNoon()
-            result.tom shouldBe tom.toNorwegianDateAtNoon()
+            result.fomLd shouldBe fom
+            result.tomLd shouldBe tom
             result.ikkeProRata shouldBe true
             result.landEnum shouldBe LandkodeEnum.NOR
         }
 
         test("håndterer null verdier via LocalDate for anonym simulering") {
-            val result = TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(null as LocalDate?, null as LocalDate?)
+            val result =
+                TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode(null as LocalDate?, null as LocalDate?)
 
-            result.fom shouldBe null
-            result.tom shouldBe null
+            result.fomLd shouldBe null
+            result.tomLd shouldBe null
             result.ikkeProRata shouldBe true
         }
     }

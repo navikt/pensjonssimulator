@@ -3,10 +3,8 @@ package no.nav.pensjon.simulator.core.endring
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
-import java.util.*
 
 class EndringUttaksgradTest : FunSpec({
 
@@ -24,13 +22,13 @@ class EndringUttaksgradTest : FunSpec({
         uttaksgradListe.size shouldBe 2
         with(uttaksgradListe[0]) {
             uttaksgrad shouldBe 50
-            fomDato shouldBe dateAtNoon(2028, Calendar.FEBRUARY, 1) // foersteUttakDato
-            tomDato shouldBe dateAtNoon(2032, Calendar.MAY, 31) // heltUttakDato minus 1 dag
+            fomDatoLd shouldBe LocalDate.of(2028, 2, 1) // foersteUttakDato
+            tomDatoLd shouldBe LocalDate.of(2032, 5, 31) // heltUttakDato minus 1 dag
         }
         with(uttaksgradListe[1]) {
             uttaksgrad shouldBe 100
-            fomDato shouldBe dateAtNoon(2032, Calendar.JUNE, 1) // heltUttakDato
-            tomDato shouldBe null
+            fomDatoLd shouldBe LocalDate.of(2032, 6, 1) // heltUttakDato
+            tomDatoLd shouldBe null
         }
     }
 })

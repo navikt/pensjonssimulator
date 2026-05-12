@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YrkeEnum
-import java.util.*
+import java.time.LocalDate
 
-// Checked 2025-02-28
+// 2026-04-23
 class Uforegrunnlag {
     /**
      * Uføregrad, 0-100
@@ -13,31 +13,34 @@ class Uforegrunnlag {
     /**
      * Dato for uføretidspunktet.
      */
-    var uft: Date? = null
+    var uftLd: LocalDate? = null
 
     /**
      * Virkningstidspunkt for hendelsen Uforegrunnlaget representerer.
      */
-    var uftVirk: Date? = null
+    var uftVirkLd: LocalDate? = null
 
     /**
      * Inntekt før uførhet.Normalinntekten personen ville hatt på
      * uføretidspunktet dersom personen ikke hadde blitt syk. Settes av saksbehandler.
-     * ifu relaterer seg til første uføretidspunkt. Det er uforegrunnlag.uft ved første gangs UP.
+     * ifu relaterer seg til Første uføretidspunkt. Det er uforegrunnlag.uft ved Første gangs UP.
      * Ellers hentes den fra historikken.
      */
     var ifu = 0
 
     /**
-     * Fødselsår for yngste barn. Når denne variabelen er satt er det underforstått at bruker også har omsorg for dette barnet ved UFT (barnet må altså være under 7 år). Dette har
+     *
+     *
+     * Fødselsår for yngste barn. når denne variabelen er satt er det underforstått at bruker også har omsorg for dette barnet ved UFT (barnet må altså være under 7 år). Dette har
      * konsekvens for for godskriving av FPP (garanti grense på 3.00 i perioden tom barnet fyller 6 år).
+     *
      */
     var fodselsArYngsteBarn = 0
 
     /**
      * Dato for rett til friinntekt.
      */
-    var friinntektsDato: Date? = null
+    var friinntektsDatoLd: LocalDate? = null
 
     /**
      * Om tilfellet er en reaktivisering- f.eks har forsøkt å jobbe, men forsøket feilet.
@@ -45,15 +48,19 @@ class Uforegrunnlag {
     var reaktivisering = false
 
     /**
+     * Dato når reaktivering startet
+     */
+
+    /**
      * Opplysning om at uførepensjonen skal utbetales til arbeidsgiver.
      */
     var lonnstilskudd = false
 
-    /**
-     * Forhøyelse av Uføregrad uten nytt uføretidspunkt.
-     * Brukes i skjermbildet for validering og mulighet til å gi feilmelding
-     * dersom saksbehandler ikke har satt nytt uføretidspunkt.
-     */
+    /*
+       * Forhøyelse av Uføregrad uten nytt uføretidspunkt.
+       * Brukes i skjermbildet for validering og mulighet til å gi feilmelding
+       * dersom saksbehandler ikke har satt nytt uføretidspunkt.
+       */
     var forhoyelseUtenNyttUft = false
 
     /**
@@ -73,21 +80,21 @@ class Uforegrunnlag {
     var unntakVentetid12_12 = false
 
     /**
-     * Kode for yrke til den uføre.
-     * Denne koden brukes til statstikk og for å beregne lovlig inntekt § 12-12
+     * Kode for yrke til den Uføre.
+     * Denne koden brukes til statstikk og for å beregne lovlig inntekt å 12-12
      * for kombinert yrkesaktiv/husmor, kode = 11,12,13 og 18.
      */
     var yrkeEnum: YrkeEnum? = null
 
     /**
-     * Garantert tilleggspensjon til ung ufør født før 1940.
+     * Garantert tilleggspensjon til ung ufør fådt før 1940.
      */
     var garantertTPUngUfor = false
 
-    /**
-     * Alternativt uføretidspunkt ung ufør ved krav før 36 år.
-     */
-    var altUftUngUfor: Date? = null
+    /*
+       * Alternativt uføretidspunkt ung ufør ved krav før 36 år.
+       */
+    var altUftUngUforLd: LocalDate? = null
 
     /**
      * Hele eller deler av uførheten skyldes yrkesskade.
@@ -95,7 +102,7 @@ class Uforegrunnlag {
     var uforhetSkyldesYrkesskade = false
 
     /**
-     * Angir om uføregrunnlaget brukes som grunnlag på kravet.
+     * Angir om Uføregrunnlaget brukes som grunnlag på kravet.
      */
     var bruk: Boolean = true
 
@@ -103,11 +110,11 @@ class Uforegrunnlag {
 
     constructor(source: Uforegrunnlag) : this() {
         ufg = source.ufg
-        uft = source.uft?.clone() as? Date
-        uftVirk = source.uftVirk?.clone() as? Date
+        uftLd = source.uftLd
+        uftVirkLd = source.uftVirkLd
         ifu = source.ifu
         fodselsArYngsteBarn = source.fodselsArYngsteBarn
-        friinntektsDato = source.friinntektsDato?.clone() as? Date
+        friinntektsDatoLd = source.friinntektsDatoLd
         reaktivisering = source.reaktivisering
         lonnstilskudd = source.lonnstilskudd
         forhoyelseUtenNyttUft = source.forhoyelseUtenNyttUft
@@ -116,30 +123,8 @@ class Uforegrunnlag {
         unntakVentetid12_12 = source.unntakVentetid12_12
         yrkeEnum = source.yrkeEnum
         garantertTPUngUfor = source.garantertTPUngUfor
-        altUftUngUfor = source.altUftUngUfor?.clone() as? Date
+        altUftUngUforLd = source.altUftUngUforLd
         uforhetSkyldesYrkesskade = source.uforhetSkyldesYrkesskade
         bruk = source.bruk
-    }
-
-    override fun toString(): String {
-        val TAB = "    "
-        val retValue = StringBuilder()
-
-        retValue.append("Uforegrunnlag ( ").append(super.toString()).append(TAB).append("ufg = ").append(ufg)
-            .append(TAB).append("uft = ").append(uft).append(TAB).append("ifu = ")
-            .append(ifu).append(TAB).append("fodselsArYngsteBarn = ").append(fodselsArYngsteBarn).append(TAB)
-            .append("friinntektsDato = ").append(friinntektsDato).append(TAB)
-            .append("reaktivisering = ").append(reaktivisering).append(TAB).append("lonnstilskudd = ")
-            .append(lonnstilskudd).append(TAB).append("forhoyelseUtenNyttUft = ")
-            .append(forhoyelseUtenNyttUft).append(TAB).append("ungUfor = ").append(ungUfor).append(TAB)
-            .append("arligInntektMinst1g = ").append(arligInntektMinst1g)
-            .append(TAB).append("unntakVentetid12_12 = ").append(unntakVentetid12_12).append(TAB).append("yrke = ")
-            .append(yrkeEnum).append(TAB).append("garantertTPUngUfor = ")
-            .append(garantertTPUngUfor).append(TAB).append("altUftUngUfor = ").append(altUftUngUfor).append(TAB)
-            .append("uforhetSkyldesYrkesskade = ")
-            .append(uforhetSkyldesYrkesskade).append(TAB).append("bruk = ").append(bruk).append(TAB)
-            .append(" )")
-
-        return retValue.toString()
     }
 }

@@ -7,10 +7,10 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
@@ -70,8 +70,8 @@ class SisteBeregningCreator(
         return kravId?.let {
             periodiserGrunnlag(
                 kravhode = kravService.fetchKravhode(it),
-                fom = beregningsresultat.virkFom?.toNorwegianLocalDate(),
-                tom = beregningsresultat.virkTom?.toNorwegianLocalDate()
+                fom = beregningsresultat.virkFomLd,
+                tom = beregningsresultat.virkTomLd
             )
         }
     }
@@ -126,8 +126,8 @@ class SisteBeregningCreator(
                     beregningsresultat = beregningResultat,
                     vilkarsvedtakListe = vedtakListe,
                     regelverk1967VirkToEarly = etterRegulering,
-                    fomDato = if (etterRegulering) null else beregning.virkFom?.toNorwegianLocalDate(),
-                    tomDato = if (etterRegulering) null else beregning.virkTom?.toNorwegianLocalDate(),
+                    fomDato = if (etterRegulering) null else beregning.virkFomLd,
+                    tomDato = if (etterRegulering) null else beregning.virkTomLd,
                     filtrertVilkarsvedtakList = emptyList(),
                     forrigeKravhode = null,
                     regelverkKodePaNyttKrav = null
@@ -135,9 +135,8 @@ class SisteBeregningCreator(
             }
 
             val filtrertVedtakListe: List<VilkarsVedtak> =
-                beregningResultat?.virkFom?.let { filtrerVedtak(it, beregningResultat.virkTom, vedtakListe) }
-                //?: throw ImplementationUnrecoverableException("Missing beregningsresultat.virkFom")
-                    ?: throw RuntimeException("Missing beregningsresultat.virkFom")
+                beregningResultat?.virkFomLd?.let { filtrerVedtak(it, beregningResultat.virkTomLd, vedtakListe) }
+                    ?: throw ImplementationUnrecoverableException("Missing beregningsresultat.virkFom")
 
             return SisteBeregningSpec(
                 isRegelverk1967 = false,
@@ -145,8 +144,8 @@ class SisteBeregningCreator(
                 beregning = beregning,
                 beregningsresultat = beregningResultat,
                 vilkarsvedtakListe = vedtakListe,
-                fomDato = beregningResultat.virkFom?.toNorwegianLocalDate(),
-                tomDato = beregningResultat.virkTom?.toNorwegianLocalDate(),
+                fomDato = beregningResultat.virkFomLd!!,
+                tomDato = beregningResultat.virkTomLd,
                 filtrertVilkarsvedtakList = filtrertVedtakListe,
                 forrigeKravhode = null,
                 regelverkKodePaNyttKrav = null
@@ -155,13 +154,13 @@ class SisteBeregningCreator(
 
         // SimpleBeregningService.filtrerVilkarsvedtak
         // -> FiltrerVilkarsvedtakCommand.execute
-        private fun filtrerVedtak(fom: Date, tom: Date?, vedtakListe: List<VilkarsVedtak>): List<VilkarsVedtak> =
+        private fun filtrerVedtak(fom: LocalDate, tom: LocalDate?, vedtakListe: List<VilkarsVedtak>): List<VilkarsVedtak> =
             vedtakListe.filter {
                 isInnvilget(it.vilkarsvedtakResultatEnum)
                         && isVilkarsprovdOrFerdig(it.kravlinje)
                         && isNorsk(it.kravlinje)
-                        && isVirkFomBeforeDate(it.virkFom, fom)
-                        && isVirkTomAfterDate(it.virkTom, tom)
+                        && isVirkFomBeforeDate(it.virkFomLd, fom)
+                        && isVirkTomAfterDate(it.virkTomLd, tom)
             }
 
         // FiltrerVilkarsvedtakCommand.isVilkarsvedtakInnvilget
@@ -177,11 +176,11 @@ class SisteBeregningCreator(
             LandkodeEnum.NOR == kravlinje?.land
 
         // FiltrerVilkarsvedtakCommand.isVirkFomBeforeFomDate
-        private fun isVirkFomBeforeDate(virkFom: Date?, date: Date): Boolean =
+        private fun isVirkFomBeforeDate(virkFom: LocalDate?, date: LocalDate): Boolean =
             isBeforeByDay(virkFom, date, true)
 
         // FiltrerVilkarsvedtakCommand.isVirkTomAfterTomDate
-        private fun isVirkTomAfterDate(virkTom: Date?, date: Date?): Boolean =
+        private fun isVirkTomAfterDate(virkTom: LocalDate?, date: LocalDate?): Boolean =
             when {
                 virkTom == null && date == null -> true
                 virkTom == null -> true

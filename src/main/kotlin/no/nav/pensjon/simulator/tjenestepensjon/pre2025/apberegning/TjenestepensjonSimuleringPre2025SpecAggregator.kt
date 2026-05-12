@@ -25,7 +25,7 @@ object TjenestepensjonSimuleringPre2025SpecAggregator {
         sisteGyldigeOpptjeningsaar: Int
     ): TjenestepensjonSimuleringPre2025Spec {
         val gjelderOffentligAfp = simuleringSpec.type == SimuleringTypeEnum.AFP_ETTERF_ALDER
-        val foedselsdato: LocalDate = simuleringResultat.foedselDato!! //ikke anonym simulering
+        val foedselsdato: LocalDate = simuleringResultat.registerData?.soekerFoedselsdato!! // ikke anonym simulering
 
         val offentligAfp = aggregate(
             tidsbegrensetOffentligAfp = simuleringResultat.pre2025OffentligAfp,

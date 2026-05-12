@@ -208,7 +208,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             with(result) {
                 suksess shouldBe false
                 problem?.type shouldBe ProblemType.UTILSTREKKELIG_TRYGDETID
-                problem?.beskrivelse shouldBe "Ukjent feil - UtilstrekkeligTrygdetidException"
+                problem?.beskrivelse shouldBe "Utilstrekkelig trygdetid"
             }
         }
     }

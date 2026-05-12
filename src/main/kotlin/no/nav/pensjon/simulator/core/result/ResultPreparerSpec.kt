@@ -18,8 +18,7 @@ data class ResultPreparerSpec(
     val forrigePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat?,
     val pre2025OffentligAfpBeregningResultat: Simuleringsresultat?,
     val livsvarigOffentligAfpBeregningResultatListe: List<LivsvarigOffentligAfpOutput>?,
-    val grunnbeloep: Int,
     val pensjonBeholdningPeriodeListe: List<BeholdningPeriode>,
     val outputSimulertBeregningsInformasjonForAllKnekkpunkter: Boolean,
-    val sisteGyldigeOpptjeningAar: Int
+    val registerData: RegisterData
 )

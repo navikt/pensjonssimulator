@@ -37,10 +37,10 @@ object PenLoependeYtelserResultMapper {
             vilkarsvedtakResultatEnum = source.vilkarsvedtakResultatEnum
             kravlinjeTypeEnum = source.kravlinjeTypeEnum
             anvendtVurderingEnum = source.anvendtVurderingEnum
-            virkFom = source.virkFom
-            virkTom = source.virkTom
-            forsteVirk = source.forsteVirk
-            kravlinjeForsteVirk = source.kravlinjeForsteVirk
+            virkFomLd = source.virkFomLd
+            virkTomLd = source.virkTomLd
+            forsteVirkLd = source.forsteVirkLd
+            kravlinjeForsteVirkLd = source.kravlinjeForsteVirkLd
             kravlinje = source.kravlinje?.let(::kravlinje)
             penPerson = source.penPerson
             vilkarsprovresultat = source.vilkarsprovresultat

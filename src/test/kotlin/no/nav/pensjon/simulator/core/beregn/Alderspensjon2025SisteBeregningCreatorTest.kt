@@ -16,8 +16,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.Brok
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import java.util.*
+import java.time.LocalDate
 
 class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
 
@@ -63,12 +62,12 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
     // --- Tests for virkDato ---
 
     test("createBeregning should set virkDato from beregningsresultat") {
-        val virkFom = dateAtNoon(2025, Calendar.MARCH, 1)
-        createBeregning(virkFom = virkFom).virkDato shouldBe virkFom
+        val virkFom = LocalDate.of(2025, 3, 1)
+        createBeregning(virkFom = virkFom).virkDatoLd shouldBe virkFom
     }
 
     test("createBeregning should handle null virkFom") {
-        createBeregning(virkFom = null).virkDato shouldBe null
+        createBeregning(virkFom = null).virkDatoLd shouldBe null
     }
 
     // --- Tests for benyttetSivilstand ---
@@ -290,7 +289,7 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
     // --- Integration-style tests ---
 
     test("createBeregning should correctly populate all fields from full spec") {
-        val virkFom = dateAtNoon(2025, Calendar.JUNE, 1)
+        val virkFom = LocalDate.of(2025, 6, 1)
         val beholdninger = Beholdninger()
 
         val beregning = createBeregning(
@@ -312,7 +311,7 @@ class Alderspensjon2025SisteBeregningCreatorTest : FunSpec({
 
         with(beregning) {
             regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
-            virkDato shouldBe virkFom
+            virkDatoLd shouldBe virkFom
             benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
             beregningsMetodeEnum shouldBe BeregningsmetodeEnum.FOLKETRYGD
             prorataBrok_kap_20?.teller shouldBe 35
@@ -336,7 +335,7 @@ private fun persondetalj(grunnlagsrolle: GrunnlagsrolleEnum) =
 private fun createBeregning(
     ytelseskomponentListe: MutableList<Ytelseskomponent> = mutableListOf(),
     regelverkType: RegelverkTypeEnum? = RegelverkTypeEnum.N_REG_N_OPPTJ,
-    virkFom: Date? = null,
+    virkFom: LocalDate? = null,
     benyttetSivilstand: BorMedTypeEnum? = null,
     beregningsmetode: BeregningsmetodeEnum? = null,
     prorataBroek: Brok? = null,
@@ -351,7 +350,7 @@ private fun createBeregning(
 ): SisteAldersberegning2011 {
     val spec = SisteBeregningSpec(
         beregningsresultat = BeregningsResultatAlderspensjon2025().apply {
-            this.virkFom = virkFom
+            this.virkFomLd = virkFom
             this.benyttetSivilstandEnum = benyttetSivilstand
 
             if (ytelseskomponentListe.isNotEmpty()) {
@@ -393,9 +392,8 @@ private fun createBeregning(
         regelverk1967VirkToEarly = false
     )
 
-    return Alderspensjon2025SisteBeregningCreator(
-        kravService = mockk()
-    ).createBeregning(spec, beregningResultat = BeregningsResultatAlderspensjon2025())
+    return Alderspensjon2025SisteBeregningCreator(kravService = mockk())
+        .createBeregning(spec, beregningResultat = BeregningsResultatAlderspensjon2025())
 }
 
 private fun kravhodeWithSoeker(sivilstand: SivilstandEnum) =

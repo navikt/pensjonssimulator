@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 
 class SimuleringResultMapperTest : ShouldSpec({
 
@@ -131,5 +133,36 @@ class SimuleringResultMapperTest : ShouldSpec({
             pensjonsgivendeInntektListe = emptyList(),
             problem = null
         )
+    }
+
+    context("problem") {
+        should("map problem, set erInnvilget = false") {
+            SimuleringResultMapper.toDto(
+                source = SimulertPensjonEllerAlternativ(
+                    pensjon = null,
+                    alternativ = null,
+                    problem = Problem(
+                        type = ProblemType.PERSON_IKKE_FUNNET,
+                        beskrivelse = "x"
+                    )
+                )
+            ) shouldBe SimuleringResultDto(
+                alderspensjonListe = emptyList(),
+                alderspensjonMaanedsbeloep = UttaksbeloepDto(gradertUttakBeloep = null, heltUttakBeloep = 0),
+                livsvarigOffentligAfpListe = emptyList(),
+                tidsbegrensetOffentligAfp = null,
+                privatAfpListe = emptyList(),
+                primaerTrygdetid = null,
+                vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(
+                    erInnvilget = false,
+                    alternativ = null
+                ),
+                pensjonsgivendeInntektListe = emptyList(),
+                problem = ProblemDto(
+                    kode = ProblemTypeDto.PERSON_IKKE_FUNNET,
+                    beskrivelse = "x"
+                )
+            )
+        }
     }
 })

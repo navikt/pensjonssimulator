@@ -15,17 +15,12 @@ class SimulatorOutput {
     var alderspensjon: SimulertAlderspensjon? = null
     var pre2025OffentligAfp: Simuleringsresultat? = null
     var livsvarigOffentligAfp: List<LivsvarigOffentligAfpOutput>? = null
-    var sisteGyldigeOpptjeningAar: Int = 0
     var sivilstand: SivilstandEnum = SivilstandEnum.NULL
-    var grunnbeloep: Int = 0
     var epsHarPensjon: Boolean = false
     var epsHarInntektOver2G: Boolean = false
     val privatAfpPeriodeListe: MutableList<PrivatAfpPeriode> = mutableListOf()
     val opptjeningListe: MutableList<SimulertOpptjening> = mutableListOf()
-
-    var foedselDato: LocalDate? = null
     var persongrunnlag: Persongrunnlag? = null
-
     var heltUttakDato: LocalDate? = null
     var registerData: RegisterData? = null
 }

@@ -1,22 +1,21 @@
 package no.nav.pensjon.simulator.core.beregn
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class BehandlingPeriodeUtilTest : FunSpec({
 
     val personDetaljer = mutableListOf(
         PersonDetalj().apply {
             bruk = true
-            virkFom = dateAtNoon(2101, Calendar.JANUARY, 1) // any non-null value will do
+            virkFom = LocalDate.of(2101, 1, 1) // any non-null value will do
             grunnlagsrolleEnum = GrunnlagsrolleEnum.MOR // => usePersongrunnlag = true
         }
     )
@@ -27,22 +26,22 @@ class BehandlingPeriodeUtilTest : FunSpec({
             virkningTom = null,
             originalKravhode = Kravhode().apply {
                 uttaksgradListe = mutableListOf(
-                        Uttaksgrad().apply {
-                            uttaksgrad = 50
-                            fomDato = dateAtNoon(2022, Calendar.JANUARY, 1) // second
-                        },
-                        Uttaksgrad().apply {
-                            uttaksgrad = 20
-                            fomDato = null // first
-                        },
-                        Uttaksgrad().apply {
-                            uttaksgrad = 80
-                            fomDato = dateAtNoon(2023, Calendar.JANUARY, 1) // third
-                        },
-                        Uttaksgrad().apply {
-                            uttaksgrad = 40
-                            fomDato = dateAtNoon(2024, Calendar.JANUARY, 1) // fourth
-                        }
+                    Uttaksgrad().apply {
+                        uttaksgrad = 50
+                        fomDatoLd = LocalDate.of(2022, 1, 1) // second
+                    },
+                    Uttaksgrad().apply {
+                        uttaksgrad = 20
+                        fomDatoLd = null // first
+                    },
+                    Uttaksgrad().apply {
+                        uttaksgrad = 80
+                        fomDatoLd = LocalDate.of(2023, 1, 1) // third
+                    },
+                    Uttaksgrad().apply {
+                        uttaksgrad = 40
+                        fomDatoLd = LocalDate.of(2024, 1, 1) // fourth
+                    }
                 )
             },
             periodiserFomTomDatoUtenUnntak = false,
@@ -67,12 +66,12 @@ class BehandlingPeriodeUtilTest : FunSpec({
                         personDetaljListe = personDetaljer
                         trygdetider = mutableListOf(
                             Trygdetid().apply {
-                                virkFom = dateAtNoon(2023, Calendar.JANUARY, 1)
-                                virkTom = dateAtNoon(2024, Calendar.JANUARY, 1) // covering
+                                virkFomLd = LocalDate.of(2023, 1, 1)
+                                virkTomLd = LocalDate.of(2024, 1, 1) // covering
                             },
                             Trygdetid().apply {
-                                virkFom = dateAtNoon(2024, Calendar.JANUARY, 2)
-                                virkTom = dateAtNoon(2024, Calendar.DECEMBER, 31)
+                                virkFomLd = LocalDate.of(2024, 1, 2)
+                                virkTomLd = LocalDate.of(2024, 12, 31)
                             }
                         )
                     }
@@ -82,9 +81,7 @@ class BehandlingPeriodeUtilTest : FunSpec({
             sakType = null // sakType has no effect
         )
 
-        with(kravhode.persongrunnlagListe[0]) {
-            trygdetider.size shouldBe 1
-        }
+        kravhode.persongrunnlagListe[0].trygdetider shouldHaveSize 1
     }
 
     /**
@@ -105,44 +102,44 @@ class BehandlingPeriodeUtilTest : FunSpec({
                         personDetaljListe = personDetaljer
                         utenlandsoppholdListe = mutableListOf(
                             Utenlandsopphold().apply {
-                                fom = dateAtNoon(2023, Calendar.JANUARY, 1)
-                                tom = dateAtNoon(2023, Calendar.DECEMBER, 31)
+                                fomLd = LocalDate.of(2023, 1, 1)
+                                tomLd = LocalDate.of(2023, 12, 31)
                             },
                             Utenlandsopphold().apply {
-                                fom = dateAtNoon(2024, Calendar.JANUARY, 1) // overlap
-                                tom = dateAtNoon(2024, Calendar.JANUARY, 1)
+                                fomLd = LocalDate.of(2024, 1, 1) // overlap
+                                tomLd = LocalDate.of(2024, 1, 1)
                             }
                         )
                         instOpphFasteUtgifterperiodeListe = mutableListOf(
                             InstOpphFasteUtgifterperiode().apply {
-                                fom = dateAtNoon(2020, Calendar.JANUARY, 1) // overlap
-                                tom = dateAtNoon(2029, Calendar.DECEMBER, 31)
+                                fomLd = LocalDate.of(2020, 1, 1) // overlap
+                                tomLd = LocalDate.of(2029, 12, 31)
                             },
                             InstOpphFasteUtgifterperiode().apply {
-                                fom = dateAtNoon(2026, Calendar.JANUARY, 1)
-                                tom = dateAtNoon(2026, Calendar.DECEMBER, 31)
+                                fomLd = LocalDate.of(2026, 1, 1)
+                                tomLd = LocalDate.of(2026, 12, 31)
                             }
                         )
                         barnetilleggVurderingsperioder = mutableListOf(
                             BarnetilleggVurderingsperiode().apply {
-                                fomDato = dateAtNoon(2027, Calendar.JANUARY, 2)
-                                tomDato = dateAtNoon(2027, Calendar.DECEMBER, 31)
+                                fomDatoLd = LocalDate.of(2027, 1, 2)
+                                tomDatoLd = LocalDate.of(2027, 12, 31)
                             },
                             BarnetilleggVurderingsperiode().apply {
-                                fomDato = dateAtNoon(2025, Calendar.JANUARY, 1) // overlap
-                                tomDato = dateAtNoon(2025, Calendar.DECEMBER, 31)
+                                fomDatoLd = LocalDate.of(2025, 1, 1) // overlap
+                                tomDatoLd = LocalDate.of(2025, 12, 31)
                             }
                         )
                         beholdninger = mutableListOf(
                             Pensjonsbeholdning().apply {
                                 beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
-                                fom = dateAtNoon(2024, Calendar.JANUARY, 1) // overlap
-                                tom = dateAtNoon(2025, Calendar.JANUARY, 1)
+                                fomLd = LocalDate.of(2024, 1, 1) // overlap
+                                tomLd = LocalDate.of(2025, 1, 1)
                             },
                             Pensjonsbeholdning().apply {
                                 beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
-                                fom = dateAtNoon(2028, Calendar.JANUARY, 1)
-                                tom = dateAtNoon(2028, Calendar.DECEMBER, 31)
+                                fomLd = LocalDate.of(2028, 1, 1)
+                                tomLd = LocalDate.of(2028, 12, 31)
                             }
                         )
                     }

@@ -28,7 +28,7 @@ class Alderspensjon2025SisteBeregningCreator(kravService: KravService) : SisteBe
         source: BeregningsResultatAlderspensjon2025,
         sink: SisteAldersberegning2011
     ) {
-        source.virkFom?.let { sink.virkDato = it }
+        source.virkFomLd?.let { sink.virkDatoLd = it }
         source.benyttetSivilstandEnum?.let { sink.benyttetSivilstandEnum = it }
         source.pensjonUnderUtbetaling?.let { sink.pensjonUnderUtbetaling = utenIrrelevanteYtelseskomponenter(it) }
 

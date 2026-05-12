@@ -25,7 +25,7 @@ object SimuleringResultMapper {
             tidsbegrensetOffentligAfp = pensjon?.pre2025OffentligAfp?.let(::tidsbegrensetOffentligAfp),
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
             primaerTrygdetid = pensjon?.primaerTrygdetid?.let(::trygdetid),
-            vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ),
+            vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
             pensjonsgivendeInntektListe = pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag),
             problem = source?.problem?.let(::problem)
         )
@@ -161,10 +161,10 @@ object SimuleringResultMapper {
             erUtilstrekkelig = source.erTilstrekkelig.not()
         )
 
-    private fun vilkaarsproevingsresultat(source: SimulertAlternativ?) =
+    private fun vilkaarsproevingsresultat(alternativ: SimulertAlternativ?, problem: Problem?) =
         VilkaarsproevingsresultatDto(
-            erInnvilget = source == null,
-            alternativ = source?.let(::alternativ)
+            erInnvilget = alternativ == null && problem == null,
+            alternativ = alternativ?.let(::alternativ)
         )
 
     private fun opptjeningGrunnlag(source: OpptjeningGrunnlag) =

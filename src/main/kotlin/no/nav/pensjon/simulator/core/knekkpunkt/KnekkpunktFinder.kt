@@ -45,7 +45,7 @@ class KnekkpunktFinder(
         var knekkpunktMap: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>> = TreeMap()
 
         val normalderDato: LocalDate =
-            normalderService.normalderDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate())
+            normalderService.normalderDato(soekerGrunnlag.fodselsdatoLd!!)
 
         // STEP 1 - Calculate forsteBerDato
         val foersteBeregningDato =
@@ -181,9 +181,9 @@ class KnekkpunktFinder(
 
         val sisteRelevanteAar =
             if (gjelderSoeker)
-                yearUserTurnsGivenAge(persongrunnlag.fodselsdato!!, MAX_RELEVANTE_TRYGDETID_ALDER)
+                yearUserTurnsGivenAge(persongrunnlag.fodselsdatoLd!!, MAX_RELEVANTE_TRYGDETID_ALDER)
             else
-                persongrunnlag.dodsdato!!.toNorwegianLocalDate().plusYears( ANTALL_RELEVANTE_AAR_ETTER_DOED.toLong()).year
+                persongrunnlag.dodsdatoLd!!.plusYears( ANTALL_RELEVANTE_AAR_ETTER_DOED.toLong()).year
 
         addKnekkpunkt(knekkpunktMap, foersteBeregningDato, aarsak)
         val forrigeTrygdetid = fastsettTrygdetid(aarsak, kravhode, foersteBeregningDato, foersteVirkning, sakId)
@@ -307,7 +307,7 @@ class KnekkpunktFinder(
             for (uttaksgrad in uttaksgradListe) {
                 addKnekkpunkt(
                     knekkpunktMap,
-                    knekkpunktDato = uttaksgrad.fomDato!!.toNorwegianLocalDate(),
+                    knekkpunktDato = uttaksgrad.fomDatoLd!!,
                     aarsak = KnekkpunktAarsak.UTG
                 )
             }

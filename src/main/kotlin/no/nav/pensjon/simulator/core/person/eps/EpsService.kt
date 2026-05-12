@@ -7,15 +7,13 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
-import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.erEps
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -41,7 +39,11 @@ class EpsService(
     // OpprettKravHodeHelper.opprettPersongrunnlagForEPS
     fun addPersongrunnlagForEpsToKravhode(spec: SimuleringSpec, kravhode: Kravhode, grunnbeloep: Int) {
         if (gjelderGjenlevenderett(spec.type)) {
-            kravhode.persongrunnlagListe.add(gjenlevenderettPersongrunnlag(spec.avdoed, spec.pid, kravhode))
+            spec.avdoed?.let {
+                kravhode.persongrunnlagListe.add(
+                    gjenlevenderettPersongrunnlag(avdoed = it, soekerPid = spec.pid, kravhode)
+                )
+            } ?: throw BadSpecException("Gjenlevenderett: Informasjon om den avdøde må spesifiseres")
         } else if (erEps(spec.sivilstatus)) {
             kravhode.persongrunnlagListe.add(persongrunnlagBasedOnSivilstatus(spec, grunnbeloep))
         }
@@ -69,10 +71,10 @@ class EpsService(
     }
 
     // OpprettKravHodeHelper.createPersongrunnlagInCaseOfGjenlevenderett
-    private fun gjenlevenderettPersongrunnlag(avdoed: Avdoed?, soekerPid: Pid?, kravhode: Kravhode): Persongrunnlag {
+    private fun gjenlevenderettPersongrunnlag(avdoed: Avdoed, soekerPid: Pid?, kravhode: Kravhode): Persongrunnlag {
         // Del 1
-        val avdoedPerson = avdoed?.pid?.let(pensjonPersonService::person)
-            ?: throw BadSpecException("Gjenlevenderett: Avdød person med PID ${avdoed?.pid} ikke funnet")
+        val avdoedPerson = pensjonPersonService.person(avdoed.pid)
+            ?: throw BadSpecException("Gjenlevenderett: Avdød med person-ID ${avdoed.pid} ikke funnet")
 
         val persongrunnlag: Persongrunnlag =
             persongrunnlagMapper.avdoedPersongrunnlag(avdoed, avdoedPerson, soekerPid).apply {
@@ -90,20 +92,19 @@ class EpsService(
         filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlag)
 
         // Del 3.1
-        val inntekt = Inntekt(
+        val inntekt = AarligInntekt(
             inntektAar = time.today().year - 1,
-            beloep = avdoed.inntektFoerDoed.toLong(),
-            inntektType = null
+            beloep = avdoed.inntektFoerDoed
         )
 
-        val epsInntektListe: MutableList<Inntekt> = mutableListOf(inntekt)
+        val epsInntektListe: MutableList<AarligInntekt> = mutableListOf(inntekt)
 
         // Del 3.2
         persongrunnlag.opptjeningsgrunnlagListe =
             opptjeningUpdater.oppdaterOpptjeningsgrunnlagFraInntekter(
                 originalGrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
                 inntektListe = epsInntektListe,
-                foedselsdato = persongrunnlag.fodselsdato?.toNorwegianLocalDate()
+                foedselsdato = persongrunnlag.fodselsdatoLd
             )
 
         return persongrunnlag
@@ -127,8 +128,8 @@ class EpsService(
         private fun epsInntektGrunnlag(grunnbeloep: Int, foersteUttakAar: Int) =
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
-                fom = foersteDag(foersteUttakAar).toNorwegianDateAtNoon() // noon: ref. GrunnlagToReglerMapper.mapToInntektsgrunnlag in PEN
-                tom = null
+                fomLd = foersteDag(foersteUttakAar)
+                tomLd = null
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 inntektTypeEnum = InntekttypeEnum.FPI
                 bruk = true

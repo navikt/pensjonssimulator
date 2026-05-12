@@ -5,16 +5,17 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpGrunnlagService
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdninger
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -24,12 +25,11 @@ import no.nav.pensjon.simulator.core.knekkpunkt.KnekkpunktAarsak
 import no.nav.pensjon.simulator.core.krav.KravGjelder
 import no.nav.pensjon.simulator.core.vilkaar.Vilkaarsproever
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregnerProxy
 import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
 import java.time.LocalDate
-import java.util.*
+import java.util.SortedMap
 
 class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
 
@@ -383,7 +383,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
 
         // The result from first iteration should have virkTom set to day before second knekkpunkt
         // virkTom is set on forrigeAlderspensjonBeregningResultat (line 89) which is the result from previous iteration
-        firstIterationResult.virkTom shouldNotBe null
+        firstIterationResult.virkTomLd shouldNotBe null
     }
 
     // ===========================================
@@ -685,7 +685,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
         }
 
         val beregningsresultat2025 = BeregningsResultatAlderspensjon2025().apply {
-            virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
+            virkFomLd = LocalDate.of(2025, 1, 1)
             beregningKapittel20 = AldersberegningKapittel20().apply {
                 beholdningerForForsteuttak = beholdninger
             }
@@ -752,7 +752,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
         }
 
         val beregningsresultat2016 = BeregningsResultatAlderspensjon2016().apply {
-            virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
+            virkFomLd = LocalDate.of(2025, 1, 1)
             beregningsResultat2025 = BeregningsResultatAlderspensjon2025().apply {
                 beregningKapittel20 = AldersberegningKapittel20().apply {
                     beholdningerForForsteuttak = beholdninger
@@ -844,7 +844,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
     }
 
     test("vilkaarsproevOgBeregnAlder should not add pensjonsbeholdning perioder when regelverkType is not new opptjening") {
-        // Using N_REG_G_OPPTJ which is NOT in the list of allowed types (N_REG_N_OPPTJ, N_REG_G_N_OPPTJ)
+        // Using N_REG_G_OPPTJ, which is NOT in the list of allowed types (N_REG_N_OPPTJ, N_REG_G_N_OPPTJ)
         val kravhode = createKravhodeWithSoker() // Uses N_REG_G_OPPTJ
         val vedtakListe = mutableListOf<VilkarsVedtak>()
 
@@ -894,7 +894,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
             regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
             persongrunnlagListe = mutableListOf(
                 Persongrunnlag().apply {
-                    fodselsdato = dateAtNoon(1960, Calendar.JANUARY, 1)
+                    fodselsdatoLd = LocalDate.of(1960, 1, 1)
                     penPerson = PenPerson().apply { penPersonId = 1L }
                     personDetaljListe = mutableListOf(
                         PersonDetalj().apply {
@@ -1023,13 +1023,13 @@ private fun createKravhodeWithSoker(): Kravhode {
 
 private fun createPersongrunnlag(rolle: GrunnlagsrolleEnum): Persongrunnlag =
     Persongrunnlag().apply {
-        fodselsdato = dateAtNoon(1960, Calendar.JANUARY, 1)
+        fodselsdatoLd = LocalDate.of(1960, 1, 1)
         penPerson = PenPerson().apply { penPersonId = 1L }
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = rolle
-                virkFom = dateAtNoon(2020, Calendar.JANUARY, 1)
+                virkFom = LocalDate.of(2020, 1, 1)
             }
         )
     }

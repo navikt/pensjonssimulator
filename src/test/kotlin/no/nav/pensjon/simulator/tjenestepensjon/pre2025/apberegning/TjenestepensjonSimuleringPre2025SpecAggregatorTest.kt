@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
@@ -26,7 +27,7 @@ import java.time.LocalDate
 class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
 
     "Offentlig AFP etterfulgt av alderpensjon blir aggregert til spec" {
-        val simResultat = mockSimulatorOutput(afpEtterfAvAlder = true)
+        val simResultat = mockSimulatorOutput(erOffentligAnsatt = true)
         val spec: SimuleringSpec = mockSimuleringSpec()
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
 
@@ -71,7 +72,7 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
     }
 
     "Privat AFP blir aggregert til spec" {
-        val simResultat = mockSimulatorOutput(afpEtterfAvAlder = false)
+        val simResultat = mockSimulatorOutput(erOffentligAnsatt = false)
         val spec: SimuleringSpec =
             mockSimuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, helt = LocalDate.of(2029, 11, 1))
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
@@ -152,61 +153,65 @@ private fun mockSimuleringSpec(
     registerData = null
 )
 
-private fun mockSimulatorOutput(
-    afpEtterfAvAlder: Boolean,
-) = SimulatorOutput().apply {
-    foedselDato = LocalDate.of(1962, 10, 2)
-    alderspensjon = SimulertAlderspensjon().apply {
-        pensjonBeholdningListe = listOf(
-            BeholdningPeriode(
-                datoFom = LocalDate.of(2020, 1, 1),
-                pensjonsbeholdning = 1.0,
-                garantipensjonsbeholdning = 2.0,
-                garantitilleggsbeholdning = 3.0,
-                garantipensjonsniva = GarantipensjonNivaa(
-                    beloep = 4.0,
-                    satsType = "ORDINAER",
-                    sats = 5.0,
-                    anvendtTrygdetid = 6
+private fun mockSimulatorOutput(erOffentligAnsatt: Boolean) =
+    SimulatorOutput().apply {
+        alderspensjon = SimulertAlderspensjon().apply {
+            pensjonBeholdningListe = listOf(
+                BeholdningPeriode(
+                    datoFom = LocalDate.of(2020, 1, 1),
+                    pensjonsbeholdning = 1.0,
+                    garantipensjonsbeholdning = 2.0,
+                    garantitilleggsbeholdning = 3.0,
+                    garantipensjonsniva = GarantipensjonNivaa(
+                        beloep = 4.0,
+                        satsType = "ORDINAER",
+                        sats = 5.0,
+                        anvendtTrygdetid = 6
+                    )
                 )
             )
-        )
-        simulertBeregningInformasjonListe = listOf(
-            SimulertBeregningInformasjon().apply {
-                datoFom = LocalDate.of(2029, 11, 1)
-                tt_anv_kap19 = 6
-                aarligBeloep = 7
-                maanedligBeloep = 8
-                basisGrunnpensjon = 10.0
-                basisPensjonstillegg = 11.0
-                basisTilleggspensjon = 12.0
-                tt_anv_kap20 = 13
-                pa_f92 = 14
-                pa_e91 = 15
-                ufoereGrad = 16
-                delingstall = 17.0
-                forholdstall = 18.0
-                spt = 19.0
-            }
-        )
-        pre2025OffentligAfp = if (afpEtterfAvAlder) Simuleringsresultat().apply {
-            beregning = Beregning().apply { brutto = 9 }
-        } else null
+            simulertBeregningInformasjonListe = listOf(
+                SimulertBeregningInformasjon().apply {
+                    datoFom = LocalDate.of(2029, 11, 1)
+                    tt_anv_kap19 = 6
+                    aarligBeloep = 7
+                    maanedligBeloep = 8
+                    basisGrunnpensjon = 10.0
+                    basisPensjonstillegg = 11.0
+                    basisTilleggspensjon = 12.0
+                    tt_anv_kap20 = 13
+                    pa_f92 = 14
+                    pa_e91 = 15
+                    ufoereGrad = 16
+                    delingstall = 17.0
+                    forholdstall = 18.0
+                    spt = 19.0
+                }
+            )
 
-        if (!afpEtterfAvAlder) {
-            privatAfpPeriodeListe.add(
-                PrivatAfpPeriode(
-                    afpOpptjening = 20,
-                    alderAar = 62,
-                    aarligBeloep = 21,
-                    maanedligBeloep = 22,
-                    livsvarig = 23,
-                    kronetillegg = 24,
-                    kompensasjonstillegg = 25,
-                    afpForholdstall = 26.0,
-                    justeringBeloep = 27
+            if (erOffentligAnsatt) {
+                pre2025OffentligAfp = Simuleringsresultat().apply {
+                    beregning = Beregning().apply { brutto = 9 }
+                }
+            } else {
+                pre2025OffentligAfp = null
+                privatAfpPeriodeListe.add(
+                    PrivatAfpPeriode(
+                        afpOpptjening = 20,
+                        alderAar = 62,
+                        aarligBeloep = 21,
+                        maanedligBeloep = 22,
+                        livsvarig = 23,
+                        kronetillegg = 24,
+                        kompensasjonstillegg = 25,
+                        afpForholdstall = 26.0,
+                        justeringBeloep = 27
+                    )
                 )
+            }
+
+            registerData = RegisterData(
+                soekerFoedselsdato = LocalDate.of(1962, 10, 2)
             )
         }
     }
-}

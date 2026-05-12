@@ -55,7 +55,7 @@ class Alderspensjon2016SisteBeregningCreator(kravService: KravService) : SisteBe
             sink.resultatTypeEnum = beregningKapittel19?.resultatTypeEnum ?: it.resultatTypeEnum
         }
 
-        sink.virkDato = source.virkFom
+        sink.virkDatoLd = source.virkFomLd
 
         resultat2011?.pensjonUnderUtbetalingUtenGJR?.let {
             sink.pensjonUnderUtbetaling2011UtenGJR = utenIrrelevanteYtelseskomponenter(it)

@@ -6,9 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.result.*
-import no.nav.pensjon.simulator.core.util.toNorwegianDate
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.core.util.toNorwegianNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.util.concurrent.atomic.AtomicLong
 
 /**
@@ -23,7 +21,7 @@ object NavSimuleringResultMapperV2 {
             afpPrivat = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
             afpOffentlig = source.pre2025OffentligAfp?.let(::simuleringResultat),
             opptjeningListe = source.opptjeningListe.map(::opptjening),
-            grunnbelop = source.grunnbeloep,
+            grunnbelop = source.registerData?.grunnbeloep,
             sivilstand = source.sivilstand,
             epsPensjon = source.epsHarPensjon,
             eps2G = source.epsHarInntektOver2G
@@ -64,7 +62,7 @@ object NavSimuleringResultMapperV2 {
 
         return SimuleringResultatV2(
             status = source.statusEnum,
-            virk = source.virk?.toNorwegianNoon(),
+            virk = source.virkLd?.toNorwegianDateAtNoon(),
             beregning = source.beregning?.let(::beregning),
             delberegninger = beregningerPerId,
             merknader = source.merknadListe.map(::merknad)
@@ -132,8 +130,8 @@ object NavSimuleringResultMapperV2 {
     private fun beregning(source: Beregning) =
         NavBeregningResultV2(
             merknadliste = source.merknadListe.map(::merknad),
-            virkDatoFom = source.virkFom?.toNorwegianLocalDate(),
-            virkDatoTom = source.virkTom?.toNorwegianLocalDate(),
+            virkDatoFom = source.virkFomLd,
+            virkDatoTom = source.virkTomLd,
             brutto = source.brutto,
             netto = source.netto,
             g = source.g,
@@ -249,8 +247,8 @@ object NavSimuleringResultMapperV2 {
 
     private fun uttaksgrad(source: Uttaksgrad) =
         UttakGradV2(
-            fomDato = source.fomDato?.toNorwegianDate(),
-            tomDato = source.tomDato?.toNorwegianDate(),
+            fomDato = source.fomDatoLd?.toNorwegianDateAtNoon(),
+            tomDato = source.tomDatoLd?.toNorwegianDateAtNoon(),
             uttaksgrad = source.uttaksgrad
             // Not used in PSELV:
             // uttaksgradId

@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.krav.KravService
 
 // AbstraktOpprettSisteAldersberegning, OpprettSisteAldersberegningCommon, OpprettSisteBeregningCommand
@@ -114,7 +113,7 @@ abstract class SisteBeregningCreatorBase(private val kravService: KravService) {
         val periodisertKravhode: Kravhode? =
             kravhode?.let {
                 periodiserGrunnlag(
-                    virkningFom = beregningResultat.virkFom?.toNorwegianLocalDate(),
+                    virkningFom = beregningResultat.virkFomLd,
                     virkningTom = null,
                     originalKravhode = it,
                     periodiserFomTomDatoUtenUnntak = true,

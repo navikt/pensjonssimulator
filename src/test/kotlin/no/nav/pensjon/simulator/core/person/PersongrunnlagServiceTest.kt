@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -12,7 +11,6 @@ import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
 import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
@@ -203,8 +201,10 @@ class PersongrunnlagServiceTest : FunSpec({
             hentBeholdninger = true
         )
 
-        persongrunnlag.beholdninger shouldHaveSize 1
-        (persongrunnlag.beholdninger[0] as Pensjonsbeholdning).totalbelop shouldBe 500000.0
+        with(persongrunnlag) {
+            beholdninger shouldHaveSize 1
+            beholdninger[0].totalbelop shouldBe 500000.0
+        }
     }
 
     test("addBeholdningerMedGrunnlagToPersongrunnlag should not add beholdninger when hentBeholdninger=false") {

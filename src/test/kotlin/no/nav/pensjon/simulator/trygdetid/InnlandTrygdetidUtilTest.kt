@@ -4,8 +4,6 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.testutil.TestDateUtil.atNoon
 import java.time.LocalDate
 
 class InnlandTrygdetidUtilTest : ShouldSpec({
@@ -18,8 +16,8 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.LTU
-                                fom = atNoon(1963, 1, 3)
-                                tom = atNoon(2027, 5, 1) // closed
+                                fomLd = LocalDate.of(1963, 1, 3)
+                                tomLd = LocalDate.of(2027, 5, 1) // closed
                             },
                             arbeidet = false
                         )
@@ -30,14 +28,14 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
             grunnlagListe.size shouldBe 2
             with(grunnlagListe[0]) {
                 periode.landEnum shouldBe LandkodeEnum.LTU
-                periode.fom shouldBe atNoon(1963, 1, 3)
-                periode.tom shouldBe atNoon(2027, 5, 1)
+                periode.fomLd shouldBe LocalDate.of(1963, 1, 3)
+                periode.tomLd shouldBe LocalDate.of(2027, 5, 1)
                 arbeidet shouldBe false
             }
             with(grunnlagListe[1]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe atNoon(2027, 5, 2)
-                periode.tom shouldBe null
+                periode.fomLd shouldBe LocalDate.of(2027, 5, 2)
+                periode.tomLd shouldBe null
                 arbeidet shouldBe true
             }
         }
@@ -51,8 +49,8 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.LTU
-                                fom = atNoon(1971, 1, 1)
-                                tom = null // open
+                                fomLd = LocalDate.of(1971, 1, 1)
+                                tomLd = null // open
                             },
                             arbeidet = false
                         )
@@ -63,14 +61,14 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
             grunnlagListe.size shouldBe 2
             with(grunnlagListe[0]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe atNoon(1963, 2, 15)
-                periode.tom shouldBe atNoon(1970, 12, 31)
+                periode.fomLd shouldBe LocalDate.of(1963, 2, 15)
+                periode.tomLd shouldBe LocalDate.of(1970, 12, 31)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[1]) {
                 periode.landEnum shouldBe LandkodeEnum.LTU
-                periode.fom shouldBe atNoon(1971, 1, 1)
-                periode.tom shouldBe null
+                periode.fomLd shouldBe LocalDate.of(1971, 1, 1)
+                periode.tomLd shouldBe null
                 arbeidet shouldBe false
             }
         }
@@ -84,16 +82,16 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.FRA
-                                fom = atNoon(2024, 9, 4)
-                                tom = null // open
+                                fomLd = LocalDate.of(2024, 9, 4)
+                                tomLd = null // open
                             },
                             arbeidet = false
                         ),
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.FRA
-                                fom = atNoon(2024, 6, 4) // before item above => unsorted
-                                tom = null // open
+                                fomLd = LocalDate.of(2024, 6, 4) // before item above => unsorted
+                                tomLd = null // open
                             },
                             arbeidet = true
                         )
@@ -104,20 +102,20 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
             grunnlagListe.size shouldBe 3
             with(grunnlagListe[0]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe atNoon(1963, 2, 15)
-                periode.tom shouldBe atNoon(2024, 6, 3)
+                periode.fomLd shouldBe LocalDate.of(1963, 2, 15)
+                periode.tomLd shouldBe LocalDate.of(2024, 6, 3)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[1]) {
                 periode.landEnum shouldBe LandkodeEnum.FRA
-                periode.fom shouldBe atNoon(2024, 6, 4)
-                periode.tom shouldBe null
+                periode.fomLd shouldBe LocalDate.of(2024, 6, 4)
+                periode.tomLd shouldBe null
                 arbeidet shouldBe true
             }
             with(grunnlagListe[2]) {
                 periode.landEnum shouldBe LandkodeEnum.FRA
-                periode.fom shouldBe atNoon(2024, 9, 4)
-                periode.tom shouldBe null
+                periode.fomLd shouldBe LocalDate.of(2024, 9, 4)
+                periode.tomLd shouldBe null
                 arbeidet shouldBe false
             }
         }
@@ -129,8 +127,8 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.FRA
-                                fom = atNoon(2024, 6, 4)
-                                tom = atNoon(2024, 6, 30)
+                                fomLd = LocalDate.of(2024, 6, 4)
+                                tomLd = LocalDate.of(2024, 6, 30)
                             },
                             arbeidet = true
                         ),
@@ -138,8 +136,8 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.FRA
-                                fom = atNoon(2024, 9, 4)
-                                tom = null
+                                fomLd = LocalDate.of(2024, 9, 4)
+                                tomLd = null
                             },
                             arbeidet = false
                         )
@@ -150,26 +148,26 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
             grunnlagListe.size shouldBe 4
             with(grunnlagListe[0]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe atNoon(1963, 2, 15)
-                periode.tom shouldBe atNoon(2024, 6, 3)
+                periode.fomLd shouldBe LocalDate.of(1963, 2, 15)
+                periode.tomLd shouldBe LocalDate.of(2024, 6, 3)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[1]) {
                 periode.landEnum shouldBe LandkodeEnum.FRA
-                periode.fom shouldBe atNoon(2024, 6, 4)
-                periode.tom shouldBe atNoon(2024, 6, 30)
+                periode.fomLd shouldBe LocalDate.of(2024, 6, 4)
+                periode.tomLd shouldBe LocalDate.of(2024, 6, 30)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[2]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe atNoon(2024, 7, 1)
-                periode.tom shouldBe atNoon(2024, 9, 3)
+                periode.fomLd shouldBe LocalDate.of(2024, 7, 1)
+                periode.tomLd shouldBe LocalDate.of(2024, 9, 3)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[3]) {
                 periode.landEnum shouldBe LandkodeEnum.FRA
-                periode.fom shouldBe atNoon(2024, 9, 4)
-                periode.tom shouldBe null
+                periode.fomLd shouldBe LocalDate.of(2024, 9, 4)
+                periode.tomLd shouldBe null
                 arbeidet shouldBe false
             }
         }
@@ -181,16 +179,16 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.DZA
-                                fom = LocalDate.of(2026, 4, 27).toNorwegianDateAtNoon()
-                                tom = LocalDate.of(2026, 4, 30).toNorwegianDateAtNoon()
+                                fomLd = LocalDate.of(2026, 4, 27)
+                                tomLd = LocalDate.of(2026, 4, 30)
                             },
                             arbeidet = true
                         ),
                         TrygdetidOpphold(
                             periode = TTPeriode().apply {
                                 landEnum = LandkodeEnum.AND
-                                fom = LocalDate.of(2026, 4, 30).toNorwegianDateAtNoon()
-                                tom = LocalDate.of(2026, 4, 30).toNorwegianDateAtNoon()
+                                fomLd = LocalDate.of(2026, 4, 30)
+                                tomLd = LocalDate.of(2026, 4, 30)
                             },
                             arbeidet = false
                         )
@@ -201,26 +199,26 @@ class InnlandTrygdetidUtilTest : ShouldSpec({
             grunnlagListe.size shouldBe 4
             with(grunnlagListe[0]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe LocalDate.of(1963, 2, 15).toNorwegianDateAtNoon()
-                periode.tom shouldBe LocalDate.of(2026, 4, 26).toNorwegianDateAtNoon()
+                periode.fomLd shouldBe LocalDate.of(1963, 2, 15)
+                periode.tomLd shouldBe LocalDate.of(2026, 4, 26)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[1]) {
                 periode.landEnum shouldBe LandkodeEnum.DZA
-                periode.fom shouldBe LocalDate.of(2026, 4, 27).toNorwegianDateAtNoon()
-                periode.tom shouldBe LocalDate.of(2026, 4, 30).toNorwegianDateAtNoon()
+                periode.fomLd shouldBe LocalDate.of(2026, 4, 27)
+                periode.tomLd shouldBe LocalDate.of(2026, 4, 30)
                 arbeidet shouldBe true
             }
             with(grunnlagListe[2]) {
                 periode.landEnum shouldBe LandkodeEnum.AND
-                periode.fom shouldBe LocalDate.of(2026, 4, 30).toNorwegianDateAtNoon()
-                periode.tom shouldBe LocalDate.of(2026, 4, 30).toNorwegianDateAtNoon()
+                periode.fomLd shouldBe LocalDate.of(2026, 4, 30)
+                periode.tomLd shouldBe LocalDate.of(2026, 4, 30)
                 arbeidet shouldBe false
             }
             with(grunnlagListe[3]) {
                 periode.landEnum shouldBe LandkodeEnum.NOR
-                periode.fom shouldBe LocalDate.of(2026, 5, 1).toNorwegianDateAtNoon()
-                periode.tom shouldBe null
+                periode.fomLd shouldBe LocalDate.of(2026, 5, 1)
+                periode.tomLd shouldBe null
                 arbeidet shouldBe true
             }
         }

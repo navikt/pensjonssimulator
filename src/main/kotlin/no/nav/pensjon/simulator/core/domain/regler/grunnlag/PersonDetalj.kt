@@ -8,14 +8,11 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonth
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByMonth
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
+import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonth
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.person.relasjon.Soesken
-import java.util.*
+import java.time.LocalDate
 
 /**
  * PersonDetalj inneholder persondetaljer som er relevante for fastsettelse av vedtak i Pensjonsløsningen,
@@ -23,7 +20,6 @@ import java.util.*
  * sivilstand og barn for en definert periode.
  */
 open class PersonDetalj {
-
     /**
      * Rollen denne personen har i kontekst av kravet.
      */
@@ -32,17 +28,17 @@ open class PersonDetalj {
     /**
      * Fra-og-med dato for rollens gyldighet.
      */
-    var rolleFomDato: Date? = null
+    var rolleFomDatoLd: LocalDate? = null
 
     /**
      * Til-og-med dato for rollens gyldighet.
      */
-    var rolleTomDato: Date? = null
+    var rolleTomDatoLd: LocalDate? = null
 
     /**
      * Representerer personens sivilstand i henhold til TPS.
      */
-    var sivilstandTypeEnum: SivilstandEnum? = null
+    var sivilstandTypeEnum: SivilstandEnum? = null // NB: Not nullable in regler
 
     /**
      * Eventuell angivelse av hvilken annen person som sivilstandType relaterer seg til,
@@ -70,7 +66,7 @@ open class PersonDetalj {
     /**
      * Angir om persondetaljen brukes som grunnlag på kravet.
      */
-    var bruk: Boolean? = null // SIMDOM-EDIT true -> null, since nullable in PersonDetalj in PEN
+    var bruk: Boolean? = null // NB: default true i pensjon-regler (nullable in PersonDetalj in PEN,
     // and default is 'false' in GrunnlagToReglerMapper.mapPersonDetaljToRegler in PEN
 
     /**
@@ -83,39 +79,37 @@ open class PersonDetalj {
 
     //--- Extra fields:
     @JsonIgnore
-    var penRolleFom: Date? = null
+    var penRolleFom: LocalDate? = null
 
     @JsonIgnore
-    var penRolleTom: Date? = null
+    var penRolleTom: LocalDate? = null
 
     @JsonIgnore
-    var virkFom: Date? = null
+    var virkFom: LocalDate? = null
 
     @JsonIgnore
-    var virkTom: Date? = null
+    var virkTom: LocalDate? = null
 
     @JsonIgnore
     var soesken: Soesken? = null
     // end extra fields
 
-    constructor() {}
+    constructor()
 
     constructor(source: PersonDetalj) : this() {
         if (source.grunnlagsrolleEnum != null) {
             this.grunnlagsrolleEnum = source.grunnlagsrolleEnum
         }
 
-        if (source.rolleFomDato != null) {
-            this.rolleFomDato = source.rolleFomDato!!.clone() as Date
+        if (source.rolleFomDatoLd != null) {
+            this.rolleFomDatoLd = source.rolleFomDatoLd
         }
 
-        if (source.rolleTomDato != null) {
-            this.rolleTomDato = source.rolleTomDato!!.clone() as Date
+        if (source.rolleTomDatoLd != null) {
+            this.rolleTomDatoLd = source.rolleTomDatoLd
         }
 
-        if (source.sivilstandTypeEnum != null) {
-            this.sivilstandTypeEnum = source.sivilstandTypeEnum
-        }
+        this.sivilstandTypeEnum = source.sivilstandTypeEnum
 
         this.sivilstandRelatertPerson = source.sivilstandRelatertPerson?.copy()
 
@@ -136,10 +130,10 @@ open class PersonDetalj {
         this.epsAvkallEgenPensjon = source.epsAvkallEgenPensjon
 
         //--- Extra:
-        virkFom = source.virkFom?.clone() as? Date
-        virkTom = source.virkTom?.clone() as? Date
-        penRolleFom = source.penRolleFom?.clone() as? Date
-        penRolleTom = source.penRolleTom?.clone() as? Date
+        virkFom = source.virkFom
+        virkTom = source.virkTom
+        penRolleFom = source.penRolleFom
+        penRolleTom = source.penRolleTom
         // end extra
     }
 
@@ -160,18 +154,18 @@ open class PersonDetalj {
         }
 
         // Set virk-periode as rolle-periode (ref. PEN GrunnlagToReglerMapper.mapPersonDetaljToRegler):
-        rolleFomDato = virkFom
-        rolleTomDato = virkTom
+        rolleFomDatoLd = virkFom
+        rolleTomDatoLd = virkTom
     }
 
     // PEN: updateVirkFom in no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj
     private fun updateVirkFom() {
-        if (penRolleTom != null && penRolleFom != null && getLastDayOfMonth(penRolleFom!!).after(penRolleTom)) {
+        if (penRolleTom != null && penRolleFom != null && getLastDayOfMonth(penRolleFom!!).after(penRolleTom?.toNorwegianDateAtNoon())) {
             virkFom = null
         } else {
             penRolleFom?.let {
-                val monthAfterRolleFom = getRelativeDateByMonth(it, 1)
-                virkFom = getFirstDayOfMonth(monthAfterRolleFom)
+                val monthAfterRolleFom = it.plusMonths(1)
+                virkFom = monthAfterRolleFom.withDayOfMonth(1)
             }
         }
     }
@@ -181,14 +175,14 @@ open class PersonDetalj {
         if (penRolleTom == null) {
             virkTom = null
         } else {
-            val rolleTomPlusOneDay = getRelativeDateByDays(penRolleTom!!, 1)
-            if (getMonth(rolleTomPlusOneDay) == getMonth(penRolleFom!!)
-                && getYear(rolleTomPlusOneDay) == getYear(penRolleFom!!)
+            val rolleTomPlusOneDay = penRolleTom!!.plusDays(1)
+            if (rolleTomPlusOneDay.monthValue == penRolleFom!!.monthValue
+                && rolleTomPlusOneDay.year == penRolleFom!!.year
             ) {
                 virkFom = null
                 virkTom = null
             } else {
-                virkTom = getLastDayOfMonth(rolleTomPlusOneDay)
+                virkTom = lastDayOfMonth(rolleTomPlusOneDay)
             }
         }
     }

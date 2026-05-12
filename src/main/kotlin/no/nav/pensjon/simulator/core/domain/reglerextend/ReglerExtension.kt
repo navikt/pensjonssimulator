@@ -28,7 +28,7 @@ fun Trygdetid.copy() =
         it.tt = this.tt
         it.ftt = this.ftt
         it.ftt_redusert = this.ftt_redusert
-        it.ftt_fom = this.ftt_fom?.copy()
+        it.ftt_fomLd = this.ftt_fomLd
         it.tt_fa_mnd = this.tt_fa_mnd
         it.tt_67_70 = this.tt_67_70
         it.tt_67_75 = this.tt_67_75
@@ -45,15 +45,15 @@ fun Trygdetid.copy() =
         it.prorataNevnerVKAP = this.prorataNevnerVKAP
         it.prorataTellerVKAP = this.prorataTellerVKAP
         it.tt_fa = this.tt_fa?.copy()
-        it.virkFom = this.virkFom?.copy()
-        it.virkTom = this.virkTom?.copy()
+        it.virkFomLd = this.virkFomLd
+        it.virkTomLd = this.virkTomLd
         it.anvendtFlyktningEnum = this.anvendtFlyktningEnum
     }
 
 fun TTPeriode.copy() =
     TTPeriode().also {
-        it.fom = this.fom?.copy()
-        it.tom = this.tom?.copy()
+        it.fomLd = this.fomLd
+        it.tomLd = this.tomLd
         it.poengIInnAr = this.poengIInnAr
         it.poengIUtAr = this.poengIUtAr
         it.landEnum = this.landEnum

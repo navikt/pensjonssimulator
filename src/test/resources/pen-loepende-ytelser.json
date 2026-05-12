@@ -3,7 +3,7 @@
         "sokerVirkningFom": "2022-12-01",
         "sisteBeregning": {
             "type": "SisteAldersberegning2016",
-            "virkDato": "2024-05-01",
+            "virkDatoLd": "2024-05-01",
             "tt_anv": 40,
             "basispensjon": {
                 "totalbelop": 367034.82012000005,
@@ -71,9 +71,9 @@
                 "vilkarsvedtakResultatEnum": "INNV",
                 "kravlinjeTypeEnum": "AP",
                 "anvendtVurderingEnum": null,
-                "virkFom": "2025-05-01T12:00:00+0200",
-                "virkTom": null,
-                "forsteVirk": "2023-06-01T12:00:00+0200",
+                "virkFomLd": "2025-05-01",
+                "virkTomLd": null,
+                "forsteVirkLd": "2023-06-01",
                 "kravlinjeForsteVirk": null,
                 "kravlinje": {
                     "kravlinjeTypeEnum": "AP",
@@ -102,9 +102,9 @@
                 "vilkarsvedtakResultatEnum": "INNV",
                 "kravlinjeTypeEnum": "GJR",
                 "anvendtVurderingEnum": null,
-                "virkFom": "2025-05-01T12:00:00+0200",
-                "virkTom": null,
-                "forsteVirk": "2023-08-01T12:00:00+0200",
+                "virkFomLd": "2025-05-01",
+                "virkTomLd": null,
+                "forsteVirkLd": "2023-08-01",
                 "kravlinjeForsteVirk": null,
                 "kravlinje": {
                     "kravlinjeTypeEnum": "GJR",

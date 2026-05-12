@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import java.util.*
+import java.time.LocalDate
 
-// 2025-06-06
+// 2026-04-23
 /**
  * Objektet inneholder informasjon om den månedlige faste utgiften en bruker har hatt i forbindelse med
  * opphold på en institusjon. Det inneholder også tidsrommet brukeren var innlagt.
@@ -20,12 +20,12 @@ class InstOpphFasteUtgifterperiode {
     /**
      * Dato bruker ble innlagt
      */
-    var fom: Date? = null
+    var fomLd: LocalDate? = null
 
     /**
      * Dato bruker ble skrevet ut
      */
-    var tom: Date? = null
+    var tomLd: LocalDate? = null
 
     /**
      * månedlig fast utgift bruker hadde på institusjonen

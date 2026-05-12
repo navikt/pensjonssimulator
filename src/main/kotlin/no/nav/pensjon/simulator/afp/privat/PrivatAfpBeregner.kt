@@ -15,7 +15,6 @@ import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.validity.BadSpecException
@@ -58,7 +57,7 @@ class PrivatAfpBeregner(
         val afpKravlinje = newKravlinje(soekerGrunnlag.penPerson!!)
         afpKravhode.kravlinjeListe = mutableListOf(afpKravlinje)
         afpKravhode.afpOrdningEnum = AFPtypeEnum.LONHO // any value will do
-        val foedselsdato: LocalDate = soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()
+        val foedselsdato: LocalDate = soekerGrunnlag.fodselsdatoLd!!
         val satser: PrivatAfpSatser = generelleDataHolder.getPrivatAfpSatser(foersteVirkning, foedselsdato)
         val afpBeholdningDato = foersteUttakDato?.let { calculateAfpBeholdningDato(it, foedselsdato) }
         soekerGrunnlag.replaceBeholdninger(context.beregnOpptjening(afpBeholdningDato, soekerGrunnlag))
@@ -82,7 +81,7 @@ class PrivatAfpBeregner(
         )
 
         val gjeldendeBeregningResultat = forrigeBeregningResultat?.copy()?.apply {
-            virkTom = tidligsteKnekkpunktDato?.minusDays(1)?.toNorwegianDateAtNoon()
+            virkTomLd = tidligsteKnekkpunktDato?.minusDays(1)
         }
 
         return PrivatAfpResult(beregningResultatListe, gjeldendeBeregningResultat)
@@ -104,7 +103,7 @@ class PrivatAfpBeregner(
         for (knekkpunktDato in knekkpunktDatoer) {
             // Set TOM date on the previous beregningsresultat to the day before the current knekkpunkt
             if (afpBeregningResultat != null) {
-                afpBeregningResultat.virkTom = knekkpunktDato.minusDays(1).toNorwegianDateAtNoon()
+                afpBeregningResultat.virkTomLd = knekkpunktDato.minusDays(1)
             }
 
             afpBeregningResultat = beregnPrivatAfp(
@@ -154,7 +153,7 @@ class PrivatAfpBeregner(
 
     private fun handleException(e: RegelmotorValideringException, vedtak: VilkarsVedtak): Nothing {
         throw if (indikererTrygdetidFeil(e.merknadListe))
-            framtidig(dato = vedtak.virkFom)?.let {
+            framtidig(dato = vedtak.virkFomLd)?.let {
                 BadSpecException(
                     message = "Personen har et vedtak med virkning f.o.m. $it;" +
                             " uttaksdato må være etter denne datoen"
@@ -164,8 +163,8 @@ class PrivatAfpBeregner(
             e
     }
 
-    private fun framtidig(dato: Date?): LocalDate? =
-        dato?.toNorwegianLocalDate()?.let {
+    private fun framtidig(dato: LocalDate?): LocalDate? =
+        dato?.let {
             if (it > time.today()) it else null
         }
 
@@ -211,9 +210,7 @@ class PrivatAfpBeregner(
                         source = kravhode.hentPersongrunnlagForSoker(),
                         excludeForsteVirkningsdatoGrunnlag = true,
                         excludeTrygdetidPerioder = true
-                    ).also {
-                        it.finishInit()
-                    }
+                    )
                 )
             }
 
@@ -230,14 +227,12 @@ class PrivatAfpBeregner(
             virkningFom: LocalDate
         ) =
             VilkarsVedtak().apply {
-                this.forsteVirk = foersteVirkningFom?.toNorwegianDateAtNoon()
+                this.forsteVirkLd = foersteVirkningFom
                 this.penPerson = soeker
                 this.kravlinje = VilkaarsvedtakKravlinje(kravlinje)
                 this.kravlinjeTypeEnum = kravlinje.kravlinjeTypeEnum
                 this.vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
-                this.virkFom = virkningFom.toNorwegianDateAtNoon()
-            }.also {
-                it.finishInit()
+                this.virkFomLd = virkningFom
             }
 
         private fun periodiserGrunnlag(kravhode: Kravhode): Kravhode {

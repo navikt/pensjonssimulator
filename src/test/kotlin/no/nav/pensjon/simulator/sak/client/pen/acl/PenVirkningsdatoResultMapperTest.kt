@@ -20,15 +20,13 @@ import java.time.LocalDate
 class PenVirkningsdatoResultMapperTest : FunSpec({
 
     context("fromDto") {
-
         test("mapper tom liste") {
             val source = PenVirkningsdatoResult(
                 forsteVirkningsdatoGrunnlagListe = emptyList()
             )
 
-            val result = PenVirkningsdatoResultMapper.fromDto(source)
-
-            result.foersteVirkningDatoGrunnlagListe.shouldBeEmpty()
+            PenVirkningsdatoResultMapper.fromDto(source)
+                .foersteVirkningDatoGrunnlagListe.shouldBeEmpty()
         }
 
         test("mapper virkningsdato og kravFremsattDato") {
@@ -44,8 +42,8 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
             val result = PenVirkningsdatoResultMapper.fromDto(source)
 
             result.foersteVirkningDatoGrunnlagListe shouldHaveSize 1
-            result.foersteVirkningDatoGrunnlagListe[0].virkningsdato shouldNotBe null
-            result.foersteVirkningDatoGrunnlagListe[0].kravFremsattDato shouldNotBe null
+            result.foersteVirkningDatoGrunnlagListe[0].virkningsdatoLd shouldNotBe null
+            result.foersteVirkningDatoGrunnlagListe[0].kravFremsattDatoLd shouldNotBe null
         }
 
         test("mapper kravlinjeType til enum") {
@@ -57,9 +55,8 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
                 )
             )
 
-            val result = PenVirkningsdatoResultMapper.fromDto(source)
-
-            result.foersteVirkningDatoGrunnlagListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
+            PenVirkningsdatoResultMapper.fromDto(source)
+                .foersteVirkningDatoGrunnlagListe[0].kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.AP
         }
 
         test("mapper null kravlinjeType til null") {
@@ -249,17 +246,20 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
 
             val result = PenVirkningsdatoResultMapper.fromDto(source)
 
-            val uforehistorikk = result.foersteVirkningDatoGrunnlagListe[0].bruker!!.uforehistorikk!!
-            uforehistorikk.garantigrad shouldBe 50
-            uforehistorikk.garantigradYrke shouldBe 0
-            uforehistorikk.sistMedlITrygden shouldNotBe null
-            uforehistorikk.uforeperiodeListe shouldHaveSize 1
-
+            val uforehistorikk = result.foersteVirkningDatoGrunnlagListe[0].bruker?.uforehistorikk
+            with(uforehistorikk!!) {
+                garantigrad shouldBe 50
+                garantigradYrke shouldBe 0
+                sistMedlITrygdenLd shouldNotBe null
+                uforeperiodeListe shouldHaveSize 1
+            }
             val uforeperiode = uforehistorikk.uforeperiodeListe[0]
-            uforeperiode.ufg shouldBe 50
-            uforeperiode.uforeTypeEnum shouldBe UforetypeEnum.UFORE
-            uforeperiode.fppGaranti shouldBe 3.3
-            uforeperiode.fppGarantiKodeEnum shouldBe FppGarantiKodeEnum.UNG_UF_MR_33_PO
+            with(uforeperiode) {
+                ufg shouldBe 50
+                uforeTypeEnum shouldBe UforetypeEnum.UFORE
+                fppGaranti shouldBe 3.3
+                fppGarantiKodeEnum shouldBe FppGarantiKodeEnum.UNG_UF_MR_33_PO
+            }
         }
 
         test("mapper uforeperiode med proRataBeregningType") {
@@ -400,7 +400,8 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
 
             val result = PenVirkningsdatoResultMapper.fromDto(source)
 
-            val ventetillegg = result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.ventetilleggsgrunnlag!!
+            val ventetillegg =
+                result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.ventetilleggsgrunnlag!!
             ventetillegg.ventetilleggprosent shouldBe 12.5
             ventetillegg.vt_spt shouldBe 3.5
             ventetillegg.vt_opt shouldBe 2.0
@@ -460,10 +461,11 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
 
             val result = PenVirkningsdatoResultMapper.fromDto(source)
 
-            val garantiTrygdetid = result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.garantiTrygdetid!!
+            val garantiTrygdetid =
+                result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.garantiTrygdetid!!
             garantiTrygdetid.trygdetid_garanti shouldBe 40
-            garantiTrygdetid.fomDato shouldNotBe null
-            garantiTrygdetid.tomDato shouldNotBe null
+            garantiTrygdetid.fomDatoLd shouldNotBe null
+            garantiTrygdetid.tomDatoLd shouldNotBe null
         }
 
         test("mapper generellHistorikk med sertillegg1943kull") {
@@ -494,7 +496,8 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
 
             val result = PenVirkningsdatoResultMapper.fromDto(source)
 
-            val saertillegg = result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.sertillegg1943kull!!
+            val saertillegg =
+                result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.sertillegg1943kull!!
             saertillegg.pSats_st shouldBe 0.5
             saertillegg.brutto shouldBe 10000
             saertillegg.netto shouldBe 8000
@@ -536,7 +539,8 @@ class PenVirkningsdatoResultMapperTest : FunSpec({
 
             val result = PenVirkningsdatoResultMapper.fromDto(source)
 
-            val regInfo = result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.sertillegg1943kull!!.reguleringsInformasjon!!
+            val regInfo =
+                result.foersteVirkningDatoGrunnlagListe[0].bruker!!.generellHistorikk!!.sertillegg1943kull!!.reguleringsInformasjon!!
             regInfo.lonnsvekst shouldBe 0.03
             regInfo.fratrekksfaktor shouldBe 0.5
             regInfo.gammelG shouldBe 100000

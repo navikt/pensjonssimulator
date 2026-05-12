@@ -5,14 +5,12 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class PeriodiseringUtilTest : FunSpec({
 
@@ -25,13 +23,13 @@ class PeriodiseringUtilTest : FunSpec({
 
         val beholdninger = listOf(
             Pensjonsbeholdning().apply {
-                fom = dateAtNoon(2024, Calendar.JANUARY, 1)
+                fomLd = LocalDate.of(2024, 1, 1)
             },
             Pensjonsbeholdning().apply {
-                fom = dateAtNoon(2025, Calendar.JANUARY, 1)
+                fomLd = LocalDate.of(2025, 1, 1)
             },
             Pensjonsbeholdning().apply {
-                fom = dateAtNoon(2026, Calendar.JANUARY, 1)
+                fomLd = LocalDate.of(2026, 1, 1)
             }
         )
 
@@ -89,13 +87,13 @@ class PeriodiseringUtilTest : FunSpec({
 })
 
 private fun sokerPersongrunnlag() = Persongrunnlag().apply {
-    fodselsdato = dateAtNoon(1960, Calendar.JANUARY, 1)
+    fodselsdatoLd = LocalDate.of(1960, 1, 1)
     penPerson = PenPerson().apply { penPersonId = 1L }
     personDetaljListe = mutableListOf(
         PersonDetalj().apply {
             bruk = true
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-            virkFom = dateAtNoon(2020, Calendar.JANUARY, 1)
+            virkFom = LocalDate.of(2020, 1, 1)
         }
     )
 }

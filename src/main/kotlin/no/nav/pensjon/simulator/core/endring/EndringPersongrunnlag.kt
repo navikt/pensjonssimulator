@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregni
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.krav.Inntekt
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.person.BeholdningUtil.beholdningSpec
@@ -16,9 +15,8 @@ import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
+import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
@@ -95,8 +93,8 @@ class EndringPersongrunnlag(
     // -> OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
     private fun oppdaterOpptjeningsgrunnlagFraInntekt(
         opprinneligOpptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
-        inntektListe: List<Inntekt>,
-        foedselDato: LocalDate?
+        inntektListe: List<AarligInntekt>,
+        foedselsdato: LocalDate?
     ): MutableList<Opptjeningsgrunnlag> {
         val opptjeningType = OpptjeningtypeEnum.PPI
 
@@ -107,7 +105,7 @@ class EndringPersongrunnlag(
                 .toMutableList()
 
         inntektsbasertOpptjeningsgrunnlagListe =
-            context.beregnPoengtallBatch(inntektsbasertOpptjeningsgrunnlagListe, foedselDato)
+            context.beregnPoengtallBatch(inntektsbasertOpptjeningsgrunnlagListe, foedselsdato)
         return komplettOpptjeningsgrunnlag(opprinneligOpptjeningsgrunnlagListe, inntektsbasertOpptjeningsgrunnlagListe)
     }
 
@@ -185,7 +183,7 @@ class EndringPersongrunnlag(
 
         // NB: The original code in SimulerEndringAvAPCommand in PEN used
         // "midlertidig persongrunnlag - skal kun benyttes til å hente opptjeningsgrunnlag fra POPP"
-        // This is not necessary when using the data-minimised variant of 'fetchBeholdningerMedGrunnlag'
+        // This is not necessary when using the data-minimized variant of 'fetchBeholdningerMedGrunnlag'
         // (which does not use 'kravhode')
 
         return beholdningService.getBeholdningerMedGrunnlag(beholdningSpec(pid, persongrunnlag, kravhode))
@@ -194,7 +192,7 @@ class EndringPersongrunnlag(
 
     // SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun convertEpsToAvdoed(eps: Persongrunnlag, avdoed: Avdoed) {
-        eps.dodsdato = avdoed.doedDato.toNorwegianDateAtNoon()
+        eps.dodsdatoLd = avdoed.doedDato
         eps.personDetaljListe = mutableListOf(persondetalj(avdoed))
         eps.arligPGIMinst1G = avdoed.harInntektOver1G
         eps.medlemIFolketrygdenSiste3Ar = avdoed.erMedlemAvFolketrygden
@@ -202,7 +200,7 @@ class EndringPersongrunnlag(
         eps.opptjeningsgrunnlagListe = oppdaterOpptjeningsgrunnlagFraInntekt(
             opprinneligOpptjeningsgrunnlagListe = eps.opptjeningsgrunnlagListe,
             inntektListe = mutableListOf(inntekt(avdoed)),
-            foedselDato = eps.fodselsdato?.toNorwegianLocalDate()
+            foedselsdato = eps.fodselsdatoLd
         )
     }
 
@@ -225,7 +223,7 @@ class EndringPersongrunnlag(
     // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
     private fun isValidToday(detalj: PersonDetalj) =
         isDateInPeriod(
-            dato = time.today().toNorwegianDateAtNoon(),
+            dato = time.today(),
             fom = detalj.virkFom,
             tom = detalj.virkTom
         ) // NB: Here virkFom|Tom is used (not rolleFom|TomDato)
@@ -235,12 +233,12 @@ class EndringPersongrunnlag(
 
     // SimulerEndringAvAPCommandHelper.addInntektgrunnlagForEPS
     private fun addInntektsgrunnlagForEps(eps: Persongrunnlag, foersteUttakDato: LocalDate?, grunnbeloep: Int) {
-        val inntektFom: LocalDate = findFomDatoInntekt(foersteUttakDato)
+        val inntektFom: LocalDate = inntektFom(foersteUttakDato)
         eps.inntektsgrunnlagListe.add(epsInntektsgrunnlag(grunnbeloep, inntektFom))
     }
 
     // SimulerEndringAvAPCommandHelper.findFomDatoInntekt
-    private fun findFomDatoInntekt(foersteUttakDato: LocalDate?): LocalDate {
+    private fun inntektFom(foersteUttakDato: LocalDate?): LocalDate {
         val today = time.today()
         val dato = foersteUttakDato?.let { if (it.isBefore(today)) it else today } ?: today
         return LocalDate.of(dato.year, 1, 1)
@@ -248,9 +246,9 @@ class EndringPersongrunnlag(
 
     // Extracted from SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun inntekt(avdoed: Avdoed) =
-        Inntekt(
+        AarligInntekt(
             inntektAar = time.today().year - 1,
-            beloep = avdoed.inntektFoerDoed.toLong()
+            beloep = avdoed.inntektFoerDoed
         )
 
     // Extracted from SimulerEndringAvAPCommandHelper.updatePersongrunnlagForBruker
@@ -294,17 +292,17 @@ class EndringPersongrunnlag(
             Inntektsgrunnlag().apply {
                 belop = EPS_GRUNNBELOEP_MULTIPLIER * grunnbeloep
                 bruk = true
-                fom = inntektFom.toNorwegianDateAtNoon()
-                tom = null
+                fomLd = inntektFom
+                tomLd = null
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 inntektTypeEnum = InntekttypeEnum.FPI // Forventet pensjongivende inntekt
             }
 
         // Extracted from OpprettKravHodeHelper.oppdaterOpptjeningsgrunnlagFraInntektListe
-        private fun opptjeningsgrunnlag(inntekt: Inntekt, type: OpptjeningtypeEnum) =
+        private fun opptjeningsgrunnlag(inntekt: AarligInntekt, type: OpptjeningtypeEnum) =
             Opptjeningsgrunnlag().apply {
                 ar = inntekt.inntektAar
-                pi = inntekt.beloep.toInt()
+                pi = inntekt.beloep
                 opptjeningTypeEnum = type
             }
 
@@ -312,7 +310,7 @@ class EndringPersongrunnlag(
         private fun persondetalj(avdoed: Avdoed) =
             PersonDetalj().apply {
                 bruk = true
-                penRolleFom = avdoed.doedDato.toNorwegianDateAtNoon()
+                penRolleFom = avdoed.doedDato
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
             }.also {
@@ -328,7 +326,7 @@ class EndringPersongrunnlag(
             roller.forEach {
                 val detalj = persongrunnlag.findPersonDetaljWithRolleForPeriode(
                     rolle = it,
-                    virkningDato = virkningDato.toNorwegianDateAtNoon(),
+                    virkningDato = virkningDato,
                     checkBruk = true
                 )
 
@@ -375,7 +373,7 @@ class EndringPersongrunnlag(
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                penRolleFom = fom?.toNorwegianDateAtNoon()
+                penRolleFom = fom
                 bruk = true
                 finishInit()
             }

@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrun
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -43,9 +42,9 @@ class PersongrunnlagMapper(
             gjelderOmsorg = false
             gjelderUforetrygd = false
             penPerson = PenPerson(penPersonId = EPS_PERSON_ID)
-            fodselsdato = foedselsdato.toNorwegianDateAtNoon()
+            fodselsdatoLd = foedselsdato
             antallArUtland = 0
-            dodsdato = null
+            dodsdatoLd = null
             statsborgerskapEnum = norge
             flyktning = false
             bosattLandEnum = norge
@@ -53,7 +52,7 @@ class PersongrunnlagMapper(
             uforeHistorikk = null
             generellHistorikk = null
             personDetaljListe.add(mapToEpsPersonDetalj(sivilstatus, foedselsdato))
-        }.also { it.finishInit() }
+        }
 
     // PersongrunnlagMapper.mapToPersongrunnlagAvdod
     fun avdoedPersongrunnlag(avdoed: Avdoed, avdoedPerson: PenPerson, soekerPid: Pid?): Persongrunnlag =
@@ -64,7 +63,7 @@ class PersongrunnlagMapper(
             erFolketrygdMedlem = avdoed.erMedlemAvFolketrygden,
             erFlyktning = false
         ).apply {
-            dodsdato = avdoed.doedDato.toNorwegianDateAtNoon()
+            dodsdatoLd = avdoed.doedDato
             dodAvYrkesskade = false
             arligPGIMinst1G = avdoed.harInntektOver1G
         }
@@ -74,7 +73,7 @@ class PersongrunnlagMapper(
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-            penRolleFom = soekerPid?.let { personService.foedselsdato(it).toNorwegianDateAtNoon() }
+            penRolleFom = soekerPid?.let(personService::foedselsdato)
             borMedEnum = null
             bruk = true
         }.also {
@@ -85,7 +84,7 @@ class PersongrunnlagMapper(
     private fun createPersonDetalj(spec: SimuleringSpec) =
         PersonDetalj().apply {
             grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-            penRolleFom = rolleFom(spec)?.toNorwegianDateAtNoon()
+            penRolleFom = rolleFom(spec)
             sivilstandTypeEnum = mapToSivilstand(spec)
             bruk = true
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
@@ -104,7 +103,7 @@ class PersongrunnlagMapper(
             gjelderOmsorg = false
             gjelderUforetrygd = false
             penPerson = person
-            fodselsdato = person.foedselsdato?.toNorwegianDateAtNoon()
+            fodselsdatoLd = person.foedselsdato
             statsborgerskapEnum = person.pid?.let { generelleDataHolder.getPerson(it).statsborgerskap }
             bosattLandEnum = norge
 
@@ -118,8 +117,6 @@ class PersongrunnlagMapper(
             medlemIFolketrygdenSiste3Ar = erFolketrygdMedlem
             antallArUtland = utlandAntallAar
             flyktning = erFlyktning
-        }.also {
-            it.finishInit()
         }
 
     private fun rolleFom(spec: SimuleringSpec): LocalDate? =
@@ -151,7 +148,7 @@ class PersongrunnlagMapper(
         private fun mapToEpsPersonDetalj(sivilstatus: SivilstatusType, foedselsdato: LocalDate?) =
             PersonDetalj().apply {
                 grunnlagsrolleEnum = mapToEpsGrunnlagRolle(sivilstatus)
-                penRolleFom = foedselsdato?.toNorwegianDateAtNoon()
+                penRolleFom = foedselsdato
                 borMedEnum = mapToEpsBorMedType(sivilstatus)
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER

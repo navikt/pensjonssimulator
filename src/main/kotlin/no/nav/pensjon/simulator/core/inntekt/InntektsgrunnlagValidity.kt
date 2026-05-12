@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.dateIsValid
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import java.time.LocalDate
@@ -44,10 +43,10 @@ class InntektsgrunnlagValidity(
 
             // If periodiserFomTomDatoUtenUnntak is true, only fom/tom dates shall be considered.
             if (periodiserFomTomDatoUtenUnntak) {
-                return dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)
+                return dateIsValid(grunnlag.fomLd, grunnlag.tomLd, virkningFom, virkningTom)
             }
 
-            if (sakType == SakTypeEnum.AFP || dateIsValid(grunnlag.fom, grunnlag.tom, virkningFom, virkningTom)) {
+            if (sakType == SakTypeEnum.AFP || dateIsValid(grunnlag.fomLd, grunnlag.tomLd, virkningFom, virkningTom)) {
                 return true
             }
 
@@ -56,15 +55,15 @@ class InntektsgrunnlagValidity(
             if (InntekttypeEnum.PGI == grunnlag.inntektTypeEnum && intersectsWithPossiblyOpenEndings(
                     o1Start = virkningFom?.year?.let { foersteDag(it - OPPTJENING_ETTERSLEP_ANTALL_AAR) },
                     o1End = virkningTom?.let { sisteDag(it.year) },
-                    o2Start = grunnlag.fom,
-                    o2End = grunnlag.tom,
+                    o2Start = grunnlag.fomLd,
+                    o2End = grunnlag.tomLd,
                     considerContactByDayAsIntersection = true
                 )
             ) {
                 return true
             }
 
-            return isValidInntektType(grunnlag.inntektTypeEnum) && isValidInntektFom(grunnlag.fom?.toNorwegianLocalDate())
+            return isValidInntektType(grunnlag.inntektTypeEnum) && isValidInntektFom(grunnlag.fomLd)
         }
 
         private fun isValidInntektFom(fom: LocalDate?): Boolean =

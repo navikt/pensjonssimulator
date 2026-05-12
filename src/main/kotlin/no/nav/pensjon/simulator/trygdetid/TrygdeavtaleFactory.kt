@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AvtaletypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtale
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Trygdeavtaledetaljer
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 // PEN:
@@ -21,7 +20,7 @@ object TrygdeavtaleFactory {
             avtaleKriterieEnum = AvtaleKritEnum.YRK_TRYGD
             avtaleTypeEnum = AvtaletypeEnum.EOS_NOR
             bostedslandEnum = LandkodeEnum.NOR
-            kravDatoIAvtaleland = avtalelandKravdato.toNorwegianDateAtNoon()
+            kravDatoIAvtalelandLd = avtalelandKravdato
             omfattesavAvtalensPersonkrets = true
             //TODO minst12MndMedlemskapFolketrygden = true
         }

@@ -31,7 +31,7 @@ class PrivatAfpKnekkpunktFinder(
         // opptjening the year he turned 61 years old, and hence we need to find that opptjening.
         val relevantOpptjeningAar =
             yearUserTurnsGivenAge(
-                foedselsdato = soekerGrunnlag.fodselsdato!!,
+                foedselsdato = soekerGrunnlag.fodselsdatoLd!!,
                 age = AFP_ALDER - OPPTJENING_ETTERSLEP_ANTALL_AAR
             )
 
@@ -40,7 +40,7 @@ class PrivatAfpKnekkpunktFinder(
 
         return findPrivatAfpPerioder(
             foersteUttakDato,
-            foedselsdato = soekerGrunnlag.fodselsdato?.toNorwegianLocalDate(),
+            foedselsdato = soekerGrunnlag.fodselsdatoLd,
             opptjeningGrunnlag = relevantOpptjeningGrunnlag,
             privatAfpFoersteVirkning,
             gjelderOmsorg

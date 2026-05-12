@@ -19,15 +19,9 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.regler.to.RevurderingAlderspensjon2025Request
-import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidResponse
-import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2011Request
-import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2016Request
-import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovAlderpensjon2025Request
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtMidnight
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
 import java.util.*
@@ -52,8 +46,8 @@ class SimulatorContextUtilTest : FunSpec({
             trygdetid = Trygdetid().apply {
                 tt_67_70 = 1
                 tt_67_75 = 2
-                virkFom = dateAtNoon(2024, 5, 6)
-                virkTom = dateAtNoon(2030, 1, 2)
+                virkFomLd = LocalDate.of(2024, 5, 6)
+                virkTomLd = LocalDate.of(2030, 1, 2)
             }
         }
 
@@ -68,8 +62,8 @@ class SimulatorContextUtilTest : FunSpec({
         with(response.trygdetid!!) {
             tt_67_70 shouldBe 1
             tt_67_75 shouldBe 0 // reset
-            virkFom shouldBe dateAtNoon(2024, 5, 6)
-            virkTom shouldBe dateAtNoon(2030, 1, 2)
+            virkFomLd shouldBe LocalDate.of(2024, 5, 6)
+            virkTomLd shouldBe LocalDate.of(2030, 1, 2)
         }
     }
 
@@ -77,8 +71,8 @@ class SimulatorContextUtilTest : FunSpec({
         val response = TrygdetidResponse().apply {
             trygdetid = Trygdetid().apply {
                 tt = 1
-                virkFom = dateAtNoon(2024, 5, 6)
-                virkTom = dateAtNoon(2030, 1, 2)
+                virkFomLd = LocalDate.of(2024, 5, 6)
+                virkTomLd = LocalDate.of(2030, 1, 2)
             }
         }
 
@@ -92,8 +86,8 @@ class SimulatorContextUtilTest : FunSpec({
 
         with(response.trygdetid!!) {
             tt shouldBe 1
-            virkFom shouldBe null // undefined
-            virkTom shouldBe null // ditto
+            virkFomLd shouldBe null // undefined
+            virkTomLd shouldBe null // ditto
         }
     }
 
@@ -105,24 +99,10 @@ class SimulatorContextUtilTest : FunSpec({
         val result = SimulatorContextUtil.tidsbegrensedeBeholdninger(beholdningListe)
 
         result shouldBe beholdningListe
-        beholdning1.fom shouldBe dateAtNoon(2020, Calendar.JANUARY, 1)
-        beholdning1.tom shouldBe dateAtNoon(2020, Calendar.DECEMBER, 31)
-        beholdning2.fom shouldBe dateAtNoon(2021, Calendar.JANUARY, 1)
-        beholdning2.tom shouldBe dateAtNoon(2021, Calendar.DECEMBER, 31)
-    }
-
-    test("preprocess VilkarsprovAlderpensjon2011Request setter datoer til noon") {
-        val request = VilkarsprovAlderpensjon2011Request().apply {
-            fom = dateAtMidnight(2024, Calendar.JUNE, 1)
-            tom = dateAtMidnight(2025, Calendar.DECEMBER, 31)
-            afpVirkFom = dateAtMidnight(2024, Calendar.JANUARY, 1)
-        }
-
-        SimulatorContextUtil.preprocess(request)
-
-        request.fom shouldBe dateAtNoon(2024, Calendar.JUNE, 1)
-        request.tom shouldBe dateAtNoon(2025, Calendar.DECEMBER, 31)
-        request.afpVirkFom shouldBe dateAtNoon(2024, Calendar.JANUARY, 1)
+        beholdning1.fomLd shouldBe LocalDate.of(2020, 1, 1)
+        beholdning1.tomLd shouldBe LocalDate.of(2020, 12, 31)
+        beholdning2.fomLd shouldBe LocalDate.of(2021, 1, 1)
+        beholdning2.tomLd shouldBe LocalDate.of(2021, 12, 31)
     }
 
     test("preprocess VilkarsprovAlderpensjon2011Request runder nettoPerAr opp") {
@@ -137,18 +117,6 @@ class SimulatorContextUtilTest : FunSpec({
         request.afpPrivatLivsvarig?.nettoPerAr shouldBe 12346.0
     }
 
-    test("preprocess VilkarsprovAlderpensjon2016Request setter datoer til noon") {
-        val request = VilkarsprovAlderpensjon2016Request().apply {
-            virkFom = dateAtMidnight(2024, Calendar.JUNE, 1)
-            afpVirkFom = dateAtMidnight(2024, Calendar.JANUARY, 1)
-        }
-
-        SimulatorContextUtil.preprocess(request)
-
-        request.virkFom shouldBe dateAtNoon(2024, Calendar.JUNE, 1)
-        request.afpVirkFom shouldBe dateAtNoon(2024, Calendar.JANUARY, 1)
-    }
-
     test("preprocess VilkarsprovAlderpensjon2016Request runder nettoPerAr opp") {
         val request = VilkarsprovAlderpensjon2016Request().apply {
             afpPrivatLivsvarig = AfpPrivatLivsvarig().apply {
@@ -159,18 +127,6 @@ class SimulatorContextUtilTest : FunSpec({
         SimulatorContextUtil.preprocess(request)
 
         request.afpPrivatLivsvarig?.nettoPerAr shouldBe 100000.0
-    }
-
-    test("preprocess VilkarsprovAlderpensjon2025Request setter datoer til noon") {
-        val request = VilkarsprovAlderpensjon2025Request().apply {
-            fom = dateAtMidnight(2025, Calendar.MARCH, 15)
-            afpVirkFom = dateAtMidnight(2025, Calendar.JANUARY, 1)
-        }
-
-        SimulatorContextUtil.preprocess(request)
-
-        request.fom shouldBe dateAtNoon(2025, Calendar.MARCH, 15)
-        request.afpVirkFom shouldBe dateAtNoon(2025, Calendar.JANUARY, 1)
     }
 
     test("preprocess VilkarsprovAlderpensjon2025Request runder nettoPerAr opp") {
@@ -187,12 +143,12 @@ class SimulatorContextUtilTest : FunSpec({
 
     test("postprocess BeregningsResultatAfpPrivat setter virkTom til null") {
         val result = BeregningsResultatAfpPrivat().apply {
-            virkTom = dateAtNoon(2030, Calendar.DECEMBER, 31)
+            virkTomLd = LocalDate.of(2030, 12, 31)
         }
 
         SimulatorContextUtil.postprocess(result)
 
-        result.virkTom shouldBe null
+        result.virkTomLd shouldBe null
     }
 
     test("postprocess BeregningsResultatAfpPrivat runder nettoPerAr opp") {
@@ -298,13 +254,13 @@ class SimulatorContextUtilTest : FunSpec({
             merknadListe = listOf(Merknad().apply { kode = "REVURDERING_FEIL" })
         }
         val request = RevurderingAlderspensjon2025Request().apply {
-            virkFom = dateAtNoon(2025, Calendar.JANUARY, 1)
+            virkFom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon()
             kravhode = Kravhode().apply {
                 uttaksgradListe = mutableListOf(
                     Uttaksgrad().apply {
                         uttaksgrad = 50
-                        fomDato = dateAtNoon(2025, Calendar.JANUARY, 1)
-                        tomDato = dateAtNoon(2025, Calendar.DECEMBER, 31)
+                        fomDatoLd = LocalDate.of(2025, 1, 1)
+                        tomDatoLd = LocalDate.of(2025, 12, 31)
                     }
                 )
             }
@@ -362,7 +318,7 @@ class SimulatorContextUtilTest : FunSpec({
         val result = SimulatorContextUtil.personOpptjeningsgrunnlag(opptjening, foedselsdato)
 
         result.opptjening shouldBe opptjening
-        result.fodselsdato shouldNotBe null
+        result.fodselsdatoLd shouldNotBe null
     }
 
     test("personOpptjeningsgrunnlag håndterer null fødselsdato") {
@@ -373,7 +329,7 @@ class SimulatorContextUtilTest : FunSpec({
         val result = SimulatorContextUtil.personOpptjeningsgrunnlag(opptjening, null)
 
         result.opptjening shouldBe opptjening
-        result.fodselsdato shouldBe null
+        result.fodselsdatoLd shouldBe null
     }
 
     test("updatePersonOpptjeningsFieldFromReglerResponse kopierer data fra output til input") {

@@ -1,0 +1,527 @@
+{
+    "persongrunnlagListe": [
+        {
+            "penPerson": {
+                "penPersonId": 32262066
+            },
+            "fodselsdato": "1958-01-13T12:00:00+0100",
+            "fodselsdatoLd": "1958-01-13",
+            "dodsdato": null,
+            "dodsdatoLd": null,
+            "statsborgerskapEnum": "NOR",
+            "flyktning": false,
+            "personDetaljListe": [
+                {
+                    "grunnlagsrolleEnum": "SOKER",
+                    "rolleFomDato": "1999-01-07T12:00:00+0100",
+                    "rolleFomDatoLd": "1999-01-07",
+                    "rolleTomDato": null,
+                    "rolleTomDatoLd": null,
+                    "sivilstandTypeEnum": "GIFT",
+                    "sivilstandRelatertPerson": null,
+                    "borMedEnum": null,
+                    "barnDetalj": null,
+                    "tillegg": false,
+                    "bruk": true,
+                    "grunnlagKildeEnum": "TPS",
+                    "serskiltSatsUtenET": null,
+                    "epsAvkallEgenPensjon": null,
+                    "virkFom": "1999-02-01T12:00:00+0100",
+                    "virkFomLd": "1999-02-01",
+                    "virkTom": null,
+                    "virkTomLd": null
+                }
+            ],
+            "sistMedlITrygden": null,
+            "sistMedlITrygdenLd": null,
+            "sisteGyldigeOpptjeningsAr": 2023,
+            "hentetPopp": true,
+            "hentetInnt": false,
+            "hentetInst": false,
+            "hentetTT": true,
+            "hentetArbeid": false,
+            "overkompUtl": null,
+            "opptjeningsgrunnlagListe": [
+                {
+                    "ar": 1984,
+                    "pi": 77454,
+                    "pia": 77454,
+                    "pp": 2.27,
+                    "opptjeningTypeEnum": "PPI",
+                    "maksUforegrad": 0,
+                    "bruk": true,
+                    "grunnlagKildeEnum": "POPP",
+                    "opptjeningTypeListe": []
+                },
+                {
+                    "ar": 2023,
+                    "pi": 380410,
+                    "pia": 380410,
+                    "pp": 2.27,
+                    "opptjeningTypeEnum": "PPI",
+                    "maksUforegrad": 0,
+                    "bruk": true,
+                    "grunnlagKildeEnum": "POPP",
+                    "opptjeningTypeListe": []
+                }
+            ],
+            "inntektsgrunnlagListe": [],
+            "livsvarigOffentligAfpGrunnlagListe": [],
+            "trygdetidPerioder": [
+                {
+                    "fom": "1974-01-12T12:00:00+0100",
+                    "fomLd": "1974-01-12",
+                    "tom": "2023-12-30T12:00:00+0100",
+                    "tomLd": "2023-12-30",
+                    "poengIInnAr": true,
+                    "poengIUtAr": true,
+                    "landEnum": "NOR",
+                    "ikkeProRata": false,
+                    "bruk": true,
+                    "grunnlagKildeEnum": "SAKSB"
+                },
+                {
+                    "fom": "1958-01-13T12:00:00+0100",
+                    "fomLd": "1958-01-13",
+                    "tom": "2023-12-31T12:00:00+0100",
+                    "tomLd": "2023-12-31",
+                    "poengIInnAr": false,
+                    "poengIUtAr": false,
+                    "landEnum": "NOR",
+                    "ikkeProRata": false,
+                    "bruk": true,
+                    "grunnlagKildeEnum": "TPS"
+                }
+            ],
+            "trygdetidPerioderKapittel20": [
+                {
+                    "fom": "1974-01-12T12:00:00+0100",
+                    "fomLd": "1974-01-12",
+                    "tom": "2023-12-30T12:00:00+0100",
+                    "tomLd": "2023-12-30",
+                    "poengIInnAr": true,
+                    "poengIUtAr": true,
+                    "landEnum": "NOR",
+                    "ikkeProRata": false,
+                    "bruk": true,
+                    "grunnlagKildeEnum": "SAKSB"
+                }
+            ],
+            "trygdetid": {
+                "trygdetidId": 175953035,
+                "regelverkTypeEnum": "N_REG_G_OPPTJ",
+                "tt": 40,
+                "ftt": 0,
+                "ftt_redusert": false,
+                "ftt_fom": null,
+                "ftt_fomLd": null,
+                "tt_fa_mnd": 599,
+                "tt_67_70": 0,
+                "tt_67_75": 0,
+                "tt_faktisk": 599,
+                "tt_E66": 40,
+                "tt_F67": 0,
+                "tt_fa_F2021": null,
+                "opptjeningsperiode": 0,
+                "ttUtlandEos": null,
+                "ttUtlandKonvensjon": null,
+                "ttUtlandTrygdeavtaler": [],
+                "merknadListe": [
+                    {
+                        "kode": "BareTTNorgeRS.PeriodeNorge",
+                        "argumentListe": [
+                            "Sun Jan 13 12:00:00 CET 1974",
+                            "Sun Dec 31 12:00:00 CET 2023"
+                        ]
+                    },
+                    {
+                        "kode": "BeregnSamletTTRS.Max40Ar",
+                        "argumentListe": []
+                    }
+                ],
+                "garantiTypeEnum": null,
+                "prorataTellerVKAP": 0,
+                "prorataNevnerVKAP": 0,
+                "tt_fa": {
+                    "antallAr": 49,
+                    "antallMnd": 11,
+                    "antallDager": 19
+                },
+                "virkFom": "2025-02-01T12:00:00+0100",
+                "virkFomLd": "2025-02-01",
+                "virkTom": null,
+                "virkTomLd": null,
+                "anvendtFlyktningEnum": null
+            },
+            "trygdetidKapittel20": {
+                "trygdetidId": 175953036,
+                "regelverkTypeEnum": "N_REG_N_OPPTJ",
+                "tt": 40,
+                "ftt": 0,
+                "ftt_redusert": false,
+                "ftt_fom": null,
+                "ftt_fomLd": null,
+                "tt_fa_mnd": 599,
+                "tt_67_70": 0,
+                "tt_67_75": 0,
+                "tt_faktisk": 599,
+                "tt_E66": 40,
+                "tt_F67": 0,
+                "tt_fa_F2021": null,
+                "opptjeningsperiode": 0,
+                "ttUtlandEos": null,
+                "ttUtlandKonvensjon": null,
+                "ttUtlandTrygdeavtaler": [],
+                "merknadListe": [
+                    {
+                        "kode": "BareTTNorgeRS.PeriodeNorge",
+                        "argumentListe": [
+                            "Sun Jan 13 12:00:00 CET 1974",
+                            "Sun Dec 31 12:00:00 CET 2023"
+                        ]
+                    },
+                    {
+                        "kode": "BeregnSamletTTRS.Max40Ar",
+                        "argumentListe": []
+                    }
+                ],
+                "garantiTypeEnum": null,
+                "prorataTellerVKAP": 0,
+                "prorataNevnerVKAP": 0,
+                "tt_fa": {
+                    "antallAr": 49,
+                    "antallMnd": 11,
+                    "antallDager": 19
+                },
+                "virkFom": "2025-02-01T12:00:00+0100",
+                "virkFomLd": "2025-02-01",
+                "virkTom": null,
+                "virkTomLd": null,
+                "anvendtFlyktningEnum": null
+            },
+            "trygdetidAlternativ": null,
+            "uforegrunnlag": null,
+            "uforeHistorikk": null,
+            "yrkesskadegrunnlag": null,
+            "dodAvYrkesskade": false,
+            "generellHistorikk": {
+                "generellHistorikkId": 55142721,
+                "fravik_19_3Enum": null,
+                "fpp_eos": 0.0,
+                "ventetilleggsgrunnlag": null,
+                "poengtilleggEnum": null,
+                "eosEkstra": null,
+                "garantiTrygdetid": null,
+                "sertillegg1943kull": null,
+                "giftFor2011": false
+            },
+            "afpHistorikkListe": [],
+            "barnekull": null,
+            "barnetilleggVurderingsperiode": null,
+            "antallArUtland": 0,
+            "medlemIFolketrygdenSiste3Ar": null,
+            "over60ArKanIkkeForsorgesSelv": null,
+            "utenlandsoppholdListe": [],
+            "trygdeavtale": null,
+            "trygdeavtaledetaljer": null,
+            "inngangOgEksportGrunnlag": null,
+            "forsteVirkningsdatoGrunnlagListe": [],
+            "arligPGIMinst1G": null,
+            "artikkel10": null,
+            "vernepliktAr": [],
+            "skiltesDelAvAvdodesTP": -99,
+            "instOpphReduksjonsperiodeListe": [],
+            "instOpphFasteUtgifterperiodeListe": [],
+            "bosattLandEnum": "NOR",
+            "pensjonsbeholdning": {
+                "type": "Pensjonsbeholdning",
+                "ar": 2025,
+                "totalbelop": 3012222.31348903,
+                "opptjening": {
+                    "ar": 2023,
+                    "opptjeningsgrunnlag": 380410.0,
+                    "anvendtOpptjeningsgrunnlag": 380410.0,
+                    "arligOpptjening": 73469.1914890304,
+                    "lonnsvekstInformasjon": null,
+                    "poengtall": {
+                        "type": "Poengtall",
+                        "pp": 0.0,
+                        "pia": 0,
+                        "pi": 0,
+                        "ar": 0,
+                        "bruktIBeregning": false,
+                        "gv": 0,
+                        "poengtallTypeEnum": null,
+                        "maksUforegrad": 0,
+                        "uforear": false,
+                        "merknadListe": [],
+                        "omsorg": false,
+                        "verdi": 0.0,
+                        "opptjeningsar": 0,
+                        "inntektIAvtaleland": false,
+                        "justertBelop": 0.0
+                    },
+                    "inntektUtenDagpenger": 380410.0,
+                    "uforeOpptjening": null,
+                    "dagpenger": 0.0,
+                    "dagpengerFiskerOgFangstmenn": 0.0,
+                    "omsorg": 0.0,
+                    "forstegangstjeneste": 0.0,
+                    "arligOpptjeningOmsorg": 0.0,
+                    "arligOpptjeningUtenOmsorg": 0.0,
+                    "psatsOpptjening": 0.0
+                },
+                "lonnsvekstInformasjon": {
+                    "lonnsvekst": 0.0,
+                    "reguleringsDato": "2024-05-01T12:00:00+0200",
+                    "reguleringsDatoLd": "2024-05-01",
+                    "uttaksgradVedRegulering": 0
+                },
+                "reguleringsInformasjon": {
+                    "lonnsvekst": 0.0,
+                    "fratrekksfaktor": 0.0,
+                    "gammelG": 0,
+                    "nyG": 0,
+                    "reguleringsfaktor": 0.0,
+                    "gjennomsnittligUttaksgradSisteAr": 0.0,
+                    "reguleringsbelop": 128162.913507269,
+                    "prisOgLonnsvekst": 0.0
+                },
+                "formelKodeEnum": null,
+                "merknadListe": [],
+                "beholdningsTypeEnum": "PEN_B",
+                "fom": "2025-01-01T12:00:00+0100",
+                "fomLd": "2025-01-01",
+                "tom": null,
+                "tomLd": null
+            },
+            "forstegangstjenestegrunnlag": null,
+            "dagpengegrunnlagListe": [],
+            "omsorgsgrunnlagListe": [],
+            "arbeidsforholdsgrunnlagListe": [],
+            "arbeidsforholdEtterUforgrunnlagListe": [],
+            "overgangsInfoUPtilUT": null,
+            "utbetalingsgradUTListe": [],
+            "afpTpoUpGrunnlag": null,
+            "normertPensjonsalderGrunnlag": null,
+            "gjelderOmsorg": false,
+            "gjelderUforetrygd": false,
+            "barnetilleggVurderingsperioder": [],
+            "beholdninger": [],
+            "flatBeholdninger": [
+                {
+                    "fom": "1985-01-01T12:00:00+0100",
+                    "fomLd": "1985-01-01",
+                    "tom": "1985-12-31T12:00:00+0100",
+                    "tomLd": "1985-12-31",
+                    "ar": 1985,
+                    "totalbelop": 14019.1214335736,
+                    "opptjening": {
+                        "ar": 1983,
+                        "opptjeningsgrunnlag": 73088.0,
+                        "anvendtOpptjeningsgrunnlag": 73088.0,
+                        "arligOpptjening": 14019.1214335736,
+                        "lonnsvekstInformasjon": null,
+                        "poengtall": {
+                            "type": "Poengtall",
+                            "pp": 0.0,
+                            "pia": 0,
+                            "pi": 0,
+                            "ar": 0,
+                            "bruktIBeregning": false,
+                            "gv": 0,
+                            "poengtallTypeEnum": null,
+                            "maksUforegrad": 0,
+                            "uforear": false,
+                            "merknadListe": [],
+                            "omsorg": false,
+                            "verdi": 0.0,
+                            "opptjeningsar": 0,
+                            "inntektIAvtaleland": false,
+                            "justertBelop": 0.0
+                        },
+                        "inntektUtenDagpenger": 73088.0,
+                        "uforeOpptjening": null,
+                        "dagpenger": 0.0,
+                        "dagpengerFiskerOgFangstmenn": 0.0,
+                        "omsorg": 0.0,
+                        "forstegangstjeneste": 0.0,
+                        "arligOpptjeningOmsorg": 0.0,
+                        "arligOpptjeningUtenOmsorg": 0.0,
+                        "psatsOpptjening": 0.0
+                    },
+                    "lonnsvekstInformasjon": null,
+                    "reguleringsInformasjon": null,
+                    "formelkodeEnum": null,
+                    "beholdningsTypeEnum": "PEN_B",
+                    "merknadListe": []
+                },
+                {
+                    "fom": "2025-01-01T12:00:00+0100",
+                    "fomLd": "2025-01-01",
+                    "tom": null,
+                    "tomLd": null,
+                    "ar": 2025,
+                    "totalbelop": 3012222.31348903,
+                    "opptjening": {
+                        "ar": 2023,
+                        "opptjeningsgrunnlag": 380410.0,
+                        "anvendtOpptjeningsgrunnlag": 380410.0,
+                        "arligOpptjening": 73469.1914890304,
+                        "lonnsvekstInformasjon": null,
+                        "poengtall": {
+                            "type": "Poengtall",
+                            "pp": 0.0,
+                            "pia": 0,
+                            "pi": 0,
+                            "ar": 0,
+                            "bruktIBeregning": false,
+                            "gv": 0,
+                            "poengtallTypeEnum": null,
+                            "maksUforegrad": 0,
+                            "uforear": false,
+                            "merknadListe": [],
+                            "omsorg": false,
+                            "verdi": 0.0,
+                            "opptjeningsar": 0,
+                            "inntektIAvtaleland": false,
+                            "justertBelop": 0.0
+                        },
+                        "inntektUtenDagpenger": 380410.0,
+                        "uforeOpptjening": null,
+                        "dagpenger": 0.0,
+                        "dagpengerFiskerOgFangstmenn": 0.0,
+                        "omsorg": 0.0,
+                        "forstegangstjeneste": 0.0,
+                        "arligOpptjeningOmsorg": 0.0,
+                        "arligOpptjeningUtenOmsorg": 0.0,
+                        "psatsOpptjening": 0.0
+                    },
+                    "lonnsvekstInformasjon": {
+                        "lonnsvekst": 0.0,
+                        "reguleringsDato": "2024-05-01T12:00:00+0200",
+                        "reguleringsDatoLd": "2024-05-01",
+                        "uttaksgradVedRegulering": 0
+                    },
+                    "reguleringsInformasjon": {
+                        "lonnsvekst": 0.0,
+                        "fratrekksfaktor": 0.0,
+                        "gammelG": 0,
+                        "nyG": 0,
+                        "reguleringsfaktor": 0.0,
+                        "gjennomsnittligUttaksgradSisteAr": 0.0,
+                        "reguleringsbelop": 128162.913507269,
+                        "prisOgLonnsvekst": 0.0
+                    },
+                    "formelkodeEnum": null,
+                    "beholdningsTypeEnum": "PEN_B",
+                    "merknadListe": []
+                }
+            ],
+            "trygdetider": [
+                {
+                    "trygdetidId": 175953035,
+                    "regelverkTypeEnum": "N_REG_G_OPPTJ",
+                    "tt": 40,
+                    "ftt": 0,
+                    "ftt_redusert": false,
+                    "ftt_fom": null,
+                    "ftt_fomLd": null,
+                    "tt_fa_mnd": 599,
+                    "tt_67_70": 0,
+                    "tt_67_75": 0,
+                    "tt_faktisk": 599,
+                    "tt_E66": 40,
+                    "tt_F67": 0,
+                    "tt_fa_F2021": null,
+                    "opptjeningsperiode": 0,
+                    "ttUtlandEos": null,
+                    "ttUtlandKonvensjon": null,
+                    "ttUtlandTrygdeavtaler": [],
+                    "merknadListe": [
+                        {
+                            "kode": "BareTTNorgeRS.PeriodeNorge",
+                            "argumentListe": [
+                                "Sun Jan 13 12:00:00 CET 1974",
+                                "Sun Dec 31 12:00:00 CET 2023"
+                            ]
+                        },
+                        {
+                            "kode": "BeregnSamletTTRS.Max40Ar",
+                            "argumentListe": []
+                        }
+                    ],
+                    "garantiTypeEnum": null,
+                    "prorataTellerVKAP": 0,
+                    "prorataNevnerVKAP": 0,
+                    "tt_fa": {
+                        "antallAr": 49,
+                        "antallMnd": 11,
+                        "antallDager": 19
+                    },
+                    "virkFom": "2025-02-01T12:00:00+0100",
+                    "virkFomLd": "2025-02-01",
+                    "virkTom": null,
+                    "virkTomLd": null,
+                    "anvendtFlyktningEnum": null
+                }
+            ],
+            "uforegrunnlagList": [],
+            "yrkesskadegrunnlagList": []
+        }
+    ],
+    "kravlinjeListe": [
+        {
+            "kravlinjeTypeEnum": "AP",
+            "relatertPerson": {
+                "penPersonId": 32262066
+            },
+            "kravlinjeStatus": "FERDIG",
+            "land": "NOR"
+        }
+    ],
+    "afpOrdningEnum": null,
+    "afptillegg": false,
+    "brukOpptjeningFra65I66Aret": false,
+    "kravVelgTypeEnum": "VARIG",
+    "boddEllerArbeidetIUtlandet": false,
+    "boddArbeidUtlandFar": false,
+    "boddArbeidUtlandMor": false,
+    "boddArbeidUtlandAvdod": false,
+    "uttaksgradListe": [
+        {
+            "fomDato": "2025-02-01T12:00:00+0100",
+            "fomDatoLd": "2025-02-01",
+            "tomDato": null,
+            "tomDatoLd": null,
+            "uttaksgrad": 100
+        }
+    ],
+    "regelverkTypeEnum": "N_REG_G_N_OPPTJ",
+    "sisteSakstypeForAPEnum": null,
+    "overstyrendeP_satsGP": 0.0,
+    "btVurderingsperiodeBenyttet": false,
+    "kravId": 43526572,
+    "kravFremsattDato": "2025-01-02T12:00:00+0100",
+    "kravFremsattDatoLd": "2025-01-02",
+    "onsketVirkningsdato": "2025-02-01T12:00:00+0100",
+    "onsketVirkningsdatoLd": "2025-02-01",
+    "gjelder": "FORSTEG_BH",
+    "sakId": 23008851,
+    "sakType": "ALDER",
+    "sakPenPersonFnr": "13415812609",
+    "sakForsteVirkningsdatoListe": [
+        {
+            "virkningsdato": "2025-02-01T12:00:00+0100",
+            "virkningsdatoLd": "2025-02-01",
+            "kravFremsattDato": "2025-01-02T12:00:00+0100",
+            "kravFremsattDatoLd": "2025-01-02",
+            "bruker": {
+                "penPersonId": 32262066
+            },
+            "annenPerson": null,
+            "kravlinjeTypeEnum": "AP",
+            "sakType": "ALDER"
+        }
+    ]
+}

@@ -14,10 +14,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
-import java.util.*
 
 class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
 
@@ -25,7 +22,6 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
      * Test filter for irrelevante ytelseskomponenter.
      * En ytelseskomponent er irrelevant hvis den er opphørt eller ubrukt.
      */
-
     test("createBeregning should filter out irrelevante ytelseskomponenter") {
         val beregning = createBeregning(
             ytelseskomponentListe = mutableListOf(
@@ -84,18 +80,18 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
     }
 
     // ===========================================
-    // Tests for virkDato
+    // Tests for virkDatoLd
     // ===========================================
 
-    test("createBeregning should set virkDato from beregningsresultat virkFom") {
+    test("createBeregning should set virkDatoLd from beregningsresultat virkFom") {
         val virkFom = LocalDate.of(2024, 3, 1)
         val beregning = createBeregning(virkFom = virkFom)
-        beregning.virkDato shouldBe virkFom.toNorwegianDateAtNoon()
+        beregning.virkDatoLd shouldBe virkFom
     }
 
-    test("createBeregning should not set virkDato when virkFom is null") {
+    test("createBeregning should not set virkDatoLd when virkFom is null") {
         val beregning = createBeregning(virkFom = null)
-        beregning.virkDato shouldBe null
+        beregning.virkDatoLd shouldBe null
     }
 
     // ===========================================
@@ -313,7 +309,7 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
         ) as SisteAldersberegning2011
 
         beregning.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_OPPTJ
-        beregning.virkDato shouldBe null
+        beregning.virkDatoLd shouldBe null
         beregning.pensjonUnderUtbetaling shouldBe null
     }
 
@@ -352,7 +348,7 @@ class Alderspensjon2011SisteBeregningCreatorTest : FunSpec({
         )
 
         beregning.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_OPPTJ
-        beregning.virkDato shouldBe dateAtNoon(2024, Calendar.JANUARY, 1)
+        beregning.virkDatoLd shouldBe LocalDate.of(2024, 1, 1)
         beregning.benyttetSivilstandEnum shouldBe BorMedTypeEnum.J_EKTEF
         beregning.tt_anv shouldBe 35
         beregning.resultatTypeEnum shouldBe ResultattypeEnum.AP2011
@@ -437,13 +433,13 @@ private fun createPersongrunnlag(
     sivilstand: SivilstandEnum? = null
 ): Persongrunnlag =
     Persongrunnlag().apply {
-        fodselsdato = dateAtNoon(1960, Calendar.JANUARY, 1)
+        fodselsdatoLd = LocalDate.of(1960, 1, 1)
         penPerson = PenPerson().apply { penPersonId = 1L }
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = rolle
-                virkFom = dateAtNoon(2020, Calendar.JANUARY, 1)
+                virkFom = LocalDate.of(2020, 1, 1)
                 sivilstand?.let { sivilstandTypeEnum = it }
             }
         )

@@ -18,11 +18,9 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
-import java.util.*
 
 class OffentligAfpBeregnerTest : ShouldSpec({
 
@@ -30,14 +28,14 @@ class OffentligAfpBeregnerTest : ShouldSpec({
 
     val persongrunnlagMedAfp =
         Persongrunnlag().apply {
-            afpHistorikkListe = listOf(AfpHistorikk().apply { virkTom = dateAtNoon(2025, Calendar.JANUARY, 1) })
+            afpHistorikkListe = listOf(AfpHistorikk().apply { virkTomLd = LocalDate.of(2025, 1, 1) })
             penPerson = PenPerson()
-            fodselsdato = dateAtNoon(1961, Calendar.JANUARY, 1)
+            fodselsdatoLd = LocalDate.of(1961, 1, 1)
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                    penRolleTom = dateAtNoon(2026, Calendar.JANUARY, 1)
+                    penRolleTom = LocalDate.of(2026, 1, 1)
                 }
             )
         }

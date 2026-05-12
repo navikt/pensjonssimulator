@@ -23,10 +23,10 @@ import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 
 @Configuration
-open class SecurityConfiguration {
+class SecurityConfiguration {
 
     @Bean
-    open fun filterChain(
+    fun filterChain(
         http: HttpSecurity,
         authResolver: AuthenticationManagerResolver<HttpServletRequest>,
         securityContextEnricher: SecurityContextEnricher
@@ -61,6 +61,8 @@ open class SecurityConfiguration {
                     .hasAnyAuthority("scope:simuler-alderspensjon")
                     .requestMatchers(HttpMethod.POST, "/api/v3/simuler-alderspensjon-privat-afp")
                     .hasAnyAuthority("scope:simuler-alderspensjon-og-privat-afp")
+                    .requestMatchers(HttpMethod.POST, "/api/v2/simuler-alderspensjon-privat-afp")
+                    .hasAnyAuthority("scope:simuler-alderspensjon-og-privat-afp")
                     .anyRequest().authenticated()
             }
             .oauth2ResourceServer {
@@ -70,7 +72,7 @@ open class SecurityConfiguration {
 
     @Bean
     @Primary
-    open fun authenticationManagerResolver(
+    fun authenticationManagerResolver(
         @Qualifier("entra-id-provider") entraProvider: ProviderManager,
         @Qualifier("maskinporten-provider") maskinportenProvider: ProviderManager
     ): AuthenticationManagerResolver<HttpServletRequest> =
@@ -78,7 +80,7 @@ open class SecurityConfiguration {
 
     @Bean("entra-id-provider")
     @Primary
-    open fun entraIdProvider(
+    fun entraIdProvider(
         @Value($$"${azure.openid.config.issuer}") issuer: String,
         @Value($$"${azure-app.client-id}") audience: String
     ): ProviderManager =
@@ -89,7 +91,7 @@ open class SecurityConfiguration {
         )
 
     @Bean("maskinporten-provider")
-    open fun maskinportenProvider(
+    fun maskinportenProvider(
         @Value($$"${maskinporten.issuer}") issuer: String,
         @Value($$"${ps.maskinporten.scope.1}") scope1: String,
         @Value($$"${ps.maskinporten.scope.2}") scope2: String,

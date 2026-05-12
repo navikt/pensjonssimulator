@@ -12,8 +12,6 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.fpp.api.acl.v1.RelasjonTypeCodeV1
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Person
@@ -75,13 +73,13 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
     }
 
     fun relasjon(
-        relasjonsType: RelasjonTypeCodeV1? = null,
+        relasjonstype: RelasjonTypeCode? = null,
         fom: LocalDate? = null,
-        pid: String? = null
+        pid: Pid
     ) = Relasjon().apply {
-        this.relasjonsType = relasjonsType
+        this.relasjonsType = relasjonstype
         this.fom = fom
-        this.person = pid?.let { PersonV1().apply { this.pid = it } }
+        this.person = FppPerson().apply { this.pid = pid }
     }
 
     fun avdoedData(
@@ -166,8 +164,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             with(soeker) {
                 penPerson?.penPersonId shouldBe 1L
                 penPerson?.pid shouldBe soekerPid
-                fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
-                dodsdato.shouldBeNull()
+                fodselsdatoLd shouldBe foedselsdato
+                dodsdatoLd.shouldBeNull()
                 antallArUtland shouldBe 0
                 flyktning shouldBe true
                 over60ArKanIkkeForsorgesSelv shouldBe false
@@ -200,7 +198,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
                 bruk shouldBe true
                 sivilstandTypeEnum shouldBe SivilstandEnum.UGIF
-                penRolleFom shouldBe foedselsdato.toNorwegianDateAtNoon()
+                penRolleFom shouldBe foedselsdato
             }
         }
 
@@ -300,11 +298,14 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val inntektsgrunnlag = result.persongrunnlagListe.first().inntektsgrunnlagListe
+
             inntektsgrunnlag shouldHaveSize 1
-            inntektsgrunnlag[0].belop shouldBe 750000
-            inntektsgrunnlag[0].inntektTypeEnum shouldBe InntekttypeEnum.FPI
-            inntektsgrunnlag[0].grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
-            inntektsgrunnlag[0].fom shouldBe uttaksdato.toNorwegianDateAtNoon()
+            with(inntektsgrunnlag.first()) {
+                belop shouldBe 750000
+                inntektTypeEnum shouldBe InntekttypeEnum.FPI
+                grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
+                fomLd shouldBe uttaksdato
+            }
         }
 
         should("ikke inkludere EPS-persongrunnlag når epsData er null") {
@@ -476,7 +477,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             result.persongrunnlagListe[1].personDetaljListe.first()
-                .penRolleFom shouldBe uttaksdato.minusDays(1).toNorwegianDateAtNoon()
+                .penRolleFom shouldBe uttaksdato.minusDays(1)
         }
 
         should("beregne EPS-beløp som 2G+1 når epsInntektOver2G er true") {
@@ -602,8 +603,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                         valgtSivilstatus = SivilstatusType.GIFT,
                         registrertSivilstatus = SivilstandEnum.GIFT,
                         eps = relasjon(
-                            relasjonsType = RelasjonTypeCodeV1.GLAD,
-                            pid = epsPid.value
+                            relasjonstype = RelasjonTypeCode.GLAD,
+                            pid = epsPid
                         )
                     )
                 ),
@@ -682,8 +683,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                         valgtSivilstatus = SivilstatusType.GIFT,
                         registrertSivilstatus = SivilstandEnum.GIFT,
                         eps = relasjon(
-                            relasjonsType = RelasjonTypeCodeV1.GLAD,
-                            pid = epsPid.value
+                            relasjonstype = RelasjonTypeCode.GLAD,
+                            pid = epsPid
                         )
                     )
                 ),
@@ -696,7 +697,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val imfu = soekerInntekt.first { it.inntektTypeEnum == InntekttypeEnum.IMFU }
             imfu.belop shouldBe 45000
-            imfu.fom shouldBe uttaksdato.minusMonths(1).toNorwegianDateAtNoon()
+            imfu.fomLd shouldBe uttaksdato.minusMonths(1)
         }
 
         should("inkludere PENF-inntektsgrunnlag for EPS ved AFP når epsMottarPensjon er true") {
@@ -710,8 +711,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                         registrertSivilstatus = SivilstandEnum.GIFT,
                         epsMottarPensjon = true,
                         eps = relasjon(
-                            relasjonsType = RelasjonTypeCodeV1.GLAD,
-                            pid = epsPid.value
+                            relasjonstype = RelasjonTypeCode.GLAD,
+                            pid = epsPid
                         )
                     )
                 ),
@@ -737,8 +738,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                         registrertSivilstatus = SivilstandEnum.GIFT,
                         epsMottarPensjon = false,
                         eps = relasjon(
-                            relasjonsType = RelasjonTypeCodeV1.GLAD,
-                            pid = epsPid.value
+                            relasjonstype = RelasjonTypeCode.GLAD,
+                            pid = epsPid
                         )
                     )
                 ),
@@ -770,7 +771,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val eps = result.persongrunnlagListe[1]
             eps.penPerson?.penPersonId shouldBe -2L
-            eps.fodselsdato shouldBe today.minusYears(59).toNorwegianDateAtNoon()
+            eps.fodselsdatoLd shouldBe today.minusYears(59)
         }
 
         should("bruke EPS pid og søker fødselsdato for EPS ved AFP når sivilstatus matcher") {
@@ -782,7 +783,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                     epsData = epsData(
                         valgtSivilstatus = SivilstatusType.GIFT,
                         registrertSivilstatus = SivilstandEnum.GIFT, // match
-                        eps = relasjon(pid = epsPid.value)
+                        eps = relasjon(pid = epsPid)
                     )
                 ),
                 opptjeningFolketrygden = null,
@@ -792,7 +793,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val eps = result.persongrunnlagListe[1]
             eps.penPerson?.penPersonId shouldBe 2L
             eps.penPerson?.pid shouldBe epsPid
-            eps.fodselsdato shouldBe foedselsdato.toNorwegianDateAtNoon()
+            eps.fodselsdatoLd shouldBe foedselsdato
         }
 
         should("ikke inkludere barn-persongrunnlag for AFP-simulering") {
@@ -804,7 +805,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                     epsData = epsData(
                         valgtSivilstatus = SivilstatusType.GIFT,
                         registrertSivilstatus = SivilstandEnum.GIFT,
-                        eps = relasjon(pid = epsPid.value)
+                        eps = relasjon(pid = epsPid)
                     )
                 ),
                 opptjeningFolketrygden = null,
@@ -826,7 +827,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
     context("GJENLEVENDE simulering") {
         should("alltid inkludere EPS-persongrunnlag med AVDOD-rolle") {
             val avdoed = avdoedData(
-                relasjon = relasjon(pid = epsPid.value)
+                relasjon = relasjon(pid = epsPid)
             )
 
             val result = creator().createSpec(
@@ -857,7 +858,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             result.persongrunnlagListe.first().personDetaljListe.first()
-                .penRolleFom shouldBe doedsdato.toNorwegianDateAtNoon()
+                .penRolleFom shouldBe doedsdato
         }
 
         should("sette opptjeningsgrunnlag til tom liste for søker ved GJENLEVENDE") {
@@ -903,7 +904,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 avdodMedlemFolketrygden = true,
                 avdodInntektMinst1G = true,
                 dodAvYrkesskade = false,
-                relasjon = relasjon(pid = epsPid.value)
+                relasjon = relasjon(pid = epsPid)
             )
 
             val result = creator().createSpec(
@@ -915,7 +916,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val eps = result.persongrunnlagListe[1]
-            eps.dodsdato shouldBe doedsdato.toNorwegianDateAtNoon()
+            eps.dodsdatoLd shouldBe doedsdato
             eps.flyktning shouldBe true
             eps.antallArUtland shouldBe 3
             eps.medlemIFolketrygdenSiste3Ar shouldBe true
@@ -929,7 +930,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 datoForDodsfall = doedsdato,
                 dodAvYrkesskade = true,
                 inntektPaaDodstidspunktHvisYrkesskade = 750000,
-                relasjon = relasjon(pid = epsPid.value)
+                relasjon = relasjon(pid = epsPid)
             )
 
             val result = creator().createSpec(
@@ -942,15 +943,16 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val eps = result.persongrunnlagListe[1]
             eps.dodAvYrkesskade shouldBe true
-            eps.yrkesskadegrunnlag.shouldNotBeNull()
-            eps.yrkesskadegrunnlag!!.antattArligInntekt shouldBe 750000
-            eps.yrkesskadegrunnlag!!.yrkeEnum shouldBe YrkeYrkesskadeEnum.ARB
-            eps.yrkesskadegrunnlag!!.yug shouldBe 100
-            eps.yrkesskadegrunnlag!!.yst shouldBe doedsdato.toNorwegianDateAtNoon()
+            with(eps.yrkesskadegrunnlag!!) {
+                antattArligInntekt shouldBe 750000
+                yrkeEnum shouldBe YrkeYrkesskadeEnum.ARB
+                yug shouldBe 100
+                ystLd shouldBe doedsdato
+            }
         }
 
         should("bruke avdødes opptjeningsgrunnlag for EPS ved GJENLEVENDE") {
-            val avdoed = avdoedData(relasjon = relasjon(pid = epsPid.value))
+            val avdoed = avdoedData(relasjon = relasjon(pid = epsPid))
             val opptjening = opptjeningFolketrygden(
                 avdodesOpptjening = listOf(
                     opptjeningData(ar = 2015, pensjonsgivendeInntekt = 400000, omsorgspoeng = 0.0)
@@ -973,7 +975,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         should("beregne EPS FPI-beløp som G+1 når avdødInntektMinst1G er true") {
             val avdoed = avdoedData(
                 avdodInntektMinst1G = true,
-                relasjon = relasjon(pid = epsPid.value)
+                relasjon = relasjon(pid = epsPid)
             )
 
             val result = creator().createSpec(
@@ -990,7 +992,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
         should("beregne EPS FPI-beløp som 0 når avdødInntektMinst1G er false") {
             val avdoed = avdoedData(
                 avdodInntektMinst1G = false,
-                relasjon = relasjon(pid = epsPid.value)
+                relasjon = relasjon(pid = epsPid)
             )
 
             val result = creator().createSpec(
@@ -1053,8 +1055,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.MORA,
-                    pid = morPid.value
+                    relasjonstype = RelasjonTypeCode.MORA,
+                    pid = morPid
                 )
             )
 
@@ -1087,8 +1089,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.MORA,
-                    pid = morPid.value
+                    relasjonstype = RelasjonTypeCode.MORA,
+                    pid = morPid
                 )
             )
 
@@ -1112,8 +1114,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.MORA,
-                    pid = morPid.value
+                    relasjonstype = RelasjonTypeCode.MORA,
+                    pid = morPid
                 )
             )
 
@@ -1137,8 +1139,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.MORA,
-                    pid = morPid.value
+                    relasjonstype = RelasjonTypeCode.MORA,
+                    pid = morPid
                 )
             )
 
@@ -1162,8 +1164,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.MORA,
-                    pid = morPid.value
+                    relasjonstype = RelasjonTypeCode.MORA,
+                    pid = morPid
                 )
             )
 
@@ -1193,8 +1195,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 avdodAntAarIUtlandet = 2,
                 avdodInntektMinst1G = true,
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.MORA,
-                    pid = morPid.value
+                    relasjonstype = RelasjonTypeCode.MORA,
+                    pid = morPid
                 )
             )
 
@@ -1207,22 +1209,25 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             )
 
             val forelderGrunnlag = result.persongrunnlagListe[1]
-            forelderGrunnlag.penPerson?.penPersonId shouldBe 3L
-            forelderGrunnlag.penPerson?.pid shouldBe morPid
-            forelderGrunnlag.fodselsdato shouldBe morFoedselsdato.toNorwegianDateAtNoon()
-            forelderGrunnlag.dodsdato shouldBe doedsdato.toNorwegianDateAtNoon()
-            forelderGrunnlag.flyktning shouldBe true
-            forelderGrunnlag.antallArUtland shouldBe 2
-            forelderGrunnlag.arligPGIMinst1G shouldBe true
-            forelderGrunnlag.over60ArKanIkkeForsorgesSelv shouldBe false
-            forelderGrunnlag.dodAvYrkesskade shouldBe false
-            forelderGrunnlag.medlemIFolketrygdenSiste3Ar shouldBe true
-            forelderGrunnlag.statsborgerskapEnum shouldBe LandkodeEnum.NOR
-
+            with(forelderGrunnlag) {
+                penPerson?.penPersonId shouldBe 3L
+                penPerson?.pid shouldBe morPid
+                fodselsdatoLd shouldBe morFoedselsdato
+                dodsdatoLd shouldBe doedsdato
+                flyktning shouldBe true
+                antallArUtland shouldBe 2
+                arligPGIMinst1G shouldBe true
+                over60ArKanIkkeForsorgesSelv shouldBe false
+                dodAvYrkesskade shouldBe false
+                medlemIFolketrygdenSiste3Ar shouldBe true
+                statsborgerskapEnum shouldBe LandkodeEnum.NOR
+            }
             val forelderDetalj = forelderGrunnlag.personDetaljListe.first()
-            forelderDetalj.grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.MOR
-            forelderDetalj.penRolleFom shouldBe morFoedselsdato.toNorwegianDateAtNoon()
-            forelderDetalj.borMedEnum shouldBe BorMedTypeEnum.J_BARN
+            with(forelderDetalj) {
+                grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.MOR
+                penRolleFom shouldBe morFoedselsdato
+                borMedEnum shouldBe BorMedTypeEnum.J_BARN
+            }
         }
 
         should("opprette forelder-persongrunnlag med FAR-rolle") {
@@ -1233,8 +1238,8 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
             val avdoed = avdoedData(
                 relasjon = relasjon(
-                    relasjonsType = RelasjonTypeCodeV1.FARA,
-                    pid = farPid.value
+                    relasjonstype = RelasjonTypeCode.FARA,
+                    pid = farPid
                 )
             )
 
@@ -1258,10 +1263,10 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             every { personService.person(farPid) } returns svenskPerson(LocalDate.of(1968, 8, 20))
 
             val avdoedMor = avdoedData(
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.MORA, pid = morPid)
             )
             val avdoedFar = avdoedData(
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.FARA, pid = farPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.FARA, pid = farPid)
             )
 
             val opptjening = opptjeningFolketrygden(
@@ -1298,7 +1303,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.MORA, pid = morPid)
             )
 
             val opptjening = opptjeningFolketrygden(
@@ -1325,7 +1330,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 datoForDodsfall = doedsdato,
                 dodAvYrkesskade = true,
                 inntektPaaDodstidspunktHvisYrkesskade = 600000,
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.MORA, pid = morPid)
             )
 
             val result = creator(personService = personService).createSpec(
@@ -1351,7 +1356,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             every { personService.person(soeskenPid) } returns norskPerson(soeskenFoedselsdato)
 
             val avdoed = avdoedData(
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.MORA, pid = morPid)
             )
 
             val soeskenData = BarneopplysningerSoeskenData().apply {
@@ -1379,7 +1384,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val soeskenGrunnlag = result.persongrunnlagListe[2]
             soeskenGrunnlag.penPerson?.penPersonId shouldBe 50L
             soeskenGrunnlag.penPerson?.pid shouldBe soeskenPid
-            soeskenGrunnlag.fodselsdato shouldBe soeskenFoedselsdato.toNorwegianDateAtNoon()
+            soeskenGrunnlag.fodselsdatoLd shouldBe soeskenFoedselsdato
             soeskenGrunnlag.antallArUtland shouldBe 0
             soeskenGrunnlag.over60ArKanIkkeForsorgesSelv shouldBe false
             soeskenGrunnlag.dodAvYrkesskade shouldBe false
@@ -1402,7 +1407,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             }
 
             val avdoed = avdoedData(
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.MORA, pid = morPid)
             )
 
             val soeskenData = BarneopplysningerSoeskenData().apply {
@@ -1432,7 +1437,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
             val personService = arrangeMor(morPid)
 
             val avdoed = avdoedData(
-                relasjon = relasjon(relasjonsType = RelasjonTypeCodeV1.MORA, pid = morPid.value)
+                relasjon = relasjon(relasjonstype = RelasjonTypeCode.MORA, pid = morPid)
             )
 
             val barneopplysninger = Barneopplysninger().apply {
@@ -1487,9 +1492,9 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
 
     context("EPS statsborgerskap") {
         should("hente statsborgerskap fra epsData relasjon") {
-            val epsRelasjon = relasjon(pid = epsPid.value).apply {
-                person = PersonV1().apply {
-                    pid = epsPid.value
+            val epsRelasjon = relasjon(pid = epsPid).apply {
+                person = FppPerson().apply {
+                    pid = epsPid
                     personUtland = PersonUtland().apply {
                         statsborgerskap = LandkodeEnum.SWE
                     }
@@ -1519,7 +1524,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                 personopplysninger = personopplysninger(
                     epsData = epsData(
                         valgtSivilstatus = SivilstatusType.GIFT,
-                        eps = relasjon(pid = epsPid.value)
+                        eps = relasjon(pid = epsPid)
                     )
                 ),
                 opptjeningFolketrygden = null,
@@ -1884,7 +1889,7 @@ class FppSimuleringSpecCreatorTest : ShouldSpec({
                     epsData = epsData(
                         valgtSivilstatus = SivilstatusType.GIFT,
                         registrertSivilstatus = SivilstandEnum.GIFT,
-                        eps = relasjon(pid = epsPid.value)
+                        eps = relasjon(pid = epsPid)
                     )
                 ),
                 opptjeningFolketrygden = null,

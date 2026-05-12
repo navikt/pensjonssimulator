@@ -37,10 +37,10 @@ class PenVilkaarsvedtak {
     var vilkarsvedtakResultatEnum: VedtakResultatEnum? = null
     var kravlinjeTypeEnum: KravlinjeTypeEnum? = null
     var anvendtVurderingEnum: VilkarVurderingEnum? = null
-    var virkFom: Date? = null
-    var virkTom: Date? = null
-    var forsteVirk: Date? = null
-    var kravlinjeForsteVirk: Date? = null
+    var virkFomLd: LocalDate? = null
+    var virkTomLd: LocalDate? = null
+    var forsteVirkLd: LocalDate? = null
+    var kravlinjeForsteVirkLd: LocalDate? = null
     var kravlinje: Kravlinje? = null
     var penPerson: PenPerson? = null
     var vilkarsprovresultat: AbstraktVilkarsprovResultat? = null

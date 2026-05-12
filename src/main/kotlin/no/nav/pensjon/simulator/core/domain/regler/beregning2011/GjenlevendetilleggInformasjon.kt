@@ -3,9 +3,9 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseVedDodEnum
 import no.nav.pensjon.simulator.core.domain.regler.trygdetid.AnvendtTrygdetid
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
-import java.util.*
+import java.time.LocalDate
 
-// 2025-03-10
+// 2026-04-23
 class GjenlevendetilleggInformasjon {
     /**
      * Avdødes beregningsgrunnlag.
@@ -18,14 +18,14 @@ class GjenlevendetilleggInformasjon {
     var anvendtTrygdetid: AnvendtTrygdetid? = null
 
     /**
-     * Dødsdato.
+     * dødsdato.
      */
-    var dodstidspunkt: Date? = null
+    var dodstidspunktLd: LocalDate? = null
 
     /**
      * Hvis ufør ved død er dette gjeldende uføretidspunkt.
      */
-    var uforetidspunkt: Date? = null
+    var uforetidspunktLd: LocalDate? = null
 
     /**
      * Hvilken ytelse avdød mottok ved sin død.
@@ -65,7 +65,7 @@ class GjenlevendetilleggInformasjon {
     /**
      * Skadetidspunkt ved yrkesskade.
      */
-    var skadetidspunkt: Date? = null
+    var skadetidspunktLd: LocalDate? = null
 
     /**
      * Avdødes yrkesskadegrad.
@@ -76,15 +76,15 @@ class GjenlevendetilleggInformasjon {
 
     constructor(source: GjenlevendetilleggInformasjon) {
         anvendtTrygdetid = source.anvendtTrygdetid?.let(::AnvendtTrygdetid)
-        dodstidspunkt = source.dodstidspunkt?.clone() as? Date
-        uforetidspunkt = source.uforetidspunkt?.clone() as? Date
+        dodstidspunktLd = source.dodstidspunktLd
+        uforetidspunktLd = source.uforetidspunktLd
         ytelseVedDodEnum = source.ytelseVedDodEnum
         gjenlevendepensjon = source.gjenlevendepensjon
         minsteYtelseBenyttetUngUfor = source.minsteYtelseBenyttetUngUfor
         minsteYtelseArsbelop = source.minsteYtelseArsbelop
         minsteYtelseSats = source.minsteYtelseSats
         yrkesskade = source.yrkesskade
-        skadetidspunkt = source.skadetidspunkt?.clone() as? Date
+        skadetidspunktLd = source.skadetidspunktLd
         yrkesskadegrad = source.yrkesskadegrad
 
         (source.beregningsgrunnlagAvdodOrdiner as? BeregningsgrunnlagOrdiner)?.let {

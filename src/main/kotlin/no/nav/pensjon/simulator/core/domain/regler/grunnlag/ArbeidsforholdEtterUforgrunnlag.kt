@@ -1,13 +1,13 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import java.util.*
+import java.time.LocalDate
 
-// 2025-06-06
+// 2026-04-23
 class ArbeidsforholdEtterUforgrunnlag {
     /**
      * Fom date for arbeidsforholdet.
      */
-    var fomDato: Date? = null
+    var fomDatoLd: LocalDate? = null
 
     /**
      * Work load.

@@ -1,11 +1,8 @@
 package no.nav.pensjon.simulator.core.util
 
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpVedtak
-import no.nav.pensjon.simulator.core.domain.Vedtak
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -42,7 +39,7 @@ object PeriodeUtil {
         var result: VeietSatsResultat? = null
 
         for (element in list) {
-            if (element.ar.equals(year)) {
+            if (element.ar == year) {
                 result = element
                 break
             }
@@ -52,22 +49,11 @@ object PeriodeUtil {
     }
 
     // PeriodisertInformasjonListeUtils.findValidForDate
-    fun findValidForDate(list: List<AbstraktBeregningsResultat>, date: Date): AbstraktBeregningsResultat? =
-        list.firstOrNull { isValidForDate(it, date) }
-
     fun findValidForDate(list: List<AbstraktBeregningsResultat>, date: LocalDate): AbstraktBeregningsResultat? =
-        list.firstOrNull { isValidForDate(it, date.toNorwegianDateAtNoon()) }
+        list.firstOrNull { isValidForDate(tidsbegrenset = it, date) }
 
     // PeriodisertInformasjonListeUtils.findEarliest
     fun findEarliest(list: List<AbstraktBeregningsResultat>): AbstraktBeregningsResultat? =
-        when {
-            list.isEmpty() -> null
-            list.size == 1 -> list[0]
-            else -> earliestAmong(list)
-        }
-
-    // PeriodisertInformasjonListeUtils.findEarliest
-    fun findEarliest(list: List<Vedtak>): Vedtak? =
         when {
             list.isEmpty() -> null
             list.size == 1 -> list[0]
@@ -83,23 +69,7 @@ object PeriodeUtil {
         }
 
     // PeriodisertInformasjonListeUtils.findLatest
-    fun findLatest(list: List<Pre2025OffentligAfpVedtak>): Pre2025OffentligAfpVedtak? =
-        when {
-            list.isEmpty() -> null
-            list.size == 1 -> list[0]
-            else -> latestAmong(list)
-        }
-
-    // PeriodisertInformasjonListeUtils.findLatest
     fun findLatest(list: List<Pensjonsbeholdning>): Pensjonsbeholdning? =
-        when {
-            list.isEmpty() -> null
-            list.size == 1 -> list[0]
-            else -> latestAmong(list)
-        }
-
-    // PeriodisertInformasjonListeUtils.findLatest
-    fun findLatest(list: List<Vedtak>): Vedtak? =
         when {
             list.isEmpty() -> null
             list.size == 1 -> list[0]
@@ -110,16 +80,8 @@ object PeriodeUtil {
         date.plusDays(1L).dayOfMonth == 1
 
     // PeriodisertInformasjonUtils.isValidForDate
-    private fun isValidForDate(tidsbegrenset: AbstraktBeregningsResultat, date: Date): Boolean =
-        isDateInPeriod(date, tidsbegrenset.virkFomLd, tidsbegrenset.virkTom)
-
-    // PeriodisertInformasjonUtils.isValidForDate
-    private fun isValidForDate(tidsbegrenset: Pensjonsbeholdning, date: Date): Boolean =
-        isDateInPeriod(date, tidsbegrenset.fom, tidsbegrenset.tom)
-
-    // Part of PeriodisertInformasjonListeUtils.findAllValidForDate
-    private fun isValidForDate(tidsbegrenset: VilkarsVedtak, date: Date): Boolean =
-        isDateInPeriod(date, tidsbegrenset.virkFom, tidsbegrenset.virkTom)
+    private fun isValidForDate(tidsbegrenset: AbstraktBeregningsResultat, date: LocalDate): Boolean =
+        isDateInPeriod(date, tidsbegrenset.virkFomLd, tidsbegrenset.virkTomLd)
 
     // Extracted from PeriodisertInformasjonListeUtils.findEarliest
     private fun earliestAmong(list: List<AbstraktBeregningsResultat>): AbstraktBeregningsResultat? {
@@ -131,21 +93,6 @@ object PeriodeUtil {
             if (isBeforeByDay(virkFom, earliestFom, false)) {
                 result = it
                 earliestFom = virkFom
-            }
-        }
-
-        return result
-    }
-
-    // Extracted from PeriodisertInformasjonListeUtils.findEarliest
-    private fun earliestAmong(list: List<Vedtak>): Vedtak? {
-        var result: Vedtak? = null
-        var earliestFom = ETERNITY
-
-        list.forEach {
-            if (isBeforeByDay(it.fom, earliestFom, false)) {
-                result = it
-                earliestFom = it.fom.toNorwegianDateAtNoon()
             }
         }
 
@@ -168,46 +115,16 @@ object PeriodeUtil {
         return result
     }
 
-    // Extracted from PeriodisertInformasjonListeUtils.findLatest
-    private fun latestAmong(list: List<Pre2025OffentligAfpVedtak>): Pre2025OffentligAfpVedtak? {
-        var result: Pre2025OffentligAfpVedtak? = null
-        var latestFom: Date? = null
-
-        list.forEach {
-            val fom = it.fom.toNorwegianDateAtNoon()
-            if (isAfterByDay(fom, latestFom, false)) {
-                result = it
-                latestFom = fom
-            }
-        }
-
-        return result
-    }
-
-    // Extracted from PeriodisertInformasjonListeUtils.findLatest
-    private fun latestAmong(list: List<Vedtak>): Vedtak? {
-        var result: Vedtak? = null
-        var latestFom: Date? = null
-
-        list.forEach {
-            if (isAfterByDay(it.fom, latestFom, false)) {
-                result = it
-                latestFom = it.fom.toNorwegianDateAtNoon()
-            }
-        }
-
-        return result
-    }
 
     // Extracted from PeriodisertInformasjonListeUtils.findLatest
     private fun latestAmong(list: List<Pensjonsbeholdning>): Pensjonsbeholdning? {
         var result: Pensjonsbeholdning? = null
-        var latestFom: Date? = null
+        var latestFom: LocalDate? = null
 
         list.forEach {
-            if (isAfterByDay(it.fom, latestFom, false)) {
+            if (isAfterByDay(it.fomLd, latestFom, false)) {
                 result = it
-                latestFom = it.fom
+                latestFom = it.fomLd
             }
         }
 

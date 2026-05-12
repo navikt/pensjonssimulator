@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.JustertPeriodeEnum
-import java.util.*
+import java.time.LocalDate
 
+// 2026-04-23
 /**
  * Objektet inneholder informasjon om perioder der person har institusjonsopphold som kan medføre reduksjon av pensjon.
  */
-// Checked 2025-02-28
 class InstOpphReduksjonsperiode {
     /**
      * Unik identifikasjon av objektet.
@@ -16,12 +16,12 @@ class InstOpphReduksjonsperiode {
     /**
      * Fra og med dato
      */
-    var fom: Date? = null
+    var fomLd: LocalDate? = null
 
     /**
      * Til og med dato
      */
-    var tom: Date? = null
+    var tomLd: LocalDate? = null
 
     /**
      * Angir om reduksjon er grunnet varighet.
@@ -42,24 +42,10 @@ class InstOpphReduksjonsperiode {
 
     constructor(source: InstOpphReduksjonsperiode) : this() {
         instOpphReduksjonsperiodeId = source.instOpphReduksjonsperiodeId
-        fom = source.fom?.clone() as? Date
-        tom = source.tom?.clone() as? Date
+        fomLd = source.fomLd
+        tomLd = source.tomLd
         reduksjonGrunnetVarighet = source.reduksjonGrunnetVarighet
         justertPeriodeTypeEnum =source.justertPeriodeTypeEnum
         forsorgeransvar = source.forsorgeransvar
-    }
-
-    override fun toString(): String {
-        val TAB = "    "
-
-        var retValue =
-            ("InstOpphReduksjonsperiode ( " + super.toString() + TAB + "instOpphReduksjonsperiodeId = " + instOpphReduksjonsperiodeId + TAB + "fom = " + fom + TAB + "tom = "
-                    + tom + TAB + "reduksjonGrunnetVarighet = " + reduksjonGrunnetVarighet + TAB)
-        if (justertPeriodeTypeEnum != null) {
-            retValue += "justertPeriodeType = " + justertPeriodeTypeEnum + TAB
-        }
-        retValue += " )"
-
-        return retValue
     }
 }

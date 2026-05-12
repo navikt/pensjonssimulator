@@ -1,13 +1,14 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpFoerstegangBeregner.Companion.AFP_VIRKNING_TOM_ALDER_AAR
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.findEarliestDateByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.util.*
 
@@ -26,25 +27,25 @@ object Pre2025OffentligAfpTerminator {
         val persongrunnlag: Persongrunnlag = kravhode.hentPersongrunnlagForSoker()
         val afpHistorikk: AfpHistorikk? = persongrunnlag.afpHistorikkListe.firstOrNull()
 
-        if (afpHistorikk == null || afpHistorikk.virkTom != null) {
+        if (afpHistorikk == null || afpHistorikk.virkTomLd != null) {
             return Pre2025OffentligAfpResult(simuleringResult = null, kravhode)
         }
 
-        val alderspensjonFom: Date? = persongrunnlag.fodselsdato?.let {
+        val alderspensjonFom: Date? = persongrunnlag.fodselsdatoLd?.let {
             firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
         }
 
-        val dagenEtterAfpVirkningTom: Date? =
+        val dagenEtterAfpVirkningTom: LocalDate? =
             findEarliestDateByDay(
                 first = alderspensjonFom,
                 second = foersteUttakDato?.toNorwegianDateAtNoon()
-            )
+            )?.toNorwegianLocalDate()
 
-        val virkningTom: Date? = dagenEtterAfpVirkningTom?.let { getRelativeDateByDays(date = it, days = -1) }
+        val virkningTom: LocalDate? = dagenEtterAfpVirkningTom?.minusDays(1)
 
         // Remove AFP-historikk if calculated virkning-t.o.m. is before virkning-f.o.m.:
-        if (afpHistorikk.virkFom != null && isAfterByDay(virkningTom, afpHistorikk.virkFom, false)) {
-            afpHistorikk.virkTom = virkningTom
+        if (afpHistorikk.virkFomLd != null && isAfterByDay(virkningTom, afpHistorikk.virkFomLd, false)) {
+            afpHistorikk.virkTomLd = virkningTom
         } else {
             persongrunnlag.afpHistorikkListe = mutableListOf()
         }

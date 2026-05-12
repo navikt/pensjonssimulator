@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.result.SimulatorOutputMapper.mapToSimulertOpptjening
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
 
@@ -34,7 +33,7 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
         // 'Siste kalenderår' er pr. 2025 det året personen fyller 75 år,
         // men det kan bli høyere i framtiden pga. økt pensjonsalder
         val sisteKalenderAar =
-            normalderService.oevreAlderOppnaasDato(soekerGrunnlag.fodselsdato!!.toNorwegianLocalDate()).year
+            normalderService.oevreAlderOppnaasDato(soekerGrunnlag.fodselsdatoLd!!).year
 
         for (aar in foersteKalenderAar..sisteKalenderAar) {
             opptjeningListe.add(

@@ -24,10 +24,10 @@ object DateUtil {
     fun monthOfYearRange1To12(date: LocalDate): Int =
         monthOfYearRange1To12(date.toNorwegianDateAtNoon())
 
-    fun dateIsValid(fom: Date?, tom: Date?, virkFom: LocalDate?, virkTom: LocalDate?) =
+    fun dateIsValid(fom: LocalDate?, tom: LocalDate?, virkFom: LocalDate?, virkTom: LocalDate?) =
         intersectsWithPossiblyOpenEndings(
-            o1Start = fom?.toNorwegianLocalDate(),
-            o1End = tom?.toNorwegianLocalDate(),
+            o1Start = fom,
+            o1End = tom,
             o2Start = virkFom,
             o2End = virkTom,
             considerContactByDayAsIntersection = true
@@ -38,7 +38,7 @@ object DateUtil {
      * that same day is regarded as intersection if `considerContactByDayAsIntersection` is true. The endings of
      * the respective periods can be NULL, if so these will be set to infinity.
      */
-    private fun intersectsWithPossiblyOpenEndings(
+    fun intersectsWithPossiblyOpenEndings(
         o1Start: LocalDate?, o1End: LocalDate?, o2Start: LocalDate?, o2End: LocalDate?,
         considerContactByDayAsIntersection: Boolean
     ): Boolean =
@@ -193,11 +193,8 @@ object DateUtil {
     fun isDateInPeriod(dato: LocalDate?, fom: Date?, tom: Date?): Boolean =
         isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom, tom)
 
-    fun isDateInPeriod(dato: Date?, fom: LocalDate?, tom: Date?): Boolean =
-        isDateInPeriod(dato, fom?.toNorwegianDateAtNoon(), tom)
-
-    fun isDateInPeriod(dato: LocalDate?, fom: LocalDate?, tom: Date?): Boolean =
-        isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom?.toNorwegianDateAtNoon(), tom)
+    fun isDateInPeriod(dato: LocalDate?, fom: LocalDate?, tom: LocalDate?): Boolean =
+        isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon())
 
     /**
      * Returns true if the dates are the same day.
@@ -241,10 +238,6 @@ object DateUtil {
         return findLastDayInMonthBefore(dato)
     }
 
-    // no.stelvio.common.util.DateUtil.getFirstDayOfMonth
-    fun getFirstDayOfMonth(date: Date): Date =
-        getFirstOrLastDayOfMonth(date, true)
-
     // no.stelvio.common.util.DateUtil.getFirstOrLastDayOfMonth
     private fun getFirstOrLastDayOfMonth(date: Date, first: Boolean): Date =
         NorwegianCalendar.forNoon(date).apply {
@@ -257,6 +250,9 @@ object DateUtil {
     fun getLastDayOfMonth(date: Date): Date =
         getFirstOrLastDayOfMonth(date, false)
 
+    fun getLastDayOfMonth(date: LocalDate): Date =
+        getFirstOrLastDayOfMonth(date.toNorwegianDateAtNoon(), false)
+
     // no.stelvio.common.util.DateUtil.getFirstDateInYear
     fun getFirstDateInYear(date: Date): Date =
         NorwegianCalendar.forNoon(date).apply {
@@ -267,13 +263,6 @@ object DateUtil {
     //TODO replace by foersteDag
     fun getFirstDateInYear(date: LocalDate): LocalDate =
         getFirstDateInYear(date.toNorwegianDateAtNoon()).toNorwegianLocalDate()
-
-    // no.stelvio.common.util.DateUtil.getLastDateInYear
-    fun getLastDateInYear(date: Date): Date =
-        NorwegianCalendar.forNoon(date).apply {
-            this[Calendar.MONTH] = Calendar.DECEMBER
-            this[Calendar.DAY_OF_MONTH] = getActualMaximum(Calendar.DAY_OF_MONTH)
-        }.time
 
     // SimuleringEtter2011Utils.yearUserTurnsGivenAge
     fun yearUserTurnsGivenAge(foedselsdato: Date, age: Int): Int =
@@ -305,14 +294,6 @@ object DateUtil {
 
     fun getRelativeDateByDays(date: LocalDate, days: Int): LocalDate =
         getRelativeDateByDays(date.toNorwegianDateAtNoon(), days).toNorwegianLocalDate()
-
-    /**
-     * Finner datoer X måneder fremover/tilbake i tid.
-     */
-    fun getRelativeDateByMonth(date: Date, months: Int): Date =
-        NorwegianCalendar.forNoon(date).apply {
-            add(Calendar.MONTH, months)
-        }.time
 
     /**
      * Finner datoer X år fram/tilbake i tid.
@@ -431,7 +412,7 @@ object DateUtil {
         return calendar.getActualMinimum(Calendar.DAY_OF_MONTH) == calendar[Calendar.DAY_OF_MONTH]
     }
 
-    private fun lastDayOfMonth(date: LocalDate): LocalDate =
+    fun lastDayOfMonth(date: LocalDate): LocalDate =
         date.plusMonths(1L).withDayOfMonth(1).minusDays(1L)
 
     /**

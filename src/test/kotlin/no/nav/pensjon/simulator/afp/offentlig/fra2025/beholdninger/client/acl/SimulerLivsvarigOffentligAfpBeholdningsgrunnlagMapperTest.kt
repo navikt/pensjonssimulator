@@ -5,7 +5,7 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.fra2025.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
-import no.nav.pensjon.simulator.inntekt.Inntekt
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
@@ -18,8 +18,8 @@ class SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapperTest : ShouldSpec({
                 foedselsdato = LocalDate.now(),
                 fom = LocalDate.of(2025, 3, 1),
                 fremtidigInntektListe = listOf(
-                    Inntekt(fom = LocalDate.of(2025, 10, 1), aarligBeloep = 500000),
-                    Inntekt(fom = LocalDate.of(2026, 10, 1), aarligBeloep = 520000),
+                    LoependeInntekt(fom = LocalDate.of(2025, 10, 1), aarligBeloep = 500000),
+                    LoependeInntekt(fom = LocalDate.of(2026, 10, 1), aarligBeloep = 520000),
                 )
             )
 

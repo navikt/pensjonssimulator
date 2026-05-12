@@ -144,13 +144,12 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             return VilkarsVedtak().apply {
                 this.anbefaltResultatEnum = vedtakResultat
                 this.vilkarsvedtakResultatEnum = vedtakResultat
-                this.virkFom = virkningFom.toNorwegianDateAtNoon()
-                this.virkTom = null
+                this.virkFomLd = virkningFom
+                this.virkTomLd = null
                 this.kravlinje = kravlinje
                 this.kravlinjeTypeEnum = kravlinje.type
                 this.penPerson = kravlinje.person
-                this.forsteVirk = virkningFom.toNorwegianDateAtNoon()
-                this.finishInit()
+                this.forsteVirkLd = virkningFom
             }
         }
 
@@ -348,7 +347,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
 
         private fun prepareVedtak2016ForReglerCall(vedtak: VilkarsVedtak) {
             with(vedtak) {
-                finishInit()
                 val alderspensjonVilkaarResultat = vilkarsprovresultat as? VilkarsprovAlderspensjonResultat ?: return
 
                 alderspensjonVilkaarResultat.vilkarsprovInformasjon?.pensjonVedUttak?.ytelseskomponenter?.forEach(
@@ -366,7 +364,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
 
         private fun prepareVedtak2025ForReglerCall(vedtak: VilkarsVedtak) {
             with(vedtak) {
-                finishInit()
                 val alderspensjonVilkaarResultat = vilkarsprovresultat as? VilkarsprovAlderspensjonResultat ?: return
 
                 alderspensjonVilkaarResultat.vilkarsprovInformasjon?.pensjonVedUttak?.ytelseskomponenter?.forEach(

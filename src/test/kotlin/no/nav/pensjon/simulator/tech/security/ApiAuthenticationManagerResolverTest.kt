@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tech.security
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -9,9 +9,9 @@ import org.springframework.http.server.RequestPath
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.core.Authentication
 
-class ApiAuthenticationManagerResolverTest : FunSpec({
+class ApiAuthenticationManagerResolverTest : ShouldSpec({
 
-    test("'resolve' should use Entra ID when path is /api/nav/**") {
+    should("use Entra ID when path is /api/nav/**") {
         val (entraProvider, entraAuthentication) = arrangeAuth(authenticated = true)
         val (maskinportenProvider, _) = arrangeAuth(authenticated = false)
         val request = arrangeRequest(path = "/api/nav/service1")
@@ -22,7 +22,7 @@ class ApiAuthenticationManagerResolverTest : FunSpec({
         authenticationManager.authenticate(entraAuthentication).isAuthenticated shouldBe true
     }
 
-    test("'resolve' should use Entra ID when path is /api/tpo/**") {
+    should("use Entra ID when path is /api/tpo/**") {
         val (entraProvider, entraAuthentication) = arrangeAuth(authenticated = true)
         val (maskinportenProvider, _) = arrangeAuth(authenticated = false)
         val request = arrangeRequest(path = "/api/tpo/service1")
@@ -33,10 +33,21 @@ class ApiAuthenticationManagerResolverTest : FunSpec({
         authenticationManager.authenticate(entraAuthentication).isAuthenticated shouldBe true
     }
 
-    test("'resolve' should use Maskinporten when path is /api/v4/simuler-alderspensjon") {
+    should("use Maskinporten when path is /api/v4/simuler-alderspensjon") {
         val (entraProvider, _) = arrangeAuth(authenticated = false)
         val (maskinportenProvider, maskinportenAuthentication) = arrangeAuth(authenticated = true)
         val request = arrangeRequest(path = "/api/v4/simuler-alderspensjon")
+        val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
+
+        val authenticationManager = resolver.resolve(request)
+
+        authenticationManager.authenticate(maskinportenAuthentication).isAuthenticated shouldBe true
+    }
+
+    should("use Maskinporten when path is /api/v2/simuler-alderspensjon-privat-afp") {
+        val (entraProvider, _) = arrangeAuth(authenticated = false)
+        val (maskinportenProvider, maskinportenAuthentication) = arrangeAuth(authenticated = true)
+        val request = arrangeRequest(path = "/api/v2/simuler-alderspensjon-privat-afp")
         val resolver = ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
 
         val authenticationManager = resolver.resolve(request)

@@ -7,10 +7,10 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
-import java.util.Calendar
+import java.time.LocalDate
 
 class KravhodeTest : FunSpec({
+
     test("hentPersongrunnlagForRolle henter persongrunnlaget med angitt rolle") {
         val persongrunnlag = Kravhode().apply {
             persongrunnlagListe = mutableListOf(
@@ -83,19 +83,19 @@ class KravhodeTest : FunSpec({
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
                     uttaksgrad = 50
-                    fomDato = dateAtNoon(2022, Calendar.JANUARY, 1) // second
+                    fomDatoLd = LocalDate.of(2022, 1, 1) // second
                 },
                 Uttaksgrad().apply {
                     uttaksgrad = 20
-                    fomDato = null // first
+                    fomDatoLd = null // first
                 },
                 Uttaksgrad().apply {
                     uttaksgrad = 80
-                    fomDato = dateAtNoon(2023, Calendar.JANUARY, 1) // third
+                    fomDatoLd = LocalDate.of(2023, 1, 1) // third
                 },
                 Uttaksgrad().apply {
                     uttaksgrad = 40
-                    fomDato = dateAtNoon(2024, Calendar.JANUARY, 1) // fourth
+                    fomDatoLd = LocalDate.of(2024, 1, 1) // fourth
                 }
             )
         }.uttaksgradListe

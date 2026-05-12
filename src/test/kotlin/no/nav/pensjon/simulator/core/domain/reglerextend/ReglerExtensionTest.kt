@@ -7,7 +7,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class ReglerExtensionTest : ShouldSpec({
@@ -56,8 +55,8 @@ private fun pakkseddel() =
 
 private fun trygdetidPeriode() =
     TTPeriode().apply {
-        fom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
-        tom = LocalDate.of(2022, 2, 2).toNorwegianDateAtNoon()
+        fomLd = LocalDate.of(2021, 1, 1)
+        tomLd = LocalDate.of(2022, 2, 2)
         poengIInnAr = true
         poengIUtAr = true
         landEnum = LandkodeEnum.EST

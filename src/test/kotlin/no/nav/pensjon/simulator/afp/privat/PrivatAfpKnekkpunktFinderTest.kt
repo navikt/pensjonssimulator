@@ -8,7 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.testutil.Arrange
-import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
 import java.util.*
 
@@ -26,7 +25,7 @@ class PrivatAfpKnekkpunktFinderTest : ShouldSpec({
         ).findKnekkpunktDatoer(
             foersteUttakDato = LocalDate.of(2030, 1, 1),
             soekerGrunnlag = Persongrunnlag().apply {
-                fodselsdato = dateAtNoon(1970, Calendar.JANUARY, 1)
+                fodselsdatoLd = LocalDate.of(1970, 1, 1)
                 opptjeningsgrunnlagListe = mutableListOf(
                     Opptjeningsgrunnlag().apply {
                         ar = 2031 // året bruker blir 61 år
@@ -48,7 +47,7 @@ class PrivatAfpKnekkpunktFinderTest : ShouldSpec({
             time = mockk<Time>().apply { every { today() } returns LocalDate.of(2025, 1, 1) }
         ).findKnekkpunktDatoer(
             foersteUttakDato = null,
-            soekerGrunnlag = Persongrunnlag().apply { fodselsdato = dateAtNoon(1963, Calendar.JANUARY, 15) },
+            soekerGrunnlag = Persongrunnlag().apply { fodselsdatoLd = LocalDate.of(1963, 1, 15) },
             privatAfpFoersteVirkning = null,
             gjelderOmsorg = false
         )

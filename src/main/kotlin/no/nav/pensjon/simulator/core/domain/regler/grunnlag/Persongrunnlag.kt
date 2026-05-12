@@ -15,11 +15,10 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
-import java.util.*
+import java.time.LocalDate
 
-// 2025-04-05
+// 2026-04-23
 /**
  * Persongrunnlag inneholder nødvendige data knyttet til en bestemt person.
  * Persongrunnlag brukes som inndata til kall på en regeltjeneste og må defineres før kallet.
@@ -31,16 +30,16 @@ class Persongrunnlag {
     var penPerson: PenPerson? = null
 
     /**
-     * Søkers fødselsdato, brukes kun ved simuleringer.
-     * Da benyttes ikke reelle personer.
+     * søkers Fødselsdato,brukes kun ved simuleringer.Da benyttes ikke reelle
+     * personer.
      */
-    var fodselsdato: Date? = null
+    var fodselsdatoLd: LocalDate? = null
 
     /**
      * Personens eventuelle dødsdato, brukes ved beregning av ytelser til
      * gjenlevende ektefelle og barn.
      */
-    var dodsdato: Date? = null
+    var dodsdatoLd: LocalDate? = null
 
     /**
      * Personens statsborgerskap.
@@ -67,7 +66,7 @@ class Persongrunnlag {
     /**
      * Dato for sist innmeldt i Folketrygden- for fremtidig trygdetid.
      */
-    var sistMedlITrygden: Date? = null
+    var sistMedlITrygdenLd: LocalDate? = null
 
     /**
      * Siste gyldige år for opptjening som benyttes for alderspensjon2011/2016/2025 og AFP Privat.
@@ -322,7 +321,7 @@ class Persongrunnlag {
      * Støttefelt for virk_ikke_ufor-hacket. Feltet er ikke forventet populert.
      */
     @JsonIgnore
-    var forsteVirk: Date? = null
+    var forsteVirkLd: LocalDate? = null
 
     /**
      * Representerer grunnlaget for normert pensjonsalder
@@ -332,7 +331,7 @@ class Persongrunnlag {
      */
     var normertPensjonsalderGrunnlag: NormertPensjonsalderGrunnlag? = null
 
-    // SIMDOM-ADD
+    // Extra:
     @JsonIgnore
     var gjelderOmsorg: Boolean = false
 
@@ -364,41 +363,21 @@ class Persongrunnlag {
     @JsonIgnore
     var yrkesskadegrunnlagList: MutableList<Yrkesskadegrunnlag> = mutableListOf() // YRKESKADE
 
-    @JsonIgnore
-    var rawFodselsdato: Date? = null
-
-    @JsonIgnore
-    var rawDodsdato: Date? = null
-
-    @JsonIgnore
-    var rawSistMedlITrygden: Date? = null
-    // NB: Note legacy comment for forsteVirkningsdatoGrunnlagTransferList:
-    // Midlertidig variant av ForsteVirkningsdatoGrunnlag, brukt for populering av PREG-requester
-
-    fun finishInit() {
-        rawFodselsdato = fodselsdato
-        rawDodsdato = dodsdato
-        rawSistMedlITrygden = sistMedlITrygden
-        fodselsdato = rawFodselsdato?.noon()
-        dodsdato = rawDodsdato?.noon()
-        sistMedlITrygden = rawSistMedlITrygden?.noon()
-    }
-
     @JsonCreator
     constructor()
 
     constructor(
         source: Persongrunnlag,
-        excludeForsteVirkningsdatoGrunnlag: Boolean = false, // SIMDOM-ADD
-        excludeTrygdetidPerioder: Boolean = false // SIMDOM-ADD
+        excludeForsteVirkningsdatoGrunnlag: Boolean = false, // extra
+        excludeTrygdetidPerioder: Boolean = false // extra
     ) : this() {
         penPerson = source.penPerson?.copy()
-        fodselsdato = source.fodselsdato?.clone() as? Date
-        dodsdato = source.dodsdato?.clone() as? Date
+        fodselsdatoLd = source.fodselsdatoLd
+        dodsdatoLd = source.dodsdatoLd
         statsborgerskapEnum = source.statsborgerskapEnum
         flyktning = source.flyktning
         source.personDetaljListe.forEach { personDetaljListe.add(PersonDetalj(it)) }
-        sistMedlITrygden = source.sistMedlITrygden?.clone() as? Date
+        sistMedlITrygdenLd = source.sistMedlITrygdenLd
         hentetPopp = source.hentetPopp
         hentetInnt = source.hentetInnt
         hentetInst = source.hentetInst
@@ -505,9 +484,9 @@ class Persongrunnlag {
         uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
         ufoereOpptjeningGrunnlag = source.ufoereOpptjeningGrunnlag?.copy()
         yrkesskadegrunnlagList = source.yrkesskadegrunnlagList.map(::Yrkesskadegrunnlag).toMutableList()
-        rawFodselsdato = source.rawFodselsdato?.clone() as? Date
-        rawDodsdato = source.rawDodsdato?.clone() as? Date
-        rawSistMedlITrygden = source.rawSistMedlITrygden?.clone() as? Date
+        //rawFodselsdato = source.rawFodselsdatoLd
+        //rawDodsdato = source.rawDodsdatoLd
+        //rawSistMedlITrygden = source.rawSistMedlITrygdenLd
         normertPensjonsalderGrunnlag = source.normertPensjonsalderGrunnlag?.let {
             NormertPensjonsalderGrunnlag(
                 ovreAr = it.ovreAr,
@@ -546,7 +525,7 @@ class Persongrunnlag {
     // PEN: no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljWithRolleForPeriode
     fun findPersonDetaljWithRolleForPeriode(
         rolle: GrunnlagsrolleEnum,
-        virkningDato: Date?,
+        virkningDato: LocalDate?,
         checkBruk: Boolean
     ): PersonDetalj? =
         personDetaljListe.firstOrNull {
@@ -604,8 +583,8 @@ class Persongrunnlag {
      */
     // PEN: Persongrunnlag.findLatestTrygdetid + Trygdetid.compareTo
     fun latestTrygdetid(): Trygdetid? =
-        trygdetider.filter { it.virkFom != null }.maxByOrNull { it.virkFom!! }
+        trygdetider.filter { it.virkFomLd != null }.maxByOrNull { it.virkFomLd!! }
             ?: trygdetider.firstOrNull()
 
-    // end SIMDOM-ADD
+    // end extra
 }

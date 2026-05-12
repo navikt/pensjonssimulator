@@ -6,8 +6,8 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.inntekt.Inntekt
 import no.nav.pensjon.simulator.inntekt.InntektService
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -60,7 +60,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : StringSpec({
 })
 
 private fun arrangeInntekt(): InntektService =
-    mockk<InntektService>().apply {
-        every { hentSisteLignetInntekt(pid) } returns Inntekt(aarligBeloep = 12345, fom = LocalDate.of(2025, 1, 1))
+    mockk<InntektService> {
+        every { hentSisteLignetInntekt(pid) } returns LoependeInntekt(aarligBeloep = 12345, fom = LocalDate.of(2025, 1, 1))
         every { hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G = true) } returns 100000
     }

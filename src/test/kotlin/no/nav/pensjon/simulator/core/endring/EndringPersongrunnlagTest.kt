@@ -8,6 +8,8 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
+import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2011
@@ -21,10 +23,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.eps.EpsService
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
@@ -152,8 +151,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             }
                         )
                     }
@@ -197,8 +196,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.GIFT // Not ENKE
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             }
                         )
                     }
@@ -230,7 +229,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.SOKER
             grunnlagKildeEnum shouldBe GrunnlagkildeEnum.BRUKER
             bruk shouldBe true
-            penRolleFom shouldBe LocalDate.of(2023, 6, 15).toNorwegianDateAtNoon()
+            penRolleFom shouldBe LocalDate.of(2023, 6, 15)
         }
     }
 
@@ -251,15 +250,15 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 bruk = true // Need at least one SOKER with bruk=true for hentPersongrunnlagForSoker
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.GIFT
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             },
                             PersonDetalj().apply {
                                 bruk = false // bruk=false makes this ENKE invalid
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             }
                         )
                     }
@@ -287,7 +286,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
 
         persongrunnlag!!.personDetaljListe shouldHaveSize 1
         // Should create new enke from avdoed.doedDato since existing ENKE has bruk=false
-        persongrunnlag.personDetaljListe[0].penRolleFom shouldBe LocalDate.of(2023, 6, 15).toNorwegianDateAtNoon()
+        persongrunnlag.personDetaljListe[0].penRolleFom shouldBe LocalDate.of(2023, 6, 15)
     }
 
     should("opprette ny enke-persondetalj når eksisterende ENKE er utenfor gyldig periode for ENDR_ALDER_M_GJEN") {
@@ -307,8 +306,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon() // Before today (2025-01-01)
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2024, 1, 1) // Before today (2025-01-01)
                             }
                         )
                     }
@@ -336,7 +335,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
 
         persongrunnlag!!.personDetaljListe shouldHaveSize 1
         // Should create new enke from avdoed.doedDato since existing ENKE is not valid today
-        persongrunnlag.personDetaljListe[0].penRolleFom shouldBe LocalDate.of(2023, 6, 15).toNorwegianDateAtNoon()
+        persongrunnlag.personDetaljListe[0].penRolleFom shouldBe LocalDate.of(2023, 6, 15)
     }
 
     should("bruke eksisterende gyldig ENKE PersonDetalj for ENDR_ALDER_M_GJEN") {
@@ -346,7 +345,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             inntektFoerDoed = 0,
             doedDato = LocalDate.of(2023, 6, 15)
         )
-        val eksisterendeEnkeVirkFom = LocalDate.of(2020, 5, 1).toNorwegianDateAtNoon()
+        val eksisterendeEnkeVirkFom = LocalDate.of(2020, 5, 1)
         val spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN).copy(avdoed = avdoed)
         val kravService = mockk<KravService>().apply {
             every { fetchKravhode(1L) } returns Kravhode().apply {
@@ -358,7 +357,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.ENKE
                                 virkFom = eksisterendeEnkeVirkFom
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkTom = LocalDate.of(2030, 1, 1)
                             }
                         )
                     }
@@ -400,22 +399,22 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.GIFT
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             },
                             PersonDetalj().apply {
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             },
                             PersonDetalj().apply {
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
                                 sivilstandTypeEnum = SivilstandEnum.UGIF
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             }
                         )
                     }
@@ -457,8 +456,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                                 bruk = true
                                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                                 sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                                virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                                virkFom = LocalDate.of(2020, 1, 1)
+                                virkTom = LocalDate.of(2030, 1, 1)
                             }
                         )
                     }
@@ -519,8 +518,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
                     penRolleTom = null
                 }
             )
@@ -569,8 +568,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.AVDOD
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
                     penRolleTom = null
                 }
             )
@@ -611,8 +610,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
                     penRolleTom = null
                 }
             )
@@ -663,8 +662,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
                     penRolleTom = null
                 }
             )
@@ -722,13 +721,13 @@ class EndringPersongrunnlagTest : ShouldSpec({
         val spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN).copy(avdoed = avdoed)
         val eksisterendeEps = Persongrunnlag().apply {
             penPerson = PenPerson(penPersonId = 2L)
-            fodselsdato = LocalDate.of(1960, 1, 1).toNorwegianDateAtNoon()
+            fodselsdatoLd = LocalDate.of(1960, 1, 1)
             personDetaljListe = mutableListOf(
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
                     penRolleTom = null
                 }
             )
@@ -761,11 +760,13 @@ class EndringPersongrunnlagTest : ShouldSpec({
 
         endringKravhode.persongrunnlagListe shouldHaveSize 1
         val konvertertPersongrunnlag = endringKravhode.persongrunnlagListe[0]
-        konvertertPersongrunnlag.dodsdato shouldNotBe null
-        konvertertPersongrunnlag.arligPGIMinst1G shouldBe true
-        konvertertPersongrunnlag.medlemIFolketrygdenSiste3Ar shouldBe true
-        konvertertPersongrunnlag.personDetaljListe shouldHaveSize 1
-        konvertertPersongrunnlag.personDetaljListe[0].grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.AVDOD
+        with(konvertertPersongrunnlag) {
+            dodsdatoLd shouldNotBe null
+            arligPGIMinst1G shouldBe true
+            medlemIFolketrygdenSiste3Ar shouldBe true
+            personDetaljListe shouldHaveSize 1
+            personDetaljListe[0].grunnlagsrolleEnum shouldBe GrunnlagsrolleEnum.AVDOD
+        }
     }
 
     should("ikke legge til persongrunnlag når ingen gyldig EPS eller AVDOD finnes") {
@@ -775,8 +776,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN // Not EPS or AVDOD
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
                     penRolleTom = null
                 }
             )
@@ -816,9 +817,9 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 PersonDetalj().apply {
                     bruk = true
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1).toNorwegianDateAtNoon()
-                    virkTom = LocalDate.of(2030, 1, 1).toNorwegianDateAtNoon()
-                    penRolleTom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon() // Has penRolleTom set
+                    virkFom = LocalDate.of(2020, 1, 1)
+                    virkTom = LocalDate.of(2030, 1, 1)
+                    penRolleTom = LocalDate.of(2024, 1, 1) // Has penRolleTom set
                 }
             )
             inntektsgrunnlagListe = mutableListOf()
@@ -1123,32 +1124,32 @@ private fun persongrunnlag() =
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
-                virkTom = LocalDate.of(1901, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2026, 1, 1)
+                virkTom = LocalDate.of(1901, 1, 1) // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = false // => dvs. denne persondetaljen er irrelevant
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                penRolleTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon()
-                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2026, 1, 1)
+                virkTom = LocalDate.of(2026, 1, 1) // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.MOR
-                penRolleTom = LocalDate.of(2024, 1, 1).toNorwegianDateAtNoon() // => i fortid => irrelevant
-                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2024, 1, 1) // => i fortid => irrelevant
+                virkTom = LocalDate.of(2026, 1, 1) // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.FAR
                 penRolleTom = null
-                virkTom = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
+                virkTom = LocalDate.of(2026, 1, 1) // NB: virkTom has no effect
             },
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
-                penRolleTom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon() // => tom = "i dag" => detaljen er relevant
-                virkTom = LocalDate.of(1901, 1, 1).toNorwegianDateAtNoon() // NB: virkTom has no effect
+                penRolleTom = LocalDate.of(2025, 1, 1) // => tom = "i dag" => detaljen er relevant
+                virkTom = LocalDate.of(1901, 1, 1) // NB: virkTom has no effect
             }
         )
     }

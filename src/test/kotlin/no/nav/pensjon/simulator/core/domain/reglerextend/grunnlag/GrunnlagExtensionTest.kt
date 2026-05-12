@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
 class GrunnlagExtensionTest : ShouldSpec({
@@ -29,8 +28,8 @@ class GrunnlagExtensionTest : ShouldSpec({
 private fun afpHistorikk() =
     AfpHistorikk().apply {
         afpFpp = 1.2
-        virkFom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
-        virkTom = LocalDate.of(2022, 2, 2).toNorwegianDateAtNoon()
+        virkFomLd = LocalDate.of(2021, 1, 1)
+        virkTomLd = LocalDate.of(2022, 2, 2)
         afpPensjonsgrad = 1
         afpOrdningEnum = AFPtypeEnum.AFPKOM
     }
@@ -38,7 +37,7 @@ private fun afpHistorikk() =
 private fun afpTjenestepensjonUfoerepensjonsgrunnlag() =
     AfpTpoUpGrunnlag().apply {
         belop = 1
-        virkFom = LocalDate.of(2021, 1, 1).toNorwegianDateAtNoon()
+        virkFomLd = LocalDate.of(2021, 1, 1)
     }
 
 private fun antallAarMaanederDager() =

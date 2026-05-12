@@ -214,11 +214,11 @@ class FppSimuleringSpecCreator(
                 person.penPersonId = -2L
                 persongrunnlag.fodselsdatoLd = epsFoedselsdato()
             } else {
-                person.pid = relasjon.person?.pid?.let(::Pid)
+                person.pid = relasjon.person?.pid
                 persongrunnlag.fodselsdatoLd = personopplysninger.fodselsdato
             }
         } else if (simuleringType == GJENLEVENDE) {
-            val pid = personopplysninger.avdodList.firstOrNull()?.relasjon?.person?.pid?.let(::Pid)
+            val pid = personopplysninger.avdodList.firstOrNull()?.relasjon?.person?.pid
             person.pid = pid
             persongrunnlag.fodselsdatoLd = pid?.let(personService::foedselsdato)
         }
@@ -258,9 +258,8 @@ class FppSimuleringSpecCreator(
     ) =
         Persongrunnlag().apply {
             val relasjon: Relasjon? = avdoed?.relasjon
-            val relasjonType: RelasjonTypeCode = relasjon?.relasjonsType?.internalValue ?: RelasjonTypeCode.UKJENT
-            val relatertPersonDto: PersonV1? = relasjon?.person //TODO map to domain
-            val relatertPid = relatertPersonDto?.pid?.let(::Pid)
+            val relasjonType: RelasjonTypeCode = relasjon?.relasjonsType ?: RelasjonTypeCode.UKJENT
+            val relatertPid = relasjon?.person?.pid
             val relatertPenPerson = PenPerson().apply { pid = relatertPid }
             val relatertPerson: Person? = relatertPid?.let(personService::person)
             val foedselsdato: LocalDate? = relatertPerson?.foedselsdato

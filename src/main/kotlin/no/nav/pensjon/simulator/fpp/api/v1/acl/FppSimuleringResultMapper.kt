@@ -31,6 +31,7 @@ object FppSimuleringResultMapper {
             tilleggspensjon = source.tilleggspensjon,
             afpTillegg = source.afpTillegg,
             fpp = source.fpp,
+            grad = source.grad,
             sertillegg = source.sertillegg
         )
 

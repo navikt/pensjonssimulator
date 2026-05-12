@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.fpp.api.v1.acl
 
+import no.nav.pensjon.simulator.api.nav.v2.acl.spec.UtlandSpecDto
 import java.time.LocalDate
 
 // PEN: no.nav.pensjon.pen.domain.api.kalkulator.PensjonskalkulatorInput
@@ -17,6 +18,7 @@ class PersonopplysningerDto {
     var valgtAfpOrdning: AfpTypeDto? = null
     var flyktning: Boolean? = null
     var antAarIUtlandet: Int? = null
+    var utenlandsopphold: List<UtlandSpecDto>? = null
     var forventetArbeidsinntekt: Int? = null
     var forventetArbeidsinntektGjenlevende: Long? = null
     var inntektMndForAfp: Int? = null

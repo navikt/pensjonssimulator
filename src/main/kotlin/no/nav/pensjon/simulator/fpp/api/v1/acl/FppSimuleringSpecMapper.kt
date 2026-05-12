@@ -22,6 +22,7 @@ object FppSimuleringSpecMapper {
             valgtAfpOrdning = source.valgtAfpOrdning?.internalValue
             flyktning = source.flyktning
             antAarIUtlandet = source.antAarIUtlandet
+            utenlandsopphold = source.utenlandsopphold
             forventetArbeidsinntekt = source.forventetArbeidsinntekt
             forventetArbeidsinntektGjenlevende = source.forventetArbeidsinntektGjenlevende
             inntektMndForAfp = source.inntektMndForAfp

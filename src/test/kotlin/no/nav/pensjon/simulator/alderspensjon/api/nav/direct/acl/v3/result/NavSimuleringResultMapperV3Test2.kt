@@ -7,14 +7,9 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSi
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.alderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.simulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
-
-private val dummyKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
-    vedGradertUttak = null,
-    vedHeltUttak = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null),
-    vedNormertPensjonsalder = SimulertMaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonBeholdningFoerUttak = null, pensjonBeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, andelsbroekKap19 = null, andelsbroekKap20 = null, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null, trygdetidKap19 = null, trygdetidKap20 = null, garantipensjon = null, garantitillegg = null)
-)
 
 // Copied from PEN
 class NavSimuleringResultMapperV3Test2 : FunSpec({
@@ -111,7 +106,7 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         minstePensjonsnivaaSats = 20.0
                     )
                 ),
-                maanedligAlderspensjonForKnekkpunkter = dummyKnekkpunkter,
+                maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
                 alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
                 privatAfp = listOf(
                     SimulertPrivatAfp(

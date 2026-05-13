@@ -27,7 +27,7 @@ class SimuleringSpecMapperForNorskPensjon(
      * Takes a specification in the form of a data transfer object (DTO) and maps it to a domain object.
      */
     fun fromDto(source: SimuleringSpecDto): SimuleringSpec {
-        val pid: Pid = source.personident.let(::Pid)
+        val pid = Pid(source.personident)
         val foersteUttak = source.foersteUttak
         val foersteUttakFom: LocalDate = foersteUttak.fomDato
         val heltUttak = source.heltUttak
@@ -47,8 +47,8 @@ class SimuleringSpecMapperForNorskPensjon(
             pid = pid,
             foedselDato = personService.foedselsdato(pid),
             avdoed = null,
-            isTpOrigSimulering = true, // true for samhandler
-            simulerForTp = false,
+            isTpOrigSimulering = true, // "Tp" er her Norsk Pensjon, som originerer simuleringen
+            simulerForTp = false, // simulerer ikke som grunnlag for tjenestepensjonssimulering
             uttakGrad = uttaksgrad(source),
             forventetInntektBeloep = source.aarligInntektFoerUttak ?: 0,
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
@@ -58,7 +58,7 @@ class SimuleringSpecMapperForNorskPensjon(
             utlandAntallAar = source.aarIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(),
             fremtidigInntektListe = mutableListOf(), //source.fremtidigInntektListe.orEmpty().map(::inntekt).toMutableList(),
-            brukFremtidigInntekt = true,
+            brukFremtidigInntekt = false, // bruker forventetInntektBeloep etc. istedenfor fremtidigInntektListe
             inntektOver1GAntallAar = 0,
             flyktning = null,
             livsvarigOffentligAfp = null,

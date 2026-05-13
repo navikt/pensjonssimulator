@@ -32,7 +32,8 @@ object FppSimuleringResultMapper {
             afpTillegg = source.afpTillegg,
             fpp = source.fpp,
             grad = source.grad,
-            sertillegg = source.sertillegg
+            sertillegg = source.sertillegg,
+            erAvkortet = source.erAvkortet ?: false
         )
 
     private fun problem(source: Problem) =

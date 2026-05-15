@@ -45,7 +45,7 @@ class SimuleringSpecMapperTest : ShouldSpec({
                 utlandAntallAar = 1,
                 utlandPeriodeListe = mutableListOf(),
                 fremtidigInntektListe = mutableListOf(),
-                brukFremtidigInntekt = true,
+                brukFremtidigInntekt = false,
                 inntektOver1GAntallAar = 0,
                 flyktning = null,
                 epsHarInntektOver2G = false,

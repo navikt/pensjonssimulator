@@ -52,7 +52,6 @@ class SimulatorContext(
 
         return response.beregningsResultat?.apply {
             virkTomLd = null
-            epsMottarPensjon = false
             beregningsinformasjon = null
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2011ForsteUttak")
     }
@@ -75,7 +74,6 @@ class SimulatorContext(
 
         return response.beregningsResultat?.apply {
             virkTomLd = null
-            epsMottarPensjon = false
             beregningsinformasjon = null
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2016ForsteUttak")
     }
@@ -98,7 +96,6 @@ class SimulatorContext(
 
         return response.beregningsResultat?.apply {
             virkTomLd = null
-            epsMottarPensjon = false
             beregningsinformasjon = null
         } ?: throw RuntimeException("No beregningsResultat from beregnAlderspensjon2025ForsteUttak")
     }

@@ -625,9 +625,6 @@ private fun copyBeregningsResultat(source: AbstraktBeregningsResultat, target: A
     target.uttaksgrad = source.uttaksgrad
     target.gjennomsnittligUttaksgradSisteAr = source.gjennomsnittligUttaksgradSisteAr
     target.kravId = source.kravId
-    target.epsMottarPensjon = source.epsMottarPensjon
-    target.epsPaavirkerBeregning = source.epsPaavirkerBeregning
-    target.harGjenlevenderett = source.harGjenlevenderett
     target.beregningsinformasjon = source.beregningsinformasjon?.copy()
 }
 

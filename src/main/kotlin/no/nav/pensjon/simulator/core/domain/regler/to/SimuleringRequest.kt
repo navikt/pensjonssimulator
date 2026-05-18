@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import java.time.LocalDate
 

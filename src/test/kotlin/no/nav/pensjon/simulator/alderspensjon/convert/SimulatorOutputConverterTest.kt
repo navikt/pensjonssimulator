@@ -198,7 +198,8 @@ class SimulatorOutputConverterTest : FunSpec({
                             grunnpensjonPerMaaned = 800
                             tilleggspensjonPerMaaned = 900
                             pensjonstilleggPerMaaned = 200
-                            skjermingstillegg = 50
+                            skjermingstillegg = 500
+                            skjermingstilleggPerMaaned = 50
                             basispensjon = 1200
                             restBasisPensjon = 300
                             gjtAPKap19PerMaaned = 100

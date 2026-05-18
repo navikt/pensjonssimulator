@@ -207,7 +207,7 @@ object SimulatorOutputConverter {
             grunnpensjon = source.grunnpensjonPerMaaned,
             tilleggspensjon = source.tilleggspensjonPerMaaned,
             pensjonstillegg = source.pensjonstilleggPerMaaned,
-            skjermingstillegg = source.skjermingstillegg,
+            skjermingstillegg = source.skjermingstilleggPerMaaned,
             andelsbroekKap19 = alderspensjon?.kapittel19Andel,
             andelsbroekKap20 = alderspensjon?.kapittel20Andel,
             basispensjon = source.basispensjon,

@@ -124,6 +124,7 @@ object SimulatorOutputMapper {
 
             firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), YtelseskomponentTypeEnum.SKJERMT)?.let {
                 this.skjermingstillegg = it.bruttoPerAr.toInt()
+                this.skjermingstilleggPerMaaned = it.brutto
 
                 if (it is Skjermingstillegg) {
                     this.ufoereGrad = it.ufg

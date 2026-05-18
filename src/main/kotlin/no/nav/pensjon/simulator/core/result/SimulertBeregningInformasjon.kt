@@ -176,6 +176,11 @@ class SimulertBeregningInformasjon {
     var skjermingstillegg: Int? = null
 
     /**
+     * Beregnet skjermingstillegg per måned
+     */
+    var skjermingstilleggPerMaaned: Int? = null
+
+    /**
      * Benyttet uføregrad ved beregning av skjermingstillegg
      */
     var ufoereGrad: Int? = null

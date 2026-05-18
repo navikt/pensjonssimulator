@@ -14,6 +14,8 @@ import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringSpecMapper.fromDto
 import no.nav.pensjon.simulator.fpp.api.v1.acl.SimuleringstypeDto
 import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemDto
 import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemtypeDto
+import no.nav.pensjon.simulator.fpp.api.v2.acl.FppSimuleringResultDtoV2
+import no.nav.pensjon.simulator.fpp.api.v2.acl.FppSimuleringResultMapperV2
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -90,6 +92,38 @@ class FppController(
         }
     }
 
+    @PostMapping("v2/simuler-for-fpp")
+    @Operation(
+        summary = "Simuler for FPP (V2)",
+        description = "Lager en pensjonsprognose for beregning av framtidige pensjonspoeng (FPP)" +
+                " (versjon 2 av tjenesten, inkluderer grad og avkortning)."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Simulering for FPP utført"),
+            ApiResponse(responseCode = "500", description = "Simulering kunne ikke utføres pga. feil i systemet.")
+        ]
+    )
+    fun simulerForFppV2(
+        @RequestParam("simuleringstype") simuleringType: SimuleringstypeDto,
+        @RequestBody spec: FppSimuleringSpecDto
+    ): ResponseEntity<FppSimuleringResultDtoV2> {
+        traceAid.begin()
+        countCall(functionName = FUNCTION_ID_V2)
+        log.info { "v2 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
+
+        return try {
+            registrerHendelse(simuleringstype = simuleringType.internalValue)
+            val result = service.simulerPensjon(simuleringType.internalValue, fromDto(spec))
+            ResponseEntity.status(HttpStatus.OK).body(FppSimuleringResultMapperV2.toDto(result))
+        } catch (e: Exception) {
+            log.error(e) { "$FUNCTION_ID_V2 intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
+            throw e
+        } finally {
+            traceAid.end()
+        }
+    }
+
     override fun errorMessage() = ERROR_MESSAGE
 
     @ExceptionHandler(value = [Exception::class])
@@ -100,6 +134,7 @@ class FppController(
         private const val TJENESTE = "simulering for FPP"
         private const val ERROR_MESSAGE = "feil ved $TJENESTE"
         private const val FUNCTION_ID = "fpp"
+        private const val FUNCTION_ID_V2 = "fpp-v2"
 
         private fun problem(e: Exception) =
             FppSimuleringResultDto(

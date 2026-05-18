@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.fpp.api.v1.acl
 
-import no.nav.pensjon.simulator.api.nav.v2.acl.spec.UtlandSpecDto
 import java.time.LocalDate
 
 // PEN: no.nav.pensjon.pen.domain.api.kalkulator.PensjonskalkulatorInput
@@ -98,3 +97,10 @@ class RelasjonDto {
 class PersonUtlandDto {
     var statsborgerskap: String? = null // LandkodeEnum
 }
+
+data class UtlandSpecDto(
+    val fom: LocalDate,
+    val tom: LocalDate?,
+    val land: String,
+    val arbeidetUtenlands: Boolean
+)

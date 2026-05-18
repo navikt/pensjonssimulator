@@ -25,9 +25,7 @@ data class FolketrygdberegnetAfpDto(
     val tilleggspensjon: Int?,
     val afpTillegg: Int?, // AFP-tillegg
     val fpp: Double?, // framtidige pensjonspoeng
-    val grad: Int?,
-    val sertillegg: Int?, // særtillegg
-    val erAvkortet: Boolean?
+    val sertillegg: Int? // særtillegg
 )
 
 data class ProblemDto(

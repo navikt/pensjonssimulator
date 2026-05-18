@@ -1,23 +1,23 @@
-package no.nav.pensjon.simulator.fpp.api.v1.acl
+package no.nav.pensjon.simulator.fpp.api.v2.acl
 
 import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
 import no.nav.pensjon.simulator.fpp.FppSimuleringResult
+import no.nav.pensjon.simulator.fpp.api.v1.acl.AfpTypeDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemtypeDto
 import no.nav.pensjon.simulator.validity.Problem
 
-object FppSimuleringResultMapper {
+object FppSimuleringResultMapperV2 {
 
     fun toDto(source: FppSimuleringResult) =
-        FppSimuleringResultDto(
+        FppSimuleringResultDtoV2(
             afpOrdning = AfpTypeDto.entries.firstOrNull { it.internalValue == source.afpOrdning } ?: AfpTypeDto.AFPSTAT,
             beregnetAfp = source.beregnetAfp?.let(::folketrygdberegnetAfp),
             problem = source.problem?.let(::problem)
         )
 
-    /**
-     * Corresponds 1-to-1 with PEN's no.nav.pensjon.pen.domain.api.beregning.FolketrygdberegnetAfp
-     */
     private fun folketrygdberegnetAfp(source: FolketrygdberegnetAfp) =
-        FolketrygdberegnetAfpDto(
+        FolketrygdberegnetAfpDtoV2(
             totalbelopAfp = source.totalbelopAfp,
             virkFom = source.virkFom,
             tidligereArbeidsinntekt = source.tidligereArbeidsinntekt,
@@ -31,7 +31,9 @@ object FppSimuleringResultMapper {
             tilleggspensjon = source.tilleggspensjon,
             afpTillegg = source.afpTillegg,
             fpp = source.fpp,
-            sertillegg = source.sertillegg
+            sertillegg = source.sertillegg,
+            grad = source.grad,
+            erAvkortet = source.erAvkortet
         )
 
     private fun problem(source: Problem) =

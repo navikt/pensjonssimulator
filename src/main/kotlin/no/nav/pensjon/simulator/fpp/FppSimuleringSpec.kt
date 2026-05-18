@@ -1,11 +1,11 @@
 package no.nav.pensjon.simulator.fpp
 
-import no.nav.pensjon.simulator.api.nav.v2.acl.spec.UtlandSpecDto
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
 
 data class FppSimuleringSpec(
@@ -22,7 +22,7 @@ class Personopplysninger {
     var valgtAfpOrdning: AFPtypeEnum? = null
     var flyktning: Boolean? = null
     var antAarIUtlandet: Int? = null
-    var utenlandsopphold: List<UtlandSpecDto>? = null
+    var utenlandsopphold: List<UtlandPeriode>? = null
     var forventetArbeidsinntekt: Int? = null
     var forventetArbeidsinntektGjenlevende: Long? = null
     var inntektMndForAfp: Int? = null

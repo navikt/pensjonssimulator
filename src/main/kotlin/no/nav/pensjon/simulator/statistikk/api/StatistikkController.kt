@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Hidden
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.statistikk.api.acl.HendelseAntallV1
 import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkMapperV1.hendelseAntallV1
+import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkMapperV1.tertialStatistikk
 import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkMapperV1.toDtoV1
 import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkTransferObjectV1
+import no.nav.pensjon.simulator.statistikk.api.acl.TertialStatistikkV1
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -24,4 +26,9 @@ class StatistikkController(val statistikk: StatistikkService) {
     @Hidden
     fun hentSnapshot(@PathVariable(value = "aar-maaned") aarMaaned: Int): List<HendelseAntallV1> =
         statistikk.getSnapshot(aarMaaned).map(::hendelseAntallV1)
+
+    @GetMapping("v1/statistikk/tertial/{tertial}")
+    @Hidden
+    fun hentTertialStatistikk(@PathVariable tertial: Int): TertialStatistikkV1 =
+        tertialStatistikk(tertial, statistikk.antallPerMaaned(tertial))
 }

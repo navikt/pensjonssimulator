@@ -2,7 +2,6 @@ package no.nav.pensjon.simulator.core.domain.reglerextend
 
 import no.nav.pensjon.simulator.core.domain.regler.*
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import no.nav.pensjon.simulator.core.util.copy
 
 // Checked 2025-03-06
 

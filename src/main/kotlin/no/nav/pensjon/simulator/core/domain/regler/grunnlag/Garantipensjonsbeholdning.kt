@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.JustertGarantipensjonsniva
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
@@ -34,11 +33,8 @@ class Garantipensjonsbeholdning() : Beholdning() {
     override var beholdningsTypeEnum: BeholdningtypeEnum = BeholdningtypeEnum.GAR_PEN_B
 
     //--- Extra:
-    @JsonIgnore private var unclearedPensjonsbeholdning: Double? = null
-
     // Garantipensjonsbeholdning in kjerne/PEN does not contain pensjonsbeholdning, hence need to set it to zero:
     fun clearPensjonsbeholdning() {
-        unclearedPensjonsbeholdning = pensjonsbeholdning
         pensjonsbeholdning = 0.0
     }
     // end extra ---

@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import java.util.Date
+import java.time.LocalDate
 
-// 2025-06-13 minus Serializable
+// 2026-05-05
 class SatsResultat {
-    var fom: Date? = null
-    var tom: Date? = null
+    var fomLd: LocalDate? = null
+    var tomLd: LocalDate? = null
     var verdi = 0.0
 }

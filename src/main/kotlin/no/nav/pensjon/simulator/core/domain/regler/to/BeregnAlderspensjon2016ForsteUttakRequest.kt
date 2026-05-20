@@ -4,14 +4,15 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsva
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InfoPavirkendeYtelse
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import java.util.*
+import java.time.LocalDate
+import java.util.Vector
 
-// 2025-06-13
+// 2026-05-05
 class BeregnAlderspensjon2016ForsteUttakRequest : ServiceRequest() {
     var kravhode: Kravhode? = null
     var vilkarsvedtakListe: List<VilkarsVedtak> = Vector()
     var infoPavirkendeYtelse: InfoPavirkendeYtelse? = null
-    var virkFom: Date? = null
+    var virkFomLd: LocalDate? = null
     var epsMottarPensjon = false
     var afpPrivatLivsvarig: AfpPrivatLivsvarig? = null
 }

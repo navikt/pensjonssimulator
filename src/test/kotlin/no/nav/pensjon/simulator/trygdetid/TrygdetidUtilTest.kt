@@ -1,13 +1,13 @@
 package no.nav.pensjon.simulator.trygdetid
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 import java.util.TreeSet
 
@@ -90,13 +90,15 @@ class TrygdetidUtilTest : FunSpec({
                 boddEllerArbeidetUtenlands = true
             )
 
-            result.virkFom shouldBe knekkpunktDato.toNorwegianDateAtNoon()
-            result.brukerForsteVirk shouldBe soekerFoersteVirkningFom.toNorwegianDateAtNoon()
-            result.hovedKravlinjeType shouldBe KravlinjeTypeEnum.AP
-            result.persongrunnlag shouldBe persongrunnlag
-            result.boddEllerArbeidetIUtlandet shouldBe true
-            result.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_N_OPPTJ
-            result.uttaksgradListe shouldBe kravhode.uttaksgradListe
+            with(result) {
+                virkFomLd shouldBe knekkpunktDato
+                brukerForsteVirkLd shouldBe soekerFoersteVirkningFom
+                hovedKravlinjeType shouldBe KravlinjeTypeEnum.AP
+                this.persongrunnlag shouldBe persongrunnlag
+                boddEllerArbeidetIUtlandet shouldBe true
+                regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_G_N_OPPTJ
+                uttaksgradListe shouldBe kravhode.uttaksgradListe
+            }
         }
 
         test("setter brukerForsteVirk til null når soekerFoersteVirkningFom er null (f.eks. for avdød)") {
@@ -115,12 +117,14 @@ class TrygdetidUtilTest : FunSpec({
                 boddEllerArbeidetUtenlands = false
             )
 
-            result.virkFom shouldBe knekkpunktDato.toNorwegianDateAtNoon()
-            result.brukerForsteVirk shouldBe null
-            result.hovedKravlinjeType shouldBe KravlinjeTypeEnum.GJP
-            result.persongrunnlag shouldBe persongrunnlag
-            result.boddEllerArbeidetIUtlandet shouldBe false
-            result.regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
+            with(result) {
+                virkFomLd shouldBe knekkpunktDato
+                brukerForsteVirkLd shouldBe null
+                hovedKravlinjeType shouldBe KravlinjeTypeEnum.GJP
+                this.persongrunnlag shouldBe persongrunnlag
+                boddEllerArbeidetIUtlandet shouldBe false
+                regelverkTypeEnum shouldBe RegelverkTypeEnum.N_REG_N_OPPTJ
+            }
         }
 
         test("kopierer uttaksgradListe fra kravhode") {
@@ -141,9 +145,11 @@ class TrygdetidUtilTest : FunSpec({
                 boddEllerArbeidetUtenlands = true
             )
 
-            result.uttaksgradListe.size shouldBe 2
-            result.uttaksgradListe[0].uttaksgrad shouldBe 50
-            result.uttaksgradListe[1].uttaksgrad shouldBe 100
+            with(result) {
+                uttaksgradListe shouldHaveSize 2
+                uttaksgradListe[0].uttaksgrad shouldBe 50
+                uttaksgradListe[1].uttaksgrad shouldBe 100
+            }
         }
 
         test("håndterer tom uttaksgradListe") {
@@ -153,16 +159,14 @@ class TrygdetidUtilTest : FunSpec({
                 uttaksgradListe = mutableListOf() // tom liste
             }
 
-            val result = TrygdetidUtil.trygdetidSpec(
+            TrygdetidUtil.trygdetidSpec(
                 kravhode = kravhode,
                 persongrunnlag = persongrunnlag,
                 knekkpunktDato = LocalDate.of(2030, 1, 1),
                 soekerFoersteVirkningFom = LocalDate.of(2028, 1, 1),
                 ytelseType = KravlinjeTypeEnum.AP,
                 boddEllerArbeidetUtenlands = false
-            )
-
-            result.uttaksgradListe.size shouldBe 0
+            ).uttaksgradListe shouldHaveSize 0
         }
     }
 })

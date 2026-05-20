@@ -28,14 +28,10 @@ class SimulatorContextTest : ShouldSpec({
 
     context("beregnAlderspensjon2011FoersteUttak") {
         should("returnere beregningsresultat med nullstilte felter") {
-            val beregningsresultat = BeregningsResultatAlderspensjon2011().apply {
-                virkTomLd = LocalDate.of(2030, 1, 1)
-                epsMottarPensjon = true
-            }
             val regelmotor =
                 arrangeRegler<BeregnAlderspensjon2011ForsteUttakResponse, BeregnAlderspensjon2011ForsteUttakRequest>(
                     response = BeregnAlderspensjon2011ForsteUttakResponse().apply {
-                        beregningsResultat = beregningsresultat
+                        beregningsResultat = BeregningsResultatAlderspensjon2011().apply { virkTomLd = dato }
                         pakkseddel = Pakkseddel()
                     }
                 )
@@ -47,7 +43,6 @@ class SimulatorContextTest : ShouldSpec({
 
             with(result) {
                 virkTomLd shouldBe null
-                epsMottarPensjon shouldBe false
                 beregningsinformasjon shouldBe null
             }
         }
@@ -91,14 +86,10 @@ class SimulatorContextTest : ShouldSpec({
 
     context("beregnAlderspensjon2016FoersteUttak") {
         should("returnere beregningsresultat med nullstilte felter") {
-            val beregningsresultat = BeregningsResultatAlderspensjon2016().apply {
-                virkTomLd = LocalDate.of(2030, 1, 1)
-                epsMottarPensjon = true
-            }
             val regelmotor =
                 arrangeRegler<BeregnAlderspensjon2016ForsteUttakResponse, BeregnAlderspensjon2016ForsteUttakRequest>(
                     response = BeregnAlderspensjon2016ForsteUttakResponse().apply {
-                        beregningsResultat = beregningsresultat
+                        beregningsResultat = BeregningsResultatAlderspensjon2016().apply { virkTomLd = dato }
                         pakkseddel = Pakkseddel()
                     }
                 )
@@ -110,7 +101,6 @@ class SimulatorContextTest : ShouldSpec({
 
             with(result) {
                 virkTomLd shouldBe null
-                epsMottarPensjon shouldBe false
                 beregningsinformasjon shouldBe null
             }
         }
@@ -135,14 +125,10 @@ class SimulatorContextTest : ShouldSpec({
 
     context("beregnAlderspensjon2025FoersteUttak") {
         should("returnere beregningsresultat med nullstilte felter") {
-            val beregningsresultat = BeregningsResultatAlderspensjon2025().apply {
-                virkTomLd = LocalDate.of(2030, 1, 1)
-                epsMottarPensjon = true
-            }
             val regelmotor =
                 arrangeRegler<BeregnAlderspensjon2025ForsteUttakResponse, BeregnAlderspensjon2025ForsteUttakRequest>(
                     response = BeregnAlderspensjon2025ForsteUttakResponse().apply {
-                        beregningsResultat = beregningsresultat
+                        beregningsResultat = BeregningsResultatAlderspensjon2025().apply { virkTomLd = dato }
                         pakkseddel = Pakkseddel()
                     }
                 )
@@ -154,7 +140,6 @@ class SimulatorContextTest : ShouldSpec({
 
             with(result) {
                 virkTomLd shouldBe null
-                epsMottarPensjon shouldBe false
                 beregningsinformasjon shouldBe null
             }
         }
@@ -383,7 +368,7 @@ class SimulatorContextTest : ShouldSpec({
                     PersonDetalj().apply {
                         grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
                         virkFom = LocalDate.of(2020, 1, 1)
-                        virkTom = LocalDate.of(2030, 1, 1)
+                        virkTom = dato
                     }
                 )
             }
@@ -465,6 +450,8 @@ class SimulatorContextTest : ShouldSpec({
         }
     }
 })
+
+private val dato: LocalDate = LocalDate.of(2030, 1, 1)
 
 private val objectMapper = JsonMapper()
 

@@ -4,9 +4,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
-import java.util.*
+import java.util.SortedSet
 
 object TrygdetidUtil {
 
@@ -37,8 +36,8 @@ object TrygdetidUtil {
         boddEllerArbeidetUtenlands: Boolean
     ) =
         TrygdetidRequest().apply {
-            this.virkFom = knekkpunktDato.toNorwegianDateAtNoon()
-            this.brukerForsteVirk = soekerFoersteVirkningFom?.toNorwegianDateAtNoon()
+            this.virkFomLd = knekkpunktDato
+            this.brukerForsteVirkLd = soekerFoersteVirkningFom
             this.hovedKravlinjeType = ytelseType
             this.persongrunnlag = persongrunnlag
             this.boddEllerArbeidetIUtlandet = boddEllerArbeidetUtenlands

@@ -15,7 +15,6 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.util.DateNoonExtension.noon
 import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -43,25 +42,18 @@ object SimulatorContextUtil {
 
     // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2011Request
     fun preprocess(spec: VilkarsprovAlderpensjon2011Request) {
-        spec.fom = spec.fom?.noon()
-        spec.tom = spec.tom?.noon()
-        spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2016Request
     fun preprocess(spec: VilkarsprovAlderpensjon2016Request) {
-        spec.virkFom = spec.virkFom?.noon()
-        spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
 
     // Ref. PEN: RequestToReglerMapper.mapToVilkarsprovAlderpensjon2025Request
     fun preprocess(spec: VilkarsprovAlderpensjon2025Request) {
-        spec.fom = spec.fom?.noon()
-        spec.afpVirkFom = spec.afpVirkFom?.noon()
         spec.afpPrivatLivsvarig?.let(::roundNettoPerAar)
         spec.sisteBeregning?.pensjonUnderUtbetaling?.let(::preprocess)
     }
@@ -149,7 +141,7 @@ object SimulatorContextUtil {
 
         (spec as? RevurderingAlderspensjon2025Request)?.let {
             log.warn {
-                "RevurderingAlderspensjon2025Request: virkFom ${it.virkFom} vs uttaksgrader ${uttaksgraderString(it)}"
+                "RevurderingAlderspensjon2025Request: virkFomLd ${it.virkFomLd} vs uttaksgrader ${uttaksgraderString(it)}"
             }
         }
 

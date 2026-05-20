@@ -21,10 +21,8 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
-import java.util.*
 
 class SimulatorContextUtilTest : FunSpec({
 
@@ -254,7 +252,7 @@ class SimulatorContextUtilTest : FunSpec({
             merknadListe = listOf(Merknad().apply { kode = "REVURDERING_FEIL" })
         }
         val request = RevurderingAlderspensjon2025Request().apply {
-            virkFom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon()
+            virkFomLd = LocalDate.of(2025, 1, 1)
             kravhode = Kravhode().apply {
                 uttaksgradListe = mutableListOf(
                     Uttaksgrad().apply {

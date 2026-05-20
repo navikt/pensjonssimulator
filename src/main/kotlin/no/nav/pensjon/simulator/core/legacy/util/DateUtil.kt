@@ -190,9 +190,6 @@ object DateUtil {
         return tomOk && (isFirstDayBeforeSecond(fom, dato) || isSameDay(dato, fom))
     }
 
-    fun isDateInPeriod(dato: LocalDate?, fom: Date?, tom: Date?): Boolean =
-        isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom, tom)
-
     fun isDateInPeriod(dato: LocalDate?, fom: LocalDate?, tom: LocalDate?): Boolean =
         isDateInPeriod(dato?.toNorwegianDateAtNoon(), fom?.toNorwegianDateAtNoon(), tom?.toNorwegianDateAtNoon())
 

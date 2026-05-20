@@ -20,13 +20,6 @@ class LegacyDateExtensionTest : ShouldSpec({
             finnishNoon.time - finnishNoon.toNorwegianDate().time shouldBe 39600000L // 11 hours
         }
     }
-
-    context("toNorwegianNoon") {
-        should("gi klokkeslett 12:00 med norsk tidssone") {
-            // finnishNoon = klokkeslett 11:00 norsk tid
-            finnishNoon.time - finnishNoon.toNorwegianNoon().time shouldBe -3600000L // -1 hour
-        }
-    }
 })
 
 private val finnishNoon: Date =

@@ -16,8 +16,8 @@ object StatistikkMapperV1 {
             antall = source.antall
         )
 
-    fun tertialStatistikk(tertial: Int, source: Map<Kalendermaaned, AntallCombo>) =
-        TertialStatistikkV1(
+    fun toDto(tertial: Int, source: Map<Kalendermaaned, AntallCombo>) =
+        TertialstatistikkV1(
             tertial,
             statistikkPerMaaned = antallPerMaaned(source)
         )

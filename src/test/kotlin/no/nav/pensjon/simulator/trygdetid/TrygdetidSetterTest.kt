@@ -6,10 +6,8 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.*
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
-import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
 
 class TrygdetidSetterTest : ShouldSpec({
@@ -18,7 +16,11 @@ class TrygdetidSetterTest : ShouldSpec({
     val adjuster: TrygdetidAdjuster = mockk()
 
     should("sette trygdetid i normaltilfeller") {
-        with(TrygdetidSetter(adjuster, time).settTrygdetid(spec = spec(utlandAntallAar = 0))) {
+        with(
+            TrygdetidSetter(adjuster, time).settTrygdetid(
+                spec = specForFoerstegangsberegning(utlandAntallAar = 0),
+                persongrunnlag = Persongrunnlag().apply { fodselsdatoLd = foedselsdato })
+        ) {
             trygdetidPerioder shouldHaveSize 1
             trygdetidPerioderKapittel20 shouldHaveSize 1
             trygdetidPerioder[0].fomLd shouldBe trygdetidFom
@@ -27,7 +29,11 @@ class TrygdetidSetterTest : ShouldSpec({
     }
 
     should("begrense utenlandsopphold for kapittel 19 men ikke for kapittel 20") {
-        with(TrygdetidSetter(adjuster, time).settTrygdetid(spec = spec(utlandAntallAar = 51))) {
+        with(
+            TrygdetidSetter(adjuster, time).settTrygdetid(
+                spec = specForFoerstegangsberegning(utlandAntallAar = 51),
+                persongrunnlag = Persongrunnlag().apply { fodselsdatoLd = foedselsdato })
+        ) {
             trygdetidPerioder shouldHaveSize 1
             trygdetidPerioderKapittel20 shouldHaveSize 1
             // Trygdetidstart hvis ikke begrenset = fødselsår + minstealder + utenlandsopphold = 1963 + 16 + 51 = 2030
@@ -49,21 +55,27 @@ class TrygdetidSetterTest : ShouldSpec({
                 trygdetidPerioder = mutableListOf(existingPeriode)
                 trygdetidPerioderKapittel20 = mutableListOf(existingPeriode.copy())
             }
-            val forrigeResultat = BeregningsResultatAlderspensjon2025()
 
             every { adjuster.conditionallyAdjustLastTrygdetidPeriode(any(), any()) } just runs
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = specMedForrigeResultat(
-                    persongrunnlag = persongrunnlag,
-                    forrigeResultat = forrigeResultat,
-                    tom = null
-                )
+                spec = specForEndringsberegning(tom = null),
+                persongrunnlag
             )
 
             // Verify adjuster was called for both lists
-            verify(exactly = 1) { adjuster.conditionallyAdjustLastTrygdetidPeriode(persongrunnlag.trygdetidPerioder, null) }
-            verify(exactly = 1) { adjuster.conditionallyAdjustLastTrygdetidPeriode(persongrunnlag.trygdetidPerioderKapittel20, null) }
+            verify(exactly = 1) {
+                adjuster.conditionallyAdjustLastTrygdetidPeriode(
+                    persongrunnlag.trygdetidPerioder,
+                    null
+                )
+            }
+            verify(exactly = 1) {
+                adjuster.conditionallyAdjustLastTrygdetidPeriode(
+                    persongrunnlag.trygdetidPerioderKapittel20,
+                    null
+                )
+            }
 
             // Should have added new period (existing + new = 2)
             result.trygdetidPerioder shouldHaveSize 2
@@ -84,17 +96,13 @@ class TrygdetidSetterTest : ShouldSpec({
                 trygdetidPerioder = mutableListOf(existingPeriode)
                 trygdetidPerioderKapittel20 = mutableListOf(existingPeriode.copy())
             }
-            val forrigeResultat = BeregningsResultatAlderspensjon2025()
             val tom = LocalDate.of(2030, 6, 1) // tom is after fom (2025-01-01)
 
             every { adjuster.conditionallyAdjustLastTrygdetidPeriode(any(), any()) } just runs
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = specMedForrigeResultat(
-                    persongrunnlag = persongrunnlag,
-                    forrigeResultat = forrigeResultat,
-                    tom = tom
-                )
+                spec = specForEndringsberegning(tom),
+                persongrunnlag
             )
 
             // Should have added new period
@@ -115,17 +123,13 @@ class TrygdetidSetterTest : ShouldSpec({
                 trygdetidPerioder = mutableListOf(existingPeriode)
                 trygdetidPerioderKapittel20 = mutableListOf(existingPeriode.copy())
             }
-            val forrigeResultat = BeregningsResultatAlderspensjon2025()
             val tom = LocalDate.of(2024, 6, 1) // tom is before fom (2025-01-01)
 
             every { adjuster.conditionallyAdjustLastTrygdetidPeriode(any(), any()) } just runs
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = specMedForrigeResultat(
-                    persongrunnlag = persongrunnlag,
-                    forrigeResultat = forrigeResultat,
-                    tom = tom
-                )
+                spec = specForEndringsberegning(tom),
+                persongrunnlag
             )
 
             // Should NOT have added new period (only existing)
@@ -142,17 +146,13 @@ class TrygdetidSetterTest : ShouldSpec({
                 trygdetidPerioder = mutableListOf(existingPeriode)
                 trygdetidPerioderKapittel20 = mutableListOf(existingPeriode.copy())
             }
-            val forrigeResultat = BeregningsResultatAlderspensjon2025()
             val tom = LocalDate.of(2025, 1, 1) // tom == fom (today)
 
             every { adjuster.conditionallyAdjustLastTrygdetidPeriode(any(), any()) } just runs
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = specMedForrigeResultat(
-                    persongrunnlag = persongrunnlag,
-                    forrigeResultat = forrigeResultat,
-                    tom = tom
-                )
+                spec = specForEndringsberegning(tom),
+                persongrunnlag
             )
 
             // Should NOT have added new period (tom.isAfter(fom) is false when tom == fom)
@@ -172,7 +172,8 @@ class TrygdetidSetterTest : ShouldSpec({
             val tom = LocalDate.of(1979, 1, 15) // Same as fom when utlandAntallAar = 0
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = spec(utlandAntallAar = 0, tom = tom)
+                spec = specForFoerstegangsberegning(utlandAntallAar = 0, tom = tom),
+                persongrunnlag = Persongrunnlag().apply { fodselsdatoLd = foedselsdato }
             )
 
             // norskTrygdetidPeriode returns null when fom >= tom, so no periods should be added
@@ -187,7 +188,8 @@ class TrygdetidSetterTest : ShouldSpec({
             val tom = LocalDate.of(1978, 6, 1) // Before fom (1979-01-15)
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = spec(utlandAntallAar = 0, tom = tom)
+                spec = specForFoerstegangsberegning(utlandAntallAar = 0, tom = tom),
+                persongrunnlag = Persongrunnlag().apply { fodselsdatoLd = foedselsdato }
             )
 
             // norskTrygdetidPeriode returns null when fom >= tom, so no periods should be added
@@ -210,7 +212,8 @@ class TrygdetidSetterTest : ShouldSpec({
             val tom = LocalDate.of(2035, 1, 1)
 
             val result = TrygdetidSetter(adjuster, time).settTrygdetid(
-                spec = spec(utlandAntallAar = 60, tom = tom)
+                spec = specForFoerstegangsberegning(utlandAntallAar = 60, tom = tom),
+                persongrunnlag = Persongrunnlag().apply { fodselsdatoLd = foedselsdato }
             )
 
             // Kapittel 19 should have a period (limited utlandAntallAar makes fom < tom)
@@ -229,24 +232,18 @@ class TrygdetidSetterTest : ShouldSpec({
 private val foedselsdato = LocalDate.of(1963, 1, 15)
 private val trygdetidFom = LocalDate.of(1979, 1, 15)
 
-private fun spec(utlandAntallAar: Int, tom: LocalDate? = null) =
-    TrygdetidGrunnlagSpec(
-        persongrunnlag = Persongrunnlag().apply { fodselsdatoLd = foedselsdato },
+private fun specForFoerstegangsberegning(utlandAntallAar: Int, tom: LocalDate? = null) =
+    TrygdetidsgrunnlagAarsbasertSpec(
         utlandAntallAar,
-        tom = tom,
-        forrigeAlderspensjonBeregningResultat = null,
-        simuleringSpec = simuleringSpec() // Første uttak: 2029-01-01 (dvs. ved alder 65)
+        tom,
+        erFoerstegangsberegning = true,
+        foersteUttakDato = LocalDate.of(2029, 1, 1)
     )
 
-private fun specMedForrigeResultat(
-    persongrunnlag: Persongrunnlag,
-    forrigeResultat: BeregningsResultatAlderspensjon2025,
-    tom: LocalDate?
-) =
-    TrygdetidGrunnlagSpec(
-        persongrunnlag = persongrunnlag,
-        utlandAntallAar = 0,
-        tom = tom,
-        forrigeAlderspensjonBeregningResultat = forrigeResultat,
-        simuleringSpec = simuleringSpec()
+private fun specForEndringsberegning(tom: LocalDate?) =
+    TrygdetidsgrunnlagAarsbasertSpec(
+        antallAarUtenlands = 0,
+        tom,
+        erFoerstegangsberegning = false,
+        foersteUttakDato = LocalDate.of(2029, 1, 1)
     )

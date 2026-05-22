@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import no.nav.pensjon.simulator.core.SimulatorContext
-import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
@@ -19,9 +18,9 @@ class Pre2025OffentligAfpBeholdning(
     // SimulerAFPogAPCommand.settPensjonsbeholdning
     fun setPensjonsbeholdning(
         persongrunnlag: Persongrunnlag,
-        forrigeAlderspensjonBeregningResult: AbstraktBeregningsResultat?
+        erEndringsberegning: Boolean
     ): Persongrunnlag {
-        if (forrigeAlderspensjonBeregningResult != null) return persongrunnlag
+        if (erEndringsberegning) return persongrunnlag
 
        val normalderOppnaasAar = normalderService.normalderOppnaasDato(persongrunnlag.fodselsdatoLd!!).year
 

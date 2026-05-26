@@ -123,7 +123,7 @@ class Pre2025OffentligAfpUttaksgradTest : ShouldSpec({
             with(uttaksgradListe[0]) {
                 // Terminert alderspensjonsperiode:
                 fomDatoLd shouldBe LocalDate.of(2024, 1, 1)
-                tomDatoLd shouldBe historiskAlderspensjonTom
+                tomDatoLd shouldBe historiskAlderspensjonTom // 2026-02-28
                 uttaksgrad shouldBe 100
             }
             with(uttaksgradListe[1]) {
@@ -140,12 +140,69 @@ class Pre2025OffentligAfpUttaksgradTest : ShouldSpec({
             }
         }
     }
+
+    context("flere perioder med 0-uttak") {
+        should("uttaksgradlisten være kontinuerlig") {
+            val startdatoForAfp = LocalDate.of(2026, 6, 1)
+            val foedselsdato = LocalDate.of(1960, 12, 15)
+            // Med normalder 67 år 0 måneder blir ubetinget uttaksdato 2028-01-01
+
+            val uttaksgradListe = Pre2025OffentligAfpUttaksgrad(
+                kravService = arrangeKravMedFlere0Uttak(),
+                normalderService = Arrange.normalder(foedselsdato) // normalder 67 år 0 måneder
+            ).uttaksgradListe(
+                spec = simuleringSpec(foersteUttakDato = startdatoForAfp),
+                forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2016().apply { kravId = 1L },
+                foedselsdato
+            )
+
+            uttaksgradListe.size shouldBe 7
+            uttaksgradListe.sortBy { it.fomDatoLd }
+            with(uttaksgradListe[0]) {
+                uttaksgrad shouldBe 100
+                fomDatoLd shouldBe LocalDate.of(2023, 1, 1)
+                tomDatoLd shouldBe LocalDate.of(2024, 6, 30)
+            }
+            with(uttaksgradListe[1]) {
+                uttaksgrad shouldBe 0
+                fomDatoLd shouldBe LocalDate.of(2024, 7, 1)
+                tomDatoLd shouldBe LocalDate.of(2024, 12, 31)
+            }
+            with(uttaksgradListe[2]) {
+                uttaksgrad shouldBe 100
+                fomDatoLd shouldBe LocalDate.of(2025, 1, 1)
+                tomDatoLd shouldBe LocalDate.of(2025, 7, 31)
+            }
+            with(uttaksgradListe[3]) {
+                uttaksgrad shouldBe 0
+                fomDatoLd shouldBe LocalDate.of(2025, 8, 1)
+                tomDatoLd shouldBe LocalDate.of(2026, 1, 31)
+            }
+            with(uttaksgradListe[4]) {
+                uttaksgrad shouldBe 100
+                fomDatoLd shouldBe LocalDate.of(2026, 2, 1)
+                tomDatoLd shouldBe LocalDate.of(2026, 5, 31)
+            }
+            // AFP-periode:
+            with(uttaksgradListe[5]) {
+                uttaksgrad shouldBe 0
+                fomDatoLd shouldBe LocalDate.of(2026, 6, 1)
+                tomDatoLd shouldBe LocalDate.of(2027, 12, 31)
+            }
+            // Alderspensjon etter AFP, f.o.m. ubetinget uttaksdato:
+            with(uttaksgradListe[6]) {
+                uttaksgrad shouldBe 100
+                fomDatoLd shouldBe LocalDate.of(2028, 1, 1)
+                tomDatoLd shouldBe null
+            }
+        }
+    }
 })
 
 private val historiskAlderspensjonTom = LocalDate.of(2026, 2, 28)
 
 private fun arrangeKrav(loepende0Uttak: Uttaksgrad): KravService =
-    mockk<KravService>().apply {
+    mockk {
         every { fetchKravhode(any()) } returns Kravhode().apply {
             uttaksgradListe = mutableListOf(
                 Uttaksgrad().apply {
@@ -154,6 +211,44 @@ private fun arrangeKrav(loepende0Uttak: Uttaksgrad): KravService =
                     tomDatoLd = historiskAlderspensjonTom
                 },
                 loepende0Uttak
+            )
+        }
+    }
+
+private fun arrangeKravMedFlere0Uttak(): KravService =
+    mockk {
+        every { fetchKravhode(any()) } returns Kravhode().apply {
+            uttaksgradListe = mutableListOf(
+                Uttaksgrad().apply {
+                    uttaksgrad = 100
+                    fomDatoLd = LocalDate.of(2023, 1, 1)
+                    tomDatoLd = LocalDate.of(2024, 6, 30)
+                },
+                Uttaksgrad().apply {
+                    uttaksgrad = 0
+                    fomDatoLd = LocalDate.of(2024, 7, 1)
+                    tomDatoLd = LocalDate.of(2024, 12, 31)
+                },
+                Uttaksgrad().apply {
+                    uttaksgrad = 100
+                    fomDatoLd = LocalDate.of(2025, 1, 1)
+                    tomDatoLd = LocalDate.of(2025, 7, 31)
+                },
+                Uttaksgrad().apply {
+                    uttaksgrad = 0
+                    fomDatoLd = LocalDate.of(2025, 8, 1)
+                    tomDatoLd = LocalDate.of(2026, 1, 31)
+                },
+                Uttaksgrad().apply {
+                    uttaksgrad = 100
+                    fomDatoLd = LocalDate.of(2026, 2, 1)
+                    tomDatoLd = LocalDate.of(2026, 5, 31)
+                },
+                Uttaksgrad().apply {
+                    uttaksgrad = 0
+                    fomDatoLd = LocalDate.of(2026, 6, 1)
+                    tomDatoLd = null
+                },
             )
         }
     }

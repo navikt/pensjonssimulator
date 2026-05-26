@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.afp.offentlig.pre2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
-import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
@@ -90,10 +89,11 @@ class Pre2025OffentligAfpUttaksgrad(
             kravhode: Kravhode?,
             afpFom: LocalDate
         ): MutableList<Uttaksgrad> {
-            // Fjern eksisterende uttaksgradperioder med 0 %,
-            // da det skal legges til en 0-periode som dekker AFP-perioden
-            // (gjøres på en kopi av uttaksgradperiodene, slik at det ikke er noen endringer i originalen):
-            val uttaksgradListe = uttaksgraderUten0(kravhode).map { it.copy() }.toMutableList()
+            // Fjern siste eksisterende uttaksgradperiode med 0 %,
+            // da det skal legges til en 0-periode som dekker AFP-perioden:
+            val uttaksgradListe = kravhode?.uttaksgradListe.orEmpty()
+                .filter { it.fomDatoLd != siste0UttakFom(kravhode) }
+                .toMutableList()
 
             // Terminer alderspensjon (kan ikke kombineres med tidsbegrenset AFP):
             replaceNullTom(uttaksgradListe, tom = afpFom.minusDays(1))
@@ -101,8 +101,8 @@ class Pre2025OffentligAfpUttaksgrad(
             return uttaksgradListe
         }
 
-        private fun uttaksgraderUten0(kravhode: Kravhode?): List<Uttaksgrad> =
-            kravhode?.uttaksgradListe.orEmpty().filter { it.uttaksgrad != 0 }
+        private fun siste0UttakFom(kravhode: Kravhode?): LocalDate? =
+            kravhode?.uttaksgradListe.orEmpty().filter { it.uttaksgrad == 0 }.maxOfOrNull { it.fomDatoLd!! }
 
         // PEN: SimulerAFPogAPCommandHelper.updateUttaksgradWithTomDateNull
         private fun replaceNullTom(uttaksgradListe: List<Uttaksgrad>, tom: LocalDate) {

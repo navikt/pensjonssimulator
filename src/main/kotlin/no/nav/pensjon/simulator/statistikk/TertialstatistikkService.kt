@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.statistikk
 
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.time.*
+import no.nav.pensjon.simulator.tech.time.Tertial.erAaretsSiste
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,7 +15,7 @@ class TertialstatistikkService(
      * så tar man differansen mellom snapshot for april ("neste") og snapshot for mars.
      */
     fun antallPerMaaned(tertial: Int): Map<Kalendermaaned, AntallCombo> {
-        val aar = time.today().year
+        val aar = statistikkAar(tertial)
         val kalendermaaneder = Tertial.kalendermaaneder(tertial)
         val aarMaanedListe: List<AarMaaned> = aarMaanedListe(aar, kalendermaaneder)
         val absolutteAntall: Map<AarMaaned, AntallCombo> = hentSnapshots(aarMaanedListe)
@@ -27,6 +28,14 @@ class TertialstatistikkService(
                     absolutteAntall.getValue(it.neste()) minus absolutteAntall.getValue(it)
                 })
     }
+
+    /**
+     * Uthenting av tertialstatistikk skjer etter at tertialet er avsluttet.
+     * Dvs. tertialstatistikk for siste (3.) tertial hentes ut først etter årsskifte.
+     * "Statistikkåret" for siste tertial er dermed året før inneværende år.
+     */
+    private fun statistikkAar(tertial: Int): Int =
+        time.today().year.let { if (erAaretsSiste(tertial)) it - 1 else it }
 
     private fun hentSnapshots(aarMaanedListe: List<AarMaaned>): Map<AarMaaned, AntallCombo> =
         aarMaanedListe.associateBy(

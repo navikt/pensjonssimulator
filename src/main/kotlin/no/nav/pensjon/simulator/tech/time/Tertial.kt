@@ -24,4 +24,7 @@ object Tertial {
 
     fun kalendermaaneder(tertial: Int): List<Kalendermaaned> =
         kalendermaanederPerTertial.getValue(tertial)
+
+    fun erAaretsSiste(tertial: Int): Boolean =
+        tertial == 3
 }

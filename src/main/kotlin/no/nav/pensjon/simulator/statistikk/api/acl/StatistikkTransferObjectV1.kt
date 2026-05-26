@@ -9,6 +9,11 @@ data class HendelseAntallV1(
     val antall: Int
 )
 
+data class TertialstatistikkV1(
+    val tertial: Int,
+    val statistikkPerMaaned: Map<String, Map<String, Int>> // Map<måned, Map<gjelder, antall>>
+)
+
 data class SimuleringHendelseV1(
     val organisasjonsnummer: String,
     val simuleringstype: SimuleringTypeEnumV1

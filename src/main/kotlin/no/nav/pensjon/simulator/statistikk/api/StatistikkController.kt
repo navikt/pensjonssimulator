@@ -2,10 +2,13 @@ package no.nav.pensjon.simulator.statistikk.api
 
 import io.swagger.v3.oas.annotations.Hidden
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.statistikk.TertialstatistikkService
 import no.nav.pensjon.simulator.statistikk.api.acl.HendelseAntallV1
 import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkMapperV1.hendelseAntallV1
+import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkMapperV1.toDto
 import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkMapperV1.toDtoV1
 import no.nav.pensjon.simulator.statistikk.api.acl.StatistikkTransferObjectV1
+import no.nav.pensjon.simulator.statistikk.api.acl.TertialstatistikkV1
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -13,7 +16,10 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("api")
-class StatistikkController(val statistikk: StatistikkService) {
+class StatistikkController(
+    val statistikk: StatistikkService,
+    val tertialStatistikk: TertialstatistikkService
+) {
 
     @GetMapping("v1/statistikk")
     @Hidden
@@ -24,4 +30,9 @@ class StatistikkController(val statistikk: StatistikkService) {
     @Hidden
     fun hentSnapshot(@PathVariable(value = "aar-maaned") aarMaaned: Int): List<HendelseAntallV1> =
         statistikk.getSnapshot(aarMaaned).map(::hendelseAntallV1)
+
+    @GetMapping("v1/statistikk/tertial/{tertial}")
+    @Hidden
+    fun hentTertialstatistikk(@PathVariable tertial: Int): TertialstatistikkV1 =
+        toDto(tertial, tertialStatistikk.antallPerMaaned(tertial))
 }

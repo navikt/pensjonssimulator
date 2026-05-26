@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.trygdetid.cache
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil
 import no.nav.pensjon.simulator.trygdetid.TrygdetidCombo
 
 // PEN: FastsettTrygdetidCache
@@ -41,8 +40,8 @@ class RollebasertTrygdetidCache(val context: SimulatorContext) {
             .let { TrygdetidCombo(kapittel19 = it.trygdetid, kapittel20 = it.trygdetidKapittel20) }
 
     private fun validate(parameters: TrygdetidRequest) {
-        if (parameters.virkFom == null) {
-            throw UnsupportedOperationException("No virkFom was specified. The value is mandatory when using the cache.")
+        if (parameters.virkFomLd == null) {
+            throw UnsupportedOperationException("No virkFomLd was specified. The value is mandatory when using the cache.")
         }
     }
 }

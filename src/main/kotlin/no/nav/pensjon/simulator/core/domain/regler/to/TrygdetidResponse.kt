@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.to
 
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 
+// 2026-05-05
 class TrygdetidResponse : ServiceResponse() {
     /**
      * Fastsatt trygdetid.

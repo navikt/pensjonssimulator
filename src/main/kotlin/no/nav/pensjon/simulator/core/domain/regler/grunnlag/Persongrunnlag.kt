@@ -586,5 +586,18 @@ class Persongrunnlag {
         trygdetider.filter { it.virkFomLd != null }.maxByOrNull { it.virkFomLd!! }
             ?: trygdetider.firstOrNull()
 
+    fun terminerUfoereperioder(tom: LocalDate) {
+        if (uforeHistorikk?.uforeperiodeListe == null) return
+
+        val historikkCopy = Uforehistorikk(uforeHistorikk!!)
+
+        historikkCopy.uforeperiodeListe.forEach {
+            if (it.ufgTomLd == null) {
+                it.ufgTomLd = tom
+            }
+        }
+
+        uforeHistorikk = historikkCopy
+    }
     // end extra
 }

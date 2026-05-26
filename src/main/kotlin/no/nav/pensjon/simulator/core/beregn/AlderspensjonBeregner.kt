@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsprovAlderspensj
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
@@ -214,14 +213,14 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
-                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
+                virkFomLd = spec.virkFom
                 epsMottarPensjon = spec.epsMottarPensjon
                 afpPrivatLivsvarig = spec.privatAfp
             }
 
         private fun beregning2025Request(spec: AlderspensjonBeregningCommonSpec) =
             BeregnAlderspensjon2025ForsteUttakRequest().apply {
-                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
+                virkFomLd = spec.virkFom
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 infoPavirkendeYtelse = spec.infoPavirkendeYtelse
@@ -296,8 +295,8 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = Vector(spec.vilkaarsvedtakListe)
                 infoPavirkendeYtelse = spec.paavirkendeYtelseInfo
                 epsMottarPensjon = spec.epsMottarPensjon
-                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
-                virkTom = null
+                virkFomLd = spec.virkFom
+                virkTomLd = null
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2011
                 afpPrivatLivsvarig = spec.privatAfp
             }
@@ -308,12 +307,11 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = ArrayList(spec.vilkaarsvedtakListe)
                 infoPavirkendeYtelse = spec.paavirkendeYtelseInfo
                 epsMottarPensjon = spec.epsMottarPensjon
-                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
+                virkFomLd = spec.virkFom
                 forrigeAldersBeregning = spec.forrigeAldersberegning as? SisteAldersberegning2016
                 afpPrivatLivsvarig = spec.privatAfp
-            }.also {
-                it.vilkarsvedtakListe.forEach(::prepareVedtak2016ForReglerCall)
-                it.forrigeAldersBeregning?.let(::clearFormelMaps)
+                vilkarsvedtakListe.forEach(::prepareVedtak2016ForReglerCall)
+                forrigeAldersBeregning?.let(::clearFormelMaps)
             }
 
         private fun revurdering2025Request(spec: AlderspensjonRevurderingCommonSpec) =
@@ -322,13 +320,12 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 vilkarsvedtakListe = ArrayList(spec.vilkaarsvedtakListe)
                 infoPavirkendeYtelse = spec.paavirkendeYtelseInfo
                 epsMottarPensjon = spec.epsMottarPensjon
-                virkFom = spec.virkFom?.toNorwegianDateAtNoon()
+                virkFomLd = spec.virkFom
                 sisteAldersBeregning2011 = spec.forrigeAldersberegning as? SisteAldersberegning2011 // NB: 2011
                 afpPrivatLivsvarig = spec.privatAfp
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag
-            }.also {
-                it.vilkarsvedtakListe.forEach(::prepareVedtak2025ForReglerCall)
-                it.sisteAldersBeregning2011?.let(::prepareBeregningForReglerCall)
+                vilkarsvedtakListe.forEach(::prepareVedtak2025ForReglerCall)
+                sisteAldersBeregning2011?.let(::prepareBeregningForReglerCall)
             }
 
         private fun prepareBeregningForReglerCall(beregning: SisteAldersberegning2011) {

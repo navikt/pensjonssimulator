@@ -8,17 +8,11 @@ import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.core.ufoere.UfoereperiodeService
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
@@ -32,14 +26,13 @@ import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
 import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OppdaterKravhodeForForsteKnekkpunktHelper
 @Component
 class KravhodeUpdater(
     private val context: SimulatorContext,
-    private val normalderService: NormertPensjonsalderService,
+    private val ufoereperiodeService: UfoereperiodeService,
     private val tidsbegrensetOffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
     private val trygdetidSetter: TrygdetidSetter,
     private val time: Time
@@ -57,13 +50,14 @@ class KravhodeUpdater(
 
         log.debug { "STEP 4.1 - Sett trygdetidsgrunnlag" }
         soekerGrunnlag = setTrygdetid(
-            TrygdetidGrunnlagSpec(
-                soekerGrunnlag,
-                simuleringSpec.utlandAntallAar,
-                null,
-                forrigeAlderspensjonBeregningResult,
+            spec = TrygdetidGrunnlagSpec(
+                persongrunnlag = soekerGrunnlag,
+                utlandAntallAar = simuleringSpec.utlandAntallAar,
+                tom = null,
+                forrigeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResult,
                 simuleringSpec
-            ), kravhode
+            ),
+            kravhode
         )
 
         log.debug { "STEP 4.2 - Sett pensjonsbeholdning for bruker" }
@@ -83,8 +77,8 @@ class KravhodeUpdater(
         }
 
         log.debug { "STEP 4.3 - Sett uførehistorikk" }
-        val ufoerePeriodeTom = ufoerePeriodeTom(simuleringSpec, soekerGrunnlag)
-        setUfoereHistorikk(soekerGrunnlag, ufoerePeriodeTom)
+        val ufoerePeriodeTom: LocalDate = ufoereperiodeService.ufoereperiodeTom(simuleringSpec, soekerGrunnlag)
+        soekerGrunnlag.terminerUfoereperioder(ufoerePeriodeTom)
 
         if (avdoedGrunnlag != null) {
             log.debug { "STEP 4.4 - Sett trygdetidsgrunnlag for avdød" }
@@ -103,7 +97,7 @@ class KravhodeUpdater(
             )
 
             log.debug { "STEP 4.5 - Sett uførehistorikk for avdød" }
-            setUfoereHistorikk(avdoedGrunnlag)
+            avdoedGrunnlag.dodsdatoLd?.let(avdoedGrunnlag::terminerUfoereperioder)
         }
 
         return kravhode
@@ -117,48 +111,6 @@ class KravhodeUpdater(
         } catch (e: RegelmotorValideringException) {
             handle(e)
         }
-
-    private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag) {
-        setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdatoLd)
-    }
-
-    // PEN: SettUforehistorikkHelper.settUforehistorikk
-    private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag, tom: LocalDate?) {
-        val historikk = persongrunnlag.uforeHistorikk
-        if (historikk?.uforeperiodeListe == null) return
-
-        val historikkCopy = Uforehistorikk(historikk)
-
-        historikkCopy.uforeperiodeListe.forEach {
-            if (it.ufgTomLd == null) {
-                it.ufgTomLd = tom
-            }
-        }
-
-        persongrunnlag.uforeHistorikk = historikkCopy
-    }
-
-    private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): LocalDate {
-        val sisteDagIMaanedenForNormalder: Date = sisteDagIMaanedenForNormalder(soekerGrunnlag.fodselsdatoLd!!)
-
-        return if (spec.type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT &&
-            isBeforeByDay(
-                thisDate = spec.foersteUttakDato,
-                thatDate = sisteDagIMaanedenForNormalder,
-                allowSameDay = false
-            )
-        )
-            spec.foersteUttakDato!!.minusDays(1)
-        else
-            sisteDagIMaanedenForNormalder.toNorwegianLocalDate()
-    }
-
-    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
-    private fun sisteDagIMaanedenForNormalder(foedselsdato: LocalDate): Date =
-        lastDayOfMonthUserTurnsGivenAge(
-            foedselsdato.toNorwegianDateAtNoon(),
-            alder = normalderService.normalder(foedselsdato)
-        )
 
     // SimulerFleksibelAPCommand.settTrygdetid
     private fun setTrygdetid(spec: TrygdetidGrunnlagSpec, kravhode: Kravhode): Persongrunnlag {

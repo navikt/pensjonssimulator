@@ -55,6 +55,22 @@ data class SimuleringSpec(
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
     val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
 
+    val erHeltUttak: Boolean = uttakGrad == UttakGradKode.P_100
+
+    val gjelderPrivatAfp: Boolean =
+        EnumSet.of(
+            SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
+        ).contains(type)
+
+    /**
+     * Uføretrygd må avsluttes før uttak av pensjon i følgende tilfeller:
+     * - Ved uttak (helt eller gradert) av alderspensjon i kombinasjon med privat AFP
+     * - Ved helt uttak av alderspensjon
+     */
+    val kreverAvsluttetUfoeretrygd: Boolean =
+        gjelderPrivatAfp || simuleringstyperSomVedHeltUttakKreverAvsluttetUfoeretrygd.contains(type) && erHeltUttak
+
     val limitedUtenlandsoppholdAntallAar: Int =
         if (utlandAntallAar < 1 && utlandPeriodeListe.isNotEmpty() && foedselDato != null)
             UtlandPeriodeConverter.limitedAntallAar(utlandPeriodeListe, foedselDato)
@@ -202,7 +218,7 @@ data class SimuleringSpec(
         withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
 
     fun gjelderLivsvarigAfp() =
-        gjelderPrivatAfp() || gjelderLivsvarigOffentligAfp()
+        gjelderPrivatAfp || gjelderLivsvarigOffentligAfp()
 
     fun gjelderLivsvarigOffentligAfp() =
         EnumSet.of(
@@ -213,12 +229,6 @@ data class SimuleringSpec(
     fun gjelderPre2025OffentligAfp() =
         // NB: Simuleringstype AFP_FPP har ingen variant for endring av pensjon
         gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || type == SimuleringTypeEnum.AFP_FPP
-
-    fun gjelderPrivatAfp() =
-        EnumSet.of(
-            SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
-            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
-        ).contains(type)
 
     /**
      * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak, separert i tid.
@@ -277,6 +287,17 @@ data class SimuleringSpec(
         type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 
     private companion object {
+
+        private val simuleringstyperSomVedHeltUttakKreverAvsluttetUfoeretrygd: Set<SimuleringTypeEnum> =
+            setOf(
+                SimuleringTypeEnum.ALDER,
+                SimuleringTypeEnum.ALDER_M_GJEN,
+                SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+                SimuleringTypeEnum.ENDR_ALDER,
+                SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+            )
+
         //TODO move to UttakGradKode?
         private fun isGradert(grad: UttakGradKode) =
             grad != UttakGradKode.P_0 && grad != UttakGradKode.P_100

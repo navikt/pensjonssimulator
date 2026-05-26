@@ -3,9 +3,6 @@ package no.nav.pensjon.simulator.core.util
 import java.time.LocalDate
 import java.util.*
 
-fun Date.copy(): Date =
-    this.clone() as Date
-
 fun Date.toNorwegianLocalDate(): LocalDate =
     NorwegianCalendar.forDate(date = this).let {
         LocalDate.of(
@@ -17,9 +14,6 @@ fun Date.toNorwegianLocalDate(): LocalDate =
 
 fun Date.toNorwegianDate(): Date =
     NorwegianCalendar.forDate(date = this).time
-
-fun Date.toNorwegianNoon(): Date =
-    NorwegianCalendar.norwegianNoon(this)
 
 object NorwegianCalendar {
     val locale = Locale.of("nb", "NO")
@@ -40,9 +34,6 @@ object NorwegianCalendar {
 
     fun forDate(date: Date): Calendar =
         forDate(date, hourOfDay = 0)
-
-    fun norwegianNoon(date: Date): Date =
-        forDate(date, hourOfDay = 12).time
 
     private fun forDate(date: Date, hourOfDay: Int) =
         instance().apply {

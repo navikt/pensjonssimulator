@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.MinimumIfuTypeEnum
-import java.util.Date
+import java.time.LocalDate
 
-// Copied from pensjon-regler-api 2026-01-16
+// 2026-05-05
 /**
  * Angir inntekt før uførhet (IFU) og hvorvidt inntekten er minimumsgrense eller ikke.
  * Inneholder ulike varianter av inntekt før uførhet som resulterer fra ulike måter å beregne denne inntekten,
@@ -28,7 +28,7 @@ class InntektForUforhet : AbstraktBeregningsvilkar() {
     /**
      * Dato for den kroneverdi inntekt er oppgitt i.
      */
-    var ifuDato: Date? = null
+    var ifuDatoLd: LocalDate? = null
 
     /**
      * Den inntekt før uførhet som er angitt av saksbehandler. Ikke justert for minimumsIFU.

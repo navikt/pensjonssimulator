@@ -50,12 +50,6 @@ object EndringValidator {
         if (spec.antallArInntektEtterHeltUttak == null && spec.fremtidigeInntekter == null) {
             throw InvalidArgumentException("AntallArInntektEtterHeltUttak must be set")
         }*/
-
-        if (simuleringType == SimuleringTypeEnum.ENDR_ALDER_M_GJEN) {
-            if (spec.avdoed?.doedDato == null) {
-                throw InvalidArgumentException("avdod.dodsdato must be set for simuleringstype $simuleringType")
-            }
-        }
     }
 
     // SimulerEndringAvAPCommand.validateRequestBasedOnLopendeYtelser

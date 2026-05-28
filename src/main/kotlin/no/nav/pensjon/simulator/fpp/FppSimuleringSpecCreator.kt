@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
+import no.nav.pensjon.simulator.core.spec.UtlandPeriodeConverter
 import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -16,6 +17,7 @@ import no.nav.pensjon.simulator.person.Sivilstandstype
 import no.nav.pensjon.simulator.person.relasjon.PersonPar
 import no.nav.pensjon.simulator.person.relasjon.Soesken
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
@@ -29,6 +31,7 @@ class FppSimuleringSpecCreator(
 ) {
     fun createSpec(
         simuleringType: SimuleringTypeEnum,
+        utenlandsopphold: List<UtlandPeriode>? = null,
         uttaksdato: LocalDate,
         personopplysninger: Personopplysninger,
         opptjeningFolketrygden: OpptjeningFolketrygden?,
@@ -44,6 +47,7 @@ class FppSimuleringSpecCreator(
 
             persongrunnlagListe = persongrunnlagListe(
                 simuleringType,
+                utenlandsopphold,
                 uttaksdato,
                 personopplysninger,
                 barneopplysninger,
@@ -54,6 +58,7 @@ class FppSimuleringSpecCreator(
 
     private fun persongrunnlagListe(
         simuleringType: SimuleringTypeEnum,
+        utenlandsopphold: List<UtlandPeriode>?,
         uttaksdato: LocalDate,
         personopplysninger: Personopplysninger,
         barneopplysninger: Barneopplysninger?,
@@ -65,6 +70,7 @@ class FppSimuleringSpecCreator(
         persongrunnlagListe.add(
             persongrunnlagForSoeker(
                 simuleringType,
+                utenlandsopphold,
                 uttaksdato,
                 personopplysninger,
                 opptjeningFolketrygden,
@@ -123,6 +129,7 @@ class FppSimuleringSpecCreator(
 
     private fun persongrunnlagForSoeker(
         simuleringType: SimuleringTypeEnum,
+        utenlandsopphold: List<UtlandPeriode>?,
         uttaksdato: LocalDate,
         personopplysninger: Personopplysninger,
         opptjeningFolketrygden: OpptjeningFolketrygden?,
@@ -144,7 +151,9 @@ class FppSimuleringSpecCreator(
 
             fodselsdatoLd = foedselsdato
             dodsdatoLd = null
-            antallArUtland = if (simuleringType == BARN) 0 else personopplysninger.antAarIUtlandet ?: 0
+            antallArUtland = if (simuleringType == BARN) 0 else foedselsdato?.let {
+                UtlandPeriodeConverter.limitedAntallAar(utenlandsopphold ?: emptyList(), it)
+            } ?: 0
             flyktning = personopplysninger.flyktning
 
             if (simuleringType == AFP) {

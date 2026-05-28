@@ -432,7 +432,9 @@ class Beregning {
             fpp = poengrekke?.fpp?.pt,
             grunnpensjon = gp?.netto,
             afpTillegg = afpTillegg?.netto,
-            sertillegg = st?.netto
+            sertillegg = st?.netto,
+            grad = afpPensjonsgrad,
+            erAvkortet = gpAfpPensjonsregulert?.brukt == true
         )
     }
 }

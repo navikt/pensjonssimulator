@@ -2,9 +2,6 @@ package no.nav.pensjon.simulator.afp.offentlig.pre2025
 
 import java.time.LocalDate
 
-/**
- * Corresponds 1-to-1 with PEN's no.nav.pensjon.pen.domain.api.beregning.FolketrygdberegnetAfp
- */
 data class FolketrygdberegnetAfp(
     val totalbelopAfp: Int?, // totalt AFP-beløp
     val virkFom: LocalDate?, // virkningsdato (fra og med)
@@ -19,5 +16,7 @@ data class FolketrygdberegnetAfp(
     val tilleggspensjon: Int?,
     val afpTillegg: Int?, // AFP-tillegg
     val fpp: Double?, // framtidige pensjonspoeng
-    val sertillegg: Int? // særtillegg
+    val sertillegg: Int?, // særtillegg
+    val grad: Int?,
+    val erAvkortet: Boolean? = null
 )

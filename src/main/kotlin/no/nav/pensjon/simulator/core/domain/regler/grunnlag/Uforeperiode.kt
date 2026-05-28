@@ -168,11 +168,8 @@ class Uforeperiode {
     var spt_pa_f92_eos: Int? = null
 
     /**
-     * Flag som angir om perioden angir en nedsettelse av grad. Intern pensjon-regler variabel.
-     */
-    /*
      * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
-     * Dette er beregningsgrunnlagOrdinårt når uforeType er UFORE eller UF_M_YRKE,
+     * Dette er beregningsgrunnlagOrdinært når uforeType er UFORE eller UF_M_YRKE,
      * og beregningsgrunnlagYrkesskade når type er YRKE
      */
     var beregningsgrunnlag = 0

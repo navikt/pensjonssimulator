@@ -145,8 +145,8 @@ class SimulatorCore(
         kravhode = kravhodeUpdater.updateKravhodeForFoersteKnekkpunkt(
             KravhodeUpdateSpec(
                 kravhode,
-                simulering = spec,
-                forrigeAlderspensjonBeregningResult = ytelser.forrigeAlderspensjonBeregningResultat
+                simuleringSpec = spec,
+                erFoerstegangsberegning = ytelser.forrigeAlderspensjonBeregningResultat == null
             )
         )
 

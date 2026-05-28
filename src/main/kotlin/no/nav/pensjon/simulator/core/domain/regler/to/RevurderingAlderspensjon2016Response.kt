@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.to
 
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 
+// 2026-05-05
 class RevurderingAlderspensjon2016Response : ServiceResponse() {
 
     var revurdertBeregningsResultat: BeregningsResultatAlderspensjon2016? = null

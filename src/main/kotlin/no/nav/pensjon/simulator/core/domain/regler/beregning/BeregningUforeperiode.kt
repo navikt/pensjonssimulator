@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.ProRataBeregningTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
 import java.time.LocalDate
-import java.util.*
 
 // 2026-04-23
 class BeregningUforeperiode {
@@ -199,26 +198,18 @@ class BeregningUforeperiode {
      */
     @JvmField
     var spt_pa_f92_eos: Int? = null
+
     /**
-     * @return the beregningsgrunnlag
+     * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
+     * Dette er beregningsgrunnlagOrdinært når uforeType er UFORE eller UF_M_YRKE
+     * og beregningsgrunnlagYrkesskade når type er YRKE
      */
-    /**
-     * @param beregningsgrunnlag the beregningsgrunnlag to set
-     */
-    /*
-            * Det beregningsgrunnlag (årsbeløp) som ble gjeldende i perioden.
-            * Dette er beregningsgrunnlagOrdinårt når uforeType er UFORE eller UF_M_YRKE
-            * og beregningsgrunnlagYrkesskade når type er YRKE
-            */
     @JvmField
     var beregningsgrunnlag = 0
+
     /**
-     * @return the angittUforetidspunkt
-     */
-    /**
-     * @param angittUforetidspunkt the angittUforetidspunkt to set
      * Det uføretidspunkt som er angitt for perioden, men ikke nødvendigvis anvendt.
-     * **/
+     */
     @JvmField
     var angittUforetidspunktLd: LocalDate? = null
 

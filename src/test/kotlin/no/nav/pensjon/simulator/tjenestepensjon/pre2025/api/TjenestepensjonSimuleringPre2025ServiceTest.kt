@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api
 
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -49,17 +50,17 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             inntektEtterHeltUttakAntallAar shouldBe 5
             foedselAar shouldBe 1960
             utlandAntallAar shouldBe 6
-            utlandPeriodeListe.size shouldBe 2
+            utlandPeriodeListe shouldHaveSize 2
             with (utlandPeriodeListe[0]){
                 land shouldBe LandkodeEnum.SWE
-                fom shouldBe LocalDate.now().minusYears(2)
-                tom shouldBe LocalDate.now().minusYears(1)
+                fom shouldBe today.minusYears(2)
+                tom shouldBe today.minusYears(1)
                 arbeidet shouldBe true
             }
             with(utlandPeriodeListe[1]) {
                 land shouldBe LandkodeEnum.CAN
-                fom shouldBe LocalDate.now().minusYears(5)
-                tom shouldBe LocalDate.now().minusYears(2)
+                fom shouldBe today.minusYears(5)
+                tom shouldBe today.minusYears(2)
                 arbeidet shouldBe true
             }
             flyktning shouldBe true
@@ -117,7 +118,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             inntektEtterHeltUttakAntallAar shouldBe 0
             foedselAar shouldBe 0
             utlandAntallAar shouldBe 0
-            utlandPeriodeListe.size shouldBe 0
+            utlandPeriodeListe shouldHaveSize 0
             flyktning shouldBe null
             pre2025OffentligAfp shouldBe null
 
@@ -153,7 +154,9 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
     }
 })
 
-fun mockMinimalSpec() = SimulerOffentligTjenestepensjonSpecV2(
+private val today = LocalDate.now()
+
+private fun mockMinimalSpec() = SimulerOffentligTjenestepensjonSpecV2(
     simuleringEtter2011 = SimuleringEtter2011SpecV2(
         simuleringType = SimuleringTypeSpecV2.ALDER_M_AFP_PRIVAT,
         fnr = Fnr("12345678901"),
@@ -161,7 +164,7 @@ fun mockMinimalSpec() = SimulerOffentligTjenestepensjonSpecV2(
     )
 )
 
-fun mockSpec(simuleringType: SimuleringTypeSpecV2) = SimulerOffentligTjenestepensjonSpecV2(
+private fun mockSpec(simuleringType: SimuleringTypeSpecV2) = SimulerOffentligTjenestepensjonSpecV2(
     simuleringEtter2011 = SimuleringEtter2011SpecV2(
         simuleringType = simuleringType, //hvis ALDER vil ikke afpOrdning bli satt
         fnr = Fnr("12345678901"),
@@ -199,14 +202,14 @@ fun mockSpec(simuleringType: SimuleringTypeSpecV2) = SimulerOffentligTjenestepen
         simulerForTp = null,
         utenlandsperiodeForSimuleringList = listOf(
             UtenlandsperiodeForSimuleringV2(
-                periodeFom = LocalDate.now().minusYears(2),
-                periodeTom = LocalDate.now().minusYears(1),
+                periodeFom = today.minusYears(2),
+                periodeTom = today.minusYears(1),
                 land = "SWE",
                 arbeidetIUtland = true,
             ),
             UtenlandsperiodeForSimuleringV2(
-                periodeFom = LocalDate.now().minusYears(5),
-                periodeTom = LocalDate.now().minusYears(2),
+                periodeFom = today.minusYears(5),
+                periodeTom = today.minusYears(2),
                 land = "CAN",
                 arbeidetIUtland = true,
             )

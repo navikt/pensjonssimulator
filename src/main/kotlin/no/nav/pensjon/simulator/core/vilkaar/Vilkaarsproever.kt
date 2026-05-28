@@ -19,7 +19,6 @@ import no.nav.pensjon.simulator.core.domain.regler.to.VilkarsprovRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
@@ -180,16 +179,16 @@ class Vilkaarsproever(
             VilkarsprovRequest(
                 kravhode = spec.kravhode,
                 sisteBeregning = null,
-                fom = spec.virkningFom.toNorwegianDateAtNoon(),
+                fom = spec.virkningFom,
                 tom = null
             )
 
         private fun vilkaarsproeving2011Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2011Request().apply {
                 kravhode = spec.kravhode
-                fom = spec.virkningFom.toNorwegianDateAtNoon()
-                tom = null
-                afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
+                fomLd = spec.virkningFom
+                tomLd = null
+                afpVirkFomLd = spec.afpFoersteVirkning
                 afpPrivatLivsvarig = spec.privatAfp
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011
                 utforVilkarsberegning = true
@@ -198,9 +197,9 @@ class Vilkaarsproever(
         private fun vilkaarsproeving2016Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2016Request().apply {
                 kravhode = spec.kravhode
-                virkFom = spec.virkningFom.toNorwegianDateAtNoon()
+                virkFomLd = spec.virkningFom
                 afpPrivatLivsvarig = spec.privatAfp
-                afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
+                afpVirkFomLd = spec.afpFoersteVirkning
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2016
                 utforVilkarsberegning = true
             }
@@ -208,9 +207,9 @@ class Vilkaarsproever(
         private fun vilkaarsproeving2025Request(spec: VilkaarsproevingSpec) =
             VilkarsprovAlderpensjon2025Request().apply {
                 kravhode = spec.kravhode
-                fom = spec.virkningFom.toNorwegianDateAtNoon()
+                fomLd = spec.virkningFom
                 afpPrivatLivsvarig = spec.privatAfp
-                afpVirkFom = spec.afpFoersteVirkning?.toNorwegianDateAtNoon()
+                afpVirkFomLd = spec.afpFoersteVirkning
                 sisteBeregning = spec.sisteBeregning as? SisteAldersberegning2011 // NB: 2011
                 utforVilkarsberegning = true
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag

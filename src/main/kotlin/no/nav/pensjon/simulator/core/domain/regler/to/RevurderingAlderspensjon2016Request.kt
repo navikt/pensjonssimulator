@@ -5,15 +5,16 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SisteAldersbere
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InfoPavirkendeYtelse
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import java.util.*
+import java.time.LocalDate
+import java.util.Vector
 
-// 2025-06-13
+// 2026-05-05
 class RevurderingAlderspensjon2016Request : ServiceRequest() {
     var kravhode: Kravhode? = null
     var vilkarsvedtakListe: List<VilkarsVedtak> = Vector()
     var infoPavirkendeYtelse: InfoPavirkendeYtelse? = null
     var epsMottarPensjon = false
-    var virkFom: Date? = null
+    var virkFomLd: LocalDate? = null
     var forrigeAldersBeregning: SisteAldersberegning2016? = null
     var afpPrivatLivsvarig: AfpPrivatLivsvarig? = null
 }

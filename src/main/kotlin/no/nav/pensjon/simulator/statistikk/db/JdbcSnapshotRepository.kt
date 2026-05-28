@@ -1,18 +1,17 @@
 package no.nav.pensjon.simulator.statistikk.db
 
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
-import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
 import no.nav.pensjon.simulator.statistikk.MaanedligStatistikk
+import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
 import no.nav.pensjon.simulator.statistikk.SimuleringStatistikk
 import no.nav.pensjon.simulator.statistikk.SnapshotRepository
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations
 import org.springframework.stereotype.Repository
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.json.JsonMapper
-import java.util.Map
 
 @Repository
-open class JdbcSnapshotRepository(
+class JdbcSnapshotRepository(
     private val db: NamedParameterJdbcOperations,
     private val jsonMapper: JsonMapper
 ) : SnapshotRepository {
@@ -25,13 +24,14 @@ open class JdbcSnapshotRepository(
 
     override fun read(aarMaaned: Int): List<SimuleringStatistikk> {
         val statistikk = db.query(SELECT_SQL, dataMap(aarMaaned), rowMapper)[0].statistikk
-        return jsonMapper.readValue(statistikk, object : TypeReference<List<SimuleringStatistikkDto>>() {}).map(::fromDto)
+        return jsonMapper.readValue(statistikk, object : TypeReference<List<SimuleringStatistikkDto>>() {})
+            .map(::fromDto)
     }
 
-    private fun dataMap(snapshot: StatistikkSnapshotDto): MutableMap<String, Any> =
-        Map.of<String, Any>(
-            "aar_maaned", snapshot.aarMaaned,
-            "statistikk", jsonMapper.writeValueAsString(snapshot.statistikk)
+    private fun dataMap(snapshot: StatistikkSnapshotDto): Map<String, Any> =
+        mapOf(
+            "aar_maaned" to snapshot.aarMaaned,
+            "statistikk" to jsonMapper.writeValueAsString(snapshot.statistikk)
         )
 
     private companion object {
@@ -43,8 +43,8 @@ open class JdbcSnapshotRepository(
             "SELECT AAR_MAANED, STATISTIKK FROM PENSJONSSIMULATOR.SIMULERING_TELLER_SNAPSHOT" +
                     " WHERE AAR_MAANED = :aar_maaned"
 
-        private fun dataMap(aarMaaned: Int): MutableMap<String, Any> =
-            Map.of<String, Any>("aar_maaned", aarMaaned)
+        private fun dataMap(aarMaaned: Int): Map<String, Any> =
+            mapOf("aar_maaned" to aarMaaned)
 
         private fun dto(source: MaanedligStatistikk) =
             StatistikkSnapshotDto(

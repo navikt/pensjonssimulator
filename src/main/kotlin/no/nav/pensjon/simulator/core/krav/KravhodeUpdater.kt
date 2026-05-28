@@ -8,38 +8,29 @@ import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonthUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
+import no.nav.pensjon.simulator.core.ufoere.UfoereperiodeService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.*
 import no.nav.pensjon.simulator.trygdetid.InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland
 import no.nav.pensjon.simulator.trygdetid.Kapittel19TrygdetidsgrunnlagCreator.kapittel19TrygdetidsperiodeListe
 import no.nav.pensjon.simulator.trygdetid.Kapittel20TrygdetidsgrunnlagCreator.kapittel20TrygdetidsperiodeListe
 import no.nav.pensjon.simulator.trygdetid.TrygdeavtaleFactory.newTrygdeavtaleForSimuleringUtland
 import no.nav.pensjon.simulator.trygdetid.TrygdeavtaleFactory.newTrygdeavtaledetaljerForSimuleringUtland
 import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagFactory.anonymSimuleringTrygdetidPeriode
-import no.nav.pensjon.simulator.trygdetid.TrygdetidGrunnlagSpec
-import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
 import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OppdaterKravhodeForForsteKnekkpunktHelper
 @Component
 class KravhodeUpdater(
     private val context: SimulatorContext,
-    private val normalderService: NormertPensjonsalderService,
+    private val ufoereperiodeService: UfoereperiodeService,
     private val tidsbegrensetOffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
     private val trygdetidSetter: TrygdetidSetter,
     private val time: Time
@@ -49,177 +40,206 @@ class KravhodeUpdater(
     // OppdaterKravhodeForForsteKnekkpunktHelper.oppdaterKravHodeForForsteKnekkpunkt
     fun updateKravhodeForFoersteKnekkpunkt(spec: KravhodeUpdateSpec): Kravhode {
         val kravhode = spec.kravhode
-        val simuleringSpec = spec.simulering
-        val forrigeAlderspensjonBeregningResult = spec.forrigeAlderspensjonBeregningResult
-        var soekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
-        var avdoedGrunnlag =
+        val simuleringSpec = spec.simuleringSpec
+        val erFoerstegangsberegning = spec.erFoerstegangsberegning
+        val initieltSoekerGrunnlag = kravhode.hentPersongrunnlagForSoker()
+        val avdoedGrunnlag =
             kravhode.hentPersongrunnlagForRolle(rolle = GrunnlagsrolleEnum.AVDOD, checkBruk = false)
 
-        log.debug { "STEP 4.1 - Sett trygdetidsgrunnlag" }
-        soekerGrunnlag = setTrygdetid(
-            TrygdetidGrunnlagSpec(
-                soekerGrunnlag,
-                simuleringSpec.utlandAntallAar,
-                null,
-                forrigeAlderspensjonBeregningResult,
-                simuleringSpec
-            ), kravhode
+        log.debug { "STEP 4.1 - Sett trygdetidsgrunnlag for søker" }
+        val soekerGrunnlag: Persongrunnlag =
+            if (simuleringSpec.erAnonym)
+                settAnonymTrygdetid(
+                    spec = TrygdetidsgrunnlagAnonymSpec(
+                        antallAarUtenlands = simuleringSpec.utlandAntallAar,
+                        foedselsaar = simuleringSpec.foedselAar
+                    ),
+                    persongrunnlag = initieltSoekerGrunnlag
+                )
+            else
+                settSoekersTrygdetid(
+                    spec = TrygdetidsgrunnlagPeriodebasertSpec(
+                        simuleringSpec,
+                        brukSoekersUtenlandsperioder = simuleringSpec.brukSoekersUtenlandsperioder,
+                        regelverkType = kravhode.regelverkTypeEnum!!,
+                        erFoerstegangsberegning
+                    ),
+                    kravhode, // mutable
+                    persongrunnlag = initieltSoekerGrunnlag // mutable
+                )
+
+        log.debug { "STEP 4.2 - Sett pensjonsbeholdning for søker" }
+        settPensjonsbeholdning(
+            spec = simuleringSpec,
+            persongrunnlag = soekerGrunnlag,
+            erEndringsberegning = erFoerstegangsberegning.not()
         )
 
-        log.debug { "STEP 4.2 - Sett pensjonsbeholdning for bruker" }
-        when {
-            simuleringSpec.gjelderPre2025OffentligAfp() -> tidsbegrensetOffentligAfpBeholdning.setPensjonsbeholdning(
-                soekerGrunnlag,
-                forrigeAlderspensjonBeregningResult
-            )
-
-            simuleringSpec.gjelderEndring() -> {} // ref. SimulerEndringAvAPCommand.settPensjonsbeholdning
-            else -> soekerGrunnlag.replaceBeholdninger(
-                fetchBeholdninger(
-                    soekerGrunnlag,
-                    simuleringSpec.foersteUttakDato
-                )
-            )
-        }
-
         log.debug { "STEP 4.3 - Sett uførehistorikk" }
-        val ufoerePeriodeTom = ufoerePeriodeTom(simuleringSpec, soekerGrunnlag)
-        setUfoereHistorikk(soekerGrunnlag, ufoerePeriodeTom)
+        val ufoerePeriodeTom: LocalDate =
+            ufoereperiodeService.ufoereperiodeTom(simuleringSpec, persongrunnlag = soekerGrunnlag)
+        soekerGrunnlag.terminerUfoereperioder(ufoerePeriodeTom)
 
-        if (avdoedGrunnlag != null) {
+        avdoedGrunnlag?.let {
             log.debug { "STEP 4.4 - Sett trygdetidsgrunnlag for avdød" }
-            // Dodsdato set to Dec 31 the previous year
-            val lastDayOfYearBeforeDoedDato = sisteDag(avdoedGrunnlag.dodsdatoLd!!.year - 1)
-
-            avdoedGrunnlag = setTrygdetid(
-                TrygdetidGrunnlagSpec(
-                    persongrunnlag = avdoedGrunnlag,
-                    utlandAntallAar = simuleringSpec.avdoed?.antallAarUtenlands,
-                    tom = lastDayOfYearBeforeDoedDato,
-                    forrigeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResult,
-                    simuleringSpec = simuleringSpec
-                ),
-                kravhode
+            updateAvdoed(
+                avdoedGrunnlag = it,
+                antallAarUtenlands = simuleringSpec.avdoed?.antallAarUtenlands ?: 0,
+                foersteUttakDato = simuleringSpec.foersteUttakDato!!,
+                erFoerstegangsberegning
             )
-
-            log.debug { "STEP 4.5 - Sett uførehistorikk for avdød" }
-            setUfoereHistorikk(avdoedGrunnlag)
         }
 
         return kravhode
     }
 
+    private fun settPensjonsbeholdning(
+        spec: SimuleringSpec,
+        persongrunnlag: Persongrunnlag,
+        erEndringsberegning: Boolean
+    ) {
+        when {
+            spec.gjelderPre2025OffentligAfp() -> tidsbegrensetOffentligAfpBeholdning
+                .setPensjonsbeholdning(persongrunnlag, erEndringsberegning)
+
+            spec.gjelderEndring() -> {} // ref. SimulerEndringAvAPCommand.settPensjonsbeholdning
+
+            else -> persongrunnlag.replaceBeholdninger(
+                fetchBeholdninger(persongrunnlag, foersteUttakDato = spec.foersteUttakDato)
+            )
+        }
+    }
+
+    private fun updateAvdoed(
+        avdoedGrunnlag: Persongrunnlag,
+        antallAarUtenlands: Int,
+        foersteUttakDato: LocalDate,
+        erFoerstegangsberegning: Boolean
+    ) {
+        val doedsdato = avdoedGrunnlag.dodsdatoLd!!
+
+        val spec = TrygdetidsgrunnlagAarsbasertSpec(
+            antallAarUtenlands,
+            tom = sisteDagAaretFoer(doedsdato),
+            erFoerstegangsberegning,
+            foersteUttakDato
+        )
+
+        trygdetidSetter.settTrygdetid(spec, persongrunnlag = avdoedGrunnlag)
+        avdoedGrunnlag.terminerUfoereperioder(tom = doedsdato)
+    }
+
     // SimulerFleksibelAPCommand.settPensjonsbeholdning (part of)
-    private fun fetchBeholdninger(grunnlag: Persongrunnlag, foersteUttakDato: LocalDate?) =
+    private fun fetchBeholdninger(persongrunnlag: Persongrunnlag, foersteUttakDato: LocalDate?) =
         try {
-            context.beregnOpptjening(foersteUttakDato, grunnlag)
+            context.beregnOpptjening(beholdningTom = foersteUttakDato, persongrunnlag)
                 .filter { BeholdningtypeEnum.PEN_B == it.beholdningsTypeEnum }
         } catch (e: RegelmotorValideringException) {
             handle(e)
         }
 
-    private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag) {
-        setUfoereHistorikk(persongrunnlag, tom = persongrunnlag.dodsdatoLd)
-    }
-
-    // PEN: SettUforehistorikkHelper.settUforehistorikk
-    private fun setUfoereHistorikk(persongrunnlag: Persongrunnlag, tom: LocalDate?) {
-        val historikk = persongrunnlag.uforeHistorikk
-        if (historikk?.uforeperiodeListe == null) return
-
-        val historikkCopy = Uforehistorikk(historikk)
-
-        historikkCopy.uforeperiodeListe.forEach {
-            if (it.ufgTomLd == null) {
-                it.ufgTomLd = tom
-            }
+    private fun settAnonymTrygdetid(
+        spec: TrygdetidsgrunnlagAnonymSpec,
+        persongrunnlag: Persongrunnlag
+    ): Persongrunnlag {
+        with(anonymSimuleringTrygdetidPeriode(spec)) {
+            persongrunnlag.trygdetidPerioder.add(this)
+            persongrunnlag.trygdetidPerioderKapittel20.add(this)
         }
 
-        persongrunnlag.uforeHistorikk = historikkCopy
+        return persongrunnlag
     }
-
-    private fun ufoerePeriodeTom(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag): LocalDate {
-        val sisteDagIMaanedenForNormalder: Date = sisteDagIMaanedenForNormalder(soekerGrunnlag.fodselsdatoLd!!)
-
-        return if (spec.type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT &&
-            isBeforeByDay(
-                thisDate = spec.foersteUttakDato,
-                thatDate = sisteDagIMaanedenForNormalder,
-                allowSameDay = false
-            )
-        )
-            spec.foersteUttakDato!!.minusDays(1)
-        else
-            sisteDagIMaanedenForNormalder.toNorwegianLocalDate()
-    }
-
-    // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SimuleringEtter2011Utils.lastDayOfMonthUserTurns67
-    private fun sisteDagIMaanedenForNormalder(foedselsdato: LocalDate): Date =
-        lastDayOfMonthUserTurnsGivenAge(
-            foedselsdato.toNorwegianDateAtNoon(),
-            alder = normalderService.normalder(foedselsdato)
-        )
 
     // SimulerFleksibelAPCommand.settTrygdetid
-    private fun setTrygdetid(spec: TrygdetidGrunnlagSpec, kravhode: Kravhode): Persongrunnlag {
-        val persongrunnlag = spec.persongrunnlag
+    /**
+     * Setter trygdetid på persongrunnlaget (muterer 'persongrunnlag'- og 'kravhode'-objektene).
+     */
+    private fun settSoekersTrygdetid(
+        spec: TrygdetidsgrunnlagPeriodebasertSpec,
+        kravhode: Kravhode,
+        persongrunnlag: Persongrunnlag
+    ): Persongrunnlag {
         val simuleringSpec = spec.simuleringSpec
+        val regelverkType = spec.regelverkType
 
-        if (simuleringSpec.erAnonym) {
-            with(anonymSimuleringTrygdetidPeriode(spec)) {
-                persongrunnlag.trygdetidPerioder.add(this)
-                persongrunnlag.trygdetidPerioderKapittel20.add(this)
-            }
-            return persongrunnlag
-        }
-
-        if (simuleringSpec.boddUtenlands) {
+        if (spec.brukSoekersUtenlandsperioder) {
             kravhode.boddEllerArbeidetIUtlandet = true
-            val regelverkType = kravhode.regelverkTypeEnum!!
 
             if (regelverkType.isAlderspensjon2011) {
-                addKapittel19Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel19Trygdetid(
+                    persongrunnlag,
+                    utlandPeriodeListe = simuleringSpec.utlandPeriodeListe,
+                    foersteUttakDato = simuleringSpec.foersteAlderspensjonUttaksdato()!!
+                )
             }
 
             if (regelverkType.isAlderspensjon2016) {
-                addKapittel19Trygdetid(persongrunnlag, simuleringSpec)
-                addKapittel20Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel19Trygdetid(
+                    persongrunnlag,
+                    utlandPeriodeListe = simuleringSpec.utlandPeriodeListe,
+                    foersteUttakDato = simuleringSpec.foersteAlderspensjonUttaksdato()!!
+                )
+                addKapittel20Trygdetid(
+                    persongrunnlag,
+                    utlandPeriodeListe = simuleringSpec.utlandPeriodeListe,
+                    foersteUttakDato = simuleringSpec.foersteAlderspensjonUttaksdato()!!
+                )
             }
 
             if (regelverkType.isAlderspensjon2025) {
-                addKapittel20Trygdetid(persongrunnlag, simuleringSpec)
+                addKapittel20Trygdetid(
+                    persongrunnlag,
+                    utlandPeriodeListe = simuleringSpec.utlandPeriodeListe,
+                    foersteUttakDato = simuleringSpec.foersteAlderspensjonUttaksdato()!!
+                )
             }
 
             persongrunnlag.trygdeavtale = newTrygdeavtaleForSimuleringUtland(avtalelandKravdato = time.today())
             persongrunnlag.trygdeavtaledetaljer = newTrygdeavtaledetaljerForSimuleringUtland()
 
             persongrunnlag.inngangOgEksportGrunnlag =
-                newInngangOgEksportGrunnlagForSimuleringUtland(persongrunnlag, kravhode)
+                newInngangOgEksportGrunnlagForSimuleringUtland(persongrunnlag, regelverkType)
 
             return persongrunnlag
-        }
+        } else {
+            // Bruk søkers 'antall år utenlands':
+            val setterSpec = TrygdetidsgrunnlagAarsbasertSpec(
+                antallAarUtenlands = simuleringSpec.utlandAntallAar,
+                tom = null,
+                erFoerstegangsberegning = spec.erFoerstegangsberegning,
+                foersteUttakDato = simuleringSpec.foersteAlderspensjonUttaksdato()!!
+            )
 
-        return trygdetidSetter.settTrygdetid(spec)
+            return trygdetidSetter.settTrygdetid(setterSpec, persongrunnlag)
+        }
     }
 
     // SimulerFleksibelAPCommand.setTrygetidKap19
-    private fun addKapittel19Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
+    private fun addKapittel19Trygdetid(
+        persongrunnlag: Persongrunnlag,
+        utlandPeriodeListe: MutableList<UtlandPeriode>,
+        foersteUttakDato: LocalDate
+    ) {
         val periodeListe = kapittel19TrygdetidsperiodeListe(
             opptjeningsgrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe,
-            utlandPeriodeListe = spec.utlandPeriodeListe,
+            utlandPeriodeListe,
             foedselsdato = persongrunnlag.fodselsdatoLd!!,
-            foersteUttakDato = spec.foersteAlderspensjonUttaksdato()
+            foersteUttakDato
         )
 
         periodeListe.forEach { persongrunnlag.trygdetidPerioder.add(it) }
     }
 
     // SimulerFleksibelAPCommand.setTrygdetidKap20
-    private fun addKapittel20Trygdetid(persongrunnlag: Persongrunnlag, spec: SimuleringSpec) {
+    private fun addKapittel20Trygdetid(
+        persongrunnlag: Persongrunnlag,
+        utlandPeriodeListe: MutableList<UtlandPeriode>,
+        foersteUttakDato: LocalDate
+    ) {
         val periodeListe = kapittel20TrygdetidsperiodeListe(
-            utlandPeriodeListe = spec.utlandPeriodeListe,
+            utlandPeriodeListe,
             foedselsdato = persongrunnlag.fodselsdatoLd!!,
-            foersteUttakDato = spec.foersteAlderspensjonUttaksdato()
+            foersteUttakDato
         )
 
         periodeListe.forEach { persongrunnlag.trygdetidPerioderKapittel20.add(it) }
@@ -233,14 +253,10 @@ class KravhodeUpdater(
         private const val AGE_ADULTHOOD_OPPTJENING = 16
 
         // SimulerFleksibelAPCommand.createTrygdetidsgrunnlagForenkletSimulering
-        private fun anonymSimuleringTrygdetidPeriode(spec: TrygdetidGrunnlagSpec): TTPeriode =
+        private fun anonymSimuleringTrygdetidPeriode(spec: TrygdetidsgrunnlagAnonymSpec): TTPeriode =
             anonymSimuleringTrygdetidPeriode(
-                fom = LocalDate.of(
-                    spec.simuleringSpec.foedselAar + AGE_ADULTHOOD_OPPTJENING + (spec.utlandAntallAar ?: 0),
-                    1,
-                    1
-                ),
-                tom = spec.tom
+                fom = LocalDate.of(spec.foedselsaar + AGE_ADULTHOOD_OPPTJENING + spec.antallAarUtenlands, 1, 1),
+                tom = null // ingen sluttdato for anonym simulering
             )
 
         private fun handle(e: RegelmotorValideringException): Nothing {
@@ -255,6 +271,9 @@ class KravhodeUpdater(
 
         private fun gjelderYrkesskadegrad(merknad: Merknad): Boolean =
             merknad.argumentListe.any { it.startsWith("En yrkesskadegrad kan ikke") }
+
+        private fun sisteDagAaretFoer(dato: LocalDate) =
+            LocalDate.of(dato.year, 1, 1).minusDays(1)
     }
 }
 

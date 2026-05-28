@@ -7,14 +7,18 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.fpp.FppSimuleringFacade
-import no.nav.pensjon.simulator.fpp.FppSimuleringResult
-import no.nav.pensjon.simulator.fpp.FppSimuleringSpec
-import no.nav.pensjon.simulator.fpp.api.acl.v1.SimuleringTypeV1
+import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringResultMapper.toDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringResultDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringSpecDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringSpecMapper.fromDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.SimuleringstypeDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemDto
+import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemtypeDto
+import no.nav.pensjon.simulator.fpp.api.v2.acl.FppSimuleringResultDtoV2
+import no.nav.pensjon.simulator.fpp.api.v2.acl.FppSimuleringResultMapperV2
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.validity.Problem
-import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -30,7 +34,7 @@ class FppController(
     private val service: FppSimuleringFacade,
     private val traceAid: TraceAid,
     private val jsonMapper: JsonMapper,
-    statistikk: StatistikkService,
+    statistikk: StatistikkService
 ) : ControllerBase(traceAid = traceAid, statistikk = statistikk) {
     private val log = KotlinLogging.logger {}
 
@@ -69,19 +73,51 @@ class FppController(
         ]
     )
     fun simulerForFppV1(
-        @RequestParam("simuleringstype") simuleringType: SimuleringTypeV1,
-        @RequestBody spec: FppSimuleringSpec
-    ): ResponseEntity<FppSimuleringResult> {
+        @RequestParam("simuleringstype") simuleringType: SimuleringstypeDto,
+        @RequestBody spec: FppSimuleringSpecDto
+    ): ResponseEntity<FppSimuleringResultDto> {
         traceAid.begin()
         countCall(functionName = FUNCTION_ID)
         log.info { "spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 
         return try {
             registrerHendelse(simuleringstype = simuleringType.internalValue)
-            val result = service.simulerPensjon(simuleringType.internalValue, spec)
-            ResponseEntity.status(HttpStatus.OK).body(result)
+            val result = service.simulerPensjon(simuleringType.internalValue, fromDto(spec))
+            ResponseEntity.status(HttpStatus.OK).body(toDto(result))
         } catch (e: Exception) {
             log.error(e) { "$FUNCTION_ID intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
+            throw e
+        } finally {
+            traceAid.end()
+        }
+    }
+
+    @PostMapping("v2/simuler-for-fpp")
+    @Operation(
+        summary = "Simuler for FPP (V2)",
+        description = "Lager en pensjonsprognose for beregning av framtidige pensjonspoeng (FPP)" +
+                " (versjon 2 av tjenesten, inkluderer grad og avkortning)."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Simulering for FPP utført"),
+            ApiResponse(responseCode = "500", description = "Simulering kunne ikke utføres pga. feil i systemet.")
+        ]
+    )
+    fun simulerForFppV2(
+        @RequestParam("simuleringstype") simuleringType: SimuleringstypeDto,
+        @RequestBody spec: FppSimuleringSpecDto
+    ): ResponseEntity<FppSimuleringResultDtoV2> {
+        traceAid.begin()
+        countCall(functionName = FUNCTION_ID_V2)
+        log.info { "v2 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
+
+        return try {
+            registrerHendelse(simuleringstype = simuleringType.internalValue)
+            val result = service.simulerPensjon(simuleringType.internalValue, fromDto(spec))
+            ResponseEntity.status(HttpStatus.OK).body(FppSimuleringResultMapperV2.toDto(result))
+        } catch (e: Exception) {
+            log.error(e) { "$FUNCTION_ID_V2 intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
             throw e
         } finally {
             traceAid.end()
@@ -91,20 +127,21 @@ class FppController(
     override fun errorMessage() = ERROR_MESSAGE
 
     @ExceptionHandler(value = [Exception::class])
-    private fun internalError(e: Exception): ResponseEntity<FppSimuleringResult> =
+    private fun internalError(e: Exception): ResponseEntity<FppSimuleringResultDto> =
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem(e))
 
     private companion object {
         private const val TJENESTE = "simulering for FPP"
         private const val ERROR_MESSAGE = "feil ved $TJENESTE"
         private const val FUNCTION_ID = "fpp"
+        private const val FUNCTION_ID_V2 = "fpp-v2"
 
         private fun problem(e: Exception) =
-            FppSimuleringResult(
+            FppSimuleringResultDto(
                 afpOrdning = null,
                 beregnetAfp = null,
-                problem = Problem(
-                    type = ProblemType.ANNEN_KLIENTFEIL,
+                problem = ProblemDto(
+                    type = ProblemtypeDto.ANNEN_KLIENTFEIL,
                     beskrivelse = e.message ?: e.javaClass.simpleName
                 )
             )

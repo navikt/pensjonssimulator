@@ -4,10 +4,8 @@ import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getYear
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.isBeforeLd
-import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.trygdetid.cache.RollebasertTrygdetidCache
 import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
@@ -28,7 +26,7 @@ class TrygdetidBeregnerProxy(private val context: SimulatorContext) {
         sakId: Long?
     ): TrygdetidCombo {
         spec.persongrunnlag?.let {
-            it.sisteGyldigeOpptjeningsAr = getYear(spec.virkFom!!) - OPPTJENING_ETTERSLEP_ANTALL_AAR
+            it.sisteGyldigeOpptjeningsAr = spec.virkFomLd!!.year - OPPTJENING_ETTERSLEP_ANTALL_AAR
         } // updateSisteGyldigeOpptjeningsaar
 
         try {
@@ -51,7 +49,7 @@ class TrygdetidBeregnerProxy(private val context: SimulatorContext) {
 
     private fun kapittel20TrygdetidStarterFoerUttak(spec: TrygdetidRequest): Boolean =
         spec.persongrunnlag?.trygdetidPerioderKapittel20.orEmpty().all {
-            it.fomLd?.isBeforeLd(spec.virkFom?.toNorwegianLocalDate()) == true
+            it.fomLd?.isBeforeLd(spec.virkFomLd) == true
         }
 
     // SimuleringEtter2011Context.fastsettTrygdetid

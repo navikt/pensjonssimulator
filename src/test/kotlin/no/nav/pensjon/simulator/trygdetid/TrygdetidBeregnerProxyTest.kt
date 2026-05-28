@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.to.TrygdetidRequest
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
@@ -20,7 +19,7 @@ class TrygdetidBeregnerProxyTest : ShouldSpec({
 
     should("sette 'siste gyldige opptjeningsår' i spec'en til to 2 år før virkFom") {
         val spec = TrygdetidRequest().apply {
-            virkFom = LocalDate.of(2025, 1, 1).toNorwegianDateAtNoon()
+            virkFomLd = LocalDate.of(2025, 1, 1)
             persongrunnlag = Persongrunnlag()
         }
 
@@ -37,7 +36,7 @@ class TrygdetidBeregnerProxyTest : ShouldSpec({
     should("gi klar feilmelding når kapittel 20-trygdetid ikke starter før uttak") {
         val spec = TrygdetidRequest().apply {
             val uttakFom = LocalDate.of(2025, 1, 1)
-            virkFom = uttakFom.toNorwegianDateAtNoon()
+            virkFomLd = uttakFom
             persongrunnlag = Persongrunnlag().apply {
                 trygdetidPerioderKapittel20 = mutableListOf(TTPeriode().apply { fomLd = uttakFom })
             }

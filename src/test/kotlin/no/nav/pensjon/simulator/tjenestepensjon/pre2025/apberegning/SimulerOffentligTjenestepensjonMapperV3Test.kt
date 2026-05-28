@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -273,20 +274,26 @@ class SimulerOffentligTjenestepensjonMapperV3Test : FunSpec({
 
         val result = mapper().fromDto(specV3(simuleringEtter2011(utenlandsperiodeForSimuleringList = perioder)))
 
-        result.utlandPeriodeListe.size shouldBe 2
-        result.utlandPeriodeListe[0].land shouldBe LandkodeEnum.SWE
-        result.utlandPeriodeListe[0].arbeidet shouldBe true
-        result.utlandPeriodeListe[0].fom shouldBe LocalDate.of(2010, 1, 1)
-        result.utlandPeriodeListe[0].tom shouldBe LocalDate.of(2015, 12, 31)
-        result.utlandPeriodeListe[1].land shouldBe LandkodeEnum.DEU
-        result.utlandPeriodeListe[1].arbeidet shouldBe false
-        result.utlandPeriodeListe[1].tom shouldBe null
+        with(result) {
+            utlandPeriodeListe shouldHaveSize 2
+            with(utlandPeriodeListe[0]) {
+                land shouldBe LandkodeEnum.SWE
+                arbeidet shouldBe true
+                fom shouldBe LocalDate.of(2010, 1, 1)
+                tom shouldBe LocalDate.of(2015, 12, 31)
+            }
+            with(utlandPeriodeListe[1]) {
+                land shouldBe LandkodeEnum.DEU
+                arbeidet shouldBe false
+                tom shouldBe null
+            }
+        }
     }
 
     test("fromDto maps empty utenlandsperioder to empty list") {
-        val result = mapper().fromDto(specV3(simuleringEtter2011(utenlandsperiodeForSimuleringList = emptyList())))
-
-        result.utlandPeriodeListe shouldBe mutableListOf()
+        mapper().fromDto(
+            specV3(source = simuleringEtter2011(utenlandsperiodeForSimuleringList = emptyList()))
+        ).utlandPeriodeListe shouldBe mutableListOf()
     }
 
     // --- avdoed ---

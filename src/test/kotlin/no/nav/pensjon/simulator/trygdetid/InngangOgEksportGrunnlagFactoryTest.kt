@@ -6,7 +6,6 @@ import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import java.time.LocalDate
 
 class InngangOgEksportGrunnlagFactoryTest : FunSpec({
@@ -15,16 +14,15 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
 
         test("setter alltid eksportforbud til null og fortsattMedlemFT til true") {
             val persongrunnlag = Persongrunnlag()
-            val kravhode = Kravhode().apply {
-                regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-            }
 
             val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                persongrunnlag, kravhode
+                persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
             )
 
-            result.eksportforbud shouldBe null
-            result.fortsattMedlemFT shouldBe true
+            with(result) {
+                eksportforbud shouldBe null
+                fortsattMedlemFT shouldBe true
+            }
         }
 
         context("for alderspensjon 2011 (N_REG_G_OPPTJ - kun kapittel 19)") {
@@ -38,16 +36,15 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
                 )
 
-                result.treArTrygdetidNorge shouldBe true
-                result.treArTrygdetidNorgeKap20 shouldBe null // Ikke satt for 2011
+                with(result) {
+                    treArTrygdetidNorge shouldBe true
+                    treArTrygdetidNorgeKap20 shouldBe null // Ikke satt for 2011
+                }
             }
 
             test("setter treArTrygdetidNorge til false når trygdetid er under 1 år") {
@@ -59,12 +56,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
                 )
 
                 result.treArTrygdetidNorge shouldBe false
@@ -74,12 +68,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                 val persongrunnlag = Persongrunnlag().apply {
                     trygdetidPerioder = mutableListOf()
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
                 )
 
                 result.treArTrygdetidNorge shouldBe false
@@ -103,12 +94,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_N_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ
                 )
 
                 result.treArTrygdetidNorge shouldBe true
@@ -130,12 +118,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_N_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ
                 )
 
                 result.treArTrygdetidNorge shouldBe true
@@ -157,12 +142,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_N_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ
                 )
 
                 result.treArTrygdetidNorge shouldBe false
@@ -181,12 +163,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_N_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ
                 )
 
                 result.treArTrygdetidNorge shouldBe null // Ikke satt for 2025
@@ -202,12 +181,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_N_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ
                 )
 
                 result.treArTrygdetidNorgeKap20 shouldBe false
@@ -217,12 +193,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                 val persongrunnlag = Persongrunnlag().apply {
                     trygdetidPerioderKapittel20 = mutableListOf()
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_N_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_N_OPPTJ
                 )
 
                 result.treArTrygdetidNorgeKap20 shouldBe false
@@ -247,12 +220,9 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         }
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
                 )
 
                 // Kun 5 måneder norsk trygdetid - under 1 år
@@ -272,48 +242,13 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
                 val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
                 )
 
                 // Totalt 368 dager >= 365 dager (1 år)
                 result.treArTrygdetidNorge shouldBe true
-            }
-        }
-
-        context("når regelverkType er null") {
-
-            test("setter ingen trygdetid-felt") {
-                val persongrunnlag = Persongrunnlag().apply {
-                    trygdetidPerioder = mutableListOf(
-                        norskTrygdetidPeriode(
-                            fom = LocalDate.of(2000, 1, 1),
-                            tom = LocalDate.of(2010, 1, 1) // 10 år
-                        )
-                    )
-                    trygdetidPerioderKapittel20 = mutableListOf(
-                        norskTrygdetidPeriode(
-                            fom = LocalDate.of(2010, 1, 1),
-                            tom = LocalDate.of(2020, 1, 1) // 10 år
-                        )
-                    )
-                }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = null
-                }
-
-                val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
-                )
-
-                result.treArTrygdetidNorge shouldBe null
-                result.treArTrygdetidNorgeKap20 shouldBe null
-                result.eksportforbud shouldBe null
-                result.fortsattMedlemFT shouldBe true
             }
         }
 
@@ -328,15 +263,10 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
-                val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
-                )
-
-                result.treArTrygdetidNorge shouldBe true
+                InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
+                ).treArTrygdetidNorge shouldBe true
             }
 
             test("setter treArTrygdetidNorge til false ved akkurat under 1 år") {
@@ -348,15 +278,10 @@ class InngangOgEksportGrunnlagFactoryTest : FunSpec({
                         )
                     )
                 }
-                val kravhode = Kravhode().apply {
-                    regelverkTypeEnum = RegelverkTypeEnum.N_REG_G_OPPTJ
-                }
 
-                val result = InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
-                    persongrunnlag, kravhode
-                )
-
-                result.treArTrygdetidNorge shouldBe false
+                InngangOgEksportGrunnlagFactory.newInngangOgEksportGrunnlagForSimuleringUtland(
+                    persongrunnlag, regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ
+                ).treArTrygdetidNorge shouldBe false
             }
         }
     }

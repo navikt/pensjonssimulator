@@ -38,14 +38,11 @@ abstract class AbstraktBeregningsResultat {
     var kravId: Long? = null
     var virkTomLd: LocalDate? = null
     var beregningsinformasjon: SpecialBeregningInformasjon? = null
-    var epsMottarPensjon: Boolean = false // deprecated; use beregningInformasjon
-    var epsPaavirkerBeregning: Boolean = false // deprecated
-    var harGjenlevenderett: Boolean = false // deprecated
 
     fun epsPaavirkerBeregningen(): Boolean =
         beregningsinformasjon?.let {
             it.epsMottarPensjon || it.epsHarInntektOver2G
-        } ?: epsPaavirkerBeregning
+        } == true
 
     protected constructor() : super()
 

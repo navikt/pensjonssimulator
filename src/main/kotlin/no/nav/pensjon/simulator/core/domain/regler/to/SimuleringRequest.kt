@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.to
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import java.time.LocalDate
 
+// 2026-05-05
 class SimuleringRequest() : ServiceRequest() {
     var simulering: Simulering? = null
     var fomLd: LocalDate? = null

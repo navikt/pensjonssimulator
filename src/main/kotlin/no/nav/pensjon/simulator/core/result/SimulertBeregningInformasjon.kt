@@ -78,6 +78,11 @@ class SimulertBeregningInformasjon {
     var garantitillegg: Int? = null
 
     /**
+     * Beregnet garantitillegg per måned.
+     */
+    var garantitilleggPerMaaned: Int? = null
+
+    /**
      * Pensjonsbeholdning før beregning.
      */
     var pensjonBeholdningFoerUttak: Int? = null
@@ -171,6 +176,11 @@ class SimulertBeregningInformasjon {
     var skjermingstillegg: Int? = null
 
     /**
+     * Beregnet skjermingstillegg per måned
+     */
+    var skjermingstilleggPerMaaned: Int? = null
+
+    /**
      * Benyttet uføregrad ved beregning av skjermingstillegg
      */
     var ufoereGrad: Int? = null
@@ -206,9 +216,19 @@ class SimulertBeregningInformasjon {
     var gjtAP: Int? = null
 
     /**
+     * Brutto per måned for gjenlevendetillegg.
+     */
+    var gjtAPPerMaaned: Int? = null
+
+    /**
      * Brutto per år for gjenlevendetillegg kap19.
      */
     var gjtAPKap19: Int? = null
+
+    /**
+     * Brutto per måned for gjenlevendetillegg kap19.
+     */
+    var gjtAPKap19PerMaaned: Int? = null
 
     /**
      * Trygdetid anvendt i beregningen for kapittel 20.

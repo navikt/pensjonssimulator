@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.format.DateTimeParseException
 
 // Vil brukes av Nav-klienter og tjenestepensjonsordninger
@@ -48,7 +49,10 @@ class SimuleringFacade(
                     else pensjon(
                         source = result,
                         today = time.today(),
-                        inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                        inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep,
+                        gradertUttakDato = if (spec.isGradert()) spec.foersteUttakDato else null,
+                        heltUttakDato = heltUttakDato(spec),
+                        normertPensjoneringsdato = spec.foedselDato?.let(normalderService::normertPensjoneringsdato)
                     ),
                 alternativ = null
             )
@@ -116,6 +120,17 @@ class SimuleringFacade(
         spec.pid?.let { ufoereService.hasUfoereperiode(it, spec.foersteUttakDato!!) } == true
 
     private companion object {
+
+        /**
+         * Bestemmer datoen for helt uttak (100 %) basert på spec:
+         * - For ugradert uttak: foersteUttakDato (eller heltUttakDato som fallback)
+         * - For gradert uttak: heltUttakDato (eller foersteUttakDato som fallback)
+         */
+        private fun heltUttakDato(spec: SimuleringSpec): LocalDate? =
+            when (spec.uttakGrad) {
+                UttakGradKode.P_100 -> spec.foersteUttakDato ?: spec.heltUttakDato
+                else -> spec.heltUttakDato ?: spec.foersteUttakDato
+            }
 
         private fun isGradertAndReducible(spec: SimuleringSpec): Boolean =
             spec.isGradert() && isReducible(spec.uttakGrad)

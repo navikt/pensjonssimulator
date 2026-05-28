@@ -2,10 +2,8 @@ package no.nav.pensjon.simulator.api.nav.v2.acl.result
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertAarligAlderspensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertGarantipensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjon
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
+import no.nav.pensjon.simulator.alderspensjon.alternativ.*
+import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -22,6 +20,7 @@ class SimuleringResultMapperTest : ShouldSpec({
         ) shouldBe SimuleringResultDto(
             alderspensjonListe = emptyList(),
             alderspensjonMaanedsbeloep = UttaksbeloepDto(gradertUttakBeloep = null, heltUttakBeloep = 0),
+            maanedligAlderspensjonForKnekkpunkter = null,
             livsvarigOffentligAfpListe = emptyList(),
             tidsbegrensetOffentligAfp = null,
             privatAfpListe = emptyList(),
@@ -47,8 +46,8 @@ class SimuleringResultMapperTest : ShouldSpec({
                             garantipensjon = SimulertGarantipensjon(aarligBeloep = 125, sats = 1.2),
                             garantitillegg = 126,
                             delingstall = 1.3,
-                            pensjonBeholdningFoerUttak = 127,
-                            andelsbroekKap19 = 1.4,
+                             pensjonBeholdningFoerUttak = 127,
+                             andelsbroekKap19 = 1.4,
                             andelsbroekKap20 = 1.5,
                             sluttpoengtall = 1.6,
                             trygdetidKap19 = 19,
@@ -73,6 +72,7 @@ class SimuleringResultMapperTest : ShouldSpec({
                     pensjonBeholdningPeriodeListe = emptyList(),
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 20),
+                    maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
                     opptjeningGrunnlagListe = emptyList()
                 ),
                 alternativ = null,
@@ -105,7 +105,7 @@ class SimuleringResultMapperTest : ShouldSpec({
                     kapittel20Pensjon = Kapittel20PensjonDto(
                         andelsbroek = 1.5,
                         trygdetidAntallAar = 20,
-                        garantipensjon = GarantipensjonDto(aarligBeloep = 125, sats = 1.2),
+                        garantipensjon = GarantipensjonDto(aarligBeloep = 125, maanedligBeloep = null, sats = 1.2),
                         garantitillegg = 126
                     )
                 )
@@ -113,6 +113,11 @@ class SimuleringResultMapperTest : ShouldSpec({
             alderspensjonMaanedsbeloep = UttaksbeloepDto(
                 gradertUttakBeloep = null,
                 heltUttakBeloep = 0
+            ),
+            maanedligAlderspensjonForKnekkpunkter = MaanedligAlderspensjonForKnekkpunkter(
+                vedGradertUttak = null,
+                vedHeltUttak = null,
+                vedNormertPensjonsalder = null
             ),
             livsvarigOffentligAfpListe = emptyList(),
             tidsbegrensetOffentligAfp = null,
@@ -141,6 +146,7 @@ class SimuleringResultMapperTest : ShouldSpec({
             ) shouldBe SimuleringResultDto(
                 alderspensjonListe = emptyList(),
                 alderspensjonMaanedsbeloep = UttaksbeloepDto(gradertUttakBeloep = null, heltUttakBeloep = 0),
+                maanedligAlderspensjonForKnekkpunkter = null,
                 livsvarigOffentligAfpListe = emptyList(),
                 tidsbegrensetOffentligAfp = null,
                 privatAfpListe = emptyList(),

@@ -18,6 +18,7 @@ import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.HeltUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.testutil.Arrange
+import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
@@ -52,6 +53,7 @@ class AlternativtUttakServiceTest : FunSpec({
         ) shouldBe SimulertPensjonEllerAlternativ(
             pensjon = SimulertPensjon(
                 alderspensjon = emptyList(),
+                maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
                 alderspensjonFraFolketrygden = emptyList(),
                 privatAfp = emptyList(),
                 pre2025OffentligAfp = null,

@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSi
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.alderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.simulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
@@ -105,7 +106,8 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         minstePensjonsnivaaSats = 20.0
                     )
                 ),
-                alderspensjonFraFolketrygden,
+                maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
+                alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
                 privatAfp = listOf(
                     SimulertPrivatAfp(
                         alderAar = 9,

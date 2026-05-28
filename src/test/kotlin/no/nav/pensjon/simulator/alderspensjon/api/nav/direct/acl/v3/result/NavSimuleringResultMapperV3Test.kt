@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
@@ -48,6 +49,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
                             minstePensjonsnivaaSats = 0.9
                         )
                     ),
+                    maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
                     alderspensjonFraFolketrygden = listOf(
                         SimulertAlderspensjonFraFolketrygden(
                             datoFom = LocalDate.of(2021, 1, 1),
@@ -208,6 +210,7 @@ class NavSimuleringResultMapperV3Test : FunSpec({
             SimulertPensjonEllerAlternativ(
                 pensjon = SimulertPensjon(
                     alderspensjon = emptyList(),
+                    maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
                     alderspensjonFraFolketrygden = listOf(
                         SimulertAlderspensjonFraFolketrygden(
                             datoFom = LocalDate.of(2021, 1, 1),

@@ -15,11 +15,19 @@ import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertMaanedligAlderspensjonForKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.security.oauth2.jwt.Jwt
 import java.time.LocalDate
 
 object TestObjects {
+
+    val emptyKnekkpunkter = SimulertMaanedligAlderspensjonForKnekkpunkter(
+        vedGradertUttak = null,
+        vedHeltUttak = null,
+        vedNormertPensjonsalder = null
+    )
+
     val jwt = Jwt("j.w.t", null, null, mapOf("k" to "v"), mapOf("k" to "v"))
 
     val organisasjonsnummer = Organisasjonsnummer("123456789")

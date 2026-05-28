@@ -112,6 +112,7 @@ class PensjonForNavV2Controller(
             SimuleringResultDto(
                 alderspensjonListe = emptyList(),
                 alderspensjonMaanedsbeloep = null,
+                maanedligAlderspensjonForKnekkpunkter = null,
                 tidsbegrensetOffentligAfp = null,
                 privatAfpListe = emptyList(),
                 livsvarigOffentligAfpListe = emptyList(),

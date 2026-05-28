@@ -86,23 +86,36 @@ class Pre2025OffentligAfpUttaksgrad(
         private fun ubetingetHeltUttak(fom: LocalDate): Uttaksgrad =
             uttaksgrad(fom, grad = 100, tom = null)
 
+        /**
+         * Fjerner siste eksisterende uttaksgradperiode med 0 %,
+         * da det skal legges til en 0-periode som dekker AFP-perioden.
+         * Terminerer også alderspensjon (setter t.o.m.-dato), da den ikke kan kombineres med tidsbegrenset AFP.
+         * NB: Dette gjøres på en kopi av uttaksgradene, slik at de opprinnelige uttaksgradene ikke blir endret.
+         */
         private fun behandleVedtatteUttaksgrader(
             kravhode: Kravhode?,
             afpFom: LocalDate
         ): MutableList<Uttaksgrad> {
-            // Fjern eksisterende uttaksgradperioder med 0 %,
-            // da det skal legges til en 0-periode som dekker AFP-perioden
-            // (gjøres på en kopi av uttaksgradperiodene, slik at det ikke er noen endringer i originalen):
-            val uttaksgradListe = uttaksgraderUten0(kravhode).map { it.copy() }.toMutableList()
+            val uttaksgradListe = kravhode?.uttaksgradListe.orEmpty().map { it.copy() }.toMutableList()
 
-            // Terminer alderspensjon (kan ikke kombineres med tidsbegrenset AFP):
-            replaceNullTom(uttaksgradListe, tom = afpFom.minusDays(1))
+            val listeUtenSiste0Uttak =
+                siste0UttakFom(uttaksgradListe)?.let { listeUten0Uttak(uttaksgradListe, fom = it) }
+                    ?: uttaksgradListe
 
-            return uttaksgradListe
+            replaceNullTom(uttaksgradListe = listeUtenSiste0Uttak, tom = afpFom.minusDays(1))
+            return listeUtenSiste0Uttak
         }
 
-        private fun uttaksgraderUten0(kravhode: Kravhode?): List<Uttaksgrad> =
-            kravhode?.uttaksgradListe.orEmpty().filter { it.uttaksgrad != 0 }
+        private fun listeUten0Uttak(uttaksgradListe: List<Uttaksgrad>, fom: LocalDate): MutableList<Uttaksgrad> =
+            uttaksgradListe
+                .filterNot { it.uttaksgrad == 0 && it.fomDatoLd == fom }
+                .toMutableList()
+
+        private fun siste0UttakFom(uttaksgradListe: List<Uttaksgrad>): LocalDate? =
+            uttaksgradListe
+                .filter { it.uttaksgrad == 0 }
+                .mapNotNull { it.fomDatoLd }
+                .maxOrNull()
 
         // PEN: SimulerAFPogAPCommandHelper.updateUttaksgradWithTomDateNull
         private fun replaceNullTom(uttaksgradListe: List<Uttaksgrad>, tom: LocalDate) {

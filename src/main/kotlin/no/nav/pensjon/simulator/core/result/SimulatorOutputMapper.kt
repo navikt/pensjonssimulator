@@ -8,13 +8,13 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
+import no.nav.pensjon.simulator.tech.time.DateUtil.TIDENS_SLUTT
+import no.nav.pensjon.simulator.tech.time.DateUtil.overlapperEndeloest
 import java.time.LocalDate
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
@@ -333,9 +333,14 @@ object SimulatorOutputMapper {
 
     private fun isIntersectingWithYear(element: AfpHistorikk?, year: Int): Boolean {
         if (element == null) return false
-        val jan1st = firstDayOf(year)
-        val dec31st = LocalDate.of(year, 12, 31)
-        return intersectsWithPossiblyOpenEndings(jan1st, dec31st, element.virkFomLd, element.virkTomLd, true)
+
+        return overlapperEndeloest(
+            start1 = firstDayOf(year),
+            slutt1 = LocalDate.of(year, 12, 31),
+            start2 = element.virkFomLd,
+            slutt2 = element.virkTomLd,
+            anseEnkeltDagSomOverlapp = true
+        )
     }
 
     // Specific variant of TypedInformationListeUtils.subsetOfTypes
@@ -409,18 +414,25 @@ object SimulatorOutputMapper {
 
     // From PeriodisertInformasjonListeUtils
     private fun findEarliestIntersecting(
-        list: List<Uforeperiode>,
+        uforeperiodeListe: List<Uforeperiode>,
         startDate: LocalDate,
         endDate: LocalDate
     ): Uforeperiode? {
         var result: Uforeperiode? = null
-        var earliestDate: LocalDate? = LOCAL_ETERNITY
+        var earliestDate: LocalDate? = TIDENS_SLUTT
 
-        for (element in list) {
-            if (intersectsWithPossiblyOpenEndings(startDate, endDate, element.ufgFomLd, element.ufgTomLd, true)) {
-                if (isBeforeByDay(element.ufgFomLd, earliestDate, false)) {
-                    earliestDate = element.ufgFomLd
-                    result = element
+        for (periode in uforeperiodeListe) {
+            if (overlapperEndeloest(
+                    start1 = startDate,
+                    slutt1 = endDate,
+                    start2 = periode.ufgFomLd,
+                    slutt2 = periode.ufgTomLd,
+                    anseEnkeltDagSomOverlapp = true
+                )
+            ) {
+                if (isBeforeByDay(periode.ufgFomLd, earliestDate, allowSameDay = false)) {
+                    earliestDate = periode.ufgFomLd
+                    result = periode
                 }
             }
         }

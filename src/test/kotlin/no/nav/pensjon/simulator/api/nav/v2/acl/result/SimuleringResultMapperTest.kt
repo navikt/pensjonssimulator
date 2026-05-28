@@ -116,8 +116,8 @@ class SimuleringResultMapperTest : ShouldSpec({
             ),
             maanedligAlderspensjonForKnekkpunkter = MaanedligAlderspensjonForKnekkpunkter(
                 vedGradertUttak = null,
-                vedHeltUttak = MaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonsbeholdningFoerUttak = null, pensjonsbeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, kapittel19Pensjon = Kapittel19PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null), kapittel20Pensjon = Kapittel20PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, garantipensjon = null, garantitillegg = null)),
-                vedNormertPensjonsalder = MaanedligAlderspensjon(beloep = 0, inntektspensjon = null, delingstall = null, pensjonsbeholdningFoerUttak = null, pensjonsbeholdningEtterUttak = null, sluttpoengtall = null, poengaarFoer92 = null, poengaarEtter91 = null, forholdstall = null, grunnpensjon = null, tilleggspensjon = null, pensjonstillegg = null, skjermingstillegg = null, kapittel19Pensjon = Kapittel19PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, basispensjon = null, restpensjon = null, gjenlevendetillegg = null, minstePensjonsnivaaSats = null), kapittel20Pensjon = Kapittel20PensjonDto(andelsbroek = null, trygdetidAntallAar = 0, garantipensjon = null, garantitillegg = null))
+                vedHeltUttak = null,
+                vedNormertPensjonsalder = null
             ),
             livsvarigOffentligAfpListe = emptyList(),
             tidsbegrensetOffentligAfp = null,

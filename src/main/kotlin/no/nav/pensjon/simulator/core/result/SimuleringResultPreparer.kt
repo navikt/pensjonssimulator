@@ -510,8 +510,8 @@ class SimuleringResultPreparer(
                 if (overlapper(
                         start1 = periodeStart,
                         slutt1 = periodeSlutt,
-                        start2 = resultat.virkFomLd,
-                        slutt2 = resultat.virkTomLd,
+                        start2 = fom,
+                        slutt2 = tom,
                         anseEnkeltDagSomOverlapp = true
                     )
                 ) {

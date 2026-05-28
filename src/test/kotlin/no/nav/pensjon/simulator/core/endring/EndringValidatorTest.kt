@@ -224,17 +224,19 @@ class EndringValidatorTest : ShouldSpec({
             }
         }
 
-        should("returnere false for annen resultattype enn 2011/2016") {
-            // BeregningsResultatAfpPrivat er ikke 2011 eller 2016, så harAlderspensjonMedGjenlevenderett returnerer false
-            shouldThrow<InvalidArgumentException> {
-                EndringValidator.validateRequestBasedOnLoependeYtelser(
-                    spec = endringSpec(
-                        type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                        avdoed = null
-                    ),
-                    forrigeAlderspensjon = no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat()
-                )
-            }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
+        context("har løpende ytelse uten gjenlevenderett") {
+            should("kaste exception for endring av pensjon med gjenlevenderett hvis avdødes ID ikke er angitt") {
+                shouldThrow<InvalidArgumentException> {
+                    EndringValidator.validateRequestBasedOnLoependeYtelser(
+                        spec = endringSpec(
+                            type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                            avdoed = null
+                        ),
+                        forrigeAlderspensjon =
+                            no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat()
+                    )
+                }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
+            }
         }
     }
 })

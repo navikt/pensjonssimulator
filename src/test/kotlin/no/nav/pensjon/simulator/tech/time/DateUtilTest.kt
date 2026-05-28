@@ -279,7 +279,7 @@ class DateUtilTest : ShouldSpec({
     }
 
     /**
-     * Når alle datoer er udefinert anses begge perioder å starte ved tidens begynnelse of slutte ved tidens slutt.
+     * Når alle datoer er udefinert anses begge perioder å starte ved tidens begynnelse og slutte ved tidens slutt.
      * Dermed overlapper de over et 'uendelig' tidsrom, og flagget 'anse enkelt dag som overlapp' har ingen effekt.
      */
     context("overlapperEndeloest - alle datoer udefinert") {

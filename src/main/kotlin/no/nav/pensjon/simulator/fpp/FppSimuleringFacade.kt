@@ -17,6 +17,7 @@ class FppSimuleringFacade(
     ): FppSimuleringResult {
         val coreSpec: Simulering = simuleringSpecCreator.createSpec(
             simuleringType,
+            utenlandsopphold = spec.personopplysninger.utenlandsopphold ?: emptyList(),
             uttaksdato = spec.uttaksdato,
             personopplysninger = spec.personopplysninger,
             opptjeningFolketrygden = spec.opptjeningFolketrygden,

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.fpp.api.v1.acl
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.fpp.*
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 
 object FppSimuleringSpecMapper {
 
@@ -22,6 +23,7 @@ object FppSimuleringSpecMapper {
             valgtAfpOrdning = source.valgtAfpOrdning?.internalValue
             flyktning = source.flyktning
             antAarIUtlandet = source.antAarIUtlandet
+            utenlandsopphold = source.utenlandsopphold?.map(::utlandPeriode)
             forventetArbeidsinntekt = source.forventetArbeidsinntekt
             forventetArbeidsinntektGjenlevende = source.forventetArbeidsinntektGjenlevende
             inntektMndForAfp = source.inntektMndForAfp
@@ -108,4 +110,12 @@ object FppSimuleringSpecMapper {
             fom = source.fom
             person = source.person?.let(::person)
         }
+
+    private fun utlandPeriode(source: UtlandSpecDto) =
+        UtlandPeriode(
+            fom = source.fom,
+            tom = source.tom,
+            land = LandkodeEnum.valueOf(source.land),
+            arbeidet = source.arbeidetUtenlands
+        )
 }

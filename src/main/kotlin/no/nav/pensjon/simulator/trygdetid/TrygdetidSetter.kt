@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.trygdetid.InnlandTrygdetidUtil.norskTrygdetidPer
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.antallAarMedOpptjening
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import java.util.*
 
 // PEN:
 // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.SettTrygdetidHelper
@@ -22,16 +21,15 @@ class TrygdetidSetter(
     private val adjuster: TrygdetidAdjuster,
     private val time: Time
 ) {
-    fun settTrygdetid(spec: TrygdetidGrunnlagSpec): Persongrunnlag {
-        val persongrunnlag = spec.persongrunnlag
+    fun settTrygdetid(spec: TrygdetidsgrunnlagAarsbasertSpec, persongrunnlag: Persongrunnlag): Persongrunnlag {
         val tom = spec.tom
 
-        if (spec.forrigeAlderspensjonBeregningResultat == null)
+        if (spec.erFoerstegangsberegning)
             settTrygdetidUtenTidligereBeregningsresultat(
                 persongrunnlag,
-                angittUtlandAntallAar = spec.utlandAntallAar ?: 0,
+                angittUtlandAntallAar = spec.antallAarUtenlands,
                 tom,
-                foersteUttakDato = spec.simuleringSpec.foersteUttakDato!!
+                foersteUttakDato = spec.foersteUttakDato
             )
         else
             settTrygdetidMedTidligereBeregningsresultat(persongrunnlag, fom = time.today(), tom)
@@ -48,14 +46,17 @@ class TrygdetidSetter(
     ) {
         val foedselsdato: LocalDate = persongrunnlag.fodselsdatoLd!!
 
+        val maxUtlandAntallAar = kapittel19MaxUtlandAntallAar(
+            foedselsdato,
+            foersteUttakDato,
+            opptjeningListe = persongrunnlag.opptjeningsgrunnlagListe
+        )
+
+        // NB: Spesiell behandling av trygdetid i.h.t. kapittel 19:
+        // Antall år utenlands begrenses slik at trygdetid ikke starter etter uttak.
         norskTrygdetidPeriode(
             foedselsdato,
-            utlandAntallAar = kapittel19UtlandAntallAar(
-                angittUtlandAntallAar,
-                foedselsdato,
-                foersteUttakDato,
-                opptjeningsgrunnlagListe = persongrunnlag.opptjeningsgrunnlagListe
-            ),
+            utlandAntallAar = angittUtlandAntallAar.coerceAtMost(maxUtlandAntallAar),
             tom
         )?.let { persongrunnlag.trygdetidPerioder.add(it) }
 
@@ -99,36 +100,26 @@ class TrygdetidSetter(
         }
     }
 
-    /**
-     * NB: Spesiell behandling av trygdetid i.h.t. kapittel 19:
-     * Antall år utenlands begrenses slik at trygdetid ikke starter etter uttak.
-     */
-    private fun kapittel19UtlandAntallAar(
-        utlandAntallAar: Int,
+    private fun kapittel19MaxUtlandAntallAar(
         foedselsdato: LocalDate,
         foersteUttakDato: LocalDate,
-        opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>
+        opptjeningListe: List<Opptjeningsgrunnlag>
     ): Int {
-        val opptjeningAntallAar = kapittel19OpptjeningAntallAar(opptjeningsgrunnlagListe, foedselsdato)
+        val opptjeningAntallAar = kapittel19OpptjeningAntallAar(opptjeningListe, foedselsdato)
         val uttakAlderAar = calculateAgeInYears(foedselsdato, foersteUttakDato)
-        val maxAntallAarUtland = uttakAlderAar - NEDRE_ALDERSGRENSE - opptjeningAntallAar
-        return utlandAntallAar.coerceAtMost(maxAntallAarUtland)
+        return uttakAlderAar - NEDRE_ALDERSGRENSE - opptjeningAntallAar
     }
 
     // PEN: SettTrygdetidHelper.findAntallArMedOpptjening
     private fun kapittel19OpptjeningAntallAar(
         opptjeningListe: List<Opptjeningsgrunnlag>,
         foedselsdato: LocalDate
-    ): Int {
-        val registrerteAarMedOpptjening: SortedSet<Int> =
-            opptjeningListe.filter { it.pp > 0.0 }.map { it.ar }.toSortedSet()
-
-        return antallAarMedOpptjening(
-            registrerteAarMedOpptjening,
+    ): Int =
+        antallAarMedOpptjening(
+            registrerteAarMedOpptjening = opptjeningListe.filter { it.pp > 0.0 }.map { it.ar }.toSortedSet(),
             aarSoekerFikkMinstealderForTrygdetid = yearUserTurnsGivenAge(foedselsdato, NEDRE_ALDERSGRENSE),
             dagensDato = time.today()
         )
-    }
 
     private companion object {
         private const val NEDRE_ALDERSGRENSE = 16

@@ -17,6 +17,7 @@ class PersonopplysningerDto {
     var valgtAfpOrdning: AfpTypeDto? = null
     var flyktning: Boolean? = null
     var antAarIUtlandet: Int? = null
+    var utenlandsopphold: List<UtlandSpecDto>? = null
     var forventetArbeidsinntekt: Int? = null
     var forventetArbeidsinntektGjenlevende: Long? = null
     var inntektMndForAfp: Int? = null
@@ -96,3 +97,10 @@ class RelasjonDto {
 class PersonUtlandDto {
     var statsborgerskap: String? = null // LandkodeEnum
 }
+
+data class UtlandSpecDto(
+    val fom: LocalDate,
+    val tom: LocalDate?,
+    val land: String,
+    val arbeidetUtenlands: Boolean
+)

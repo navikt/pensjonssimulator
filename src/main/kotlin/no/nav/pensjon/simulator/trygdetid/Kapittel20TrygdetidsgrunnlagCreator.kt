@@ -14,11 +14,11 @@ object Kapittel20TrygdetidsgrunnlagCreator {
     fun kapittel20TrygdetidsperiodeListe(
         utlandPeriodeListe: MutableList<UtlandPeriode>,
         foedselsdato: LocalDate,
-        foersteUttakDato: LocalDate?
+        foersteUttakDato: LocalDate
     ): List<TTPeriode> =
         trygdetidsperiodeListe(
             utenlandsoppholdListe = utlandTrygdetidsgrunnlag(utlandPeriodeListe),
             foedselsdato,
-            foersteUttakDato!!
+            foersteUttakDato
         )
 }

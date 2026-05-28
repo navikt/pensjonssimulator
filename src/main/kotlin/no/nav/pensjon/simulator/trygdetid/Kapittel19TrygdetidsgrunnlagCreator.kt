@@ -18,7 +18,7 @@ object Kapittel19TrygdetidsgrunnlagCreator {
         opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
         utlandPeriodeListe: MutableList<UtlandPeriode>,
         foedselsdato: LocalDate,
-        foersteUttakDato: LocalDate?
+        foersteUttakDato: LocalDate
     ): List<TTPeriode> {
         val trygdetidsgrunnlagMedPensjonspoengListe = mapOpptjeningToTrygdetid(opptjeningsgrunnlagListe)
 
@@ -28,13 +28,11 @@ object Kapittel19TrygdetidsgrunnlagCreator {
             else
                 utlandTrygdetidsgrunnlag(utlandPeriodeListe, trygdetidsgrunnlagMedPensjonspoengListe)
 
-        val trygdetidsgrunnlagListe = trygdetidsperiodeListe(
+        return trygdetidsperiodeListe(
             utenlandsoppholdListe = utlandTrygdetidsgrunnlag,
             foedselsdato,
-            foersteUttakDato!!
+            foersteUttakDato
         )
-
-        return trygdetidsgrunnlagListe
     }
 
     private fun mapOpptjeningToTrygdetid(opptjeningListe: List<Opptjeningsgrunnlag>): List<TrygdetidOpphold> {

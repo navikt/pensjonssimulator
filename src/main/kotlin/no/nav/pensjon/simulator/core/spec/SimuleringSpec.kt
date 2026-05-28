@@ -53,7 +53,7 @@ data class SimuleringSpec(
     }
 
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
-    val boddUtenlands: Boolean = utlandPeriodeListe.isNotEmpty()
+    val brukSoekersUtenlandsperioder: Boolean = utlandPeriodeListe.isNotEmpty()
 
     val erHeltUttak: Boolean = uttakGrad == UttakGradKode.P_100
 

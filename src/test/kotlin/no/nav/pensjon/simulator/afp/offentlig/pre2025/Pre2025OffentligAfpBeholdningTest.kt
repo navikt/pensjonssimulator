@@ -28,12 +28,10 @@ class Pre2025OffentligAfpBeholdningTest : FunSpec({
                     pensjonsbeholdning(aar = 2001),
                     // matching fom in persongrunnlag => should be ignored:
                     pensjonsbeholdning(aar = 2002)
-                )),
+                )
+            ),
             normalderService = arrangeNormalder()
-        ).setPensjonsbeholdning(
-            persongrunnlag = persongrunnlag,
-            forrigeAlderspensjonBeregningResult = null
-        )
+        ).setPensjonsbeholdning(persongrunnlag, erEndringsberegning = false)
 
         with(persongrunnlag.beholdninger) {
             size shouldBe 2

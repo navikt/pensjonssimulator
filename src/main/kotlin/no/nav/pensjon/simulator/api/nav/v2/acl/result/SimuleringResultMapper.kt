@@ -71,7 +71,7 @@ object SimuleringResultMapper {
 
     private fun maanedligGarantipensjon(source: SimulertMaanedligGarantipensjon) =
         GarantipensjonDto(
-            aarligBeloep = 0,
+            aarligBeloep = source.maanedligBeloep * 12,
             maanedligBeloep = source.maanedligBeloep,
             sats = source.sats
         )

@@ -53,8 +53,8 @@ data class SimulertAlderspensjonFraFolketrygden(
 
 data class SimulertMaanedligAlderspensjonForKnekkpunkter(
     val vedGradertUttak: SimulertMaanedligAlderspensjon?,
-    val vedHeltUttak: SimulertMaanedligAlderspensjon,
-    val vedNormertPensjonsalder: SimulertMaanedligAlderspensjon
+    val vedHeltUttak: SimulertMaanedligAlderspensjon?,
+    val vedNormertPensjonsalder: SimulertMaanedligAlderspensjon?
 )
 
 data class SimulertMaanedligAlderspensjon(

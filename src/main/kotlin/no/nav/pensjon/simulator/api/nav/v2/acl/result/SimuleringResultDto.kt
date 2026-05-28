@@ -73,8 +73,8 @@ data class UttaksbeloepDto(
 @JsonInclude(NON_NULL)
 data class MaanedligAlderspensjonForKnekkpunkter(
     val vedGradertUttak: MaanedligAlderspensjon?,
-    val vedHeltUttak: MaanedligAlderspensjon,
-    val vedNormertPensjonsalder: MaanedligAlderspensjon
+    val vedHeltUttak: MaanedligAlderspensjon?,
+    val vedNormertPensjonsalder: MaanedligAlderspensjon?
 )
 
 @JsonInclude(NON_NULL)

@@ -24,10 +24,7 @@ class PakkseddelTest : ShouldSpec({
 
     context("kontrollTjenesteOk, annenTjenesteOk when no merknad") {
         should("be true") {
-            with(pakkseddel(merknadListe = emptyList())) {
-                kontrollTjenesteOk shouldBe true
-                annenTjenesteOk shouldBe true
-            }
+            pakkseddel(merknadListe = emptyList()).kontrollTjenesteOk shouldBe true
         }
     }
 
@@ -42,10 +39,7 @@ class PakkseddelTest : ShouldSpec({
                 )
             )
 
-            with(result) {
-                kontrollTjenesteOk shouldBe false
-                annenTjenesteOk shouldBe false
-            }
+            result.kontrollTjenesteOk shouldBe false
         }
     }
 })

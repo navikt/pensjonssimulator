@@ -21,7 +21,6 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import org.springframework.cache.caffeine.CaffeineCacheManager
-import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 
 class SimulatorContextTest : ShouldSpec({
@@ -453,8 +452,6 @@ class SimulatorContextTest : ShouldSpec({
 
 private val dato: LocalDate = LocalDate.of(2030, 1, 1)
 
-private val objectMapper = JsonMapper()
-
 private inline fun <K, reified T : Any> arrangeRegler(response: K): GenericRegelClient =
     mockk<GenericRegelClient>().apply {
         every {
@@ -488,6 +485,5 @@ private fun vilkarsproevingsresultat(vedtak: VilkarsVedtak) =
 private fun simulatorContext(regelmotor: GenericRegelClient) =
     SimulatorContext(
         regelService = regelmotor,
-        objectMapper = objectMapper,
         cacheManager = CaffeineCacheManager()
     )

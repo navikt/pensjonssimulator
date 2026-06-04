@@ -138,9 +138,9 @@ fun BeregningsgrunnlagYrkesskade.copy() =
 fun BeregningsInformasjon.copy() =
     BeregningsInformasjon().also {
         it.forholdstallUttak = this.forholdstallUttak
-        it.forholdstall67 = this.forholdstall67
+        it.forholdstallVedNormertPensjonsalder = this.forholdstallVedNormertPensjonsalder
         it.delingstallUttak = this.delingstallUttak
-        it.delingstall67 = this.delingstall67
+        it.delingstallVedNormertPensjonsalder = this.delingstallVedNormertPensjonsalder
         it.spt = this.spt?.let(::Sluttpoengtall)
         it.opt = this.opt?.let(::Sluttpoengtall)
         it.ypt = this.ypt?.let(::Sluttpoengtall)
@@ -174,8 +174,6 @@ fun BeregningsInformasjon.copy() =
         //--- Extra:
         it.epsMottarPensjon = this.epsMottarPensjon
         it.epsOver2G = this.epsOver2G
-        it.unclearedDelingstallUttak = this.unclearedDelingstallUttak
-        it.unclearedDelingstall67 = this.unclearedDelingstall67
     }
 
 fun BeregningsResultatAfpPrivat.copy() =

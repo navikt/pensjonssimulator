@@ -21,7 +21,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import tools.jackson.databind.ObjectMapper
 import java.time.LocalDate
 
 class SimulatorContextUtilTest : FunSpec({
@@ -53,7 +52,6 @@ class SimulatorContextUtilTest : FunSpec({
             result = response,
             kravGjelderUfoeretrygd = false,
             spec = "",
-            objectMapper = ObjectMapper(),
             call = ""
         )
 
@@ -78,7 +76,6 @@ class SimulatorContextUtilTest : FunSpec({
             result = response,
             kravGjelderUfoeretrygd = true,
             spec = "",
-            objectMapper = ObjectMapper(),
             call = ""
         )
 
@@ -226,7 +223,6 @@ class SimulatorContextUtilTest : FunSpec({
         SimulatorContextUtil.validerResponse(
             pakkseddel = pakkseddel,
             spec = "test-spec",
-            objectMapper = ObjectMapper(),
             call = "testCall"
         )
         // Ingen unntak kastet
@@ -241,7 +237,6 @@ class SimulatorContextUtilTest : FunSpec({
             SimulatorContextUtil.validerResponse(
                 pakkseddel = pakkseddel,
                 spec = "test-spec",
-                objectMapper = ObjectMapper(),
                 call = "testCall"
             )
         }
@@ -268,7 +263,6 @@ class SimulatorContextUtilTest : FunSpec({
             SimulatorContextUtil.validerResponse(
                 pakkseddel = pakkseddel,
                 spec = request,
-                objectMapper = ObjectMapper(),
                 call = "RevurderingAlderspensjon2025"
             )
         }

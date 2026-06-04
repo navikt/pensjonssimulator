@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sluttpoengtall
@@ -9,12 +8,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.JustertPeriodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 
-// 2025-03-10
+// 2026-06-04
 class BeregningsInformasjon {
     var forholdstallUttak = 0.0
-    var forholdstall67 = 0.0
+    var forholdstallVedNormertPensjonsalder = 0.0
     var delingstallUttak = 0.0
-    var delingstall67 = 0.0
+    var delingstallVedNormertPensjonsalder = 0.0
     var spt: Sluttpoengtall? = null
     var opt: Sluttpoengtall? = null
     var ypt: Sluttpoengtall? = null
@@ -48,29 +47,13 @@ class BeregningsInformasjon {
 
     //--- Extra:
 
-    var epsPaavirkerBeregning = false // deprecated
-
     // from PEN no.nav.domain.pensjon.kjerne.beregning2011.BeregningsInformasjon
     var epsMottarPensjon: Boolean = false
     var epsOver2G: Boolean = false
 
-    @JsonIgnore
-    var unclearedDelingstallUttak: Double? = null
-
-    @JsonIgnore
-    var unclearedDelingstall67: Double? = null
-
-    val internDelingstallUttak: Double
-        @JsonIgnore get() = unclearedDelingstallUttak ?: delingstallUttak
-
-    val internDelingstall67: Double
-        @JsonIgnore get() = unclearedDelingstall67 ?: delingstall67
-
-    // delingstallUttak, delingstall67 are not mapped in legacy simulering, hence set to zero:
+    // delingstallUttak, delingstallVedNormertPensjonsalder are not mapped in legacy simulering, hence set to zero:
     fun clearDelingstall() {
-        unclearedDelingstallUttak = delingstallUttak
         delingstallUttak = 0.0
-        unclearedDelingstall67 = delingstall67
-        delingstall67 = 0.0
+        delingstallVedNormertPensjonsalder = 0.0
     }
 }

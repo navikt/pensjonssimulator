@@ -2,7 +2,8 @@ package no.nav.pensjon.simulator.core.exception
 
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 
+@Deprecated("Never thrown")
 class KanIkkeBeregnesException(
     message: String,
-    val merknadListe: List<Merknad> = mutableListOf()
+    //val merknadListe: List<Merknad> = mutableListOf()
 ) : RuntimeException(message)

@@ -543,20 +543,21 @@ class SimulatorOutputMapperTest : FunSpec({
                 brutto = 23333
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1970, 6, 15),
             knekkpunkt = LocalDate.of(2037, 7, 1)
         )
 
-        result.inntektspensjon shouldBe 280000
-        result.inntektspensjonPerMaaned shouldBe 23333
-        result.aarligBeloep shouldBe 400000
-        result.maanedligBeloep shouldBe 33333
+        with(result) {
+            inntektspensjon shouldBe 280000
+            inntektspensjonPerMaaned shouldBe 23333
+            aarligBeloep shouldBe 400000
+            maanedligBeloep shouldBe 33333
+        }
     }
 
     test("mapToSimulertBeregningsinformasjon should map garantipensjon") {
@@ -569,18 +570,19 @@ class SimulatorOutputMapperTest : FunSpec({
                 brutto = 10000
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1970, 6, 15),
             knekkpunkt = LocalDate.of(2037, 7, 1)
         )
 
-        result.garantipensjon shouldBe 120000
-        result.garantipensjonPerMaaned shouldBe 10000
+        with(result) {
+            garantipensjon shouldBe 120000
+            garantipensjonPerMaaned shouldBe 10000
+        }
     }
 
     test("mapToSimulertBeregningsinformasjon should map garantitillegg") {
@@ -592,17 +594,14 @@ class SimulatorOutputMapperTest : FunSpec({
                 bruttoPerAr = 15000.0
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
-        val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
+        SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1970, 6, 15),
             knekkpunkt = LocalDate.of(2037, 7, 1)
-        )
-
-        result.garantitillegg shouldBe 15000
+        ).garantitillegg shouldBe 15000
     }
 
     test("mapToSimulertBeregningsinformasjon should map grunnpensjon") {
@@ -616,19 +615,20 @@ class SimulatorOutputMapperTest : FunSpec({
                 pSats_gp = 1.0
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 7, 1)
         )
 
-        result.grunnpensjon shouldBe 118620
-        result.grunnpensjonPerMaaned shouldBe 9885
-        result.grunnpensjonsats shouldBe 1.0
+        with(result) {
+            grunnpensjon shouldBe 118620
+            grunnpensjonPerMaaned shouldBe 9885
+            grunnpensjonsats shouldBe 1.0
+        }
     }
 
     test("mapToSimulertBeregningsinformasjon should map tilleggspensjon") {
@@ -641,18 +641,19 @@ class SimulatorOutputMapperTest : FunSpec({
                 brutto = 15000
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 7, 1)
         )
 
-        result.tilleggspensjon shouldBe 180000
-        result.tilleggspensjonPerMaaned shouldBe 15000
+        with(result) {
+            tilleggspensjon shouldBe 180000
+            tilleggspensjonPerMaaned shouldBe 15000
+        }
     }
 
     test("mapToSimulertBeregningsinformasjon should map pensjonstillegg") {
@@ -660,25 +661,25 @@ class SimulatorOutputMapperTest : FunSpec({
         val beregningsResultat = createBeregningsResultatAlderspensjon2011()
         beregningsResultat.pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
             pensjonstillegg = Pensjonstillegg().apply {
-                ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.PT
                 bruttoPerAr = 50000.0
                 brutto = 4166
                 minstepensjonsnivaSats = 2.48
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 7, 1)
         )
 
-        result.pensjonstillegg shouldBe 50000
-        result.pensjonstilleggPerMaaned shouldBe 4166
-        result.minstePensjonsnivaSats shouldBe 2.48
+        with(result) {
+            pensjonstillegg shouldBe 50000
+            pensjonstilleggPerMaaned shouldBe 4166
+            minstePensjonsnivaSats shouldBe 2.48
+        }
     }
 
     test("mapToSimulertBeregningsinformasjon should map skjermingstillegg") {
@@ -691,18 +692,19 @@ class SimulatorOutputMapperTest : FunSpec({
                 ufg = 50
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 7, 1)
         )
 
-        result.skjermingstillegg shouldBe 20000
-        result.ufoereGrad shouldBe 50
+        with(result) {
+            skjermingstillegg shouldBe 20000
+            ufoereGrad shouldBe 50
+        }
     }
 
     test("mapToSimulertBeregningsinformasjon should map minstenivaatillegg") {
@@ -718,18 +720,19 @@ class SimulatorOutputMapperTest : FunSpec({
                 bruttoPerAr = 8000.0
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 7, 1)
         )
 
-        result.individueltMinstenivaaTillegg shouldBe 12000
-        result.pensjonistParMinstenivaaTillegg shouldBe 8000
+        with(result) {
+            individueltMinstenivaaTillegg shouldBe 12000
+            pensjonistParMinstenivaaTillegg shouldBe 8000
+        }
     }
 
     // =====================================================
@@ -739,13 +742,12 @@ class SimulatorOutputMapperTest : FunSpec({
     test("mapToSimulertBeregningsinformasjon should calculate startMaaned correctly") {
         val kravhode = createKravhode(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsResultat = createBeregningsResultatAlderspensjon2011()
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         // Born June 15, knekkpunkt July 1 = 1 month after birth month
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 7, 1)
         )
@@ -756,13 +758,12 @@ class SimulatorOutputMapperTest : FunSpec({
     test("mapToSimulertBeregningsinformasjon should return 12 for startMaaned when knekkpunkt is in birth month") {
         val kravhode = createKravhode(RegelverkTypeEnum.N_REG_G_OPPTJ)
         val beregningsResultat = createBeregningsResultatAlderspensjon2011()
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         // Born June 15, knekkpunkt June 1 = 0 months, should return 12
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
             kravhode = kravhode,
             beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1960, 6, 15),
             knekkpunkt = LocalDate.of(2025, 6, 1)
         )

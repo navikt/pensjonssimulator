@@ -14,7 +14,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgru
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp

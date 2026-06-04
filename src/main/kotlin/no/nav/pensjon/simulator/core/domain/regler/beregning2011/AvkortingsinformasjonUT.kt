@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-// 2025-03-20
+// 2026-06-04
 /**
  * Angir detaljer rund avkortingen av uføretrygd.
  */
@@ -8,7 +8,7 @@ class AvkortingsinformasjonUT : AbstraktAvkortingsinformasjon() {
     /**
      * beløpsgrense.
      */
-    var belopsgrense = 0
+    var fribeløp = 0
 
     /**
      * Sum av inntektskomponentene som ble lagt til grunn.
@@ -18,17 +18,12 @@ class AvkortingsinformasjonUT : AbstraktAvkortingsinformasjon() {
     /**
      * Inntekt under denne grensen gir ikke utslag i avkorting.
      */
-    var inntektsgrense = 0
-    /**
-     * @return the inntektsgrenseNesteAr
-     */
-    /**
-     * @param inntektsgrenseNesteAr the inntektsgrenseNesteAr to set
-     */
+    var bunnfradrag = 0
+
     /**
      * Inntektsgrense nest år settes når neste års inntektsgrense beregnes
      */
-    var inntektsgrenseNesteAr = 0
+    var bunnfradragNesteAr = 0
 
     /**
      * Inntektstaket for påfålgende år fastsatt på bakgrunn av siste gjeldende OIFU i året. Feltet er kun angitt dersom inntektstak neste år avviker fra gjeldende inntektstak.
@@ -38,7 +33,7 @@ class AvkortingsinformasjonUT : AbstraktAvkortingsinformasjon() {
     /**
      * Angir dekningsgrad av tapt arbeidsevne.
      */
-    var kompensasjonsgrad = 0.0
+    var reduksjonsprosent = 0.0
 
     /**
      * Oppjustert inntekt etter uførhet.

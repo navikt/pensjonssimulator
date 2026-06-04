@@ -2,64 +2,64 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 // 2026-06-04
 class BeregningsInformasjonMinstenivatilleggPensjonistpar {
-    /*
+    /**
      * Beregnet pensjon pensjon
      */
     var samletPensjon = 0.0
 
-    /*
-       * Minstepensjonsniva sats
-       */
+    /**
+     * Minstepensjonsniva sats
+     */
     var mpnSatsOrdinaer = 0.0
 
-    /*
-       * Garantipensjonpensjonsniva sats
-       */
+    /**
+     * Garantipensjonpensjonsniva sats
+     */
     var garPNSatsOrdinaer = 0.0
 
-    /*
-       * saertillegg sats
-       */
+    /**
+     * saertillegg sats
+     */
     var stSatsOrdinaer = 0.0
 
-    /*
-       * tt anvendt brukt i alderspensjon etter kapittel 19
-       */
+    /**
+     * tt anvendt brukt i alderspensjon etter kapittel 19
+     */
     var tt_anv_AP = 0
 
-    /*
-       * tt anvendt brukt i alderspensjon etter kapittel 20
-       */
+    /**
+     * tt anvendt brukt i alderspensjon etter kapittel 20
+     */
     var tt_anv_AP_Kapittel20 = 0
 
-    /*
-       * tt anvendt brukt i uforepensjon
-       */
+    /**
+     * tt anvendt brukt i uforepensjon
+     */
     var tt_anv_UP = 0
 
-    /*
-       * trygdetid i prorata beregning
-       */
+    /**
+     * trygdetid i prorata beregning
+     */
     var prorataUP = 0.0
 
-    /*
-       * teller for proratabrok
-       */
+    /**
+     * teller for proratabrok
+     */
     var prorataUPTeller = 0
 
-    /*
-       * nevner for proratabrok
-       */
+    /**
+     * nevner for proratabrok
+     */
     var prorataUPNevner = 0
 
-    /*
-       * personens gjeldende uttaksgrad
-       */
+    /**
+     * personens gjeldende uttaksgrad
+     */
     var uttaksgrad = 0
 
-    /*
-       * personens gjeldende uforegrad
-       */
+    /**
+     * personens gjeldende uforegrad
+     */
     var uforegrad = 0
 
     //--- Extra:

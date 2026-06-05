@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.MinstePensjonsnivaSatsEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
-// 2026-06-04
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 @JsonSubTypes(
     JsonSubTypes.Type(value = BasisPensjonstillegg::class)
 )

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-// 2026-06-04
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 class BeregningsInformasjonMinstenivatilleggPensjonistpar {
     /**
      * Beregnet pensjon pensjon

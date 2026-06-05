@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
-// 2026-06-04
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 class VilkarsprovInformasjon2016 : VilkarsprovInformasjon() {
     var vektetPensjonsniva = 0.0
     var vektetPensjonsnivaProRata = 0.0

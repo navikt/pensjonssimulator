@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.JustertPeriodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.ResultattypeEnum
 
-// 2026-06-04
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 class BeregningsInformasjon {
     var forholdstallUttak = 0.0
     var forholdstallVedNormertPensjonsalder = 0.0

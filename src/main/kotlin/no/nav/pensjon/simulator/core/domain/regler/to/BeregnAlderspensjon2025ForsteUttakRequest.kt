@@ -12,6 +12,7 @@ import java.util.Vector
 class BeregnAlderspensjon2025ForsteUttakRequest : ServiceRequest() {
     var virkFomLd: LocalDate? = null
     var kravhode: Kravhode? = null
+    var infoPavirkendeYtelse: InfoPavirkendeYtelse? = null
     var vilkarsvedtakListe: List<VilkarsVedtak> = Vector()
     var epsMottarPensjon = false
     var afpPrivatLivsvarig: AfpPrivatLivsvarig? = null

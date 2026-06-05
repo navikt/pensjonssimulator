@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
 import java.util.*
 
-// 2026-04-10
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 class BeregnAlderspensjon2011ForsteUttakRequest : ServiceRequest() {
     var kravhode: Kravhode? = null
     var vilkarsvedtakListe: List<VilkarsVedtak> = Vector()

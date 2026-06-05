@@ -7,31 +7,31 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.MinstePensjonsnivaSatsEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 
-// 2025-03-23
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 @JsonSubTypes(
     JsonSubTypes.Type(value = BasisPensjonstillegg::class)
 )
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 open class Pensjonstillegg : Ytelseskomponent {
-    var forholdstall67 = 0.0
+    var forholdstallVedNormertPensjonsalder = 0.0
     var minstepensjonsnivaSats = 0.0
     var minstepensjonsnivaSatsTypeEnum: MinstePensjonsnivaSatsEnum? = null
     var justertMinstePensjonsniva: JustertMinstePensjonsniva? = null
 
-    override var ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.PT
+    override val ytelsekomponentTypeEnum: YtelseskomponentTypeEnum = YtelseskomponentTypeEnum.PT
 
     constructor() {
         formelKodeEnum = FormelKodeEnum.PenTx
     }
 
-    constructor(source: Pensjonstillegg) : super(source) {
-        forholdstall67 = source.forholdstall67
-        minstepensjonsnivaSats = source.minstepensjonsnivaSats
-        if (source.minstepensjonsnivaSatsTypeEnum != null) {
-            minstepensjonsnivaSatsTypeEnum = source.minstepensjonsnivaSatsTypeEnum
+    constructor(pt: Pensjonstillegg) : super(pt) {
+        forholdstallVedNormertPensjonsalder = pt.forholdstallVedNormertPensjonsalder
+        minstepensjonsnivaSats = pt.minstepensjonsnivaSats
+        if (pt.minstepensjonsnivaSatsTypeEnum != null) {
+            minstepensjonsnivaSatsTypeEnum = pt.minstepensjonsnivaSatsTypeEnum
         }
-        if (source.justertMinstePensjonsniva != null) {
-            justertMinstePensjonsniva = JustertMinstePensjonsniva(source.justertMinstePensjonsniva!!)
+        if (pt.justertMinstePensjonsniva != null) {
+            justertMinstePensjonsniva = JustertMinstePensjonsniva(pt.justertMinstePensjonsniva!!)
         }
     }
 }

@@ -137,11 +137,6 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "ugyldig enum")
         }
 
-        should("return ANNEN_KLIENTFEIL problem on KanIkkeBeregnesException") {
-            badService(simulatorException = KanIkkeBeregnesException("kan ikke beregnes"))
-                .simuler(validSpec) shouldBe errorResult(ProblemType.ANNEN_KLIENTFEIL, "kan ikke beregnes")
-        }
-
         should("return INTERN_DATA_INKONSISTENS problem on KonsistensenIGrunnlagetErFeilException") {
             val result = badService(
                 simulatorException = KonsistensenIGrunnlagetErFeilException(RuntimeException("inkonsistent"))

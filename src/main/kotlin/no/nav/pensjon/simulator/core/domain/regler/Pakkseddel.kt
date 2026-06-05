@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler
 
 import com.fasterxml.jackson.annotation.JsonGetter
 
-// Copied from pensjon-regler-api 2026-01-16
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 /**
  * Denne klassen representerer en pakkseddel som leveres sammen med resultatet
  * fra en regeltjeneste.
@@ -20,13 +20,6 @@ class Pakkseddel {
      */
     @get:JsonGetter
     val kontrollTjenesteOk: Boolean
-        get() = merknadListe.isEmpty()
-
-    /**
-     * Er 'true' dersom ingen feilmeldinger er vedlagt pakkseddelen (merknadslisten er tom).
-     */
-    @get:JsonGetter
-    val annenTjenesteOk: Boolean
         get() = merknadListe.isEmpty()
 
     /**

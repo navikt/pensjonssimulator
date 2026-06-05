@@ -158,7 +158,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             }
         }
 
-        // SIMDOM-ADD
+        // Extra
         private fun innvilgetVedtak(source: VilkarsVedtak) =
             /* TODO check if copy needed:
         VilkarsVedtak(source).also {
@@ -223,7 +223,6 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
                 virkFomLd = spec.virkFom
                 kravhode = spec.kravhode
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
-                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 epsMottarPensjon = spec.epsMottarPensjon
                 afpPrivatLivsvarig = spec.privatAfp
                 afpOffentligLivsvarigGrunnlag = spec.livsvarigOffentligAfpGrunnlag

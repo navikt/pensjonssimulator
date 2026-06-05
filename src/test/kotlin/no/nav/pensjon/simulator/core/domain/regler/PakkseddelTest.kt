@@ -22,30 +22,22 @@ class PakkseddelTest : ShouldSpec({
         }
     }
 
-    context("kontrollTjenesteOk, annenTjenesteOk when no merknad") {
+    context("kontrollTjenesteOk when no merknad") {
         should("be true") {
-            with(pakkseddel(merknadListe = emptyList())) {
-                kontrollTjenesteOk shouldBe true
-                annenTjenesteOk shouldBe true
-            }
+            pakkseddel(merknadListe = emptyList()).kontrollTjenesteOk shouldBe true
         }
     }
 
-    context("kontrollTjenesteOk, annenTjenesteOk when merknad") {
+    context("kontrollTjenesteOk when merknad") {
         should("be false") {
-            val result = pakkseddel(
+            pakkseddel(
                 merknadListe = listOf(
                     Merknad().apply {
                         kode = null
                         argumentListe = emptyList()
                     }
                 )
-            )
-
-            with(result) {
-                kontrollTjenesteOk shouldBe false
-                annenTjenesteOk shouldBe false
-            }
+            ).kontrollTjenesteOk shouldBe false
         }
     }
 })

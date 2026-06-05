@@ -13,9 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonOpptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.*
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
-import tools.jackson.databind.ObjectMapper
 import java.math.RoundingMode
 import java.time.LocalDate
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
@@ -67,10 +65,9 @@ object SimulatorContextUtil {
         result: TrygdetidResponse,
         kravGjelderUfoeretrygd: Boolean,
         spec: Any,
-        objectMapper: ObjectMapper,
         call: String
     ) {
-        validerResponse(result.pakkseddel, spec, objectMapper, call)
+        validerResponse(result.pakkseddel, spec, call)
 
         result.trygdetid?.apply {
             tt_67_75 = 0 // since this value is not mapped to PEN domain in original PEN code
@@ -118,26 +115,17 @@ object SimulatorContextUtil {
     // RegelHelper.validateResponse
     fun validerResponse(pakkseddel: Pakkseddel) {
         val kontrollTjenesteOk = pakkseddel.kontrollTjenesteOk
-        val annenTjenesteOk = pakkseddel.annenTjenesteOk
-        if (kontrollTjenesteOk && annenTjenesteOk) return
+        if (kontrollTjenesteOk) return
 
         val message = pakkseddel.merknaderAsString()
-
-        if (kontrollTjenesteOk) {
-            log.warn { "regler validering andre merknader - $message" }
-            throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
-        } else {
-            log.warn { "regler validering kontroll merknader - $message" }
-            throw RegelmotorValideringException(message, pakkseddel.merknadListe)
-        }
+        log.warn { "regler validering kontroll merknader - $message" }
+        throw RegelmotorValideringException(message, pakkseddel.merknadListe)
     }
 
-    fun validerResponse(pakkseddel: Pakkseddel, spec: Any, objectMapper: ObjectMapper, call: String) {
+    fun validerResponse(pakkseddel: Pakkseddel, spec: Any, call: String) {
         val kontrollTjenesteOk = pakkseddel.kontrollTjenesteOk
-        val annenTjenesteOk = pakkseddel.annenTjenesteOk
-        if (kontrollTjenesteOk && annenTjenesteOk) return
+        if (kontrollTjenesteOk) return
 
-        val message = pakkseddel.merknaderAsString()
 
         (spec as? RevurderingAlderspensjon2025Request)?.let {
             log.warn {
@@ -145,15 +133,9 @@ object SimulatorContextUtil {
             }
         }
 
-        log.debug { "regler validering error for $call - " + objectMapper.writeValueAsString(spec) }
-
-        if (kontrollTjenesteOk) {
-            log.error { "$call - regler validering andre merknader - $message => KanIkkeBeregnesException" }
-            throw KanIkkeBeregnesException(message, pakkseddel.merknadListe)
-        } else {
-            log.error { "$call - regler validering kontroll merknader - $message => RegelmotorValideringException" }
-            throw RegelmotorValideringException(message, pakkseddel.merknadListe)
-        }
+        val message = pakkseddel.merknaderAsString()
+        log.error { "$call - regler validering kontroll merknader - $message => RegelmotorValideringException" }
+        throw RegelmotorValideringException(message, pakkseddel.merknadListe)
     }
 
     private fun preprocess(pensjon: PensjonUnderUtbetaling) {

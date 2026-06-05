@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.FremskrevetAfpL
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.FremskrevetPensjonUnderUtbetaling
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.PensjonUnderUtbetaling
 
-// 2026-04-23
+// Copied from pensjon-regler-api v2.0.0 2026-06-04
 @JsonSubTypes(
     JsonSubTypes.Type(value = VilkarsprovInformasjon2011::class),
     JsonSubTypes.Type(value = VilkarsprovInformasjon2016::class),

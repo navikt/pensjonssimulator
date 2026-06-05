@@ -76,13 +76,13 @@ fun AvkortingsinformasjonUT.copy() =
     AvkortingsinformasjonUT().also {
         it.oifu = this.oifu
         it.oieu = this.oieu
-        it.belopsgrense = this.belopsgrense
-        it.inntektsgrense = this.inntektsgrense
+        it.fribeløp = this.fribeløp
+        it.bunnfradrag = this.bunnfradrag
         it.ugradertBruttoPerAr = this.ugradertBruttoPerAr
-        it.kompensasjonsgrad = this.kompensasjonsgrad
+        it.reduksjonsprosent = this.reduksjonsprosent
         it.utbetalingsgrad = this.utbetalingsgrad
         it.forventetInntekt = this.forventetInntekt
-        it.inntektsgrenseNesteAr = this.inntektsgrenseNesteAr
+        it.bunnfradragNesteAr = this.bunnfradragNesteAr
         it.inntektstakNesteAr = this.inntektstakNesteAr
         it.differansebelop = this.differansebelop
         it.oifuForBarnetillegg = this.oifuForBarnetillegg
@@ -138,9 +138,9 @@ fun BeregningsgrunnlagYrkesskade.copy() =
 fun BeregningsInformasjon.copy() =
     BeregningsInformasjon().also {
         it.forholdstallUttak = this.forholdstallUttak
-        it.forholdstall67 = this.forholdstall67
+        it.forholdstallVedNormertPensjonsalder = this.forholdstallVedNormertPensjonsalder
         it.delingstallUttak = this.delingstallUttak
-        it.delingstall67 = this.delingstall67
+        it.delingstallVedNormertPensjonsalder = this.delingstallVedNormertPensjonsalder
         it.spt = this.spt?.let(::Sluttpoengtall)
         it.opt = this.opt?.let(::Sluttpoengtall)
         it.ypt = this.ypt?.let(::Sluttpoengtall)
@@ -174,8 +174,6 @@ fun BeregningsInformasjon.copy() =
         //--- Extra:
         it.epsMottarPensjon = this.epsMottarPensjon
         it.epsOver2G = this.epsOver2G
-        it.unclearedDelingstallUttak = this.unclearedDelingstallUttak
-        it.unclearedDelingstall67 = this.unclearedDelingstall67
     }
 
 fun BeregningsResultatAfpPrivat.copy() =

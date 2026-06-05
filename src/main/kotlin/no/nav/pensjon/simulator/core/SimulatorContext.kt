@@ -22,13 +22,11 @@ import no.nav.pensjon.simulator.regel.client.RegelClient
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.stereotype.Component
-import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 
 @Component
 class SimulatorContext(
     private val regelService: GenericRegelClient,
-    private val objectMapper: JsonMapper,
     cacheManager: CaffeineCacheManager
 ) : RegelClient {
 
@@ -48,7 +46,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2011FoersteUttak")
+        validerResponse(response.pakkseddel, spec, "beregnAlderspensjon2011FoersteUttak")
 
         return response.beregningsResultat?.apply {
             virkTomLd = null
@@ -70,7 +68,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2016FoersteUttak")
+        validerResponse(response.pakkseddel, spec, "beregnAlderspensjon2016FoersteUttak")
 
         return response.beregningsResultat?.apply {
             virkTomLd = null
@@ -92,7 +90,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "beregnAlderspensjon2025FoersteUttak")
+        validerResponse(response.pakkseddel, spec, "beregnAlderspensjon2025FoersteUttak")
 
         return response.beregningsResultat?.apply {
             virkTomLd = null
@@ -141,7 +139,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "revurderingAlderspensjon2011")
+        validerResponse(response.pakkseddel, spec, "revurderingAlderspensjon2011")
         return response.revurdertBeregningsResultat!!
     }
 
@@ -158,7 +156,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "revurderingAlderspensjon2016")
+        validerResponse(response.pakkseddel, spec, "revurderingAlderspensjon2016")
         return response.revurdertBeregningsResultat!!
     }
 
@@ -175,7 +173,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "revurderingAlderspensjon2025")
+        validerResponse(response.pakkseddel, spec, "revurderingAlderspensjon2025")
         return response.revurdertBeregningsResultat!!
     }
 
@@ -238,7 +236,7 @@ class SimulatorContext(
                 sakId = sakId?.toString()
             )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "vilkaarsproevUbetingetAlderspensjon")
+        validerResponse(response.pakkseddel, spec, "vilkaarsproevUbetingetAlderspensjon")
         return response.vedtaksliste
     }
 
@@ -257,7 +255,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "vilkarsprovAlderspensjon2011")
+        validerResponse(response.pakkseddel, spec, "vilkarsprovAlderspensjon2011")
         return response.vedtaksliste
     }
 
@@ -276,7 +274,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "vilkarsprovAlderspensjon2016")
+        validerResponse(response.pakkseddel, spec, "vilkarsprovAlderspensjon2016")
         return response.vedtaksliste
     }
 
@@ -295,7 +293,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerResponse(response.pakkseddel, spec, objectMapper, "vilkaarsproevAlderspensjon2025")
+        validerResponse(response.pakkseddel, spec, "vilkaarsproevAlderspensjon2025")
         return response.vedtaksliste
     }
 
@@ -329,7 +327,7 @@ class SimulatorContext(
             sakId = sakId?.toString()
         )
 
-        validerOgFerdigstillResponse(response, kravIsUfoeretrygd, spec, objectMapper, "fastsettTrygdetid")
+        validerOgFerdigstillResponse(response, kravIsUfoeretrygd, spec, "fastsettTrygdetid")
         return response
     }
 

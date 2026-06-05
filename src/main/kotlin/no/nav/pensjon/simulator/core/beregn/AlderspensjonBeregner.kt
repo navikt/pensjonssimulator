@@ -222,6 +222,7 @@ class AlderspensjonBeregner(private val context: SimulatorContext) {
             BeregnAlderspensjon2025ForsteUttakRequest().apply {
                 virkFomLd = spec.virkFom
                 kravhode = spec.kravhode
+                infoPavirkendeYtelse = spec.infoPavirkendeYtelse
                 vilkarsvedtakListe = spec.vilkarsvedtakListe
                 epsMottarPensjon = spec.epsMottarPensjon
                 afpPrivatLivsvarig = spec.privatAfp

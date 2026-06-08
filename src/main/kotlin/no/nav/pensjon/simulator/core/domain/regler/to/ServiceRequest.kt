@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.to
 
-// 2026-04-23 + default satstabell
+// Copied from pensjon-regler-api v2.0.0 2026-06-08
+// plus given value for satstabell to make end-to-end tests stable
 abstract class ServiceRequest {
 
     /**

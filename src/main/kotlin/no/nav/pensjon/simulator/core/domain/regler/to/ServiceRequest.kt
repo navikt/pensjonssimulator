@@ -8,5 +8,5 @@ abstract class ServiceRequest {
      * Satsstabell som skal benyttes ved beregning.
      * Kun lest av pensjon-regler i test miljø.
      */
-    var satstabell: String? = "PROD_20250701"
+    var satstabell: String? = "PROD_20260701"
 }

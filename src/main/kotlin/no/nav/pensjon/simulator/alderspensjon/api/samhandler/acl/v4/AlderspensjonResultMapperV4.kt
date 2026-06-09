@@ -43,7 +43,7 @@ object AlderspensjonResultMapperV4 {
     private fun status(source: PensjonSimuleringStatus) =
         PensjonSimuleringStatusV4(
             statusKode = PensjonSimuleringStatusKodeV4.fromInternalValue(source.statusKode).externalValue,
-            statusBeskrivelse = source.statusBeskrivelse
+            statusBeskrivelse = "ukjent" //source.statusBeskrivelse
         )
 
     private fun forslagVedForLavOpptjening(source: ForslagVedForLavOpptjening) =

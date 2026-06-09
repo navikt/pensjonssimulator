@@ -55,7 +55,7 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                 aarsakListeIkkeSuksess = listOf(
                     PensjonSimuleringStatus(
                         statusKode = PensjonSimuleringStatusKode.NONE,
-                        statusBeskrivelse = "..."
+                        statusBeskrivelse = "ukjent"
                     )
                 ),
                 alderspensjon = listOf(
@@ -82,7 +82,7 @@ class AlderspensjonResultMapperV4Test : FunSpec({
                     aarsakListeIkkeSuksess = listOf(
                         PensjonSimuleringStatusV4(
                             statusKode = "ANNET",
-                            statusBeskrivelse = "..."
+                            statusBeskrivelse = "ukjent"
                         )
                     ),
                     alderspensjon = listOf(

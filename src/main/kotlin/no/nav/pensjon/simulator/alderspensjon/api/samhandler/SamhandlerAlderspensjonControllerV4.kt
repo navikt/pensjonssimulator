@@ -130,7 +130,7 @@ class SamhandlerAlderspensjonControllerV4(
                 aarsakListeIkkeSuksess = listOf(
                     PensjonSimuleringStatusV4(
                         statusKode = status.externalValue,
-                        statusBeskrivelse = e.message ?: e.javaClass.simpleName
+                        statusBeskrivelse = e.javaClass.simpleName
                     )
                 ),
                 alderspensjon = emptyList(),

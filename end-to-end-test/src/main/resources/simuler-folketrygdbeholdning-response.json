@@ -1,37 +1,37 @@
 {
   "pensjonsBeholdningsPeriodeListe": [
     {
-      "pensjonsBeholdning": 5023522,
-      "garantiPensjonsBeholdning": 457172,
+      "pensjonsBeholdning": 5053370,
+      "garantiPensjonsBeholdning": 643212,
       "garantitilleggsbeholdning": 0,
       "garantiPensjonsNiva": {
-        "belop": 224248,
+        "belop": 234765,
         "satsType": "ORDINAER",
-        "sats": 224248,
+        "sats": 234765,
         "anvendtTrygdetid": 40
       },
       "fraOgMedDato": "2068-02-01"
     },
     {
-      "pensjonsBeholdning": 5132122,
-      "garantiPensjonsBeholdning": 370292,
+      "pensjonsBeholdning": 5161970,
+      "garantiPensjonsBeholdning": 556332,
       "garantitilleggsbeholdning": 0,
       "garantiPensjonsNiva": {
-        "belop": 224248,
+        "belop": 234765,
         "satsType": "ORDINAER",
-        "sats": 224248,
+        "sats": 234765,
         "anvendtTrygdetid": 40
       },
       "fraOgMedDato": "2069-01-01"
     },
     {
-      "pensjonsBeholdning": 5141172,
-      "garantiPensjonsBeholdning": 363052,
+      "pensjonsBeholdning": 5171020,
+      "garantiPensjonsBeholdning": 549092,
       "garantitilleggsbeholdning": 0,
       "garantiPensjonsNiva": {
-        "belop": 224248,
+        "belop": 234765,
         "satsType": "ORDINAER",
-        "sats": 224248,
+        "sats": 234765,
         "anvendtTrygdetid": 40
       },
       "fraOgMedDato": "2070-01-01"

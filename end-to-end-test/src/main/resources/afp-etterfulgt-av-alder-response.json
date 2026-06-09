@@ -3,27 +3,27 @@
   "aarsakListeIkkeSuksess": [],
   "folketrygdberegnetAfp": {
     "fraOgMedDato": "2028-01-01",
-    "beregnetTidligereInntekt": 905000,
+    "beregnetTidligereInntekt": 950000,
     "sisteLignetInntektBrukt": false,
     "sisteLignetInntektAar": null,
-    "afpGrad": 84,
+    "afpGrad": 85,
     "afpAvkortetTil70Prosent": false,
     "grunnpensjon": {
-      "maanedligUtbetaling": 9111,
-      "grunnbeloep": 130160,
+      "maanedligUtbetaling": 9672,
+      "grunnbeloep": 136549,
       "grunnpensjonsats": 1.0,
       "trygdetid": 40
     },
     "tilleggspensjon": {
-      "maanedligUtbetaling": 22593,
-      "grunnbeloep": 130160,
+      "maanedligUtbetaling": 23984,
+      "grunnbeloep": 136549,
       "sluttpoengTall": 5.76,
       "antallPoengaarTilOgMed1991": 14,
       "antallPoengaarFraOgMed1992": 26
     },
     "saertillegg": null,
-    "maanedligAfpTillegg": 1428,
-    "sumMaanedligUtbetaling": 33132
+    "maanedligAfpTillegg": 1445,
+    "sumMaanedligUtbetaling": 35101
   },
   "alderspensjonFraFolketrygden": [
     {
@@ -31,36 +31,36 @@
       "andelKapittel19": 0.2,
       "alderspensjonKapittel19": {
         "grunnpensjon": {
-          "maanedligUtbetaling": 1946,
-          "grunnbeloep": 130160,
+          "maanedligUtbetaling": 2041,
+          "grunnbeloep": 136549,
           "grunnpensjonsats": 1.0,
           "trygdetid": 40
         },
         "tilleggspensjon": {
-          "maanedligUtbetaling": 4824,
-          "grunnbeloep": 130160,
+          "maanedligUtbetaling": 5061,
+          "grunnbeloep": 136549,
           "sluttpoengTall": 5.76,
           "antallPoengaarTilOgMed1991": 14,
           "antallPoengaarFraOgMed1992": 26
         },
         "pensjonstillegg": {
           "maanedligUtbetaling": 0,
-          "minstepensjonsnivaaSats": 279933.0
+          "minstepensjonsnivaaSats": 293062.0
         }
       },
       "andelKapittel20": 0.8,
       "alderspensjonKapittel20": {
         "inntektspensjon": {
-          "maanedligUtbetaling": 32983,
-          "pensjonsbeholdningForUttak": 7920817
+          "maanedligUtbetaling": 34588,
+          "pensjonsbeholdningForUttak": 8306213
         },
         "garantipensjon": {
           "maanedligUtbetaling": 0,
-          "garantipensjonsbeholdningForUttak": -2455541,
+          "garantipensjonsbeholdningForUttak": -2581840,
           "trygdetid": 40
         }
       },
-      "sumMaanedligUtbetaling": 39753
+      "sumMaanedligUtbetaling": 41690
     },
     {
       "fraOgMedDato": "2029-01-01",
@@ -68,7 +68,7 @@
       "alderspensjonKapittel19": null,
       "andelKapittel20": 0.8,
       "alderspensjonKapittel20": null,
-      "sumMaanedligUtbetaling": 40225
+      "sumMaanedligUtbetaling": 42162
     }
   ]
 }

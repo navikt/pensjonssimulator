@@ -190,11 +190,11 @@ class SamhandlerAlderspensjonControllerV3(
          */
         private fun badRequestReason(e: RuntimeException) =
             BadRequestReasonV3(
-                feil = e.message ?: "No errormessage",
+                feil = "Bad request", // no sensitive data here
                 kode = e.javaClass.simpleName
             )
 
         private fun internalServerErrorReason(e: RuntimeException) =
-            InternalServerErrorReasonV3(feil = e.message ?: "No errormessage")
+            InternalServerErrorReasonV3(feil = ERROR_MESSAGE) // no sensitive data here
     }
 }

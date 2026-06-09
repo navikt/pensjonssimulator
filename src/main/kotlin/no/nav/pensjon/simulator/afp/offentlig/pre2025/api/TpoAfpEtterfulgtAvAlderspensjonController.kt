@@ -150,6 +150,6 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             TpoSimuleringErrorDto(feil = e.javaClass.simpleName)
 
         private fun errorDto(error: String) =
-            TpoSimuleringErrorDto(feil = error)
+            TpoSimuleringErrorDto(feil = ERROR_MESSAGE) // no sensitive data here
     }
 }

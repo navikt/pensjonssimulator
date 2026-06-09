@@ -144,7 +144,7 @@ class BeholdningController(
 
     fun errorV1(e: RuntimeException) =
         FolketrygdBeholdningErrorV1(
-            beskrivelse = extractMessageRecursively(e)
+            beskrivelse = ERROR_MESSAGE // no sensitive data here
         )
 
     override fun errorMessage() = ERROR_MESSAGE

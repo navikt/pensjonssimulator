@@ -167,7 +167,7 @@ abstract class ControllerBase(
 }"""
 
         fun extractMessageRecursively(e: Throwable): String =
-            StringBuilder(e.message ?: e.javaClass.simpleName).apply {
+            StringBuilder(e.javaClass.simpleName).apply {
                 e.cause?.let { append(" | Cause: ").append(extractMessageRecursively(it)) }
             }.toString()
     }

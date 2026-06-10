@@ -81,7 +81,7 @@ class AlderspensjonOgPrivatAfpService(
                 harNaavaerendeUttak = false,
                 harTidligereUttak = false,
                 harLoependePrivatAfp = false,
-                problem = Problem(type, beskrivelse = e.message ?: "Ukjent feil - ${e.javaClass.simpleName}")
+                problem = Problem(type, beskrivelse = "Ukjent feil - ${e.javaClass.simpleName}")
             )
     }
 }

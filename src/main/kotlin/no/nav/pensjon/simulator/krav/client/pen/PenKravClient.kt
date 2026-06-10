@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.krav.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.krav.client.KravClient
@@ -22,6 +21,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
 class PenKravClient(
@@ -32,7 +32,6 @@ class PenKravClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), KravClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val cache: Cache<Long, Kravhode> = createCache("kravhode", cacheManager)
 
@@ -51,7 +50,7 @@ class PenKravClient(
                 .headers(::setHeaders)
                 .bodyValue(PenKravSpec(kravhodeId))
                 .retrieve()
-                .bodyToMono(PenKravhode::class.java)
+                .bodyToMono<PenKravhode>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.let(PenKravhodeMapper::kravhode)
@@ -69,11 +68,7 @@ class PenKravClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

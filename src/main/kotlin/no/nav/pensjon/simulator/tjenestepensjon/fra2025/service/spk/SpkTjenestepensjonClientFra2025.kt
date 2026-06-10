@@ -94,11 +94,7 @@ class SpkTjenestepensjonClientFra2025(
         )
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

@@ -127,7 +127,7 @@ class UttakController(
                 tidligstMuligeUttakstidspunktListe = emptyList(),
                 feil = TidligstMuligUttakFeilV1(
                     type = TidligstMuligUttakFeilTypeV1.TEKNISK_FEIL,
-                    beskrivelse = e.message ?: e.javaClass.simpleName
+                    beskrivelse = e.javaClass.simpleName
                 )
             )
     }

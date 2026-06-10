@@ -58,6 +58,6 @@ class TjenestepensjonSimuleringPre2025Facade(
 
     private companion object {
         private fun message(e: RuntimeException): String =
-            e.message ?: "Ukjent feil - ${e.javaClass.simpleName}"
+            "Ukjent feil - ${e.javaClass.simpleName}"
     }
 }

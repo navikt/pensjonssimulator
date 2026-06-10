@@ -126,7 +126,7 @@ class PensjonForNorskPensjonController(
                 harNaavaerendeUttak = false,
                 harTidligereUttak = false,
                 harLoependePrivatAfp = false,
-                problem = ProblemDto(kode = type, beskrivelse = e.message ?: "Ukjent feil - ${e.javaClass.simpleName}")
+                problem = ProblemDto(kode = type, beskrivelse = "Ukjent feil - ${e.javaClass.simpleName}")
             )
     }
 }

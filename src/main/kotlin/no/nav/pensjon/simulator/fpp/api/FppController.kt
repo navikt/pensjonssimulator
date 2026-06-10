@@ -142,7 +142,7 @@ class FppController(
                 beregnetAfp = null,
                 problem = ProblemDto(
                     type = ProblemtypeDto.ANNEN_KLIENTFEIL,
-                    beskrivelse = e.message ?: e.javaClass.simpleName
+                    beskrivelse = e.javaClass.simpleName
                 )
             )
     }

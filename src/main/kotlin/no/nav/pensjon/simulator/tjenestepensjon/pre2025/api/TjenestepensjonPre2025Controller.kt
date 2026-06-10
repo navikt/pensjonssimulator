@@ -194,7 +194,7 @@ class TjenestepensjonPre2025Controller(
                 relevanteTpOrdninger = emptyList(),
                 problem = Pre2025TpV3Problem(
                     kode = Pre2025TpV3ProblemType.ANNEN_SERVERFEIL,
-                    beskrivelse = e.message ?: ERROR_MESSAGE
+                    beskrivelse = ERROR_MESSAGE
                 )
             )
     }

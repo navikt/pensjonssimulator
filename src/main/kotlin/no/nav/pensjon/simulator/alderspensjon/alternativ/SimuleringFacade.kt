@@ -143,7 +143,7 @@ class SimuleringFacade(
             SimulertPensjonEllerAlternativ(
                 pensjon = null,
                 alternativ = null,
-                problem = Problem(type, beskrivelse = e.message ?: "Ukjent feil - ${e.javaClass.simpleName}")
+                problem = Problem(type, beskrivelse = "Ukjent feil - ${e.javaClass.simpleName}")
             )
     }
 }

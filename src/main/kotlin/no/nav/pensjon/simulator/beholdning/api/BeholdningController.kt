@@ -61,7 +61,6 @@ class BeholdningController(
         request: HttpServletRequest
     ): FolketrygdBeholdningResultV1 {
         traceAid.begin()
-        throw RegelmotorValideringException("xxx")
         countCall(FUNCTION_ID)
 
         return try {

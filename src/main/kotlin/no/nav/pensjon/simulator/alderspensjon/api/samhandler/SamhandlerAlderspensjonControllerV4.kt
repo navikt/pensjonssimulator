@@ -77,7 +77,6 @@ class SamhandlerAlderspensjonControllerV4(
         countCall(FUNCTION_ID_V4)
 
         return try {
-            throw RegelmotorValideringException("xxx")
             val spec: AlderspensjonSpec = AlderspensjonSpecMapperV4.fromDto(specV4)
             registrerHendelse(simuleringstype = SimuleringTypeEnum.ALDER)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)

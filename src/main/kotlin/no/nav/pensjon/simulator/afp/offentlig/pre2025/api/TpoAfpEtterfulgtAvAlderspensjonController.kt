@@ -75,7 +75,6 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         countCall(FUNCTION_ID)
 
         return try {
-            throw RegelmotorValideringException("xxx")
             val validatedSpecV0 = validateSpec(specV0)
             val pid = Pid(validatedSpecV0.personId)
             verifiserAtBrukerTilknyttetTpLeverandoer(pid)

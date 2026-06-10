@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.ytelse.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
@@ -36,7 +35,6 @@ class PenYtelseClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), YtelseClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val cache: Cache<LoependeYtelserSpec, LoependeYtelserResult> = createCache("loependeYtelser", cacheManager)
 
@@ -74,11 +72,7 @@ class PenYtelseClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

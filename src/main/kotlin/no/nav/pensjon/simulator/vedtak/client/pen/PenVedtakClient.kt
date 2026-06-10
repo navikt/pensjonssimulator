@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.vedtak.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.person.Pid
@@ -24,6 +23,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 import java.time.LocalDate
 
 @Component
@@ -35,7 +35,6 @@ class PenVedtakClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), VedtakClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
     private val datoCache: Cache<PenVedtakSpecV1, PenVedtakResultV1> =
@@ -67,7 +66,7 @@ class PenVedtakClient(
                 .headers(::setHeaders)
                 .bodyValue(spec)
                 .retrieve()
-                .bodyToMono(PenVedtakResultV1::class.java)
+                .bodyToMono<PenVedtakResultV1>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?: PenVedtakResultV1(dato = null)
@@ -90,7 +89,7 @@ class PenVedtakClient(
                 .headers(::setHeaders)
                 .bodyValue(spec)
                 .retrieve()
-                .bodyToMono(VedtakStatus::class.java)
+                .bodyToMono<VedtakStatus>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?: VedtakStatus(harGjeldendeVedtak = false, harGjenlevenderettighet = false)
@@ -106,11 +105,7 @@ class PenVedtakClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

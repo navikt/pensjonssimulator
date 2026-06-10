@@ -41,6 +41,7 @@ class KlpTjenestepensjonClientFra2025(
     private val sammenligner: SammenlignAFPService,
     private val isDevelopment: () -> Boolean = { EnvironmentUtil.isDevelopment() },
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
+
     override val service = service()
     private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
@@ -95,11 +96,7 @@ class KlpTjenestepensjonClientFra2025(
                 .also { sammenligner.sammenlignOgLoggAfp(spec, it.utbetalingsperioder) })
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.sak.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.person.Pid
@@ -23,6 +22,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
 class PenSakClient(
@@ -33,7 +33,6 @@ class PenSakClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), SakClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val cache: Cache<Pid, FoersteVirkningDatoCombo> = createCache("personVirkningDato", cacheManager)
 
@@ -52,7 +51,7 @@ class PenSakClient(
                 .headers(::setHeaders)
                 .bodyValue(PenSakSpec(pid.value))
                 .retrieve()
-                .bodyToMono(PenVirkningsdatoResult::class.java)
+                .bodyToMono<PenVirkningsdatoResult>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.let(PenVirkningsdatoResultMapper::fromDto)
@@ -69,11 +68,7 @@ class PenSakClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

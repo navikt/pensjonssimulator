@@ -39,7 +39,7 @@ class TpregisteretClient(
                 .bodyValue(pid.value)
                 .headers(::setHeaders)
                 .retrieve()
-                .bodyToMono(BrukerTilknyttetTpLeverandoerResponse::class.java)
+                .bodyToMono<BrukerTilknyttetTpLeverandoerResponse>()
                 .block()
             response?.forhold ?: logAndReturnFalse("Tom responsebody fra ${service.shortName}", organisasjonsnummer)
         } catch (e: WebClientRequestException) {
@@ -56,7 +56,7 @@ class TpregisteretClient(
     }
 
     fun findAlleTpForhold(pid: Pid): List<TpForhold> =
-         webClient.get()
+        webClient.get()
             .uri(FORHOLD_PATH)
             .headers { setHeaders(it); it["fnr"] = pid.value }
             .exchangeToMono(::handleAlleTpForholdResponse)
@@ -64,11 +64,11 @@ class TpregisteretClient(
             .orEmpty()
 
     fun findTssId(tpId: String): String? =
-         try {
+        try {
             webClient.get()
                 .uri("$TSS_PATH$tpId")
                 .retrieve()
-                .bodyToMono(String::class.java)
+                .bodyToMono<String>()
                 .block()
         } catch (_: WebClientResponseException.NotFound) {
             null
@@ -106,11 +106,7 @@ class TpregisteretClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

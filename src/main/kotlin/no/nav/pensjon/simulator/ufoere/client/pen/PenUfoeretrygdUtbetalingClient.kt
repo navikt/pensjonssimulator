@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.ufoere.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.UtbetalingsgradUT
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
@@ -21,6 +20,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
 class PenUfoeretrygdUtbetalingClient(
@@ -31,7 +31,6 @@ class PenUfoeretrygdUtbetalingClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), UfoeretrygdUtbetalingClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val cache: Cache<Long, List<UtbetalingsgradUT>> = createCache("utbetalingsgrader", cacheManager)
 
@@ -50,7 +49,7 @@ class PenUfoeretrygdUtbetalingClient(
                 .headers(::setHeaders)
                 .bodyValue(PenUfoeretrygdUtbetalingSpec(penPersonId))
                 .retrieve()
-                .bodyToMono(PenUfoeretrygdUtbetalingResult::class.java)
+                .bodyToMono<PenUfoeretrygdUtbetalingResult>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.utbetalingsgradListe.orEmpty()
@@ -67,11 +66,7 @@ class PenUfoeretrygdUtbetalingClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

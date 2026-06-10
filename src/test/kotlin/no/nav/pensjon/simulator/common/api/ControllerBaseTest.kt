@@ -21,7 +21,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-/* TODO restore tests
+
 class ControllerBaseTest : ShouldSpec({
 
     val pid = Pid("12906498357")
@@ -71,7 +71,7 @@ class ControllerBaseTest : ShouldSpec({
             controller.testVerifiserAtBrukerTilknyttetTpLeverandoer(pid)
         }
 
-        should("kaste exception med årsak når personen ikke er tilknyttet tjenestepensjonsleverandør") {
+        should("kaste exception med ikke-sensitiv årsak når personen ikke er tilknyttet tjenestepensjonsleverandør") {
             val controller = TestController(
                 traceAid = mockk<TraceAid>().apply { every { callId() } returns "123-124" },
                 organisasjonsnummerProvider = mockk(relaxed = true),
@@ -92,10 +92,7 @@ class ControllerBaseTest : ShouldSpec({
     context("timed (no argument)") {
         should("returnere resultatet fra funksjonen") {
             val controller = SimpleTestController(mockk(relaxed = true))
-
-            val result = controller.testTimed({ "result" }, "testFunction")
-
-            result shouldBe "result"
+            controller.testTimed({ "result" }, "testFunction") shouldBe "result"
         }
 
         should("kalle funksjonen nøyaktig én gang") {
@@ -109,10 +106,7 @@ class ControllerBaseTest : ShouldSpec({
 
         should("håndtere funksjoner som returnerer null") {
             val controller = SimpleTestController(mockk(relaxed = true))
-
-            val result = controller.testTimed<String?>({ null }, "testFunction")
-
-            result shouldBe null
+            controller.testTimed<String?>({ null }, "testFunction") shouldBe null
         }
     }
 
@@ -120,9 +114,11 @@ class ControllerBaseTest : ShouldSpec({
         should("returnere resultatet fra funksjonen med argument") {
             val controller = SimpleTestController(mockk(relaxed = true))
 
-            val result = controller.testTimedWithArg({ x: Int -> x * 2 }, 5, "testFunction")
-
-            result shouldBe 10
+            controller.testTimedWithArg(
+                function = { x: Int -> x * 2 },
+                argument = 5,
+                functionName = "testFunction"
+            ) shouldBe 10
         }
 
         should("sende argumentet til funksjonen") {
@@ -146,8 +142,10 @@ class ControllerBaseTest : ShouldSpec({
                 controller.testHandle<String>(egressException)
             }
 
-            exception.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
-            exception.reason shouldContain "test-call-id"
+            with(exception) {
+                statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
+                reason shouldContain "test-call-id"
+            }
         }
 
         should("kaste SERVICE_UNAVAILABLE for server error") {
@@ -156,11 +154,9 @@ class ControllerBaseTest : ShouldSpec({
             val controller = SimpleTestController(traceAid)
             val egressException = EgressException("Server error", statusCode = HttpStatus.INTERNAL_SERVER_ERROR)
 
-            val exception = shouldThrow<ResponseStatusException> {
+            shouldThrow<ResponseStatusException> {
                 controller.testHandle<String>(egressException)
-            }
-
-            exception.statusCode shouldBe HttpStatus.SERVICE_UNAVAILABLE
+            }.statusCode shouldBe HttpStatus.SERVICE_UNAVAILABLE
         }
 
         should("kaste SERVICE_UNAVAILABLE for 5xx errors") {
@@ -169,11 +165,9 @@ class ControllerBaseTest : ShouldSpec({
             val controller = SimpleTestController(traceAid)
             val egressException = EgressException("Bad gateway", statusCode = HttpStatus.BAD_GATEWAY)
 
-            val exception = shouldThrow<ResponseStatusException> {
+            shouldThrow<ResponseStatusException> {
                 controller.testHandle<String>(egressException)
-            }
-
-            exception.statusCode shouldBe HttpStatus.SERVICE_UNAVAILABLE
+            }.statusCode shouldBe HttpStatus.SERVICE_UNAVAILABLE
         }
     }
 
@@ -188,9 +182,10 @@ class ControllerBaseTest : ShouldSpec({
                 controller.testBadRequest<String>(runtimeException)
             }
 
-            exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-            exception.reason shouldContain "bad-request-call-id"
-            exception.reason shouldContain "Invalid input"
+            with(exception) {
+                statusCode shouldBe HttpStatus.BAD_REQUEST
+                reason shouldBe "Call ID: bad-request-call-id | Error: Test error | Details: RuntimeException"
+            }
         }
 
         should("håndtere nestede exceptions") {
@@ -200,33 +195,25 @@ class ControllerBaseTest : ShouldSpec({
             val cause = IllegalArgumentException("Root cause")
             val runtimeException = RuntimeException("Outer exception", cause)
 
-            val exception = shouldThrow<ResponseStatusException> {
+            shouldThrow<ResponseStatusException> {
                 controller.testBadRequest<String>(runtimeException)
-            }
-
-            exception.reason shouldContain "Outer exception"
-            exception.reason shouldContain "Root cause"
+            }.reason shouldBe "Call ID: call-id | Error: Test error | Details: RuntimeException | Cause: IllegalArgumentException"
         }
     }
 
     context("extractMessageRecursively") {
-        should("returnere exception message") {
-            val exception = RuntimeException("Simple error")
-
-            val result = SimpleTestController.testExtractMessageRecursively(exception)
-
-            result shouldBe "Simple error"
+        should("ikke returnere mulig sensitiv exception message") {
+            SimpleTestController.testExtractMessageRecursively(
+                e = RuntimeException("Simple error")
+            ) shouldBe "RuntimeException"
         }
 
-        should("inkludere cause message") {
+        should("ikke inkludere mulig sensitiv årsak") {
             val cause = IllegalArgumentException("Root cause")
-            val exception = RuntimeException("Outer error", cause)
 
-            val result = SimpleTestController.testExtractMessageRecursively(exception)
-
-            result shouldContain "Outer error"
-            result shouldContain "Cause:"
-            result shouldContain "Root cause"
+            SimpleTestController.testExtractMessageRecursively(
+                e = RuntimeException("Outer error", cause)
+            ) shouldBe "RuntimeException | Cause: IllegalArgumentException"
         }
 
         should("håndtere flere nivåer av causes") {
@@ -234,19 +221,12 @@ class ControllerBaseTest : ShouldSpec({
             val middleCause = IllegalArgumentException("Middle", rootCause)
             val exception = RuntimeException("Top", middleCause)
 
-            val result = SimpleTestController.testExtractMessageRecursively(exception)
-
-            result shouldContain "Top"
-            result shouldContain "Middle"
-            result shouldContain "Root"
+            SimpleTestController.testExtractMessageRecursively(exception) shouldBe
+                    "RuntimeException | Cause: IllegalArgumentException | Cause: IllegalStateException"
         }
 
         should("bruke class name når message er null") {
-            val exception = RuntimeException()
-
-            val result = SimpleTestController.testExtractMessageRecursively(exception)
-
-            result shouldContain "RuntimeException"
+            SimpleTestController.testExtractMessageRecursively(e = RuntimeException()) shouldBe "RuntimeException"
         }
     }
 })
@@ -295,6 +275,7 @@ private class SimpleTestController(traceAid: TraceAid) : ControllerBase(traceAid
     fun <R> testTimed(function: () -> R, functionName: String): R = timed(function, functionName)
     fun <A, R> testTimedWithArg(function: (A) -> R, argument: A, functionName: String): R =
         timed(function, argument, functionName)
+
     fun <T> testHandle(e: EgressException): T? = handle(e)
     fun <T> testBadRequest(e: RuntimeException): T = badRequest(e)
 
@@ -302,4 +283,3 @@ private class SimpleTestController(traceAid: TraceAid) : ControllerBase(traceAid
         fun testExtractMessageRecursively(e: Throwable): String = extractMessageRecursively(e)
     }
 }
-*/

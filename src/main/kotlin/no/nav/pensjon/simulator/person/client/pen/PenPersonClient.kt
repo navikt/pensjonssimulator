@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.person.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.person.Pid
@@ -23,6 +22,7 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
 class PenPersonClient(
@@ -33,7 +33,6 @@ class PenPersonClient(
     private val traceAid: TraceAid
 ) : ExternalServiceClient(retryAttempts), PersonClient {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val cache: Cache<Pid, PenPerson> = createCache("person", cacheManager)
 
@@ -78,7 +77,7 @@ class PenPersonClient(
                 .headers(::setHeaders)
                 .bodyValue(PenPersonSpec(pidListe.map { it.value }))
                 .retrieve()
-                .bodyToMono(PenPersonResult::class.java)
+                .bodyToMono<PenPersonResult>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
                 ?.let { PenPersonHistorikkMapper.fromDto(it.personerVedPid) }.orEmpty()
@@ -94,11 +93,7 @@ class PenPersonClient(
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
     private fun setHeaders(headers: HttpHeaders) {
-        with(EgressAccess.token(service).value) {
-            headers.setBearerAuth(this)
-            log.debug { "Token: $this" }
-        }
-
+        headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 

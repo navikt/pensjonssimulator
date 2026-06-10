@@ -22,10 +22,10 @@ import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import no.nav.pensjon.simulator.validity.BadSpecException
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 import java.time.format.DateTimeParseException
 
 /**
@@ -91,6 +91,9 @@ class SamhandlerAlderspensjonControllerV4(
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn { "$FUNCTION_ID_V4 feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
+        } catch (e: InternDataInkonsistensException) {
+            log.warn { "$FUNCTION_ID_V4 intern datainkonsistens - ${e.message} - request: $specV4" }
+            feilInfoResultV4(e)
         } catch (e: InvalidArgumentException) {
             log.warn { "$FUNCTION_ID_V4 invalid argument - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
@@ -114,6 +117,10 @@ class SamhandlerAlderspensjonControllerV4(
             traceAid.end()
         }
     }
+
+    @ExceptionHandler(value = [Exception::class])
+    private fun handleInternalServerError(e: RuntimeException): ResponseEntity<AlderspensjonResultV4> =
+        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(feilInfoResultV4(e))
 
     override fun errorMessage() = ERROR_MESSAGE
 

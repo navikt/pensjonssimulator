@@ -12,11 +12,10 @@ import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 
-/* TODO restore tests
 class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
 
     context("AFP avslått uten oppgitt årsak") {
-        should("gi resultat med 'annen klientfeil' og problembeskrivelse") {
+        should("gi resultat med 'annen klientfeil' og ikke-sensitiv problembeskrivelse") {
             TjenestepensjonSimuleringPre2025Facade(
                 beregningService = arrangeAvslag(aarsak = null), // uten oppgitt årsak
                 tjenestepensjonSimulator = mockk()
@@ -24,28 +23,37 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
                     SimulerOffentligTjenestepensjonResult(
                         tpnr = "",
                         navnOrdning = "",
-                        problem = Problem(type = ProblemType.ANNEN_KLIENTFEIL, beskrivelse = AVSLAGSBESKRIVELSE)
+                        problem = Problem(
+                            type = ProblemType.ANNEN_KLIENTFEIL,
+                            beskrivelse = "Ukjent feil - Pre2025OffentligAfpAvslaattException"
+                        )
                     )
         }
     }
 
     context("AFP avslått med oppgitt årsak") {
-        should("gi resultat med tilsvarende problemtype og problembeskrivelse") {
+        should("gi resultat med tilsvarende problemtype og ikke-sensitiv problembeskrivelse") {
             TjenestepensjonSimuleringPre2025Facade(
                 beregningService = arrangeAvslag(aarsak = TidsbegrensetOffentligAfpAvslagAarsak.FOR_LAV_ALDER),
                 tjenestepensjonSimulator = mockk()
-            ).simuler(simuleringSpec, stillingsprosentSpec)
-                .problem shouldBe Problem(type = ProblemType.PERSON_FOR_LAV_ALDER, beskrivelse = AVSLAGSBESKRIVELSE)
+            ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
+                    Problem(
+                        type = ProblemType.PERSON_FOR_LAV_ALDER,
+                        beskrivelse = "Ukjent feil - Pre2025OffentligAfpAvslaattException"
+                    )
         }
     }
 
     context("utilstrekkelig opptjening") {
-        should("gi resultat med 'utilstrekkelig opptjening' og problembeskrivelse") {
+        should("gi resultat med 'utilstrekkelig opptjening' og ikke-sensitiv problembeskrivelse") {
             TjenestepensjonSimuleringPre2025Facade(
                 beregningService = arrangeProblem(e = UtilstrekkeligOpptjeningException(message = "10 kroner")),
                 tjenestepensjonSimulator = mockk()
-            ).simuler(simuleringSpec, stillingsprosentSpec)
-                .problem shouldBe Problem(type = ProblemType.UTILSTREKKELIG_OPPTJENING, beskrivelse = "10 kroner")
+            ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
+                    Problem(
+                        type = ProblemType.UTILSTREKKELIG_OPPTJENING,
+                        beskrivelse = "Ukjent feil - UtilstrekkeligOpptjeningException"
+                    )
         }
     }
 
@@ -56,13 +64,16 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
                     e = KonsistensenIGrunnlagetErFeilException(e = MatchException(null, null))
                 ),
                 tjenestepensjonSimulator = mockk()
-            ).simuler(simuleringSpec, stillingsprosentSpec)
-                .problem shouldBe Problem(type = ProblemType.ANNEN_KLIENTFEIL, beskrivelse = "java.lang.MatchException")
+            ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
+                    Problem(
+                        type = ProblemType.ANNEN_KLIENTFEIL,
+                        beskrivelse = "Ukjent feil - KonsistensenIGrunnlagetErFeilException"
+                    )
         }
     }
 })
 
-private const val AVSLAGSBESKRIVELSE = "AFP avslått"
+private const val SENSITIV_INFO = "noe sensitivt"
 
 private val stillingsprosentSpec =
     StillingsprosentSpec(
@@ -74,7 +85,7 @@ private fun arrangeAvslag(
     aarsak: TidsbegrensetOffentligAfpAvslagAarsak?
 ): TjenestepensjonSimuleringPre2025SpecBeregningService =
     arrangeProblem(
-        e = Pre2025OffentligAfpAvslaattException(message = AVSLAGSBESKRIVELSE, aarsak)
+        e = Pre2025OffentligAfpAvslaattException(message = SENSITIV_INFO, aarsak)
     )
 
 private fun arrangeProblem(e: Exception): TjenestepensjonSimuleringPre2025SpecBeregningService =
@@ -83,4 +94,3 @@ private fun arrangeProblem(e: Exception): TjenestepensjonSimuleringPre2025SpecBe
             kompletterMedAlderspensjonsberegning(any(), any())
         } throws e
     }
-*/

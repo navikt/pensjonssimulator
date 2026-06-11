@@ -26,6 +26,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -94,6 +95,9 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
             throw e
+        } catch (e: InternDataInkonsistensException) {
+            log.error(e) { "$FUNCTION_ID intern datainkonsistens - request - $specV0" }
+            throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
@@ -129,7 +133,9 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
     @ExceptionHandler(
         value = [
             RegelmotorValideringException::class,
-            ImplementationUnrecoverableException::class
+            ImplementationUnrecoverableException::class,
+            InternDataInkonsistensException::class,
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =

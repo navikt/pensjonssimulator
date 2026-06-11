@@ -8,13 +8,17 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
-open class WebConfiguration(val sporingsloggService: SporingsloggService, private val featureToggleService: FeatureToggleService) : WebMvcConfigurer {
+class WebConfiguration(
+    private val sporingsloggService: SporingsloggService,
+    private val featureToggleService: FeatureToggleService
+) : WebMvcConfigurer {
 
     override fun addInterceptors(registry: InterceptorRegistry) {
         registry.addInterceptor(SporingInterceptor(sporingsloggService))
             .addPathPatterns(
                 "/api/v0/simuler-afp-etterfulgt-av-alderspensjon",
                 "/api/v4/simuler-alderspensjon",
+                "/api/v2/simuler-alderspensjon-privat-afp",
                 "/api/v1/simuler-folketrygdbeholdning",
                 "/api/v0/simuler-folketrygdberegnet-afp",
                 "/api/v1/tidligst-mulig-uttak"

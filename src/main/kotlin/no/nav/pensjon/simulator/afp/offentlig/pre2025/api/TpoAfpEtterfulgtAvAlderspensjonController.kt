@@ -23,6 +23,8 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
+import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import no.nav.pensjon.simulator.validity.BadSpecException
@@ -30,6 +32,7 @@ import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.format.DateTimeParseException
 
 /**
  * REST-controller for simulering av "gammel" (pre-2025) offentlig AFP etterfulgt av alderspensjon (kapittel 19).
@@ -120,28 +123,52 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
             tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
         } catch (e: EgressException) {
-            handle(e)!!
+            log.error(e) { "$FUNCTION_ID error calling backside service - request - $specV0" }
+            throw e
         } finally {
             traceAid.end()
         }
     }
 
-    @ExceptionHandler(value = [BadSpecException::class])
-    private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e.message!!))
+    override fun errorMessage() = ERROR_MESSAGE
 
     @ExceptionHandler(
         value = [
-            RegelmotorValideringException::class,
+            BadRequestException::class,
+            BadSpecException::class,
+            DateTimeParseException::class,
+            InvalidEnumValueException::class
+        ]
+    )
+    private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDto(e))
+
+    @ExceptionHandler(
+        value = [
+            PersonForGammelException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            UtilstrekkeligOpptjeningException::class,
+            UtilstrekkeligTrygdetidException::class
+        ]
+    )
+    private fun handleUnprocessableEntity(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorDto(e))
+
+    @ExceptionHandler(
+        value = [
+            FeilISimuleringsgrunnlagetException::class,
             ImplementationUnrecoverableException::class,
             InternDataInkonsistensException::class,
+            InvalidArgumentException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            RegelmotorValideringException::class,
+            EgressException::class,
             Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto(e))
-
-    override fun errorMessage() = ERROR_MESSAGE
 
     /**
      * Ref. PEN JsonErrorEntityBuilder.createErrorEntity
@@ -153,9 +180,8 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         private const val FUNCTION_ID = "afp-etterf-av-ap-tpo-v0"
 
         private fun errorDto(e: RuntimeException) =
-            TpoSimuleringErrorDto(feil = e.javaClass.simpleName)
-
-        private fun errorDto(error: String) =
-            TpoSimuleringErrorDto(feil = ERROR_MESSAGE) // no sensitive data here
+            TpoSimuleringErrorDto(
+                feil = e.javaClass.simpleName // no sensitive data here
+            )
     }
 }

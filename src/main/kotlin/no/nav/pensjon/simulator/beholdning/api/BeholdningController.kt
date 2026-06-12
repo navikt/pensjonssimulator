@@ -20,6 +20,7 @@ import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvide
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
@@ -28,6 +29,7 @@ import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.time.format.DateTimeParseException
 
 @RestController
 @RequestMapping("api")
@@ -113,35 +115,47 @@ class BeholdningController(
             log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: EgressException) {
-            handle(e)!!
+            log.error(e) { "$FUNCTION_ID error calling backside service - request - $specV1" }
+            throw e
         } finally {
             traceAid.end()
         }
     }
 
+    override fun errorMessage() = ERROR_MESSAGE
+
     @ExceptionHandler(
         value = [
             BadRequestException::class,
             BadSpecException::class,
-            FeilISimuleringsgrunnlagetException::class,
-            InvalidArgumentException::class,
-            KanIkkeBeregnesException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
-            PersonForGammelException::class,
-            PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
-            UtilstrekkeligOpptjeningException::class,
-            UtilstrekkeligTrygdetidException::class
+            DateTimeParseException::class,
+            InvalidEnumValueException::class
         ]
     )
-    fun handleBadRequest(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =
+    private fun handleBadRequest(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =
         ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorV1(e))
 
     @ExceptionHandler(
         value = [
+            PersonForGammelException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            UtilstrekkeligOpptjeningException::class,
+            UtilstrekkeligTrygdetidException::class
+        ]
+    )
+    private fun handleUnprocessableEntity(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =
+        ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorV1(e))
+
+    @ExceptionHandler(
+        value = [
+            FeilISimuleringsgrunnlagetException::class,
             ImplementationUnrecoverableException::class,
             InternDataInkonsistensException::class,
+            InvalidArgumentException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            RegelmotorValideringException::class,
+            EgressException::class,
             Exception::class
         ]
     )
@@ -150,10 +164,8 @@ class BeholdningController(
 
     fun errorV1(e: RuntimeException) =
         FolketrygdBeholdningErrorV1(
-            beskrivelse = ERROR_MESSAGE // no sensitive data here
+            beskrivelse = e.javaClass.simpleName // no sensitive data here
         )
-
-    override fun errorMessage() = ERROR_MESSAGE
 
     data class FolketrygdBeholdningErrorV1(
         val beskrivelse: String

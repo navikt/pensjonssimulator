@@ -127,7 +127,8 @@ class TpoFolketrygdberegnetAfpController(
             log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
             throw e
         } catch (e: EgressException) {
-            handle(e)!!
+            log.error(e) { "$FUNCTION_ID error calling backside service - request - $specV0" }
+            throw e
         } finally {
             traceAid.end()
         }
@@ -140,17 +141,7 @@ class TpoFolketrygdberegnetAfpController(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
-            FeilISimuleringsgrunnlagetException::class,
-            InvalidArgumentException::class,
-            InvalidEnumValueException::class,
-            KanIkkeBeregnesException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
-            PersonForGammelException::class,
-            PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
-            UtilstrekkeligOpptjeningException::class,
-            UtilstrekkeligTrygdetidException::class
+            InvalidEnumValueException::class
         ]
     )
     private fun handleBadRequest(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
@@ -158,8 +149,25 @@ class TpoFolketrygdberegnetAfpController(
 
     @ExceptionHandler(
         value = [
+            PersonForGammelException::class,
+            PersonForUngException::class,
+            Pre2025OffentligAfpAvslaattException::class,
+            UtilstrekkeligOpptjeningException::class,
+            UtilstrekkeligTrygdetidException::class
+        ]
+    )
+    private fun handleUnprocessableEntity(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
+        ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorDto(e))
+
+    @ExceptionHandler(
+        value = [
+            FeilISimuleringsgrunnlagetException::class,
             ImplementationUnrecoverableException::class,
             InternDataInkonsistensException::class,
+            InvalidArgumentException::class,
+            KonsistensenIGrunnlagetErFeilException::class,
+            RegelmotorValideringException::class,
+            EgressException::class,
             Exception::class
         ]
     )
@@ -172,7 +180,7 @@ class TpoFolketrygdberegnetAfpController(
 
         private fun errorDto(e: RuntimeException) =
             TpoSimuleringErrorDto(
-                feil = e.javaClass.simpleName
+                feil = e.javaClass.simpleName // no sensitive data here
             )
     }
 }

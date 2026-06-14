@@ -1,29 +1,16 @@
 package no.nav.pensjon.simulator.tech.time
 
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
-import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
+import no.nav.pensjon.simulator.tech.time.DateUtil.overlapperEndeloest
 import java.time.LocalDate
-import java.util.Date
 
 data class Interval(val fom: LocalDate?, val tom: LocalDate?) {
-    private val fomDate2 = fom?.toNorwegianDateAtNoon()
-    private val tomDate2 = tom?.toNorwegianDateAtNoon()
 
-    fun intersectsWith(fomDate1: LocalDate?, tomDate1: LocalDate?) =
-        intersectsWithPossiblyOpenEndings(
-            o1Start = fomDate1,
-            o1End = tomDate1,
-            o2Start = fomDate2,
-            o2End = tomDate2,
-            considerContactByDayAsIntersection = true
-        )
-
-    fun intersectsWith(fomDate1: Date?, tomDate1: Date?) =
-        intersectsWithPossiblyOpenEndings(
-            o1Start = fomDate1,
-            o1End = tomDate1,
-            o2Start = fomDate2,
-            o2End = tomDate2,
-            considerContactByDayAsIntersection = true
+    fun intersectsWith(fomDato: LocalDate?, tomDato: LocalDate?) =
+        overlapperEndeloest(
+            start1 = fomDato,
+            slutt1 = tomDato,
+            start2 = fom,
+            slutt2 = tom,
+            anseEnkeltDagSomOverlapp = true
         )
 }

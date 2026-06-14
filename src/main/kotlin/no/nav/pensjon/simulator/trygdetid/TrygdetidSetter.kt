@@ -4,10 +4,10 @@ import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.yearUserTurnsGivenAge
+import no.nav.pensjon.simulator.tech.time.DateUtil.TIDENS_SLUTT
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.InnlandTrygdetidUtil.norskTrygdetidPeriode
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.antallAarMedOpptjening
@@ -77,7 +77,7 @@ class TrygdetidSetter(
         val trygdetidStartAlderAar: Int = NEDRE_ALDERSGRENSE + utlandAntallAar
         val fom: LocalDate = foedselsdato.plusYears(trygdetidStartAlderAar.toLong())
 
-        return if (isBeforeByDay(fom, tom ?: LOCAL_ETERNITY, allowSameDay = false))
+        return if (isBeforeByDay(fom, tom ?: TIDENS_SLUTT, allowSameDay = false))
             norskTrygdetidPeriode(fom, tom, ikkeProRata = false)
         else
             null

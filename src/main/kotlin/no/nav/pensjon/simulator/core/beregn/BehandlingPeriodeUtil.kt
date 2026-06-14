@@ -10,9 +10,9 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravlinje
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.inntekt.InntektsgrunnlagValidity
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.dateIsValid
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
+import no.nav.pensjon.simulator.tech.time.DateUtil.overlapperEndeloest
 import no.nav.pensjon.simulator.tech.time.Interval
 import java.time.LocalDate
 import java.util.*
@@ -45,7 +45,6 @@ object BehandlingPeriodeUtil {
 
             originalPersongrunnlag.overgangsInfoUPtilUT?.let { newPersongrunnlag.overgangsInfoUPtilUT = it }
             newPersongrunnlag.personDetaljListe.removeIf { it.virkFom == null }
-
             val removables: MutableList<PersonDetalj> = mutableListOf()
 
             for (detalj in newPersongrunnlag.personDetaljListe) {
@@ -59,7 +58,13 @@ object BehandlingPeriodeUtil {
                 if (detalj.bruk == true
                     && (detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.MOR
                             || detalj.grunnlagsrolleEnum == GrunnlagsrolleEnum.FAR
-                            || dateIsValid(detaljVirkningFom, detaljVirkningTom, virkningFom, virkningTom))
+                            || overlapperEndeloest(
+                        start1 = detaljVirkningFom,
+                        slutt1 = detaljVirkningTom,
+                        start2 = virkningFom,
+                        slutt2 = virkningTom,
+                        anseEnkeltDagSomOverlapp = true
+                    ))
                 ) {
                     usePersongrunnlag = true
                 } else {

@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.person.client.pdl
 import com.github.benmanes.caffeine.cache.Cache
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.gdpr.PersonvernAdmin.BEHANDLINGSNUMMER
 import no.nav.pensjon.simulator.person.Person
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.person.client.GeneralPersonClient
@@ -77,9 +78,6 @@ class PdlGeneralPersonClient(
     companion object {
         private const val RESOURCE = "graphql"
         private const val THEME = "PEN"
-
-        // https://behandlingskatalog.nais.adeo.no/process/team/d55cc783-7850-4606-9ff6-1fc44b646c9d/91a4e540-5e39-4c10-971f-49b48f35fe11
-        private const val BEHANDLINGSNUMMER = "B353"
         private val service = EgressService.PERSONDATA
 
         private fun personaliaQuery(pid: Pid) = """{

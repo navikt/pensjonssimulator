@@ -3,9 +3,7 @@ package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringstypeDeducer
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -16,13 +14,12 @@ import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.validity.ProblemType
 import java.time.LocalDate
 
-class SimuleringSpecMapperTest : ShouldSpec({
+class SimuleringSpecMapperForNorskPensjonTest : ShouldSpec({
 
     context("gyldig uttaksgrad") {
         should("map from data transfer object to domain object") {
             SimuleringSpecMapperForNorskPensjon(
                 personService = Arrange.foedselsdato(1963, 1, 15),
-                simuleringstypeDeducer = arrangeSimuleringstype()
             ).fromDto(
                 source = specTransferObject(uttaksgrad = 100)
             ) shouldBe SimuleringSpec(
@@ -65,17 +62,26 @@ class SimuleringSpecMapperTest : ShouldSpec({
         should("throw 'bad specification' exception") {
             shouldThrow<BadSpecException> {
                 SimuleringSpecMapperForNorskPensjon(
-                    personService = mockk(relaxed = true),
-                    simuleringstypeDeducer = mockk(relaxed = true)
+                    personService = mockk(relaxed = true)
                 ).fromDto(
                     source = specTransferObject(uttaksgrad = 10)
                 )
             } shouldBe BadSpecException("Ugyldig uttaksgrad: 10", ProblemType.UGYLDIG_UTTAKSGRAD)
         }
     }
+
+    context("uten privat AFP") {
+        should("bruke simuleringstype 'kun alderspensjon'") {
+            SimuleringSpecMapperForNorskPensjon(
+                personService = Arrange.foedselsdato(1963, 1, 15),
+            ).fromDto(
+                source = specTransferObject(simulerPrivatAfp = false)
+            ).type shouldBe SimuleringTypeEnum.ALDER // kun alderspensjon
+        }
+    }
 })
 
-private fun specTransferObject(uttaksgrad: Int) =
+private fun specTransferObject(uttaksgrad: Int = 100, simulerPrivatAfp: Boolean = true) =
     SimuleringSpecDto(
         personident = pid.value,
         aarligInntektFoerUttak = 2000,
@@ -90,11 +96,5 @@ private fun specTransferObject(uttaksgrad: Int) =
         sivilstatusVedPensjonering = ApOgPrivatAfpSivilstatusSpecV3.GJES,
         harEpsPensjon = true,
         harEpsPensjonsgivendeInntektOver2G = false,
-        simulerPrivatAfp = true
+        simulerPrivatAfp = simulerPrivatAfp
     )
-
-private fun arrangeSimuleringstype(): SimuleringstypeDeducer = mockk<SimuleringstypeDeducer> {
-    every {
-        deduceSimuleringstype(any(), any(), any())
-    } returns SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
-}

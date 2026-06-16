@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 
-import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringstypeDeducer
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -13,15 +13,14 @@ import java.time.LocalDate
 
 /**
  * Anti-corruption layer (ACL).
- * Maps from version 3 of the externally constrained data transfer object to the 'free' internal domain object.
+ * Maps from the externally constrained data transfer object to the 'free' internal domain object.
  * The object represents a specification for the 'simuler alderspensjon & privat AFP' service.
  * ----------
  * PEN: no.nav.pensjon.pen_app.provider.ws.simulerepensjon.v1.converter.HentSimulertPensjonRequestConverter
  */
 @Component
 class SimuleringSpecMapperForNorskPensjon(
-    private val personService: GeneralPersonService,
-    private val simuleringstypeDeducer: SimuleringstypeDeducer
+    private val personService: GeneralPersonService
 ) {
     /**
      * Takes a specification in the form of a data transfer object (DTO) and maps it to a domain object.
@@ -34,11 +33,7 @@ class SimuleringSpecMapperForNorskPensjon(
         val gradertUttak = if (heltUttak == null) null else foersteUttak
 
         return SimuleringSpec(
-            type = simuleringstypeDeducer.deduceSimuleringstype(
-                pid,
-                uttakFom = foersteUttakFom,
-                inkluderPrivatAfp = source.simulerPrivatAfp == true
-            ),
+            type = simuleringstype(source),
             sivilstatus = sivilstatus(source),
             epsHarInntektOver2G = source.harEpsPensjonsgivendeInntektOver2G == true,
             epsHarPensjon = source.harEpsPensjon == true,
@@ -72,14 +67,25 @@ class SimuleringSpecMapperForNorskPensjon(
         )
     }
 
-    private fun sivilstatus(source: SimuleringSpecDto): SivilstatusType =
-        SivilstatusType.entries.firstOrNull { it.name == source.sivilstatusVedPensjonering.name }
-            ?: SivilstatusType.UGIF
+    private companion object {
+        /**
+         * NB: Simulering av endring av alderspensjon brukes ikke av Norsk Pensjon.
+         */
+        private fun simuleringstype(source: SimuleringSpecDto): SimuleringTypeEnum =
+            if (source.simulerPrivatAfp == true)
+                SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
+            else
+                SimuleringTypeEnum.ALDER
 
-    private fun uttaksgrad(source: SimuleringSpecDto): UttakGradKode =
-        UttakGradKode.entries.firstOrNull { it.value == source.foersteUttak.grad.toString() }
-            ?: throw BadSpecException(
-                message = "Ugyldig uttaksgrad: ${source.foersteUttak.grad}",
-                problemType = ProblemType.UGYLDIG_UTTAKSGRAD
-            )
+        private fun sivilstatus(source: SimuleringSpecDto): SivilstatusType =
+            SivilstatusType.entries.firstOrNull { it.name == source.sivilstatusVedPensjonering.name }
+                ?: SivilstatusType.UGIF
+
+        private fun uttaksgrad(source: SimuleringSpecDto): UttakGradKode =
+            UttakGradKode.entries.firstOrNull { it.value == source.foersteUttak.grad.toString() }
+                ?: throw BadSpecException(
+                    message = "Ugyldig uttaksgrad: ${source.foersteUttak.grad}",
+                    problemType = ProblemType.UGYLDIG_UTTAKSGRAD
+                )
+    }
 }

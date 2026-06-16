@@ -45,11 +45,7 @@ class PensjonForNorskPensjonController(
 ) : ControllerBase(traceAid, statistikk, organisasjonsnummerProvider, tilknytningService) {
     private val log = KotlinLogging.logger {}
 
-    @PostMapping(
-        value = [
-            "v2/simuler-alderspensjon-privat-afp",
-            "v3/simuler-alderspensjon-privat-afp" // v3 skal fjernes (ny versjonering starter med v2)
-        ])
+    @PostMapping("v2/simuler-alderspensjon-privat-afp")
     @Operation(
         summary = "Simuler alderspensjon og privat AFP for samhandleren Norsk Pensjon",
         description = "Lager en prognose for utbetaling av alderspensjon og privat avtalefestet pensjon" +

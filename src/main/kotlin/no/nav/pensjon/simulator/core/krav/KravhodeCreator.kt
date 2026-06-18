@@ -121,7 +121,7 @@ class KravhodeCreator(
                 )
 
                 gjelderEndring -> endringUttaksgrad.uttaksgradListe(
-                    spec,
+                    spec.uttak(),
                     forrigeAlderspensjonKravhodeId = forrigeAlderspensjonBeregningResultat?.kravId
                 )
 

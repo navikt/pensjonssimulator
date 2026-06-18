@@ -38,14 +38,15 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             )
             val resultPreparer = mockk<AlderspensjonOgPrivatAfpResultPreparer>().apply {
                 every {
-                    result(simulatorOutput, pid = spec.pid!!, harLoependePrivatAfp = true)
+                    result(simulatorOutput, pid = spec.pid!!, harLoependePrivatAfp = true, uttakListe = emptyList())
                 } returns expectedResult
             }
 
             AlderspensjonOgPrivatAfpService(
                 simulatorCore = arrangeCore(simulatorOutput),
                 ytelseService = arrangePrivatAfpYtelse(dato = LocalDate.of(2029, 1, 1)),
-                resultPreparer
+                resultPreparer,
+                kravService = mockk(relaxed = true)
             ) { today }.simuler(spec) shouldBe expectedResult
         }
 
@@ -55,7 +56,8 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             AlderspensjonOgPrivatAfpService(
                 simulatorCore = arrangeCore(),
                 ytelseService = arrangePrivatAfpYtelse(dato = LocalDate.of(2029, 1, 1)),
-                resultPreparer = arrangeResultPreparer(harLoependeAfpSlot)
+                resultPreparer = arrangeResultPreparer(harLoependeAfpSlot),
+                kravService = mockk(relaxed = true)
             ) { today }.simuler(validSpec)
 
             harLoependeAfpSlot.captured shouldBe true
@@ -67,7 +69,8 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             AlderspensjonOgPrivatAfpService(
                 simulatorCore = arrangeCore(),
                 ytelseService = arrangePrivatAfpYtelse(dato = null),
-                resultPreparer = arrangeResultPreparer(harLoependeAfpSlot)
+                resultPreparer = arrangeResultPreparer(harLoependeAfpSlot),
+                kravService = mockk(relaxed = true)
             ) { today }.simuler(validSpec)
 
             harLoependeAfpSlot.captured shouldBe false
@@ -283,14 +286,16 @@ private val goodService =
     AlderspensjonOgPrivatAfpService(
         simulatorCore = mockk(),
         ytelseService = mockk(),
-        resultPreparer = mockk()
+        resultPreparer = mockk(),
+        kravService = mockk(relaxed = true)
     ) { today }
 
 private fun badService(simulatorException: Exception) =
     AlderspensjonOgPrivatAfpService(
         simulatorCore = mockk<SimulatorCore> { every { simuler(any()) } throws simulatorException },
-        ytelseService = mockk(),
-        resultPreparer = mockk()
+        ytelseService = mockk(relaxed = true),
+        resultPreparer = mockk(),
+        kravService = mockk(relaxed = true)
     ) { today }
 
 private fun arrangeCore(output: SimulatorOutput = SimulatorOutput()): SimulatorCore =
@@ -299,7 +304,12 @@ private fun arrangeCore(output: SimulatorOutput = SimulatorOutput()): SimulatorC
 private fun arrangeResultPreparer(harLoependeAfpSlot: CapturingSlot<Boolean>): AlderspensjonOgPrivatAfpResultPreparer =
     mockk<AlderspensjonOgPrivatAfpResultPreparer> {
         every {
-            result(simulatorOutput = any(), pid = any(), harLoependePrivatAfp = capture(harLoependeAfpSlot))
+            result(
+                simulatorOutput = any(),
+                pid = any(),
+                harLoependePrivatAfp = capture(harLoependeAfpSlot),
+                uttakListe = any()
+            )
         } returns mockk()
     }
 
@@ -308,6 +318,7 @@ private fun arrangePrivatAfpYtelse(dato: LocalDate?): YtelseService =
         every { getLoependeYtelser(any()) } returns mockk {
             every { privatAfpVirkningFom } returns dato
         }
+        every { getPrivatAfpFoersteVirkningsdato(any()) } returns dato
     }
 
 private fun errorResult(problemType: ProblemType, beskrivelse: String) =

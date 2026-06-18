@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.endring
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
-import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.UttakSpec
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import org.springframework.stereotype.Component
@@ -15,7 +15,7 @@ import java.time.LocalDate
 class EndringUttaksgrad(private val kravService: KravService) {
 
     // SimulerEndringAvAPCommand.finnUttaksgradListe
-    fun uttaksgradListe(spec: SimuleringSpec, forrigeAlderspensjonKravhodeId: Long?): MutableList<Uttaksgrad> {
+    fun uttaksgradListe(spec: UttakSpec, forrigeAlderspensjonKravhodeId: Long?): MutableList<Uttaksgrad> {
         val eksisterendeUttaksgradListe: List<Uttaksgrad> =
             forrigeAlderspensjonKravhodeId?.let(kravService::fetchKravhode)?.uttaksgradListe.orEmpty()
 
@@ -27,21 +27,15 @@ class EndringUttaksgrad(private val kravService: KravService) {
         // SimulerEndringAvAPCommandHelper.createUttaksgradListe
         private fun newUttaksgradListe(
             eksisterendeListe: List<Uttaksgrad>,
-            spec: SimuleringSpec
-        ): MutableList<Uttaksgrad> {
-            val uttaksgrad: Int = spec.uttakGrad.value.toInt()
-            val gradert: Boolean = uttaksgrad < HUNDRE_PROSENT.prosentsats
-            val foersteUttakFom: LocalDate = spec.foersteUttakDato!!
-            val andreUttakFom: LocalDate? = if (gradert) spec.heltUttakDato else null
+            spec: UttakSpec
+        ): MutableList<Uttaksgrad> =
+            uttaksgraderSomStarterFoerDato(uttaksgradListe = eksisterendeListe, dato = spec.foersteUttakFom).apply {
+                add(foersteUttak(spec))
 
-            return uttaksgraderSomStarterFoerDato(eksisterendeListe, foersteUttakFom).apply {
-                add(foersteUttak(fom = foersteUttakFom, uttaksgrad = uttaksgrad, andreUttakFom = andreUttakFom))
-
-                if (gradert) {
-                    add(heltUttak(fom = andreUttakFom))
+                if (spec.gradert) {
+                    add(heltUttak(fom = spec.andreUttakFom))
                 }
             }
-        }
 
         // Extracted from SimulerEndringAvAPCommandHelper.createUttaksgradListe
         private fun uttaksgraderSomStarterFoerDato(
@@ -82,15 +76,11 @@ class EndringUttaksgrad(private val kravService: KravService) {
         }
 
         // Extracted from SimulerEndringAvAPCommandHelper.createUttaksgradListe
-        private fun foersteUttak(
-            fom: LocalDate,
-            uttaksgrad: Int,
-            andreUttakFom: LocalDate?
-        ) =
+        private fun foersteUttak(spec: UttakSpec) =
             Uttaksgrad().apply {
-                fomDatoLd = fom
-                tomDatoLd = andreUttakFom?.minusDays(1)
-                this.uttaksgrad = uttaksgrad
+                fomDatoLd = spec.foersteUttakFom
+                tomDatoLd = spec.andreUttakFom?.minusDays(1)
+                uttaksgrad = spec.uttaksgrad
             }
 
         // Extracted from SimulerEndringAvAPCommandHelper.createUttaksgradListe

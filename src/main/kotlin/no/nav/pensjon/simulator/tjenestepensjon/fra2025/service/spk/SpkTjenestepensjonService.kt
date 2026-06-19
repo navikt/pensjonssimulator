@@ -51,7 +51,6 @@ class SpkTjenestepensjonService(
                 Result.failure(exception = TomSimuleringFraTpOrdningException(tpOrdning = client.service.shortName))
 
             else -> Result.success(value = filtrertTjenestepensjon(tpNummer, pensjon, foedselsdato))
-                .also { logAfp(utbetalingsliste = pensjon.utbetalingsperioder) }
         }
 
     private fun filtrertTjenestepensjon(
@@ -61,7 +60,7 @@ class SpkTjenestepensjonService(
     ) =
         SimulertTjenestepensjonMedMaanedsUtbetalinger(
             tpLeverandoer = client.service,
-            tpNummer = tpNummer,
+            tpNummer,
             ordningsListe = pensjon.ordningsListe,
             utbetalingsperioder = grupperMedDatoFra(
                 utbetalingsliste = pensjon.utbetalingsperioder.filterNot(::ekskludert),
@@ -76,14 +75,6 @@ class SpkTjenestepensjonService(
             log.warn { it }
             Result.failure(TjenestepensjonSimuleringException(it, client.service.shortName))
         }
-
-    private fun logAfp(utbetalingsliste: List<Utbetalingsperiode>) {
-        val afp = utbetalingsliste.filter { it.ytelseType == TjenestepensjonYtelseType.OFFENTLIG_AFP.kode }
-
-        if (afp.isNotEmpty()) {
-            log.info { "AFP fra ${client.service.shortName}: $afp" }
-        }
-    }
 
     private companion object {
 

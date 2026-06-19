@@ -411,7 +411,7 @@ class SimulatorContextTest : ShouldSpec({
             // Regelservice skal kun kalles én gang pga. caching
             verify(exactly = 1) {
                 regelmotor.makeRegelCall<SatsResponse, HentGrunnbelopListeRequest>(
-                    any(), any(), eq("hentGrunnbelopListe"), any(), any()
+                    any(), any(), eq("hentGrunnbelopListe")
                 )
             }
         }
@@ -456,7 +456,7 @@ private inline fun <K, reified T : Any> arrangeRegler(response: K): GenericRegel
     mockk<GenericRegelClient>().apply {
         every {
             makeRegelCall<K, T>(
-                any(), any(), any(), any(), any()
+                any(), any(), any()
             )
         } returns response
     }
@@ -465,7 +465,7 @@ private inline fun <K, reified T : Any> arrangeRegler(serviceName: String, respo
     mockk<GenericRegelClient>().apply {
         every {
             makeRegelCall<K, T>(
-                any(), any(), eq(serviceName), any(), any()
+                any(), any(), eq(serviceName)
             )
         } returns response
     }

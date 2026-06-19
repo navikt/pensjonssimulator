@@ -4,6 +4,7 @@ object CustomHttpHeaders {
     const val ANNEN_PERSON_ID = "annenPid"
     const val BEHANDLINGSNUMMER = "behandlingsnummer"
     const val CALL_ID = "Nav-Call-Id"
+    const val CONSUMER_ID = "Nav-Consumer-Id"
     const val EXTERNAL_REQUEST_ID = "x-request-id"
     const val PERSON_ID = "pid"
     const val PID = "fnr" // fødselsnummer

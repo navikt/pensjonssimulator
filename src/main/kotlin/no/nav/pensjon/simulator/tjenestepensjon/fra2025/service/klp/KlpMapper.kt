@@ -1,24 +1,17 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.FremtidigInntekt
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpTjenestepensjonYtelseType
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Utbetaling
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.Uttak
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.*
 import java.time.LocalDate
 
 object KlpMapper {
 
     private const val ANNEN_TP_ORDNING_BURDE_SIMULERE = "IKKE_SISTE_ORDNING"
-    private val log = KotlinLogging.logger {}
 
     fun toRequestDto(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
         KlpSimulerTjenestepensjonRequest(
@@ -33,9 +26,8 @@ object KlpMapper {
     fun fromResponseDto(
         response: KlpSimulerTjenestepensjonResponse,
         request: KlpSimulerTjenestepensjonRequest? = null
-    ): SimulertTjenestepensjon {
-        log.info { "Mapping response from KLP $response" }
-        return SimulertTjenestepensjon(
+    ) =
+        SimulertTjenestepensjon(
             tpLeverandoer = EgressService.KLP.description,
             ordningsListe = response.inkludertOrdningListe.map { Ordning(tpNummer = it.tpnr) },
             utbetalingsperioder = response.utbetalingsListe.map(::utbetalingsperiode),
@@ -44,7 +36,6 @@ object KlpMapper {
             erSisteOrdning = response.arsakIngenUtbetaling.none { it.statusKode == ANNEN_TP_ORDNING_BURDE_SIMULERE },
             serviceData = listOf("Request: ${request?.toString()}", "Response: $response")
         )
-    }
 
     private fun heltUttakAlleYtelser(fom: LocalDate) =
         Uttak(
@@ -55,11 +46,7 @@ object KlpMapper {
 
     private fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): MutableList<FremtidigInntekt> {
         val inntektListe = mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
-
-        inntektListe.addAll(
-            spec.fremtidigeInntekter.map(::inntekt)
-        )
-
+        inntektListe.addAll(spec.fremtidigeInntekter.map(::inntekt))
         return inntektListe
     }
 

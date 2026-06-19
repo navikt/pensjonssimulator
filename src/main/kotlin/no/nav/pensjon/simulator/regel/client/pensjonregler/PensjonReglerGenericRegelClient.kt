@@ -60,8 +60,7 @@ class PensjonReglerGenericRegelClient(
         return requireNonNull(objectMapper.readValue(requireNonNull(responseBody), responseClass) as T)
     }
 
-    private fun setHeaders(headers: HttpHeaders, sakId: String? = null) {
-        sakId?.let { headers["sakId"] = it }
+    private fun setHeaders(headers: HttpHeaders) {
         headers.contentType = MediaType.APPLICATION_JSON
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
         headers[CustomHttpHeaders.CONSUMER_ID] = "pensjonssimulator"

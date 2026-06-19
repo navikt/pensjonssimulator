@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
+import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import java.time.LocalDate
 import java.util.*
 
@@ -264,6 +265,18 @@ data class SimuleringSpec(
             SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
             SimuleringTypeEnum.ALDER_M_GJEN
         ).contains(type)
+
+    fun uttak(): UttakSpec {
+        val uttaksgrad = uttakGrad.value.toInt()
+        val gradert = uttaksgrad < HUNDRE_PROSENT.prosentsats
+
+        return UttakSpec(
+            uttaksgrad,
+            gradert,
+            foersteUttakFom = foersteUttakDato!!,
+            andreUttakFom = if (gradert) heltUttakDato else null
+        )
+    }
 
     fun hasSameUttakAs(other: SimuleringSpec) =
         uttakGrad == other.uttakGrad &&

@@ -14,10 +14,9 @@ import java.time.LocalDate
  *     (ref. ReglerLoependeYtelserMapper in PEN).
  */
 @Service
-open class YtelseService(private val client: YtelseClient) {
+class YtelseService(private val client: YtelseClient) {
 
-    //@Cacheable(value = ["loependeYtelser"])
-    open fun getLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
+    fun getLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
         if (spec.gjelderPre2025OffentligAfp()) {
             // SimulerAFPogAPCommand
             val ytelser: LoependeYtelserResult = client.fetchLoependeYtelser(
@@ -106,5 +105,20 @@ open class YtelseService(private val client: YtelseClient) {
             forrigeVedtakListe = mutableListOf(), //TODO use value in ytelser?
             avdoed = ytelser.alderspensjon.avdoed
         )
+    }
+
+    fun getPrivatAfpFoersteVirkningsdato(spec: SimuleringSpec): LocalDate? {
+        val ytelser: LoependeYtelserResult = client.fetchLoependeYtelser(
+            LoependeYtelserSpec(
+                pid = spec.pid!!,
+                foersteUttakDato = spec.foersteUttakDato!!,
+                avdoed = null,
+                alderspensjonFlags = null,
+                endringAlderspensjonFlags = null,
+                pre2025OffentligAfpYtelserFlags = null
+            )
+        )
+
+        return ytelser.afpPrivat?.virkningFom
     }
 }

@@ -21,15 +21,12 @@ class AlderspensjonOgPrivatAfpResultPreparer(
     fun result(
         simulatorOutput: SimulatorOutput,
         pid: Pid,
-        harLoependePrivatAfp: Boolean
+        harLoependePrivatAfp: Boolean,
+        uttakListe: List<Uttaksgrad>
     ): AlderspensjonOgPrivatAfpResult {
         val alderspensjon = simulatorOutput.alderspensjon
         val foedselsdato = personService.foedselsdato(pid)
         val idag = time.today()
-
-        // NB: uttakGradListe is taken from spec (ref. SimuleringResultPreparer line 325):
-        val uttakListe: List<Uttaksgrad> = alderspensjon?.uttakGradListe.orEmpty()
-
         val harNaavaerendeUttak = uttakListe.any { it.tasUt(dato = idag) }
 
         return AlderspensjonOgPrivatAfpResult(

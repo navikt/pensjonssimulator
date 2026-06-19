@@ -2,8 +2,10 @@ package no.nav.pensjon.simulator.orch
 
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
@@ -25,16 +27,20 @@ class AlderspensjonOgPrivatAfpService(
     private val simulatorCore: SimulatorCore,
     private val ytelseService: YtelseService,
     private val resultPreparer: AlderspensjonOgPrivatAfpResultPreparer,
+    private val kravService: KravService,
     private val time: Time
 ) {
     fun simuler(spec: SimuleringSpec): AlderspensjonOgPrivatAfpResult =
         try {
             validate(spec, time.today())
+            val privatAfpFom = ytelseService.getPrivatAfpFoersteVirkningsdato(spec)
+            val uttakListe: List<Uttaksgrad> = spec.pid?.let(kravService::fetchUttaksgrader) ?: emptyList()
 
             resultPreparer.result(
                 simulatorOutput = simulatorCore.simuler(initialSpec = spec),
                 pid = spec.pid!!,
-                harLoependePrivatAfp = ytelseService.getLoependeYtelser(spec).privatAfpVirkningFom != null
+                harLoependePrivatAfp = privatAfpFom != null,
+                uttakListe
             )
             //TODO PEN222BeregningstjenesteFeiletException, PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
             //TODO Kopier ThrowableExceptionMapper fra PEN - Jira TPP-45

@@ -5,7 +5,7 @@ import tools.jackson.databind.json.JsonMapper
 
 fun JsonMapper.writeValueAsRedactedString(value: Any): String =
     try {
-        FoedselsnummerUtil.redact(this.writeValueAsString(value))
+        FoedselsnummerUtil.redact(this.writeValueAsString(value)) ?: ""
     } catch (_: Exception) {
         // should not fail the request
         "Failed to redact value"

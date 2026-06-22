@@ -41,9 +41,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = BeregnAlderspensjon2011ForsteUttakResponse::class.java,
-                serviceName = "beregnAlderspensjon2011ForsteUttak",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "beregnAlderspensjon2011ForsteUttak"
             )
 
         validerResponse(response.pakkseddel, spec, "beregnAlderspensjon2011FoersteUttak")
@@ -63,9 +61,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = BeregnAlderspensjon2016ForsteUttakResponse::class.java,
-                serviceName = "beregnAlderspensjon2016ForsteUttak",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "beregnAlderspensjon2016ForsteUttak"
             )
 
         validerResponse(response.pakkseddel, spec, "beregnAlderspensjon2016FoersteUttak")
@@ -85,9 +81,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = BeregnAlderspensjon2025ForsteUttakResponse::class.java,
-                serviceName = "beregnAlderspensjon2025ForsteUttak",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "beregnAlderspensjon2025ForsteUttak"
             )
 
         validerResponse(response.pakkseddel, spec, "beregnAlderspensjon2025FoersteUttak")
@@ -116,9 +110,7 @@ class SimulatorContext(
                 personOpptjeningsgrunnlagListe = inputList.toMutableList()
             },
             responseClass = BeregnPoengtallBatchResponse::class.java,
-            serviceName = "beregnPoengtallBatch",
-            map = null,
-            sakId = null
+            serviceName = "beregnPoengtallBatch"
         )
 
         val outputList = response.personOpptjeningsgrunnlagListe
@@ -134,9 +126,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = RevurderingAlderspensjon2011Response::class.java,
-                serviceName = "revurderingAlderspensjon2011",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "revurderingAlderspensjon2011"
             )
 
         validerResponse(response.pakkseddel, spec, "revurderingAlderspensjon2011")
@@ -151,9 +141,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = RevurderingAlderspensjon2016Response::class.java,
-                serviceName = "revurderingAlderspensjon2016",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "revurderingAlderspensjon2016"
             )
 
         validerResponse(response.pakkseddel, spec, "revurderingAlderspensjon2016")
@@ -168,9 +156,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = RevurderingAlderspensjon2025Response::class.java,
-                serviceName = "revurderingAlderspensjon2025",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "revurderingAlderspensjon2025"
             )
 
         validerResponse(response.pakkseddel, spec, "revurderingAlderspensjon2025")
@@ -183,9 +169,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = SimuleringResponse::class.java,
-                serviceName,
-                map = null,
-                sakId = null
+                serviceName
             )
 
         return validerOgFerdigstillResponse(response) ?: throw RuntimeException("Simuleringsresultat is null")
@@ -197,9 +181,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = SimuleringResponse::class.java,
-                serviceName = "simulerAFP",
-                map = null,
-                sakId = null
+                serviceName = "simulerAFP"
             )
 
         validerResponse(response.pakkseddel)
@@ -212,9 +194,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = SimuleringResponse::class.java,
-                serviceName = "simulerVilkarsprovAFP",
-                map = null,
-                sakId = null
+                serviceName = "simulerVilkarsprovAFP"
             )
 
         validerResponse(response.pakkseddel)
@@ -231,9 +211,7 @@ class SimulatorContext(
             regelService.makeRegelCall(
                 request = spec,
                 responseClass = VilkarsprovResponse::class.java,
-                serviceName = "vilkarsprovAlderspensjonOver67",
-                map = null,
-                sakId = sakId?.toString()
+                serviceName = "vilkarsprovAlderspensjonOver67"
             )
 
         validerResponse(response.pakkseddel, spec, "vilkaarsproevUbetingetAlderspensjon")
@@ -250,9 +228,7 @@ class SimulatorContext(
         val response: VilkarsprovResponse = regelService.makeRegelCall(
             request = spec,
             responseClass = VilkarsprovResponse::class.java,
-            serviceName = "vilkarsprovAlderspensjon2011",
-            map = null,
-            sakId = sakId?.toString()
+            serviceName = "vilkarsprovAlderspensjon2011"
         )
 
         validerResponse(response.pakkseddel, spec, "vilkarsprovAlderspensjon2011")
@@ -269,9 +245,7 @@ class SimulatorContext(
         val response: VilkarsprovResponse = regelService.makeRegelCall(
             request = spec,
             responseClass = VilkarsprovResponse::class.java,
-            serviceName = "vilkarsprovAlderspensjon2016",
-            map = null,
-            sakId = sakId?.toString()
+            serviceName = "vilkarsprovAlderspensjon2016"
         )
 
         validerResponse(response.pakkseddel, spec, "vilkarsprovAlderspensjon2016")
@@ -288,9 +262,7 @@ class SimulatorContext(
         val response: VilkarsprovResponse = regelService.makeRegelCall(
             request = spec,
             responseClass = VilkarsprovResponse::class.java,
-            serviceName = "vilkarsprovAlderspensjon2025",
-            map = null,
-            sakId = sakId?.toString()
+            serviceName = "vilkarsprovAlderspensjon2025"
         )
 
         validerResponse(response.pakkseddel, spec, "vilkaarsproevAlderspensjon2025")
@@ -303,9 +275,7 @@ class SimulatorContext(
         val response: BeregnAfpPrivatResponse = regelService.makeRegelCall(
             request = spec,
             responseClass = BeregnAfpPrivatResponse::class.java,
-            serviceName = "beregnAfpPrivat",
-            map = null,
-            sakId = sakId?.toString()
+            serviceName = "beregnAfpPrivat"
         )
 
         validerResponse(response.pakkseddel)
@@ -322,9 +292,7 @@ class SimulatorContext(
         val response: TrygdetidResponse = regelService.makeRegelCall(
             request = spec,
             responseClass = TrygdetidResponse::class.java,
-            serviceName = "fastsettTrygdetid",
-            map = null,
-            sakId = sakId?.toString()
+            serviceName = "fastsettTrygdetid"
         )
 
         validerOgFerdigstillResponse(response, kravIsUfoeretrygd, spec, "fastsettTrygdetid")
@@ -350,9 +318,7 @@ class SimulatorContext(
             regelService.makeRegelCall<BeregnPensjonsBeholdningResponse, BeregnPensjonsBeholdningRequest>(
                 request = request,
                 responseClass = BeregnPensjonsBeholdningResponse::class.java,
-                serviceName = "beregnPensjonsBeholdning",
-                map = null,
-                sakId = null
+                serviceName = "beregnPensjonsBeholdning"
             ).also {
                 validerResponse(it.pakkseddel)
                 finishOpptjeningInit(it.beholdninger)
@@ -369,9 +335,7 @@ class SimulatorContext(
         regelService.makeRegelCall(
             request,
             responseClass = HentDelingstallResponse::class.java,
-            serviceName = "delingstall",
-            map = null,
-            sakId = null
+            serviceName = "delingstall"
         )
 
     private fun fetchFreshGrunnbeloep(dato: LocalDate): SatsResponse =
@@ -381,9 +345,7 @@ class SimulatorContext(
                 tomLd = dato
             },
             responseClass = SatsResponse::class.java,
-            serviceName = "hentGrunnbelopListe",
-            map = null,
-            sakId = null
+            serviceName = "hentGrunnbelopListe"
         )
 
     // TODO: May be unnecessary, since this is done in PersonDetalj.finishInit

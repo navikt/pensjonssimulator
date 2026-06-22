@@ -100,7 +100,7 @@ class UttakService(
             TidligstMuligUttak(
                 uttaksdato = null,
                 uttaksgrad = Uttaksgrad.NULL,
-                problem = Problem(type, beskrivelse = "Ukjent feil - ${e.javaClass.simpleName}")
+                problem = Problem(type, beskrivelse = e.javaClass.simpleName)
             )
     }
 }

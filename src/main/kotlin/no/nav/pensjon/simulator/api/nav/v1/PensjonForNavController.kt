@@ -21,6 +21,7 @@ import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
 import tools.jackson.databind.json.JsonMapper
 
@@ -97,18 +98,26 @@ class PensjonForNavController(
 
     override fun errorMessage() = ERROR_MESSAGE
 
+    @ExceptionHandler(value = [HttpMessageNotReadableException::class])
+    private fun handleMalformedRequest(e: Exception): ResponseEntity<SimuleringResultDto> =
+        with(ProblemTypeDto.ANNEN_KLIENTFEIL) {
+            log.warn(e) { "$FUNCTION_ID - request not readable - ${extractUnsafeMessages(e)}" }
+            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = extractSafeMessage(e)))
+        }
+
     @ExceptionHandler(value = [Exception::class])
-    private fun internalError(e: Exception): ResponseEntity<SimuleringResultDto> =
+    private fun handleInternalError(e: Exception): ResponseEntity<SimuleringResultDto> =
         with(ProblemTypeDto.ANNEN_SERVERFEIL) {
-            ResponseEntity.status(this.httpStatus).body(problem(e, type = this))
+            log.error(e) { "$FUNCTION_ID - unknown error - ${extractUnsafeMessages(e)}" }
+            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = extractExceptionNames(e)))
         }
 
     private companion object {
         private const val TJENESTE = "intern simulering av pensjon"
         private const val ERROR_MESSAGE = "feil ved $TJENESTE"
-        private const val FUNCTION_ID = "int-pen" // Nav-intern simulering av pensjon
+        private const val FUNCTION_ID = "int-pen-v1" // Nav-intern simulering av pensjon
 
-        private fun problem(e: Exception, type: ProblemTypeDto) =
+        private fun problem(type: ProblemTypeDto, beskrivelse: String) =
             SimuleringResultDto(
                 alderspensjonListe = emptyList(),
                 alderspensjonMaanedsbeloep = null,
@@ -118,7 +127,7 @@ class PensjonForNavController(
                 vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(erInnvilget = false, alternativ = null),
                 primaerTrygdetid = null,
                 pensjonsgivendeInntektListe = emptyList(),
-                problem = ProblemDto(kode = type, beskrivelse = extractMessageRecursively(e))
+                problem = ProblemDto(kode = type, beskrivelse)
             )
     }
 }

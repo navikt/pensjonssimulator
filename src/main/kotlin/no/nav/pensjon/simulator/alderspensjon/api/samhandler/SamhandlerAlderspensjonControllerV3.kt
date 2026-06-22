@@ -97,10 +97,10 @@ class SamhandlerAlderspensjonControllerV3(
             log.warn(e) { "$FUNCTION_ID_V3 bad request - $specV3" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID_V3 bad spec - ${extractMessageRecursively(e)} - $specV3" } // not log.warn(e)
+            log.warn { "$FUNCTION_ID_V3 bad spec - ${extractExceptionNames(e)} - $specV3" } // not log.warn(e)
             throw e
         } catch (e: DateTimeParseException) {
-            log.warn { "$FUNCTION_ID_V3 feil datoformat (forventet yyyy-mm-dd) - ${extractMessageRecursively(e)} - request: $specV3" }
+            log.warn { "$FUNCTION_ID_V3 feil datoformat (forventet yyyy-mm-dd) - ${extractExceptionNames(e)} - request: $specV3" }
             throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID_V3 feil i simuleringsgrunnlaget - request - $specV3" }

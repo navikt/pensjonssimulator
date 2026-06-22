@@ -141,7 +141,7 @@ class NavAlderspensjonController(
                 opptjeningGrunnlagListe = emptyList(),
                 error = NavSimuleringErrorV3(
                     exception = e.javaClass.simpleName,
-                    message = extractMessageRecursively(e)
+                    message = extractExceptionNames(e)
                 )
             )
     }

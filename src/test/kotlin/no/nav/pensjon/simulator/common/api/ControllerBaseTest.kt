@@ -21,6 +21,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
+import java.time.format.DateTimeParseException
 
 class ControllerBaseTest : ShouldSpec({
 
@@ -201,9 +202,9 @@ class ControllerBaseTest : ShouldSpec({
         }
     }
 
-    context("extractMessageRecursively") {
+    context("extractExceptionNames") {
         should("ikke returnere mulig sensitiv exception message") {
-            SimpleTestController.testExtractMessageRecursively(
+            SimpleTestController.testExtractExceptionNames(
                 e = RuntimeException("Simple error")
             ) shouldBe "RuntimeException"
         }
@@ -211,7 +212,7 @@ class ControllerBaseTest : ShouldSpec({
         should("ikke inkludere mulig sensitiv årsak") {
             val cause = IllegalArgumentException("Root cause")
 
-            SimpleTestController.testExtractMessageRecursively(
+            SimpleTestController.testExtractExceptionNames(
                 e = RuntimeException("Outer error", cause)
             ) shouldBe "RuntimeException | Cause: IllegalArgumentException"
         }
@@ -221,12 +222,45 @@ class ControllerBaseTest : ShouldSpec({
             val middleCause = IllegalArgumentException("Middle", rootCause)
             val exception = RuntimeException("Top", middleCause)
 
-            SimpleTestController.testExtractMessageRecursively(exception) shouldBe
+            SimpleTestController.testExtractExceptionNames(exception) shouldBe
                     "RuntimeException | Cause: IllegalArgumentException | Cause: IllegalStateException"
         }
 
         should("bruke class name når message er null") {
-            SimpleTestController.testExtractMessageRecursively(e = RuntimeException()) shouldBe "RuntimeException"
+            SimpleTestController.testExtractExceptionNames(e = RuntimeException()) shouldBe "RuntimeException"
+        }
+    }
+
+    context("extractUnsafeMessages") {
+        should("håndtere flere nivåer av causes") {
+            val rootCause = IllegalStateException("Root")
+            val middleCause = IllegalArgumentException("Middle", rootCause)
+            val exception = RuntimeException("Top", middleCause)
+
+            SimpleTestController.testExtractUnsafeMessages(exception) shouldBe "Top | Cause: Middle | Cause: Root"
+        }
+
+        should("bruke class name når message er null") {
+            val rootCause = NumberFormatException()
+            val exception = IllegalArgumentException(null, rootCause)
+
+            SimpleTestController.testExtractUnsafeMessages(exception) shouldBe "IllegalArgumentException | Cause: NumberFormatException"
+        }
+    }
+
+    context("extractSafeMessage") {
+        should("betrakte DateTimeParseException som sikker") {
+            val exception = DateTimeParseException("Oops", "2023.01.01", 4)
+
+            SimpleTestController.testExtractSafeMessage(exception) shouldBe "Oops"
+        }
+
+        should("betrakte NullPointerException som sikker og håndtere flere nivåer av causes") {
+            val rootCause = NullPointerException("Root")
+            val middleCause = IllegalArgumentException("Middle", rootCause)
+            val exception = RuntimeException("Top", middleCause)
+
+            SimpleTestController.testExtractSafeMessage(exception) shouldBe "Root"
         }
     }
 })
@@ -280,6 +314,8 @@ private class SimpleTestController(traceAid: TraceAid) : ControllerBase(traceAid
     fun <T> testBadRequest(e: RuntimeException): T = badRequest(e)
 
     companion object {
-        fun testExtractMessageRecursively(e: Throwable): String = extractMessageRecursively(e)
+        fun testExtractExceptionNames(e: Throwable): String = extractExceptionNames(e)
+        fun testExtractUnsafeMessages(e: Throwable): String = extractUnsafeMessages(e)
+        fun testExtractSafeMessage(e: Throwable): String = extractSafeMessage(e)
     }
 }

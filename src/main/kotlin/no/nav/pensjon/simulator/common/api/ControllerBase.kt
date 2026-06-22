@@ -16,6 +16,7 @@ import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.lang.System.currentTimeMillis
+import java.time.format.DateTimeParseException
 
 abstract class ControllerBase(
     private val traceAid: TraceAid,
@@ -60,7 +61,7 @@ abstract class ControllerBase(
             handleExternalError<T>(e)
 
     protected fun <T> badRequest(e: RuntimeException): T {
-        val message = extractMessageRecursively(e)
+        val message = extractExceptionNames(e)
         log.info { "Bad request - $message" } // no error, so the stacktrace is not logged
 
         throw ResponseStatusException(
@@ -132,7 +133,7 @@ abstract class ControllerBase(
 
         throw ResponseStatusException(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",
+            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractExceptionNames(e)}",
             e
         )
     }
@@ -145,13 +146,13 @@ abstract class ControllerBase(
     private fun <T> serviceUnavailable(e: EgressException): T {
         throw ResponseStatusException(
             HttpStatus.SERVICE_UNAVAILABLE,
-            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",
+            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractExceptionNames(e)}",
             e
         )
     }
 
     private fun logError(e: EgressException, category: String) {
-        log.error { "$category ${errorMessage()} : ${extractMessageRecursively(e)}" }
+        log.error { "$category ${errorMessage()} : ${extractExceptionNames(e)}" }
     }
 
     protected companion object {
@@ -166,9 +167,31 @@ abstract class ControllerBase(
     "path": "/api/ressurs"
 }"""
 
-        fun extractMessageRecursively(e: Throwable): String =
+        fun extractExceptionNames(e: Throwable): String =
             StringBuilder(e.javaClass.simpleName).apply {
-                e.cause?.let { append(" | Cause: ").append(extractMessageRecursively(it)) }
+                e.cause?.let { append(" | Cause: ").append(extractExceptionNames(it)) }
             }.toString()
+
+        fun extractSafeMessage(e: Throwable): String =
+            (if (safeExceptions.contains(e::class.java)) e.message else e.cause?.let(::extractSafeMessage))
+                ?: e.javaClass.simpleName
+
+        /**
+         * NB: Use with caution, since 'message' may contain sensitive information.
+         * Should only be used for internal logging purposes, not for user-facing messages.
+         */
+        fun extractUnsafeMessages(e: Throwable): String =
+            StringBuilder(e.message ?: e.javaClass.simpleName).apply {
+                e.cause?.let { append(" | Cause: ").append(extractUnsafeMessages(it)) }
+            }.toString()
+
+        /**
+         * Exception types whose messages are considered never to contain sensitive information
+         * and are therefore safe to expose to external clients.
+         */
+        private val safeExceptions = setOf(
+            DateTimeParseException::class.java,
+            NullPointerException::class.java
+        )
     }
 }

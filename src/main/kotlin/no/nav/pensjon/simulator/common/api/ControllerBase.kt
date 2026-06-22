@@ -3,18 +3,19 @@ package no.nav.pensjon.simulator.common.api
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
-import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.metric.Metrics
-import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.metric.Metrics
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
+import tools.jackson.databind.exc.MismatchedInputException
 import java.lang.System.currentTimeMillis
 import java.time.format.DateTimeParseException
 
@@ -173,7 +174,7 @@ abstract class ControllerBase(
             }.toString()
 
         fun extractSafeMessage(e: Throwable): String =
-            (if (safeExceptions.contains(e::class.java)) e.message else e.cause?.let(::extractSafeMessage))
+            (if (safeExceptions.any { it.isInstance(e) }) e.message else e.cause?.let(::extractSafeMessage))
                 ?: e.javaClass.simpleName
 
         /**
@@ -191,6 +192,7 @@ abstract class ControllerBase(
          */
         private val safeExceptions = setOf(
             DateTimeParseException::class.java,
+            MismatchedInputException::class.java,
             NullPointerException::class.java
         )
     }

@@ -131,10 +131,10 @@ class UttakControllerTest : ShouldSpec() {
                     .andExpect(
                         content().json(
                             """{
-  "tidligstMuligeUttakstidspunktListe" : [],
-  "feil" : {
-    "type" : "ANNEN_KLIENTFEIL",
-    "beskrivelse" : "Text '2030.02.01' could not be parsed at index 4"
+  "tidligstMuligeUttakstidspunktListe": [],
+  "feil": {
+    "type": "ANNEN_KLIENTFEIL",
+    "beskrivelse": "Cannot deserialize value of type `java.time.LocalDate` from String \"2030.02.01\": Failed to deserialize `java.time.LocalDate` (with format 'Value(YearOfEra,4,19,EXCEEDS_PAD)'-'Value(MonthOfYear,2)'-'Value(DayOfMonth,2)'): (java.time.format.DateTimeParseException) Text '2030.02.01' could not be parsed at index 4\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #117] (through reference chain: no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakSpecV1[\"heltUttakFraOgMedDato\"])"
   }
 }"""
                         )

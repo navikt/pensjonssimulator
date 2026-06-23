@@ -18,6 +18,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.*
 import no.nav.pensjon.simulator.uttak.api.acl.UttakResultMapperV1.resultV1
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractUnsafeMessages
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException

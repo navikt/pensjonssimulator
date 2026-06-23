@@ -15,14 +15,17 @@ import no.nav.pensjon.simulator.uttak.TidligstMuligUttak
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.Uttaksgrad
 import no.nav.pensjon.simulator.uttak.api.acl.UttakSpecMapperV1
+import org.hamcrest.Matchers.containsString
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.LocalDate
 
@@ -78,7 +81,7 @@ class UttakControllerTest : ShouldSpec() {
                 mvc.perform(
                     post(URL)
                         .with(csrf())
-                        .content(okRequestBody())
+                        .content(OK_REQUEST_BODY)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                     .andExpect(status().isOk())
@@ -101,21 +104,11 @@ class UttakControllerTest : ShouldSpec() {
                 mvc.perform(
                     post(URL)
                         .with(csrf())
-                        .content(bodyWithMissingPersonId())
+                        .content(BODY_WITH_MISSING_PERSON_ID)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                     .andExpect(status().isBadRequest())
-                    .andExpect(
-                        content().json(
-                            """{
-  "tidligstMuligeUttakstidspunktListe" : [],
-  "feil" : {
-    "type" : "ANNEN_KLIENTFEIL",
-    "beskrivelse" : "Parameter specified as non-null is null: method no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakSpecV1.<init>, parameter personId"
-  }
-}"""
-                        )
-                    )
+                    .andExpect(feilbeskrivelseInneholder("personId"))
             }
         }
 
@@ -124,31 +117,20 @@ class UttakControllerTest : ShouldSpec() {
                 mvc.perform(
                     post(URL)
                         .with(csrf())
-                        .content(bodyWithBadDate())
+                        .content(BODY_WITH_BAD_DATE)
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                     .andExpect(status().isBadRequest())
-                    .andExpect(
-                        content().json(
-                            """{
-  "tidligstMuligeUttakstidspunktListe": [],
-  "feil": {
-    "type": "ANNEN_KLIENTFEIL",
-    "beskrivelse": "Cannot deserialize value of type `java.time.LocalDate` from String \"2030.02.01\": Failed to deserialize `java.time.LocalDate` (with format 'Value(YearOfEra,4,19,EXCEEDS_PAD)'-'Value(MonthOfYear,2)'-'Value(DayOfMonth,2)'): (java.time.format.DateTimeParseException) Text '2030.02.01' could not be parsed at index 4\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #117] (through reference chain: no.nav.pensjon.simulator.uttak.api.acl.TidligstMuligUttakSpecV1[\"heltUttakFraOgMedDato\"])"
-  }
-}"""
-                        )
-                    )
+                    .andExpect(feilbeskrivelseInneholder("2030.02.01"))
             }
         }
     }
+}
 
-    private companion object {
+private const val URL = "/api/v1/tidligst-mulig-uttak"
 
-        private const val URL = "/api/v1/tidligst-mulig-uttak"
-
-        @Language("json")
-        private fun okRequestBody() = """{
+@Language("json")
+private const val OK_REQUEST_BODY = """{
     "personId": "02816396649",
     "fodselsdato": "1963-01-02",
     "uttaksgrad": 50,
@@ -164,10 +146,10 @@ class UttakControllerTest : ShouldSpec() {
             "fraOgMedDato": "2030-02-01"
         }
     ]
-}""".trimIndent()
+}"""
 
-        @Language("json")
-        private fun bodyWithMissingPersonId() = """{
+@Language("json")
+private const val BODY_WITH_MISSING_PERSON_ID = """{
     "fodselsdato": "1963-01-02",
     "uttaksgrad": 50,
     "heltUttakFraOgMedDato": "2030-02-01",
@@ -182,10 +164,10 @@ class UttakControllerTest : ShouldSpec() {
             "fraOgMedDato": "2030-02-01"
         }
     ]
-}""".trimIndent()
+}"""
 
-        @Language("json")
-        private fun bodyWithBadDate() = """{
+@Language("json")
+private const val BODY_WITH_BAD_DATE = """{
     "personId": "02816396649",
     "fodselsdato": "1963-01-02",
     "uttaksgrad": 50,
@@ -201,6 +183,7 @@ class UttakControllerTest : ShouldSpec() {
             "fraOgMedDato": "2030-02-01"
         }
     ]
-}""".trimIndent()
-    }
-}
+}"""
+
+private fun feilbeskrivelseInneholder(value: String): ResultMatcher =
+    jsonPath("$.feil.beskrivelse", containsString(value))

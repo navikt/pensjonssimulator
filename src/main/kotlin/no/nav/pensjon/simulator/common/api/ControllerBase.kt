@@ -12,12 +12,11 @@ import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
-import tools.jackson.databind.exc.MismatchedInputException
 import java.lang.System.currentTimeMillis
-import java.time.format.DateTimeParseException
 
 abstract class ControllerBase(
     private val traceAid: TraceAid,
@@ -167,33 +166,5 @@ abstract class ControllerBase(
     "message": "En feil inntraff",
     "path": "/api/ressurs"
 }"""
-
-        fun extractExceptionNames(e: Throwable): String =
-            StringBuilder(e.javaClass.simpleName).apply {
-                e.cause?.let { append(" | Cause: ").append(extractExceptionNames(it)) }
-            }.toString()
-
-        fun extractSafeMessage(e: Throwable): String =
-            (if (safeExceptions.any { it.isInstance(e) }) e.message else e.cause?.let(::extractSafeMessage))
-                ?: e.javaClass.simpleName
-
-        /**
-         * NB: Use with caution, since 'message' may contain sensitive information.
-         * Should only be used for internal logging purposes, not for user-facing messages.
-         */
-        fun extractUnsafeMessages(e: Throwable): String =
-            StringBuilder(e.message ?: e.javaClass.simpleName).apply {
-                e.cause?.let { append(" | Cause: ").append(extractUnsafeMessages(it)) }
-            }.toString()
-
-        /**
-         * Exception types whose messages are considered never to contain sensitive information
-         * and are therefore safe to expose to external clients.
-         */
-        private val safeExceptions = setOf(
-            DateTimeParseException::class.java,
-            MismatchedInputException::class.java,
-            NullPointerException::class.java
-        )
     }
 }

@@ -19,6 +19,9 @@ import no.nav.pensjon.simulator.api.nav.v2.acl.result.VilkaarsproevingsresultatD
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractUnsafeMessages
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException

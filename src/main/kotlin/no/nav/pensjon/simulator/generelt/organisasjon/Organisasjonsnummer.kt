@@ -3,8 +3,7 @@ package no.nav.pensjon.simulator.generelt.organisasjon
 /**
  * Representerer organisasjonsnummer (no.wikipedia.org/wiki/Organisasjonsnummer)
  */
-@JvmInline
-value class Organisasjonsnummer(val value: String) {
+data class Organisasjonsnummer(val value: String) {
 
     init {
         require(value.length == REQUIRED_LENGTH) {

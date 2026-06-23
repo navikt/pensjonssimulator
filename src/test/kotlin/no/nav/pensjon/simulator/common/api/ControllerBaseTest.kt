@@ -200,35 +200,6 @@ class ControllerBaseTest : ShouldSpec({
             }.reason shouldBe "Call ID: call-id | Error: Test error | Details: RuntimeException | Cause: IllegalArgumentException"
         }
     }
-
-    context("extractMessageRecursively") {
-        should("ikke returnere mulig sensitiv exception message") {
-            SimpleTestController.testExtractMessageRecursively(
-                e = RuntimeException("Simple error")
-            ) shouldBe "RuntimeException"
-        }
-
-        should("ikke inkludere mulig sensitiv årsak") {
-            val cause = IllegalArgumentException("Root cause")
-
-            SimpleTestController.testExtractMessageRecursively(
-                e = RuntimeException("Outer error", cause)
-            ) shouldBe "RuntimeException | Cause: IllegalArgumentException"
-        }
-
-        should("håndtere flere nivåer av causes") {
-            val rootCause = IllegalStateException("Root")
-            val middleCause = IllegalArgumentException("Middle", rootCause)
-            val exception = RuntimeException("Top", middleCause)
-
-            SimpleTestController.testExtractMessageRecursively(exception) shouldBe
-                    "RuntimeException | Cause: IllegalArgumentException | Cause: IllegalStateException"
-        }
-
-        should("bruke class name når message er null") {
-            SimpleTestController.testExtractMessageRecursively(e = RuntimeException()) shouldBe "RuntimeException"
-        }
-    }
 })
 
 /**
@@ -278,8 +249,4 @@ private class SimpleTestController(traceAid: TraceAid) : ControllerBase(traceAid
 
     fun <T> testHandle(e: EgressException): T? = handle(e)
     fun <T> testBadRequest(e: RuntimeException): T = badRequest(e)
-
-    companion object {
-        fun testExtractMessageRecursively(e: Throwable): String = extractMessageRecursively(e)
-    }
 }

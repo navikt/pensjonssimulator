@@ -22,6 +22,7 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -77,10 +78,10 @@ class TpoViaPenAlderspensjonController(
             log.warn(e) { "$FUNCTION_ID_V1 bad request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID_V1 bad spec - ${extractMessageRecursively(e)} - $specV1" } // not log.warn(e)
+            log.warn { "$FUNCTION_ID_V1 bad spec - ${extractExceptionNames(e)} - $specV1" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: DateTimeParseException) {
-            log.warn { "$FUNCTION_ID_V1 feil datoformat (forventet yyyy-mm-dd) - ${extractMessageRecursively(e)} - request: $specV1" }
+            log.warn { "$FUNCTION_ID_V1 feil datoformat (forventet yyyy-mm-dd) - ${extractExceptionNames(e)} - request: $specV1" }
             throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID_V1 feil i simuleringsgrunnlaget - request - $specV1" }

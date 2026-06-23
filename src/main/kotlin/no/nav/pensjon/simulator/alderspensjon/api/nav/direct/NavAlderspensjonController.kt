@@ -22,6 +22,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -141,7 +142,7 @@ class NavAlderspensjonController(
                 opptjeningGrunnlagListe = emptyList(),
                 error = NavSimuleringErrorV3(
                     exception = e.javaClass.simpleName,
-                    message = extractMessageRecursively(e)
+                    message = extractExceptionNames(e)
                 )
             )
     }

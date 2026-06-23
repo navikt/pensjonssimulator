@@ -3,15 +3,16 @@ package no.nav.pensjon.simulator.common.api
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
-import no.nav.pensjon.simulator.person.Pid
-import no.nav.pensjon.simulator.tech.metric.Metrics
-import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.metric.Metrics
+import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
@@ -60,7 +61,7 @@ abstract class ControllerBase(
             handleExternalError<T>(e)
 
     protected fun <T> badRequest(e: RuntimeException): T {
-        val message = extractMessageRecursively(e)
+        val message = extractExceptionNames(e)
         log.info { "Bad request - $message" } // no error, so the stacktrace is not logged
 
         throw ResponseStatusException(
@@ -132,7 +133,7 @@ abstract class ControllerBase(
 
         throw ResponseStatusException(
             HttpStatus.INTERNAL_SERVER_ERROR,
-            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",
+            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractExceptionNames(e)}",
             e
         )
     }
@@ -145,13 +146,13 @@ abstract class ControllerBase(
     private fun <T> serviceUnavailable(e: EgressException): T {
         throw ResponseStatusException(
             HttpStatus.SERVICE_UNAVAILABLE,
-            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractMessageRecursively(e)}",
+            "Call ID: ${traceAid.callId()} | Error: ${errorMessage()} | Details: ${extractExceptionNames(e)}",
             e
         )
     }
 
     private fun logError(e: EgressException, category: String) {
-        log.error { "$category ${errorMessage()} : ${extractMessageRecursively(e)}" }
+        log.error { "$category ${errorMessage()} : ${extractExceptionNames(e)}" }
     }
 
     protected companion object {
@@ -165,10 +166,5 @@ abstract class ControllerBase(
     "message": "En feil inntraff",
     "path": "/api/ressurs"
 }"""
-
-        fun extractMessageRecursively(e: Throwable): String =
-            StringBuilder(e.javaClass.simpleName).apply {
-                e.cause?.let { append(" | Cause: ").append(extractMessageRecursively(it)) }
-            }.toString()
     }
 }

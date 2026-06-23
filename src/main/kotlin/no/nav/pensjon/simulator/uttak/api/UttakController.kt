@@ -18,8 +18,11 @@ import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.*
 import no.nav.pensjon.simulator.uttak.api.acl.UttakResultMapperV1.resultV1
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractUnsafeMessages
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import tools.jackson.databind.json.JsonMapper
@@ -113,22 +116,29 @@ class UttakController(
 
     override fun errorMessage() = ERROR_MESSAGE
 
+    @ExceptionHandler(value = [HttpMessageNotReadableException::class])
+    private fun handleMalformedRequest(e: Exception): ResponseEntity<TidligstMuligUttakResultV1> =
+        with(TidligstMuligUttakFeilTypeV1.ANNEN_KLIENTFEIL) {
+            log.warn(e) { "$FUNCTION_ID - request not readable - ${extractUnsafeMessages(e)}" }
+            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = extractSafeMessage(e)))
+        }
+
     @ExceptionHandler(value = [Exception::class])
-    private fun internalError(e: Exception): ResponseEntity<TidligstMuligUttakResultV1> =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problem(e))
+    private fun handleInternalError(e: Exception): ResponseEntity<TidligstMuligUttakResultV1> =
+        with(TidligstMuligUttakFeilTypeV1.TEKNISK_FEIL) {
+            log.error(e) { "$FUNCTION_ID - unknown error - ${extractUnsafeMessages(e)}" }
+            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = e.javaClass.simpleName))
+        }
 
     private companion object {
         private const val TJENESTE = "simulering for TMU"
         private const val ERROR_MESSAGE = "feil ved $TJENESTE"
         private const val FUNCTION_ID = "tmu"
 
-        private fun problem(e: Exception) =
+        private fun problem(type: TidligstMuligUttakFeilTypeV1, beskrivelse: String) =
             TidligstMuligUttakResultV1(
                 tidligstMuligeUttakstidspunktListe = emptyList(),
-                feil = TidligstMuligUttakFeilV1(
-                    type = TidligstMuligUttakFeilTypeV1.TEKNISK_FEIL,
-                    beskrivelse = e.javaClass.simpleName
-                )
+                feil = TidligstMuligUttakFeilV1(type, beskrivelse)
             )
     }
 }

@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
-class SimulatorOutputConverterTest : FunSpec({
+open class SimulatorOutputConverterTest : FunSpec({
 
     /**
      * Tests mapping of:
@@ -71,7 +71,7 @@ class SimulatorOutputConverterTest : FunSpec({
                 }
             },
             today = LocalDate.of(2025, 2, 15), // no uttaksgrad covers this date
-            inntektVedFase1Uttak = 123
+            inntektVedTidsbegrensetOffentligAfpUttak = 123
         ) shouldBe SimulertPensjon(
             alderspensjon = listOf(
                 SimulertAarligAlderspensjon(
@@ -115,7 +115,8 @@ class SimulatorOutputConverterTest : FunSpec({
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = false,
             primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 4),
-            opptjeningGrunnlagListe = emptyList()
+            opptjeningGrunnlagListe = emptyList(),
+            opptjeningListe = emptyList()
         )
     }
 

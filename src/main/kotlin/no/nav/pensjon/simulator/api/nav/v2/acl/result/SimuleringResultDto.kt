@@ -17,7 +17,9 @@ data class SimuleringResultDto(
     @field:NotNull val privatAfpListe: List<PrivatAfpDto>,
     val primaerTrygdetid: TrygdetidDto?,
     @field:NotNull val vilkaarsproevingsresultat: VilkaarsproevingsresultatDto,
+    @Deprecated("Bruk opptjeningListe")
     @field:NotNull val pensjonsgivendeInntektListe: List<AarligBeloepDto>,
+    @field:NotNull val opptjeningListe: List<OpptjeningDto>,
     val problem: ProblemDto? = null
 )
 
@@ -126,6 +128,14 @@ data class PrivatAfpDto(
     @field:NotNull val kronetillegg: Int,
     @field:NotNull val livsvarig: Int,
     @field:NotNull val maanedligBeloep: Int
+)
+
+@JsonInclude(NON_NULL)
+data class OpptjeningDto(
+    val aarstall: Int?,
+    val pensjonsgivendeInntekt: Int?,
+    val pensjonsbeholdning: Int?,
+    val pensjonspoeng: Double?,
 )
 
 @JsonInclude(NON_NULL)

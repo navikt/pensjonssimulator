@@ -18,7 +18,7 @@ object NavSimuleringResultMapperV3 {
         return NavSimuleringResultV3(
             alderspensjonListe = pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
             alderspensjonMaanedsbeloep = maanedsbeloep(pensjon?.alderspensjonFraFolketrygden.orEmpty()),
-            pre2025OffentligAfp = pensjon?.pre2025OffentligAfp?.let(::pre2025OffentligAfp),
+            pre2025OffentligAfp = pensjon?.pre2025OffentligAfp?.let(::tidsbegrensetOffentligAfp),
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
             livsvarigOffentligAfpListe = pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             vilkaarsproeving = vilkaarsproevingResultat(source?.alternativ),
@@ -57,7 +57,7 @@ object NavSimuleringResultMapperV3 {
             heltUttakBeloep = source.firstOrNull(::erHel)?.maanedligBeloep ?: 0
         )
 
-    private fun pre2025OffentligAfp(source: SimulertPre2025OffentligAfp) =
+    private fun tidsbegrensetOffentligAfp(source: SimulertPre2025OffentligAfp) =
         NavPre2025OffentligAfp(
             alderAar = source.alderAar,
             totaltAfpBeloep = source.totaltAfpBeloep,

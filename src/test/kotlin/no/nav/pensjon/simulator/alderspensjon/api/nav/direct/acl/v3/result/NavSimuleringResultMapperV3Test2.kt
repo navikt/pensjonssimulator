@@ -6,13 +6,14 @@ import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Assert.assertResult
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.alderspensjonFraFolketrygden
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringResultMapperV3Test2Objects.simulertPensjonEllerAlternativ
+import no.nav.pensjon.simulator.core.result.SimulertOpptjening
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
 // Copied from PEN
-class NavSimuleringResultMapperV3Test2 : FunSpec({
+open class NavSimuleringResultMapperV3Test2 : FunSpec({
 
     test("map resultat med gradert uttak") {
         val source = simulertPensjonEllerAlternativ(
@@ -157,12 +158,8 @@ private object NavSimuleringResultMapperV3Test2Objects {
                 ),
                 harUttak = true,
                 primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 21),
-                opptjeningGrunnlagListe = listOf(
-                    OpptjeningGrunnlag(
-                        aar = 22,
-                        pensjonsgivendeInntekt = 23
-                    )
-                )
+                opptjeningGrunnlagListe = listOf(OpptjeningGrunnlag(aar = 22, pensjonsgivendeInntekt = 23)),
+                opptjeningListe = listOf(SimulertOpptjening(kalenderAar = 22, pensjonsgivendeInntekt = 23))
             ),
             alternativ = null
         )

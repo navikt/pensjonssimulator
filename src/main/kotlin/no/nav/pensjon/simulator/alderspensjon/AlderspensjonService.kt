@@ -49,7 +49,6 @@ class AlderspensjonService(
         )
     }
 
-    // PEN: simdomSimulerAlderspensjon1963Plus
     private fun simulerMedMuligAlternativ(spec: SimuleringSpec): SimulertPensjonEllerAlternativ {
         try {
             val result: SimulatorOutput = simulator.simuler(spec)
@@ -58,7 +57,7 @@ class AlderspensjonService(
                 pensjon = SimulatorOutputConverter.pensjon( // SimulatorOutput -> SimulertPensjon
                     source = result,
                     today = time.today(),
-                    inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                    inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                 ),
                 alternativ = null
             )

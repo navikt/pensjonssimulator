@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.result.SimulertOpptjening
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
@@ -15,7 +16,9 @@ data class SimulertPensjon(
     val pensjonBeholdningPeriodeListe: List<SimulertPensjonBeholdningPeriode>,
     val harUttak: Boolean,
     val primaerTrygdetid: Trygdetid,
-    val opptjeningGrunnlagListe: List<OpptjeningGrunnlag>
+    @Deprecated("Bruk opptjeningListe")
+    val opptjeningGrunnlagListe: List<OpptjeningGrunnlag>,
+    val opptjeningListe: List<SimulertOpptjening>
 )
 
 data class SimulertAarligAlderspensjon(

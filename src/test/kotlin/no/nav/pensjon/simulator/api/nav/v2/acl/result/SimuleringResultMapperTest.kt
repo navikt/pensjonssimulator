@@ -8,7 +8,7 @@ import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 
-class SimuleringResultMapperTest : ShouldSpec({
+open class SimuleringResultMapperTest : ShouldSpec({
 
     should("map empty result to DTO with empty lists") {
         SimuleringResultMapper.toDto(
@@ -30,6 +30,7 @@ class SimuleringResultMapperTest : ShouldSpec({
                 alternativ = null
             ),
             pensjonsgivendeInntektListe = emptyList(),
+            opptjeningListe = emptyList(),
             problem = null
         )
     }
@@ -46,8 +47,8 @@ class SimuleringResultMapperTest : ShouldSpec({
                             garantipensjon = SimulertGarantipensjon(aarligBeloep = 125, sats = 1.2),
                             garantitillegg = 126,
                             delingstall = 1.3,
-                             pensjonBeholdningFoerUttak = 127,
-                             andelsbroekKap19 = 1.4,
+                            pensjonBeholdningFoerUttak = 127,
+                            andelsbroekKap19 = 1.4,
                             andelsbroekKap20 = 1.5,
                             sluttpoengtall = 1.6,
                             trygdetidKap19 = 19,
@@ -73,7 +74,8 @@ class SimuleringResultMapperTest : ShouldSpec({
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 20),
                     maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
-                    opptjeningGrunnlagListe = emptyList()
+                    opptjeningGrunnlagListe = emptyList(),
+                    opptjeningListe = emptyList()
                 ),
                 alternativ = null,
                 problem = null
@@ -128,6 +130,7 @@ class SimuleringResultMapperTest : ShouldSpec({
             ),
             vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(erInnvilget = true, alternativ = null),
             pensjonsgivendeInntektListe = emptyList(),
+            opptjeningListe = emptyList(),
             problem = null
         )
     }
@@ -138,10 +141,7 @@ class SimuleringResultMapperTest : ShouldSpec({
                 source = SimulertPensjonEllerAlternativ(
                     pensjon = null,
                     alternativ = null,
-                    problem = Problem(
-                        type = ProblemType.PERSON_IKKE_FUNNET,
-                        beskrivelse = "x"
-                    )
+                    problem = Problem(type = ProblemType.PERSON_IKKE_FUNNET, beskrivelse = "x")
                 )
             ) shouldBe SimuleringResultDto(
                 alderspensjonListe = emptyList(),
@@ -151,15 +151,10 @@ class SimuleringResultMapperTest : ShouldSpec({
                 tidsbegrensetOffentligAfp = null,
                 privatAfpListe = emptyList(),
                 primaerTrygdetid = null,
-                vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(
-                    erInnvilget = false,
-                    alternativ = null
-                ),
+                vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(erInnvilget = false, alternativ = null),
                 pensjonsgivendeInntektListe = emptyList(),
-                problem = ProblemDto(
-                    kode = ProblemTypeDto.PERSON_IKKE_FUNNET,
-                    beskrivelse = "x"
-                )
+                opptjeningListe = emptyList(),
+                problem = ProblemDto(kode = ProblemTypeDto.PERSON_IKKE_FUNNET, beskrivelse = "x")
             )
         }
     }

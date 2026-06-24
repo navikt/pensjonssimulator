@@ -52,7 +52,7 @@ class AlternativSimuleringService(
                         pensjon(
                             source = result,
                             today = time.today(),
-                            inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                            inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                         )
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
@@ -128,7 +128,7 @@ class AlternativSimuleringService(
                         pensjon(
                             source = result,
                             today = time.today(),
-                            inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep
+                            inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                         )
             )
         } catch (e: UtilstrekkeligOpptjeningException) {

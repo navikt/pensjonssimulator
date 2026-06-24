@@ -124,6 +124,9 @@
                 <version>3.5.6</version>
                 <configuration>
                     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                    <systemPropertyVariables>
+                        <kotest.listener.spring.ignore.warning>true</kotest.listener.spring.ignore.warning>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

@@ -20,7 +20,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.flywaydb.core" level="WARN"/>
+    <logger name="org.springframework.test.context.support.AnnotationConfigContextLoaderUtils" level="WARN"/>
 
     <root level="INFO">
         <appender-ref ref="${STDOUT_LOG_APPENDER}"/>

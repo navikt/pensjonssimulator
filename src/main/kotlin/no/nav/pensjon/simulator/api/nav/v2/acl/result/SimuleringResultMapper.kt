@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.api.nav.v2.acl.result
 import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
+import no.nav.pensjon.simulator.core.result.SimulertOpptjening
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import no.nav.pensjon.simulator.validity.Problem
@@ -27,6 +28,7 @@ object SimuleringResultMapper {
             primaerTrygdetid = pensjon?.primaerTrygdetid?.let(::trygdetid),
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
             pensjonsgivendeInntektListe = pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag),
+            opptjeningListe = pensjon?.opptjeningListe.orEmpty().map(::opptjening),
             problem = source?.problem?.let(::problem)
         )
     }
@@ -161,6 +163,14 @@ object SimuleringResultMapper {
             erUtilstrekkelig = source.erTilstrekkelig.not()
         )
 
+    private fun opptjening(source: SimulertOpptjening) =
+        OpptjeningDto(
+            aarstall = source.kalenderAar,
+            pensjonsgivendeInntekt = source.pensjonsgivendeInntekt,
+            pensjonsbeholdning = source.pensjonBeholdning,
+            pensjonspoeng = source.pensjonsgivendeInntektPensjonspoeng,
+        )
+
     private fun vilkaarsproevingsresultat(alternativ: SimulertAlternativ?, problem: Problem?) =
         VilkaarsproevingsresultatDto(
             erInnvilget = alternativ == null && problem == null,
@@ -197,7 +207,8 @@ object SimuleringResultMapper {
 
     private fun problem(source: Problem) =
         ProblemDto(
-            kode = ProblemTypeDto.entries.firstOrNull { it.internalValue == source.type } ?: ProblemTypeDto.ANNEN_SERVERFEIL,
+            kode = ProblemTypeDto.entries.firstOrNull { it.internalValue == source.type }
+                ?: ProblemTypeDto.ANNEN_SERVERFEIL,
             beskrivelse = source.beskrivelse
         )
 }

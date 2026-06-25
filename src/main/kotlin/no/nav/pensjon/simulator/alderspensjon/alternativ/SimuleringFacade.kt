@@ -49,7 +49,7 @@ class SimuleringFacade(
                     else pensjon(
                         source = result,
                         today = time.today(),
-                        inntektVedFase1Uttak = spec.inntektUnderGradertUttakBeloep,
+                        inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep,
                         gradertUttakDato = if (spec.isGradert()) spec.foersteUttakDato else null,
                         heltUttakDato = heltUttakDato(spec),
                         normertPensjoneringsdato = spec.foedselDato?.let(normalderService::normertPensjoneringsdato)
@@ -143,7 +143,7 @@ class SimuleringFacade(
             SimulertPensjonEllerAlternativ(
                 pensjon = null,
                 alternativ = null,
-                problem = Problem(type, beskrivelse = "Ukjent feil - ${e.javaClass.simpleName}")
+                problem = Problem(type, beskrivelse = e.javaClass.simpleName)
             )
     }
 }

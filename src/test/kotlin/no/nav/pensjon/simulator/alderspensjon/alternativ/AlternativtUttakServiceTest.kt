@@ -23,7 +23,7 @@ import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
 
-class AlternativtUttakServiceTest : FunSpec({
+open class AlternativtUttakServiceTest : FunSpec({
 
     val foedselsdato = LocalDate.of(1967, 1, 1)
 
@@ -61,12 +61,19 @@ class AlternativtUttakServiceTest : FunSpec({
                 pensjonBeholdningPeriodeListe = emptyList(),
                 harUttak = false,
                 primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 0),
-                opptjeningGrunnlagListe = emptyList()
+                opptjeningGrunnlagListe = emptyList(),
+                opptjeningListe = emptyList()
             ),
             alternativ = SimulertAlternativ(
-                gradertUttakAlder = SimulertUttakAlder(alder = Alder(aar = 65, maaneder = 1), uttakDato = LocalDate.of(2032, 3, 1)),
+                gradertUttakAlder = SimulertUttakAlder(
+                    alder = Alder(aar = 65, maaneder = 1),
+                    uttakDato = LocalDate.of(2032, 3, 1)
+                ),
                 uttakGrad = UttakGradKode.P_40,
-                heltUttakAlder = SimulertUttakAlder(alder = Alder(aar = 66, maaneder = 1), uttakDato = LocalDate.of(2033, 3, 1)),
+                heltUttakAlder = SimulertUttakAlder(
+                    alder = Alder(aar = 66, maaneder = 1),
+                    uttakDato = LocalDate.of(2033, 3, 1)
+                ),
                 resultStatus = SimulatorResultStatus.GOOD
             )
         )

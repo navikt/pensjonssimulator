@@ -12,14 +12,10 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.calculateAgeInYears
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.firstDayOfMonthAfterUserTurnsGivenAge
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getFirstDateInYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersects
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.result.SimulatorOutputMapper.simulertPrivatAfpPeriode
@@ -33,7 +29,10 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
+import no.nav.pensjon.simulator.tech.time.DateUtil.TIDENS_SLUTT
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
+import no.nav.pensjon.simulator.tech.time.DateUtil.overlapper
+import no.nav.pensjon.simulator.tech.time.DateUtil.overlapperEndeloest
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -346,8 +345,13 @@ class SimuleringResultPreparer(
 
         for (alder in startAlder..normalderService.opptjeningMaxAlderAar(foedselsdato)) {
             val beloepPeriode: BeloepPeriode = beloepPeriode(foedselsdato, alder, privatAfpBeregningResultatListe)
+
             val afpResultat: BeregningsResultatAfpPrivat? =
-                findEarliestIntersecting(privatAfpBeregningResultatListe, beloepPeriode.start, beloepPeriode.slutt)
+                findEarliestIntersecting(
+                    list = privatAfpBeregningResultatListe,
+                    startDate = beloepPeriode.start?.toNorwegianLocalDate(),
+                    endDate = beloepPeriode.slutt?.toNorwegianLocalDate()
+                )
 
             afpResultat?.let {
                 simulatorOutput.privatAfpPeriodeListe.add(
@@ -493,29 +497,41 @@ class SimuleringResultPreparer(
             alderAar: Int,
             resultatListe: MutableList<T>
         ): BeloepPeriode {
-            val periodeStart: Date =
-                foedselsdato.plusYears(alderAar.toLong()).withDayOfMonth(1).plusMonths(1).toNorwegianDateAtNoon()
-            val periodeSlutt: Date =
-                getLastDayOfMonth(getRelativeDateByYear(foedselsdato, alderAar + 1).toNorwegianDateAtNoon())
+            val periodeStart: LocalDate =
+                foedselsdato.plusYears(alderAar.toLong()).withDayOfMonth(1).plusMonths(1)
+            val periodeSlutt: LocalDate = foedselsdato.plusYears((alderAar + 1).toLong()).plusMonths(1).minusDays(1)
             var beloep = 0
             val maanedsutbetalinger = mutableListOf<Maanedsutbetaling>()
-            for (resultat in resultatListe) {
-                val fom: Date = resultat.virkFomLd!!.toNorwegianDateAtNoon()
-                val tom: Date = resultat.virkTomLd?.toNorwegianDateAtNoon() ?: ETERNITY
 
-                if (intersects(periodeStart, periodeSlutt, fom, tom, true)) {
+            for (resultat in resultatListe) {
+                val fom: LocalDate = resultat.virkFomLd!!
+                val tom: LocalDate = resultat.virkTomLd ?: TIDENS_SLUTT
+
+                if (overlapper(
+                        start1 = periodeStart,
+                        slutt1 = periodeSlutt,
+                        start2 = fom,
+                        slutt2 = tom,
+                        anseEnkeltDagSomOverlapp = true
+                    )
+                ) {
                     beloep += getBeloep(periodeStart, periodeSlutt, resultat, fom, tom)
 
                     maanedsutbetalinger.add(
                         Maanedsutbetaling(
-                            resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0,
-                            resultat.virkFomLd!!
+                            beloep = resultat.pensjonUnderUtbetaling?.totalbelopNetto ?: 0,
+                            fom = resultat.virkFomLd!!
                         )
                     )
                 }
             }
 
-            return BeloepPeriode(beloep, periodeStart, periodeSlutt, maanedsutbetalinger)
+            return BeloepPeriode(
+                beloep,
+                start = periodeStart.toNorwegianDateAtNoon(),
+                slutt = periodeSlutt.toNorwegianDateAtNoon(),
+                maanedsutbetalinger
+            )
         }
 
         private fun earliestVirkningFom(resultater: List<AbstraktBeregningsResultat>): LocalDate? =
@@ -532,21 +548,6 @@ class SimuleringResultPreparer(
             val antallManeder = numberOfMonths(periodeStart, periodeSlutt, fom, tom)
             return gjeldendeResultat.pensjonUnderUtbetaling?.totalbelopNetto?.let { it * antallManeder } ?: 0
         }
-
-        private fun getBeloep(
-            periodeStart: Date,
-            periodeSlutt: Date,
-            gjeldendeResultat: AbstraktBeregningsResultat,
-            fom: Date,
-            tom: Date
-        ): Int =
-            getBeloep(
-                periodeStart.toNorwegianLocalDate(),
-                periodeSlutt.toNorwegianLocalDate(),
-                gjeldendeResultat,
-                fom.toNorwegianLocalDate(),
-                tom.toNorwegianLocalDate()
-            )
 
         private fun createSimulertBeregningsinfoForKnekkpunkter(
             kravhode: Kravhode,
@@ -760,24 +761,24 @@ class SimuleringResultPreparer(
         // From PeriodisertInformasjonListeUtils
         private fun findEarliestIntersecting(
             list: List<BeregningsResultatAfpPrivat>,
-            startDate: Date?,
-            endDate: Date?
+            startDate: LocalDate?,
+            endDate: LocalDate?
         ): BeregningsResultatAfpPrivat? {
             var result: BeregningsResultatAfpPrivat? = null
-            var earliestDate: Date? = ETERNITY
+            var earliestDate: LocalDate? = TIDENS_SLUTT
 
             for (element in list) {
-                val virkFom = element.virkFomLd?.toNorwegianDateAtNoon()
+                val virkFom = element.virkFomLd
 
-                if (intersectsWithPossiblyOpenEndings(
-                        startDate,
-                        endDate,
-                        virkFom,
-                        element.virkTomLd?.toNorwegianDateAtNoon(),
-                        true
+                if (overlapperEndeloest(
+                        start1 = startDate,
+                        slutt1 = endDate,
+                        start2 = virkFom,
+                        slutt2 = element.virkTomLd,
+                        anseEnkeltDagSomOverlapp = true
                     )
                 ) {
-                    if (isBeforeByDay(virkFom, earliestDate, false)) {
+                    if (isBeforeByDay(virkFom, earliestDate, allowSameDay = false)) {
                         earliestDate = virkFom
                         result = element
                     }

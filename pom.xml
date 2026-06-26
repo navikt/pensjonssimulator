@@ -23,7 +23,7 @@
         <flyway.version>12.8.1</flyway.version>
         <logback.version>1.5.34</logback.version>
         <okhttp3.version>5.4.0</okhttp3.version>
-        <kotest.version>6.2.0</kotest.version>
+        <kotest.version>6.2.1</kotest.version>
     </properties>
     <build>
         <finalName>pensjonssimulator</finalName>

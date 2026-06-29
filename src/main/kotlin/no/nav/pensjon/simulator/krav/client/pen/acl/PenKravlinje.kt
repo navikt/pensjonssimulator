@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.KravlinjeTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 
 /**
@@ -10,7 +9,7 @@ import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
  */
 class PenKravlinje {
     var kravlinjeStatus: KravlinjeStatus? = null // PEN: KravlinjeStatusCode
-    var land: LandkodeEnum? = null // PEN: Land3TegnCode
+    var land: String? = null // PEN: LandKode
     var kravlinjeTypeEnum: KravlinjeTypeEnum? = null // includes 'hovedKravlinje'
     var hovedKravlinje: Boolean? = null // not used; avoids UnrecognizedPropertyException
     var relatertPerson: PenPenPerson? = null

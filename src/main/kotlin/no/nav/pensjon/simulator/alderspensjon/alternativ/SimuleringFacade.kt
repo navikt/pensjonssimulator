@@ -102,19 +102,24 @@ class SimuleringFacade(
         inkluderPensjonHvisUbetinget: Boolean,
         exception: RuntimeException
     ): SimulertPensjonEllerAlternativ? =
-        if (gjelderUfoereMedAfp)
-            if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normalderService.normalderDato(spec.foedselDato!!)))
-                if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
-                    ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec)
+        try {
+            if (gjelderUfoereMedAfp)
+                if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normalderService.normalderDato(spec.foedselDato!!)))
+                    if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
+                        ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec)
+                    else
+                        ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec)
                 else
-                    ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec)
+                    ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
+            else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
+                alternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
             else
-                ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
-        else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
-            alternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
-        else
-            alternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)
-
+                alternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)
+        } catch (e: UtilstrekkeligOpptjeningException) {
+            problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
+        } catch (e: UtilstrekkeligTrygdetidException) {
+            problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
+        }
 
     private fun hasUfoereperiode(spec: SimuleringSpec): Boolean =
         spec.pid?.let { ufoereService.hasUfoereperiode(it, spec.foersteUttakDato!!) } == true

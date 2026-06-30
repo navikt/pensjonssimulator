@@ -1,17 +1,15 @@
 package no.nav.pensjon.simulator.krav.client.pen.acl
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.core.domain.regler.enum.BorMedTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
+import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import java.time.LocalDate
 
-class PenKravhodeMapperTest : FunSpec({
+class PenKravhodeMapperTest : ShouldSpec({
 
-    test("'kravhode' maps persondetalj") {
+    should("map persondetalj") {
         val source = PenKravhode().apply {
             persongrunnlagListe = mutableListOf(
                 PenPersongrunnlag().apply {
@@ -58,6 +56,31 @@ class PenKravhodeMapperTest : FunSpec({
                     serskiltSatsUtenET shouldBe true
                     epsAvkallEgenPensjon shouldBe false
                 }
+            }
+        }
+    }
+
+    should("map kravlinje") {
+        val source = PenKravhode().apply {
+            kravlinjeListe = mutableListOf(
+                PenKravlinje().apply {
+                    kravlinjeStatus = KravlinjeStatus.FERDIG
+                    land = "CZE_V1"
+                    kravlinjeTypeEnum = KravlinjeTypeEnum.BP
+                    hovedKravlinje = true
+                    relatertPerson = PenPenPerson().apply { penPersonId = 1L }
+                })
+        }
+
+        val result: Kravhode = PenKravhodeMapper.kravhode(source)
+
+        with(result) {
+            with(kravlinjeListe.first()) {
+                kravlinjeTypeEnum shouldBe KravlinjeTypeEnum.BP
+                relatertPerson?.penPersonId shouldBe 1L
+                hovedKravlinje shouldBe true
+                kravlinjeStatus shouldBe KravlinjeStatus.FERDIG
+                land shouldBe LandkodeEnum.CZE
             }
         }
     }

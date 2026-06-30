@@ -23,6 +23,7 @@ import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -89,6 +90,9 @@ class TpoViaPenAlderspensjonController(
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID_V1 unrecoverable error - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
+        } catch (e: InternDataInkonsistensException) {
+            log.error(e) { "$FUNCTION_ID_V1 intern datainkonsistens - request - $specV1" }
+            throw e
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID_V1 invalid argument - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -163,7 +167,9 @@ class TpoViaPenAlderspensjonController(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class
+            ImplementationUnrecoverableException::class,
+            InternDataInkonsistensException::class,
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =

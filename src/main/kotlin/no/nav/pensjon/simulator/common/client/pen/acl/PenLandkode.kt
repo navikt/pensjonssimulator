@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.common.client.pen.acl
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import org.springframework.util.StringUtils.hasLength
+import java.util.Locale
 
 /**
  * Corresponds with
@@ -286,11 +287,15 @@ enum class PenLandkode(val reglerValue: LandkodeEnum, val navn: String) {
     companion object {
         private val log = KotlinLogging.logger {}
 
+        private val landkoderByExternalValue: Map<String, PenLandkode> =
+            entries.associateBy { it.name.lowercase(Locale.ROOT) }
+
         fun internalValue(externalValue: String?): LandkodeEnum =
             fromExternalValue(externalValue).reglerValue
 
         private fun fromExternalValue(value: String?) =
-            entries.singleOrNull { it.name.equals(value, true) } ?: default(value)
+            value?.let { landkoderByExternalValue[it.lowercase(Locale.ROOT)] }
+                ?: default(externalValue = value)
 
         private fun default(externalValue: String?) =
             if (hasLength(externalValue))

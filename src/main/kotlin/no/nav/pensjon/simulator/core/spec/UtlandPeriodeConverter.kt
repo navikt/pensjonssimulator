@@ -40,7 +40,15 @@ object UtlandPeriodeConverter {
         val tidligsteFom = periodeListe.minOfOrNull { it.fom }
         if (tidligsteFom == null) return 0
 
-        val startDato = tidligsteTrygdetidDato(foedselsdato).coerceAtLeast(tidligsteFom)
+        val tidligsteTrygdetidDato = tidligsteTrygdetidDato(foedselsdato)
+
+        if (tidligsteTrygdetidDato.isBefore(tidligsteFom))
+            return 0 // utenlandsoppholdet startet etter minstealder for trygdetid
+
+        // Utenlandsoppholdet startet før eller ved minstealder for trygdetid;
+        // da skal minstealderåret regnes som et helt år i utlandet:
+        val startDato = LocalDate.of(tidligsteTrygdetidDato.year, 1, 1)
+
         return ChronoUnit.DAYS.between(tidligsteFom, startDato)
     }
 

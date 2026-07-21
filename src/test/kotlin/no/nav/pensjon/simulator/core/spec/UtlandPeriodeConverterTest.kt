@@ -1,23 +1,23 @@
 package no.nav.pensjon.simulator.core.spec
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import java.time.LocalDate
 
-class UtlandPeriodeConverterTest : FunSpec({
+class UtlandPeriodeConverterTest : ShouldSpec({
 
     val foedselsdato = LocalDate.of(1963, 1, 15)
 
-    test("'limitedAntallAar' skal gi 0 hvis ingen perioder") {
+    should("gi 0 hvis ingen perioder") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = emptyList(),
             foedselsdato
         ) shouldBe 0
     }
 
-    test("'limitedAntallAar' skal gi 0 for periode med ikke-komplett år") {
+    should("gi 0 for periode med ikke-komplett år") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -29,7 +29,7 @@ class UtlandPeriodeConverterTest : FunSpec({
         ) shouldBe 0
     }
 
-    test("'limitedAntallAar' skal gi 60 hvis periodens sluttdato er udefinert") {
+    should("gi 60 hvis periodens sluttdato er udefinert") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -41,7 +41,7 @@ class UtlandPeriodeConverterTest : FunSpec({
         ) shouldBe 60
     }
 
-    test("'limitedAntallAar' skal begrenses til 60") {
+    should("begrenses til 60 år") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -57,7 +57,7 @@ class UtlandPeriodeConverterTest : FunSpec({
         ) shouldBe 60
     }
 
-    test("'limitedAntallAar' skal avrundes nedover til nærmeste heltall") {
+    should("avrundes nedover til nærmeste heltall") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -69,7 +69,7 @@ class UtlandPeriodeConverterTest : FunSpec({
         ) shouldBe 2
     }
 
-    test("'limitedAntallAar' skal ikke ta med tid før minimumsalder for trygdetid") {
+    should("ikke ta med tid før minstealder for trygdetid") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -77,11 +77,39 @@ class UtlandPeriodeConverterTest : FunSpec({
                     tom = LocalDate.of(2015, 1, 14)
                 )
             ),
-            foedselsdato = LocalDate.of(1998, 1, 15) // dato da minimumsalder (16 år) oppnås er 2014-01-15
+            foedselsdato = LocalDate.of(1998, 1, 15) // dato da minstealder (16 år) oppnås er 2014-01-15
         ) shouldBe 1 // tiden 2013-01-01 t.o.m. 2014-01-14 tas ikke med i beregningen
     }
 
-    test("'limitedAntallAar' skal håndtere tilfellet der alle periodene slutter før minimumsalder for trygdetid") {
+    context("søker bor utenlands ved oppnåelse av minstealder") {
+        should("anse året søker oppnår minstealder som helt år i utlandet") {
+            UtlandPeriodeConverter.limitedAntallAar(
+                periodeListe = listOf(
+                    utlandPeriode(
+                        fom = LocalDate.of(1978, 1, 23), // oppnår minstealder på denne datoen
+                        tom = LocalDate.of(1999, 12, 31)
+                    )
+                ),
+                foedselsdato = LocalDate.of(1962, 1, 23) // dato da minstealder (16 år) oppnås er 1978-01-23
+            ) shouldBe 22 // 1978 teller som helt år i utlandet
+        }
+    }
+
+    context("søker flytter utenlands kort tid etter oppnåelse av minstealder") {
+        should("anse året søker oppnår minstealder som bosatt i Norge") {
+            UtlandPeriodeConverter.limitedAntallAar(
+                periodeListe = listOf(
+                    utlandPeriode(
+                        fom = LocalDate.of(1978, 1, 24), // 1 dag etter oppnåelse av minstealder
+                        tom = LocalDate.of(1999, 12, 31)
+                    )
+                ),
+                foedselsdato = LocalDate.of(1962, 1, 23) // dato da minstealder (16 år) oppnås er 1978-01-23
+            ) shouldBe 21 // 1978 teller ikke som år i utlandet
+        }
+    }
+
+    should("håndtere tilfellet der alle periodene slutter før minstealder for trygdetid") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -89,11 +117,11 @@ class UtlandPeriodeConverterTest : FunSpec({
                     tom = LocalDate.of(2010, 12, 31)
                 )
             ),
-            foedselsdato = LocalDate.of(2000, 1, 15) // dato da minimumsalder (16 år) oppnås er 2016-01-15
+            foedselsdato = LocalDate.of(2000, 1, 15) // dato da minstealder (16 år) oppnås er 2016-01-15
         ) shouldBe 0
     }
 
-    test("'limitedAntallAar' ignorerer perioder der startdato er etter sluttdato") {
+    should("ignorere perioder der startdato er etter sluttdato") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -108,7 +136,7 @@ class UtlandPeriodeConverterTest : FunSpec({
     /**
      * NB: Test som illustrerer en mangel ved utregningen.
      */
-    test("'limitedAntallAar' mangler håndtering av skuddår") {
+    should("mangle håndtering av skuddår") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(
@@ -123,7 +151,7 @@ class UtlandPeriodeConverterTest : FunSpec({
     /**
      * NB: Test som illustrerer en mangel ved utregningen.
      */
-    test("'limitedAntallAar' mangler håndtering av overlapp") {
+    should("mangle håndtering av overlapp") {
         UtlandPeriodeConverter.limitedAntallAar(
             periodeListe = listOf(
                 utlandPeriode(

@@ -9,13 +9,9 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.*
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 object DateUtil {
 
-    val LOCAL_ETERNITY: LocalDate = LocalDate.of(9999, 12, 31)
-    val ETERNITY: Date = LOCAL_ETERNITY.toNorwegianDateAtNoon()
 
     // SimuleringEtter2011Utils.monthOfYearRange1To12
     fun monthOfYearRange1To12(date: Date): Int =
@@ -23,121 +19,6 @@ object DateUtil {
 
     fun monthOfYearRange1To12(date: LocalDate): Int =
         monthOfYearRange1To12(date.toNorwegianDateAtNoon())
-
-    fun dateIsValid(fom: LocalDate?, tom: LocalDate?, virkFom: LocalDate?, virkTom: LocalDate?) =
-        intersectsWithPossiblyOpenEndings(
-            o1Start = fom,
-            o1End = tom,
-            o2Start = virkFom,
-            o2End = virkTom,
-            considerContactByDayAsIntersection = true
-        )
-
-    /**
-     * Removes the values for HOUR_OF_DAY, MINUTES, SECONDS and MILLISECONDS before the compare such
-     * that same day is regarded as intersection if `considerContactByDayAsIntersection` is true. The endings of
-     * the respective periods can be NULL, if so these will be set to infinity.
-     */
-    fun intersectsWithPossiblyOpenEndings(
-        o1Start: LocalDate?, o1End: LocalDate?, o2Start: LocalDate?, o2End: LocalDate?,
-        considerContactByDayAsIntersection: Boolean
-    ): Boolean =
-        intersectsWithPossiblyOpenEndings(
-            o1Start?.toNorwegianDateAtNoon(),
-            o1End?.toNorwegianDateAtNoon(),
-            o2Start?.toNorwegianDateAtNoon(),
-            o2End?.toNorwegianDateAtNoon(),
-            considerContactByDayAsIntersection
-        )
-
-    fun intersectsWithPossiblyOpenEndings(
-        o1Start: LocalDate?, o1End: LocalDate?, o2Start: Date?, o2End: Date?,
-        considerContactByDayAsIntersection: Boolean
-    ): Boolean =
-        intersectsWithPossiblyOpenEndings(
-            o1Start?.toNorwegianDateAtNoon(),
-            o1End?.toNorwegianDateAtNoon(),
-            o2Start,
-            o2End,
-            considerContactByDayAsIntersection
-        )
-
-    // PEN: no.stelvio.common.util.DateUtil.intersectsWithPossiblyOpenEndings
-    // NB: Here ETERNITY is used instead of Date(Long.MAX_VALUE)
-    //     in order to avoid timezone problems
-    fun intersectsWithPossiblyOpenEndings(
-        o1Start: Date?, o1End: Date?, o2Start: Date?, o2End: Date?,
-        considerContactByDayAsIntersection: Boolean
-    ): Boolean =
-        intersects(
-            o1Start,
-            o1End ?: ETERNITY,
-            o2Start,
-            o2End ?: ETERNITY,
-            considerContactByDayAsIntersection
-        )
-
-    /**
-     * Removes the values for HOUR_OF_DAY, MINUTES, SECONDS and MILLISECONDS before the compare such
-     * that same day is regarded as intersection if `considerContactByDayAsIntersection` is true.
-     */
-    fun intersects(
-        o1Start: Date?, o1End: Date?, o2Start: Date?, o2End: Date?,
-        considerContactByDayAsIntersection: Boolean
-    ): Boolean {
-        val o1StartDay: Date = createDayCalendar(o1Start).getTime()
-        val o1EndDay: Date = createDayCalendar(o1End).getTime()
-        val o2StartDay: Date = createDayCalendar(o2Start).getTime()
-        val o2EndDay: Date = createDayCalendar(o2End).getTime()
-
-        return intersectsByMilliseconds(
-            o1StartDay,
-            o1EndDay,
-            o2StartDay,
-            o2EndDay,
-            considerContactByDayAsIntersection
-        )
-    }
-
-    /**
-     * Check whether a closed date range intersects another closed date range. Will throw a NullPointerException if any of the
-     * passed parameters are null. To check for intersection there are several cases to be covered:
-     * <pre>
-     *       |-------|          (the first period, called period 1)
-     *       |-------|		  0 same period is an intersection
-     * |---|                  1 no intersection with period 1
-     *                 |----| 2 no intersection with period 1
-     *  |-------|             3 intersection, it ends before period 1 ends
-     *             |------|   4 intersection, it starts before period 1 ends
-     * |----------------|     5 intersection, starts before and ends after period 1
-     * |-----|				  6 Special case, ends when period 1 starts (by milliseconds)
-     *               |------| 7 Special case, begins when period 1 ends  (by milliseconds)
-     * |-------|          (the first period, called period 1)
-     * |-------|		  0 same period is an intersection
-     * |---|                  1 no intersection with period 1
-     * |----| 2 no intersection with period 1
-     * |-------|             3 intersection, it ends before period 1 ends
-     * |------|   4 intersection, it starts before period 1 ends
-     * |----------------|     5 intersection, starts before and ends after period 1
-     * |-----|				  6 Special case, ends when period 1 starts (by milliseconds)
-     *  </pre>
-     */
-    private fun intersectsByMilliseconds(
-        o1Start: Date, o1End: Date, o2Start: Date, o2End: Date,
-        considerContactAsIntersection: Boolean
-    ): Boolean {
-        val isPoint = o1Start == o1End || o2Start == o2End
-
-        // get the max of starts
-        val start = max(o1Start.time.toDouble(), o2Start.time.toDouble()).toLong()
-        // get the min of ends
-        val end = min(o1End.time.toDouble(), o2End.time.toDouble()).toLong()
-
-        return if (considerContactAsIntersection || isPoint)
-            start <= end
-        else
-            start < end
-    }
 
     // SimuleringEtter2011Utils.calculateAgeInYears
     // NB: Compare this with PensjonAlderDato.alderVedDato
@@ -236,19 +117,10 @@ object DateUtil {
     }
 
     // no.stelvio.common.util.DateUtil.getFirstOrLastDayOfMonth
-    private fun getFirstOrLastDayOfMonth(date: Date, first: Boolean): Date =
-        NorwegianCalendar.forNoon(date).apply {
-            this[Calendar.DAY_OF_MONTH] = if (first)
-                getActualMinimum(Calendar.DAY_OF_MONTH)
-            else
-                getActualMaximum(Calendar.DAY_OF_MONTH)
-        }.time
-
-    fun getLastDayOfMonth(date: Date): Date =
-        getFirstOrLastDayOfMonth(date, false)
-
     fun getLastDayOfMonth(date: LocalDate): Date =
-        getFirstOrLastDayOfMonth(date.toNorwegianDateAtNoon(), false)
+        NorwegianCalendar.forNoon(date.toNorwegianDateAtNoon()).apply {
+            this[Calendar.DAY_OF_MONTH] = getActualMaximum(Calendar.DAY_OF_MONTH)
+        }.time
 
     // no.stelvio.common.util.DateUtil.getFirstDateInYear
     fun getFirstDateInYear(date: Date): Date =
@@ -341,7 +213,7 @@ object DateUtil {
 
     /**
      * Comparing two dates down to the granularity of days (not milliseconds, which is the default
-     * behaviour in the standard API). If any date argument is null, it gets assigned to year zero, reasonably far from our
+     * behavior in the standard API). If any date argument is null, it gets assigned to the year zero, reasonably far from our
      * time.
      * If allowSameDay is true, the method returns true if thisDate is equal to thatDate with respect to year, month
      * and day. If set to false, the method returns false on this condition
@@ -378,7 +250,7 @@ object DateUtil {
 
     /**
      * Comparing two dates down to the granularity of days (not milliseconds, which is the default behaviour
-     * in the standard API). If any date argument is null, it gets assigned to year zero, reasonably far from our time.
+     * in the standard API). If any date argument is null, it gets assigned to the year zero, reasonably far from our time.
      * If allowSameDay is true, the method returns true if thisDate is equal to thatDate with respect to year, month
      * and day. If set to false, the method returns false on this condition
      */

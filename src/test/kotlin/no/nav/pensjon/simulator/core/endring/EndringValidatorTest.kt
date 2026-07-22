@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.endring
 
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -18,271 +18,226 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import java.time.LocalDate
 
-class EndringValidatorTest : FunSpec({
+class EndringValidatorTest : ShouldSpec({
 
-    test("'validate' should throw exception if simuleringstype ikke gjelder endring") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validate(simuleringSpec(type = SimuleringTypeEnum.ALDER))
-        }.message shouldBe "Invalid simuleringstype: ALDER"
-    }
-
-    test("'validate' aksepterer ENDR_ALDER simuleringstype") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(type = SimuleringTypeEnum.ENDR_ALDER)
-            )
-        }
-    }
-
-    test("'validate' aksepterer ENDR_AP_M_AFP_PRIVAT simuleringstype") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT)
-            )
-        }
-    }
-
-    test("'validate' aksepterer ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG simuleringstype") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG)
-            )
-        }
-    }
-
-    test("'validate' aksepterer ENDR_ALDER_M_GJEN simuleringstype") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN)
-            )
-        }
-    }
-
-    // Tests for validate() - foersteUttakDato
-
-    test("'validate' kaster exception hvis foersteUttakDato er null") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validate(
-                endringSpec(foersteUttakDato = null)
-            )
-        }.message shouldBe "forsteUttakDato must be set, and it must be the first day of the month"
-    }
-
-    test("'validate' kaster exception hvis foersteUttakDato ikke er første dag i måneden") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validate(
-                endringSpec(foersteUttakDato = LocalDate.of(2025, 6, 15))
-            )
-        }.message shouldBe "forsteUttakDato must be set, and it must be the first day of the month"
-    }
-
-    test("'validate' aksepterer foersteUttakDato som er første dag i måneden") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(foersteUttakDato = LocalDate.of(2025, 6, 1))
-            )
-        }
-    }
-
-    // Tests for validate() - uttakGrad and heltUttakDato
-
-    test("'validate' kaster exception hvis uttakGrad under 100% og heltUttakDato er null") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validate(
-                endringSpec(
-                    uttakGrad = UttakGradKode.P_50,
-                    heltUttakDato = null
-                )
-            )
-        }.message shouldBe "When uttaksgrad < 100% then heltUttakDato must be set, and it must be the first day of the month"
-    }
-
-    test("'validate' kaster exception hvis uttakGrad under 100% og heltUttakDato ikke er første dag i måneden") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validate(
-                endringSpec(
-                    uttakGrad = UttakGradKode.P_50,
-                    heltUttakDato = LocalDate.of(2026, 7, 15)
-                )
-            )
-        }.message shouldBe "When uttaksgrad < 100% then heltUttakDato must be set, and it must be the first day of the month"
-    }
-
-    test("'validate' aksepterer uttakGrad under 100% med gyldig heltUttakDato") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(
-                    uttakGrad = UttakGradKode.P_50,
-                    heltUttakDato = LocalDate.of(2026, 7, 1)
-                )
-            )
-        }
-    }
-
-    test("'validate' krever ikke heltUttakDato når uttakGrad er 100%") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(
-                    uttakGrad = UttakGradKode.P_100,
-                    heltUttakDato = null
-                )
-            )
-        }
-    }
-
-    // Tests for validate() - ENDR_ALDER_M_GJEN and avdoed.doedDato
-
-    test("'validate' kaster exception for ENDR_ALDER_M_GJEN hvis avdoed.doedDato er null") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validate(
-                endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = Avdoed(
-                        pid = Pid("12345678901"),
-                        antallAarUtenlands = 0,
-                        inntektFoerDoed = 0,
-                        doedDato = LocalDate.of(2020, 1, 1)
-                    ).let { null } // avdoed is null
-                )
-            )
-        }.message shouldBe "avdod.dodsdato must be set for simuleringstype ENDR_ALDER_M_GJEN"
-    }
-
-    test("'validate' aksepterer ENDR_ALDER_M_GJEN med gyldig avdoed.doedDato") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = Avdoed(
-                        pid = Pid("12345678901"),
-                        antallAarUtenlands = 0,
-                        inntektFoerDoed = 0,
-                        doedDato = LocalDate.of(2020, 1, 1)
-                    )
-                )
-            )
-        }
-    }
-
-    // Tests for validateRequestBasedOnLoependeYtelser()
-
-    test("'validateRequestBasedOnLoependeYtelser' kaster ikke exception for ikke-ENDR_ALDER_M_GJEN") {
-        shouldNotThrowAny {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
-                forrigeAlderspensjon = null
-            )
-        }
-    }
-
-    test("'validateRequestBasedOnLoependeYtelser' kaster ikke exception hvis BeregningsResultatAlderspensjon2011 har gjenlevenderett") {
-        val resultat = BeregningsResultatAlderspensjon2011().apply {
-            beregningsinformasjon = SpecialBeregningInformasjon(
-                epsMottarPensjon = false,
-                epsHarInntektOver2G = false,
-                harGjenlevenderett = true
-            )
+    context("validate") {
+        should("kaste exception hvis simuleringstype ikke gjelder endring") {
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validate(simuleringSpec(type = SimuleringTypeEnum.ALDER))
+            }.message shouldBe "Invalid simuleringstype: ALDER"
         }
 
-        shouldNotThrowAny {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = null // avdoed.pid er null
-                ),
-                forrigeAlderspensjon = resultat
-            )
-        }
-    }
-
-    test("'validateRequestBasedOnLoependeYtelser' kaster ikke exception hvis BeregningsResultatAlderspensjon2016 har gjenlevenderett") {
-        val resultat = BeregningsResultatAlderspensjon2016().apply {
-            beregningsResultat2011 = BeregningsResultatAlderspensjon2011().apply {
-                beregningsInformasjonKapittel19 = BeregningsInformasjon().apply {
-                    rettPaGjenlevenderett = true
-                }
+        should("akseptere ENDR_ALDER simuleringstype") {
+            shouldNotThrowAny {
+                EndringValidator.validate(endringSpec(type = SimuleringTypeEnum.ENDR_ALDER))
             }
         }
 
-        shouldNotThrowAny {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = null
-                ),
-                forrigeAlderspensjon = resultat
-            )
+        should("akseptere ENDR_AP_M_AFP_PRIVAT simuleringstype") {
+            shouldNotThrowAny {
+                EndringValidator.validate(endringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT))
+            }
+        }
+
+        should("akseptere ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG simuleringstype") {
+            shouldNotThrowAny {
+                EndringValidator.validate(endringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG))
+            }
+        }
+
+        should("akseptere ENDR_ALDER_M_GJEN simuleringstype") {
+            shouldNotThrowAny {
+                EndringValidator.validate(endringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN))
+            }
         }
     }
 
-    test("'validateRequestBasedOnLoependeYtelser' kaster exception for ENDR_ALDER_M_GJEN uten gjenlevenderett og uten avdoed.pid") {
-        val resultat = BeregningsResultatAlderspensjon2011().apply {
-            beregningsinformasjon = SpecialBeregningInformasjon(
-                epsMottarPensjon = false,
-                epsHarInntektOver2G = false,
-                harGjenlevenderett = false
-            )
+    context("validate - dato for første uttak") {
+        should("kaste exception hvis dato for første uttak er udefinert") {
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validate(endringSpec(foersteUttakDato = null))
+            }.message shouldBe "forsteUttakDato must be set, and it must be the first day of the month"
         }
 
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = null
-                ),
-                forrigeAlderspensjon = resultat
-            )
-        }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
-    }
-
-    test("'validateRequestBasedOnLoependeYtelser' kaster exception for ENDR_ALDER_M_GJEN med null forrigeAlderspensjon og uten avdoed.pid") {
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = null
-                ),
-                forrigeAlderspensjon = null
-            )
-        }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
-    }
-
-    test("'validateRequestBasedOnLoependeYtelser' aksepterer ENDR_ALDER_M_GJEN uten gjenlevenderett men med avdoed.pid") {
-        val resultat = BeregningsResultatAlderspensjon2011().apply {
-            beregningsinformasjon = SpecialBeregningInformasjon(
-                epsMottarPensjon = false,
-                epsHarInntektOver2G = false,
-                harGjenlevenderett = false
-            )
+        should("kaste exception hvis dato for første uttak ikke er første dag i måneden") {
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validate(
+                    endringSpec(foersteUttakDato = LocalDate.of(2025, 6, 15))
+                )
+            }.message shouldBe "forsteUttakDato must be set, and it must be the first day of the month"
         }
 
-        shouldNotThrowAny {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = Avdoed(
-                        pid = Pid("12345678901"),
-                        antallAarUtenlands = 0,
-                        inntektFoerDoed = 0,
-                        doedDato = LocalDate.of(2020, 1, 1)
+        should("akseptere dato for første uttak som er første dag i måneden") {
+            shouldNotThrowAny {
+                EndringValidator.validate(
+                    endringSpec(foersteUttakDato = LocalDate.of(2025, 6, 1))
+                )
+            }
+        }
+    }
+
+    context("validate - uttaksgrad og dato for helt uttak") {
+        should("kaste exception hvis uttaksgrad under 100 % og dato for helt uttak er udefinert") {
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validate(
+                    endringSpec(
+                        uttakGrad = UttakGradKode.P_50,
+                        heltUttakDato = null
                     )
-                ),
-                forrigeAlderspensjon = resultat
-            )
+                )
+            }.message shouldBe "When uttaksgrad < 100% then heltUttakDato must be set, and it must be the first day of the month"
+        }
+
+        should("kaste exception hvis uttaksgrad under 100 % og dato for helt uttak ikke er første dag i måneden") {
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validate(
+                    endringSpec(
+                        uttakGrad = UttakGradKode.P_50,
+                        heltUttakDato = LocalDate.of(2026, 7, 15)
+                    )
+                )
+            }.message shouldBe "When uttaksgrad < 100% then heltUttakDato must be set, and it must be the first day of the month"
+        }
+
+        should("akseptere uttaksgrad under 100 % med gyldig dato for helt uttak") {
+            shouldNotThrowAny {
+                EndringValidator.validate(
+                    endringSpec(
+                        uttakGrad = UttakGradKode.P_50,
+                        heltUttakDato = LocalDate.of(2026, 7, 1)
+                    )
+                )
+            }
+        }
+
+        should("ikke kreve dato for helt uttak når uttaksgrad er 100 %") {
+            shouldNotThrowAny {
+                EndringValidator.validate(
+                    endringSpec(
+                        uttakGrad = UttakGradKode.P_100,
+                        heltUttakDato = null
+                    )
+                )
+            }
         }
     }
 
-    test("'validateRequestBasedOnLoependeYtelser' returnerer false for annet resultattype enn 2011/2016") {
-        // BeregningsResultatAfpPrivat er ikke 2011 eller 2016, så harAlderspensjonMedGjenlevenderett returnerer false
-        shouldThrow<InvalidArgumentException> {
-            EndringValidator.validateRequestBasedOnLoependeYtelser(
-                spec = endringSpec(
-                    type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
-                    avdoed = null
-                ),
-                forrigeAlderspensjon = no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat()
-            )
-        }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
+    context("validateRequestBasedOnLoependeYtelser") {
+        should("ikke kaste exception for ikke-ENDR_ALDER_M_GJEN") {
+            shouldNotThrowAny {
+                EndringValidator.validateRequestBasedOnLoependeYtelser(
+                    spec = endringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
+                    forrigeAlderspensjon = null
+                )
+            }
+        }
+
+        should("ikke kaste exception hvis BeregningsResultatAlderspensjon2011 har gjenlevenderett") {
+            val resultat = BeregningsResultatAlderspensjon2011().apply {
+                beregningsinformasjon = SpecialBeregningInformasjon(
+                    epsMottarPensjon = false,
+                    epsHarInntektOver2G = false,
+                    harGjenlevenderett = true
+                )
+            }
+
+            shouldNotThrowAny {
+                EndringValidator.validateRequestBasedOnLoependeYtelser(
+                    spec = endringSpec(
+                        type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                        avdoed = null // avdoed.pid er null
+                    ),
+                    forrigeAlderspensjon = resultat
+                )
+            }
+        }
+
+        should("ikke kaste exception hvis BeregningsResultatAlderspensjon2016 har gjenlevenderett") {
+            val resultat = BeregningsResultatAlderspensjon2016().apply {
+                beregningsResultat2011 = BeregningsResultatAlderspensjon2011().apply {
+                    beregningsInformasjonKapittel19 = BeregningsInformasjon().apply {
+                        rettPaGjenlevenderett = true
+                    }
+                }
+            }
+
+            shouldNotThrowAny {
+                EndringValidator.validateRequestBasedOnLoependeYtelser(
+                    spec = endringSpec(
+                        type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                        avdoed = null
+                    ),
+                    forrigeAlderspensjon = resultat
+                )
+            }
+        }
+
+        should("kaste exception for ENDR_ALDER_M_GJEN uten gjenlevenderett og uten avdoed.pid") {
+            val resultat = BeregningsResultatAlderspensjon2011().apply {
+                beregningsinformasjon = SpecialBeregningInformasjon(
+                    epsMottarPensjon = false,
+                    epsHarInntektOver2G = false,
+                    harGjenlevenderett = false
+                )
+            }
+
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validateRequestBasedOnLoependeYtelser(
+                    spec = endringSpec(
+                        type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                        avdoed = null
+                    ),
+                    forrigeAlderspensjon = resultat
+                )
+            }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
+        }
+
+        should("kaste exception for ENDR_ALDER_M_GJEN med null forrigeAlderspensjon og uten avdoed.pid") {
+            shouldThrow<InvalidArgumentException> {
+                EndringValidator.validateRequestBasedOnLoependeYtelser(
+                    spec = endringSpec(
+                        type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                        avdoed = null
+                    ),
+                    forrigeAlderspensjon = null
+                )
+            }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
+        }
+
+        should("akseptere ENDR_ALDER_M_GJEN uten gjenlevenderett men med avdøds PID") {
+            val resultat = BeregningsResultatAlderspensjon2011().apply {
+                beregningsinformasjon = SpecialBeregningInformasjon(
+                    epsMottarPensjon = false,
+                    epsHarInntektOver2G = false,
+                    harGjenlevenderett = false
+                )
+            }
+
+            shouldNotThrowAny {
+                EndringValidator.validateRequestBasedOnLoependeYtelser(
+                    spec = endringSpec(
+                        type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                        avdoed = avdoedSpec()
+                    ),
+                    forrigeAlderspensjon = resultat
+                )
+            }
+        }
+
+        context("har løpende ytelse uten gjenlevenderett") {
+            should("kaste exception for endring av pensjon med gjenlevenderett hvis avdødes ID ikke er angitt") {
+                shouldThrow<InvalidArgumentException> {
+                    EndringValidator.validateRequestBasedOnLoependeYtelser(
+                        spec = endringSpec(
+                            type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
+                            avdoed = null
+                        ),
+                        forrigeAlderspensjon =
+                            no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat()
+                    )
+                }.message shouldBe "avdoed.pid must be set for SimuleringType ENDR_ALDER_M_GJEN"
+            }
+        }
     }
 })
 
@@ -291,12 +246,7 @@ private fun endringSpec(
     foersteUttakDato: LocalDate? = LocalDate.of(2025, 1, 1),
     heltUttakDato: LocalDate? = LocalDate.of(2027, 1, 1),
     uttakGrad: UttakGradKode = UttakGradKode.P_100,
-    avdoed: Avdoed? = Avdoed(
-        pid = Pid("12345678901"),
-        antallAarUtenlands = 0,
-        inntektFoerDoed = 0,
-        doedDato = LocalDate.of(2020, 1, 1)
-    )
+    avdoed: Avdoed? = avdoedSpec()
 ) = SimuleringSpec(
     type = type,
     sivilstatus = SivilstatusType.UGIF,
@@ -330,3 +280,11 @@ private fun endringSpec(
     onlyVilkaarsproeving = false,
     epsKanOverskrives = false
 )
+
+private fun avdoedSpec() =
+    Avdoed(
+        pid = Pid("12345678901"),
+        antallAarUtenlands = 0,
+        inntektFoerDoed = 0,
+        doedDato = LocalDate.of(2020, 1, 1)
+    )

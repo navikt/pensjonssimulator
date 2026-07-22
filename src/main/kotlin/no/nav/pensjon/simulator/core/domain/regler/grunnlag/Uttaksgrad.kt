@@ -29,5 +29,8 @@ class Uttaksgrad {
         else
             false
     }
+
+    override fun toString(): String =
+        "$uttaksgrad % $fomDatoLd – $tomDatoLd"
     // end extra
 }

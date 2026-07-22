@@ -3,10 +3,9 @@ package no.nav.pensjon.simulator.core.inntekt
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.dateIsValid
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
+import no.nav.pensjon.simulator.tech.time.DateUtil.overlapperEndeloest
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import java.time.LocalDate
 import java.util.function.Predicate
@@ -43,21 +42,34 @@ class InntektsgrunnlagValidity(
 
             // If periodiserFomTomDatoUtenUnntak is true, only fom/tom dates shall be considered.
             if (periodiserFomTomDatoUtenUnntak) {
-                return dateIsValid(grunnlag.fomLd, grunnlag.tomLd, virkningFom, virkningTom)
+                return overlapperEndeloest(
+                    start1 = grunnlag.fomLd,
+                    slutt1 = grunnlag.tomLd,
+                    start2 = virkningFom,
+                    slutt2 = virkningTom,
+                    anseEnkeltDagSomOverlapp = true
+                )
             }
 
-            if (sakType == SakTypeEnum.AFP || dateIsValid(grunnlag.fomLd, grunnlag.tomLd, virkningFom, virkningTom)) {
+            if (sakType == SakTypeEnum.AFP || overlapperEndeloest(
+                    start1 = grunnlag.fomLd,
+                    slutt1 = grunnlag.tomLd,
+                    start2 = virkningFom,
+                    slutt2 = virkningTom,
+                    anseEnkeltDagSomOverlapp = true
+                )
+            ) {
                 return true
             }
 
             // ... or if they are type PGI and have been in use in this year and the two years before
 
-            if (InntekttypeEnum.PGI == grunnlag.inntektTypeEnum && intersectsWithPossiblyOpenEndings(
-                    o1Start = virkningFom?.year?.let { foersteDag(it - OPPTJENING_ETTERSLEP_ANTALL_AAR) },
-                    o1End = virkningTom?.let { sisteDag(it.year) },
-                    o2Start = grunnlag.fomLd,
-                    o2End = grunnlag.tomLd,
-                    considerContactByDayAsIntersection = true
+            if (InntekttypeEnum.PGI == grunnlag.inntektTypeEnum && overlapperEndeloest(
+                    start1 = virkningFom?.year?.let { foersteDag(it - OPPTJENING_ETTERSLEP_ANTALL_AAR) },
+                    slutt1 = virkningTom?.let { sisteDag(it.year) },
+                    start2 = grunnlag.fomLd,
+                    slutt2 = grunnlag.tomLd,
+                    anseEnkeltDagSomOverlapp = true
                 )
             ) {
                 return true

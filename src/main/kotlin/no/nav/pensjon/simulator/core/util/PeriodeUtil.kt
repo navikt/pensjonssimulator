@@ -3,10 +3,10 @@ package no.nav.pensjon.simulator.core.util
 import no.nav.pensjon.simulator.core.domain.regler.VeietSatsResultat
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
+import no.nav.pensjon.simulator.tech.time.DateUtil.TIDENS_SLUTT
 import no.nav.pensjon.simulator.tech.time.DateUtil.maaneder
 import java.time.LocalDate
 import java.util.*
@@ -86,11 +86,12 @@ object PeriodeUtil {
     // Extracted from PeriodisertInformasjonListeUtils.findEarliest
     private fun earliestAmong(list: List<AbstraktBeregningsResultat>): AbstraktBeregningsResultat? {
         var result: AbstraktBeregningsResultat? = null
-        var earliestFom = LOCAL_ETERNITY
+        var earliestFom = TIDENS_SLUTT
 
         list.forEach {
             val virkFom = it.virkFomLd!!
-            if (isBeforeByDay(virkFom, earliestFom, false)) {
+
+            if (isBeforeByDay(virkFom, earliestFom, allowSameDay = false)) {
                 result = it
                 earliestFom = virkFom
             }
@@ -106,7 +107,7 @@ object PeriodeUtil {
 
         list.forEach {
             val virkFom = it.virkFomLd?.toNorwegianDateAtNoon()
-            if (isAfterByDay(virkFom, latestFom, false)) {
+            if (isAfterByDay(virkFom, latestFom, allowSameDay = false)) {
                 result = it
                 latestFom = virkFom
             }
@@ -122,7 +123,7 @@ object PeriodeUtil {
         var latestFom: LocalDate? = null
 
         list.forEach {
-            if (isAfterByDay(it.fomLd, latestFom, false)) {
+            if (isAfterByDay(it.fomLd, latestFom, allowSameDay = false)) {
                 result = it
                 latestFom = it.fomLd
             }

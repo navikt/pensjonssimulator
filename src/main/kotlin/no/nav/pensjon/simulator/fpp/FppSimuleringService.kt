@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.fpp
 
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpVilkaarsproever
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.AfpVilkaarsproever
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid

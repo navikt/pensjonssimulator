@@ -119,7 +119,7 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         maanedligBeloep = 1
                     )
                 ),
-                pre2025OffentligAfp = SimulertPre2025OffentligAfp(
+                tidsbegrensetOffentligAfp = SimulertTidsbegrensetOffentligAfp(
                     alderAar = 11,
                     totaltAfpBeloep = 12,
                     tidligereArbeidsinntekt = 13,

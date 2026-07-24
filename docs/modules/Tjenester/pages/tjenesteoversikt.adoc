@@ -12,7 +12,7 @@ Disse er tjenester for eksterne samhandlere (Norsk Pensjon og tjenestepensjonsor
 * Simuler alderspensjon V1 (kun Norsk Pensjon bruker denne)
 * Simuler alderspensjon V3 (for personer født før 1963)
 * Simuler alderspensjon V4 (for personer født 1963 eller senere)
-* Simuler offentlig AFP etterfulgt av alderspensjon ("gammel" AFP-ordning)
+* Simuler tidsbegrenset offentlig AFP etterfulgt av alderspensjon
 * Simuler folketrygdbeholdning
 * Beregn tidligst mulig uttak
 
@@ -30,7 +30,7 @@ Dette er tjenester laget for Navs egne pensjonskalkulatorer.
 * Simuler alderspensjon anonymt (for Navs uinnloggede pensjonskalkulator)
 * Simuler alderspensjon som serviceberegning (for saksbehandlere/veiledere)
 * Simuler alderspensjon som grunnlag for simulering av tjenestepensjon
-* Simuler folketrygdberegnet AFP i offentlig sektor ("gammel" AFP-ordning)
+* Simuler folketrygdberegnet tidsbegrenset AFP i offentlig sektor
 
 == Detaljer om tjenestene
 

@@ -9,7 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpBeregner
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpResult
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpResult
 import no.nav.pensjon.simulator.alder.Alder
@@ -151,7 +151,7 @@ class SimulatorCoreTest : ShouldSpec({
         should("return special output for AFP_FPP simulation type") {
             val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
                 every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
-                    pre2025 = Pre2025OffentligAfpResult(
+                    tidsbegrenset = TidsbegrensetOffentligAfpResult(
                         simuleringResult = Simuleringsresultat(),
                         kravhode = kravhode()
                     ),
@@ -162,7 +162,7 @@ class SimulatorCoreTest : ShouldSpec({
 
             simulatorCore(offentligAfpBeregner = offentligAfpBeregner).simuler(
                 initialSpec = simuleringSpec(type = SimuleringTypeEnum.AFP_FPP)
-            ).pre2025OffentligAfp shouldNotBe null
+            ).tidsbegrensetOffentligAfp shouldNotBe null
         }
     }
 
@@ -216,7 +216,7 @@ class SimulatorCoreTest : ShouldSpec({
                 personService = personService
             )
 
-            // AFP_FPP gjelderPre2025OffentligAfp() returns true
+            // AFP_FPP gjelderTidsbegrensetOffentligAfp() returns true
             core.simuler(initialSpec = simuleringSpec(type = SimuleringTypeEnum.AFP_FPP)) shouldNotBe null
         }
     }
@@ -272,7 +272,7 @@ class SimulatorCoreTest : ShouldSpec({
                 every {
                     beregnAfp(any(), any(), any(), any(), any())
                 } returns OffentligAfpResult(
-                    pre2025 = null,
+                    tidsbegrenset = null,
                     livsvarig = null,
                     kravhode = kravhode()
                 )
@@ -443,7 +443,7 @@ private fun mockYtelseService(): YtelseService = mockk {
 
 private fun mockOffentligAfpBeregner(): OffentligAfpBeregner = mockk {
     every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
-        pre2025 = null,
+        tidsbegrenset = null,
         livsvarig = null,
         kravhode = kravhode()
     )
@@ -517,7 +517,7 @@ private fun simuleringSpec(
     flyktning = false,
     epsHarInntektOver2G = false,
     livsvarigOffentligAfp = null,
-    pre2025OffentligAfp = null,
+    tidsbegrensetOffentligAfp = null,
     erAnonym = erAnonym,
     ignoreAvslag = false,
     isHentPensjonsbeholdninger = true,

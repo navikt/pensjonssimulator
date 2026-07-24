@@ -38,7 +38,7 @@ object AnonymSimuleringSpecMapperV1 {
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,

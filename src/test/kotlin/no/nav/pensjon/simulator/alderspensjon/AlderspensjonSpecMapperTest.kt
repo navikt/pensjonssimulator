@@ -94,7 +94,7 @@ private fun simuleringSpec(type: SimuleringTypeEnum, livsvarigOffentligAfpRettFo
         flyktning = false,
         epsHarInntektOver2G = false,
         livsvarigOffentligAfp = livsvarigOffentligAfpRettFom?.let { LivsvarigOffentligAfpSpec(rettTilAfpFom = it) },
-        pre2025OffentligAfp = null,
+        tidsbegrensetOffentligAfp = null,
         erAnonym = false,
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,

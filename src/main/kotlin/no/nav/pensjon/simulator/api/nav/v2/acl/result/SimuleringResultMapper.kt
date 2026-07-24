@@ -23,7 +23,7 @@ object SimuleringResultMapper {
                 ::maanedligAlderspensjonForKnekkpunkter
             ),
             livsvarigOffentligAfpListe = pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
-            tidsbegrensetOffentligAfp = pensjon?.pre2025OffentligAfp?.let(::tidsbegrensetOffentligAfp),
+            tidsbegrensetOffentligAfp = pensjon?.tidsbegrensetOffentligAfp?.let(::tidsbegrensetOffentligAfp),
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
             primaerTrygdetid = pensjon?.primaerTrygdetid?.let(::trygdetid),
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
@@ -122,7 +122,7 @@ object SimuleringResultMapper {
             heltUttakBeloep = source.firstOrNull(::erHel)?.maanedligBeloep ?: 0
         )
 
-    private fun tidsbegrensetOffentligAfp(source: SimulertPre2025OffentligAfp) =
+    private fun tidsbegrensetOffentligAfp(source: SimulertTidsbegrensetOffentligAfp) =
         TidsbegrensetOffentligAfpDto(
             alderAar = source.alderAar,
             totaltAfpBeloep = source.totaltAfpBeloep,

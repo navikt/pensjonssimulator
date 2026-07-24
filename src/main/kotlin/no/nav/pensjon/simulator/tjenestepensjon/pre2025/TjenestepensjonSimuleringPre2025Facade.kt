@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
@@ -36,7 +36,7 @@ class TjenestepensjonSimuleringPre2025Facade(
             problem(e)
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             problem(e)
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
             problem(e, type = e.aarsak?.problemType)
         } catch (e: RegelmotorValideringException) {
             problem(e)

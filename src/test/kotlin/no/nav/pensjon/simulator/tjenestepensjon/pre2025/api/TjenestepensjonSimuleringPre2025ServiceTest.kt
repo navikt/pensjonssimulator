@@ -64,8 +64,8 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
                 arbeidet shouldBe true
             }
             flyktning shouldBe true
-            pre2025OffentligAfp shouldNotBe null
-            with (pre2025OffentligAfp!!) {
+            tidsbegrensetOffentligAfp shouldNotBe null
+            with (tidsbegrensetOffentligAfp!!) {
                 this.afpOrdning shouldBe AFPtypeEnum.AFPSTAT
                 this.inntektMaanedenFoerAfpUttakBeloep shouldBe 6
                 this.inntektUnderAfpUttakBeloep shouldBe 3
@@ -93,7 +93,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
         val simSpec = mapper.fromDto(mockSpec(simuleringType = SimuleringTypeSpecV2.ALDER))
 
-        simSpec.pre2025OffentligAfp shouldBe null
+        simSpec.tidsbegrensetOffentligAfp shouldBe null
     }
 
     "mapping tåler default verdier fra spec" {
@@ -120,7 +120,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             utlandAntallAar shouldBe 0
             utlandPeriodeListe shouldHaveSize 0
             flyktning shouldBe null
-            pre2025OffentligAfp shouldBe null
+            tidsbegrensetOffentligAfp shouldBe null
 
             //default verdier uansett hva som er satt i dto
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter shouldBe true

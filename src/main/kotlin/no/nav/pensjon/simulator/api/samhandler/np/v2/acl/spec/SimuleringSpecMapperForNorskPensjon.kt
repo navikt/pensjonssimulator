@@ -57,7 +57,7 @@ class SimuleringSpecMapperForNorskPensjon(
             inntektOver1GAntallAar = 0,
             flyktning = null,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null, // never used in this context
+            tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for samhandler

@@ -27,7 +27,7 @@ class YtelseServiceTest : ShouldSpec({
                         avdoed = spec.avdoed,
                         alderspensjonFlags = AlderspensjonYtelserFlags(inkluderPrivatAfp = true),
                         endringAlderspensjonFlags = null,
-                        pre2025OffentligAfpYtelserFlags = null
+                        tidsbegrensetOffentligAfpYtelserFlags = null
                     )
                 )
             } returns

@@ -17,7 +17,7 @@ import java.time.LocalDate
 class YtelseService(private val client: YtelseClient) {
 
     fun getLoependeYtelser(spec: SimuleringSpec): LoependeYtelser {
-        if (spec.gjelderPre2025OffentligAfp()) {
+        if (spec.gjelderTidsbegrensetOffentligAfp()) {
             // SimulerAFPogAPCommand
             val ytelser: LoependeYtelserResult = client.fetchLoependeYtelser(
                 LoependeYtelserSpec(
@@ -26,7 +26,7 @@ class YtelseService(private val client: YtelseClient) {
                     avdoed = spec.avdoed,
                     alderspensjonFlags = null,
                     endringAlderspensjonFlags = null,
-                    pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
+                    tidsbegrensetOffentligAfpYtelserFlags = TidsbegrensetOffentligAfpYtelserFlags(
                         gjelderFpp = spec.type == SimuleringTypeEnum.AFP_FPP,
                         sivilstatusUdefinert = false //TODO check if this can happen: spec.sivilstatus == null
                     )
@@ -55,7 +55,7 @@ class YtelseService(private val client: YtelseClient) {
                     endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(
                         inkluderPrivatAfp = spec.type == SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
                     ),
-                    pre2025OffentligAfpYtelserFlags = null
+                    tidsbegrensetOffentligAfpYtelserFlags = null
                 )
             )
 
@@ -92,7 +92,7 @@ class YtelseService(private val client: YtelseClient) {
                     inkluderPrivatAfp = spec.type == SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
                 ),
                 endringAlderspensjonFlags = null,
-                pre2025OffentligAfpYtelserFlags = null
+                tidsbegrensetOffentligAfpYtelserFlags = null
             )
         )
 
@@ -115,7 +115,7 @@ class YtelseService(private val client: YtelseClient) {
                 avdoed = null,
                 alderspensjonFlags = null,
                 endringAlderspensjonFlags = null,
-                pre2025OffentligAfpYtelserFlags = null
+                tidsbegrensetOffentligAfpYtelserFlags = null
             )
         )
 

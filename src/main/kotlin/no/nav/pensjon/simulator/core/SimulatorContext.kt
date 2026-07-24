@@ -175,8 +175,8 @@ class SimulatorContext(
         return validerOgFerdigstillResponse(response) ?: throw RuntimeException("Simuleringsresultat is null")
     }
 
-    // PEN: SimulerPensjonsberegningConsumerCommand.execute for AFP (pre-2025 offentlig AFP)
-    override fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
+    // PEN: SimulerPensjonsberegningConsumerCommand.execute for AFP (tidsbegrenset offentlig AFP)
+    override fun simulerTidsbegrensetOffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
         val response: SimuleringResponse =
             regelService.makeRegelCall(
                 request = spec,
@@ -188,8 +188,7 @@ class SimulatorContext(
         return response.simuleringsResultat ?: throw RuntimeException("Simuleringsresultat is null")
     }
 
-    // PEN: SimulerVilkarsprovAfpConsumerCommand.execute (tidsbegrenset offentlig AFP)
-    override fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
+    override fun simulerVilkarsprovTidsbegrensetOffentligAfp(spec: SimuleringRequest): Simuleringsresultat {
         val response: SimuleringResponse =
             regelService.makeRegelCall(
                 request = spec,

@@ -13,7 +13,7 @@ data class PenLoependeYtelserSpec(
     val avdoed: PenAvdoedYtelserSpec?,
     val alderspensjonFlags: PenAlderspensjonYtelserFlags?,
     val endringAlderspensjonFlags: PenEndringAlderspensjonYtelserFlags?,
-    val pre2025OffentligAfpYtelserFlags: PenPre2025OffentligAfpYtelserFlags?
+    val pre2025OffentligAfpYtelserFlags: PenTidsbegrensetOffentligAfpYtelserFlags?
 )
 
 /**
@@ -41,7 +41,7 @@ data class PenEndringAlderspensjonYtelserFlags(
 /**
  * Corresponds 1-to-1 with Pre2025OffentligAfpYtelserFlagsV1 in PEN.
  */
-data class PenPre2025OffentligAfpYtelserFlags(
+data class PenTidsbegrensetOffentligAfpYtelserFlags(
     val gjelderFpp: Boolean,
     val sivilstatusUdefinert: Boolean
 )

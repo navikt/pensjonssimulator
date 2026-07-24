@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringResultMapperV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringResultV1
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1.TpoSimuleringSpecMapperV1
@@ -111,8 +111,8 @@ class TpoViaPenAlderspensjonController(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID_V1 person for ung - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$FUNCTION_ID_V1 pre-2025 offentlig AFP avslått - request - $specV1" }
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID_V1 tidsbegrenset offentlig AFP avslått - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID_V1 regelmotorvalideringsfeil - request - $specV1" }
@@ -156,7 +156,7 @@ class TpoViaPenAlderspensjonController(
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
+            TidsbegrensetOffentligAfpAvslaattException::class,
             RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class

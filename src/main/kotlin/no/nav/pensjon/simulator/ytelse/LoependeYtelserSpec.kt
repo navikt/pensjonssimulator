@@ -10,7 +10,7 @@ data class LoependeYtelserSpec(
     val avdoed: Avdoed?,
     val alderspensjonFlags: AlderspensjonYtelserFlags?,
     val endringAlderspensjonFlags: EndringAlderspensjonYtelserFlags?,
-    val pre2025OffentligAfpYtelserFlags: Pre2025OffentligAfpYtelserFlags?
+    val tidsbegrensetOffentligAfpYtelserFlags: TidsbegrensetOffentligAfpYtelserFlags?
 )
 
 data class AlderspensjonYtelserFlags(
@@ -21,7 +21,7 @@ data class EndringAlderspensjonYtelserFlags(
     val inkluderPrivatAfp: Boolean
 )
 
-data class Pre2025OffentligAfpYtelserFlags(
+data class TidsbegrensetOffentligAfpYtelserFlags(
     val gjelderFpp: Boolean,
     val sivilstatusUdefinert: Boolean
 )

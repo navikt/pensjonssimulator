@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelserFlags
 import no.nav.pensjon.simulator.ytelse.EndringAlderspensjonYtelserFlags
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
-import no.nav.pensjon.simulator.ytelse.Pre2025OffentligAfpYtelserFlags
+import no.nav.pensjon.simulator.ytelse.TidsbegrensetOffentligAfpYtelserFlags
 import java.time.LocalDate
 
 class PenLoependeYtelserSpecMapperTest : ShouldSpec({
@@ -26,22 +26,27 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             ),
             alderspensjonFlags = AlderspensjonYtelserFlags(inkluderPrivatAfp = true),
             endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(inkluderPrivatAfp = false),
-            pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
+            tidsbegrensetOffentligAfpYtelserFlags = TidsbegrensetOffentligAfpYtelserFlags(
                 gjelderFpp = true,
                 sivilstatusUdefinert = false
             )
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.pid shouldBe "12345678901"
-        result.foersteUttakDato shouldBe LocalDate.of(2024, 6, 1)
-        result.avdoed?.pid shouldBe "98765432109"
-        result.avdoed?.doedDato shouldBe LocalDate.of(2023, 3, 15)
-        result.alderspensjonFlags?.inkluderPrivatAfp shouldBe true
-        result.endringAlderspensjonFlags?.inkluderPrivatAfp shouldBe false
-        result.pre2025OffentligAfpYtelserFlags?.gjelderFpp shouldBe true
-        result.pre2025OffentligAfpYtelserFlags?.sivilstatusUdefinert shouldBe false
+        PenLoependeYtelserSpecMapper.toDto(spec) shouldBe
+                PenLoependeYtelserSpec(
+                    pid = "12345678901",
+                    foersteUttakDato = LocalDate.of(2024, 6, 1),
+                    avdoed = PenAvdoedYtelserSpec(
+                        pid = "98765432109",
+                        doedDato = LocalDate.of(2023, 3, 15)
+                    ),
+                    alderspensjonFlags = PenAlderspensjonYtelserFlags(inkluderPrivatAfp = true),
+                    endringAlderspensjonFlags = PenEndringAlderspensjonYtelserFlags(inkluderPrivatAfp = false),
+                    pre2025OffentligAfpYtelserFlags = PenTidsbegrensetOffentligAfpYtelserFlags(
+                        gjelderFpp = true,
+                        sivilstatusUdefinert = false
+                    )
+                )
     }
 
     should("mappe spec med null pid") {
@@ -51,17 +56,18 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             avdoed = null,
             alderspensjonFlags = null,
             endringAlderspensjonFlags = null,
-            pre2025OffentligAfpYtelserFlags = null
+            tidsbegrensetOffentligAfpYtelserFlags = null
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.pid shouldBe null
-        result.foersteUttakDato shouldBe LocalDate.of(2024, 6, 1)
-        result.avdoed shouldBe null
-        result.alderspensjonFlags shouldBe null
-        result.endringAlderspensjonFlags shouldBe null
-        result.pre2025OffentligAfpYtelserFlags shouldBe null
+        PenLoependeYtelserSpecMapper.toDto(spec) shouldBe
+                PenLoependeYtelserSpec(
+                    pid = null,
+                    foersteUttakDato = LocalDate.of(2024, 6, 1),
+                    avdoed = null,
+                    alderspensjonFlags = null,
+                    endringAlderspensjonFlags = null,
+                    pre2025OffentligAfpYtelserFlags = null
+                )
     }
 
     should("mappe spec med kun avdoed utfylt") {
@@ -76,16 +82,21 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             ),
             alderspensjonFlags = null,
             endringAlderspensjonFlags = null,
-            pre2025OffentligAfpYtelserFlags = null
+            tidsbegrensetOffentligAfpYtelserFlags = null
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.avdoed?.pid shouldBe "98765432109"
-        result.avdoed?.doedDato shouldBe LocalDate.of(2023, 3, 15)
-        result.alderspensjonFlags shouldBe null
-        result.endringAlderspensjonFlags shouldBe null
-        result.pre2025OffentligAfpYtelserFlags shouldBe null
+        PenLoependeYtelserSpecMapper.toDto(spec) shouldBe
+                PenLoependeYtelserSpec(
+                    pid = "12345678901",
+                    foersteUttakDato = LocalDate.of(2024, 6, 1),
+                    avdoed = PenAvdoedYtelserSpec(
+                        pid = "98765432109",
+                        doedDato = LocalDate.of(2023, 3, 15)
+                    ),
+                    alderspensjonFlags = null,
+                    endringAlderspensjonFlags = null,
+                    pre2025OffentligAfpYtelserFlags = null
+                )
     }
 
     should("mappe spec med kun alderspensjonFlags utfylt") {
@@ -95,15 +106,18 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             avdoed = null,
             alderspensjonFlags = AlderspensjonYtelserFlags(inkluderPrivatAfp = true),
             endringAlderspensjonFlags = null,
-            pre2025OffentligAfpYtelserFlags = null
+            tidsbegrensetOffentligAfpYtelserFlags = null
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.avdoed shouldBe null
-        result.alderspensjonFlags?.inkluderPrivatAfp shouldBe true
-        result.endringAlderspensjonFlags shouldBe null
-        result.pre2025OffentligAfpYtelserFlags shouldBe null
+        PenLoependeYtelserSpecMapper.toDto(spec) shouldBe
+                PenLoependeYtelserSpec(
+                    pid = "12345678901",
+                    foersteUttakDato = LocalDate.of(2024, 6, 1),
+                    avdoed = null,
+                    alderspensjonFlags = PenAlderspensjonYtelserFlags(inkluderPrivatAfp = true),
+                    endringAlderspensjonFlags = null,
+                    pre2025OffentligAfpYtelserFlags = null
+                )
     }
 
     should("mappe spec med kun endringAlderspensjonFlags utfylt") {
@@ -113,37 +127,45 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             avdoed = null,
             alderspensjonFlags = null,
             endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(inkluderPrivatAfp = false),
-            pre2025OffentligAfpYtelserFlags = null
+            tidsbegrensetOffentligAfpYtelserFlags = null
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.avdoed shouldBe null
-        result.alderspensjonFlags shouldBe null
-        result.endringAlderspensjonFlags?.inkluderPrivatAfp shouldBe false
-        result.pre2025OffentligAfpYtelserFlags shouldBe null
+        PenLoependeYtelserSpecMapper.toDto(spec) shouldBe
+                PenLoependeYtelserSpec(
+                    pid = "12345678901",
+                    foersteUttakDato = LocalDate.of(2024, 6, 1),
+                    avdoed = null,
+                    alderspensjonFlags = null,
+                    endringAlderspensjonFlags = PenEndringAlderspensjonYtelserFlags(inkluderPrivatAfp = false),
+                    pre2025OffentligAfpYtelserFlags = null
+                )
     }
 
-    should("mappe spec med kun pre2025OffentligAfpYtelserFlags utfylt") {
+    should("mappe spec med kun 'tidsbegrenset offentlig AFP'-flagg utfylt") {
         val spec = LoependeYtelserSpec(
             pid = Pid("12345678901"),
             foersteUttakDato = LocalDate.of(2024, 6, 1),
             avdoed = null,
             alderspensjonFlags = null,
             endringAlderspensjonFlags = null,
-            pre2025OffentligAfpYtelserFlags = Pre2025OffentligAfpYtelserFlags(
+            tidsbegrensetOffentligAfpYtelserFlags = TidsbegrensetOffentligAfpYtelserFlags(
                 gjelderFpp = false,
                 sivilstatusUdefinert = true
             )
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.avdoed shouldBe null
-        result.alderspensjonFlags shouldBe null
-        result.endringAlderspensjonFlags shouldBe null
-        result.pre2025OffentligAfpYtelserFlags?.gjelderFpp shouldBe false
-        result.pre2025OffentligAfpYtelserFlags?.sivilstatusUdefinert shouldBe true
+        PenLoependeYtelserSpecMapper.toDto(spec) shouldBe
+                PenLoependeYtelserSpec(
+                    pid = "12345678901",
+                    foersteUttakDato = LocalDate.of(2024, 6, 1),
+                    avdoed = null,
+                    alderspensjonFlags = null,
+                    endringAlderspensjonFlags = null,
+                    pre2025OffentligAfpYtelserFlags = PenTidsbegrensetOffentligAfpYtelserFlags(
+                        gjelderFpp = false,
+                        sivilstatusUdefinert = true
+                    )
+                )
     }
 
     should("mappe alderspensjonFlags med inkluderPrivatAfp false") {
@@ -153,12 +175,10 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             avdoed = null,
             alderspensjonFlags = AlderspensjonYtelserFlags(inkluderPrivatAfp = false),
             endringAlderspensjonFlags = null,
-            pre2025OffentligAfpYtelserFlags = null
+            tidsbegrensetOffentligAfpYtelserFlags = null
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.alderspensjonFlags?.inkluderPrivatAfp shouldBe false
+        PenLoependeYtelserSpecMapper.toDto(spec).alderspensjonFlags?.inkluderPrivatAfp shouldBe false
     }
 
     should("mappe endringAlderspensjonFlags med inkluderPrivatAfp true") {
@@ -168,11 +188,9 @@ class PenLoependeYtelserSpecMapperTest : ShouldSpec({
             avdoed = null,
             alderspensjonFlags = null,
             endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(inkluderPrivatAfp = true),
-            pre2025OffentligAfpYtelserFlags = null
+            tidsbegrensetOffentligAfpYtelserFlags = null
         )
 
-        val result = PenLoependeYtelserSpecMapper.toDto(spec)
-
-        result.endringAlderspensjonFlags?.inkluderPrivatAfp shouldBe true
+        PenLoependeYtelserSpecMapper.toDto(spec).endringAlderspensjonFlags?.inkluderPrivatAfp shouldBe true
     }
 })

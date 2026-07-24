@@ -71,7 +71,7 @@ open class NavSimuleringResultMapperV3Test : FunSpec({
                             maanedligBeloep = 100
                         )
                     ),
-                    pre2025OffentligAfp = SimulertPre2025OffentligAfp(
+                    tidsbegrensetOffentligAfp = SimulertTidsbegrensetOffentligAfp(
                         alderAar = 62,
                         totaltAfpBeloep = 890,
                         tidligereArbeidsinntekt = 123,
@@ -222,7 +222,7 @@ open class NavSimuleringResultMapperV3Test : FunSpec({
                         )
                     ),
                     privatAfp = emptyList(),
-                    pre2025OffentligAfp = null,
+                    tidsbegrensetOffentligAfp = null,
                     livsvarigOffentligAfp = emptyList(),
                     pensjonBeholdningPeriodeListe = emptyList(),
                     harUttak = true,

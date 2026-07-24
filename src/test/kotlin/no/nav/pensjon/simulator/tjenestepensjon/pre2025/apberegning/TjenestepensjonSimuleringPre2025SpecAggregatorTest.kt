@@ -38,36 +38,38 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
             sisteGyldigeOpptjeningsaar = 2024
         )
 
-        result.pid shouldBe spec.pid
-        result.foedselsdato shouldBe spec.foedselDato
-        result.simulertOffentligAfp?.brutto shouldBe simResultat.pre2025OffentligAfp?.beregning?.brutto
-        result.sisteTpOrdningsTpNummer shouldBe "TPNR"
-        result.simulertPrivatAfp.shouldBeNull()
-        result.sivilstand.name shouldBe spec.sivilstatus.name
-        result.inntekter shouldHaveSize 3
-        result.inntekter[0].beloep shouldBe 500_000.0
-        result.inntekter[1].beloep shouldBe 400_000.0
-        result.inntekter[2].beloep shouldBe 0.0
-        result.pensjonsbeholdningsperioder shouldHaveSize 1
-        with(result.pensjonsbeholdningsperioder[0]) {
-            fom shouldBe LocalDate.of(2020, 1, 1)
-            pensjonsbeholdning shouldBe 1.0
-            garantipensjonsbeholdning shouldBe 2.0
-            garantitilleggsbeholdning shouldBe 3.0
-        }
-        result.simuleringsperioder shouldHaveSize 2
-        with(result.simuleringsperioder[0]) {
-            stillingsprosentOffentlig shouldBe 60
-            simulerAFPOffentligEtterfulgtAvAlder shouldBe true
-        }
-        with(result.simuleringsperioder[1]) {
-            stillingsprosentOffentlig shouldBe 0
-            simulerAFPOffentligEtterfulgtAvAlder shouldBe true
-        }
-        result.simuleringsdata shouldHaveSize 1
-        with(result.simuleringsdata[0]) {
-            fom shouldBe LocalDate.of(2029, 11, 1)
-            andvendtTrygdetid shouldBe 6
+        with(result) {
+            pid shouldBe spec.pid
+            foedselsdato shouldBe spec.foedselDato
+            simulertOffentligAfp?.brutto shouldBe simResultat.tidsbegrensetOffentligAfp?.beregning?.brutto
+            sisteTpOrdningsTpNummer shouldBe "TPNR"
+            simulertPrivatAfp.shouldBeNull()
+            sivilstand.name shouldBe spec.sivilstatus.name
+            inntekter shouldHaveSize 3
+            inntekter[0].beloep shouldBe 500_000.0
+            inntekter[1].beloep shouldBe 400_000.0
+            inntekter[2].beloep shouldBe 0.0
+            pensjonsbeholdningsperioder shouldHaveSize 1
+            with(pensjonsbeholdningsperioder[0]) {
+                fom shouldBe LocalDate.of(2020, 1, 1)
+                pensjonsbeholdning shouldBe 1.0
+                garantipensjonsbeholdning shouldBe 2.0
+                garantitilleggsbeholdning shouldBe 3.0
+            }
+            simuleringsperioder shouldHaveSize 2
+            with(simuleringsperioder[0]) {
+                stillingsprosentOffentlig shouldBe 60
+                simulerAFPOffentligEtterfulgtAvAlder shouldBe true
+            }
+            with(simuleringsperioder[1]) {
+                stillingsprosentOffentlig shouldBe 0
+                simulerAFPOffentligEtterfulgtAvAlder shouldBe true
+            }
+            simuleringsdata shouldHaveSize 1
+            with(simuleringsdata[0]) {
+                fom shouldBe LocalDate.of(2029, 11, 1)
+                andvendtTrygdetid shouldBe 6
+            }
         }
     }
 
@@ -84,32 +86,34 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
             sisteGyldigeOpptjeningsaar = 2024
         )
 
-        result.pid shouldBe spec.pid
-        result.foedselsdato shouldBe spec.foedselDato
-        result.sisteTpOrdningsTpNummer shouldBe "TPNR"
-        result.simulertOffentligAfp.shouldBeNull()
-        result.simulertPrivatAfp.shouldNotBeNull()
-        with(result.simulertPrivatAfp) {
-            kompensasjonstillegg shouldBe 25
-            totalAfpBeholdning shouldBe 20
-        }
-        result.sivilstand.name shouldBe spec.sivilstatus.name
-        result.inntekter shouldHaveSize 3
-        result.inntekter[0].beloep shouldBe 500_000.0
-        result.inntekter[1].beloep shouldBe 400_000.0
-        result.inntekter[2].beloep shouldBe 0.0
-        result.pensjonsbeholdningsperioder shouldHaveSize 1
-        with(result.pensjonsbeholdningsperioder[0]) {
-            fom shouldBe LocalDate.of(2020, 1, 1)
-            pensjonsbeholdning shouldBe 1.0
-            garantipensjonsbeholdning shouldBe 2.0
-            garantitilleggsbeholdning shouldBe 3.0
-        }
-        result.simuleringsperioder shouldHaveSize 3
-        result.simuleringsdata shouldHaveSize 1
-        with(result.simuleringsdata[0]) {
-            fom shouldBe LocalDate.of(2029, 11, 1)
-            andvendtTrygdetid shouldBe 6
+        with(result) {
+            pid shouldBe spec.pid
+            foedselsdato shouldBe spec.foedselDato
+            sisteTpOrdningsTpNummer shouldBe "TPNR"
+            simulertOffentligAfp.shouldBeNull()
+            simulertPrivatAfp.shouldNotBeNull()
+            with(simulertPrivatAfp) {
+                kompensasjonstillegg shouldBe 25
+                totalAfpBeholdning shouldBe 20
+            }
+            sivilstand.name shouldBe spec.sivilstatus.name
+            inntekter shouldHaveSize 3
+            inntekter[0].beloep shouldBe 500_000.0
+            inntekter[1].beloep shouldBe 400_000.0
+            inntekter[2].beloep shouldBe 0.0
+            pensjonsbeholdningsperioder shouldHaveSize 1
+            with(pensjonsbeholdningsperioder[0]) {
+                fom shouldBe LocalDate.of(2020, 1, 1)
+                pensjonsbeholdning shouldBe 1.0
+                garantipensjonsbeholdning shouldBe 2.0
+                garantitilleggsbeholdning shouldBe 3.0
+            }
+            simuleringsperioder shouldHaveSize 3
+            simuleringsdata shouldHaveSize 1
+            with(simuleringsdata[0]) {
+                fom shouldBe LocalDate.of(2029, 11, 1)
+                andvendtTrygdetid shouldBe 6
+            }
         }
     }
 })
@@ -143,7 +147,7 @@ private fun mockSimuleringSpec(
     flyktning = null,
     epsHarInntektOver2G = false,
     livsvarigOffentligAfp = null,
-    pre2025OffentligAfp = null,
+    tidsbegrensetOffentligAfp = null,
     erAnonym = false,
     ignoreAvslag = false,
     isHentPensjonsbeholdninger = true,
@@ -190,11 +194,11 @@ private fun mockSimulatorOutput(erOffentligAnsatt: Boolean) =
             )
 
             if (erOffentligAnsatt) {
-                pre2025OffentligAfp = Simuleringsresultat().apply {
+                tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply { brutto = 9 }
                 }
             } else {
-                pre2025OffentligAfp = null
+                tidsbegrensetOffentligAfp = null
                 privatAfpPeriodeListe.add(
                     PrivatAfpPeriode(
                         afpOpptjening = 20,

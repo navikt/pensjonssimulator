@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.FolketrygdberegnetAfp
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid

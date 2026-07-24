@@ -298,7 +298,7 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
                             maanedligBeloep = 100
                         )
                     ),
-                    pre2025OffentligAfp = SimulertPre2025OffentligAfp(
+                    tidsbegrensetOffentligAfp = SimulertTidsbegrensetOffentligAfp(
                         alderAar = 62,
                         totaltAfpBeloep = 890,
                         tidligereArbeidsinntekt = 123,

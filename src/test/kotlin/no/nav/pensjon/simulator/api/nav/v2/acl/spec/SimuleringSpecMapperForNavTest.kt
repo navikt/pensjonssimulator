@@ -7,7 +7,7 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
@@ -54,7 +54,7 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 250000,
                 inntektEtterHeltUttakBeloep = 125000,
                 inntektEtterHeltUttakAntallAar = 3,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.NAVO,
                     inntektMaanedenFoerAfpUttakBeloep = 199000,
                     inntektUnderAfpUttakBeloep = 250000 // fra gradert uttak
@@ -99,7 +99,7 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 255000,
                 inntektEtterHeltUttakBeloep = 129000,
                 inntektEtterHeltUttakAntallAar = 4,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPKOM, // 'kommunal AFP' er default AFP-ordningstype
                     inntektMaanedenFoerAfpUttakBeloep = 198000,
                     inntektUnderAfpUttakBeloep = 255000

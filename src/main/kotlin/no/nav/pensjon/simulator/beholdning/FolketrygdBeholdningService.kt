@@ -72,7 +72,7 @@ class FolketrygdBeholdningService(
             utlandPeriodeListe = mutableListOf(),
             flyktning = null,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null, // never used in this context
+            tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = true, // true for folketrygdbeholdning
             isHentPensjonsbeholdninger = true, // true for TPO

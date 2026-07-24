@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.AfpGrad.beregnAfpGrad
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.AfpGrad.beregnAfpGrad
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
@@ -52,7 +52,7 @@ object SimulatorOutputConverter {
                 normertPensjoneringsdato
             ),
             alderspensjonFraFolketrygden = beregningsinfoListe.map(::alderspensjonFraFolketrygden),
-            pre2025OffentligAfp = source.pre2025OffentligAfp?.beregning?.let {
+            tidsbegrensetOffentligAfp = source.tidsbegrensetOffentligAfp?.beregning?.let {
                 tidsbegrensetOffentligAfp(
                     beregning = it,
                     foedselsdato = source.registerData?.soekerFoedselsdato,
@@ -182,7 +182,7 @@ object SimulatorOutputConverter {
         beregning: Beregning,
         foedselsdato: LocalDate?,
         inntektVedAfpUttak: Int?
-    ): SimulertPre2025OffentligAfp? =
+    ): SimulertTidsbegrensetOffentligAfp? =
         if (foedselsdato == null)
             null
         else
@@ -190,7 +190,7 @@ object SimulatorOutputConverter {
                 val sluttpoengtall = beregning.tp?.spt
                 val poengrekke = sluttpoengtall?.poengrekke
 
-                SimulertPre2025OffentligAfp(
+                SimulertTidsbegrensetOffentligAfp(
                     alderAar = alderAar(foedselsdato, it),
                     totaltAfpBeloep = beregning.netto,
                     tidligereArbeidsinntekt = poengrekke?.tpi ?: 0,

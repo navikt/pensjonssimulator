@@ -68,7 +68,7 @@ open class SimuleringResultMapperTest : ShouldSpec({
                     ),
                     alderspensjonFraFolketrygden = emptyList(),
                     privatAfp = emptyList(),
-                    pre2025OffentligAfp = null,
+                    tidsbegrensetOffentligAfp = null,
                     livsvarigOffentligAfp = emptyList(),
                     pensjonBeholdningPeriodeListe = emptyList(),
                     harUttak = true,

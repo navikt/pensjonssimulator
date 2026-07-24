@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.inntekt.InntektService
@@ -68,7 +68,7 @@ class SimuleringSpecMapperForNavV2(
             livsvarigOffentligAfp = offentligAfp?.innvilgetLivsvarigAfp?.let(::livsvarigOffentligAfp),
 
             // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
-            pre2025OffentligAfp = tidsbegrensetOffentligAfp(
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp(
                 simuleringSpec = source,
                 inntektAarligBeloep = gradertUttak?.aarligInntekt,
                 inntektSisteMaanedOver1G =
@@ -124,9 +124,9 @@ class SimuleringSpecMapperForNavV2(
             simuleringSpec: SimuleringSpecDto,
             inntektAarligBeloep: Int?,
             inntektSisteMaanedOver1G: Int?
-        ): Pre2025OffentligAfpSpec? =
+        ): TidsbegrensetOffentligAfpSpec? =
             if (simuleringSpec.simuleringstype == SimuleringstypeSpecDto.ALDERSPENSJON_MED_TIDSBEGRENSET_OFFENTLIG_AFP)
-                Pre2025OffentligAfpSpec(
+                TidsbegrensetOffentligAfpSpec(
                     afpOrdning = simuleringSpec.offentligAfp?.afpOrdning?.internalValue ?: AFPtypeEnum.AFPKOM,
                     inntektMaanedenFoerAfpUttakBeloep = inntektSisteMaanedOver1G ?: 0,
                     inntektUnderAfpUttakBeloep = inntektAarligBeloep ?: 0

@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 object FolketrygdberegnetAfpResultMapperV1 {
 
     fun toResultV1(source: SimulatorOutput): FolketrygdberegnetAfpResultV1? =
-        source.pre2025OffentligAfp?.beregning?.let(FolketrygdberegnetAfpResultMapperV1::beregnetAfp)
+        source.tidsbegrensetOffentligAfp?.beregning?.let(FolketrygdberegnetAfpResultMapperV1::beregnetAfp)
 
     // PEN: no.nav.domain.pensjon.kjerne.beregning.Beregning.hentFolketrygdberegnetAfp
     private fun beregnetAfp(source: Beregning): FolketrygdberegnetAfpResultV1 {

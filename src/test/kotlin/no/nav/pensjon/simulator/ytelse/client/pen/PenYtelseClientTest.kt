@@ -176,7 +176,7 @@ private fun spec() =
         avdoed = null,
         alderspensjonFlags = null,
         endringAlderspensjonFlags = null,
-        pre2025OffentligAfpYtelserFlags = null
+        tidsbegrensetOffentligAfpYtelserFlags = null
     )
 
 private fun serverErrorResponse(traceMessage: String) =

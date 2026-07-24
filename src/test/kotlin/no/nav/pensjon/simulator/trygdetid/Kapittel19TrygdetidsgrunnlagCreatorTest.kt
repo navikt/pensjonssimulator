@@ -12,7 +12,7 @@ class Kapittel19TrygdetidsgrunnlagCreatorTest : FunSpec({
     /**
      * kapittel19TrygdetidsperiodeListe skal:
      * - ikke regne med utenlandsperioder
-     * - hvis simuleringstype er 'pre-2025 offentlig AFP etterfulgt av alderspensjon',
+     * - hvis simuleringstype er 'tidsbegrenset offentlig AFP etterfulgt av alderspensjon',
      *   regne med trygdetid t.o.m. 31.12. i året som er 2 år før året for uttak av alderspensjon
      *   (ref. lovdata.no/lov/1997-02-28-19/§3-5: "Trygdetid i alderspensjoner medregnes fra utløpet av det året
      *    fastsettingen av formues- og inntektsskatt for det aktuelle året er ferdig.")

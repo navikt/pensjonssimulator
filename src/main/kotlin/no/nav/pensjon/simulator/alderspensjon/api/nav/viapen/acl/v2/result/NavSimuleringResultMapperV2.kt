@@ -19,7 +19,7 @@ object NavSimuleringResultMapperV2 {
         NavSimuleringResultV2(
             ap = source.alderspensjon?.let(::alderspensjon),
             afpPrivat = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
-            afpOffentlig = source.pre2025OffentligAfp?.let(::simuleringResultat),
+            afpOffentlig = source.tidsbegrensetOffentligAfp?.let(::simuleringResultat),
             opptjeningListe = source.opptjeningListe.map(::opptjening),
             grunnbelop = source.registerData?.grunnbeloep,
             sivilstand = source.sivilstand,
@@ -138,7 +138,7 @@ object NavSimuleringResultMapperV2 {
             resultatKilde = null, //ResultatKildeEnum.AUTO, // ref. BeregnPensjonUtil.setResultatKilde in PEN
             resultatType = source.resultatTypeEnum,
             afpPensjonsgrad = source.afpPensjonsgrad,
-            ytelseskomponenter = source.getBrukteYtelseskomponenter().map(::ytelseKomponent),
+            ytelseskomponenter = source.getBrukteYtelseskomponenter().map(::ytelseskomponent),
             delberegningListe = source.delberegningsListe.map(::delberegning),
             minstepensjonType = source.minstepensjontypeEnum,
             ttAnv = source.tt_anv,
@@ -146,7 +146,7 @@ object NavSimuleringResultMapperV2 {
             ufg = source.ufg
         )
 
-    private fun ytelseKomponent(source: Ytelseskomponent): NavYtelseKomponentV2 {
+    private fun ytelseskomponent(source: Ytelseskomponent): NavYtelseKomponentV2 {
         val tilleggspensjon = source as? Tilleggspensjon
 
         return NavYtelseKomponentV2(

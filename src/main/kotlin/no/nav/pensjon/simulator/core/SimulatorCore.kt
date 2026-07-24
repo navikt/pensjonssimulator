@@ -3,9 +3,9 @@ package no.nav.pensjon.simulator.core
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpBeregner
 import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpPeriodeConverter
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpResult
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpYtelseMedDelingstall
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpPeriodeConverter
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.alder.Alder
@@ -90,7 +90,7 @@ class SimulatorCore(
         val specWithAvdoed = specWithEventuellAvdoed(initialSpec, ytelser.avdoed)
 
         val spec: SimuleringSpec =
-            if (specWithAvdoed.gjelderPre2025OffentligAfp())
+            if (specWithAvdoed.gjelderTidsbegrensetOffentligAfp())
             // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
                 specWithAvdoed.withHeltUttakDato(foedselsdato?.let {
                     uttakDato(foedselsdato = it, uttakAlder = normalderService.normalder(it))
@@ -169,7 +169,7 @@ class SimulatorCore(
             if (spec.livsvarigOffentligAfp?.innvilgetAfp == null)
                 offentligAfpBeregner.beregnAfp(spec, kravhode, ytelser, foedselsdato, pid = person?.pid)
             else
-                OffentligAfpResult(pre2025 = null, livsvarig = null, kravhode)
+                OffentligAfpResult(tidsbegrenset = null, livsvarig = null, kravhode)
 
         kravhode = simulertOffentligAfp.kravhode // NB: kravhode reassigned (but only for pre-2025)
 
@@ -211,7 +211,7 @@ class SimulatorCore(
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
                 SimulatorOutput().apply {
-                    pre2025OffentligAfp = simulertOffentligAfp.pre2025?.simuleringResult
+                    tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringResult
                 }
             else
                 resultPreparer.opprettOutput(
@@ -222,7 +222,7 @@ class SimulatorCore(
                         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                         forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                         forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
-                        pre2025OffentligAfpBeregningResultat = simulertOffentligAfp.pre2025?.simuleringResult,
+                        tidsbegrensetOffentligAfpBeregningResultat = simulertOffentligAfp.tidsbegrenset?.simuleringResult,
                         livsvarigOffentligAfpBeregningResultatListe =
                             LivsvarigOffentligAfpPeriodeConverter.aarligePerioder(
                                 result = innvilgetLivsvarigOffentligAfp(spec, foedselsdato)

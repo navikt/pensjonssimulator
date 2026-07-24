@@ -11,7 +11,7 @@ data class SimulertPensjon(
     val maanedligAlderspensjonForKnekkpunkter: SimulertMaanedligAlderspensjonForKnekkpunkter,
     val alderspensjonFraFolketrygden: List<SimulertAlderspensjonFraFolketrygden>,
     val privatAfp: List<SimulertPrivatAfp>,
-    val pre2025OffentligAfp: SimulertPre2025OffentligAfp?,
+    val tidsbegrensetOffentligAfp: SimulertTidsbegrensetOffentligAfp?,
     val livsvarigOffentligAfp: List<SimulertLivsvarigOffentligAfp>,
     val pensjonBeholdningPeriodeListe: List<SimulertPensjonBeholdningPeriode>,
     val harUttak: Boolean,
@@ -95,7 +95,7 @@ data class SimulertPrivatAfp(
     val maanedligBeloep: Int
 )
 
-data class SimulertPre2025OffentligAfp(
+data class SimulertTidsbegrensetOffentligAfp(
     val alderAar: Int,
     val totaltAfpBeloep: Int,
     val tidligereArbeidsinntekt: Int,

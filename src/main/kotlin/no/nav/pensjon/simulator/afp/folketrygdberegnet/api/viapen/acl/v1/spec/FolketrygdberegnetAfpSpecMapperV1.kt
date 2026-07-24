@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
 
 /**
- * Maps from received DTO to domain object for specification of 'simulering av folketrygdberegnet AFP'.
+ * Maps from the received DTO to a domain object for specification of 'simulering av folketrygdberegnet AFP'.
  * V1 = Versipn 1 of the API (application programming interface) and DTO (data transfer object)
  * AFP = Avtalefestet pensjon
  */
@@ -50,7 +50,7 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null, // not relevant in this context
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -76,9 +76,9 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
                     throw BadSpecException(message = "for høy inntekt: $it - max er $MAX_INNTEKT")
             } ?: 0
 
-        private fun pre2025OffentligAfpSpec(spec: FolketrygdberegnetAfpSpecV1): Pre2025OffentligAfpSpec =
+        private fun tidsbegrensetOffentligAfpSpec(spec: FolketrygdberegnetAfpSpecV1): TidsbegrensetOffentligAfpSpec =
             spec.afpOrdning?.let {
-                Pre2025OffentligAfpSpec(
+                TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.valueOf(it),
                     inntektMaanedenFoerAfpUttakBeloep = spec.afpInntektMndForUttak ?: 0,
                     inntektUnderAfpUttakBeloep = 0 // ref. PEN ForetaFolketrygdBeregnetAfpHelper

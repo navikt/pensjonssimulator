@@ -1089,7 +1089,7 @@ private fun createSimuleringSpec(
     flyktning = false,
     epsHarInntektOver2G = epsHarInntektOver2G,
     livsvarigOffentligAfp = null,
-    pre2025OffentligAfp = null,
+    tidsbegrensetOffentligAfp = null,
     erAnonym = false,
     ignoreAvslag = false,
     isHentPensjonsbeholdninger = false,

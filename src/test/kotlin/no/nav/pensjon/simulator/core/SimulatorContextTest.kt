@@ -215,7 +215,7 @@ class SimulatorContextTest : ShouldSpec({
         }
     }
 
-    context("simulerPre2025OffentligAfp") {
+    context("simuler tidsbegrenset offentlig AFP") {
         should("returnere simuleringsresultat") {
             val resultat = Simuleringsresultat()
             val regelmotor = arrangeRegler<SimuleringResponse, SimuleringRequest>(
@@ -223,7 +223,7 @@ class SimulatorContextTest : ShouldSpec({
                 response = simuleringsresultat(resultat)
             )
 
-            simulatorContext(regelmotor).simulerPre2025OffentligAfp(spec = SimuleringRequest()) shouldBe resultat
+            simulatorContext(regelmotor).simulerTidsbegrensetOffentligAfp(spec = SimuleringRequest()) shouldBe resultat
         }
 
         should("kaste exception når simuleringsResultat er null") {
@@ -233,12 +233,12 @@ class SimulatorContextTest : ShouldSpec({
             )
 
             shouldThrow<RuntimeException> {
-                simulatorContext(regelmotor).simulerPre2025OffentligAfp(SimuleringRequest())
+                simulatorContext(regelmotor).simulerTidsbegrensetOffentligAfp(SimuleringRequest())
             }.message shouldBe "Simuleringsresultat is null"
         }
     }
 
-    context("simulerVilkarsprovPre2025OffentligAfp") {
+    context("simuler vilkårsprøving av tidsbegrenset offentlig AFP") {
         should("returnere simuleringsresultat") {
             val simuleringsResultat = Simuleringsresultat()
             val regelmotor = arrangeRegler<SimuleringResponse, SimuleringRequest>(
@@ -246,7 +246,7 @@ class SimulatorContextTest : ShouldSpec({
                 response = simuleringsresultat(simuleringsResultat)
             )
 
-            simulatorContext(regelmotor).simulerVilkarsprovPre2025OffentligAfp(
+            simulatorContext(regelmotor).simulerVilkarsprovTidsbegrensetOffentligAfp(
                 spec = SimuleringRequest()
             ) shouldBe simuleringsResultat
         }
@@ -453,7 +453,7 @@ class SimulatorContextTest : ShouldSpec({
 private val dato: LocalDate = LocalDate.of(2030, 1, 1)
 
 private inline fun <K, reified T : Any> arrangeRegler(response: K): GenericRegelClient =
-    mockk<GenericRegelClient>().apply {
+    mockk {
         every {
             makeRegelCall<K, T>(
                 any(), any(), any()
@@ -462,7 +462,7 @@ private inline fun <K, reified T : Any> arrangeRegler(response: K): GenericRegel
     }
 
 private inline fun <K, reified T : Any> arrangeRegler(serviceName: String, response: K): GenericRegelClient =
-    mockk<GenericRegelClient>().apply {
+    mockk {
         every {
             makeRegelCall<K, T>(
                 any(), any(), eq(serviceName)

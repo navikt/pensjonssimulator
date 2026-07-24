@@ -332,10 +332,10 @@ class KnekkpunktFinderTest : FunSpec({
     }
 
     // =====================================================
-    // Tests for pre-2025 offentlig AFP
+    // Tests for tidsbegrenset offentlig AFP
     // =====================================================
 
-    test("finnKnekkpunkter should use heltUttakDato for pre-2025 offentlig AFP") {
+    test("finnKnekkpunkter should use heltUttakDato for tidsbegrenset offentlig AFP") {
         val finder = createKnekkpunktFinder()
         val spec = createKnekkpunktSpec(
             type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
@@ -345,7 +345,7 @@ class KnekkpunktFinderTest : FunSpec({
 
         val result = finder.finnKnekkpunkter(spec)
 
-        // For pre-2025 offentlig AFP, foersteBeregningDato should be heltUttakDato
+        // For tidsbegrenset offentlig AFP, foersteBeregningDato should be heltUttakDato
         result shouldContainKey LocalDate.of(2030, 1, 1)
     }
 
@@ -582,7 +582,7 @@ private fun createSimuleringSpec(
     flyktning = false,
     epsHarInntektOver2G = false,
     livsvarigOffentligAfp = null,
-    pre2025OffentligAfp = null,
+    tidsbegrensetOffentligAfp = null,
     erAnonym = false,
     ignoreAvslag = false,
     isHentPensjonsbeholdninger = false,

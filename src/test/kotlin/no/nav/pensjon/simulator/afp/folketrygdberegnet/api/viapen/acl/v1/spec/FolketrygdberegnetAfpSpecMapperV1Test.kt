@@ -1,14 +1,14 @@
 package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
@@ -16,9 +16,9 @@ import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 import java.util.*
 
-class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
+class FolketrygdberegnetAfpSpecMapperV1Test : ShouldSpec({
 
-    test("fromSimuleringSpecV1 should validate inntekt") {
+    should("validate inntekt") {
         val personService = Arrange.foedselsdato(1963, 4, 5)
 
         shouldThrow<BadSpecException> {
@@ -42,7 +42,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
         }.message shouldBe "for høy inntekt: 2147483647 - max er 999999999"
     }
 
-    test("fromSimuleringSpecV1 should validate antall år") {
+    should("validate antall år") {
         val personService = Arrange.foedselsdato(1963, 4, 5)
 
         shouldThrow<BadSpecException> {
@@ -66,7 +66,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
         }.message shouldBe "for høyt antall år: 1000 - max er 999"
     }
 
-    test("fromSimuleringSpecV1 should map values including pre2025OffentligAfp") {
+    should("map values including tidsbegrenset offentlig AFP") {
         val personService = Arrange.foedselsdato(1963, 4, 5)
 
         FolketrygdberegnetAfpSpecMapperV1(personService).fromSimuleringSpecV1(
@@ -110,7 +110,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : FunSpec({
             flyktning = null,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+            tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.AFPSTAT,
                 inntektMaanedenFoerAfpUttakBeloep = 567,
                 inntektUnderAfpUttakBeloep = 0 // zero for AFP_FPP

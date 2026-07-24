@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -49,7 +49,7 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null, //TODO map to offentligAfpRett?
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
+            tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
@@ -59,12 +59,12 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
         )
     }
 
-    private fun pre2025OffentligAfpSpec(simuleringSpec: NavSimuleringSpecV2): Pre2025OffentligAfpSpec? =
+    private fun pre2025OffentligAfpSpec(simuleringSpec: NavSimuleringSpecV2): TidsbegrensetOffentligAfpSpec? =
         if (simuleringSpec.simuleringType == NavSimuleringTypeSpecV2.AFP_ETTERF_ALDER)
-            Pre2025OffentligAfpSpec(
+            TidsbegrensetOffentligAfpSpec(
                 afpOrdning = simuleringSpec.afpOrdning!!,
                 inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
-                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
             )
         else

@@ -36,9 +36,9 @@ class EndringPersongrunnlagTest : ShouldSpec({
      * - bruk = false, eller
      * - penRolleTom er i fortid
      * -----------------------------------------
-     * NB: Interessant forskjell mellom EndringPersongrunnlag og Pre2025OffentligAfpPersongrunnlag:
+     * NB: Interessant forskjell mellom EndringPersongrunnlag og TidsbegrensetOffentligAfpPersongrunnlag:
      * - EndringPersongrunnlag bruker penRolleTom
-     * - Pre2025OffentligAfpPersongrunnlag bruker virkTom
+     * - TidsbegrensetOffentligAfpPersongrunnlag bruker virkTom
      */
     should("fjerne irrelevante persondetaljer") {
         val persongrunnlag = EndringPersongrunnlag(
@@ -819,7 +819,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
                     grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
                     virkFom = LocalDate.of(2020, 1, 1)
                     virkTom = LocalDate.of(2030, 1, 1)
-                    penRolleTom = LocalDate.of(2024, 1, 1) // Has penRolleTom set
+                    penRolleTom = LocalDate.of(2024, 1, 1) // Has defined penRolleTom
                 }
             )
             inntektsgrunnlagListe = mutableListOf()

@@ -51,7 +51,7 @@ class AlderspensjonSpecMapperV3(
             inntektOver1GAntallAar = 0,
             flyktning = null,
             livsvarigOffentligAfp = null, // not supported in V3
-            pre2025OffentligAfp = null, // never used in this context
+            tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for samhandler

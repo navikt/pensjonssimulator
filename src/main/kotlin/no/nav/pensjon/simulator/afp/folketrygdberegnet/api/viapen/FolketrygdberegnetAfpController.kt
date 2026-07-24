@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.FolketrygdberegnetAfpResultV1
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecMapperV1
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecV1
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.TpoViaPenAlderspensjonController.TpoSimuleringErrorDto
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
@@ -103,8 +103,8 @@ class FolketrygdberegnetAfpController(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID person for ung - request - $specV1" }
             throw e
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV1" }
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID tidsbegrenset offentlig AFP avslått - request - $specV1" }
             throw e
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
@@ -136,7 +136,7 @@ class FolketrygdberegnetAfpController(
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
+            TidsbegrensetOffentligAfpAvslaattException::class,
             RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class

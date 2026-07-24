@@ -4,11 +4,11 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpService
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.grunnlag.LivsvarigOffentligAfpResult
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpFoerstegangBeregner
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpResult
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpEndringBeregner
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpFoerstegangBeregner
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpResult
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -24,7 +24,7 @@ import java.time.LocalDate
 
 class OffentligAfpBeregnerTest : ShouldSpec({
 
-    val pre2025Foedselsdato = LocalDate.of(1961, 1, 1) // født før 1963 => "gammel" (pre-2025) AFP gjelder
+    val foedselsdatoSomMedfoererTidsbegrensetAfp = LocalDate.of(1961, 1, 1) // før 1963
 
     val persongrunnlagMedAfp =
         Persongrunnlag().apply {
@@ -51,25 +51,25 @@ class OffentligAfpBeregnerTest : ShouldSpec({
             avdoed = null
         )
 
-    context("beregnAfp for pre-2025 offentlig AFP") {
-        should("return pre-2025 result and modified kravhode") {
+    context("beregnAfp for tidsbegrenset offentlig AFP") {
+        should("return tidsbegrenset result and modified kravhode") {
             val originalKravhode = Kravhode()
             val modifiedKravhode = Kravhode()
             val simuleringResult = Simuleringsresultat()
-            val afpResult = Pre2025OffentligAfpResult(simuleringResult, modifiedKravhode)
+            val afpResult = TidsbegrensetOffentligAfpResult(simuleringResult, modifiedKravhode)
 
             OffentligAfpBeregner(
-                pre2025FoerstegangBeregner = arrangePre2025Foerstegang(afpResult),
-                pre2025EndringBeregner = mockk(),
+                tidsbegrensetFoerstegangBeregner = arrangeTidsbegrensetFoerstegang(afpResult),
+                tidsbegrensetEndringBeregner = mockk(),
                 livsvarigBeregner = mockk()
             ).beregnAfp(
-                spec = simuleringSpec(type = SimuleringTypeEnum.AFP_ETTERF_ALDER), // pre-2025 offentlig AFP
+                spec = simuleringSpec(type = SimuleringTypeEnum.AFP_ETTERF_ALDER), // tidsbegrenset offentlig AFP
                 kravhode = originalKravhode,
                 ytelser = noYtelser,
-                foedselsdato = pre2025Foedselsdato,
+                foedselsdato = foedselsdatoSomMedfoererTidsbegrensetAfp,
                 pid
             ) shouldBe OffentligAfpResult(
-                pre2025 = Pre2025OffentligAfpResult(simuleringResult, modifiedKravhode),
+                tidsbegrenset = TidsbegrensetOffentligAfpResult(simuleringResult, modifiedKravhode),
                 livsvarig = null,
                 modifiedKravhode
             )
@@ -77,45 +77,45 @@ class OffentligAfpBeregnerTest : ShouldSpec({
     }
 
     context("beregnAfp ved endring uten livsvarig offentlig AFP") {
-        should("return pre-2025 result and original kravhode") {
+        should("return tidsbegrenset result and original kravhode") {
             val kravhode = Kravhode()
             val simuleringResult = Simuleringsresultat()
-            val afpResult = Pre2025OffentligAfpResult(simuleringResult, kravhode)
+            val afpResult = TidsbegrensetOffentligAfpResult(simuleringResult, kravhode)
 
             OffentligAfpBeregner(
-                pre2025FoerstegangBeregner = mockk(),
-                pre2025EndringBeregner = arrangePre2025Endring(afpResult),
+                tidsbegrensetFoerstegangBeregner = mockk(),
+                tidsbegrensetEndringBeregner = arrangeTidsbegrensetEndring(afpResult),
                 livsvarigBeregner = mockk()
             ).beregnAfp(
                 spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER), // endring uten livsvarig offentlig AFP
                 kravhode,
                 ytelser = noYtelser,
-                foedselsdato = pre2025Foedselsdato,
+                foedselsdato = foedselsdatoSomMedfoererTidsbegrensetAfp,
                 pid
             ) shouldBe OffentligAfpResult(
-                pre2025 = Pre2025OffentligAfpResult(simuleringResult, kravhode),
+                tidsbegrenset = TidsbegrensetOffentligAfpResult(simuleringResult, kravhode),
                 livsvarig = null,
                 kravhode
             )
         }
     }
 
-    context("beregnAfp når terminering av pre-2025 offentlig AFP kreves") {
-        should("return pre-2025 result and original kravhode") {
+    context("beregnAfp når terminering av tidsbegrenset offentlig AFP kreves") {
+        should("return tidsbegrenset result and original kravhode") {
             val kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlagMedAfp) }
 
             OffentligAfpBeregner(
-                pre2025FoerstegangBeregner = mockk(),
-                pre2025EndringBeregner = mockk(),
+                tidsbegrensetFoerstegangBeregner = mockk(),
+                tidsbegrensetEndringBeregner = mockk(),
                 livsvarigBeregner = mockk()
             ).beregnAfp(
-                spec = simuleringSpec(type = SimuleringTypeEnum.ALDER), // krever terminering av pre-2025 offentlig AFP
+                spec = simuleringSpec(type = SimuleringTypeEnum.ALDER), // krever terminering av tidsbegrenset offentlig AFP
                 kravhode,
                 ytelser = noYtelser,
-                foedselsdato = pre2025Foedselsdato,
+                foedselsdato = foedselsdatoSomMedfoererTidsbegrensetAfp,
                 pid
             ) shouldBe OffentligAfpResult(
-                pre2025 = Pre2025OffentligAfpResult(simuleringResult = null, kravhode), // terminert
+                tidsbegrenset = TidsbegrensetOffentligAfpResult(simuleringResult = null, kravhode), // terminert
                 livsvarig = null,
                 kravhode
             )
@@ -133,8 +133,8 @@ class OffentligAfpBeregnerTest : ShouldSpec({
             val kravhode = Kravhode()
 
             OffentligAfpBeregner(
-                pre2025FoerstegangBeregner = mockk(),
-                pre2025EndringBeregner = mockk(),
+                tidsbegrensetFoerstegangBeregner = mockk(),
+                tidsbegrensetEndringBeregner = mockk(),
                 livsvarigBeregner = mockk()
             ).beregnAfp(
                 spec = simuleringSpec(type = SimuleringTypeEnum.ALDER), // => ingen AFP involvert hvis født 1963 eller senere
@@ -143,7 +143,7 @@ class OffentligAfpBeregnerTest : ShouldSpec({
                 foedselsdato = LocalDate.of(1963, 1, 1), // => født 1963 eller senere
                 pid
             ) shouldBe OffentligAfpResult(
-                pre2025 = null,
+                tidsbegrenset = null,
                 livsvarig = null,
                 kravhode
             )
@@ -156,8 +156,8 @@ class OffentligAfpBeregnerTest : ShouldSpec({
             val result = LivsvarigOffentligAfpResult(pid = pid.value, afpYtelseListe = listOf())
 
             OffentligAfpBeregner(
-                pre2025FoerstegangBeregner = mockk(),
-                pre2025EndringBeregner = mockk(),
+                tidsbegrensetFoerstegangBeregner = mockk(),
+                tidsbegrensetEndringBeregner = mockk(),
                 livsvarigBeregner = arrangeLivsvarig(result)
             ).beregnAfp(
                 spec = simuleringSpec(type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG),
@@ -166,7 +166,7 @@ class OffentligAfpBeregnerTest : ShouldSpec({
                 foedselsdato = LocalDate.of(1963, 1, 1),
                 pid
             ) shouldBe OffentligAfpResult(
-                pre2025 = null,
+                tidsbegrenset = null,
                 livsvarig = result,
                 kravhode
             )
@@ -175,16 +175,16 @@ class OffentligAfpBeregnerTest : ShouldSpec({
 })
 
 private fun arrangeLivsvarig(result: LivsvarigOffentligAfpResult): LivsvarigOffentligAfpService =
-    mockk<LivsvarigOffentligAfpService>().apply {
+    mockk {
         every { beregnAfp(any(), any(), any(), any(), any(), any()) } returns result
     }
 
-private fun arrangePre2025Foerstegang(result: Pre2025OffentligAfpResult): Pre2025OffentligAfpFoerstegangBeregner =
-    mockk<Pre2025OffentligAfpFoerstegangBeregner>().apply {
+private fun arrangeTidsbegrensetFoerstegang(result: TidsbegrensetOffentligAfpResult): TidsbegrensetOffentligAfpFoerstegangBeregner =
+    mockk {
         every { beregnAfp(any(), any(), any()) } returns result
     }
 
-private fun arrangePre2025Endring(result: Pre2025OffentligAfpResult): Pre2025OffentligAfpEndringBeregner =
-    mockk<Pre2025OffentligAfpEndringBeregner>().apply {
+private fun arrangeTidsbegrensetEndring(result: TidsbegrensetOffentligAfpResult): TidsbegrensetOffentligAfpEndringBeregner =
+    mockk {
         every { beregnAfp(any(), any()) } returns result
     }

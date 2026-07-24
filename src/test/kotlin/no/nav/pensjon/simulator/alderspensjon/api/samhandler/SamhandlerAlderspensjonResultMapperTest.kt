@@ -79,7 +79,7 @@ open class SamhandlerAlderspensjonResultMapperTest : FunSpec({
                             maanedligBeloep = 900
                         )
                     ),
-                    pre2025OffentligAfp = null,
+                    tidsbegrensetOffentligAfp = null,
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(
                             alderAar = 66,
@@ -252,7 +252,7 @@ private fun simulertPensjon(alderspensjonFraFolketrygden: List<SimulertAlderspen
             maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
             alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
             privatAfp = emptyList(),
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             livsvarigOffentligAfp = emptyList(),
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = true,

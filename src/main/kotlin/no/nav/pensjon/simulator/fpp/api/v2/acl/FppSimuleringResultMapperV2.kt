@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.fpp.api.v2.acl
 
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.FolketrygdberegnetAfp
 import no.nav.pensjon.simulator.fpp.FppSimuleringResult
 import no.nav.pensjon.simulator.fpp.api.v1.acl.AfpTypeDto
 import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemDto

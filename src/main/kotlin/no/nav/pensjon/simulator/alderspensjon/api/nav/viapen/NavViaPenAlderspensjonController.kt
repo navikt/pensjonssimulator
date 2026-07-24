@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApForTpResultMapperV2.toApForTpResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApForTpResultV2
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.NavSimuleringResultMapperV2.toSimuleringResultV2
@@ -135,8 +135,8 @@ class NavViaPenAlderspensjonController(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$AP_FUNCTION_ID person for ung - request - $specV2" }
             throw e
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$AP_FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV2" }
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            log.warn(e) { "$AP_FUNCTION_ID tidsbegrenset offentlig AFP avslått - request - $specV2" }
             throw e
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$AP_FUNCTION_ID regelmotorvalideringsfeil - request - $specV2" }
@@ -230,8 +230,8 @@ class NavViaPenAlderspensjonController(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$TP_FUNCTION_ID person for ung - request - $specV2" }
             throw e
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$TP_FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV2" }
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            log.warn(e) { "$TP_FUNCTION_ID tidsbegrenset offentlig AFP avslått - request - $specV2" }
             throw e
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$TP_FUNCTION_ID regelmotorvalideringsfeil - request - $specV2" }
@@ -261,7 +261,7 @@ class NavViaPenAlderspensjonController(
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
+            TidsbegrensetOffentligAfpAvslaattException::class,
             RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class

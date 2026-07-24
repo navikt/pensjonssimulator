@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.afp.offentlig
 
-import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpService
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpEndringBeregner
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpFoerstegangBeregner
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpTerminator.terminatePre2025OffentligAfp
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.OVERGANG_TIDSBEGRENSET_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSELSAAR
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpService
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpEndringBeregner
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpFoerstegangBeregner
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpTerminator.terminateTidsbegrensetOffentligAfp
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 /**
- * Beregner både "gammel" (pre-2025) og "ny" (livsvarig) AFP i offentlig sektor.
+ * Beregner både tidsbegrenset og livsvarig AFP i offentlig sektor.
  */
 @Component
 class OffentligAfpBeregner(
-    private val pre2025FoerstegangBeregner: Pre2025OffentligAfpFoerstegangBeregner,
-    private val pre2025EndringBeregner: Pre2025OffentligAfpEndringBeregner,
+    private val tidsbegrensetFoerstegangBeregner: TidsbegrensetOffentligAfpFoerstegangBeregner,
+    private val tidsbegrensetEndringBeregner: TidsbegrensetOffentligAfpEndringBeregner,
     private val livsvarigBeregner: LivsvarigOffentligAfpService
 ) {
     fun beregnAfp(
@@ -29,32 +29,32 @@ class OffentligAfpBeregner(
         pid: Pid?
     ): OffentligAfpResult =
         when {
-            spec.gjelderPre2025OffentligAfp() -> {
-                val result = pre2025FoerstegangBeregner.beregnAfp(
+            spec.gjelderTidsbegrensetOffentligAfp() -> {
+                val result = tidsbegrensetFoerstegangBeregner.beregnAfp(
                     spec,
                     kravhode,
                     ytelser.forrigeAlderspensjonBeregningResultat
                 )
-                OffentligAfpResult(pre2025 = result, livsvarig = null, result.kravhode)
+                OffentligAfpResult(tidsbegrenset = result, livsvarig = null, result.kravhode)
             }
 
-            spec.gjelderEndringUtenLivsvarigOffentligAfp() -> //TODO Også sjekke mayHavePre2025OffentligAfp her?
+            spec.gjelderEndringUtenLivsvarigOffentligAfp() -> //TODO Også sjekke mayHaveTidsbegrensetOffentligAfp her?
                 OffentligAfpResult(
-                    pre2025 = spec.foersteUttakDato?.let { pre2025EndringBeregner.beregnAfp(kravhode, it) },
+                    tidsbegrenset = spec.foersteUttakDato?.let { tidsbegrensetEndringBeregner.beregnAfp(kravhode, it) },
                     livsvarig = null,
                     kravhode
                 )
 
-            spec.kreverTermineringAvPre2025OffentligAfp() && mayHavePre2025OffentligAfp(foedselsdato) ->
+            spec.kreverTermineringAvTidsbegrensetOffentligAfp() && mayHaveTidsbegrensetOffentligAfp(foedselsdato) ->
                 OffentligAfpResult(
-                    pre2025 = terminatePre2025OffentligAfp(kravhode, spec.foersteUttakDato),
+                    tidsbegrenset = terminateTidsbegrensetOffentligAfp(kravhode, spec.foersteUttakDato),
                     livsvarig = null,
                     kravhode
                 )
 
             spec.gjelderLivsvarigOffentligAfp() ->
                 OffentligAfpResult(
-                    pre2025 = null,
+                    tidsbegrenset = null,
                     livsvarig = foedselsdato?.let {
                         livsvarigBeregner.beregnAfp(
                             pid!!,
@@ -68,11 +68,11 @@ class OffentligAfpBeregner(
                     kravhode
                 )
 
-            else -> OffentligAfpResult(pre2025 = null, livsvarig = null, kravhode)
+            else -> OffentligAfpResult(tidsbegrenset = null, livsvarig = null, kravhode)
         }
 
     private companion object {
-        private fun mayHavePre2025OffentligAfp(foedselsdato: LocalDate?): Boolean =
-            foedselsdato?.let { it.year < OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR } == true
+        private fun mayHaveTidsbegrensetOffentligAfp(foedselsdato: LocalDate?): Boolean =
+            foedselsdato?.let { it.year < OVERGANG_TIDSBEGRENSET_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSELSAAR } == true
     }
 }

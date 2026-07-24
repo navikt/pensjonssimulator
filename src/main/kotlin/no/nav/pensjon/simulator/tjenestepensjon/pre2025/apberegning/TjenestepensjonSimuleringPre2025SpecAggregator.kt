@@ -28,7 +28,7 @@ object TjenestepensjonSimuleringPre2025SpecAggregator {
         val foedselsdato: LocalDate = simuleringResultat.registerData?.soekerFoedselsdato!! // ikke anonym simulering
 
         val offentligAfp = aggregate(
-            tidsbegrensetOffentligAfp = simuleringResultat.pre2025OffentligAfp,
+            tidsbegrensetOffentligAfp = simuleringResultat.tidsbegrensetOffentligAfp,
             gjelderOffentligAfp
         )
 
@@ -52,7 +52,7 @@ object TjenestepensjonSimuleringPre2025SpecAggregator {
         )
 
         return TjenestepensjonSimuleringPre2025Spec(
-            pid = simuleringSpec.pid!!, //ikke anonym simulering
+            pid = simuleringSpec.pid!!, // ikke anonym simulering
             foedselsdato = foedselsdato,
             sisteTpOrdningsTpNummer = "TPNR",
             simulertPrivatAfp = privatAfp,

@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -51,7 +51,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
+            tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,
@@ -68,12 +68,12 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
         )
     }
 
-    fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV2): Pre2025OffentligAfpSpec? =
+    fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV2): TidsbegrensetOffentligAfpSpec? =
         if (simuleringSpec.simuleringType == SimuleringTypeSpecV2.AFP_ETTERF_ALDER)
-            Pre2025OffentligAfpSpec(
+            TidsbegrensetOffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!.name),
                 inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
-                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
             )
         else

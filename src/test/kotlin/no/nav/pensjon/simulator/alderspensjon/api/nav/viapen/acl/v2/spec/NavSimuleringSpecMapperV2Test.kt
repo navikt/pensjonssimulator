@@ -115,7 +115,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     flyktning = false,
                     epsHarInntektOver2G = true,
                     livsvarigOffentligAfp = null,
-                    pre2025OffentligAfp = null,
+                    tidsbegrensetOffentligAfp = null,
                     erAnonym = false,
                     ignoreAvslag = false,
                     isHentPensjonsbeholdninger = true,

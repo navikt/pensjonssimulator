@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3.*
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
@@ -127,8 +127,8 @@ class SamhandlerAlderspensjonControllerV3(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID_V3 person for ung - request - $specV3" }
             throw e
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$FUNCTION_ID_V3 pre-2025 offentlig AFP avslått - request - $specV3" }
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID_V3 tidsbegrenset offentlig AFP avslått - request - $specV3" }
             throw e
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID_V3 regelmotorvalideringsfeil - request - $specV3" }
@@ -159,7 +159,7 @@ class SamhandlerAlderspensjonControllerV3(
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
+            TidsbegrensetOffentligAfpAvslaattException::class,
             RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class

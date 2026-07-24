@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.core.krav
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpBeholdning
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
 import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
@@ -31,7 +31,7 @@ import java.time.LocalDate
 class KravhodeUpdater(
     private val context: SimulatorContext,
     private val ufoereperiodeService: UfoereperiodeService,
-    private val tidsbegrensetOffentligAfpBeholdning: Pre2025OffentligAfpBeholdning,
+    private val tidsbegrensetOffentligAfpBeholdning: TidsbegrensetOffentligAfpBeholdning,
     private val trygdetidSetter: TrygdetidSetter,
     private val time: Time
 ) {
@@ -99,7 +99,7 @@ class KravhodeUpdater(
         erEndringsberegning: Boolean
     ) {
         when {
-            spec.gjelderPre2025OffentligAfp() -> tidsbegrensetOffentligAfpBeholdning
+            spec.gjelderTidsbegrensetOffentligAfp() -> tidsbegrensetOffentligAfpBeholdning
                 .setPensjonsbeholdning(persongrunnlag, erEndringsberegning)
 
             spec.gjelderEndring() -> {} // ref. SimulerEndringAvAPCommand.settPensjonsbeholdning

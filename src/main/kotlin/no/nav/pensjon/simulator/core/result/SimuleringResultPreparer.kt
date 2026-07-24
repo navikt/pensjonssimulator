@@ -41,7 +41,6 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
 
-// no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettOutputHelper
 @Component
 class SimuleringResultPreparer(
     private val opptjeningAdder: SimulertOpptjeningAdder,
@@ -92,7 +91,7 @@ class SimuleringResultPreparer(
         }
 
         // Del 5
-        simulatorOutput.pre2025OffentligAfp = preparerSpec.pre2025OffentligAfpBeregningResultat
+        simulatorOutput.tidsbegrensetOffentligAfp = preparerSpec.tidsbegrensetOffentligAfpBeregningResultat
         simulatorOutput.livsvarigOffentligAfp = preparerSpec.livsvarigOffentligAfpBeregningResultatListe
         simulatorOutput.registerData = preparerSpec.registerData
 
@@ -225,7 +224,7 @@ class SimuleringResultPreparer(
         val foersteHeleUttak: LocalDate
         val gradertUttak: LocalDate?
 
-        if (spec.gjelderPre2025OffentligAfp()) {
+        if (spec.gjelderTidsbegrensetOffentligAfp()) {
             gradertUttak = null // AFP-simulering does not contain gradert uttak
             foersteHeleUttak = spec.heltUttakDato!! // Assuming heltUttakDato cannot be null in this context
         } else if (spec.heltUttakDato == null) {
@@ -380,7 +379,7 @@ class SimuleringResultPreparer(
         val alderVedFoersteUttak = calculateAgeInYears(foedselsdato, spec.foersteUttakDato)
 
         return if (forrigeResultat == null) {
-            if (handlePre2025OffentligAfpEtterfulgtAvAlderspensjon && spec.gjelderPre2025OffentligAfp())
+            if (handlePre2025OffentligAfpEtterfulgtAvAlderspensjon && spec.gjelderTidsbegrensetOffentligAfp())
                 calculateAgeInYears(foedselsdato, spec.heltUttakDato!!)
             else
                 alderVedFoersteUttak

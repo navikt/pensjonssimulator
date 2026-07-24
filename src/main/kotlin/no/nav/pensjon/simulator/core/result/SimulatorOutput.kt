@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.domain.regler.enum.SivilstandEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import java.time.LocalDate
 
 /**
@@ -13,7 +13,7 @@ import java.time.LocalDate
 class SimulatorOutput {
     //TODO data class
     var alderspensjon: SimulertAlderspensjon? = null
-    var pre2025OffentligAfp: Simuleringsresultat? = null
+    var tidsbegrensetOffentligAfp: Simuleringsresultat? = null
     var livsvarigOffentligAfp: List<LivsvarigOffentligAfpOutput>? = null
     var sivilstand: SivilstandEnum = SivilstandEnum.NULL
     var epsHarPensjon: Boolean = false

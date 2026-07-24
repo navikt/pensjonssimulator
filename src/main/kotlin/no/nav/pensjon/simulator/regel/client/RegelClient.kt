@@ -51,9 +51,9 @@ interface RegelClient {
 
     fun simulerPensjon(spec: SimuleringRequest, serviceName: String): Simuleringsresultat
 
-    fun simulerPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat
+    fun simulerTidsbegrensetOffentligAfp(spec: SimuleringRequest): Simuleringsresultat
 
-    fun simulerVilkarsprovPre2025OffentligAfp(spec: SimuleringRequest): Simuleringsresultat
+    fun simulerVilkarsprovTidsbegrensetOffentligAfp(spec: SimuleringRequest): Simuleringsresultat
 
     fun vilkaarsproevUbetingetAlderspensjon(
         spec: VilkarsprovRequest,

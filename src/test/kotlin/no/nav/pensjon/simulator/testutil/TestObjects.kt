@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
@@ -93,8 +93,8 @@ object TestObjects {
         flyktning = false,
         epsHarInntektOver2G = true,
         livsvarigOffentligAfp = null,
-        pre2025OffentligAfp = afpOrdning?.let {
-            Pre2025OffentligAfpSpec(
+        tidsbegrensetOffentligAfp = afpOrdning?.let {
+            TidsbegrensetOffentligAfpSpec(
                 afpOrdning = it,
                 inntektMaanedenFoerAfpUttakBeloep = 2000,
                 inntektUnderAfpUttakBeloep = 1000
@@ -117,7 +117,7 @@ object TestObjects {
         inntektUnderGradertUttakBeloep: Int,
         inntektEtterHeltUttakBeloep: Int,
         inntektEtterHeltUttakAntallAar: Int,
-        pre2025OffentligAfp: Pre2025OffentligAfpSpec,
+        tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpSpec,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
     ) = SimuleringSpec(
         type = SimuleringTypeEnum.AFP_ETTERF_ALDER, // tidsbegrenset offentlig AFP
@@ -144,7 +144,7 @@ object TestObjects {
         flyktning = false,
         epsHarInntektOver2G = false,
         livsvarigOffentligAfp = null,
-        pre2025OffentligAfp = pre2025OffentligAfp,
+        tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
         erAnonym = false,
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = false,

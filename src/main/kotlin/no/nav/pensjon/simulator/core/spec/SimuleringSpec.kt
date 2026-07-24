@@ -38,8 +38,8 @@ data class SimuleringSpec(
     val inntektOver1GAntallAar: Int,
     val flyktning: Boolean?,
     val epsHarInntektOver2G: Boolean,
-    val livsvarigOffentligAfp: LivsvarigOffentligAfpSpec?, // for "ny" AFP i offentlig sektor
-    val pre2025OffentligAfp: Pre2025OffentligAfpSpec?, // for "gammel" AFP i offentlig sektor
+    val livsvarigOffentligAfp: LivsvarigOffentligAfpSpec?,
+    val tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpSpec?,
     val erAnonym: Boolean, // støtter uinnlogget kalkulator
     val ignoreAvslag: Boolean, // simulering fullføres selv med for lav opptjening/trygdetid
     val isHentPensjonsbeholdninger: Boolean,
@@ -161,7 +161,7 @@ data class SimuleringSpec(
             flyktning = flyktning,
             epsHarInntektOver2G = epsHarInntektOver2G,
             livsvarigOffentligAfp = livsvarigOffentligAfp,
-            pre2025OffentligAfp = pre2025OffentligAfp,
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
             erAnonym = erAnonym,
             ignoreAvslag = ignoreAvslag,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
@@ -202,7 +202,7 @@ data class SimuleringSpec(
             flyktning = flyktning,
             epsHarInntektOver2G = epsHarInntektOver2G,
             livsvarigOffentligAfp = livsvarigOffentligAfp,
-            pre2025OffentligAfp = pre2025OffentligAfp,
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
             erAnonym = erAnonym,
             ignoreAvslag = ignoreAvslag,
             isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
@@ -227,9 +227,9 @@ data class SimuleringSpec(
             SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
         ).contains(type)
 
-    fun gjelderPre2025OffentligAfp() =
+    fun gjelderTidsbegrensetOffentligAfp() =
         // NB: Simuleringstype AFP_FPP har ingen variant for endring av pensjon
-        gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || type == SimuleringTypeEnum.AFP_FPP
+        gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon() || type == SimuleringTypeEnum.AFP_FPP
 
     /**
      * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak, separert i tid.
@@ -238,7 +238,7 @@ data class SimuleringSpec(
      * - Offentlig AFP (før 2025) etterfulgt av alderspensjon
      */
     fun gjelder2FaseSimulering() =
-        gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()
+        gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()
 
     fun gjelderEndring() =
         EnumSet.of(
@@ -256,10 +256,10 @@ data class SimuleringSpec(
         ).contains(type)
 
     /**
-     * Pensjonstyper som ikke kan tas ut sammen med "gammel" (pre-2025) offentlig AFP.
+     * Pensjonstyper som ikke kan tas ut sammen med tidsbegrenset offentlig AFP.
      * Dersom personen har slik løpende AFP, må denne termineres før annet uttak kan starte.
      */
-    fun kreverTermineringAvPre2025OffentligAfp() =
+    fun kreverTermineringAvTidsbegrensetOffentligAfp() =
         EnumSet.of(
             SimuleringTypeEnum.ALDER,
             SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
@@ -284,18 +284,18 @@ data class SimuleringSpec(
                 (heltUttakDato?.equals(other.heltUttakDato) ?: (other.heltUttakDato == null))
 
     /**
-     * For 'pre-2025 offentlig AFP etterfulgt av alderspensjon' gjelder:
+     * For 'tidsbegrenset offentlig AFP etterfulgt av alderspensjon' gjelder:
      * - foersteUttakDato = uttak av AFP
      * - heltUttakDato = uttak av alderspensjon
      * Det er alderspensjonsuttaket (og dermed heltUttakDato) som er relevant for trygdetiden her
      */
     fun foersteAlderspensjonUttaksdato(): LocalDate? =
-        if (gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon())
+        if (gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon())
             heltUttakDato ?: foersteUttakDato // bruker foersteUttakDato som 'backup'-dato
         else
             foersteUttakDato
 
-    private fun gjelderPre2025OffentligAfpEtterfulgtAvAlderspensjon() =
+    private fun gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon() =
         // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon
         type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 

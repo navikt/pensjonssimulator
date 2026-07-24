@@ -14,5 +14,5 @@ object OffentligAfpConstants {
      * "Nye" regler gjelder fra 2025 (offentlig AFP er da en livsvarig ytelse).
      * 2025 er det året da personer født 1963 oppnår nedre aldersgrense for pensjonering (som i 2025 er 62 år).
      */
-    const val OVERGANG_PRE2025_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSEL_AAR = 1963
+    const val OVERGANG_TIDSBEGRENSET_TIL_LIVSVARIG_OFFENTLIG_AFP_FOEDSELSAAR = 1963
 }

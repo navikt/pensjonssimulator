@@ -373,60 +373,60 @@ class SimulerOffentligTjenestepensjonMapperV3Test : FunSpec({
         result.harInntektOver1G shouldBe false
     }
 
-    // --- pre2025OffentligAfpSpec ---
+    context("tidsbegrenset offentlig AFP") {
+        test("tidsbegrensetOffentligAfpSpec returns spec when simuleringType is AFP_ETTERF_ALDER") {
+            val inntektService = mockk<InntektService> {
+                every { hentSisteMaanedsInntektOver1G(true) } returns 20000
+            }
+            val source = simuleringEtter2011(
+                simuleringType = SimuleringTypeSpecV3.AFP_ETTERF_ALDER,
+                afpOrdning = AfpOrdningTypeSpecV3.AFPSTAT,
+                afpInntektMndForUttak = true,
+                inntektUnderGradertUttak = 150000
+            )
 
-    test("pre2025OffentligAfpSpec returns spec when simuleringType is AFP_ETTERF_ALDER") {
-        val inntektService = mockk<InntektService> {
-            every { hentSisteMaanedsInntektOver1G(true) } returns 20000
+            val result = mapper(inntektService = inntektService).tidsbegrensetOffentligAfpSpec(source)!!
+
+            result.afpOrdning shouldBe AFPtypeEnum.AFPSTAT
+            result.inntektMaanedenFoerAfpUttakBeloep shouldBe 20000
+            result.inntektUnderAfpUttakBeloep shouldBe 150000
         }
-        val source = simuleringEtter2011(
-            simuleringType = SimuleringTypeSpecV3.AFP_ETTERF_ALDER,
-            afpOrdning = AfpOrdningTypeSpecV3.AFPSTAT,
-            afpInntektMndForUttak = true,
-            inntektUnderGradertUttak = 150000
-        )
 
-        val result = mapper(inntektService = inntektService).pre2025OffentligAfpSpec(source)!!
+        test("tidsbegrensetOffentligAfpSpec returns null when simuleringType is not AFP_ETTERF_ALDER") {
+            val source = simuleringEtter2011(simuleringType = SimuleringTypeSpecV3.ALDER)
 
-        result.afpOrdning shouldBe AFPtypeEnum.AFPSTAT
-        result.inntektMaanedenFoerAfpUttakBeloep shouldBe 20000
-        result.inntektUnderAfpUttakBeloep shouldBe 150000
-    }
+            val result = mapper().tidsbegrensetOffentligAfpSpec(source)
 
-    test("pre2025OffentligAfpSpec returns null when simuleringType is not AFP_ETTERF_ALDER") {
-        val source = simuleringEtter2011(simuleringType = SimuleringTypeSpecV3.ALDER)
-
-        val result = mapper().pre2025OffentligAfpSpec(source)
-
-        result shouldBe null
-    }
-
-    test("pre2025OffentligAfpSpec defaults inntektMaanedenFoerAfpUttakBeloep to 0 when afpInntektMndForUttak is null") {
-        val source = simuleringEtter2011(
-            simuleringType = SimuleringTypeSpecV3.AFP_ETTERF_ALDER,
-            afpOrdning = AfpOrdningTypeSpecV3.LONHO,
-            afpInntektMndForUttak = null
-        )
-
-        val result = mapper().pre2025OffentligAfpSpec(source)!!
-
-        result.inntektMaanedenFoerAfpUttakBeloep shouldBe 0
-    }
-
-    test("pre2025OffentligAfpSpec defaults inntektUnderAfpUttakBeloep to 0 when inntektUnderGradertUttak is null") {
-        val inntektService = mockk<InntektService> {
-            every { hentSisteMaanedsInntektOver1G(any()) } returns 42
+            result shouldBe null
         }
-        val source = simuleringEtter2011(
-            simuleringType = SimuleringTypeSpecV3.AFP_ETTERF_ALDER,
-            afpOrdning = AfpOrdningTypeSpecV3.AFPKOM,
-            afpInntektMndForUttak = false,
-            inntektUnderGradertUttak = null
-        )
 
-        val result = mapper(inntektService = inntektService).pre2025OffentligAfpSpec(source)!!
+        test("tidsbegrensetOffentligAfpSpec defaults inntektMaanedenFoerAfpUttakBeloep to 0 when afpInntektMndForUttak is null") {
+            val source = simuleringEtter2011(
+                simuleringType = SimuleringTypeSpecV3.AFP_ETTERF_ALDER,
+                afpOrdning = AfpOrdningTypeSpecV3.LONHO,
+                afpInntektMndForUttak = null
+            )
 
-        result.inntektUnderAfpUttakBeloep shouldBe 0
+            val result = mapper().tidsbegrensetOffentligAfpSpec(source)!!
+
+            result.inntektMaanedenFoerAfpUttakBeloep shouldBe 0
+        }
+
+        test("tidsbegrensetOffentligAfpSpec defaults inntektUnderAfpUttakBeloep to 0 when inntektUnderGradertUttak is null") {
+            val inntektService = mockk<InntektService> {
+                every { hentSisteMaanedsInntektOver1G(any()) } returns 42
+            }
+            val source = simuleringEtter2011(
+                simuleringType = SimuleringTypeSpecV3.AFP_ETTERF_ALDER,
+                afpOrdning = AfpOrdningTypeSpecV3.AFPKOM,
+                afpInntektMndForUttak = false,
+                inntektUnderGradertUttak = null
+            )
+
+            val result = mapper(inntektService = inntektService).tidsbegrensetOffentligAfpSpec(source)!!
+
+            result.inntektUnderAfpUttakBeloep shouldBe 0
+        }
     }
 
     // --- mapLand ---

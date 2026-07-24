@@ -334,7 +334,7 @@ class KnekkpunktFinder(
         }
 
         private fun forsteBeregningsdato(spec: SimuleringSpec) =
-            if (spec.gjelderPre2025OffentligAfp())
+            if (spec.gjelderTidsbegrensetOffentligAfp())
                 spec.heltUttakDato
             else
                 spec.foersteUttakDato

@@ -25,7 +25,7 @@ class NavSimuleringResultMapperV2Test : FunSpec({
     test("toSimuleringResultV2 should use aar from poengtall as merknad aar") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
             SimulatorOutput().apply {
-                pre2025OffentligAfp = Simuleringsresultat().apply {
+                tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply {
                         tp = Tilleggspensjon().apply {
                             spt = Sluttpoengtall().apply {
@@ -48,13 +48,13 @@ class NavSimuleringResultMapperV2Test : FunSpec({
     test("toSimuleringResultV2 should return distinct merknader") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
             SimulatorOutput().apply {
-                pre2025OffentligAfp = Simuleringsresultat().apply {
+                tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply {
                         tp = Tilleggspensjon().apply {
                             merknadListe = mutableListOf(
                                 Merknad().apply { kode = "A" },
                                 Merknad().apply { kode = "B" },
-                                Merknad().apply { kode = "A" } // duplicate, should be ignored
+                                Merknad().apply { kode = "A" } // duplicate - should be ignored
                             )
                         }
                     }
@@ -66,7 +66,7 @@ class NavSimuleringResultMapperV2Test : FunSpec({
     test("toSimuleringResultV2 should use special separator for merknad-argumenter") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
             SimulatorOutput().apply {
-                pre2025OffentligAfp = Simuleringsresultat().apply {
+                tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply {
                         tp = Tilleggspensjon().apply {
                             merknadListe = mutableListOf(

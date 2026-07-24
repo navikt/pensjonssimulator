@@ -53,7 +53,7 @@ class AnonymSimuleringSpecMapperV1Test : FunSpec({
             brukFremtidigInntekt = false,
             flyktning = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,

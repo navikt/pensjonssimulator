@@ -5,7 +5,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -23,7 +23,6 @@ class SimulerOffentligTjenestepensjonMapperV3(
     val personService: GeneralPersonService,
     private val inntektService: InntektService
 ) {
-
     fun fromDto(specV3: SimulerOffentligTjenestepensjonSpecV3): SimuleringSpec {
         val source = specV3.simuleringEtter2011
         val pid = source.fnr.pid.let(::Pid)
@@ -55,7 +54,7 @@ class SimulerOffentligTjenestepensjonMapperV3(
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,
@@ -72,12 +71,13 @@ class SimulerOffentligTjenestepensjonMapperV3(
         )
     }
 
-    fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV3): Pre2025OffentligAfpSpec? =
+    //TODO make private
+    fun tidsbegrensetOffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV3): TidsbegrensetOffentligAfpSpec? =
         if (simuleringSpec.simuleringType == SimuleringTypeSpecV3.AFP_ETTERF_ALDER)
-            Pre2025OffentligAfpSpec(
+            TidsbegrensetOffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!.name),
                 inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak?.let(inntektService::hentSisteMaanedsInntektOver1G) ?: 0,
-                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
             )
         else

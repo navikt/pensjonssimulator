@@ -17,7 +17,7 @@ Simulatoren støtter pensjonsuttak med én eller to faser.
 2-faseuttak kan være:
 
 * Gradert uttak etterfulgt av helt uttak
-* Pre-2025 offentlig AFP etterfulgt av alderspensjon
+* Tidsbegrenset offentlig AFP etterfulgt av alderspensjon
 
 NOTE: "Fase" må ikke forveksles med "knekkpunkt" eller "periode"; en fase strekker seg typisk over flere knekkpunkter/perioder.
 

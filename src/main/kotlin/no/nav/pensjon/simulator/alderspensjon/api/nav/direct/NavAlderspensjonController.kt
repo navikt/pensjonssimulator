@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result.NavSimuleringErrorV3
@@ -92,8 +92,8 @@ class NavAlderspensjonController(
             resultWithErrorInfo("personalder (for høy)", e, specV3)
         } catch (e: PersonForUngException) {
             resultWithErrorInfo("personalder (for lav)", e, specV3)
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            resultWithErrorInfo("pre-2025 offentlig AFP grunnlag (avslått)", e, specV3)
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            resultWithErrorInfo("tidsbegrenset offentlig AFP grunnlag (avslått)", e, specV3)
         } catch (e: RegelmotorValideringException) {
             resultWithErrorInfo("regelmotorvalidering", e, specV3)
         } catch (e: UtilstrekkeligOpptjeningException) {

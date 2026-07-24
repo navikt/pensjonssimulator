@@ -47,7 +47,7 @@ object AlderspensjonSpecMapper {
             flyktning = false,
             epsHarInntektOver2G = source.epsHarInntektOver2G,
             livsvarigOffentligAfp = source.livsvarigOffentligAfpRettFom?.let { LivsvarigOffentligAfpSpec(rettTilAfpFom = it) },
-            pre2025OffentligAfp = null, // never used in this context
+            tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in the result

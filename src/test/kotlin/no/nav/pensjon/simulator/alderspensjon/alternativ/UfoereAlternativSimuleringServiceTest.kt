@@ -254,7 +254,7 @@ private fun simuleringSpec(foersteUttakDato: LocalDate, uttaksgrad: UttakGradKod
         flyktning = false,
         epsHarInntektOver2G = true,
         livsvarigOffentligAfp = null,
-        pre2025OffentligAfp = null,
+        tidsbegrensetOffentligAfp = null,
         erAnonym = false,
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = true,

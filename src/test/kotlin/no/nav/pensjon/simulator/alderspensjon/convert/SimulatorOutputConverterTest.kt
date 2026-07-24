@@ -110,7 +110,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                 )
             ),
             privatAfp = emptyList(),
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             livsvarigOffentligAfp = emptyList(),
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = false,

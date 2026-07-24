@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -15,7 +15,7 @@ import no.nav.pensjon.simulator.testutil.TestDateUtil.dateAtNoon
 import java.time.LocalDate
 import java.util.*
 
-class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
+class TpoFolketrygdberegnetAfpSpecMapperV0Test : ShouldSpec({
 
     val pidValue = "12345678910"
     val fnr = TpoFolketrygdberegnetAfpPersonIdComboSpecV0(pid = pidValue)
@@ -26,7 +26,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
             every { personService.foedselsdato(Pid(pidValue)) } returns foedselsdato
         }
 
-    test("fromSimuleringSpecV0 maps all fields from fully populated source") {
+    should("map all fields from fully populated source") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.ALDER_M_AFP_PRIVAT,
             fnr = fnr,
@@ -61,12 +61,12 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.utlandAntallAar shouldBe 5
         result.epsHarInntektOver2G shouldBe true
         result.erAnonym shouldBe false
-        result.pre2025OffentligAfp shouldBe null
+        result.tidsbegrensetOffentligAfp shouldBe null
     }
 
     // --- Default values when source fields are null ---
 
-    test("fromSimuleringSpecV0 defaults simuleringType to ALDER when null") {
+    should("default simuleringType to ALDER when null") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, simuleringType = null)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -74,7 +74,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.type shouldBe SimuleringTypeEnum.ALDER
     }
 
-    test("fromSimuleringSpecV0 defaults sivilstatus to UGIF when null") {
+    should("default sivilstatus to UGIF when null") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, sivilstatus = null)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -82,7 +82,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.sivilstatus shouldBe SivilstatusType.UGIF
     }
 
-    test("fromSimuleringSpecV0 defaults numeric fields to 0 when null") {
+    should("default numeric fields to 0 when null") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             forventetInntekt = null,
@@ -101,7 +101,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.utlandAntallAar shouldBe 0
     }
 
-    test("fromSimuleringSpecV0 defaults foersteUttakDato to null when forsteUttakDato is null") {
+    should("default foersteUttakDato to null when forsteUttakDato is null") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, forsteUttakDato = null)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -111,7 +111,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
 
     // --- Boolean fields ---
 
-    test("fromSimuleringSpecV0 maps epsPensjon=false to epsHarPensjon=false") {
+    should("map epsPensjon=false to epsHarPensjon=false") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, epsPensjon = false)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -119,7 +119,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.epsHarPensjon shouldBe false
     }
 
-    test("fromSimuleringSpecV0 maps epsPensjon=null to epsHarPensjon=false") {
+    should("map epsPensjon=null to epsHarPensjon=false") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, epsPensjon = null)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -127,7 +127,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.epsHarPensjon shouldBe false
     }
 
-    test("fromSimuleringSpecV0 maps eps2G=false to epsHarInntektOver2G=false") {
+    should("map eps2G=false to epsHarInntektOver2G=false") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, eps2G = false)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -135,7 +135,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.epsHarInntektOver2G shouldBe false
     }
 
-    test("fromSimuleringSpecV0 maps eps2G=null to epsHarInntektOver2G=false") {
+    should("map eps2G=null to epsHarInntektOver2G=false") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr, eps2G = null)
 
         val result = mapper().fromSimuleringSpecV0(source)
@@ -145,7 +145,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
 
     // --- Person service interaction ---
 
-    test("fromSimuleringSpecV0 fetches foedselsdato from personService using pid") {
+    should("fetch foedselsdato from personService using pid") {
         val personService = mockk<GeneralPersonService>()
         every { personService.foedselsdato(Pid(pidValue)) } returns foedselsdato
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr)
@@ -156,7 +156,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         verify { personService.foedselsdato(Pid(pidValue)) }
     }
 
-    test("fromSimuleringSpecV0 sets foedselDato to null when fnr is null") {
+    should("set fødselsdato to null when fnr is null") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = null)
 
         // pid will be null, which causes SimuleringSpec init to fail (erAnonym=false requires pid!=null)
@@ -168,7 +168,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
 
     // --- SimuleringType mapping ---
 
-    test("fromSimuleringSpecV0 maps AFP_ETTERF_ALDER simuleringType") {
+    should("map AFP_ETTERF_ALDER simuleringType") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER,
@@ -182,7 +182,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.type shouldBe SimuleringTypeEnum.AFP_ETTERF_ALDER
     }
 
-    test("fromSimuleringSpecV0 maps AFP_FPP simuleringType") {
+    should("map AFP_FPP simuleringType") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_FPP
@@ -193,7 +193,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.type shouldBe SimuleringTypeEnum.AFP_FPP
     }
 
-    test("fromSimuleringSpecV0 maps ENDR_ALDER simuleringType") {
+    should("map ENDR_ALDER simuleringType") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.ENDR_ALDER
@@ -206,7 +206,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
 
     // --- Sivilstand mapping ---
 
-    test("fromSimuleringSpecV0 maps ENKE sivilstatus") {
+    should("map ENKE sivilstatus") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             sivilstatus = TpoFolketrygdberegnetAfpSivilstandSpecV0.ENKE
@@ -217,7 +217,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.sivilstatus shouldBe SivilstatusType.ENKE
     }
 
-    test("fromSimuleringSpecV0 maps SAMB sivilstatus") {
+    should("map SAMB sivilstatus") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             sivilstatus = TpoFolketrygdberegnetAfpSivilstandSpecV0.SAMB
@@ -228,57 +228,57 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
         result.sivilstatus shouldBe SivilstatusType.SAMB
     }
 
-    // --- Pre-2025 offentlig AFP spec ---
+    context("Tidsbegrenset offentlig AFP spec") {
+        should("create spec for tidsbegrenset offentlig AFP when simuleringType is AFP_ETTERF_ALDER") {
+            val source = TpoFolketrygdberegnetAfpSpecV0(
+                fnr = fnr,
+                simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER,
+                afpOrdning = "AFPSTAT",
+                afpInntektMndForUttak = 30000,
+                inntektUnderGradertUttak = 20000
+            )
 
-    test("fromSimuleringSpecV0 creates pre2025OffentligAfpSpec when simuleringType is AFP_ETTERF_ALDER") {
-        val source = TpoFolketrygdberegnetAfpSpecV0(
-            fnr = fnr,
-            simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER,
-            afpOrdning = "AFPSTAT",
-            afpInntektMndForUttak = 30000,
-            inntektUnderGradertUttak = 20000
-        )
+            val result = mapper().fromSimuleringSpecV0(source)
 
-        val result = mapper().fromSimuleringSpecV0(source)
+            result.tidsbegrensetOffentligAfp shouldBe no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec(
+                afpOrdning = AFPtypeEnum.AFPSTAT,
+                inntektMaanedenFoerAfpUttakBeloep = 30000,
+                inntektUnderAfpUttakBeloep = 20000
+            )
+        }
 
-        result.pre2025OffentligAfp shouldBe no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec(
-            afpOrdning = AFPtypeEnum.AFPSTAT,
-            inntektMaanedenFoerAfpUttakBeloep = 30000,
-            inntektUnderAfpUttakBeloep = 20000
-        )
-    }
+        should("not create spec for tidsbegrenset offentlig AFP when simuleringType is not AFP_ETTERF_ALDER") {
+            val source = TpoFolketrygdberegnetAfpSpecV0(
+                fnr = fnr,
+                simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.ALDER
+            )
 
-    test("fromSimuleringSpecV0 sets pre2025OffentligAfpSpec null when simuleringType is not AFP_ETTERF_ALDER") {
-        val source = TpoFolketrygdberegnetAfpSpecV0(
-            fnr = fnr,
-            simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.ALDER
-        )
+            val result = mapper().fromSimuleringSpecV0(source)
 
-        val result = mapper().fromSimuleringSpecV0(source)
+            result.tidsbegrensetOffentligAfp shouldBe null
+        }
 
-        result.pre2025OffentligAfp shouldBe null
-    }
+        should("default afpInntektMndForUttak to 0 when null in spec for tidsbegrenset offentlig AFP") {
+            val source = TpoFolketrygdberegnetAfpSpecV0(
+                fnr = fnr,
+                simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER,
+                afpOrdning = "LONHO",
+                afpInntektMndForUttak = null,
+                inntektUnderGradertUttak = null
+            )
 
-    test("fromSimuleringSpecV0 defaults afpInntektMndForUttak to 0 when null in pre2025OffentligAfpSpec") {
-        val source = TpoFolketrygdberegnetAfpSpecV0(
-            fnr = fnr,
-            simuleringType = TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER,
-            afpOrdning = "LONHO",
-            afpInntektMndForUttak = null,
-            inntektUnderGradertUttak = null
-        )
+            val result = mapper().fromSimuleringSpecV0(source)
 
-        val result = mapper().fromSimuleringSpecV0(source)
-
-        with(result.pre2025OffentligAfp!!) {
-            inntektMaanedenFoerAfpUttakBeloep shouldBe 0
-            inntektUnderAfpUttakBeloep shouldBe 0
+            with(result.tidsbegrensetOffentligAfp!!) {
+                inntektMaanedenFoerAfpUttakBeloep shouldBe 0
+                inntektUnderAfpUttakBeloep shouldBe 0
+            }
         }
     }
 
     // --- Date conversion ---
 
-    test("fromSimuleringSpecV0 converts forsteUttakDato from Date to LocalDate") {
+    should("convert forsteUttakDato from Date to LocalDate") {
         val source = TpoFolketrygdberegnetAfpSpecV0(
             fnr = fnr,
             forsteUttakDato = dateAtNoon(2030, Calendar.JUNE, 15)
@@ -291,7 +291,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : FunSpec({
 
     // --- Fixed/hardcoded values ---
 
-    test("fromSimuleringSpecV0 sets fixed values correctly") {
+    should("set fixed values correctly") {
         val source = TpoFolketrygdberegnetAfpSpecV0(fnr = fnr)
 
         val result = mapper().fromSimuleringSpecV0(source)

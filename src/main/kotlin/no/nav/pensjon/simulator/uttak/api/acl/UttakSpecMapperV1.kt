@@ -46,7 +46,7 @@ class UttakSpecMapperV1(val personService: GeneralPersonService) {
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = source.rettTilAfpOffentligDato?.let { LivsvarigOffentligAfpSpec(rettTilAfpFom = it) },
-            pre2025OffentligAfp = null, // never used in this context
+            tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result

@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningService
 import no.nav.pensjon.simulator.beholdning.FolketrygdBeholdningSpec
 import no.nav.pensjon.simulator.beholdning.api.acl.FolketrygdBeholdningResultMapperV1.resultV1
@@ -96,8 +96,8 @@ class BeholdningController(
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID person for ung - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: Pre2025OffentligAfpAvslaattException) {
-            log.warn(e) { "$FUNCTION_ID pre-2025 offentlig AFP avslått - request - $specV1" }
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            log.warn(e) { "$FUNCTION_ID tidsbegrenset offentlig AFP avslått - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV1" }
@@ -125,7 +125,7 @@ class BeholdningController(
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
-            Pre2025OffentligAfpAvslaattException::class,
+            TidsbegrensetOffentligAfpAvslaattException::class,
             RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class

@@ -12,7 +12,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 object TpoFolketrygdberegnetAfpResultMapperV0 {
 
     fun toResultV0(source: SimulatorOutput): TpoFolketrygdberegnetAfpResultV0? =
-        source.pre2025OffentligAfp?.beregning?.let(::beregnetAfp)
+        source.tidsbegrensetOffentligAfp?.beregning?.let(::beregnetAfp)
 
     private fun beregnetAfp(source: Beregning): TpoFolketrygdberegnetAfpResultV0 {
         val sluttpoengtall = source.tp?.spt

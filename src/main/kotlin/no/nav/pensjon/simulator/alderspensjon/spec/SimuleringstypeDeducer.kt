@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 /**
  * Utleder simuleringstype.
- * NB: Det tas ikke hensyn til "gammel" offentlig AFP, kun "ny" (livsvarig) AFP.
+ * NB: Det tas ikke hensyn til tidsbegrenset offentlig AFP, kun livsvarig AFP.
  */
 @Component
 class SimuleringstypeDeducer(private val vedtakService: VedtakService) {

@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon

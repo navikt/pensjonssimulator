@@ -39,7 +39,7 @@ class TpoSimuleringSpecMapperV1(val personService: GeneralPersonService) {
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null, // never used in this context
+            tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true, // true for TPO

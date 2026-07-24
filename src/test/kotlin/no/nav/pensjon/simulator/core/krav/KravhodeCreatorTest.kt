@@ -6,8 +6,8 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpPersongrunnlag
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -22,7 +22,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.endring.EndringPersongrunnlag
 import no.nav.pensjon.simulator.core.endring.EndringUttaksgrad
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.person.Pid
@@ -52,8 +52,8 @@ class KravhodeCreatorTest : ShouldSpec({
             ufoereService = mockk(relaxed = true),
             endringPersongrunnlag = mockk(),
             endringUttaksgrad = mockk(),
-            pre2025OffentligAfpPersongrunnlag = mockk(),
-            pre2025OffentligAfpUttaksgrad = mockk(),
+            tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+            tidsbegrensetOffentligAfpUttaksgrad = mockk(),
             time = { LocalDate.of(2025, 1, 1) } // "dagens dato"
         ).opprettKravhode(
             kravhodeSpec = KravhodeSpec(
@@ -1159,18 +1159,18 @@ class KravhodeCreatorTest : ShouldSpec({
     }
 
     // ==========================================
-    // Tests for gjelderPre2025OffentligAfp scenarios
+    // Tests for gjelderTidsbegrensetOffentligAfp scenarios
     // ==========================================
 
-    context("opprettKravhode med gjelderPre2025OffentligAfp") {
-        should("bruke pre2025OffentligAfpPersongrunnlag for AFP_ETTERF_ALDER") {
-            val creator = createKravhodeCreatorForPre2025Afp()
+    context("opprettKravhode med gjelderTidsbegrensetOffentligAfp") {
+        should("bruke tidsbegrensetOffentligAfpPersongrunnlag for AFP_ETTERF_ALDER") {
+            val creator = createKravhodeCreatorForTidsbegrensetAfp()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
                 foersteUttakDato = LocalDate.of(2026, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
                 uttakGrad = UttakGradKode.P_100,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPSTAT,
                     inntektMaanedenFoerAfpUttakBeloep = 50000,
                     inntektUnderAfpUttakBeloep = 30000
@@ -1187,14 +1187,14 @@ class KravhodeCreatorTest : ShouldSpec({
             kravhode.sakType shouldBe SakTypeEnum.ALDER
         }
 
-        should("bruke pre2025OffentligAfpPersongrunnlag for AFP_FPP") {
-            val creator = createKravhodeCreatorForPre2025Afp()
+        should("bruke tidsbegrensetOffentligAfpPersongrunnlag for AFP_FPP") {
+            val creator = createKravhodeCreatorForTidsbegrensetAfp()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.AFP_FPP,
                 foersteUttakDato = LocalDate.of(2026, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
                 uttakGrad = UttakGradKode.P_100,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPSTAT,
                     inntektMaanedenFoerAfpUttakBeloep = 50000,
                     inntektUnderAfpUttakBeloep = 30000
@@ -1210,14 +1210,14 @@ class KravhodeCreatorTest : ShouldSpec({
             kravhode shouldNotBe null
         }
 
-        should("bruke pre2025OffentligAfpUttaksgrad for uttaksgradliste") {
-            val creator = createKravhodeCreatorForPre2025Afp()
+        should("bruke tidsbegrensetOffentligAfpUttaksgrad for uttaksgradliste") {
+            val creator = createKravhodeCreatorForTidsbegrensetAfp()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
                 foersteUttakDato = LocalDate.of(2026, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
                 uttakGrad = UttakGradKode.P_100,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPSTAT,
                     inntektMaanedenFoerAfpUttakBeloep = 50000,
                     inntektUnderAfpUttakBeloep = 30000
@@ -1230,7 +1230,7 @@ class KravhodeCreatorTest : ShouldSpec({
                 virkningDatoGrunnlagListe = emptyList()
             )
 
-            // Uttaksgradliste settes av pre2025OffentligAfpUttaksgrad mock
+            // Uttaksgradliste settes av tidsbegrensetOffentligAfpUttaksgrad mock
             kravhode.uttaksgradListe shouldNotBe null
         }
     }
@@ -1552,13 +1552,13 @@ class KravhodeCreatorTest : ShouldSpec({
     // ==========================================
 
     context("addPersongrunnlagForEpsToKravhode for ulike simuleringer") {
-        should("bruke pre2025OffentligAfpPersongrunnlag for EPS når gjelderPre2025OffentligAfp") {
-            val creator = createKravhodeCreatorForPre2025Afp()
+        should("bruke tidsbegrensetOffentligAfpPersongrunnlag for EPS når gjelderTidsbegrensetOffentligAfp") {
+            val creator = createKravhodeCreatorForTidsbegrensetAfp()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
                 epsHarPensjon = true,
                 epsHarInntektOver2G = true,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPSTAT,
                     inntektMaanedenFoerAfpUttakBeloep = 50000,
                     inntektUnderAfpUttakBeloep = 30000
@@ -1645,11 +1645,11 @@ class KravhodeCreatorTest : ShouldSpec({
             kravhode.hentPersongrunnlagForSoker().penPerson?.penPersonId shouldBe -1L
         }
 
-        should("bruke pre2025OffentligAfpPersongrunnlag for søker når gjelderPre2025OffentligAfp") {
-            val creator = createKravhodeCreatorForPre2025Afp()
+        should("bruke tidsbegrensetOffentligAfpPersongrunnlag for søker når gjelderTidsbegrensetOffentligAfp") {
+            val creator = createKravhodeCreatorForTidsbegrensetAfp()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPSTAT,
                     inntektMaanedenFoerAfpUttakBeloep = 50000,
                     inntektUnderAfpUttakBeloep = 30000
@@ -1713,14 +1713,14 @@ class KravhodeCreatorTest : ShouldSpec({
         should("kaste BadSpecException når heltUttakDato mangler for AFP_ETTERF_ALDER med brukFremtidigInntekt=false") {
             // AFP_ETTERF_ALDER er 2-fase-simulering og krever heltUttakDato
             // handleMissingHeltUttakDato kalles fra aarligeInntekterFraDagensDato (brukFremtidigInntekt=false)
-            val creator = createKravhodeCreatorForPre2025AfpWithInntektGrunnlag()
+            val creator = createKravhodeCreatorForTidsbegrensetAfpWithInntektGrunnlag()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.AFP_ETTERF_ALDER,
                 brukFremtidigInntekt = false,
                 uttakGrad = UttakGradKode.P_100,
                 foersteUttakDato = LocalDate.of(2026, 1, 1),
                 heltUttakDato = null, // mangler, men kreves for AFP_ETTERF_ALDER
-                pre2025OffentligAfp = Pre2025OffentligAfpSpec(
+                tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPSTAT,
                     inntektMaanedenFoerAfpUttakBeloep = 50000,
                     inntektUnderAfpUttakBeloep = 30000
@@ -2002,8 +2002,8 @@ private fun createKravhodeCreator(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = mockk(),
-        pre2025OffentligAfpUttaksgrad = mockk(),
+        tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+        tidsbegrensetOffentligAfpUttaksgrad = mockk(),
         time = { today }
     )
 }
@@ -2039,8 +2039,8 @@ private fun createKravhodeCreatorWithInntektGrunnlag(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = mockk(),
-        pre2025OffentligAfpUttaksgrad = mockk(),
+        tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+        tidsbegrensetOffentligAfpUttaksgrad = mockk(),
         time = { today }
     )
 }
@@ -2063,8 +2063,8 @@ private fun createKravhodeCreatorForAnonym(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = mockk(),
-        pre2025OffentligAfpUttaksgrad = mockk(),
+        tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+        tidsbegrensetOffentligAfpUttaksgrad = mockk(),
         time = { today }
     )
 }
@@ -2090,7 +2090,7 @@ private fun persongrunnlagWithInntektsgrunnlag() =
         inntektsgrunnlagListe = mutableListOf()
     }
 
-private fun createKravhodeCreatorForPre2025Afp(
+private fun createKravhodeCreatorForTidsbegrensetAfp(
     today: LocalDate = LocalDate.of(2025, 1, 1),
     sisteGyldigeOpptjeningsaar: Int = 2024
 ): KravhodeCreator {
@@ -2100,17 +2100,17 @@ private fun createKravhodeCreatorForPre2025Afp(
     val kravService = mockk<KravService>()
     every { kravService.fetchKravhode(any()) } returns Kravhode()
 
-    val pre2025OffentligAfpPersongrunnlag = mockk<Pre2025OffentligAfpPersongrunnlag>()
+    val tidsbegrensetOffentligAfpPersongrunnlag = mockk<TidsbegrensetOffentligAfpPersongrunnlag>()
     every {
-        pre2025OffentligAfpPersongrunnlag.getPersongrunnlagForSoeker(any(), any(), any(), any())
+        tidsbegrensetOffentligAfpPersongrunnlag.getPersongrunnlagForSoeker(any(), any(), any(), any())
     } returns persongrunnlag()
     every {
-        pre2025OffentligAfpPersongrunnlag.addPersongrunnlagForEpsToKravhode(any(), any(), any(), any())
+        tidsbegrensetOffentligAfpPersongrunnlag.addPersongrunnlagForEpsToKravhode(any(), any(), any(), any())
     } answers { secondArg() } // returns the kravhode parameter
 
-    val pre2025OffentligAfpUttaksgrad = mockk<Pre2025OffentligAfpUttaksgrad>()
+    val tidsbegrensetOffentligAfpUttaksgrad = mockk<TidsbegrensetOffentligAfpUttaksgrad>()
     every {
-        pre2025OffentligAfpUttaksgrad.uttaksgradListe(any(), any(), any())
+        tidsbegrensetOffentligAfpUttaksgrad.uttaksgradListe(any(), any(), any())
     } returns mutableListOf(
         Uttaksgrad().apply {
             fomDatoLd = LocalDate.of(2026, 1, 1)
@@ -2128,13 +2128,13 @@ private fun createKravhodeCreatorForPre2025Afp(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = pre2025OffentligAfpPersongrunnlag,
-        pre2025OffentligAfpUttaksgrad = pre2025OffentligAfpUttaksgrad,
+        tidsbegrensetOffentligAfpPersongrunnlag = tidsbegrensetOffentligAfpPersongrunnlag,
+        tidsbegrensetOffentligAfpUttaksgrad = tidsbegrensetOffentligAfpUttaksgrad,
         time = { today }
     )
 }
 
-private fun createKravhodeCreatorForPre2025AfpWithInntektGrunnlag(
+private fun createKravhodeCreatorForTidsbegrensetAfpWithInntektGrunnlag(
     today: LocalDate = LocalDate.of(2025, 1, 1),
     sisteGyldigeOpptjeningsaar: Int = 2024
 ): KravhodeCreator {
@@ -2144,17 +2144,17 @@ private fun createKravhodeCreatorForPre2025AfpWithInntektGrunnlag(
     val kravService = mockk<KravService>()
     every { kravService.fetchKravhode(any()) } returns Kravhode()
 
-    val pre2025OffentligAfpPersongrunnlag = mockk<Pre2025OffentligAfpPersongrunnlag>()
+    val tidsbegrensetOffentligAfpPersongrunnlag = mockk<TidsbegrensetOffentligAfpPersongrunnlag>()
     every {
-        pre2025OffentligAfpPersongrunnlag.getPersongrunnlagForSoeker(any(), any(), any(), any())
+        tidsbegrensetOffentligAfpPersongrunnlag.getPersongrunnlagForSoeker(any(), any(), any(), any())
     } returns persongrunnlagWithInntektsgrunnlag()
     every {
-        pre2025OffentligAfpPersongrunnlag.addPersongrunnlagForEpsToKravhode(any(), any(), any(), any())
+        tidsbegrensetOffentligAfpPersongrunnlag.addPersongrunnlagForEpsToKravhode(any(), any(), any(), any())
     } answers { secondArg() } // returns the kravhode parameter
 
-    val pre2025OffentligAfpUttaksgrad = mockk<Pre2025OffentligAfpUttaksgrad>()
+    val tidsbegrensetOffentligAfpUttaksgrad = mockk<TidsbegrensetOffentligAfpUttaksgrad>()
     every {
-        pre2025OffentligAfpUttaksgrad.uttaksgradListe(any(), any(), any())
+        tidsbegrensetOffentligAfpUttaksgrad.uttaksgradListe(any(), any(), any())
     } returns mutableListOf(
         Uttaksgrad().apply {
             fomDatoLd = LocalDate.of(2026, 1, 1)
@@ -2172,8 +2172,8 @@ private fun createKravhodeCreatorForPre2025AfpWithInntektGrunnlag(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = pre2025OffentligAfpPersongrunnlag,
-        pre2025OffentligAfpUttaksgrad = pre2025OffentligAfpUttaksgrad,
+        tidsbegrensetOffentligAfpPersongrunnlag = tidsbegrensetOffentligAfpPersongrunnlag,
+        tidsbegrensetOffentligAfpUttaksgrad = tidsbegrensetOffentligAfpUttaksgrad,
         time = { today }
     )
 }
@@ -2218,8 +2218,8 @@ private fun createKravhodeCreatorForEndring(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = endringPersongrunnlag,
         endringUttaksgrad = endringUttaksgrad,
-        pre2025OffentligAfpPersongrunnlag = mockk(),
-        pre2025OffentligAfpUttaksgrad = mockk(),
+        tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+        tidsbegrensetOffentligAfpUttaksgrad = mockk(),
         time = { today }
     )
 }
@@ -2253,8 +2253,8 @@ private fun createKravhodeCreatorWithAvdoed(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = mockk(),
-        pre2025OffentligAfpUttaksgrad = mockk(),
+        tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+        tidsbegrensetOffentligAfpUttaksgrad = mockk(),
         time = { today }
     )
 }
@@ -2302,8 +2302,8 @@ private fun createKravhodeCreatorForAnonymWithVeietGrunnbeloep(
         ufoereService = mockk(relaxed = true),
         endringPersongrunnlag = mockk(),
         endringUttaksgrad = mockk(),
-        pre2025OffentligAfpPersongrunnlag = mockk(),
-        pre2025OffentligAfpUttaksgrad = mockk(),
+        tidsbegrensetOffentligAfpPersongrunnlag = mockk(),
+        tidsbegrensetOffentligAfpUttaksgrad = mockk(),
         time = { today }
     )
 }

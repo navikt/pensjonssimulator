@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.fpp
 
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.FolketrygdberegnetAfp
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.FolketrygdberegnetAfp
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.validity.Problem
 

@@ -62,7 +62,7 @@ class UttakSpecMapperV1Test : ShouldSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = LivsvarigOffentligAfpSpec(rettTilAfpFom = LocalDate.of(2027, 8, 1)),
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,

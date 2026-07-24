@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.ytelse.AlderspensjonYtelserFlags
 import no.nav.pensjon.simulator.ytelse.EndringAlderspensjonYtelserFlags
 import no.nav.pensjon.simulator.ytelse.LoependeYtelserSpec
-import no.nav.pensjon.simulator.ytelse.Pre2025OffentligAfpYtelserFlags
+import no.nav.pensjon.simulator.ytelse.TidsbegrensetOffentligAfpYtelserFlags
 
 object PenLoependeYtelserSpecMapper {
 
@@ -15,7 +15,7 @@ object PenLoependeYtelserSpecMapper {
             avdoed = source.avdoed?.let(::avdoed),
             alderspensjonFlags = source.alderspensjonFlags?.let(::alderspensjonFlags),
             endringAlderspensjonFlags = source.endringAlderspensjonFlags?.let(::endringAlderspensjonFlags),
-            pre2025OffentligAfpYtelserFlags = source.pre2025OffentligAfpYtelserFlags?.let(::afpFlags),
+            pre2025OffentligAfpYtelserFlags = source.tidsbegrensetOffentligAfpYtelserFlags?.let(::afpFlags),
         )
 
     private fun avdoed(source: Avdoed) =
@@ -34,8 +34,8 @@ object PenLoependeYtelserSpecMapper {
             inkluderPrivatAfp = source.inkluderPrivatAfp
         )
 
-    private fun afpFlags(source: Pre2025OffentligAfpYtelserFlags) =
-        PenPre2025OffentligAfpYtelserFlags(
+    private fun afpFlags(source: TidsbegrensetOffentligAfpYtelserFlags) =
+        PenTidsbegrensetOffentligAfpYtelserFlags(
             gjelderFpp = source.gjelderFpp,
             sivilstatusUdefinert = source.sivilstatusUdefinert
         )

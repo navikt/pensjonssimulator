@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.Pre2025OffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -49,7 +49,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GeneralPersonServi
             flyktning = null,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null, //TODO map to offentligAfpRett?
-            pre2025OffentligAfp = pre2025OffentligAfpSpec(source),
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false, //TODO verify
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false, //TODO verify
@@ -59,12 +59,12 @@ class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GeneralPersonServi
         )
     }
 
-    private fun pre2025OffentligAfpSpec(simuleringSpec: TpoFolketrygdberegnetAfpSpecV0): Pre2025OffentligAfpSpec? =
+    private fun tidsbegrensetOffentligAfpSpec(simuleringSpec: TpoFolketrygdberegnetAfpSpecV0): TidsbegrensetOffentligAfpSpec? =
         if (simuleringSpec.simuleringType == TpoFolketrygdberegnetAfpSimuleringTypeSpecV0.AFP_ETTERF_ALDER)
-            Pre2025OffentligAfpSpec(
+            TidsbegrensetOffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!),
                 inntektMaanedenFoerAfpUttakBeloep = simuleringSpec.afpInntektMndForUttak ?: 0,
-                // NB: For pre-2025 offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
+                // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
                 inntektUnderAfpUttakBeloep = simuleringSpec.inntektUnderGradertUttak ?: 0
             )
         else

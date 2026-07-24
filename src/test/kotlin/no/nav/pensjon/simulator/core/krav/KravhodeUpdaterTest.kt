@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpBeholdning
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpBeholdning
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -212,8 +212,8 @@ class KravhodeUpdaterTest : FunSpec({
         soekerGrunnlag.beholdninger shouldHaveSize 2
     }
 
-    test("updateKravhodeForFoersteKnekkpunkt should call pre2025OffentligAfpBeholdning for AFP_ETTERF_ALDER") {
-        val afpBeholdning = mockk<Pre2025OffentligAfpBeholdning>()
+    test("updateKravhodeForFoersteKnekkpunkt should call tidsbegrensetOffentligAfpBeholdning for AFP_ETTERF_ALDER") {
+        val afpBeholdning = mockk<TidsbegrensetOffentligAfpBeholdning>()
         every { afpBeholdning.setPensjonsbeholdning(any(), any()) } returns mockk()
 
         val updater = createKravhodeUpdater(tidsbegrensetOffentligAfpBeholdning = afpBeholdning)
@@ -436,7 +436,7 @@ private const val AVDOED_ID = 2L
 
 private fun createKravhodeUpdater(
     context: SimulatorContext = mockk(relaxed = true),
-    tidsbegrensetOffentligAfpBeholdning: Pre2025OffentligAfpBeholdning = mockk(),
+    tidsbegrensetOffentligAfpBeholdning: TidsbegrensetOffentligAfpBeholdning = mockk(),
     soekerGrunnlag: Persongrunnlag = Persongrunnlag(),
     avdoedGrunnlag: Persongrunnlag = Persongrunnlag(),
     trygdetidSetter: TrygdetidSetter = mockk {
@@ -540,7 +540,7 @@ private fun createSimuleringSpec(
     flyktning = false,
     epsHarInntektOver2G = false,
     livsvarigOffentligAfp = null,
-    pre2025OffentligAfp = null,
+    tidsbegrensetOffentligAfp = null,
     erAnonym = erAnonym,
     ignoreAvslag = false,
     isHentPensjonsbeholdninger = false,

@@ -24,7 +24,7 @@ object ApForTpResultMapperV2 {
         ApForTpResultV2(
             ap = source.alderspensjon?.let(::alderspensjon),
             afpPrivat = source.privatAfpPeriodeListe.map(::privatAfpPeriode),
-            afpOffentlig = source.pre2025OffentligAfp?.let(::simuleringResultat),
+            afpOffentlig = source.tidsbegrensetOffentligAfp?.let(::simuleringResultat),
             sivilstand = SivilstandEnum.valueOf(source.sivilstand.name)
         )
 

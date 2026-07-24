@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpAvslaattException
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.TidsbegrensetOffentligAfpAvslagAarsak
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslagAarsak
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
@@ -25,7 +25,7 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
                         navnOrdning = "",
                         problem = Problem(
                             type = ProblemType.ANNEN_KLIENTFEIL,
-                            beskrivelse = "Ukjent feil - Pre2025OffentligAfpAvslaattException"
+                            beskrivelse = "Ukjent feil - TidsbegrensetOffentligAfpAvslaattException"
                         )
                     )
         }
@@ -39,7 +39,7 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
             ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
                     Problem(
                         type = ProblemType.PERSON_FOR_LAV_ALDER,
-                        beskrivelse = "Ukjent feil - Pre2025OffentligAfpAvslaattException"
+                        beskrivelse = "Ukjent feil - TidsbegrensetOffentligAfpAvslaattException"
                     )
         }
     }
@@ -85,7 +85,7 @@ private fun arrangeAvslag(
     aarsak: TidsbegrensetOffentligAfpAvslagAarsak?
 ): TjenestepensjonSimuleringPre2025SpecBeregningService =
     arrangeProblem(
-        e = Pre2025OffentligAfpAvslaattException(message = SENSITIV_INFO, aarsak)
+        e = TidsbegrensetOffentligAfpAvslaattException(message = SENSITIV_INFO, aarsak)
     )
 
 private fun arrangeProblem(e: Exception): TjenestepensjonSimuleringPre2025SpecBeregningService =

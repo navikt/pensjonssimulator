@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.core.krav
 
 import mu.KotlinLogging
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpPersongrunnlag
-import no.nav.pensjon.simulator.afp.offentlig.pre2025.Pre2025OffentligAfpUttaksgrad
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpPersongrunnlag
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpUttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.regel.RegelverkUtil.regelverkType
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -63,8 +63,8 @@ class KravhodeCreator(
     private val ufoereService: UfoeretrygdUtbetalingService,
     private val endringPersongrunnlag: EndringPersongrunnlag,
     private val endringUttaksgrad: EndringUttaksgrad,
-    private val pre2025OffentligAfpPersongrunnlag: Pre2025OffentligAfpPersongrunnlag,
-    private val pre2025OffentligAfpUttaksgrad: Pre2025OffentligAfpUttaksgrad,
+    private val tidsbegrensetOffentligAfpPersongrunnlag: TidsbegrensetOffentligAfpPersongrunnlag,
+    private val tidsbegrensetOffentligAfpUttaksgrad: TidsbegrensetOffentligAfpUttaksgrad,
     private val time: Time
 ) {
     // OpprettKravhodeHelper.opprettKravhode
@@ -78,7 +78,7 @@ class KravhodeCreator(
         val forrigeAlderspensjonBeregningResultat = kravhodeSpec.forrigeAlderspensjonBeregningResult
         val grunnbeloep = kravhodeSpec.grunnbeloep
         val gjelderEndring = spec.gjelderEndring()
-        val gjelderPre2025OffentligAfp = spec.gjelderPre2025OffentligAfp()
+        val gjelderPre2025OffentligAfp = spec.gjelderTidsbegrensetOffentligAfp()
 
         val kravhode = Kravhode().apply {
             kravFremsattDatoLd = time.today()
@@ -114,7 +114,7 @@ class KravhodeCreator(
 
         kravhode.uttaksgradListe =
             when {
-                gjelderPre2025OffentligAfp -> pre2025OffentligAfpUttaksgrad.uttaksgradListe(
+                gjelderPre2025OffentligAfp -> tidsbegrensetOffentligAfpUttaksgrad.uttaksgradListe(
                     spec,
                     forrigeAlderspensjonBeregningResultat,
                     foedselsdato = foedselsdato(person, spec) // NB: More robust than in PEN (which only uses spec.pid)
@@ -285,7 +285,7 @@ class KravhodeCreator(
         grunnbeloep: Int
     ) {
         when {
-            spec.gjelderPre2025OffentligAfp() ->
+            spec.gjelderTidsbegrensetOffentligAfp() ->
                 person?.let {
                     addPre2025OffentligAfpPersongrunnlagForSoekerToKravhode(
                         it,
@@ -365,7 +365,7 @@ class KravhodeCreator(
         kravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?
     ) {
-        pre2025OffentligAfpPersongrunnlag.getPersongrunnlagForSoeker(
+        tidsbegrensetOffentligAfpPersongrunnlag.getPersongrunnlagForSoeker(
             person,
             spec,
             kravhode,
@@ -380,7 +380,7 @@ class KravhodeCreator(
         grunnbeloep: Int
     ) {
         when {
-            spec.gjelderPre2025OffentligAfp() -> pre2025OffentligAfpPersongrunnlag.addPersongrunnlagForEpsToKravhode(
+            spec.gjelderTidsbegrensetOffentligAfp() -> tidsbegrensetOffentligAfpPersongrunnlag.addPersongrunnlagForEpsToKravhode(
                 spec,
                 kravhode,
                 forrigeAlderspensjonBeregningResultat,
@@ -431,7 +431,7 @@ class KravhodeCreator(
         // NB: In PEN uttakGrad (utg) is null, and null is not interpreted as 100 % (used for AFP_ETTERF_ALDER)
         // Ref. PEN SimuleringEtter2011.isUttaksgrad100
         val inntektUnderAfpEllerGradertUttak =
-            spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep
+            spec.tidsbegrensetOffentligAfp?.inntektUnderAfpUttakBeloep
                 ?: if (spec.uttakErGradertEllerNull()) spec.inntektUnderGradertUttakBeloep else 0
 
         val inntektEtterHeltUttak = spec.inntektEtterHeltUttakBeloep
@@ -560,7 +560,7 @@ class KravhodeCreator(
         // Inntekt mellom første og andre uttak:
 
         val inntektUnderAfpEllerGradertUttak: Int =
-            spec.pre2025OffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
+            spec.tidsbegrensetOffentligAfp?.inntektUnderAfpUttakBeloep ?: spec.inntektUnderGradertUttakBeloep
 
         val gjelder2FaseSimulering: Boolean = spec.gjelder2FaseSimulering()
 

@@ -71,7 +71,7 @@ class AlderspensjonSpecMapperV3Test : ShouldSpec({
             flyktning = null,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = true,

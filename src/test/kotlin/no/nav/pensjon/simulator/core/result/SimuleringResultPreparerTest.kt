@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.pensjon.simulator.afp.offentlig.fra2025.LivsvarigOffentligAfpOutput
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -127,7 +127,7 @@ class SimuleringResultPreparerTest : FunSpec({
         result.alderspensjon!!.kapittel20Andel shouldBe 1.0
     }
 
-    test("opprettOutput sets pre2025OffentligAfp when provided") {
+    test("opprettOutput sets tidsbegrensetOffentligAfp when provided") {
         val opptjeningAdder = mockk<SimulertOpptjeningAdder>(relaxed = true)
         val normalderService = mockk<NormertPensjonsalderService>()
         val time = mockk<Time>()
@@ -139,15 +139,13 @@ class SimuleringResultPreparerTest : FunSpec({
         every { normalderService.opptjeningMaxAlderAar(foedselsdato) } returns 75
         every { time.today() } returns LocalDate.of(2025, 1, 1)
 
-        val pre2025OffentligAfpResultat = mockk<Simuleringsresultat>()
+        val tidsbegrensetOffentligAfpResultat = mockk<Simuleringsresultat>()
         val spec = resultPreparerSpec(
             foedselsdato = foedselsdato,
-            pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpResultat
+            tidsbegrensetOffentligAfpBeregningResultat = tidsbegrensetOffentligAfpResultat
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.pre2025OffentligAfp shouldBe pre2025OffentligAfpResultat
+        preparer.opprettOutput(spec).tidsbegrensetOffentligAfp shouldBe tidsbegrensetOffentligAfpResultat
     }
 
     test("opprettOutput creates pensjonsperioder based on beregningsresultater") {
@@ -690,7 +688,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = true,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -1122,7 +1120,7 @@ class SimuleringResultPreparerTest : FunSpec({
         result.sivilstand shouldBe SivilstandEnum.UGIF
     }
 
-    test("opprettOutput with pre2025OffentligAfp simuleringstype uses heltUttakDato for start") {
+    test("opprettOutput with tidsbegrensetOffentligAfp simuleringstype uses heltUttakDato for start") {
         val opptjeningAdder = mockk<SimulertOpptjeningAdder>(relaxed = true)
         val normalderService = mockk<NormertPensjonsalderService>()
         val time = mockk<Time>()
@@ -1260,7 +1258,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -1322,7 +1320,7 @@ class SimuleringResultPreparerTest : FunSpec({
         periode67!!.beloep shouldBe 20000 * 11 // 11-month coverage in age 67 year
     }
 
-    test("opprettOutput with gjelderPre2025OffentligAfp uses heltUttakDato for foersteHeleUttak in beregningsinfo") {
+    test("opprettOutput with gjelderTidsbegrensetOffentligAfp uses heltUttakDato for foersteHeleUttak in beregningsinfo") {
         val opptjeningAdder = mockk<SimulertOpptjeningAdder>(relaxed = true)
         val normalderService = mockk<NormertPensjonsalderService>()
         val time = mockk<Time>()
@@ -1345,7 +1343,7 @@ class SimuleringResultPreparerTest : FunSpec({
             }
         }
 
-        // Using AFP_ETTERF_ALDER, which makes gjelderPre2025OffentligAfp() return true
+        // Using AFP_ETTERF_ALDER, which makes gjelderTidsbegrensetOffentligAfp() return true
         val spec = resultPreparerSpec(
             foedselsdato = foedselsdato,
             foersteUttakDato = afpUttakDato,
@@ -1358,7 +1356,7 @@ class SimuleringResultPreparerTest : FunSpec({
         val result = preparer.opprettOutput(spec)
 
         result.alderspensjon shouldNotBe null
-        // When gjelderPre2025OffentligAfp()=true, gradertUttak is null and foersteHeleUttak = heltUttakDato
+        // When gjelderTidsbegrensetOffentligAfp()=true, gradertUttak is null and foersteHeleUttak = heltUttakDato
         // simulertBeregningInformasjonListe should contain info for heltUttakDato (2027-02-01)
         result.alderspensjon!!.simulertBeregningInformasjonListe.isNotEmpty() shouldBe true
     }
@@ -1386,7 +1384,7 @@ class SimuleringResultPreparerTest : FunSpec({
             }
         }
 
-        // AFP_FPP also makes gjelderPre2025OffentligAfp() return true
+        // AFP_FPP also makes gjelderTidsbegrensetOffentligAfp() return true
         val spec = resultPreparerSpec(
             foedselsdato = foedselsdato,
             foersteUttakDato = afpUttakDato,
@@ -2059,7 +2057,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2162,7 +2160,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2265,7 +2263,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2379,7 +2377,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2481,7 +2479,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2585,7 +2583,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2675,7 +2673,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2762,7 +2760,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2857,7 +2855,7 @@ class SimuleringResultPreparerTest : FunSpec({
             flyktning = false,
             epsHarInntektOver2G = false,
             livsvarigOffentligAfp = null,
-            pre2025OffentligAfp = null,
+            tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
             isHentPensjonsbeholdninger = false,
@@ -2887,7 +2885,7 @@ private fun resultPreparerSpec(
     privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat> = mutableListOf(),
     forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat? = null,
     forrigePrivatAfpBeregningResultat: BeregningsResultatAfpPrivat? = null,
-    pre2025OffentligAfpBeregningResultat: Simuleringsresultat? = null,
+    tidsbegrensetOffentligAfpBeregningResultat: Simuleringsresultat? = null,
     livsvarigOffentligAfpBeregningResultatListe: List<LivsvarigOffentligAfpOutput>? = null,
     pensjonBeholdningPeriodeListe: List<BeholdningPeriode> = emptyList(),
     outputSimulertBeregningsInformasjonForAllKnekkpunkter: Boolean = false,
@@ -2935,7 +2933,7 @@ private fun resultPreparerSpec(
         flyktning = false,
         epsHarInntektOver2G = false,
         livsvarigOffentligAfp = null,
-        pre2025OffentligAfp = null,
+        tidsbegrensetOffentligAfp = null,
         erAnonym = true,
         ignoreAvslag = false,
         isHentPensjonsbeholdninger = false,
@@ -2951,7 +2949,7 @@ private fun resultPreparerSpec(
         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
         forrigeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResultat,
         forrigePrivatAfpBeregningResultat = forrigePrivatAfpBeregningResultat,
-        pre2025OffentligAfpBeregningResultat = pre2025OffentligAfpBeregningResultat,
+        tidsbegrensetOffentligAfpBeregningResultat = tidsbegrensetOffentligAfpBeregningResultat,
         livsvarigOffentligAfpBeregningResultatListe = livsvarigOffentligAfpBeregningResultatListe,
         pensjonBeholdningPeriodeListe = pensjonBeholdningPeriodeListe,
         outputSimulertBeregningsInformasjonForAllKnekkpunkter = outputSimulertBeregningsInformasjonForAllKnekkpunkter,
@@ -2975,7 +2973,7 @@ private fun preparerSpec(
         privatAfpBeregningResultatListe = mutableListOf(),
         forrigeAlderspensjonBeregningResultat = null,
         forrigePrivatAfpBeregningResultat = null,
-        pre2025OffentligAfpBeregningResultat = null,
+        tidsbegrensetOffentligAfpBeregningResultat = null,
         livsvarigOffentligAfpBeregningResultatListe = null,
         pensjonBeholdningPeriodeListe = emptyList(),
         outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,

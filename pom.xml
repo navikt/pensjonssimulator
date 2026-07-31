@@ -21,7 +21,7 @@
         <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
         <kotlin.version>2.3.21</kotlin.version>
         <flyway.version>12.11.0</flyway.version>
-        <logback.version>1.5.38</logback.version>
+        <logback.version>1.6.0</logback.version>
         <okhttp3.version>5.4.0</okhttp3.version>
         <kotest.version>6.2.2</kotest.version>
     </properties>

@@ -21,31 +21,61 @@ import java.time.LocalDate
 class UfoereAlternativSimuleringServiceTest : ShouldSpec({
 
     context("simulerAlternativHvisUtkanttilfelletInnvilges") {
-        should("return no result if utkanttilfellet avslått") {
-            val service = UfoereAlternativSimuleringService(
-                simulator = arrangeAvslaattUtkanttilfelle(),
-                normalderService = Arrange.normalder(foedselsdato),
-                alternativtUttakService = mockk(),
-                time = { LocalDate.of(2025, 1, 1) }
-            )
-
-            service.simulerAlternativHvisUtkanttilfelletInnvilges(
-                spec = simuleringSpec(
-                    foersteUttakDato = LocalDate.of(2030, 2, 1),
-                    uttaksgrad = UttakGradKode.P_60,
-                    heltUttakDato = LocalDate.of(2032, 2, 1)
+        context("utkanttilfellet avslått, senere førsteuttak ikke tillatt") {
+            should("gi tomt resultat") {
+                val service = UfoereAlternativSimuleringService(
+                    simulator = arrangeAvslaattUtkanttilfelle(),
+                    normalderService = Arrange.normalder(foedselsdato),
+                    alternativtUttakService = mockk(),
+                    time = { LocalDate.of(2025, 1, 1) }
                 )
-            )?.alternativ shouldBe SimulertAlternativ(
-                gradertUttakAlder = null,
-                uttakGrad = UttakGradKode.P_0,
-                heltUttakAlder = SimulertUttakAlder(alder = Alder(0, 0), uttakDato = LocalDate.MIN),
-                resultStatus = SimulatorResultStatus.NONE // i.e. no result
-            )
+
+                service.simulerAlternativHvisUtkanttilfelletInnvilges(
+                    spec = simuleringSpec(
+                        foersteUttakDato = LocalDate.of(2030, 2, 1),
+                        uttaksgrad = UttakGradKode.P_60,
+                        heltUttakDato = LocalDate.of(2032, 2, 1),
+                        tillatSenereFoersteuttakForUfoere = false
+                    ),
+                    inkluderPensjonHvisUbetinget = false
+                )?.alternativ shouldBe SimulertAlternativ(
+                    gradertUttakAlder = null,
+                    uttakGrad = UttakGradKode.P_0,
+                    heltUttakAlder = SimulertUttakAlder(alder = Alder(0, 0), uttakDato = LocalDate.MIN),
+                    resultStatus = SimulatorResultStatus.NONE // i.e. no result
+                )
+            }
+        }
+
+        context("utkanttilfellet avslått, senere førsteuttak tillatt") {
+            should("gi resultat for ubetinget uttak (100 % ved normalder)") {
+                val service = UfoereAlternativSimuleringService(
+                    simulator = arrangeAvslaattUtkanttilfelle(),
+                    normalderService = Arrange.normalder(foedselsdato),
+                    alternativtUttakService = mockk(),
+                    time = { LocalDate.of(2025, 1, 1) }
+                )
+
+                service.simulerAlternativHvisUtkanttilfelletInnvilges(
+                    spec = simuleringSpec(
+                        foersteUttakDato = LocalDate.of(2030, 2, 1),
+                        uttaksgrad = UttakGradKode.P_60,
+                        heltUttakDato = LocalDate.of(2032, 2, 1),
+                        tillatSenereFoersteuttakForUfoere = true
+                    ),
+                    inkluderPensjonHvisUbetinget = false
+                )?.alternativ shouldBe SimulertAlternativ(
+                    gradertUttakAlder = null,
+                    uttakGrad = UttakGradKode.P_100,
+                    heltUttakAlder = SimulertUttakAlder(alder = Alder(67, 0), uttakDato = LocalDate.of(2034, 2, 1)),
+                    resultStatus = SimulatorResultStatus.GOOD
+                )
+            }
         }
     }
 
     context("simulerMedFallendeUttaksgrad for gradert uttak") {
-        should("return alternativ med lavere grad men samme uttaksdato") {
+        should("gi alternativ med lavere grad men samme uttaksdato") {
             val service = UfoereAlternativSimuleringService(
                 simulator = arrangeGradertUttakEtterAvslaatt60ProsentUttak(),
                 normalderService = Arrange.normalder(foedselsdato),
@@ -70,7 +100,7 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
     }
 
     context("simulerMedFallendeUttaksgrad for helt uttak") {
-        should("return alternativ med lavere grad med helt uttak-dato som ny gradert uttak-dato") {
+        should("gi alternativ med lavere grad med helt uttak-dato som ny gradert uttak-dato") {
             val service = UfoereAlternativSimuleringService(
                 simulator = arrangeGradertUttakEtterAvslaattHeltUttak(),
                 normalderService = Arrange.normalder(foedselsdato),
@@ -130,7 +160,7 @@ private fun arrangeFoedselsdato(simulator: SimulatorCore) {
 }
 
 private fun arrangeGradertUttakEtterAvslaatt60ProsentUttak(): SimulatorCore =
-    mockk<SimulatorCore>().apply {
+    mockk {
         arrangeFoedselsdato(this)
 
         // Etter avslag på 60 % forsøkes det med neste lavere uttaksgrad (50 %):
@@ -157,7 +187,7 @@ private fun arrangeGradertUttakEtterAvslaatt60ProsentUttak(): SimulatorCore =
     }
 
 private fun arrangeGradertUttakEtterAvslaattHeltUttak(): SimulatorCore =
-    mockk<SimulatorCore>().apply {
+    mockk {
         arrangeFoedselsdato(this)
 
         // Etter avslått helt uttak forsøkes det med høyeste graderte uttaksgrad (80 %):
@@ -184,7 +214,7 @@ private fun arrangeGradertUttakEtterAvslaattHeltUttak(): SimulatorCore =
     }
 
 private fun arrangeIngenInnvilgedeUttak(): SimulatorCore =
-    mockk<SimulatorCore>().apply {
+    mockk {
         arrangeFoedselsdato(this)
 
         // Etter avslag på 50 % forsøkes det med neste lavere uttaksgrad (40 %):
@@ -211,7 +241,7 @@ private fun arrangeIngenInnvilgedeUttak(): SimulatorCore =
     }
 
 private fun arrangeAvslaattUtkanttilfelle(): SimulatorCore =
-    mockk<SimulatorCore>().apply {
+    mockk {
         arrangeFoedselsdato(this)
 
         every {
@@ -228,7 +258,12 @@ private fun arrangeAvslaattUtkanttilfelle(): SimulatorCore =
 /**
  * IndexBasedSimulering.tryIndex: discriminator.simuler(indexSimulatorSpec)
  */
-private fun simuleringSpec(foersteUttakDato: LocalDate, uttaksgrad: UttakGradKode, heltUttakDato: LocalDate?) =
+private fun simuleringSpec(
+    foersteUttakDato: LocalDate,
+    uttaksgrad: UttakGradKode,
+    heltUttakDato: LocalDate?,
+    tillatSenereFoersteuttakForUfoere: Boolean = false
+) =
     SimuleringSpec(
         type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
         sivilstatus = SivilstatusType.UGIF,
@@ -260,5 +295,6 @@ private fun simuleringSpec(foersteUttakDato: LocalDate, uttaksgrad: UttakGradKod
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
         onlyVilkaarsproeving = false,
-        epsKanOverskrives = false
+        epsKanOverskrives = false,
+        tillatSenereFoersteuttakForUfoere = tillatSenereFoersteuttakForUfoere
     )

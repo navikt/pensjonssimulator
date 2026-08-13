@@ -2,13 +2,14 @@ package no.nav.pensjon.simulator.api.nav.v2.acl.spec
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import java.time.LocalDate
 
 /**
  * Data transfer object (DTO) som representerer inn-data (spesifikasjon) for
- * simulering av alderspensjon "versjon 3" (som brukes av Navs pensjonskalkulator).
+ * simulering av pensjon "versjon 2" (som brukes av Navs pensjonskalkulatorer).
  */
 data class SimuleringSpecDto(
     @field:NotNull val pid: String,
@@ -21,7 +22,10 @@ data class SimuleringSpecDto(
     val fremtidigInntektListe: List<InntektSpecDto>? = null,
     val utenlandsperiodeListe: List<UtlandSpecDto>? = null,
     val eps: EpsSpecDto? = null,
-    val offentligAfp: OffentligAfpSpecDto? = null
+    val offentligAfp: OffentligAfpSpecDto? = null,
+
+    @field:Schema(description = "Hvorvidt senere førsteuttak skal tillates for uføretrygdede når NAU-logikken (Nært Angitt Uttak) finner alternative uttaksparametre")
+    val tillatSenereFoersteuttakForUfoere: Boolean? = null
 )
 
 data class GradertUttakSpecDto(

@@ -205,7 +205,8 @@ object SimulatorOutputConverter {
                     saertillegg = beregning.st?.netto ?: 0,
                     afpGrad = beregnAfpGrad(
                         inntektVedAfpUttak ?: 0,
-                        tidligereInntekt = poengrekke?.tpi ?: 0
+                        tidligereInntekt = poengrekke?.tpi ?: 0,
+                        grunnbeloep = beregning.g
                     ),
                     afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true
                 )

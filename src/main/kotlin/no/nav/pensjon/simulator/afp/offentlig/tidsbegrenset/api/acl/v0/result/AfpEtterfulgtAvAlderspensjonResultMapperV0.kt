@@ -16,21 +16,25 @@ import java.time.LocalDate
  */
 object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
 
-    fun toDto(source: SimulatorOutput, spec: SimuleringSpec) =
-        AfpEtterfulgtAvAlderspensjonResultV0(
+    fun toDto(source: SimulatorOutput, spec: SimuleringSpec): AfpEtterfulgtAvAlderspensjonResultV0 {
+        val grunnbeloep = validGrunnbeloep(source)
+
+        return AfpEtterfulgtAvAlderspensjonResultV0(
             simuleringSuksess = true,
             aarsakListeIkkeSuksess = emptyList(),
             folketrygdberegnetAfp = folketrygdberegnetAfp(
                 fom = source.tidsbegrensetOffentligAfp!!.virkLd!!,
                 afp = validAfpBeregning(source),
-                spec
+                spec,
+                grunnbeloep
             ),
             alderspensjonFraFolketrygden = alderspensjonFraFolketrygdenListe(
                 pensjon = validAlderspensjon(source),
-                grunnbeloep = validGrunnbeloep(source),
+                grunnbeloep,
                 uttakDato = spec.foersteUttakDato!!
             )
         )
+    }
 
     fun tomResponsMedAarsak(aarsak: AarsakIkkeSuccessV0) =
         AfpEtterfulgtAvAlderspensjonResultV0(
@@ -55,7 +59,8 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun folketrygdberegnetAfp(
         fom: LocalDate,
         afp: Beregning,
-        spec: SimuleringSpec
+        spec: SimuleringSpec,
+        grunnbeloep: Int
     ): FolketrygdberegnetAfpV0 {
         val beregnetTidligereInntekt = afp.tp!!.spt!!.poengrekke!!.tpi
         val sisteLignetInntektAar = spec.registerData?.sisteLignetInntektAar
@@ -65,7 +70,11 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             beregnetTidligereInntekt = beregnetTidligereInntekt,
             sisteLignetInntektBrukt = sisteLignetInntektAar != null,
             sisteLignetInntektAar = sisteLignetInntektAar,
-            afpGrad = AfpGrad.beregnAfpGrad(spec.inntektUnderGradertUttakBeloep, beregnetTidligereInntekt),
+            afpGrad = AfpGrad.beregnAfpGrad(
+                inntektVedAfpUttak = spec.inntektUnderGradertUttakBeloep,
+                tidligereInntekt = beregnetTidligereInntekt,
+                grunnbeloep
+            ),
             afpAvkortetTil70Prosent = afp.gpAfpPensjonsregulert?.brukt == true,
             grunnpensjon = grunnpensjon(afp),
             tilleggspensjon = tilleggspensjon(afp),

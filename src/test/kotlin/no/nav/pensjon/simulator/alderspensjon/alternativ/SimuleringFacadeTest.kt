@@ -49,6 +49,7 @@ class SimuleringFacadeTest : ShouldSpec({
                 ufoereAlternativSimulering = ufoereNauLogikk,
                 normalderService = mockk(),
                 ufoereService = arrangeUfoer(), // ufør
+                outputConverter = mockk(),
                 time = mockk(relaxed = true),
             ).simulerAlderspensjon(
                 simuleringSpec(

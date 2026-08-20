@@ -170,7 +170,7 @@ class UfoereAlternativSimuleringService(
                     if (spec.onlyVilkaarsproeving)
                         null
                     else
-                        pensjon(
+                        outputConverter.pensjon(
                             source = simulator.simuler(initialSpec = ubetingetSpec),
                             today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep

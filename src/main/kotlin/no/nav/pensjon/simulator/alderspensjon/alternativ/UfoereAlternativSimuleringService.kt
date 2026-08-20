@@ -120,25 +120,25 @@ class UfoereAlternativSimuleringService(
     ): SimulertPensjonEllerAlternativ? {
         val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
 
-        return try {
+        try {
             val utkantSpec: SimuleringSpec =
                 utkantSimuleringSpec(spec, normalder, spec.foedselDato, foersteUttakAlderIsConstant = true)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again
-                defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
+                return defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
             }
 
             simulator.simuler(utkantSpec)
             // resultatet av 'simuler' ignoreres - det interessante er om en exception oppstår
 
             // Ingen exception => utkanttilfellet innvilget => prøv alternative parametre:
-            alternativtUttakService.findAlternativtUttak(spec)
+            return alternativtUttakService.findAlternativtUttak(spec)
         } catch (_: UtilstrekkeligOpptjeningException) {
             // Utkanttilfellet avslått (intet gradert uttak mulig);
-            defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
+            return defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
         } catch (_: UtilstrekkeligTrygdetidException) {
-            defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
+            return defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
         }
     }
 

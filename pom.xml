@@ -21,9 +21,9 @@
         <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
         <kotlin.version>2.4.10</kotlin.version>
         <flyway.version>13.2.0</flyway.version>
-        <logback.version>1.6.1</logback.version>
+        <logback.version>1.6.2</logback.version>
         <okhttp3.version>5.4.0</okhttp3.version>
-        <kotest.version>6.2.3</kotest.version>
+        <kotest.version>6.2.4</kotest.version>
     </properties>
     <build>
         <finalName>pensjonssimulator</finalName>

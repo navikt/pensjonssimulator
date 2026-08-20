@@ -41,7 +41,10 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 )?.alternativ shouldBe SimulertAlternativ(
                     gradertUttakAlder = null,
                     uttakGrad = UttakGradKode.P_0,
-                    heltUttakAlder = SimulertUttakAlder(alder = Alder(0, 0), uttakDato = LocalDate.MIN),
+                    heltUttakAlder = SimulertUttakAlder(
+                        alder = Alder(aar = 0, maaneder = 0),
+                        uttakDato = LocalDate.MIN
+                    ),
                     resultStatus = SimulatorResultStatus.NONE // i.e. no result
                 )
             }
@@ -51,7 +54,7 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
             should("gi resultat for ubetinget uttak (100 % ved normalder)") {
                 val service = UfoereAlternativSimuleringService(
                     simulator = arrangeAvslaattUtkanttilfelle(),
-                    normalderService = Arrange.normalder(foedselsdato),
+                    normalderService = Arrange.normalder(foedselsdato), // 67 år 0 måneder
                     alternativtUttakService = mockk(),
                     time = { LocalDate.of(2025, 1, 1) }
                 )
@@ -67,7 +70,10 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 )?.alternativ shouldBe SimulertAlternativ(
                     gradertUttakAlder = null,
                     uttakGrad = UttakGradKode.P_100,
-                    heltUttakAlder = SimulertUttakAlder(alder = Alder(67, 0), uttakDato = LocalDate.of(2034, 2, 1)),
+                    heltUttakAlder = SimulertUttakAlder(
+                        alder = Alder(aar = 67, maaneder = 0),
+                        uttakDato = LocalDate.of(2034, 2, 1)
+                    ),
                     resultStatus = SimulatorResultStatus.GOOD
                 )
             }
@@ -91,9 +97,15 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 ),
                 exception = UtilstrekkeligOpptjeningException()
             ).alternativ shouldBe SimulertAlternativ(
-                gradertUttakAlder = SimulertUttakAlder(alder = Alder(63, 0), uttakDato = LocalDate.of(2030, 2, 1)),
+                gradertUttakAlder = SimulertUttakAlder(
+                    alder = Alder(aar = 63, maaneder = 0),
+                    uttakDato = LocalDate.of(2030, 2, 1)
+                ),
                 uttakGrad = UttakGradKode.P_40,
-                heltUttakAlder = SimulertUttakAlder(alder = Alder(65, 0), uttakDato = LocalDate.of(2032, 2, 1)),
+                heltUttakAlder = SimulertUttakAlder(
+                    alder = Alder(aar = 65, maaneder = 0),
+                    uttakDato = LocalDate.of(2032, 2, 1)
+                ),
                 resultStatus = SimulatorResultStatus.GOOD
             )
         }
@@ -116,9 +128,15 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 ),
                 exception = UtilstrekkeligTrygdetidException()
             ).alternativ shouldBe SimulertAlternativ(
-                gradertUttakAlder = SimulertUttakAlder(alder = Alder(63, 0), uttakDato = LocalDate.of(2030, 2, 1)),
+                gradertUttakAlder = SimulertUttakAlder(
+                    alder = Alder(aar = 63, maaneder = 0),
+                    uttakDato = LocalDate.of(2030, 2, 1)
+                ),
                 uttakGrad = UttakGradKode.P_60,
-                heltUttakAlder = SimulertUttakAlder(alder = Alder(67, 0), uttakDato = normertPensjoneringsdato),
+                heltUttakAlder = SimulertUttakAlder(
+                    alder = Alder(aar = 67, maaneder = 0),
+                    uttakDato = normertPensjoneringsdato
+                ),
                 resultStatus = SimulatorResultStatus.GOOD
             )
         }

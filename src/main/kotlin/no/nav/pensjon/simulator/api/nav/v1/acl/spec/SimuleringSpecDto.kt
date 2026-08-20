@@ -8,7 +8,7 @@ import java.time.LocalDate
 
 /**
  * Data transfer object (DTO) som representerer inn-data (spesifikasjon) for
- * simulering av alderspensjon "versjon 3" (som brukes av Navs pensjonskalkulator).
+ * simulering av pensjon "versjon 1" (som brukes av Navs pensjonskalkulatorer).
  */
 data class SimuleringSpecDto(
     @field:NotNull val pid: String,

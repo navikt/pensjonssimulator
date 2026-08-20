@@ -46,6 +46,7 @@ data class SimuleringSpec(
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
     val onlyVilkaarsproeving: Boolean,
     val epsKanOverskrives: Boolean,
+    val tillatSenereFoersteuttakForUfoere: Boolean = false,
     val registerData: RegisterData? = null
 ) {
     init {
@@ -136,39 +137,9 @@ data class SimuleringSpec(
     }
 
     fun withAvdoed(avdoed: Avdoed) =
-        SimuleringSpec(
-            type = if (type == SimuleringTypeEnum.ENDR_ALDER) SimuleringTypeEnum.ENDR_ALDER_M_GJEN else type,
-            sivilstatus = sivilstatus,
-            epsHarPensjon = epsHarPensjon,
-            foersteUttakDato = foersteUttakDato,
-            heltUttakDato = heltUttakDato,
-            pid = pid,
-            foedselDato = foedselDato,
+        copy(
             avdoed = avdoed,
-            isTpOrigSimulering = isTpOrigSimulering,
-            simulerForTp = simulerForTp,
-            uttakGrad = uttakGrad,
-            forventetInntektBeloep = forventetInntektBeloep,
-            inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
-            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
-            foedselAar = foedselAar,
-            utlandAntallAar = utlandAntallAar,
-            utlandPeriodeListe = utlandPeriodeListe,
-            fremtidigInntektListe = fremtidigInntektListe,
-            brukFremtidigInntekt = brukFremtidigInntekt,
-            inntektOver1GAntallAar = inntektOver1GAntallAar,
-            flyktning = flyktning,
-            epsHarInntektOver2G = epsHarInntektOver2G,
-            livsvarigOffentligAfp = livsvarigOffentligAfp,
-            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
-            erAnonym = erAnonym,
-            ignoreAvslag = ignoreAvslag,
-            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-            onlyVilkaarsproeving = onlyVilkaarsproeving,
-            epsKanOverskrives = epsKanOverskrives,
-            registerData = registerData
+            type = if (type == SimuleringTypeEnum.ENDR_ALDER) SimuleringTypeEnum.ENDR_ALDER_M_GJEN else type
         )
 
     fun withUttak(
@@ -177,39 +148,11 @@ data class SimuleringSpec(
         heltUttakDato: LocalDate?,
         inntektEtterHeltUttakAntallAar: Int?
     ) =
-        SimuleringSpec(
-            type = type,
-            sivilstatus = sivilstatus,
-            epsHarPensjon = epsHarPensjon,
+        copy(
             foersteUttakDato = foersteUttakDato,
-            heltUttakDato = heltUttakDato,
-            pid = pid,
-            foedselDato = foedselDato,
-            avdoed = avdoed,
-            isTpOrigSimulering = isTpOrigSimulering,
-            simulerForTp = simulerForTp,
             uttakGrad = uttaksgrad,
-            forventetInntektBeloep = forventetInntektBeloep,
-            inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
-            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
-            foedselAar = foedselAar,
-            utlandAntallAar = utlandAntallAar,
-            utlandPeriodeListe = utlandPeriodeListe,
-            fremtidigInntektListe = fremtidigInntektListe,
-            brukFremtidigInntekt = brukFremtidigInntekt,
-            inntektOver1GAntallAar = inntektOver1GAntallAar,
-            flyktning = flyktning,
-            epsHarInntektOver2G = epsHarInntektOver2G,
-            livsvarigOffentligAfp = livsvarigOffentligAfp,
-            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
-            erAnonym = erAnonym,
-            ignoreAvslag = ignoreAvslag,
-            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
-            isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
-            onlyVilkaarsproeving = onlyVilkaarsproeving,
-            epsKanOverskrives = epsKanOverskrives,
-            registerData = registerData
+            heltUttakDato = heltUttakDato,
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
         )
 
     fun withFoersteUttakDato(dato: LocalDate?) =

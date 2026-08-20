@@ -78,7 +78,8 @@ class SimuleringSpecMapperForNavV2(
             isHentPensjonsbeholdninger = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
-            epsKanOverskrives = false // verdier fra vedtak vil dermed brukes istedenfor brukeroppgitte verdier
+            epsKanOverskrives = false, // verdier fra vedtak vil dermed brukes istedenfor brukeroppgitte verdier
+            tillatSenereFoersteuttakForUfoere = source.tillatSenereFoersteuttakForUfoere == true
         )
     }
 

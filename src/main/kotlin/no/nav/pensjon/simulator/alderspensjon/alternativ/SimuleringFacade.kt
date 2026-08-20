@@ -104,12 +104,12 @@ class SimuleringFacade(
         exception: RuntimeException
     ): SimulertPensjonEllerAlternativ? =
         try {
-            if (gjelderUfoereMedAfp)
-                if (spec.isGradert() && spec.heltUttakDato!!.isBefore(normalderService.normalderDato(spec.foedselDato!!)))
+            if (gjelderUfoereMedAfp && spec.tillatSenereFoersteuttakForUfoere.not())
+                if (spec.isGradert() && heltUttakTasFoerNormalder(spec))
                     if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
-                        ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec)
+                        ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)
                     else
-                        ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec)
+                        ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
                 else
                     ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
             else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
@@ -121,6 +121,9 @@ class SimuleringFacade(
         } catch (e: UtilstrekkeligTrygdetidException) {
             problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
         }
+
+    private fun heltUttakTasFoerNormalder(spec: SimuleringSpec): Boolean =
+        spec.heltUttakDato?.isBefore(normalderService.normalderDato(spec.foedselDato!!)) == true
 
     private fun hasUfoereperiode(spec: SimuleringSpec): Boolean =
         spec.pid?.let { ufoereService.hasUfoereperiode(it, spec.foersteUttakDato!!) } == true

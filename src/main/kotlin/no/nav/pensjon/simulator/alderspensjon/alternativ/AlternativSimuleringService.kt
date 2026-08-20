@@ -82,36 +82,40 @@ class AlternativSimuleringService(
     ): SimulertPensjonEllerAlternativ? {
         val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
 
-        return try {
+        try {
             val utkantSpec: SimuleringSpec = utkantSimuleringSpec(spec, normalder, spec.foedselDato)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again
-                return null
+                return null //TODO use defaultResult?
             }
 
             simulator.simuler(utkantSpec)
             // resultatet av 'simuler' ignoreres - det interessante er om en exception oppstår
 
             // Ingen exception => utkanttilfellet innvilget => prøv alternative parametre:
-            alternativtUttakService.findAlternativtUttak(
+            return alternativtUttakService.findAlternativtUttak(
                 spec,
                 spec.gradertUttak(),
                 spec.heltUttak()
             )
         } catch (_: UtilstrekkeligOpptjeningException) {
             // Utkanttilfellet avslått (intet gradert uttak mulig); returner alternativ for ubetinget uttak:
-            if (inkluderPensjonHvisUbetinget)
-                ubetingetUttakResponseMedSimulertPensjon(spec, normalder)
-            else
-                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato, normalder)
+            return defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
         } catch (_: UtilstrekkeligTrygdetidException) {
-            if (inkluderPensjonHvisUbetinget)
-                ubetingetUttakResponseMedSimulertPensjon(spec, normalder)
-            else
-                ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato, normalder)
+            return defaultResult(spec, normalder, inkluderPensjonHvisUbetinget)
         }
     }
+
+    private fun defaultResult(
+        spec: SimuleringSpec,
+        normalder: Alder,
+        inkluderPensjonHvisUbetinget: Boolean
+    ): SimulertPensjonEllerAlternativ =
+        if (inkluderPensjonHvisUbetinget)
+            ubetingetUttakResponseMedSimulertPensjon(spec, normalder)
+        else
+            ubetingetUttakResponseUtenSimulertPensjon(spec.foedselDato!!, normalder)
 
     private fun ubetingetUttakResponseMedSimulertPensjon(
         spec: SimuleringSpec,
@@ -119,7 +123,7 @@ class AlternativSimuleringService(
     ): SimulertPensjonEllerAlternativ =
         try {
             val ubetingetSpec: SimuleringSpec = SimuleringSpecUtil.ubetingetSimuleringSpec(spec, normalder)
-            val result: SimulatorOutput = simulator.simuler(ubetingetSpec)
+
             alternativResponse(
                 spec = ubetingetSpec,
                 alternativPensjon =
@@ -127,7 +131,7 @@ class AlternativSimuleringService(
                         null
                     else
                         outputConverter.pensjon(
-                            source = result,
+                            source = simulator.simuler(initialSpec = ubetingetSpec),
                             today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                         )

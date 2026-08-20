@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,14 +17,18 @@ class UfoereAlternativtUttakService(
     private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
+    /**
+     * NAU for uføre m/ AFP krever gradert uttak, da kun uttaksgrad kan justeres (ikke uttaksdato).
+     * Dette for å forhindre inntektstap for denne gruppen.
+     */
     fun findAlternativtUttak(spec: SimuleringSpec): SimulertPensjonEllerAlternativ {
-        val gradertUttak = spec.gradertUttak()
+        val gradertUttak = spec.gradertUttak() ?: throw BadSpecException("NAU for uføre m/ AFP krever gradert uttak")
         val heltUttak = spec.heltUttak()
 
         val pensjonEllerAlternativ: SimulertPensjonEllerAlternativ =
             findAlternativtUttak(
                 spec,
-                foersteUttakAngittAlder = gradertUttak!!.uttakFom.alder, // never null in this context (uføre, gradert)
+                foersteUttakAngittAlder = gradertUttak.uttakFom.alder,
                 andreUttakAngittAlder = heltUttak.uttakFom.alder,
                 maxUttaksgrad = gradertUttak.grad
             )

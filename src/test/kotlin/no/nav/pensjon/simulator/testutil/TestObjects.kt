@@ -60,7 +60,8 @@ object TestObjects {
         inntektSpecListe: List<FremtidigInntekt> = emptyList(),
         utlandPeriodeListe: List<UtlandPeriode> = utlandPeriodeListe(),
         utlandAntallAar: Int = 3,
-        afpOrdning: AFPtypeEnum? = null
+        afpOrdning: AFPtypeEnum? = null,
+        tillatSenereFoersteuttakForUfoere: Boolean = false
     ) = SimuleringSpec(
         type,
         sivilstatus,
@@ -105,7 +106,8 @@ object TestObjects {
         isHentPensjonsbeholdninger = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
         onlyVilkaarsproeving = false,
-        epsKanOverskrives = false
+        epsKanOverskrives = false,
+        tillatSenereFoersteuttakForUfoere = tillatSenereFoersteuttakForUfoere
     )
 
     fun tidsbegrensetOffentligAfpSimuleringSpec(

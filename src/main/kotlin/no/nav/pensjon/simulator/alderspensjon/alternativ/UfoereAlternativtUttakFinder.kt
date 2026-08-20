@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -28,6 +28,7 @@ class UfoereAlternativtUttakFinder(
     private val discriminator: UttakAlderDiscriminator,
     private val simuleringSpec: SimuleringSpec,
     private val normalderService: NormertPensjonsalderService,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     private val foedselsdato: LocalDate by lazy {
@@ -88,7 +89,7 @@ class UfoereAlternativtUttakFinder(
         val helAlder = alder(helPeriode)
 
         return SimulertPensjonEllerAlternativ(
-            pensjon = if (simuleringSpec.onlyVilkaarsproeving) null else pensjon?.let { pensjon(it, time.today()) },
+            pensjon = if (simuleringSpec.onlyVilkaarsproeving) null else pensjon?.let { outputConverter.pensjon(it, time.today()) },
             // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             alternativ = SimulertAlternativ(
                 uttakGrad = usedParameters.uttakGrad,

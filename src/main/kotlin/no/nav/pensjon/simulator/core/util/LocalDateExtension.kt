@@ -7,13 +7,14 @@ import java.util.Date
 
 // no.nav.domain.pensjon.common.util.LocalDateEx
 
-fun LocalDate.isOnOrAfter(other: LocalDate): Boolean {
-    return this.isAfter(other) || this.isEqual(other)
-}
+fun LocalDate.isOnOrAfter(other: LocalDate): Boolean =
+     this.isAfter(other) || this.isEqual(other)
 
-fun LocalDate.isBeforeOrOn(other: LocalDate): Boolean {
-    return this.isBefore(other) || this.isEqual(other)
-}
+fun LocalDate.isBeforeOrOn(other: LocalDate): Boolean =
+     this.isBefore(other) || this.isEqual(other)
+
+fun LocalDate.erMellom(fom: LocalDate, tom: LocalDate): Boolean =
+     fom.isBeforeOrOn(this) && tom.isOnOrAfter(this)
 
 /**
  * Null-supporting variant of LocalDate.isBefore.

@@ -78,6 +78,7 @@ private fun simulerAlderspensjon(inntektSpecListe: List<PensjonInntektSpec>): Al
             uttakFom = LocalDate.of(2027, 1, 1),
             livsvarigOffentligAfpRettFom = null
         ),
+        outputConverter = mockk(),
         time = { LocalDate.of(2025, 1, 1) }
     ).simulerAlderspensjon(
         AlderspensjonSpec(

@@ -25,6 +25,7 @@ class AlderspensjonService(
     private val alternativSimuleringService: AlternativSimuleringService,
     private val personService: GeneralPersonService,
     private val simuleringstypeDeducer: OffentligSimuleringstypeDeducer,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     // Used for V4
@@ -54,7 +55,7 @@ class AlderspensjonService(
             val result: SimulatorOutput = simulator.simuler(spec)
 
             return SimulertPensjonEllerAlternativ(
-                pensjon = SimulatorOutputConverter.pensjon( // SimulatorOutput -> SimulertPensjon
+                pensjon = outputConverter.pensjon( // SimulatorOutput -> SimulertPensjon
                     source = result,
                     today = time.today(),
                     inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep

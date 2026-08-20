@@ -27,6 +27,7 @@ import java.time.LocalDate
 class AlderspensjonResultMapperV3(
     private val personService: GeneralPersonService,
     private val normertPensjonsalderService: NormertPensjonsalderService,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     fun map(
@@ -77,31 +78,31 @@ class AlderspensjonResultMapperV3(
             .map(::simuleringsdata)
     }
 
-    private companion object {
+    private fun alderspensjonListe(
+        beregningsinformasjonListe: List<SimulertBeregningInformasjon>,
+        foersteUttakFom: LocalDate?,
+        heltUttakFom: LocalDate?
+    ): List<AlderspensjonFraFolketrygdenResultV3> {
+        val alderspensjonListe: MutableList<AlderspensjonFraFolketrygdenResultV3> = mutableListOf()
+        val foersteUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, foersteUttakFom)
+        alderspensjonListe.add(alderspensjon(foersteUttakInfo))
 
-        private fun alderspensjonListe(
-            beregningsinformasjonListe: List<SimulertBeregningInformasjon>,
-            foersteUttakFom: LocalDate?,
-            heltUttakFom: LocalDate?
-        ): List<AlderspensjonFraFolketrygdenResultV3> {
-            val alderspensjonListe: MutableList<AlderspensjonFraFolketrygdenResultV3> = mutableListOf()
-            val foersteUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, foersteUttakFom)
-            alderspensjonListe.add(alderspensjon(foersteUttakInfo))
-
-            heltUttakFom?.let {
-                val heltUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, dato = it)
-                alderspensjonListe.add(alderspensjon(heltUttakInfo))
-            }
-
-            return alderspensjonListe
+        heltUttakFom?.let {
+            val heltUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, dato = it)
+            alderspensjonListe.add(alderspensjon(heltUttakInfo))
         }
 
-        private fun alderspensjon(source: SimulertBeregningInformasjon) =
-            AlderspensjonFraFolketrygdenResultV3(
-                datoFom = source.datoFom?.toString(),
-                delytelser = SimulatorOutputConverter.delytelser(source).map(::delytelse),
-                uttaksgrad = source.uttakGrad?.toInt()
-            )
+        return alderspensjonListe
+    }
+
+    private fun alderspensjon(source: SimulertBeregningInformasjon) =
+        AlderspensjonFraFolketrygdenResultV3(
+            datoFom = source.datoFom?.toString(),
+            delytelser = outputConverter.delytelser(source).map(::delytelse),
+            uttaksgrad = source.uttakGrad?.toInt()
+        )
+
+    private companion object {
 
         private fun delytelse(source: SimulertDelytelse) =
             DelytelseResultV3(

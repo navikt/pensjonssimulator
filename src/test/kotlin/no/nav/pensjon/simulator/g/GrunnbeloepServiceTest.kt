@@ -12,7 +12,7 @@ import java.time.LocalDate
 class GrunnbeloepServiceTest : FunSpec({
 
     val service = GrunnbeloepService(
-        regelClient = arrangeGrunnbeloep(),
+        regelClient = arrangeGrunnbeloep,
         time = { LocalDate.of(2025, 1, 1) }
     )
 
@@ -21,11 +21,15 @@ class GrunnbeloepServiceTest : FunSpec({
     }
 })
 
-private fun arrangeGrunnbeloep(): RegelClient =
-    mockk<RegelClient>().also {
+private val arrangeGrunnbeloep: RegelClient =
+    mockk {
         every {
-            it.fetchGrunnbeloepListe(dato = LocalDate.of(2025, 1, 1))
+            fetchGrunnbeloepListe()
         } returns SatsResponse().apply {
-            satsResultater = listOf(SatsResultat().apply { verdi = 123000.0 })
+            satsResultater = listOf(SatsResultat().apply {
+                fomLd = LocalDate.of(2024, 5, 1)
+                tomLd = LocalDate.of(2025, 4, 30)
+                verdi = 123000.0
+            })
         }
     }

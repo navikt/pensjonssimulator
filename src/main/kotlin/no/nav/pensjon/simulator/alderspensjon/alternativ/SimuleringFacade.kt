@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
-import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
@@ -30,6 +30,7 @@ class SimuleringFacade(
     private val ufoereAlternativSimulering: UfoereAlternativSimuleringService,
     private val normalderService: NormertPensjonsalderService,
     private val ufoereService: UfoereService,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     fun simulerAlderspensjon(
@@ -46,7 +47,7 @@ class SimuleringFacade(
                 pensjon =
                     if (spec.onlyVilkaarsproeving)
                         null // irrelevant when finding uttak only
-                    else pensjon(
+                    else outputConverter.pensjon(
                         source = result,
                         today = time.today(),
                         inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep,

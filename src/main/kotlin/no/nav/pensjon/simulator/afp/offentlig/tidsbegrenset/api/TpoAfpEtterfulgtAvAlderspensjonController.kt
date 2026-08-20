@@ -8,8 +8,7 @@ import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.result.AarsakIkkeSuccessV0
-import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto
-import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultMapperV0
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.result.AfpEtterfulgtAvAlderspensjonResultV0
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecMapperV0
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.spec.AfpEtterfulgtAvAlderspensjonSpecV0
@@ -40,6 +39,7 @@ import org.springframework.web.bind.annotation.*
 class TpoAfpEtterfulgtAvAlderspensjonController(
     private val simulator: SimulatorCore,
     private val specMapper: AfpEtterfulgtAvAlderspensjonSpecMapperV0,
+    private val resultMapper: AfpEtterfulgtAvAlderspensjonResultMapperV0,
     private val traceAid: TraceAid,
     statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
@@ -81,13 +81,13 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, pid)
             val spec: SimuleringSpec = specMapper.fromDto(validatedSpecV0)
             registrerHendelse(simuleringstype = spec.type)
-            toDto(simulator.simuler(spec), spec)
+            resultMapper.toDto(simulator.simuler(spec), spec)
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
             throw e
         } catch (e: FeilISimuleringsgrunnlagetException) {
             log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: IllegalArgumentException) {
             log.warn(e) { "$FUNCTION_ID ulovlig verdi - ${e.message} - $specV0" }
             throw e
@@ -96,25 +96,25 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
             throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)
         } catch (e: PersonForUngException) {
             log.warn(e) { "$FUNCTION_ID person for ung - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_LAV_ALDER)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_LAV_ALDER)
         } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
             log.warn(e) { "$FUNCTION_ID tidsbegrenset offentlig AFP avslått - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.AFP_ER_AVSLAATT)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.AFP_ER_AVSLAATT)
         } catch (e: RegelmotorValideringException) {
             log.warn(e) { "$FUNCTION_ID regelmotorvalideringsfeil - request - $specV0" }
             throw e
         } catch (e: UtilstrekkeligOpptjeningException) {
             log.info(e) { "$FUNCTION_ID utilstrekkelig opptjening - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_OPPTJENING)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
             log.info(e) { "$FUNCTION_ID utilstrekkelig trygdetid - request - $specV0" }
-            tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
+            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.UTILSTREKKELIG_TRYGDETID)
         } catch (e: EgressException) {
             handle(e)!!
         } finally {

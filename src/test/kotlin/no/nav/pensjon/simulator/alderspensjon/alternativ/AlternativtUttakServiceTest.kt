@@ -8,6 +8,7 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.AlternativtUttakServiceTestObjects.arrangeSimulator
 import no.nav.pensjon.simulator.alderspensjon.alternativ.AlternativtUttakServiceTestObjects.simuleringSpec
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -31,6 +32,7 @@ open class AlternativtUttakServiceTest : FunSpec({
         val service = AlternativtUttakService(
             simulator = arrangeSimulator(),
             normalderService = Arrange.normalder(foedselsdato),
+            outputConverter = arrangeOutput,
             time = { LocalDate.of(2025, 1, 1) }
         )
 
@@ -51,19 +53,7 @@ open class AlternativtUttakServiceTest : FunSpec({
                 inntektTom = PensjonAlderDato(foedselsdato, alder = Alder(aar = 67, maaneder = 0))
             )
         ) shouldBe SimulertPensjonEllerAlternativ(
-            pensjon = SimulertPensjon(
-                alderspensjon = emptyList(),
-                maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
-                alderspensjonFraFolketrygden = emptyList(),
-                privatAfp = emptyList(),
-                tidsbegrensetOffentligAfp = null,
-                livsvarigOffentligAfp = emptyList(),
-                pensjonBeholdningPeriodeListe = emptyList(),
-                harUttak = false,
-                primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 0),
-                opptjeningGrunnlagListe = emptyList(),
-                opptjeningListe = emptyList()
-            ),
+            pensjon = emptyPensjon,
             alternativ = SimulertAlternativ(
                 gradertUttakAlder = SimulertUttakAlder(
                     alder = Alder(aar = 65, maaneder = 1),
@@ -79,6 +69,34 @@ open class AlternativtUttakServiceTest : FunSpec({
         )
     }
 })
+
+private val emptyPensjon = SimulertPensjon(
+    alderspensjon = emptyList(),
+    maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
+    alderspensjonFraFolketrygden = emptyList(),
+    privatAfp = emptyList(),
+    tidsbegrensetOffentligAfp = null,
+    livsvarigOffentligAfp = emptyList(),
+    pensjonBeholdningPeriodeListe = emptyList(),
+    harUttak = false,
+    primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 0),
+    opptjeningGrunnlagListe = emptyList(),
+    opptjeningListe = emptyList()
+)
+
+private val arrangeOutput: SimulatorOutputConverter =
+    mockk {
+        every {
+            pensjon(
+                source = any(),
+                today = any(),
+                inntektVedTidsbegrensetOffentligAfpUttak = any(),
+                gradertUttakDato = any(),
+                heltUttakDato = any(),
+                normertPensjoneringsdato = any()
+            )
+        } returns emptyPensjon
+    }
 
 object AlternativtUttakServiceTestObjects {
 

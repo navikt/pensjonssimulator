@@ -25,6 +25,7 @@ class AlternativSimuleringServiceTest : ShouldSpec({
                     simulator = arrangeAvslaattUtkanttilfelle(),
                     normalderService = Arrange.normalder(foedselsdato), // 67 år 0 måneder
                     alternativtUttakService = mockk(),
+                    outputConverter = mockk(),
                     time = { LocalDate.of(2025, 1, 1) }
                 )
 

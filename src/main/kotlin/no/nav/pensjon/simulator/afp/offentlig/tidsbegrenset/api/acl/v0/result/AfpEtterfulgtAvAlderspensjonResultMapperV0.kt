@@ -8,13 +8,15 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 /**
  * Anti-corruption layer (ACL).
  * Maps from the domain model to version 0 of the external API model.
  */
-object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
+@Component
+class AfpEtterfulgtAvAlderspensjonResultMapperV0(private val afpGrad: AfpGrad) {
 
     fun toDto(source: SimulatorOutput, spec: SimuleringSpec): AfpEtterfulgtAvAlderspensjonResultV0 {
         val grunnbeloep = validGrunnbeloep(source)
@@ -25,8 +27,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             folketrygdberegnetAfp = folketrygdberegnetAfp(
                 fom = source.tidsbegrensetOffentligAfp!!.virkLd!!,
                 afp = validAfpBeregning(source),
-                spec,
-                grunnbeloep
+                spec
             ),
             alderspensjonFraFolketrygden = alderspensjonFraFolketrygdenListe(
                 pensjon = validAlderspensjon(source),
@@ -59,8 +60,7 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
     private fun folketrygdberegnetAfp(
         fom: LocalDate,
         afp: Beregning,
-        spec: SimuleringSpec,
-        grunnbeloep: Int
+        spec: SimuleringSpec
     ): FolketrygdberegnetAfpV0 {
         val beregnetTidligereInntekt = afp.tp!!.spt!!.poengrekke!!.tpi
         val sisteLignetInntektAar = spec.registerData?.sisteLignetInntektAar
@@ -70,10 +70,10 @@ object AfpEtterfulgtAvAlderspensjonResultMapperV0 {
             beregnetTidligereInntekt = beregnetTidligereInntekt,
             sisteLignetInntektBrukt = sisteLignetInntektAar != null,
             sisteLignetInntektAar = sisteLignetInntektAar,
-            afpGrad = AfpGrad.beregnAfpGrad(
+            afpGrad = afpGrad.beregnAfpGrad(
+                aar = fom.year,
                 inntektVedAfpUttak = spec.inntektUnderGradertUttakBeloep,
-                tidligereInntekt = beregnetTidligereInntekt,
-                grunnbeloep
+                tidligereInntekt = beregnetTidligereInntekt
             ),
             afpAvkortetTil70Prosent = afp.gpAfpPensjonsregulert?.brukt == true,
             grunnpensjon = grunnpensjon(afp),

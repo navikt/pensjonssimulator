@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
+import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
@@ -39,8 +40,8 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
 
     fun finder(
         discriminator: UttakAlderDiscriminator = discriminator(),
-        spec: no.nav.pensjon.simulator.core.spec.SimuleringSpec = simuleringSpec()
-    ) = UfoereAlternativtUttakFinder(discriminator, spec, normalderService()) { today }
+        spec: SimuleringSpec = simuleringSpec()
+    ) = UfoereAlternativtUttakFinder(discriminator, spec, normalderService(), mockk(relaxed = true)) { today }
 
     // --- Happy path: all simulations succeed ---
 
@@ -175,7 +176,7 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
 
     test("findAlternativtUttak returns SUBOPTIMAL when search finds result with uttaksgrad transition") {
         val disc = discriminator { spec ->
-            val simSpec = spec as no.nav.pensjon.simulator.core.spec.SimuleringSpec
+            val simSpec = spec as SimuleringSpec
             if (simSpec.uttakGrad == UttakGradKode.P_80) throw UtilstrekkeligOpptjeningException("test")
             SimulatorOutput()
         }
@@ -229,7 +230,7 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
 
     test("findAlternativtUttak returns null pensjon when onlyVilkaarsproeving is true") {
         val spec = simuleringSpec().let {
-            no.nav.pensjon.simulator.core.spec.SimuleringSpec(
+            SimuleringSpec(
                 type = it.type,
                 sivilstatus = it.sivilstatus,
                 epsHarPensjon = it.epsHarPensjon,
@@ -280,7 +281,7 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
 
     test("findAlternativtUttak throws InvalidArgumentException when PID is null") {
         val spec = simuleringSpec().let {
-            no.nav.pensjon.simulator.core.spec.SimuleringSpec(
+            SimuleringSpec(
                 type = it.type,
                 sivilstatus = it.sivilstatus,
                 epsHarPensjon = it.epsHarPensjon,

@@ -26,6 +26,7 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 simulator = arrangeAvslaattUtkanttilfelle(),
                 normalderService = Arrange.normalder(foedselsdato),
                 alternativtUttakService = mockk(),
+                outputConverter = mockk(),
                 time = { LocalDate.of(2025, 1, 1) }
             )
 
@@ -50,6 +51,7 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 simulator = arrangeGradertUttakEtterAvslaatt60ProsentUttak(),
                 normalderService = Arrange.normalder(foedselsdato),
                 alternativtUttakService = mockk(),
+                outputConverter = mockk(relaxed = true),
                 time = { LocalDate.of(2025, 1, 1) }
             )
 
@@ -75,6 +77,7 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 simulator = arrangeGradertUttakEtterAvslaattHeltUttak(),
                 normalderService = Arrange.normalder(foedselsdato),
                 alternativtUttakService = mockk(),
+                outputConverter = mockk(relaxed = true),
                 time = { LocalDate.of(2025, 1, 1) }
             )
 
@@ -100,6 +103,7 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
                 simulator = arrangeIngenInnvilgedeUttak(),
                 normalderService = Arrange.normalder(foedselsdato),
                 alternativtUttakService = mockk(),
+                outputConverter = mockk(),
                 time = { LocalDate.of(2025, 1, 1) }
             )
 

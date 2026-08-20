@@ -20,6 +20,7 @@ class SimuleringFacadeTest : ShouldSpec({
                 ufoereAlternativSimulering = mockk(),
                 normalderService = mockk(),
                 ufoereService = mockk(relaxed = true),
+                outputConverter = mockk(),
                 time = mockk(relaxed = true),
             ).simulerAlderspensjon(simuleringSpec, false) shouldBe
                     SimulertPensjonEllerAlternativ(

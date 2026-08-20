@@ -30,7 +30,7 @@ class SimulatorContext(
     cacheManager: CaffeineCacheManager
 ) : RegelClient {
 
-    private val grunnbeloepCache: Cache<LocalDate, SatsResponse> = createCache("grunnbeloep", cacheManager)
+    private val grunnbeloepCache: Cache<String, SatsResponse> = createCache("grunnbeloep", cacheManager)
 
     // PEN: BeregnAlderspensjon2011ForsteUttakConsumerCommand.execute
     override fun beregnAlderspensjon2011FoersteUttak(
@@ -327,8 +327,8 @@ class SimulatorContext(
     }
 
     // PEN: no.nav.consumer.pensjon.pen.regler.grunnlag.support.command.HentGrunnbelopListeConsumerCommand.execute
-    override fun fetchGrunnbeloepListe(dato: LocalDate): SatsResponse =
-        grunnbeloepCache.getIfPresent(dato) ?: fetchFreshGrunnbeloep(dato).also { grunnbeloepCache.put(dato, it) }
+    override fun fetchGrunnbeloepListe(): SatsResponse =
+        grunnbeloepCache.getIfPresent("g") ?: fetchFreshGrunnbeloep().also { grunnbeloepCache.put("g", it) }
 
     override fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse =
         regelService.makeRegelCall(
@@ -337,11 +337,11 @@ class SimulatorContext(
             serviceName = "delingstall"
         )
 
-    private fun fetchFreshGrunnbeloep(dato: LocalDate): SatsResponse =
+    private fun fetchFreshGrunnbeloep(): SatsResponse =
         regelService.makeRegelCall(
             request = HentGrunnbelopListeRequest().apply {
-                fomLd = dato
-                tomLd = dato
+                fomLd = LocalDate.of(2001, 1, 1)
+                tomLd = LocalDate.of(2100, 12, 31)
             },
             responseClass = SatsResponse::class.java,
             serviceName = "hentGrunnbelopListe"

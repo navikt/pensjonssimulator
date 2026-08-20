@@ -24,7 +24,8 @@ class FolketrygdBeholdningService(
     private val time: Time,
     private val personService: GeneralPersonService,
     private val validator: UttaksdatoValidator,
-    private val simuleringstypeDeducer: OffentligSimuleringstypeDeducer
+    private val simuleringstypeDeducer: OffentligSimuleringstypeDeducer,
+    private val outputConverter: SimulatorOutputConverter
 ) {
     fun simulerFolketrygdBeholdning(spec: FolketrygdBeholdningSpec): FolketrygdBeholdning {
         val beholdningSpec = spec.sanitised().validated()
@@ -35,7 +36,7 @@ class FolketrygdBeholdningService(
 
         return FolketrygdBeholdning(
             pensjonBeholdningPeriodeListe =
-                SimulatorOutputConverter.pensjon(result, time.today()).pensjonBeholdningPeriodeListe
+                outputConverter.pensjon(result, time.today()).pensjonBeholdningPeriodeListe
                     .map(::beholdningPeriode)
         )
     }
@@ -95,7 +96,7 @@ class FolketrygdBeholdningService(
             )
 
         private fun sivilstatus(source: FolketrygdBeholdningSpec) =
-            if (source.epsHarPensjon == true || source.epsHarInntektOver2G == true)
+            if (source.epsHarPensjon || source.epsHarInntektOver2G)
                 SivilstatusType.GIFT
             else
                 SivilstatusType.UGIF

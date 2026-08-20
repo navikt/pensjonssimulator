@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service
 class UfoereAlternativtUttakService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     fun findAlternativtUttak(spec: SimuleringSpec): SimulertPensjonEllerAlternativ {
@@ -41,9 +43,9 @@ class UfoereAlternativtUttakService(
         maxUttaksgrad: UttakGradKode
     ): SimulertPensjonEllerAlternativ {
         val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
-        val finder = UfoereAlternativtUttakFinder(simulator, spec, normalderService, time)
+        val finder = UfoereAlternativtUttakFinder(simulator, spec, normalderService, outputConverter, time)
 
-        val andreUttakMinAlder: Alder? =
+        val andreUttakMinAlder: Alder =
             andreUttakAngittAlder.let { if (foersteUttakAngittAlder == it) it.plusMaaneder(1) else it }
 
         // For 'onlyVilkaarsproeving' (tidligst mulig uttak for tjenestepensjonsordninger) gjelder:
@@ -55,7 +57,7 @@ class UfoereAlternativtUttakService(
         val initialResult: SimulertPensjonEllerAlternativ =
             finder.findAlternativtUttak(
                 foersteUttakAngittAlder,
-                andreUttakMinAlder!!,
+                andreUttakMinAlder,
                 andreUttakMaxAlder = if (spec.onlyVilkaarsproeving) andreUttakMinAlder else normalder,
                 maxUttaksgrad,
                 keepUttaksgradConstant = spec.onlyVilkaarsproeving

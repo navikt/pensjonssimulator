@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.convert
 
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
-import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.AfpGrad.beregnAfpGrad
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.AfpGrad
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
@@ -19,14 +19,14 @@ import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 
 /**
  * Converts from simulator output to pensjon in an intermediate format.
  */
-object SimulatorOutputConverter {
-
-    private const val ALDER_REPRESENTING_LOEPENDE_YTELSER = 0
+@Component
+class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
 
     fun pensjon(
         source: SimulatorOutput,
@@ -203,8 +203,9 @@ object SimulatorOutputConverter {
                     tilleggspensjon = beregning.tp?.netto ?: 0,
                     afpTillegg = beregning.afpTillegg?.netto ?: 0,
                     saertillegg = beregning.st?.netto ?: 0,
-                    afpGrad = beregnAfpGrad(
-                        inntektVedAfpUttak ?: 0,
+                    afpGrad = afpGrad.beregnAfpGrad(
+                        aar = it.year,
+                        inntektVedAfpUttak = inntektVedAfpUttak ?: 0,
                         tidligereInntekt = poengrekke?.tpi ?: 0
                     ),
                     afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true
@@ -259,5 +260,9 @@ object SimulatorOutputConverter {
         }
 
         return false
+    }
+
+    private companion object {
+        private const val ALDER_REPRESENTING_LOEPENDE_YTELSER = 0
     }
 }

@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
-import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter.pensjon
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
@@ -33,6 +33,7 @@ class AlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
     private val alternativtUttakService: AlternativtUttakService,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     fun simulerMedNesteLavereUttaksgrad(
@@ -49,7 +50,7 @@ class AlternativSimuleringService(
                     if (spec.onlyVilkaarsproeving)
                         null
                     else
-                        pensjon(
+                        outputConverter.pensjon(
                             source = result,
                             today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
@@ -129,7 +130,7 @@ class AlternativSimuleringService(
                     if (spec.onlyVilkaarsproeving)
                         null
                     else
-                        pensjon(
+                        outputConverter.pensjon(
                             source = simulator.simuler(initialSpec = ubetingetSpec),
                             today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep

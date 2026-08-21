@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service
 class AlternativtUttakService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
+    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     fun findAlternativtUttak(
@@ -46,8 +48,16 @@ class AlternativtUttakService(
         andreUttakAngittAlder: Alder?, // null if not gradert
         maxUttaksgrad: UttakGradKode
     ): SimulertPensjonEllerAlternativ {
+        val finder = AlternativtUttakFinder(
+            discriminator = simulator,
+            simuleringSpec = spec,
+            normalderService,
+            outputConverter,
+            heltUttakInntektTomAlderAar,
+            time
+        )
+
         val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
-        val finder = AlternativtUttakFinder(simulator, spec, normalderService, heltUttakInntektTomAlderAar, time)
         val foersteUttakMinAlder = foersteUttakAngittAlder.plusMaaneder(1)
 
         val andreUttakMinAlder: Alder? =

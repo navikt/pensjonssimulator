@@ -388,13 +388,10 @@ class SimulatorContextTest : ShouldSpec({
                 response
             )
 
-            simulatorContext(regelmotor).fetchGrunnbeloepListe(
-                dato = LocalDate.of(2024, 5, 1)
-            ) shouldBe response
+            simulatorContext(regelmotor).fetchGrunnbeloepListe() shouldBe response
         }
 
         should("bruke cache ved gjentatte kall") {
-            val dato = LocalDate.of(2024, 5, 1)
             val regelmotor = arrangeRegler<SatsResponse, HentGrunnbelopListeRequest>(
                 serviceName = "hentGrunnbelopListe",
                 response = SatsResponse()
@@ -403,10 +400,10 @@ class SimulatorContextTest : ShouldSpec({
             val context = simulatorContext(regelmotor)
 
             // Første kall
-            context.fetchGrunnbeloepListe(dato)
+            context.fetchGrunnbeloepListe()
 
             // Andre kall med samme dato - skal bruke cache
-            context.fetchGrunnbeloepListe(dato)
+            context.fetchGrunnbeloepListe()
 
             // Regelservice skal kun kalles én gang pga. caching
             verify(exactly = 1) {

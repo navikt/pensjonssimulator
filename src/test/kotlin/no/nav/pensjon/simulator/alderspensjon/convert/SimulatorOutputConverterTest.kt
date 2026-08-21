@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.convert
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.PensjonPeriode
@@ -24,7 +25,7 @@ open class SimulatorOutputConverterTest : FunSpec({
      * - trygdetid = max av kapittel 19-trygdetid og kapittel 20-trygdetid
      */
     test("'pensjon' should map SimulatorOutput to SimulertPensjon") {
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     kapittel19Andel = 0.2
@@ -121,7 +122,7 @@ open class SimulatorOutputConverterTest : FunSpec({
     }
 
     test("'pensjon' should set harUttak to 'true' if uttak covers today's date") {
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     pensjonPeriodeListe.add(
@@ -141,7 +142,7 @@ open class SimulatorOutputConverterTest : FunSpec({
     }
 
     test("'pensjon' should set harUttak to 'false' if uttaksgrad zero") {
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     pensjonPeriodeListe.add(
@@ -161,7 +162,7 @@ open class SimulatorOutputConverterTest : FunSpec({
     }
 
     test("'pensjon' should set harNokTrygdetidForGarantipensjon to 'true' if minst 5 år 'kapittel 20'-trygdetid") {
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     pensjonPeriodeListe.add(
@@ -180,7 +181,7 @@ open class SimulatorOutputConverterTest : FunSpec({
         val heltDato = LocalDate.of(2032, 1, 1)
         val normertDato = LocalDate.of(2034, 1, 1)
 
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     kapittel19Andel = 0.3
@@ -313,7 +314,7 @@ open class SimulatorOutputConverterTest : FunSpec({
         val normertDato = LocalDate.of(2034, 1, 1)
         val noMatchDato = LocalDate.of(2099, 1, 1)
 
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
@@ -339,7 +340,7 @@ open class SimulatorOutputConverterTest : FunSpec({
         val heltDato = LocalDate.of(2032, 1, 1)
         val normertDato = LocalDate.of(2034, 1, 1)
 
-        SimulatorOutputConverter.pensjon(
+        SimulatorOutputConverter(mockk()).pensjon(
             source = SimulatorOutput().apply {
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(

@@ -2,6 +2,9 @@ package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.api.acl.v0.result
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.AfpGrad
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
@@ -28,14 +31,14 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         val simulatorOutput = mockSimulatorOutput(fom = nesteMaaned)
 
         val dto: AfpEtterfulgtAvAlderspensjonResultV0 =
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
+            AfpEtterfulgtAvAlderspensjonResultMapperV0(afpGrad = arrangeAfpGrad)
+                .toDto(simulatorOutput, simuleringSpec)
 
         with(dto) {
             simuleringSuksess shouldBe true
             aarsakListeIkkeSuksess shouldBe emptyList()
             folketrygdberegnetAfp shouldBe folketrygdberegnetAfp(
-                tidsbegrensetOffentligAfp = simulatorOutput.tidsbegrensetOffentligAfp!!,
-                inntektUnderGradertUttakBeloep = simuleringSpec.inntektUnderGradertUttakBeloep
+                tidsbegrensetOffentligAfp = simulatorOutput.tidsbegrensetOffentligAfp!!
             )
             alderspensjonFraFolketrygden shouldBe alderspensjonFraFolketrygdenResultatListe(
                 output = simulatorOutput,
@@ -51,7 +54,8 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         val simulatorOutput = mockSimulatorOutput(fom = nesteMaaned, kapittel19Andel = 0.0)
 
         val dto: AfpEtterfulgtAvAlderspensjonResultV0 =
-            AfpEtterfulgtAvAlderspensjonResultMapperV0.toDto(simulatorOutput, simuleringSpec)
+            AfpEtterfulgtAvAlderspensjonResultMapperV0(afpGrad = mockk(relaxed = true))
+                .toDto(simulatorOutput, simuleringSpec)
 
         with(dto) {
             simuleringSuksess shouldBe true
@@ -66,7 +70,7 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
 
     alleAarsaker.forEach {
         "${it.statusKode} mappes til tom dto med fylt aarsak i listen" {
-            val dto = AfpEtterfulgtAvAlderspensjonResultMapperV0.tomResponsMedAarsak(it)
+            val dto = AfpEtterfulgtAvAlderspensjonResultMapperV0(mockk()).tomResponsMedAarsak(it)
             with(dto) {
                 simuleringSuksess shouldBe false
                 aarsakListeIkkeSuksess shouldBe listOf(it)
@@ -76,6 +80,13 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0Test : StringSpec({
         }
     }
 })
+
+private val arrangeAfpGrad: AfpGrad =
+    mockk {
+        every {
+            beregnAfpGrad(aar = any(), inntektVedAfpUttak = any(), tidligereInntekt = any())
+        } returns 95
+    }
 
 private fun simuleringSpec(uttakDato: LocalDate, foedselsdato: LocalDate) =
     SimuleringSpec(
@@ -130,10 +141,7 @@ private fun mockSimulatorOutput(
         registerData = RegisterData(grunnbeloep = 2)
     }
 
-private fun folketrygdberegnetAfp(
-    tidsbegrensetOffentligAfp: Simuleringsresultat,
-    inntektUnderGradertUttakBeloep: Int
-): FolketrygdberegnetAfpV0 {
+private fun folketrygdberegnetAfp(tidsbegrensetOffentligAfp: Simuleringsresultat): FolketrygdberegnetAfpV0 {
     val beregning = tidsbegrensetOffentligAfp.beregning!!
     val grunnpensjon = beregning.gp!!
     val tilleggspensjon = beregning.tp!!
@@ -145,7 +153,7 @@ private fun folketrygdberegnetAfp(
         beregnetTidligereInntekt = poengrekke.tpi,
         sisteLignetInntektBrukt = false,
         sisteLignetInntektAar = null,
-        afpGrad = 100 - (inntektUnderGradertUttakBeloep.toDouble() / poengrekke.tpi * 100).toInt(),
+        afpGrad = 95,
         afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert!!.brukt,
         grunnpensjon = GrunnpensjonV0(
             maanedligUtbetaling = grunnpensjon.netto,

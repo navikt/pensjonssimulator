@@ -35,7 +35,8 @@ class FolketrygdBeholdningServiceTest : FunSpec({
                 type = SimuleringTypeEnum.ALDER,
                 uttakFom = LocalDate.of(2030, 2, 1), // NB: 1. dag i neste måned etter 2030-01-02
                 livsvarigOffentligAfpRettFom = null
-            )
+            ),
+            outputConverter = mockk(relaxed = true)
         ).simulerFolketrygdBeholdning(
             spec = beholdningSpec(uttakFom = LocalDate.of(2030, 1, 2)) // skal bli 2030-02-01
         )
@@ -95,7 +96,8 @@ class FolketrygdBeholdningServiceTest : FunSpec({
                 personService = Arrange.foedselsdato(1965, 6, 7),
                 time = { LocalDate.of(2025, 1, 1) },
                 validator = arrangeBadSpec(), // "feil" i spesifikasjonen
-                simuleringstypeDeducer = mockk()
+                simuleringstypeDeducer = mockk(),
+                outputConverter = mockk()
             ).simulerFolketrygdBeholdning(
                 beholdningSpec(uttakFom = LocalDate.of(2030, 1, 1))
             )
@@ -187,7 +189,8 @@ private fun simulerFolketrygdBeholdning(inntektSpecListe: List<InntektSpec>): Fo
         time = { LocalDate.of(2025, 1, 1) },
         personService = mockk(),
         validator = mockk(),
-        simuleringstypeDeducer = mockk()
+        simuleringstypeDeducer = mockk(),
+        outputConverter = mockk()
     ).simulerFolketrygdBeholdning(
         FolketrygdBeholdningSpec(
             pid = Pid("12906498357"),

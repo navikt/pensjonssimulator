@@ -92,7 +92,7 @@ interface RegelClient {
         beholdning: Pensjonsbeholdning? = null
     ): MutableList<Pensjonsbeholdning>
 
-    fun fetchGrunnbeloepListe(dato: LocalDate): SatsResponse
+    fun fetchGrunnbeloepListe(): SatsResponse
 
     fun hentDelingstall(request: HentDelingstallRequest): HentDelingstallResponse
 }

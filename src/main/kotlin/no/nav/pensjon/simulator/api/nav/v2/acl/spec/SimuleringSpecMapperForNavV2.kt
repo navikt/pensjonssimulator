@@ -48,6 +48,7 @@ class SimuleringSpecMapperForNavV2(
             heltUttakDato = gradertUttak?.let { heltUttak.uttakFom },
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
             inntektEtterHeltUttakAntallAar = heltUttak.inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakTom = heltUttak.inntektTom,
             utlandAntallAar = 0, // only for anonym
             sivilstatus = source.sivilstatus.internalValue,
             epsHarPensjon = levendeEps?.harPensjon == true,

@@ -31,6 +31,7 @@ class SimuleringSpecMapperForNav(
         val pid = Pid(source.pid)
         val foedselsdato = personService.foedselsdato(pid)
         val gradertUttak: GradertUttakSpec? = source.gradertUttak?.let { gradertUttak(it, foedselsdato) }
+        // I SimuleringSpecDto er helt uttak alltid angitt:
         val heltUttak: HeltUttakSpec = heltUttak(source.heltUttak, foedselsdato)
         val utlandPeriodeListe: List<UtlandPeriode> = source.utenlandsperiodeListe.orEmpty().map(::utlandPeriode)
         val eps: EpsSpecDto? = source.eps
@@ -48,6 +49,7 @@ class SimuleringSpecMapperForNav(
             heltUttakDato = gradertUttak?.let { heltUttak.uttakFom },
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
             inntektEtterHeltUttakAntallAar = heltUttak.inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakTom = heltUttak.inntektTom,
             utlandAntallAar = 0, // only for anonym
             sivilstatus = source.sivilstatus.internalValue,
             epsHarPensjon = levendeEps?.harPensjon == true,

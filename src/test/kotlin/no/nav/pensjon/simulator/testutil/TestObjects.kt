@@ -85,6 +85,7 @@ object TestObjects {
         inntektUnderGradertUttakBeloep = 125000,
         inntektEtterHeltUttakBeloep = 67500,
         inntektEtterHeltUttakAntallAar = 5,
+        inntektEtterHeltUttakTom = null,
         foedselAar = 1963,
         utlandAntallAar,
         utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
@@ -119,6 +120,7 @@ object TestObjects {
         inntektUnderGradertUttakBeloep: Int,
         inntektEtterHeltUttakBeloep: Int,
         inntektEtterHeltUttakAntallAar: Int,
+        inntektEtterHeltUttakTom: LocalDate? = null,
         tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpSpec,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
     ) = SimuleringSpec(
@@ -137,6 +139,7 @@ object TestObjects {
         inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
         inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
         inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+        inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
         foedselAar = 0,
         utlandAntallAar = 0,
         utlandPeriodeListe = mutableListOf(),

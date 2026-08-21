@@ -47,6 +47,7 @@ class UfoereIndexBasedSimulering(
                 foersteUttakDato = alternativSpec.gradertUttakFom!!, // never null in this context (uføre, gradert)
                 uttaksgrad = alternativSpec.uttakGrad,
                 heltUttakDato = alternativSpec.heltUttakFom,
+                inntektEtterHeltUttakTom = alternativSpec.inntektEtterHeltUttakTom,
                 inntektEtterHeltUttakAntallAar = alternativSpec.inntektEtterHeltUttakAntallAar
             )
 

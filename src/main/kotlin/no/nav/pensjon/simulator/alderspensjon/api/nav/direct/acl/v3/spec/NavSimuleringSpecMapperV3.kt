@@ -4,10 +4,10 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
-import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.g.GrunnbeloepService
@@ -34,6 +34,7 @@ class NavSimuleringSpecMapperV3(
         val pid = Pid(source.pid)
         val foedselsdato = personService.foedselsdato(pid)
         val gradertUttak: SimuleringGradertUttak? = gradertUttak(source, foedselsdato)
+        // I NavSimuleringSpecV3 er helt uttak alltid angitt:
         val heltUttak: SimuleringHeltUttak = heltUttak(source, foedselsdato)
         val utlandPeriodeListe: List<UtlandPeriode> = source.utenlandsperiodeListe.orEmpty().map(::utlandPeriode)
 
@@ -49,6 +50,7 @@ class NavSimuleringSpecMapperV3(
             heltUttakDato = gradertUttak?.let { heltUttak.uttakFom.toNorwegianLocalDate() },
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
             inntektEtterHeltUttakAntallAar = heltUttak.antallArInntektEtterHeltUttak,
+            inntektEtterHeltUttakTom = heltUttak.inntektTom.toNorwegianLocalDate(),
             utlandAntallAar = 0, // only for anonym
             sivilstatus = NavSivilstandSpecV3.fromExternalValue(source.sivilstand.name).internalValue,
             epsHarPensjon = source.epsHarPensjon == true,

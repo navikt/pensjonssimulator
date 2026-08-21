@@ -3,9 +3,10 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -21,6 +22,9 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
     ): SimuleringSpec {
         val pid = source.fnr?.let(::Pid)
+        val foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate()
+        val heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate()
+        val inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0
 
         return SimuleringSpec(
             type = source.simuleringType?.let { NavSimuleringTypeSpecV2.fromExternalValue(it.name).internalValue }
@@ -28,8 +32,8 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
             sivilstatus = source.sivilstatus?.let { NavSivilstandSpecV2.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
-            foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
-            heltUttakDato = source.heltUttakDato?.toNorwegianLocalDate(),
+            foersteUttakDato = foersteUttakDato,
+            heltUttakDato = heltUttakDato,
             pid = pid,
             foedselDato = pid?.let(personService::foedselsdato),
             avdoed = avdoed(source),
@@ -39,7 +43,12 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
             forventetInntektBeloep = source.forventetInntekt ?: 0,
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0,
-            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0,
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakTom = heltUttakInntektTom(
+                foersteUttakDato,
+                heltUttakDato,
+                inntektEtterHeltUttakAntallAar
+            ),
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.orEmpty().map(::utlandPeriode).toMutableList(),

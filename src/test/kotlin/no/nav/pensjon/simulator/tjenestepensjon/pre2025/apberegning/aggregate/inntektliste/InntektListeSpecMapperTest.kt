@@ -12,7 +12,7 @@ import java.time.LocalDate
 class InntektListeSpecMapperTest : StringSpec({
 
     "createSpec skal mappe alle felter i InntektListeSpec" {
-    val foedselsdato = LocalDate.of(1960, 1, 1)
+        val foedselsdato = LocalDate.of(1960, 1, 1)
         val simSpec = simuleringSpecInntekter(
             inntektUnderGradertUttakBeloep = 1,
             inntektEtterHeltUttakBeloep = 2,
@@ -27,6 +27,7 @@ class InntektListeSpecMapperTest : StringSpec({
         inntektSpec.inntektUnderGradertUttakBeloep shouldBe simSpec.inntektUnderGradertUttakBeloep
         inntektSpec.inntektEtterHeltUttakBeloep shouldBe simSpec.inntektEtterHeltUttakBeloep
         inntektSpec.inntektEtterHeltUttakAntallAar shouldBe simSpec.inntektEtterHeltUttakAntallAar
+        inntektSpec.inntektEtterHeltUttakTom shouldBe simSpec.inntektEtterHeltUttakTom
         inntektSpec.foersteUttakDato shouldBe simSpec.foersteUttakDato
         inntektSpec.heltUttakDato shouldBe simSpec.heltUttakDato
     }
@@ -41,14 +42,13 @@ class InntektListeSpecMapperTest : StringSpec({
 
     "kun AFP_ETTERF_ALDER skal føre til simuleringTypeErAfpEtterfAlder=true" {
         val foedselsdato = LocalDate.of(1960, 1, 1)
-        for (simuleringType: SimuleringTypeEnum in SimuleringTypeEnum.entries){
+        for (simuleringType: SimuleringTypeEnum in SimuleringTypeEnum.entries) {
             if (simuleringType == SimuleringTypeEnum.AFP_ETTERF_ALDER) continue
             val simSpec = simuleringSpecInntekter(type = simuleringType)
             val (_, _, _, simuleringTypeErAfpEtterfAlder) = InntektListeSpecMapper.createSpec(simSpec, foedselsdato)
             simuleringTypeErAfpEtterfAlder shouldBe false
         }
     }
-
 })
 
 fun simuleringSpecInntekter(
@@ -75,6 +75,7 @@ fun simuleringSpecInntekter(
     inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
     inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
     inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+    inntektEtterHeltUttakTom = null,
     foedselAar = 1960,
     utlandAntallAar = 0,
     utlandPeriodeListe = mutableListOf(),

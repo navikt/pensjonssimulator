@@ -57,6 +57,7 @@ class AlderspensjonSpecMapperV3Test : ShouldSpec({
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = null,
+            inntektEtterHeltUttakTom = null,
             foedselAar = 0,
             utlandAntallAar = 1,
             utlandPeriodeListe = mutableListOf(),

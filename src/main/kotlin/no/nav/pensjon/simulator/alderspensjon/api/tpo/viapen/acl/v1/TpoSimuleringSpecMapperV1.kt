@@ -2,11 +2,13 @@ package no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.acl.v1
 
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class TpoSimuleringSpecMapperV1(val personService: GeneralPersonService) {
@@ -30,6 +32,7 @@ class TpoSimuleringSpecMapperV1(val personService: GeneralPersonService) {
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0, // V1 only
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0, // V1 only
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak, // V1 only
+            inntektEtterHeltUttakTom = inntektTom(source),
             foedselAar = 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = mutableListOf(),
@@ -47,5 +50,15 @@ class TpoSimuleringSpecMapperV1(val personService: GeneralPersonService) {
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
+    }
+
+    private companion object {
+
+        private fun inntektTom(spec: TpoSimuleringSpecV1): LocalDate? =
+            heltUttakInntektTom(
+                foersteUttakDato = spec.foersteUttakDato,
+                heltUttakDato = spec.heltUttakDato,
+                inntektEtterHeltUttakAntallAar = spec.antallArInntektEtterHeltUttak
+            )
     }
 }

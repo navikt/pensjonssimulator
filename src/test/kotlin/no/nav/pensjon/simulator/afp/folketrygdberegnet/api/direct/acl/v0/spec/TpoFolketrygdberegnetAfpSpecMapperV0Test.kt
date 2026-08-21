@@ -45,23 +45,26 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : ShouldSpec({
 
         val result = mapper().fromSimuleringSpecV0(source)
 
-        result.type shouldBe SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
-        result.sivilstatus shouldBe SivilstatusType.GIFT
-        result.epsHarPensjon shouldBe true
-        result.foersteUttakDato shouldBe LocalDate.of(2029, 1, 1)
-        result.heltUttakDato shouldBe null
-        result.pid shouldBe Pid(pidValue)
-        result.foedselDato shouldBe foedselsdato
-        result.avdoed shouldBe null
-        result.uttakGrad shouldBe UttakGradKode.P_100
-        result.forventetInntektBeloep shouldBe 500000
-        result.inntektUnderGradertUttakBeloep shouldBe 250000
-        result.inntektEtterHeltUttakBeloep shouldBe 100000
-        result.inntektEtterHeltUttakAntallAar shouldBe 3
-        result.utlandAntallAar shouldBe 5
-        result.epsHarInntektOver2G shouldBe true
-        result.erAnonym shouldBe false
-        result.tidsbegrensetOffentligAfp shouldBe null
+        with(result) {
+            type shouldBe SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
+            sivilstatus shouldBe SivilstatusType.GIFT
+            epsHarPensjon shouldBe true
+            foersteUttakDato shouldBe LocalDate.of(2029, 1, 1)
+            heltUttakDato shouldBe null
+            pid shouldBe Pid(pidValue)
+            foedselDato shouldBe foedselsdato
+            avdoed shouldBe null
+            uttakGrad shouldBe UttakGradKode.P_100
+            forventetInntektBeloep shouldBe 500000
+            inntektUnderGradertUttakBeloep shouldBe 250000
+            inntektEtterHeltUttakBeloep shouldBe 100000
+            inntektEtterHeltUttakAntallAar shouldBe 3
+            inntektEtterHeltUttakTom shouldBe LocalDate.of(2031, 12, 31)
+            utlandAntallAar shouldBe 5
+            epsHarInntektOver2G shouldBe true
+            erAnonym shouldBe false
+            tidsbegrensetOffentligAfp shouldBe null
+        }
     }
 
     // --- Default values when source fields are null ---
@@ -98,6 +101,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : ShouldSpec({
         result.inntektUnderGradertUttakBeloep shouldBe 0
         result.inntektEtterHeltUttakBeloep shouldBe 0
         result.inntektEtterHeltUttakAntallAar shouldBe 0
+        result.inntektEtterHeltUttakTom shouldBe null
         result.utlandAntallAar shouldBe 0
     }
 

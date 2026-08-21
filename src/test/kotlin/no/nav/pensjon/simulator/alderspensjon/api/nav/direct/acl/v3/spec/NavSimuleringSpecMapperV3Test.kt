@@ -18,7 +18,7 @@ import java.time.LocalDate
 import java.util.*
 
 class NavSimuleringSpecMapperV3Test : ShouldSpec({
-    val foedselsdato = LocalDate.now().minusYears(62).minusMonths(1)
+    val foedselsdato = LocalDate.of(1964, 7, 20)
 
     should("fetch fødselsdato and map values") {
         val fremtidigInntektListeFraAar = foedselsdato.plusYears(58).year
@@ -45,6 +45,7 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
                     uttakFomAlder = NavSimuleringAlderSpecV3(aar = 66, maaneder = 7),
                     aarligInntekt = 5000,
                     inntektTomAlder = NavSimuleringAlderSpecV3(aar = 74, maaneder = 5)
+                    // inntektTom = 1964-07-20 + 74:5 = 2038-12-20
                 ),
                 aarUtenlandsEtter16Aar = 8, // ignoreres; i denne kontekst brukes utenlandsperiodeListe
                 epsHarPensjon = true,
@@ -80,6 +81,7 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
             inntektUnderGradertUttakBeloep = 4000,
             inntektEtterHeltUttakBeloep = 5000,
             inntektEtterHeltUttakAntallAar = 9,
+            inntektEtterHeltUttakTom = LocalDate.of(2038, 12, 20),
             foedselAar = 0, // brukes ikke i denne kontekst
             utlandAntallAar = 0, // siden utlandPeriodeListe brukes isteden
             utlandPeriodeListe = mutableListOf(
@@ -124,6 +126,7 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
                     uttakFomAlder = NavSimuleringAlderSpecV3(aar = 66, maaneder = 7),
                     aarligInntekt = 5000,
                     inntektTomAlder = NavSimuleringAlderSpecV3(aar = 73, maaneder = 0)
+                    // inntektTom = 1964-07-20 + 73:0 = 2037-07-20
                 ),
                 aarUtenlandsEtter16Aar = 0,
                 epsHarPensjon = false,
@@ -147,6 +150,7 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 5000,
             inntektEtterHeltUttakAntallAar = 8,
+            inntektEtterHeltUttakTom = LocalDate.of(2037, 7, 20),
             foedselAar = 0,
             utlandAntallAar = 0,
             utlandPeriodeListe = mutableListOf(),

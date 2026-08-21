@@ -48,6 +48,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             inntektUnderGradertUttakBeloep shouldBe 3
             inntektEtterHeltUttakBeloep shouldBe 4
             inntektEtterHeltUttakAntallAar shouldBe 5
+            inntektEtterHeltUttakTom shouldBe LocalDate.of(2032, 1, 31)
             foedselAar shouldBe 1960
             utlandAntallAar shouldBe 6
             utlandPeriodeListe shouldHaveSize 2
@@ -116,6 +117,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             inntektUnderGradertUttakBeloep shouldBe 0
             inntektEtterHeltUttakBeloep shouldBe 0
             inntektEtterHeltUttakAntallAar shouldBe 0
+            inntektEtterHeltUttakTom shouldBe LocalDate.of(2027, 1, 31)
             foedselAar shouldBe 0
             utlandAntallAar shouldBe 0
             utlandPeriodeListe shouldHaveSize 0

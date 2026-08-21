@@ -54,6 +54,7 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 250000,
                 inntektEtterHeltUttakBeloep = 125000,
                 inntektEtterHeltUttakAntallAar = 3,
+                inntektEtterHeltUttakTom = LocalDate.of(2031, 1, 15),
                 tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.NAVO,
                     inntektMaanedenFoerAfpUttakBeloep = 199000,
@@ -99,6 +100,7 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 255000,
                 inntektEtterHeltUttakBeloep = 129000,
                 inntektEtterHeltUttakAntallAar = 4,
+                inntektEtterHeltUttakTom = LocalDate.of(2031, 4, 15),
                 tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPKOM, // 'kommunal AFP' er default AFP-ordningstype
                     inntektMaanedenFoerAfpUttakBeloep = 198000,

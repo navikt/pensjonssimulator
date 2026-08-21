@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
@@ -29,7 +30,11 @@ data class SimuleringSpec(
     val forventetInntektBeloep: Int,
     val inntektUnderGradertUttakBeloep: Int, // NB: For AFP_ETTERF_ALDER this is inntekt during AFP-uttak
     val inntektEtterHeltUttakBeloep: Int,
+
+    @Deprecated("Bruk perioden f.o.m. heltUttakDato t.o.m. inntektEtterHeltUttakTom")
     val inntektEtterHeltUttakAntallAar: Int?,
+
+    val inntektEtterHeltUttakTom: LocalDate?,
     val foedselAar: Int,
     val utlandAntallAar: Int, // PEN: SimuleringEtter2011.utenlandsopphold
     val utlandPeriodeListe: MutableList<UtlandPeriode>,
@@ -117,24 +122,21 @@ data class SimuleringSpec(
             // Gradert uttak fulgt av helt uttak: heltUttakDato brukes for 100%-uttaket
                 heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
 
-        val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
+        val uttakFom = PensjonAlderDato(foedselDato!!, uttakDato)
 
         return HeltUttakSimuleringSpec(
-            uttakFom = PensjonAlderDato(foedselDato!!, uttakDato),
+            uttakFom = uttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(foedselDato, uttakDato.plusYears(inntektAntallAar)),
+            inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato, it) } ?: uttakFom
         )
     }
 
-    fun heltUttak(heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
-        val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
-
-        return HeltUttakSimuleringSpec(
+    fun heltUttak(heltUttakFom: PensjonAlderDato) =
+        HeltUttakSimuleringSpec(
             uttakFom = heltUttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(foedselDato!!, heltUttakFom.dato.plusYears(inntektAntallAar))
+            inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato!!, it) } ?: heltUttakFom
         )
-    }
 
     fun withAvdoed(avdoed: Avdoed) =
         copy(
@@ -146,20 +148,42 @@ data class SimuleringSpec(
         foersteUttakDato: LocalDate?,
         uttaksgrad: UttakGradKode,
         heltUttakDato: LocalDate?,
+        inntektEtterHeltUttakTom: LocalDate?,
         inntektEtterHeltUttakAntallAar: Int?
     ) =
         copy(
             foersteUttakDato = foersteUttakDato,
             uttakGrad = uttaksgrad,
             heltUttakDato = heltUttakDato,
+            inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
             inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
         )
 
     fun withFoersteUttakDato(dato: LocalDate?) =
-        withUttak(foersteUttakDato = dato, uttakGrad, heltUttakDato, inntektEtterHeltUttakAntallAar)
+        withUttak(
+            foersteUttakDato = dato,
+            uttakGrad,
+            heltUttakDato,
+            inntektEtterHeltUttakTom = heltUttakInntektTom(
+                foersteUttakDato = dato,
+                heltUttakDato,
+                inntektEtterHeltUttakAntallAar
+            ),
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+        )
 
     fun withHeltUttakDato(dato: LocalDate?) =
-        withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
+        withUttak(
+            foersteUttakDato,
+            uttakGrad,
+            heltUttakDato = dato,
+            inntektEtterHeltUttakTom = heltUttakInntektTom(
+                foersteUttakDato = dato,
+                heltUttakDato,
+                inntektEtterHeltUttakAntallAar
+            ),
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+        )
 
     fun gjelderLivsvarigAfp() =
         gjelderPrivatAfp || gjelderLivsvarigOffentligAfp()

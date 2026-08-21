@@ -33,10 +33,11 @@ class UttakSpecMapperV1(val personService: GeneralPersonService) {
             simulerForTp = false, // since not set in SimulerAlderspensjonRequestV3Converter in PEN
             uttakGrad = UttakGradKode.entries.firstOrNull { it.value.toInt() == source.uttaksgrad }
                 ?: UttakGradKode.P_100,
-            forventetInntektBeloep = 0, // fremtidigInntektListe is used instead
-            inntektUnderGradertUttakBeloep = 0, // fremtidigInntektListe is used instead
-            inntektEtterHeltUttakBeloep = 0, // fremtidigInntektListe is used instead
-            inntektEtterHeltUttakAntallAar = null, // fremtidigInntektListe is used instead
+            forventetInntektBeloep = 0, // fremtidigInntektListe brukes isteden
+            inntektUnderGradertUttakBeloep = 0, // ditto
+            inntektEtterHeltUttakBeloep = 0, // ditto
+            inntektEtterHeltUttakAntallAar = null, // ditto
+            inntektEtterHeltUttakTom = null, // ditto
             foedselAar = foedselsdato.year,
             utlandAntallAar = source.arIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(), // not taken into account

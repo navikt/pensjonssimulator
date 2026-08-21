@@ -9,7 +9,11 @@ data class InntektListeSpec(
     val simuleringTypeErAfpEtterfAlder: Boolean,
     val inntektUnderGradertUttakBeloep: Int,
     val inntektEtterHeltUttakBeloep: Int,
+
+    @Deprecated("Bruk inntektEtterHeltUttakTom")
     val inntektEtterHeltUttakAntallAar: Int?,
+
+    val inntektEtterHeltUttakTom: LocalDate?,
     val foersteUttakDato: LocalDate,
-    val heltUttakDato: LocalDate?,
+    val heltUttakDato: LocalDate?
 )

@@ -1,7 +1,9 @@
 package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.spec
 
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
+import java.time.LocalDate
 
 /**
  * Maps between data transfer objects (DTOs) and domain objects related to 'anonym simulering'.
@@ -22,6 +24,7 @@ object AnonymSimuleringSpecMapperV1 {
             heltUttakDato = source.heltUttakDato,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0,
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0,
+            inntektEtterHeltUttakTom = inntektTom(source),
             utlandAntallAar = source.utenlandsopphold ?: 0,
             sivilstatus = AnonymSivilstandSpecV1.fromExternalValue(source.sivilstatus).internalValue,
             epsHarPensjon = source.epsPensjon == true,
@@ -43,5 +46,12 @@ object AnonymSimuleringSpecMapperV1 {
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
+        )
+
+    private fun inntektTom(spec: AnonymSimuleringSpecV1): LocalDate? =
+        heltUttakInntektTom(
+            foersteUttakDato = spec.forsteUttakDato,
+            heltUttakDato = spec.heltUttakDato,
+            inntektEtterHeltUttakAntallAar = spec.antallArInntektEtterHeltUttak
         )
 }

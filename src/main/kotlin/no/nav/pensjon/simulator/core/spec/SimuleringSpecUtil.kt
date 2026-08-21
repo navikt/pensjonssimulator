@@ -111,7 +111,8 @@ object SimuleringSpecUtil {
             forventetInntektBeloep = source.forventetInntektBeloep,
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttakBeloep,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttakBeloep,
-            inntektEtterHeltUttakAntallAar = source.inntektEtterHeltUttakAntallAar, // assuming this is independent of heltUttakFom
+            inntektEtterHeltUttakAntallAar = source.inntektEtterHeltUttakAntallAar, // antatt uavhengig av heltUttakFom
+            inntektEtterHeltUttakTom = source.inntektEtterHeltUttakTom, // ditto
             foedselAar = source.foedselAar,
             utlandAntallAar = source.utlandAntallAar,
             utlandPeriodeListe = source.utlandPeriodeListe,
@@ -149,6 +150,7 @@ object SimuleringSpecUtil {
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttakBeloep,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttakBeloep,
             inntektEtterHeltUttakAntallAar = source.inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakTom = source.inntektEtterHeltUttakTom,
             foedselAar = source.foedselAar,
             utlandAntallAar = source.utlandAntallAar,
             utlandPeriodeListe = source.utlandPeriodeListe,

@@ -4,8 +4,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
-import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -46,6 +46,7 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak,
 
             inntektEtterHeltUttakAntallAar = null, //TODO mangler sluttdato
+            inntektEtterHeltUttakTom = null,
             forventetInntektBeloep = source.fremtidigAarligInntektTilAfpUttak ?: sisteLignetInntekt!!.aarligBeloep,
             utlandAntallAar = source.aarIUtlandetEtter16,
             simulerForTp = false, // simulerer her ikke for tjenestepensjon

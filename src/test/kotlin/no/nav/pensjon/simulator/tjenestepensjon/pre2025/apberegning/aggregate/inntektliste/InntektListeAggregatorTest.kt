@@ -19,6 +19,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 2,
             inntektEtterHeltUttakBeloep = 3,
             inntektEtterHeltUttakAntallAar = 4,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime //blir overskrevet til ALDER_AAR_VED_OVERGANG_FRA_AFP_TIL_AP år i aggregatormetoden
         )
@@ -63,6 +64,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 2,
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = 0,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime //blir overskrevet til ALDER_AAR_VED_OVERGANG_FRA_AFP_TIL_AP år i aggregatormetoden
         )
@@ -99,6 +101,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = 0,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime //blir overskrevet til ALDER_AAR_VED_OVERGANG_FRA_AFP_TIL_AP år i aggregatormetoden
         )
@@ -128,6 +131,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = 0,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime //blir overskrevet til ALDER_AAR_VED_OVERGANG_FRA_AFP_TIL_AP år i aggregatormetoden
         )
@@ -153,6 +157,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 2,
             inntektEtterHeltUttakBeloep = 3,
             inntektEtterHeltUttakAntallAar = 20,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime //blir overskrevet til ALDER_AAR_VED_OVERGANG_FRA_AFP_TIL_AP år i aggregatormetoden
         )
@@ -196,6 +201,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 2,
             inntektEtterHeltUttakBeloep = 3,
             inntektEtterHeltUttakAntallAar = 10,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime.plusMonths(1).withDayOfMonth(1)
         )
@@ -221,6 +227,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 2,
             inntektEtterHeltUttakBeloep = 3,
             inntektEtterHeltUttakAntallAar = 10,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime.plusMonths(1).withDayOfMonth(1)
         )
@@ -246,6 +253,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 1,
             inntektEtterHeltUttakBeloep = 1,
             inntektEtterHeltUttakAntallAar = 3,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = actualTime.plusMonths(1).withDayOfMonth(1)
         )
@@ -278,6 +286,7 @@ class InntektListeAggregatorTest : StringSpec({
             inntektUnderGradertUttakBeloep = 1,
             inntektEtterHeltUttakBeloep = 0,
             inntektEtterHeltUttakAntallAar = null,
+            inntektEtterHeltUttakTom = null,
             foersteUttakDato = actualTime.minusYears(1),
             heltUttakDato = null
         )
@@ -298,7 +307,6 @@ class InntektListeAggregatorTest : StringSpec({
             beloep shouldBe 0.0
         }
     }
-
 }) {
     companion object {
         const val ALDER_AAR_VED_OVERGANG_FRA_AFP_TIL_AP: Long = 67

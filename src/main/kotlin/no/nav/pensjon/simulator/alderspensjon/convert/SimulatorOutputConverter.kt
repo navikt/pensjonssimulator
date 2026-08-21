@@ -205,7 +205,7 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
                     saertillegg = beregning.st?.netto ?: 0,
                     afpGrad = afpGrad.beregnAfpGrad(
                         aar = it.year,
-                        inntektVedAfpUttak ?: 0,
+                        inntektVedAfpUttak = inntektVedAfpUttak ?: 0,
                         tidligereInntekt = poengrekke?.tpi ?: 0
                     ),
                     afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true

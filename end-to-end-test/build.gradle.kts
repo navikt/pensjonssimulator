@@ -37,8 +37,7 @@ tasks.withType<Test>().configureEach {
 }
 
 dependencies {
-    implementation("ch.qos.logback:logback-classic:1.5.32")
-    implementation("net.logstash.logback:logstash-logback-encoder:9.0")
+    implementation("ch.qos.logback:logback-classic:1.6.3")
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     implementation("io.ktor:ktor-client-cio")

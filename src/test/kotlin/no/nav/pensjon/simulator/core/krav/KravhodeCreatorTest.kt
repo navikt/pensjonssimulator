@@ -774,7 +774,8 @@ class KravhodeCreatorTest : ShouldSpec({
                 uttakGrad = UttakGradKode.P_100,
                 forventetInntektBeloep = 0,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 3
+                inntektEtterHeltUttakAntallAar = 3,
+                inntektEtterHeltUttakTom = LocalDate.of(2028, 12, 31)
             )
 
             val kravhode = creator.opprettKravhode(
@@ -819,11 +820,16 @@ class KravhodeCreatorTest : ShouldSpec({
                 uttakGrad = UttakGradKode.P_100,
                 forventetInntektBeloep = 0,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 0
+                inntektEtterHeltUttakAntallAar = 0,
+                inntektEtterHeltUttakTom = null
             )
 
             val kravhode = creator.opprettKravhode(
-                kravhodeSpec = KravhodeSpec(spec, null, 123000),
+                kravhodeSpec = KravhodeSpec(
+                    simulatorInput = spec,
+                    forrigeAlderspensjonBeregningResult = null,
+                    grunnbeloep = 123000
+                ),
                 person = penPerson(),
                 virkningDatoGrunnlagListe = emptyList()
             )
@@ -1090,7 +1096,8 @@ class KravhodeCreatorTest : ShouldSpec({
                 foersteUttakDato = LocalDate.of(2026, 6, 1),
                 heltUttakDato = null,
                 inntektEtterHeltUttakBeloep = 150000,
-                inntektEtterHeltUttakAntallAar = 3
+                inntektEtterHeltUttakAntallAar = 3,
+                inntektEtterHeltUttakTom = LocalDate.of(2029, 5, 31)
             )
 
             val kravhode = creator.opprettKravhode(
@@ -1914,6 +1921,7 @@ class KravhodeCreatorTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 300000,
                 inntektEtterHeltUttakBeloep = 100000,
                 inntektEtterHeltUttakAntallAar = 2,
+                inntektEtterHeltUttakTom = null,
                 inntektOver1GAntallAar = 0
             )
 

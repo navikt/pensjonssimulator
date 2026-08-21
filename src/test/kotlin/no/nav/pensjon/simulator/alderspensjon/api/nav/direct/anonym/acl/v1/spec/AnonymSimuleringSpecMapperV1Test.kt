@@ -40,6 +40,7 @@ class AnonymSimuleringSpecMapperV1Test : FunSpec({
             inntektUnderGradertUttakBeloep = 6,
             inntektEtterHeltUttakBeloep = 7,
             inntektEtterHeltUttakAntallAar = 8,
+            inntektEtterHeltUttakTom = LocalDate.of(2032, 5, 5),
             utlandAntallAar = 9,
             sivilstatus = SivilstatusType.GIFT,
             epsHarPensjon = false,

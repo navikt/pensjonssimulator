@@ -167,6 +167,7 @@ private fun simuleringSpec() =
         inntektUnderGradertUttakBeloep = 0, // inntekt instead given by fremtidigInntektListe
         inntektEtterHeltUttakBeloep = 0, // inntekt instead given by fremtidigInntektListe
         inntektEtterHeltUttakAntallAar = 0, // inntekt instead given by fremtidigInntektListe
+        inntektEtterHeltUttakTom = null,
         foedselDato = LocalDate.of(1965, 6, 7),
         avdoed = null,
         isTpOrigSimulering = true,

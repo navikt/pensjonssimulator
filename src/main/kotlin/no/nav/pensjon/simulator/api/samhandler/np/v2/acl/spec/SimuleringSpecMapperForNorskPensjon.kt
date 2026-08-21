@@ -49,6 +49,7 @@ class SimuleringSpecMapperForNorskPensjon(
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
             inntektEtterHeltUttakBeloep = heltUttak?.aarligInntekt ?: foersteUttak.aarligInntekt ?: 0,
             inntektEtterHeltUttakAntallAar = source.antallInntektsaarEtterHeltUttak,
+            inntektEtterHeltUttakTom = (heltUttak?.fomDato ?: foersteUttakFom).plusYears((source.antallInntektsaarEtterHeltUttak ?: 0).toLong()).minusDays(1),
             foedselAar = 0,
             utlandAntallAar = source.aarIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(),

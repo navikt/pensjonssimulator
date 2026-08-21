@@ -28,7 +28,8 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
                 this.simuleringType shouldBe simSpec.type
                 this.foersteUttakDato shouldBe simSpec.foersteUttakDato
                 this.heltUttakDato shouldBe simSpec.heltUttakDato
-                this.inntektEtterHeltUttakAntallAar shouldBe 5L
+                this.inntektEtterHeltUttakAntallAar shouldBe 5
+                this.inntektEtterHeltUttakTom shouldBe LocalDate.of(2031, 12, 31)
             }
     }
 
@@ -59,6 +60,7 @@ fun simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak: Int?) =
     inntektUnderGradertUttakBeloep = 0,
     inntektEtterHeltUttakBeloep = 0,
     inntektEtterHeltUttakAntallAar = antallAarMedInntektEtterHeltUttak,
+    inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31),
     foedselAar = 1960,
     utlandAntallAar = 0,
     utlandPeriodeListe = mutableListOf(),

@@ -25,7 +25,7 @@ class TpoSimuleringSpecMapperV1Test : FunSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(1990, 1, 1),
                 uttakGrad = UttakGradKode.P_100,
-                heltUttakDato = null, //LocalDate.of(1990, 1, 1),
+                heltUttakDato = null,
                 antallArInntektEtterHeltUttak = 5,
                 forventetInntekt = 123000,
                 inntektUnderGradertUttak = null,
@@ -47,6 +47,7 @@ class TpoSimuleringSpecMapperV1Test : FunSpec({
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 80000,
             inntektEtterHeltUttakAntallAar = 5,
+            inntektEtterHeltUttakTom = LocalDate.of(1994, 12, 31),
             foedselAar = 0, // brukes ikke i denne kontekst
             utlandAntallAar = 5,
             utlandPeriodeListe = mutableListOf(),
@@ -99,6 +100,7 @@ class TpoSimuleringSpecMapperV1Test : FunSpec({
             inntektUnderGradertUttakBeloep = 99000,
             inntektEtterHeltUttakBeloep = 80000,
             inntektEtterHeltUttakAntallAar = 5,
+            inntektEtterHeltUttakTom = LocalDate.of(2039, 5, 31),
             foedselAar = 0, // brukes ikke i denne kontekst
             utlandAntallAar = 0,
             utlandPeriodeListe = mutableListOf(),

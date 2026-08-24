@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import java.time.LocalDate
+import java.time.Period
 import java.util.*
 
 // PEN: no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011
@@ -57,6 +58,17 @@ data class SimuleringSpec(
     init {
         if (erAnonym) require(foedselAar > 0) { "For anonym simulering må fødselsår være angitt" }
         else require(pid != null) { "For personlig simulering må person-ID (pid) være angitt" }
+    }
+
+    // Backup av opprinnelige verdier for bruk ved varierende dato for helt uttak:
+    private var angittInntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep
+    private var angittInntektEtterHeltUttakTom = inntektEtterHeltUttakTom
+    private var angittInntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+
+    private fun setAngitt(beloep: Int, tom: LocalDate?, antallAar: Int?) {
+        angittInntektEtterHeltUttakBeloep = beloep
+        angittInntektEtterHeltUttakTom = tom
+        angittInntektEtterHeltUttakAntallAar = antallAar
     }
 
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
@@ -149,14 +161,16 @@ data class SimuleringSpec(
         uttaksgrad: UttakGradKode,
         heltUttakDato: LocalDate?,
         inntektEtterHeltUttakTom: LocalDate?,
-        inntektEtterHeltUttakAntallAar: Int?
+        inntektEtterHeltUttakAntallAar: Int?,
+        inntektEtterHeltUttakBeloep: Int? = null
     ) =
         copy(
             foersteUttakDato = foersteUttakDato,
             uttakGrad = uttaksgrad,
             heltUttakDato = heltUttakDato,
             inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep ?: angittInntektEtterHeltUttakBeloep
         )
 
     fun withFoersteUttakDato(dato: LocalDate?) =
@@ -172,18 +186,24 @@ data class SimuleringSpec(
             inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
         )
 
-    fun withHeltUttakDato(dato: LocalDate?) =
-        withUttak(
+    fun withHeltUttakDato(dato: LocalDate?): SimuleringSpec {
+        val angittBeloep = angittInntektEtterHeltUttakBeloep
+        val angittTom = angittInntektEtterHeltUttakTom
+        val angittAntallAar = angittInntektEtterHeltUttakAntallAar
+        val inntektErUtloept = dato?.isAfter(inntektEtterHeltUttakTom ?: dato) == true
+        val inntektBeloep = if (inntektErUtloept) 0 else angittBeloep
+        val inntektTom = if (inntektErUtloept) dato.plusMonths(1).minusDays(1) else angittTom
+        val inntektAntallAar = if (inntektErUtloept) 0 else inntektTom?.let { Period.between(dato ?: it, it) }?.years ?: 0
+
+        return withUttak(
             foersteUttakDato,
             uttakGrad,
             heltUttakDato = dato,
-            inntektEtterHeltUttakTom = heltUttakInntektTom(
-                foersteUttakDato = dato,
-                heltUttakDato,
-                inntektEtterHeltUttakAntallAar
-            ),
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
-        )
+            inntektEtterHeltUttakTom = inntektTom,
+            inntektEtterHeltUttakAntallAar = inntektAntallAar,
+            inntektEtterHeltUttakBeloep = inntektBeloep
+        ).apply { setAngitt(angittBeloep, angittTom, angittAntallAar) }
+    }
 
     fun gjelderLivsvarigAfp() =
         gjelderPrivatAfp || gjelderLivsvarigOffentligAfp()

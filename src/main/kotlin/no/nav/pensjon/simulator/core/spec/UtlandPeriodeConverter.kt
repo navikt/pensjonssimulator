@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit
  */
 object UtlandPeriodeConverter {
 
-    private const val TRYGDETID_MINSTEALDER_AAR = 16
+    const val TRYGDETID_MINSTEALDER_AAR = 16
     private const val MINSTE_ANTALL_DAGER_PER_AAR = 365
     private const val MAXIMUM_UTENLANDSOPPHOLD_ANTALL_AAR = 60 // presumably a reasonable value
 

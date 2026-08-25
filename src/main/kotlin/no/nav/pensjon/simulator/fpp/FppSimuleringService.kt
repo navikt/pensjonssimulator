@@ -17,10 +17,10 @@ import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
+import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
-import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.FULL_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -35,7 +35,6 @@ class FppSimuleringService(
     private val personService: PersonService,
     private val grunnbeloepService: GrunnbeloepService
 ) {
-
     // PEN: SimpleSimuleringService.simulerPensjonsberegning
     //   -> SimulerPensjonsberegningCommand.execute
     fun simulerPensjonsberegning(coreSpec: Simulering): FppSimuleringResult {
@@ -215,9 +214,7 @@ class FppSimuleringService(
     }
 
     private companion object {
-        private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51
         private const val MAX_ALDER_SOESKEN = 18
-        private const val TRYGDETID_HVIS_FLYKTNING = FULL_TRYGDETID_ANTALL_AAR
 
         /**
          * Setter trygdetid på persongrunnlagene og avgjør om trygdetiden er tilstrekkelig.
@@ -234,7 +231,11 @@ class FppSimuleringService(
                     person.penPersonId = ++dummyPersonId
                 }
 
-                val trygdetidAntallAar = trygdetidAntallAar(persongrunnlag)
+                val trygdetidAntallAar = trygdetidAntallAar(
+                    foedselsdato = persongrunnlag.fodselsdatoLd!!,
+                    utenlandsoppholdListe = persongrunnlag.utenlandsoppholdListe,
+                    flyktning = persongrunnlag.flyktning == true
+                )
                 persongrunnlag.trygdetid = Trygdetid().apply { tt = trygdetidAntallAar }
                 persongrunnlag.trygdetider.add(Trygdetid().apply { tt = trygdetidAntallAar })
 
@@ -247,17 +248,6 @@ class FppSimuleringService(
             }
 
             return tilstrekkelig
-        }
-
-        private fun trygdetidAntallAar(persongrunnlag: Persongrunnlag): Int {
-            if (persongrunnlag.flyktning == true)
-                return TRYGDETID_HVIS_FLYKTNING
-
-            val antallAar: Int = GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID - persongrunnlag.antallArUtland
-
-            return antallAar
-                .coerceAtLeast(0) // NB: Ikke MINIMUM_TRYGDETID_ANTALL_AAR
-                .coerceAtMost(FULL_TRYGDETID_ANTALL_AAR)
         }
 
         private fun updateVilkaarsvedtak(

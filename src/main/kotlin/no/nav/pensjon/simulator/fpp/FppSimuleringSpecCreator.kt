@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
-import no.nav.pensjon.simulator.core.spec.UtlandPeriodeConverter
+import no.nav.pensjon.simulator.core.spec.UtlandPeriodeConverter.limitedAntallAar
 import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -144,16 +144,20 @@ class FppSimuleringSpecCreator(
         val foedselsdato = personopplysninger.fodselsdato
 
         return Persongrunnlag().apply {
-            penPerson = PenPerson().apply {
-                penPersonId = 1L
-                pid = soekerPid
-            }
-
+            penPerson = person(soekerPid)
             fodselsdatoLd = foedselsdato
             dodsdatoLd = null
-            antallArUtland = if (simuleringType == BARN) 0 else foedselsdato?.let {
-                UtlandPeriodeConverter.limitedAntallAar(utenlandsopphold ?: emptyList(), it)
-            } ?: 0
+
+            antallArUtland =
+                if (simuleringType == BARN)
+                    0
+                else
+                    foedselsdato?.let {
+                        limitedAntallAar(periodeListe = utenlandsopphold.orEmpty(), foedselsdato = it)
+                        //TODO bruk samme logikk som i FppTrygdetidBeregner.samletOpphold?
+                    } ?: 0
+
+            utenlandsoppholdListe = utenlandsopphold.orEmpty().map(::utenlandsopphold).toMutableList()
             flyktning = personopplysninger.flyktning
 
             if (simuleringType == AFP) {
@@ -448,6 +452,7 @@ class FppSimuleringSpecCreator(
         time.today().minusYears(UNKNOWN_EPS_DEFAULT_AGE)
 
     companion object {
+        private const val PEN_PERSON_ID = 1L
         private const val UNKNOWN_EPS_DEFAULT_AGE = 59L
 
         private val epsSivilstatuser =
@@ -456,6 +461,12 @@ class FppSimuleringSpecCreator(
                 SivilstatusType.REPA,
                 SivilstatusType.SAMB
             )
+
+        private fun person(pid: Pid) =
+            PenPerson().apply {
+                penPersonId = PEN_PERSON_ID
+                this.pid = pid
+            }
 
         private fun persondetaljForSoeker(rolleFom: LocalDate?, sivilstand: SivilstandEnum?) =
             PersonDetalj().apply {
@@ -479,7 +490,7 @@ class FppSimuleringSpecCreator(
                 } else {
                     val epsData: EpsData? = personopplysninger.epsData
                     grunnlagsrolleEnum = grunnlagsrolleForEps(epsData?.valgtSivilstatus)
-                    penRolleFom = epsData?.eps?.fom                        ?: uttaksdato.minusDays(1)
+                    penRolleFom = epsData?.eps?.fom ?: uttaksdato.minusDays(1)
                     borMedEnum = epsData?.let(::borMedTypeForEps)
                 }
 
@@ -642,6 +653,16 @@ class FppSimuleringSpecCreator(
             tomLd = fomDato.with(lastDayOfMonth())
             belop = inntektMaanedenFoerAfp ?: 0
         }
+
+        private fun utenlandsopphold(periode: UtlandPeriode) =
+            Utenlandsopphold().apply {
+                fomLd = periode.fom
+                tomLd = periode.tom
+                landEnum = periode.land
+                pensjonsordning = null
+                bodd = false // NB: Mangler info - setter 'false' som default
+                arbeidet = periode.arbeidet
+            }
 
         /**
          * Used when simulating BARN and GJENLEVENDE, and the deceased died from yrkesskade.

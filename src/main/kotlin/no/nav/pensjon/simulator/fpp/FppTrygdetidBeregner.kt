@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.fpp
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Utenlandsopphold
 import no.nav.pensjon.simulator.core.spec.UtlandPeriodeConverter.TRYGDETID_MINSTEALDER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
+import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.FULL_TRYGDETID_ANTALL_AAR
 import java.time.LocalDate
 import java.time.Period
@@ -29,24 +30,35 @@ object FppTrygdetidBeregner {
         if (flyktning)
             FULL_TRYGDETID_ANTALL_AAR
         else
-            antallAar(periode = nettoOpptjeningsperiode(foedselsdato, utenlandsoppholdListe))
-                .coerceAtLeast(0) // NB: Ikke MINIMUM_TRYGDETID_ANTALL_AAR
-                .coerceAtMost(FULL_TRYGDETID_ANTALL_AAR)
+            begrens(antallAar(periode = nettoOpptjeningsperiode(foedselsdato, utenlandsoppholdListe)))
 
     private fun nettoOpptjeningsperiode(
         foedselsdato: LocalDate,
         utenlandsoppholdListe: List<Utenlandsopphold>
     ): Period {
         val periodeTilFoedselsdato = Period.between(LocalDate.of(foedselsdato.year, 1, 1), foedselsdato)
-        val nettoPeriode = maxOpptjeningsperiode - periodeTilFoedselsdato - samletOpphold(utenlandsoppholdListe)
+
+        val nettoPeriode =
+            maxOpptjeningsperiode - periodeTilFoedselsdato - samletOpphold(utenlandsoppholdListe, foedselsdato)
+
         return nettoPeriode.normalized()
     }
 
-    private fun samletOpphold(utenlandsoppholdListe: List<Utenlandsopphold>): Period {
+    fun omtrentligTrygdetidAntallAar(antallArUtland: Int, flyktning: Boolean): Int =
+        if (flyktning)
+            FULL_TRYGDETID_ANTALL_AAR
+        else
+            begrens(antallAar = OPPTJENING_MAX_ANTALL_AAR - antallArUtland)
+
+    private fun samletOpphold(utenlandsoppholdListe: List<Utenlandsopphold>, foedselsdato: LocalDate): Period {
         var periode = Period.of(0, 0, 0)
+        val minDato = foedselsdato.plusYears(TRYGDETID_MINSTEALDER_AAR.toLong())
+        val maxDato = sisteDag(aar = foedselsdato.year + OPPTJENING_MAX_ALDER_AAR)
 
         utenlandsoppholdListe.forEach {
-            periode += Period.between(it.fomLd, it.tomLd).plusDays(1) // +1 siden 'til og med'
+            val fom = it.fomLd?.coerceAtLeast(minDato) ?: minDato
+            val tom = it.tomLd?.coerceAtMost(maxDato) ?: maxDato
+            periode += Period.between(fom, tom).plusDays(1) // +1 siden 'til og med'
         }
 
         return periode
@@ -69,7 +81,13 @@ object FppTrygdetidBeregner {
             else -> 0
         }
 
-    private const val OPPTJENING_MAX_ANTALL_AAR: Int = 67 - TRYGDETID_MINSTEALDER_AAR
+    private fun begrens(antallAar: Int): Int =
+        antallAar
+            .coerceAtLeast(0) // NB: Ikke MINIMUM_TRYGDETID_ANTALL_AAR
+            .coerceAtMost(FULL_TRYGDETID_ANTALL_AAR)
+
+    private const val OPPTJENING_MAX_ALDER_AAR: Int = 66
+    private const val OPPTJENING_MAX_ANTALL_AAR: Int = OPPTJENING_MAX_ALDER_AAR - TRYGDETID_MINSTEALDER_AAR + 1
     private const val DAGER_PER_MAANED: Int = 30
     private const val AVRUNDINGSGRENSE: Int = MAANEDER_PER_AAR / 2
 }

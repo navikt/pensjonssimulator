@@ -1,9 +1,9 @@
 package no.nav.pensjon.simulator.fpp
 
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.AfpVilkaarsproever
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpFoerstegangBeregner.Companion.simulerTrygdetid
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
@@ -17,11 +17,9 @@ import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
-import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
-import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
@@ -37,6 +35,8 @@ class FppSimuleringService(
 ) {
     // PEN: SimpleSimuleringService.simulerPensjonsberegning
     //   -> SimulerPensjonsberegningCommand.execute
+    // -------------------------------------------------------
+    // NB: Compare with TidsbegrensetOffentligAfpFoerstegangBeregner.simulerPensjonsberegning
     fun simulerPensjonsberegning(coreSpec: Simulering): FppSimuleringResult {
         validate(coreSpec)
         val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(coreSpec)
@@ -216,40 +216,6 @@ class FppSimuleringService(
     private companion object {
         private const val MAX_ALDER_SOESKEN = 18
 
-        /**
-         * Setter trygdetid på persongrunnlagene og avgjør om trygdetiden er tilstrekkelig.
-         */
-        private fun simulerTrygdetid(spec: Simulering): Boolean {
-            var tilstrekkelig = true // i utgangspunktet
-            var dummyPersonId = 0L
-
-            for (persongrunnlag in spec.persongrunnlagListe) {
-                val person: PenPerson = persongrunnlag.penPerson!!
-
-                // NB: penPersonId is nullable in PEN but not here
-                if (person.penPersonId == 0L) {
-                    person.penPersonId = ++dummyPersonId
-                }
-
-                val trygdetidAntallAar = trygdetidAntallAar(
-                    foedselsdato = persongrunnlag.fodselsdatoLd!!,
-                    utenlandsoppholdListe = persongrunnlag.utenlandsoppholdListe,
-                    flyktning = persongrunnlag.flyktning == true
-                )
-                persongrunnlag.trygdetid = Trygdetid().apply { tt = trygdetidAntallAar }
-                persongrunnlag.trygdetider.add(Trygdetid().apply { tt = trygdetidAntallAar })
-
-                if (trygdetidAntallAar < MINIMUM_TRYGDETID_ANTALL_AAR &&
-                    ALDER == spec.simuleringTypeEnum &&
-                    isSoeker(persongrunnlag)
-                ) {
-                    tilstrekkelig = false
-                }
-            }
-
-            return tilstrekkelig
-        }
-
         private fun updateVilkaarsvedtak(
             spec: Simulering,
             vedtak: VilkarsVedtak,
@@ -308,9 +274,6 @@ class FppSimuleringService(
             rolle == GrunnlagsrolleEnum.EKTEF
                     || rolle == GrunnlagsrolleEnum.PARTNER
                     || rolle == GrunnlagsrolleEnum.SAMBO
-
-        private fun isSoeker(grunnlag: Persongrunnlag): Boolean =
-            grunnlag.personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }
 
         private fun harRettTilEktefelleTillegg(
             simuleringType: SimuleringTypeEnum?,

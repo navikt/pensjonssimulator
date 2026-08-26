@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentl
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.regler.Merknad
-import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -24,6 +23,7 @@ import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -86,9 +86,9 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
     // PEN: SimpleSimuleringService.simulerPensjonsberegning -> SimulerPensjonsberegningCommand.execute
     private fun simulerPensjonsberegning(spec: Simulering, normalder: Alder): Simuleringsresultat {
         validateInput(spec, normalder)
-        var simuleringAvslag: Boolean = simulerTrygdetid(spec)
+        var tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(spec)
 
-        if (simuleringAvslag) {
+        if (tilstrekkeligTrygdetid.not()) {
             return Simuleringsresultat().apply {
                 statusEnum = VedtakResultatEnum.AVSL
                 merknadListe.add(minsteTrygdetidMerknad())
@@ -102,10 +102,10 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
         if (SimuleringTypeEnum.AFP == spec.simuleringTypeEnum) {
             setBeregnForsoergingstilleggAndEktefelleMottarPensjon(spec)
             simuleringsresultat = vilkarsproevAfp(spec)
-            simuleringsresultat.statusEnum?.let { simuleringAvslag = avslag(it) }
+            simuleringsresultat.statusEnum?.let { tilstrekkeligTrygdetid = avslag(it).not() }
         }
 
-        if (simuleringAvslag.not()) {
+        if (tilstrekkeligTrygdetid) {
             simuleringsresultat = simulerAfp(spec)
         }
 
@@ -133,38 +133,6 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
         } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }
-
-    // PEN: SimulerPensjonsberegningCommand.simulateTrygdetid
-    private fun simulerTrygdetid(spec: Simulering): Boolean {
-        var simuleringAvslag = false
-        var dummyPersonId = 0L
-
-        for (persongrunnlag in spec.persongrunnlagListe) {
-            persongrunnlag.penPerson?.let {
-                if (it.penPersonId == 0L) {
-                    it.penPersonId = ++dummyPersonId
-                }
-            }
-
-            val trygdetid = Trygdetid().apply {
-                tt = if (persongrunnlag.flyktning == true) MAX_TRYGDETID else trygdetid(persongrunnlag.antallArUtland)
-            }
-
-            persongrunnlag.trygdetider.add(trygdetid)
-            // Ref. PEN PersonGrunnlagToReglerMapper.mapPersongrunnlagToRegler:
-            persongrunnlag.trygdetid = persongrunnlag.latestTrygdetid()
-
-            // Validate trygdetid to see if the simulation should be rejected:
-            if (SimuleringTypeEnum.ALDER == spec.simuleringTypeEnum) {
-                if (persongrunnlag.personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum && trygdetid.tt < MIN_TRYGDETID }) {
-                    simuleringAvslag = true
-                    break
-                }
-            }
-        }
-
-        return simuleringAvslag
-    }
 
     private fun ufoerehistorikk(persongrunnlag: Persongrunnlag, spec: Simulering): Uforehistorikk? =
         persongrunnlag.penPerson?.pid?.let {
@@ -353,9 +321,32 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
 
     companion object {
         const val AFP_VIRKNING_TOM_ALDER_AAR: Int = 67 // TODO use normalder?
-        private const val MAX_TRYGDETID: Int = 40
-        private const val MIN_TRYGDETID: Int = 3 // TODO verify value 3
-        private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51
+
+        /**
+         * Setter trygdetid på persongrunnlagene og avgjør om trygdetiden er tilstrekkelig.
+         */
+        fun simulerTrygdetid(spec: Simulering): Boolean {
+            var tilstrekkelig = true // i utgangspunktet
+            var dummyPersonId = 0L
+
+            for (persongrunnlag in spec.persongrunnlagListe) {
+                persongrunnlag.penPerson?.let {
+                    // NB: penPersonId is nullable in PEN but not here
+                    if (it.penPersonId == 0L) {
+                        it.penPersonId = ++dummyPersonId
+                    }
+                }
+
+                if (persongrunnlag.settTrygdetid() < MINIMUM_TRYGDETID_ANTALL_AAR &&
+                    SimuleringTypeEnum.ALDER == spec.simuleringTypeEnum &&
+                    persongrunnlag.isSoeker()
+                ) {
+                    tilstrekkelig = false
+                }
+            }
+
+            return tilstrekkelig
+        }
 
         private fun populateKravhodeWithAfpHistorikk(
             kravhode: Kravhode,
@@ -441,17 +432,6 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             }
 
             return opprettEktefelleTillegg
-        }
-
-        // PEN: Extracted from SimulerPensjonsberegningCommand.simulateTrygdetid
-        private fun trygdetid(utlandAntallAar: Int): Int {
-            val trygdetid = GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID - utlandAntallAar
-
-            return when {
-                trygdetid < 0 -> 0
-                trygdetid > MAX_TRYGDETID -> MAX_TRYGDETID
-                else -> trygdetid
-            }
         }
 
         // PEN: SimulerPensjonsberegningCommand.updateVilkarsvedtak

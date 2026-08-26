@@ -16,6 +16,8 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
+import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.omtrentligTrygdetidAntallAar
+import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
 import java.time.LocalDate
 
 // 2026-04-23
@@ -578,13 +580,24 @@ class Persongrunnlag {
             it.bruk == true && it.isGrunnlagsrolleSamboer() && it.is3_2Samboer()
         }
 
+
+    fun isSoeker(): Boolean =
+        personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }
+
     /**
      * Finner nyeste trygdetid, hvis ingen finnes returneres null
      */
     // PEN: Persongrunnlag.findLatestTrygdetid + Trygdetid.compareTo
     fun latestTrygdetid(): Trygdetid? =
-        trygdetider.filter { it.virkFomLd != null }.maxByOrNull { it.virkFomLd!! }
-            ?: trygdetider.firstOrNull()
+        nyesteTrygdetidMedStartdato() ?: trygdetider.firstOrNull()
+
+    fun settTrygdetid(): Int {
+        beregnTrygdetid().let {
+            trygdetider.add(it)
+            trygdetid = nyesteTrygdetidMedStartdato() ?: it
+            return it.tt
+        }
+    }
 
     fun terminerUfoereperioder(tom: LocalDate) {
         if (uforeHistorikk?.uforeperiodeListe == null) return
@@ -599,5 +612,32 @@ class Persongrunnlag {
 
         uforeHistorikk = historikkCopy
     }
+
+    /**
+     * Ved utenlandsopphold krever nøyaktig beregning av trygdetid at følgende er kjent:
+     * - fødselsdato
+     * - utenlandsperioder med start- og sluttdato
+     */
+    private fun kanBeregneTrygdetidPresist(): Boolean =
+        fodselsdatoLd != null && (utenlandsoppholdListe.isNotEmpty() || antallArUtland == 0)
+
+    private fun beregnTrygdetid(): Trygdetid =
+        Trygdetid().apply { tt = beregnTrygdetidAntallAar() }
+
+    private fun beregnTrygdetidAntallAar(): Int =
+        if (kanBeregneTrygdetidPresist())
+            trygdetidAntallAar(
+                foedselsdato = fodselsdatoLd!!,
+                utenlandsoppholdListe,
+                flyktning = flyktning == true
+            )
+        else
+            omtrentligTrygdetidAntallAar(
+                antallArUtland,
+                flyktning = flyktning == true
+            )
+
+    private fun nyesteTrygdetidMedStartdato(): Trygdetid? =
+        trygdetider.filter { it.virkFomLd != null }.maxByOrNull { it.virkFomLd!! }
     // end extra
 }

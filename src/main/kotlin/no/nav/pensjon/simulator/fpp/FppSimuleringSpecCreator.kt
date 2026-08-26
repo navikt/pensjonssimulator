@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.fpp
 
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpPersongrunnlag
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -157,7 +158,9 @@ class FppSimuleringSpecCreator(
                         //TODO bruk samme logikk som i FppTrygdetidBeregner.samletOpphold?
                     } ?: 0
 
-            utenlandsoppholdListe = utenlandsopphold.orEmpty().map(::utenlandsopphold).toMutableList()
+            utenlandsoppholdListe = utenlandsopphold.orEmpty()
+                .map(TidsbegrensetOffentligAfpPersongrunnlag::utenlandsopphold).toMutableList()
+
             flyktning = personopplysninger.flyktning
 
             if (simuleringType == AFP) {
@@ -281,6 +284,7 @@ class FppSimuleringSpecCreator(
             flyktning = avdoed?.avdodFlyktning
             arligPGIMinst1G = avdoed?.avdodInntektMinst1G
             antallArUtland = avdoed?.avdodAntAarIUtlandet ?: 0
+            utenlandsoppholdListe = mutableListOf() // NB: Mangler info
 
             if (relasjonType == RelasjonTypeCode.MORA) {
                 personDetaljListe.add(
@@ -346,6 +350,7 @@ class FppSimuleringSpecCreator(
 
                 fodselsdatoLd = foedselsdato
                 antallArUtland = 0
+                utenlandsoppholdListe = mutableListOf()
 
                 /* This code in PEN will always return soeskenFoedselsdato
                 val rolleFom: LocalDate? =
@@ -386,6 +391,7 @@ class FppSimuleringSpecCreator(
 
             fodselsdatoLd = personopplysninger.fodselsdato
             antallArUtland = 0
+            utenlandsoppholdListe = mutableListOf()
             flyktning = false
             personDetaljListe.add(persondetaljForBarn(personopplysninger, barn, uttaksdato))
             over60ArKanIkkeForsorgesSelv = false
@@ -653,16 +659,6 @@ class FppSimuleringSpecCreator(
             tomLd = fomDato.with(lastDayOfMonth())
             belop = inntektMaanedenFoerAfp ?: 0
         }
-
-        private fun utenlandsopphold(periode: UtlandPeriode) =
-            Utenlandsopphold().apply {
-                fomLd = periode.fom
-                tomLd = periode.tom
-                landEnum = periode.land
-                pensjonsordning = null
-                bodd = false // NB: Mangler info - setter 'false' som default
-                arbeidet = periode.arbeidet
-            }
 
         /**
          * Used when simulating BARN and GJENLEVENDE, and the deceased died from yrkesskade.

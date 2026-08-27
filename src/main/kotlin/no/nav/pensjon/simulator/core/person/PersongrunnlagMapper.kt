@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.person
 
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpPersongrunnlag.Companion.utenlandsopphold
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -12,6 +13,7 @@ import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -29,6 +31,7 @@ class PersongrunnlagMapper(
             person,
             personDetalj = createPersonDetalj(spec),
             utlandAntallAar = spec.limitedUtenlandsoppholdAntallAar,
+            utlandPeriodeListe = utenlandsperiodeListe(spec),
             erFolketrygdMedlem = true,
             erFlyktning = spec.flyktning
         ).also {
@@ -44,6 +47,7 @@ class PersongrunnlagMapper(
             penPerson = PenPerson(penPersonId = EPS_PERSON_ID)
             fodselsdatoLd = foedselsdato
             antallArUtland = 0
+            utenlandsoppholdListe = mutableListOf()
             dodsdatoLd = null
             statsborgerskapEnum = norge
             flyktning = false
@@ -60,6 +64,7 @@ class PersongrunnlagMapper(
             person = avdoedPerson,
             personDetalj = avdoedPersonDetalj(soekerPid),
             utlandAntallAar = avdoed.antallAarUtenlands,
+            utlandPeriodeListe = emptyList(), // Mangler info
             erFolketrygdMedlem = avdoed.erMedlemAvFolketrygden,
             erFlyktning = false
         ).apply {
@@ -76,8 +81,7 @@ class PersongrunnlagMapper(
             penRolleFom = soekerPid?.let(personService::foedselsdato)
             borMedEnum = null
             bruk = true
-        }.also {
-            it.finishInit()
+            finishInit()
         }
 
     // PersongrunnlagMapper.createPersonDetalj
@@ -88,14 +92,14 @@ class PersongrunnlagMapper(
             sivilstandTypeEnum = mapToSivilstand(spec)
             bruk = true
             grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-        }.also {
-            it.finishInit()
+            finishInit()
         }
 
     private fun createPersongrunnlag(
         person: PenPerson,
         personDetalj: PersonDetalj,
         utlandAntallAar: Int,
+        utlandPeriodeListe: List<UtlandPeriode>,
         erFolketrygdMedlem: Boolean?,
         erFlyktning: Boolean?
     ) =
@@ -116,6 +120,7 @@ class PersongrunnlagMapper(
             personDetaljListe.add(personDetalj)
             medlemIFolketrygdenSiste3Ar = erFolketrygdMedlem
             antallArUtland = utlandAntallAar
+            utenlandsoppholdListe = utlandPeriodeListe.map(::utenlandsopphold).toMutableList()
             flyktning = erFlyktning
         }
 
@@ -132,17 +137,27 @@ class PersongrunnlagMapper(
         private val simuleringTyperForGjenlevende =
             EnumSet.of(SimuleringTypeEnum.ALDER_M_GJEN, SimuleringTypeEnum.ENDR_ALDER_M_GJEN)
 
-        private fun mapToSivilstand(spec: SimuleringSpec): SivilstandEnum {
-            if (simuleringTyperForGjenlevende.contains(spec.type)) {
-                return SivilstandEnum.ENKE
-            }
+        /**
+         * For tidsbegrenset AFP i offentlig sektor brukes listen over utenlandsperioder for å få beregnet
+         * trygdetid presist.
+         * For andre simuleringstyper brukes bare antall år i utlandet.
+         */
+        //TODO sjekk om utenlandsperioder også skal brukes for andre simuleringstyper
+        private fun utenlandsperiodeListe(spec: SimuleringSpec): List<UtlandPeriode> =
+            if (spec.gjelderTidsbegrensetOffentligAfp())
+                spec.utlandPeriodeListe
+            else
+                emptyList()
 
-            return when (spec.sivilstatus) {
-                SivilstatusType.GIFT -> SivilstandEnum.GIFT
-                SivilstatusType.REPA -> SivilstandEnum.REPA
-                else -> SivilstandEnum.UGIF
-            }
-        }
+        private fun mapToSivilstand(spec: SimuleringSpec): SivilstandEnum =
+            if (simuleringTyperForGjenlevende.contains(spec.type))
+                SivilstandEnum.ENKE
+            else
+                when (spec.sivilstatus) {
+                    SivilstatusType.GIFT -> SivilstandEnum.GIFT
+                    SivilstatusType.REPA -> SivilstandEnum.REPA
+                    else -> SivilstandEnum.UGIF
+                }
 
         // PersongrunnlagMapper.mapToPersonDetaljEPS
         private fun mapToEpsPersonDetalj(sivilstatus: SivilstatusType, foedselsdato: LocalDate?) =
@@ -152,8 +167,7 @@ class PersongrunnlagMapper(
                 borMedEnum = mapToEpsBorMedType(sivilstatus)
                 bruk = true
                 grunnlagKildeEnum = GrunnlagkildeEnum.BRUKER
-            }.also {
-                it.finishInit()
+                finishInit()
             }
 
         private fun mapToEpsGrunnlagRolle(sivilstatus: SivilstatusType): GrunnlagsrolleEnum? =

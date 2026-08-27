@@ -7,18 +7,17 @@ import java.time.LocalDate
 
 object InntektListeSpecMapper {
 
-    fun createSpec(
-        simuleringSpec: SimuleringSpec,
-        foedselsdato: LocalDate,
-    ): InntektListeSpec = InntektListeSpec(
-        foedselsdato = foedselsdato,
-        inntektFoerFoersteUttak = simuleringSpec.forventetInntektBeloep,
-        gradertUttak = simuleringSpec.uttakGrad != UttakGradKode.P_100,
-        simuleringTypeErAfpEtterfAlder =  simuleringSpec.type == SimuleringTypeEnum.AFP_ETTERF_ALDER,
-        inntektUnderGradertUttakBeloep =  simuleringSpec.inntektUnderGradertUttakBeloep,
-        inntektEtterHeltUttakBeloep =  simuleringSpec.inntektEtterHeltUttakBeloep,
-        inntektEtterHeltUttakAntallAar =  simuleringSpec.inntektEtterHeltUttakAntallAar,
-        foersteUttakDato =  simuleringSpec.foersteUttakDato!!,
-        heltUttakDato =  simuleringSpec.heltUttakDato
-    )
+    fun createSpec(simuleringSpec: SimuleringSpec, foedselsdato: LocalDate) =
+        InntektListeSpec(
+            foedselsdato,
+            inntektFoerFoersteUttak = simuleringSpec.forventetInntektBeloep,
+            gradertUttak = simuleringSpec.uttakGrad != UttakGradKode.P_100,
+            simuleringTypeErAfpEtterfAlder = simuleringSpec.type == SimuleringTypeEnum.AFP_ETTERF_ALDER,
+            inntektUnderGradertUttakBeloep = simuleringSpec.inntektUnderGradertUttakBeloep,
+            inntektEtterHeltUttakBeloep = simuleringSpec.inntektEtterHeltUttakBeloep,
+            inntektEtterHeltUttakAntallAar = simuleringSpec.inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakTom = simuleringSpec.inntektEtterHeltUttakTom,
+            foersteUttakDato = simuleringSpec.foersteUttakDato!!,
+            heltUttakDato = simuleringSpec.heltUttakDato
+        )
 }

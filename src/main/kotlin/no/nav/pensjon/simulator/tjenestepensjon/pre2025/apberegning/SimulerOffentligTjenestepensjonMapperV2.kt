@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -16,6 +17,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimuleringTyp
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.UtenlandsperiodeForSimuleringV2
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonService) {
@@ -41,6 +43,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak,
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak,
+            inntektEtterHeltUttakTom = inntektTom(source),
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map(::utlandPeriode)
@@ -87,9 +90,8 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             tom = source.periodeTom
         )
 
-    fun mapLand(land: String) : LandkodeEnum {
-        return irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
-    }
+    fun mapLand(land: String): LandkodeEnum =
+        irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
 
     private val irregularLandEnums: Map<String, LandkodeEnum>
         get() {
@@ -113,4 +115,14 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
                 harInntektOver1G = source.inntektAvdodOver1G == true
             )
         }
+
+    private companion object {
+
+        private fun inntektTom(spec: SimuleringEtter2011SpecV2): LocalDate? =
+            heltUttakInntektTom(
+                foersteUttakDato = spec.forsteUttakDato,
+                heltUttakDato = spec.heltUttakDato,
+                inntektEtterHeltUttakAntallAar = spec.antallArInntektEtterHeltUttak
+            )
+    }
 }

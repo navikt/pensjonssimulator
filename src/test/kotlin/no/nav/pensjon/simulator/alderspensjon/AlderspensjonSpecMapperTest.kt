@@ -80,6 +80,7 @@ private fun simuleringSpec(type: SimuleringTypeEnum, livsvarigOffentligAfpRettFo
         inntektUnderGradertUttakBeloep = 0,
         inntektEtterHeltUttakBeloep = 0,
         inntektEtterHeltUttakAntallAar = null,
+        inntektEtterHeltUttakTom = null,
         foedselAar = 1964,
         utlandAntallAar = 5,
         utlandPeriodeListe = mutableListOf(),

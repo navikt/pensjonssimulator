@@ -39,10 +39,11 @@ class AlderspensjonSpecMapperV3(
             isTpOrigSimulering = true, // true for samhandler
             simulerForTp = false,
             uttakGrad = uttaksgrad(foersteUttak),
-            forventetInntektBeloep = 0,
-            inntektUnderGradertUttakBeloep = 0,
-            inntektEtterHeltUttakBeloep = 0,
-            inntektEtterHeltUttakAntallAar = null,
+            forventetInntektBeloep = 0, // fremtidigInntektListe brukes isteden
+            inntektUnderGradertUttakBeloep = 0, // ditto
+            inntektEtterHeltUttakBeloep = 0, // ditto
+            inntektEtterHeltUttakAntallAar = null, // ditto
+            inntektEtterHeltUttakTom = null, // ditto
             foedselAar = 0,
             utlandAntallAar = source.arIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(),

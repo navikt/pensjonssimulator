@@ -21,5 +21,8 @@ data class AlternativSimuleringSpec(
     val uttakGrad: UttakGradKode,
     val heltUttakFom: LocalDate,
     val heltUttakAlderIndex: Int,
+    val inntektEtterHeltUttakTom: LocalDate? = null,
+
+    @Deprecated("Bruk inntektEtterHeltUttakTom")
     val inntektEtterHeltUttakAntallAar: Int? = null
 )

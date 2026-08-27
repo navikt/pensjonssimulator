@@ -127,6 +127,78 @@ class SimuleringSpecTest : ShouldSpec({
             ).limitedUtenlandsoppholdAntallAar shouldBe 1
         }
     }
+
+    context("withHeltUttakDato") {
+        context("ny uttaksdato er før inntektens sluttdato") {
+            should("oppdatere inntektens varighet, ikke endre sluttdato og beløp") {
+                val spec = simuleringSpec(
+                    heltUttakDato = LocalDate.of(2031, 1, 1),
+                    inntektEtterHeltUttakTom = LocalDate.of(2039, 1, 31),
+                    inntektEtterHeltUttakAntallAar = 8
+                ).withHeltUttakDato(LocalDate.of(2035, 1, 1))
+
+                with(spec) {
+                    heltUttakDato shouldBe LocalDate.of(2035, 1, 1)
+                    inntektEtterHeltUttakAntallAar shouldBe 4 // varighet endret
+                    inntektEtterHeltUttakTom shouldBe LocalDate.of(2039, 1, 31) // uforandret
+                    inntektEtterHeltUttakBeloep shouldBe 67500 // uforandret
+                }
+            }
+        }
+
+        context("ny uttaksdato er etter inntektens sluttdato") {
+            should("inntekten settes til 0 med sluttdato 1 måned etter uttaksdato") {
+                val spec = simuleringSpec(
+                    heltUttakDato = LocalDate.of(2031, 1, 1),
+                    inntektEtterHeltUttakTom = LocalDate.of(2035, 1, 31),
+                    inntektEtterHeltUttakAntallAar = 4
+                ).withHeltUttakDato(LocalDate.of(2035, 2, 1))
+
+                with(spec) {
+                    heltUttakDato shouldBe LocalDate.of(2035, 2, 1)
+                    inntektEtterHeltUttakTom shouldBe LocalDate.of(2035, 2, 28) // 1 måned etter uttaksdato
+                    inntektEtterHeltUttakAntallAar shouldBe 0
+                    inntektEtterHeltUttakBeloep shouldBe 0
+                }
+            }
+        }
+
+        context("ny uttaksdato er etter inntektens sluttdato, deretter før") {
+            should("oppdatere inntektens varighet, bruke opprinnelig angitt sluttdato og beløp") {
+                val spec = simuleringSpec(
+                    heltUttakDato = LocalDate.of(2031, 1, 1),
+                    inntektEtterHeltUttakTom = LocalDate.of(2035, 1, 31),
+                    inntektEtterHeltUttakAntallAar = 4
+                )
+                    .withHeltUttakDato(LocalDate.of(2035, 2, 1)) // inntekt -> 0
+                    .withHeltUttakDato(LocalDate.of(2033, 1, 1)) // inntekt -> opprinnelig
+
+                with(spec) {
+                    heltUttakDato shouldBe LocalDate.of(2033, 1, 1)
+                    inntektEtterHeltUttakAntallAar shouldBe 2
+                    inntektEtterHeltUttakTom shouldBe LocalDate.of(2035, 1, 31) // opprinnelig verdi
+                    inntektEtterHeltUttakBeloep shouldBe 67500 // opprinnelig verdi
+                }
+            }
+        }
+
+        context("ny uttaksdato er udefinert") {
+            should("sette varighet til 0, beholde sluttdato og beløp") {
+                val spec = simuleringSpec(
+                    heltUttakDato = LocalDate.of(2031, 1, 1),
+                    inntektEtterHeltUttakTom = LocalDate.of(2035, 1, 31),
+                    inntektEtterHeltUttakAntallAar = 4
+                )                    .withHeltUttakDato(null)
+
+                with(spec) {
+                    heltUttakDato shouldBe null
+                    inntektEtterHeltUttakAntallAar shouldBe 0 // varighet 0
+                    inntektEtterHeltUttakTom shouldBe LocalDate.of(2035, 1, 31)
+                    inntektEtterHeltUttakBeloep shouldBe 67500
+                }
+            }
+        }
+    }
 })
 
 private fun utlandPeriode(fom: LocalDate, tom: LocalDate?) =

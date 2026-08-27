@@ -12,5 +12,9 @@ data class SimuleringsperioderSpec(
     val simuleringType: SimuleringTypeEnum,
     val foersteUttakDato: LocalDate,
     val heltUttakDato: LocalDate?,
+
+    @Deprecated("Bruk inntektEtterHeltUttakTom")
     val inntektEtterHeltUttakAntallAar: Int,
+
+    val inntektEtterHeltUttakTom: LocalDate?
 )

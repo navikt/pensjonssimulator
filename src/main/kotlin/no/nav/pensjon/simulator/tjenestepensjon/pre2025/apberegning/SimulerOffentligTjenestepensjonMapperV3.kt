@@ -4,9 +4,10 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
-import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -17,6 +18,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringTyp
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.UtenlandsperiodeForSimuleringV3
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 
 @Component
 class SimulerOffentligTjenestepensjonMapperV3(
@@ -44,6 +46,7 @@ class SimulerOffentligTjenestepensjonMapperV3(
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak,
             inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak,
+            inntektEtterHeltUttakTom = inntektTom(source),
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
             utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map(::utlandPeriode)
@@ -91,9 +94,8 @@ class SimulerOffentligTjenestepensjonMapperV3(
             tom = source.periodeTom
         )
 
-    fun mapLand(land: String) : LandkodeEnum {
-        return irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
-    }
+    fun mapLand(land: String): LandkodeEnum =
+        irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
 
     private val irregularLandEnums: Map<String, LandkodeEnum>
         get() {
@@ -117,4 +119,14 @@ class SimulerOffentligTjenestepensjonMapperV3(
                 harInntektOver1G = source.inntektAvdodOver1G == true
             )
         }
+
+    private companion object {
+
+        private fun inntektTom(spec: SimuleringEtter2011SpecV3): LocalDate? =
+            heltUttakInntektTom(
+                foersteUttakDato = spec.forsteUttakDato,
+                heltUttakDato = spec.heltUttakDato,
+                inntektEtterHeltUttakAntallAar = spec.antallArInntektEtterHeltUttak
+            )
+    }
 }

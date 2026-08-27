@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -72,6 +73,7 @@ class IndexBasedSimulering(
                 foersteUttakDato = parameters.gradertUttakFom ?: parameters.heltUttakFom,
                 uttaksgrad = parameters.uttakGrad,
                 heltUttakDato = parameters.heltUttakFom,
+                inntektEtterHeltUttakTom = parameters.inntektEtterHeltUttakTom,
                 inntektEtterHeltUttakAntallAar = parameters.inntektEtterHeltUttakAntallAar
             )
 
@@ -129,7 +131,13 @@ class IndexBasedSimulering(
             // Nå er heltUttakFom kjent, så antallArInntektEtterHeltUttak kan utledes:
                 foedselsdato.year + heltUttakInntektTomAlderAar - heltUttakFom.year + 1 // +1 p.g.a. fra/til OG MED
             else
-                foedselsdato.year + (simuleringSpec.inntektEtterHeltUttakAntallAar?: 0) - heltUttakFom.year + 1 // +1, siden fra/til OG MED
+                foedselsdato.year + (simuleringSpec.inntektEtterHeltUttakAntallAar
+                    ?: 0) - heltUttakFom.year + 1 // +1, siden fra/til OG MED
+
+        val inntektEtterHeltUttakTom = heltUttakInntektTom(
+            foersteUttakDato = heltUttakFom, // helt uttak er første uttak når gradert uttak ikke benyttes
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+        )
 
         return AlternativSimuleringSpec(
             gradertUttakFom = null,
@@ -137,6 +145,7 @@ class IndexBasedSimulering(
             uttaksgrad,
             heltUttakFom,
             heltUttakAlderIndex,
+            inntektEtterHeltUttakTom,
             inntektEtterHeltUttakAntallAar
         )
     }

@@ -138,6 +138,7 @@ private fun mockSimuleringSpec(
     inntektUnderGradertUttakBeloep = 400_000,
     inntektEtterHeltUttakBeloep = 0,
     inntektEtterHeltUttakAntallAar = null,
+    inntektEtterHeltUttakTom = null,
     foedselAar = 1960,
     utlandAntallAar = 0,
     utlandPeriodeListe = mutableListOf(),

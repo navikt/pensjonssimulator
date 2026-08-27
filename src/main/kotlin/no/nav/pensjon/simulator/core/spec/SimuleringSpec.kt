@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
@@ -11,6 +12,7 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import java.time.LocalDate
+import java.time.Period
 import java.util.*
 
 // PEN: no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011
@@ -29,7 +31,11 @@ data class SimuleringSpec(
     val forventetInntektBeloep: Int,
     val inntektUnderGradertUttakBeloep: Int, // NB: For AFP_ETTERF_ALDER this is inntekt during AFP-uttak
     val inntektEtterHeltUttakBeloep: Int,
+
+    @Deprecated("Bruk perioden f.o.m. heltUttakDato t.o.m. inntektEtterHeltUttakTom")
     val inntektEtterHeltUttakAntallAar: Int?,
+
+    val inntektEtterHeltUttakTom: LocalDate?,
     val foedselAar: Int,
     val utlandAntallAar: Int, // PEN: SimuleringEtter2011.utenlandsopphold
     val utlandPeriodeListe: MutableList<UtlandPeriode>,
@@ -52,6 +58,17 @@ data class SimuleringSpec(
     init {
         if (erAnonym) require(foedselAar > 0) { "For anonym simulering må fødselsår være angitt" }
         else require(pid != null) { "For personlig simulering må person-ID (pid) være angitt" }
+    }
+
+    // Backup av opprinnelige verdier for bruk ved varierende dato for helt uttak:
+    private var angittInntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep
+    private var angittInntektEtterHeltUttakTom = inntektEtterHeltUttakTom
+    private var angittInntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+
+    private fun setAngitt(beloep: Int, tom: LocalDate?, antallAar: Int?) {
+        angittInntektEtterHeltUttakBeloep = beloep
+        angittInntektEtterHeltUttakTom = tom
+        angittInntektEtterHeltUttakAntallAar = antallAar
     }
 
     // PEN: SimuleringEtter2011.isBoddIUtlandet()
@@ -117,24 +134,21 @@ data class SimuleringSpec(
             // Gradert uttak fulgt av helt uttak: heltUttakDato brukes for 100%-uttaket
                 heltUttakDato ?: foersteUttakDato ?: throw IllegalArgumentException("Ingen uttaksdato definert")
 
-        val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
+        val uttakFom = PensjonAlderDato(foedselDato!!, uttakDato)
 
         return HeltUttakSimuleringSpec(
-            uttakFom = PensjonAlderDato(foedselDato!!, uttakDato),
+            uttakFom = uttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(foedselDato, uttakDato.plusYears(inntektAntallAar)),
+            inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato, it) } ?: uttakFom
         )
     }
 
-    fun heltUttak(heltUttakFom: PensjonAlderDato): HeltUttakSimuleringSpec {
-        val inntektAntallAar = inntektEtterHeltUttakAntallAar?.toLong() ?: 0L
-
-        return HeltUttakSimuleringSpec(
+    fun heltUttak(heltUttakFom: PensjonAlderDato) =
+        HeltUttakSimuleringSpec(
             uttakFom = heltUttakFom,
             aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = PensjonAlderDato(foedselDato!!, heltUttakFom.dato.plusYears(inntektAntallAar))
+            inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato!!, it) } ?: heltUttakFom
         )
-    }
 
     fun withAvdoed(avdoed: Avdoed) =
         copy(
@@ -146,20 +160,50 @@ data class SimuleringSpec(
         foersteUttakDato: LocalDate?,
         uttaksgrad: UttakGradKode,
         heltUttakDato: LocalDate?,
-        inntektEtterHeltUttakAntallAar: Int?
+        inntektEtterHeltUttakTom: LocalDate?,
+        inntektEtterHeltUttakAntallAar: Int?,
+        inntektEtterHeltUttakBeloep: Int? = null
     ) =
         copy(
             foersteUttakDato = foersteUttakDato,
             uttakGrad = uttaksgrad,
             heltUttakDato = heltUttakDato,
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+            inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep ?: angittInntektEtterHeltUttakBeloep
         )
 
     fun withFoersteUttakDato(dato: LocalDate?) =
-        withUttak(foersteUttakDato = dato, uttakGrad, heltUttakDato, inntektEtterHeltUttakAntallAar)
+        withUttak(
+            foersteUttakDato = dato,
+            uttakGrad,
+            heltUttakDato,
+            inntektEtterHeltUttakTom = heltUttakInntektTom(
+                foersteUttakDato = dato,
+                heltUttakDato,
+                inntektEtterHeltUttakAntallAar
+            ),
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+        )
 
-    fun withHeltUttakDato(dato: LocalDate?) =
-        withUttak(foersteUttakDato, uttakGrad, heltUttakDato = dato, inntektEtterHeltUttakAntallAar)
+    fun withHeltUttakDato(dato: LocalDate?): SimuleringSpec {
+        val angittBeloep = angittInntektEtterHeltUttakBeloep
+        val angittTom = angittInntektEtterHeltUttakTom
+        val angittAntallAar = angittInntektEtterHeltUttakAntallAar
+        val inntektErUtloept = dato?.isAfter(inntektEtterHeltUttakTom ?: dato) == true
+        val inntektBeloep = if (inntektErUtloept) 0 else angittBeloep
+        val inntektTom = if (inntektErUtloept) dato.plusMonths(1).minusDays(1) else angittTom
+        val inntektAntallAar = if (inntektErUtloept) 0 else inntektTom?.let { Period.between(dato ?: it, it) }?.years ?: 0
+
+        return withUttak(
+            foersteUttakDato,
+            uttakGrad,
+            heltUttakDato = dato,
+            inntektEtterHeltUttakTom = inntektTom,
+            inntektEtterHeltUttakAntallAar = inntektAntallAar,
+            inntektEtterHeltUttakBeloep = inntektBeloep
+        ).apply { setAngitt(angittBeloep, angittTom, angittAntallAar) }
+    }
 
     fun gjelderLivsvarigAfp() =
         gjelderPrivatAfp || gjelderLivsvarigOffentligAfp()

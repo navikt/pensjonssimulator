@@ -20,7 +20,6 @@ import no.nav.pensjon.simulator.core.inntekt.OpptjeningUpdater
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederFraAarStartTilFoersteUttakDato
 import no.nav.pensjon.simulator.core.krav.KravUtil.utlandMaanederInnenforAaret
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByDays
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getRelativeDateByYear
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isFirstDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.monthOfYearRange1To12
@@ -38,6 +37,8 @@ import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.tid.AarOgMaaned
+import no.nav.pensjon.simulator.tid.Overlapp
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
 import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import no.nav.pensjon.simulator.validity.BadSpecException
@@ -459,15 +460,15 @@ class KravhodeCreator(
     // PEN: antallMndMedInntektUnderGradertUttak
     private fun antallMaanederMedInntektUnderAfpEllerGradertUttak(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttak =
-            KalenderMaaned(
-                aarstall = spec.foersteUttakDato!!.year,
+            AarOgMaaned(
+                aar = spec.foersteUttakDato!!.year,
                 maaned = monthOfYearRange1To12(spec.foersteUttakDato)
             )
 
         val heltUttak = heltUttakTidspunkt(spec) ?: foersteUttak
 
-        if (aar == foersteUttak.aarstall) {
-            return if (foersteUttak.aarstall != heltUttak.aarstall) {
+        if (aar == foersteUttak.aar) {
+            return if (foersteUttak.aar != heltUttak.aar) {
                 val antallMaanederMedForventetInntekt = foersteUttak.maaned - 1
                 MAANEDER_PER_AAR - antallMaanederMedForventetInntekt
             } else {
@@ -475,11 +476,11 @@ class KravhodeCreator(
             }
         }
 
-        if (aar in (foersteUttak.aarstall + 1) until heltUttak.aarstall) {
+        if (aar in (foersteUttak.aar + 1) until heltUttak.aar) {
             return MAANEDER_PER_AAR
         }
 
-        if (aar == heltUttak.aarstall) {
+        if (aar == heltUttak.aar) {
             return heltUttak.maaned - 1
         }
 
@@ -487,32 +488,14 @@ class KravhodeCreator(
     }
 
     // PEN: antallMndMedInntektEtterHeltUttak
-    private fun antallMaanederMedInntektEtterHeltUttak(aar: Int, spec: SimuleringSpec): Int {
-        val foersteUttak =
-            KalenderMaaned(
-                aarstall = spec.foersteUttakDato!!.year,
-                maaned = monthOfYearRange1To12(spec.foersteUttakDato)
+    private fun antallMaanederMedInntektEtterHeltUttak(aar: Int, spec: SimuleringSpec): Int =
+        spec.inntektEtterHeltUttakTom?.let {
+            Overlapp.antallMaaneder(
+                aar,
+                fom = heltUttakTidspunkt(spec) ?: AarOgMaaned.forDato(spec.foersteUttakDato!!),
+                tom = AarOgMaaned.forDato(it)
             )
-
-        val heltUttak = heltUttakTidspunkt(spec) ?: foersteUttak
-
-        if (aar == heltUttak.aarstall) {
-            val antallMaanederMedInntektUnderGradertUttak = heltUttak.maaned - 1
-            return MAANEDER_PER_AAR - antallMaanederMedInntektUnderGradertUttak
-        }
-
-        val antallAarInntektEtterHeltUttak: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
-
-        if (heltUttak.aarstall < aar && aar < heltUttak.aarstall + antallAarInntektEtterHeltUttak) {
-            return MAANEDER_PER_AAR
-        }
-
-        if (aar - heltUttak.aarstall == antallAarInntektEtterHeltUttak) {
-            return heltUttak.maaned - 1
-        }
-
-        return 0
-    }
+        } ?: 0
 
     private fun forventetInntektAntallMaaneder(aar: Int, spec: SimuleringSpec): Int {
         val foersteUttakAar: Int = spec.foersteUttakDato?.year ?: 0
@@ -575,13 +558,16 @@ class KravhodeCreator(
         }
 
         // Inntekt etter start av helt uttak:
-
-        val inntektEtterHeltUttakAntallAar: Int = spec.inntektEtterHeltUttakAntallAar ?: 0
-
-        if (spec.inntektEtterHeltUttakBeloep > 0 && inntektEtterHeltUttakAntallAar > 0) {
-            val fom = if (gjelder2FaseSimulering) spec.heltUttakDato else spec.foersteUttakDato
-            val tom = getRelativeDateByDays(getRelativeDateByYear(fom!!, inntektEtterHeltUttakAntallAar), -1)
-            inntektsgrunnlagListe.add(inntektsgrunnlagForSoekerOrEps(spec.inntektEtterHeltUttakBeloep, fom, tom))
+        spec.inntektEtterHeltUttakTom?.let {
+            if (spec.inntektEtterHeltUttakBeloep > 0) {
+                inntektsgrunnlagListe.add(
+                    inntektsgrunnlagForSoekerOrEps(
+                        beloep = spec.inntektEtterHeltUttakBeloep,
+                        fom = if (gjelder2FaseSimulering) spec.heltUttakDato else spec.foersteUttakDato,
+                        tom = it
+                    )
+                )
+            }
         }
 
         inntektsgrunnlagListe.addAll(existingInntektsgrunnlagList.filter {
@@ -795,13 +781,10 @@ class KravhodeCreator(
         private fun containsTrygdetidUtenlands(trygdetidPeriodeListe: List<TTPeriode>) =
             trygdetidPeriodeListe.any { it.landEnum != LandkodeEnum.NOR }
 
-        private fun heltUttakTidspunkt(spec: SimuleringSpec): KalenderMaaned? =
+        private fun heltUttakTidspunkt(spec: SimuleringSpec): AarOgMaaned? =
             if (spec.gjelder2FaseSimulering())
                 spec.heltUttakDato?.let {
-                    KalenderMaaned(
-                        aarstall = it.year,
-                        maaned = monthOfYearRange1To12(it)
-                    )
+                    AarOgMaaned(aar = it.year, maaned = monthOfYearRange1To12(it))
                 } ?: handleMissingHeltUttakDato(spec)
             else
                 null
@@ -824,9 +807,4 @@ class KravhodeCreator(
                 throw BadSpecException(it)
             }
     }
-
-    private data class KalenderMaaned(
-        val aarstall: Int,
-        val maaned: Int // 1 t.o.m. 12
-    )
 }

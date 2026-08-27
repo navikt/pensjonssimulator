@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -22,6 +23,8 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
 
     fun fromSimuleringSpecV1(source: FolketrygdberegnetAfpSpecV1): SimuleringSpec {
         val pid = source.fnr?.let(::Pid)
+        val foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate()
+        val inntektEtterHeltUttakAntallAar = validatedAntallAar(source.antallArInntektEtterHeltUttak)
 
         return SimuleringSpec(
             type = source.simuleringType?.let { FolketrygdberegnetAfpSimuleringTypeSpecV1.fromExternalValue(it.name).internalValue }
@@ -29,7 +32,7 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             sivilstatus = source.sivilstatus?.let { FolketrygdberegnetAfpSivilstandSpecV1.fromExternalValue(it.name).internalValue }
                 ?: SivilstatusType.UGIF,
             epsHarPensjon = source.epsPensjon == true,
-            foersteUttakDato = source.forsteUttakDato?.toNorwegianLocalDate(),
+            foersteUttakDato = foersteUttakDato,
             heltUttakDato = null, // not relevant in this context
             pid = pid,
             foedselDato = pid?.let(personService::foedselsdato),
@@ -40,7 +43,11 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             forventetInntektBeloep = validatedInntekt(source.forventetInntekt),
             inntektUnderGradertUttakBeloep = validatedInntekt(source.inntektUnderGradertUttak),
             inntektEtterHeltUttakBeloep = validatedInntekt(source.inntektEtterHeltUttak),
-            inntektEtterHeltUttakAntallAar = validatedAntallAar(source.antallArInntektEtterHeltUttak),
+            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
+            inntektEtterHeltUttakTom = heltUttakInntektTom(
+                foersteUttakDato = foersteUttakDato,
+                inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
+            ),
             foedselAar = 0,
             utlandAntallAar = validatedAntallAar(source.utenlandsopphold),
             utlandPeriodeListe = mutableListOf(),

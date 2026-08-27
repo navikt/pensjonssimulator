@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.inntekt
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.math.BigInteger
+import java.time.LocalDate
 
 object InntektUtil {
 
@@ -43,6 +44,18 @@ object InntektUtil {
         val sistePeriodeAntallMaaneder = MAANEDER_PER_AAR - inntekt.fom.monthValue + 1
         return aarligInntekt.add(periodevisInntekt(inntekt, sistePeriodeAntallMaaneder))
     }
+
+    /**
+     * Beregner sluttdato (til og med) for inntekt som tjenes opp fra og med startdato for helt uttak.
+     */
+    fun heltUttakInntektTom(
+        foersteUttakDato: LocalDate?,
+        heltUttakDato: LocalDate? = null,
+        inntektEtterHeltUttakAntallAar: Int?
+    ): LocalDate? =
+        (heltUttakDato ?: foersteUttakDato)
+            ?.plusYears((inntektEtterHeltUttakAntallAar ?: 0).toLong())
+            ?.minusDays(1)
 
     // Extracted from PEN: OpprettKravHodeHelper.createArliginntekt
     private fun periodevisInntekt(inntekt: FremtidigInntekt, antallMaaneder: Int) =

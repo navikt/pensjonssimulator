@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.core.person
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.every
@@ -14,6 +15,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.GenerellHistorikk
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Utenlandsopphold
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
@@ -138,6 +140,35 @@ class PersongrunnlagMapperTest : FunSpec({
         val result = mapper.mapToPersongrunnlag(PenPerson(), spec)
 
         result.flyktning shouldBe true
+    }
+
+    context("tidsbegrenset AFP i offentlig sektor") {
+        test("sette utenlandsperioder i.h.t. spesifikasjonen") {
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.AFP_ETTERF_ALDER, // tidsbegrenset AFP
+                utlandPeriodeListe = listOf(utenlandsperiode)
+            )
+
+            val result = createMapper().mapToPersongrunnlag(PenPerson(), spec)
+
+            result.utenlandsoppholdListe.first() shouldBeEqualToComparingFields Utenlandsopphold().apply {
+                fomLd = LocalDate.of(2021, 1, 1)
+                tomLd = LocalDate.of(2025, 12, 31)
+                landEnum = LandkodeEnum.SWE
+                arbeidet = true
+            }
+        }
+    }
+
+    context("ikke tidsbegrenset AFP i offentlig sektor") {
+        test("alltid sette utenlandsperioder til tom liste") {
+            val spec = createSimuleringSpec(
+                type = SimuleringTypeEnum.ALDER, // ikke tidsbegrenset AFP
+                utlandPeriodeListe = listOf(utenlandsperiode)
+            )
+
+            createMapper().mapToPersongrunnlag(PenPerson(), spec).utenlandsoppholdListe shouldBe emptyList()
+        }
     }
 
     // ===========================================
@@ -757,21 +788,31 @@ class PersongrunnlagMapperTest : FunSpec({
     }
 })
 
+private val utenlandsperiode =
+    UtlandPeriode(
+        fom = LocalDate.of(2021, 1, 1),
+        tom = LocalDate.of(2025, 12, 31),
+        land = LandkodeEnum.SWE,
+        arbeidet = true
+    )
+
 // ===========================================
 // Helper functions
 // ===========================================
 
-private fun createMapper(): PersongrunnlagMapper = PersongrunnlagMapper(
-    generelleDataHolder = mockk(relaxed = true),
-    personService = mockk(),
-    time = { LocalDate.of(2025, 1, 15) }
-)
+private fun createMapper() =
+    PersongrunnlagMapper(
+        generelleDataHolder = mockk(relaxed = true),
+        personService = mockk(),
+        time = { LocalDate.of(2025, 1, 15) }
+    )
 
 private fun createSimuleringSpec(
     type: SimuleringTypeEnum = SimuleringTypeEnum.ALDER,
     sivilstatus: SivilstatusType = SivilstatusType.UGIF,
     flyktning: Boolean = false,
     utlandAntallAar: Int = 0,
+    utlandPeriodeListe: List<UtlandPeriode> = emptyList(),
     foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1)
 ) = SimuleringSpec(
     type = type,
@@ -791,7 +832,7 @@ private fun createSimuleringSpec(
     inntektEtterHeltUttakAntallAar = 5,
     foedselAar = 1963,
     utlandAntallAar = utlandAntallAar,
-    utlandPeriodeListe = mutableListOf(),
+    utlandPeriodeListe = utlandPeriodeListe.toMutableList(),
     fremtidigInntektListe = mutableListOf(),
     brukFremtidigInntekt = false,
     inntektOver1GAntallAar = 0,

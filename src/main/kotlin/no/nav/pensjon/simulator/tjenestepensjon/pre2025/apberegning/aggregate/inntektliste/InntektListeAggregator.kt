@@ -7,10 +7,11 @@ import java.time.LocalDate
 
 object InntektListeAggregator {
 
-    fun aggregate(spec: InntektListeSpec,
-                  actualTime: LocalDate = LocalDate.now(),
-                  sisteGyldigeOpptjeningsaar: Int): List<Inntekt> {
-
+    fun aggregate(
+        spec: InntektListeSpec,
+        actualTime: LocalDate = LocalDate.now(),
+        sisteGyldigeOpptjeningsaar: Int
+    ): List<Inntekt> {
         val inntektList: MutableList<Inntekt> = ArrayList()
 
         // First inntekt before uttak
@@ -73,23 +74,20 @@ object InntektListeAggregator {
     }
 
     fun getEndingDateForInntektList(spec: InntektListeSpec): LocalDate {
-        val date: LocalDate
-
-        if (spec.simuleringTypeErAfpEtterfAlder) {
+        val date: LocalDate =
+            if (spec.simuleringTypeErAfpEtterfAlder)
             // Inntekt from heltUttak (optional)
             // Compenstating for bad front-end data, should be unnecesary
-            date = fromAlder(foedselDato = spec.foedselsdato, alder = Alder(67, 0))
-        } else if (spec.heltUttakDato != null) {
-            date = spec.heltUttakDato
-        } else {
-            date = spec.foersteUttakDato
-        }
+                fromAlder(foedselDato = spec.foedselsdato, alder = Alder(67, 0))
+            else
+                spec.heltUttakDato ?: spec.foersteUttakDato
 
         // Two possible end date for Inntekt, on that is 75 or one that is optional for before 75.
         val dateWithUserAt75AndFirstDayAtNextMonth: LocalDate =
             fromAlder(foedselDato = spec.foedselsdato, alder = Alder(75, 0))
         val dateWithAddedAntallArInntektEtterHeltUttak: LocalDate =
             date.plusYears(spec.inntektEtterHeltUttakAntallAar?.toLong() ?: 0L)
+        //TODO use inntektEtterHeltUttakTom?
 
         // Check the ending of the final Inntekt, added option to ending before 75 or sett to 75.
         return if (spec.inntektEtterHeltUttakBeloep > 0 && (spec.inntektEtterHeltUttakAntallAar ?: 0) > 0

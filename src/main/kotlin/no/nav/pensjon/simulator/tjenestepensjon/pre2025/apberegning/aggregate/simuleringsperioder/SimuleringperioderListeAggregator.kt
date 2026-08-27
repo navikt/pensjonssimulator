@@ -8,16 +8,15 @@ import java.time.LocalDate
 
 object SimuleringperioderListeAggregator {
 
-    fun aggregate(spec: SimuleringsperioderSpec): List<Simuleringsperiode> {
-        return if (spec.simuleringType == SimuleringTypeEnum.AFP_ETTERF_ALDER) {
+    fun aggregate(spec: SimuleringsperioderSpec): List<Simuleringsperiode> =
+        if (spec.simuleringType == SimuleringTypeEnum.AFP_ETTERF_ALDER)
             createSimuleringsdataListeForAfpEtterfulgtAvAlderspensjon(spec)
-        } else {
+        else
             createSimuleringsdataListeForAlderspensjon(spec)
-        }
-    }
 
-    private fun createSimuleringsdataListeForAfpEtterfulgtAvAlderspensjon(spec: SimuleringsperioderSpec)
-    : MutableList<Simuleringsperiode> {
+    private fun createSimuleringsdataListeForAfpEtterfulgtAvAlderspensjon(
+        spec: SimuleringsperioderSpec
+    ): MutableList<Simuleringsperiode> {
         val simuleringsperiodeList: MutableList<Simuleringsperiode> = ArrayList()
 
         simuleringsperiodeList.add(
@@ -39,16 +38,16 @@ object SimuleringperioderListeAggregator {
         return simuleringsperiodeList
     }
 
-    private fun setSimuleringsperiodeForGradertUttak(spec: SimuleringsperioderSpec, folketrygdUttaksgrad: Int): Simuleringsperiode {
-        val stillingsprosentOffGradertUttak = spec.stillingsprosentSpec.stillingsprosentOffGradertUttak ?: 0
-
-        return createSimuleringsperiode(
-            spec.foersteUttakDato,
+    private fun setSimuleringsperiodeForGradertUttak(
+        spec: SimuleringsperioderSpec,
+        folketrygdUttaksgrad: Int
+    ): Simuleringsperiode =
+        createSimuleringsperiode(
+            uttakDato = spec.foersteUttakDato,
             folketrygdUttaksgrad,
-            stillingsprosentOffGradertUttak,
-            spec.afpEtterfulgtAvAlder
+            stillingsprosent = spec.stillingsprosentSpec.stillingsprosentOffGradertUttak ?: 0,
+            afpEtterfulgtAvAlder = spec.afpEtterfulgtAvAlder
         )
-    }
 
     private fun createSimuleringsdataListeForAlderspensjon(spec: SimuleringsperioderSpec): MutableList<Simuleringsperiode> {
         val stillingsprosent = spec.stillingsprosentSpec.stillingsprosentOffHeltUttak ?: 0
@@ -76,6 +75,7 @@ object SimuleringperioderListeAggregator {
                     createSimuleringsperiode(
                         spec.heltUttakDato.plusYears(
                             spec.inntektEtterHeltUttakAntallAar.toLong()
+                            //TODO use inntektEtterHeltUttakTom?
                         ),
                         100,
                         0,
@@ -98,6 +98,7 @@ object SimuleringperioderListeAggregator {
                     createSimuleringsperiode(
                         spec.foersteUttakDato.plusYears(
                             spec.inntektEtterHeltUttakAntallAar.toLong()
+                            //TODO use inntektEtterHeltUttakTom?
                         ),
                         spec.folketrygdUttaksgrad,
                         0,
@@ -115,10 +116,11 @@ object SimuleringperioderListeAggregator {
         folketrygdUttaksgrad: Int,
         stillingsprosent: Int,
         afpEtterfulgtAvAlder: Boolean
-    ): Simuleringsperiode = Simuleringsperiode(
-        fom = uttakDato,
-        folketrygdUttaksgrad = folketrygdUttaksgrad,
-        stillingsprosentOffentlig = stillingsprosent,
-        simulerAFPOffentligEtterfulgtAvAlder = afpEtterfulgtAvAlder
-    )
+    ) =
+        Simuleringsperiode(
+            fom = uttakDato,
+            folketrygdUttaksgrad = folketrygdUttaksgrad,
+            stillingsprosentOffentlig = stillingsprosent,
+            simulerAFPOffentligEtterfulgtAvAlder = afpEtterfulgtAvAlder
+        )
 }

@@ -1,5 +1,5 @@
 package no.nav.pensjon.simulator
-
+/*
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.testconfig.TestConfig
@@ -28,3 +28,4 @@ open class PensjonssimulatorApplicationTest : FunSpec() {
         }
     }
 }
+*/

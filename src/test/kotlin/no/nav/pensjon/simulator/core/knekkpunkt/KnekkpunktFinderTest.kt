@@ -573,6 +573,7 @@ private fun createSimuleringSpec(
     inntektUnderGradertUttakBeloep = 0,
     inntektEtterHeltUttakBeloep = 0,
     inntektEtterHeltUttakAntallAar = 0,
+    inntektEtterHeltUttakTom = null,
     foedselAar = 1963,
     utlandAntallAar = 0,
     utlandPeriodeListe = mutableListOf(),

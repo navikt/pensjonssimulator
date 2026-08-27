@@ -93,6 +93,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     inntektUnderGradertUttakBeloep = 125000,
                     inntektEtterHeltUttakBeloep = 67500,
                     inntektEtterHeltUttakAntallAar = 5,
+                    inntektEtterHeltUttakTom = LocalDate.of(2037, 5, 31),
                     foedselAar = 1963,
                     utlandAntallAar = 3,
                     utlandPeriodeListe = mutableListOf(

@@ -123,6 +123,7 @@ class SimulerOffentligTjenestepensjonMapperV3Test : FunSpec({
         result.inntektUnderGradertUttakBeloep shouldBe 250000
         result.inntektEtterHeltUttakBeloep shouldBe 100000
         result.inntektEtterHeltUttakAntallAar shouldBe 3
+        result.inntektEtterHeltUttakTom shouldBe LocalDate.of(2033, 5, 31)
         result.foedselAar shouldBe 1963
         result.utlandAntallAar shouldBe 5
         result.flyktning shouldBe false

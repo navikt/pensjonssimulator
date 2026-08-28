@@ -1,0 +1,355 @@
+package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset
+
+import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
+import no.nav.pensjon.simulator.core.domain.regler.PenPerson
+import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
+import no.nav.pensjon.simulator.core.domain.regler.enum.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.*
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforehistorikk
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
+import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
+import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
+import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
+import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
+import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
+import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
+import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
+import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
+import no.nav.pensjon.simulator.g.GrunnbeloepService
+import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.person.PersonService
+import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.FULL_TRYGDETID_ANTALL_AAR
+import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
+import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
+import org.springframework.stereotype.Service
+import java.time.LocalDate
+
+/**
+ * Simulerer tidsbegrenset AFP (avtalefestet pensjon) i offentlig sektor.
+ */
+@Service
+class TidsbegrensetAfpSimuleringService(
+    private val simulator: GeneralPensjonSimuleringService,
+    private val vilkaarsproever: AfpVilkaarsproever,
+    private val personService: PersonService,
+    private val grunnbeloepService: GrunnbeloepService
+) {
+    // PEN: SimpleSimuleringService.simulerPensjonsberegning
+    //   -> SimulerPensjonsberegningCommand.execute
+    fun simulerPensjonsberegning(coreSpec: Simulering): TidsbegrensetAfpSimuleringResult {
+        validate(coreSpec)
+        val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(coreSpec)
+
+        if (tilstrekkeligTrygdetid.not()) {
+            return TidsbegrensetAfpSimuleringResult(
+                afpOrdning = coreSpec.afpOrdningEnum,
+                beregnetAfp = null,
+                opptjeningListe = emptyList(),
+                problem = Problem(
+                    type = ProblemType.UTILSTREKKELIG_TRYGDETID,
+                    beskrivelse = "Utilstrekkelig trygdetid"
+                )
+            )
+        }
+
+        addUfoerehistorikk(coreSpec)
+        createVilkaarsvedtakListe(coreSpec)
+
+        if (AFP == coreSpec.simuleringTypeEnum) {
+            val simuleringsresultat: Simuleringsresultat = simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(coreSpec)
+            val status: VedtakResultatEnum = simuleringsresultat.statusEnum ?: VedtakResultatEnum.INNV
+
+            if (status == VedtakResultatEnum.AVSL || status == VedtakResultatEnum.VETIKKE) {
+                return TidsbegrensetAfpSimuleringResult(
+                    afpOrdning = coreSpec.afpOrdningEnum,
+                    beregnetAfp = simuleringsresultat.beregning?.folketrygdberegnetAfp(),
+                    opptjeningListe = emptyList(),
+                    problem = Problem(
+                        type = ProblemType.UTILSTREKKELIG_OPPTJENING,
+                        beskrivelse = "Avslag, sannsynligvis pga. utilstrekkelig opptjening"
+                    )
+                )
+            }
+        }
+
+        val simuleringsresultat: Simuleringsresultat = simulerMedFeilhaandtering(
+            coreSpec,
+            extraSpec = extraSimuleringSpec(coreSpec)
+        ).apply {
+            if (statusEnum == null) {
+                statusEnum = VedtakResultatEnum.INNV
+            }
+        }
+
+        return TidsbegrensetAfpSimuleringResult(
+            afpOrdning = coreSpec.afpOrdningEnum,
+            beregnetAfp = simuleringsresultat.beregning?.folketrygdberegnetAfp(),
+            opptjeningListe = opptjening(simuleringsresultat),
+        )
+    }
+
+    /**
+     * Ref. pensjon-pselv: SamlesideFormPopulator.createPoengtallListeAndSetTpi
+     */
+    private fun opptjening(simuleringsresultat: Simuleringsresultat): List<OpptjeningGrunnlag> =
+        simuleringsresultat.beregning?.getBrukteYtelseskomponenter().orEmpty()
+            .filter { it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.TP }
+            .flatMap { (it as? Tilleggspensjon)?.spt?.poengrekke?.poengtallListe.orEmpty() }
+            .map(::opptjeningGrunnlag)
+
+    /**
+     * Ref. pensjon-pselv: SamlesideFormPopulator.createOpptjeningFormData
+     */
+    private fun opptjeningGrunnlag(poengtall: Poengtall) =
+        OpptjeningGrunnlag(
+            aar = poengtall.ar,
+            pensjonsgivendeInntekt = poengtall.pi,
+            pensjonspoeng = poengtall.pp
+        )
+
+    private fun addUfoerehistorikk(spec: Simulering) {
+        val simuleringType = spec.simuleringTypeEnum
+
+        if (simuleringType == ALDER || simuleringType == ALDER_M_GJEN || simuleringType == AFP) {
+            addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.SOKER)
+        }
+
+        if (simuleringType == ALDER_M_GJEN) {
+            addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.AVDOD)
+        }
+
+        if (simuleringType == BARN) {
+            addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.MOR)
+            addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.FAR)
+        }
+    }
+
+    private fun addUfoerehistorikk(spec: Simulering, rolle: GrunnlagsrolleEnum) {
+        val grunnlag: Persongrunnlag = persongrunnlagForRolle(
+            grunnlagListe = spec.persongrunnlagListe,
+            rolle
+        ) ?: return
+
+        relevantUfoerehistorikk(
+            person = grunnlag.penPerson,
+            virkningFom = spec.uttaksdatoLd!!
+        )?.let {
+            grunnlag.uforeHistorikk = it
+        }
+    }
+
+    private fun relevantUfoerehistorikk(person: PenPerson?, virkningFom: LocalDate): Uforehistorikk? {
+        val historikk: Uforehistorikk = person?.pid?.let(personService::person)?.uforehistorikk ?: return null
+
+        historikk.uforeperiodeListe = historikk.uforeperiodeListe
+            .filter { isRelevant(periode = it, virkningFom) }
+            .toMutableList()
+
+        return historikk
+    }
+
+    private fun createVilkaarsvedtakListe(spec: Simulering) {
+        val virkningFom: LocalDate = spec.uttaksdatoLd!!.withDayOfYear(1)
+        val grunnbeloep: Int = grunnbeloepService.grunnbeloep(dato = virkningFom)
+
+        for (persongrunnlag in spec.persongrunnlagListe) {
+            persongrunnlag.personDetaljListe.forEach {
+                updateVilkaarsvedtak(
+                    spec,
+                    vedtak = innvilgetVedtak(virkningFom, person = persongrunnlag.penPerson),
+                    persongrunnlag,
+                    personDetalj = it,
+                    grunnbeloep
+                )
+            }
+        }
+    }
+
+    private fun simulerMedFeilhaandtering(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
+        try {
+            simuler(coreSpec, extraSpec)
+        } catch (e: KanIkkeBeregnesException) {
+            throw FeilISimuleringsgrunnlagetException(e)
+        } catch (e: RegelmotorValideringException) {
+            throw KonsistensenIGrunnlagetErFeilException(e)
+        }
+
+    private fun simuler(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
+        when (coreSpec.simuleringTypeEnum) {
+            ALDER -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER)
+            ALDER_M_GJEN -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER_M_GJEN)
+            AFP -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = AFP)
+            GJENLEVENDE -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = GJENLEVENDE)
+            else -> Simuleringsresultat()
+        }
+
+    private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
+        try {
+            vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(spec)
+        } catch (e: KanIkkeBeregnesException) {
+            throw FeilISimuleringsgrunnlagetException(e)
+        } catch (e: RegelmotorValideringException) {
+            throw KonsistensenIGrunnlagetErFeilException(e)
+        }
+
+    private fun extraSimuleringSpec(coreSpec: Simulering): ExtraSimuleringSpec {
+        val beregnForsoergingstillegg = coreSpec.vilkarsvedtakliste.any {
+            it.kravlinjeTypeEnum == KravlinjeTypeEnum.ET || it.kravlinjeTypeEnum == KravlinjeTypeEnum.BT
+        }
+
+        return ExtraSimuleringSpec(
+            beregnInstitusjonsopphold = false,
+            beregnForsoergingstillegg,
+            epsMottarPensjon = epsMottarPensjon(personListe = coreSpec.persongrunnlagListe)
+        )
+    }
+
+    private companion object {
+        private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51
+        private const val TRYGDETID_HVIS_FLYKTNING = FULL_TRYGDETID_ANTALL_AAR
+
+        /**
+         * Setter trygdetid på persongrunnlagene og avgjør om trygdetiden er tilstrekkelig.
+         */
+        private fun simulerTrygdetid(spec: Simulering): Boolean {
+            var tilstrekkelig = true // i utgangspunktet
+            var dummyPersonId = 0L
+
+            for (persongrunnlag in spec.persongrunnlagListe) {
+                val person: PenPerson = persongrunnlag.penPerson!!
+
+                // NB: penPersonId is nullable in PEN but not here
+                if (person.penPersonId == 0L) {
+                    person.penPersonId = ++dummyPersonId
+                }
+
+                val trygdetidAntallAar = trygdetidAntallAar(persongrunnlag)
+                persongrunnlag.trygdetid = Trygdetid().apply { tt = trygdetidAntallAar }
+                persongrunnlag.trygdetider.add(Trygdetid().apply { tt = trygdetidAntallAar })
+
+                if (trygdetidAntallAar < MINIMUM_TRYGDETID_ANTALL_AAR &&
+                    ALDER == spec.simuleringTypeEnum &&
+                    isSoeker(persongrunnlag)
+                ) {
+                    tilstrekkelig = false
+                }
+            }
+
+            return tilstrekkelig
+        }
+
+        private fun trygdetidAntallAar(persongrunnlag: Persongrunnlag): Int {
+            if (persongrunnlag.flyktning == true)
+                return TRYGDETID_HVIS_FLYKTNING
+
+            val antallAar: Int = GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID - persongrunnlag.antallArUtland
+
+            return antallAar
+                .coerceAtLeast(0) // NB: Ikke MINIMUM_TRYGDETID_ANTALL_AAR
+                .coerceAtMost(FULL_TRYGDETID_ANTALL_AAR)
+        }
+
+        private fun updateVilkaarsvedtak(
+            spec: Simulering,
+            vedtak: VilkarsVedtak,
+            persongrunnlag: Persongrunnlag,
+            personDetalj: PersonDetalj,
+            grunnbeloep: Int
+        ) {
+            val rolle = personDetalj.grunnlagsrolleEnum
+            val simuleringType = spec.simuleringTypeEnum
+
+            val kravlinjeType: KravlinjeTypeEnum? =
+                rolle?.let { kravlinjeType(simuleringType, rolle = it, persongrunnlag, personDetalj, grunnbeloep) }
+
+            kravlinjeType?.let {
+                vedtak.kravlinje = VilkaarsvedtakKravlinje(type = it, person = persongrunnlag.penPerson)
+                vedtak.penPerson = persongrunnlag.penPerson
+                vedtak.kravlinjeTypeEnum = it
+                vedtak.forsteVirkLd = vedtak.virkFomLd
+                spec.vilkarsvedtakliste.add(vedtak)
+            }
+        }
+
+        private fun kravlinjeType(
+            simuleringType: SimuleringTypeEnum?,
+            rolle: GrunnlagsrolleEnum,
+            persongrunnlag: Persongrunnlag,
+            personDetalj: PersonDetalj,
+            grunnbeloep: Int
+        ): KravlinjeTypeEnum? =
+            when {
+                rolle == GrunnlagsrolleEnum.SOKER -> simuleringType?.let(::kravlinjeTypeForSoeker)
+
+                rolle == GrunnlagsrolleEnum.AVDOD && ALDER_M_GJEN == simuleringType -> KravlinjeTypeEnum.GJR
+
+                rolle == GrunnlagsrolleEnum.BARN && (ALDER == simuleringType || ALDER_M_GJEN == simuleringType)
+                        && personDetalj.barnDetalj?.inntektOver1G != true -> KravlinjeTypeEnum.BT
+
+                isEps(rolle) &&
+                        BorMedTypeEnum.SAMBOER1_5 == personDetalj.borMedEnum &&
+                        harRettTilEktefelleTillegg(simuleringType, persongrunnlag, grunnbeloep) -> KravlinjeTypeEnum.ET
+
+                else -> null
+            }
+
+        private fun kravlinjeTypeForSoeker(simuleringType: SimuleringTypeEnum): KravlinjeTypeEnum? =
+            when (simuleringType) {
+                ALDER -> KravlinjeTypeEnum.AP
+                ALDER_M_GJEN -> KravlinjeTypeEnum.AP
+                AFP -> KravlinjeTypeEnum.AFP
+                GJENLEVENDE -> KravlinjeTypeEnum.GJP
+                BARN -> KravlinjeTypeEnum.BP
+                else -> null
+            }
+
+        private fun isEps(rolle: GrunnlagsrolleEnum): Boolean =
+            rolle == GrunnlagsrolleEnum.EKTEF
+                    || rolle == GrunnlagsrolleEnum.PARTNER
+                    || rolle == GrunnlagsrolleEnum.SAMBO
+
+        private fun isSoeker(grunnlag: Persongrunnlag): Boolean =
+            grunnlag.personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }
+
+        private fun harRettTilEktefelleTillegg(
+            simuleringType: SimuleringTypeEnum?,
+            persongrunnlag: Persongrunnlag,
+            grunnbeloep: Int
+        ): Boolean {
+            if (ALDER != simuleringType) return false
+
+            val pensjonsinntektFraFolketrygden: Int = inntektBeloep(persongrunnlag, type = InntekttypeEnum.PENF)
+            val forventetPensjongivendeInntekt: Int = inntektBeloep(persongrunnlag, type = InntekttypeEnum.FPI)
+
+            val opprettEktefelleTillegg =
+                pensjonsinntektFraFolketrygden <= 0 && forventetPensjongivendeInntekt <= grunnbeloep
+
+            return opprettEktefelleTillegg
+        }
+
+        private fun inntektBeloep(grunnlag: Persongrunnlag, type: InntekttypeEnum): Int =
+            grunnlag.inntektsgrunnlagListe.firstOrNull { it.inntektTypeEnum == type }?.belop ?: 0
+
+        private fun innvilgetVedtak(virkningFom: LocalDate, person: PenPerson?) =
+            VilkarsVedtak().apply {
+                vilkarsvedtakResultatEnum = VedtakResultatEnum.INNV
+                virkFomLd = virkningFom
+                virkTomLd = null
+                gjelderPerson = person
+                penPerson = person
+            }
+
+        private fun isRelevant(periode: Uforeperiode, virkningFom: LocalDate): Boolean =
+            periode.isRealUforeperiode() &&
+                    periode.virkLd?.isBefore(virkningFom) == true
+    }
+}

@@ -81,7 +81,7 @@ class ServiceberegningAfpController(
         log.info { "spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 
         return try {
-            registrerHendelse(simuleringstype = SimuleringTypeEnum.AFP_FPP)
+            registrerHendelse(simuleringstype = SimuleringTypeEnum.AFP)
             val result = service.simulerAfpForServiceberegning(fromDto(spec))
             ResponseEntity.status(HttpStatus.OK).body(transferable(result))
         } catch (e: Exception) {

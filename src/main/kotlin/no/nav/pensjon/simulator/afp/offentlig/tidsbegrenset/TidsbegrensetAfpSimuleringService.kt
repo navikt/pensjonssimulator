@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset
 
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpFoerstegangBeregner.Companion.simulerTrygdetid
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
@@ -45,6 +46,8 @@ class TidsbegrensetAfpSimuleringService(
 ) {
     // PEN: SimpleSimuleringService.simulerPensjonsberegning
     //   -> SimulerPensjonsberegningCommand.execute
+    // -------------------------------------------------------
+    // NB: Compare with TidsbegrensetOffentligAfpFoerstegangBeregner.simulerPensjonsberegning
     fun simulerPensjonsberegning(coreSpec: Simulering): TidsbegrensetAfpSimuleringResult {
         validate(coreSpec)
         val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(coreSpec)
@@ -127,7 +130,7 @@ class TidsbegrensetAfpSimuleringService(
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.AVDOD)
         }
 
-        if (simuleringType == BARN) {
+        if (simuleringType == BARN) { //TODO fjern støtte for barnepensjon etc.
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.MOR)
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.FAR)
         }

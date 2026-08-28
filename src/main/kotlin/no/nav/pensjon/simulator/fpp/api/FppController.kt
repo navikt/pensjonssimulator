@@ -82,7 +82,7 @@ class FppController(
 
         return try {
             registrerHendelse(simuleringstype = simuleringType.internalValue)
-            val result = service.simulerPensjon(simuleringType.internalValue, fromDto(spec))
+            val result = service.simulerPensjon(fromDto(spec))
             ResponseEntity.status(HttpStatus.OK).body(toDto(result))
         } catch (e: Exception) {
             log.error(e) { "$FUNCTION_ID intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
@@ -114,7 +114,7 @@ class FppController(
 
         return try {
             registrerHendelse(simuleringstype = simuleringType.internalValue)
-            val result = service.simulerPensjon(simuleringType.internalValue, fromDto(spec))
+            val result = service.simulerPensjon(fromDto(spec))
             ResponseEntity.status(HttpStatus.OK).body(FppSimuleringResultMapperV2.toDto(result))
         } catch (e: Exception) {
             log.error(e) { "$FUNCTION_ID_V2 intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }

@@ -1,8 +1,8 @@
 package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset
 
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpFoerstegangBeregner.Companion.simulerTrygdetid
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
-import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -25,8 +25,6 @@ import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
-import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.FULL_TRYGDETID_ANTALL_AAR
-import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
@@ -45,6 +43,8 @@ class TidsbegrensetAfpSimuleringService(
 ) {
     // PEN: SimpleSimuleringService.simulerPensjonsberegning
     //   -> SimulerPensjonsberegningCommand.execute
+    // -------------------------------------------------------
+    // NB: Compare with TidsbegrensetOffentligAfpFoerstegangBeregner.simulerPensjonsberegning
     fun simulerPensjonsberegning(coreSpec: Simulering): TidsbegrensetAfpSimuleringResult {
         validate(coreSpec)
         val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(coreSpec)
@@ -127,7 +127,7 @@ class TidsbegrensetAfpSimuleringService(
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.AVDOD)
         }
 
-        if (simuleringType == BARN) {
+        if (simuleringType == BARN) { //TODO fjern støtte for barnepensjon etc.
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.MOR)
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.FAR)
         }
@@ -214,49 +214,6 @@ class TidsbegrensetAfpSimuleringService(
     }
 
     private companion object {
-        private const val GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID: Int = 51
-        private const val TRYGDETID_HVIS_FLYKTNING = FULL_TRYGDETID_ANTALL_AAR
-
-        /**
-         * Setter trygdetid på persongrunnlagene og avgjør om trygdetiden er tilstrekkelig.
-         */
-        private fun simulerTrygdetid(spec: Simulering): Boolean {
-            var tilstrekkelig = true // i utgangspunktet
-            var dummyPersonId = 0L
-
-            for (persongrunnlag in spec.persongrunnlagListe) {
-                val person: PenPerson = persongrunnlag.penPerson!!
-
-                // NB: penPersonId is nullable in PEN but not here
-                if (person.penPersonId == 0L) {
-                    person.penPersonId = ++dummyPersonId
-                }
-
-                val trygdetidAntallAar = trygdetidAntallAar(persongrunnlag)
-                persongrunnlag.trygdetid = Trygdetid().apply { tt = trygdetidAntallAar }
-                persongrunnlag.trygdetider.add(Trygdetid().apply { tt = trygdetidAntallAar })
-
-                if (trygdetidAntallAar < MINIMUM_TRYGDETID_ANTALL_AAR &&
-                    ALDER == spec.simuleringTypeEnum &&
-                    isSoeker(persongrunnlag)
-                ) {
-                    tilstrekkelig = false
-                }
-            }
-
-            return tilstrekkelig
-        }
-
-        private fun trygdetidAntallAar(persongrunnlag: Persongrunnlag): Int {
-            if (persongrunnlag.flyktning == true)
-                return TRYGDETID_HVIS_FLYKTNING
-
-            val antallAar: Int = GRUNNLAG_FOR_BEREGNING_AV_TRYGDETID - persongrunnlag.antallArUtland
-
-            return antallAar
-                .coerceAtLeast(0) // NB: Ikke MINIMUM_TRYGDETID_ANTALL_AAR
-                .coerceAtMost(FULL_TRYGDETID_ANTALL_AAR)
-        }
 
         private fun updateVilkaarsvedtak(
             spec: Simulering,
@@ -316,9 +273,6 @@ class TidsbegrensetAfpSimuleringService(
             rolle == GrunnlagsrolleEnum.EKTEF
                     || rolle == GrunnlagsrolleEnum.PARTNER
                     || rolle == GrunnlagsrolleEnum.SAMBO
-
-        private fun isSoeker(grunnlag: Persongrunnlag): Boolean =
-            grunnlag.personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }
 
         private fun harRettTilEktefelleTillegg(
             simuleringType: SimuleringTypeEnum?,

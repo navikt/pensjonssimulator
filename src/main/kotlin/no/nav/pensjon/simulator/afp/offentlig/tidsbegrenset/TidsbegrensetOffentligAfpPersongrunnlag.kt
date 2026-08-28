@@ -3,10 +3,7 @@ package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AbstraktBeregningsResultat
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
@@ -18,6 +15,7 @@ import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -116,6 +114,7 @@ class TidsbegrensetOffentligAfpPersongrunnlag(
             beholdVirksommePersondetaljer(persongrunnlag = this)
             spec.flyktning?.let { this.flyktning = it }
             this.antallArUtland = spec.utlandAntallAar
+            this.utenlandsoppholdListe = spec.utlandPeriodeListe.map(::utenlandsopphold).toMutableList()
             this.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
             this.bosattLandEnum = LandkodeEnum.NOR
             this.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
@@ -198,6 +197,16 @@ class TidsbegrensetOffentligAfpPersongrunnlag(
 
             return null
         }
+
+        fun utenlandsopphold(periode: UtlandPeriode) =
+            Utenlandsopphold().apply {
+                fomLd = periode.fom
+                tomLd = periode.tom
+                landEnum = periode.land
+                pensjonsordning = null
+                bodd = false // NB: Mangler info - setter 'false' som default
+                arbeidet = periode.arbeidet
+            }
 
         // Extracted from SimulerAFPogAPCommandHelper.filterPersondetaljIfSivilstandsTypeEnkeExists
         private fun gjelderEnke(detalj: PersonDetalj) = SivilstandEnum.ENKE == detalj.sivilstandTypeEnum

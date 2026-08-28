@@ -1,27 +1,23 @@
 package no.nav.pensjon.simulator.fpp
 
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetAfpSpec
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetAfpSpecCreator
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import org.springframework.stereotype.Service
 
 @Service
 class FppSimuleringFacade(
-    private val simuleringSpecCreator: FppSimuleringSpecCreator,
+    private val specCreator: TidsbegrensetAfpSpecCreator,
     private val simulator: FppSimuleringService
 ) {
     // PEN: PensjonskalkulatorController.lagreFpp
     //   -> PensjonskalkulatorController.simulerPensjon
-    fun simulerPensjon(
-        simuleringType: SimuleringTypeEnum,
-        spec: FppSimuleringSpec
-    ): FppSimuleringResult {
-        val coreSpec: Simulering = simuleringSpecCreator.createSpec(
-            simuleringType,
-            utenlandsopphold = spec.personopplysninger.utenlandsopphold ?: emptyList(),
-            uttaksdato = spec.uttaksdato,
-            personopplysninger = spec.personopplysninger,
-            opptjeningFolketrygden = spec.opptjeningFolketrygden,
-            barneopplysninger = spec.barneopplysninger
+    fun simulerPensjon(spec: TidsbegrensetAfpSpec): FppSimuleringResult {
+        val coreSpec: Simulering = specCreator.createSpec(
+            uttakFom = spec.uttakFom,
+            personinfo = spec.personopplysninger,
+            opptjeningListe = spec.opptjeningListe,
+            utenlandsoppholdListe = spec.personopplysninger.utenlandsoppholdListe
         )
 
         return simulator.simulerPensjonsberegning(coreSpec)

@@ -88,7 +88,7 @@ class PersonDto {
 
 // PEN: no.nav.domain.pensjon.common.person.Relasjon
 class RelasjonDto {
-    var relasjonsType: RelasjonstypeDto? = null
+    var relasjonsType: String? = null // ikke i bruk
     var fom: LocalDate? = null // PEN: Calendar
     var person: PersonDto? = null
 }

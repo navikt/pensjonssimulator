@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.spec
 
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
@@ -8,6 +9,7 @@ import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.RegisterData
+import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.naermesteLavereUttaksgrad
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
@@ -111,19 +113,6 @@ data class SimuleringSpec(
         else
             null
 
-    fun gradertUttak(
-        foersteUttakFom: PensjonAlderDato,
-        uttaksgrad: UttakGradKode
-    ): GradertUttakSimuleringSpec? =
-        if (isGradert(uttaksgrad))
-            GradertUttakSimuleringSpec(
-                grad = uttaksgrad,
-                uttakFom = foersteUttakFom,
-                aarligInntektBeloep = inntektUnderGradertUttakBeloep
-            )
-        else
-            null
-
     fun heltUttak(): HeltUttakSimuleringSpec {
         val uttakDato: LocalDate =
             if (uttakGrad == UttakGradKode.P_100)
@@ -142,13 +131,6 @@ data class SimuleringSpec(
             inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato, it) } ?: uttakFom
         )
     }
-
-    fun heltUttak(heltUttakFom: PensjonAlderDato) =
-        HeltUttakSimuleringSpec(
-            uttakFom = heltUttakFom,
-            aarligInntektBeloep = inntektEtterHeltUttakBeloep,
-            inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato!!, it) } ?: heltUttakFom
-        )
 
     fun withAvdoed(avdoed: Avdoed) =
         copy(
@@ -190,10 +172,11 @@ data class SimuleringSpec(
         val angittBeloep = angittInntektEtterHeltUttakBeloep
         val angittTom = angittInntektEtterHeltUttakTom
         val angittAntallAar = angittInntektEtterHeltUttakAntallAar
-        val inntektErUtloept = dato?.isAfter(inntektEtterHeltUttakTom ?: dato) == true
+        val inntektErUtloept = dato?.isAfter(angittTom ?: dato) == true
         val inntektBeloep = if (inntektErUtloept) 0 else angittBeloep
         val inntektTom = if (inntektErUtloept) dato.plusMonths(1).minusDays(1) else angittTom
-        val inntektAntallAar = if (inntektErUtloept) 0 else inntektTom?.let { Period.between(dato ?: it, it) }?.years ?: 0
+        val inntektAntallAar =
+            if (inntektErUtloept) 0 else inntektTom?.let { Period.between(dato ?: it, it) }?.years ?: 0
 
         return withUttak(
             foersteUttakDato,
@@ -204,6 +187,72 @@ data class SimuleringSpec(
             inntektEtterHeltUttakBeloep = inntektBeloep
         ).apply { setAngitt(angittBeloep, angittTom, angittAntallAar) }
     }
+
+    fun medGradertIstedenforHeltUttak(normalder: Alder, foedselsdato: LocalDate): SimuleringSpec =
+        medUttak(
+            foersteUttakFom = PensjonAlderDato(foedselsdato, foersteUttakDato!!),
+            uttaksgrad = naermesteLavereUttaksgrad(UttakGradKode.P_100),
+            heltUttakFom = PensjonAlderDato(foedselsdato, normalder)
+        )
+
+    /**
+     * Spesifikasjon for simulering med "utkanttilfellet" (dårligste uttaksparametre før normalder).
+     */
+    fun medUtkanttilfelleUttak(
+        normalder: Alder,
+        foedselsdato: LocalDate,
+        foersteUttakAlderIsConstant: Boolean = false
+    ): SimuleringSpec {
+        val gradert = isGradert()
+
+        val maxAlder = if (onlyVilkaarsproeving && gradert)
+            PensjonAlderDato(foedselsdato, heltUttakDato!!)
+        else
+            PensjonAlderDato(foedselsdato, normalder)
+
+        val variableFoersteUttakAlder = maxAlder.alder.minusMaaneder(1)
+
+        val utkantFoersteUttakAlder: Alder =
+            if (foersteUttakAlderIsConstant) PensjonAlderDato(foedselsdato, foersteUttakDato!!).alder
+            else variableFoersteUttakAlder
+
+        val heltUttakFomAlder: Alder =
+            if (gradert) maxAlder.alder else variableFoersteUttakAlder
+
+        return medUttak(
+            foersteUttakFom = PensjonAlderDato(foedselsdato, utkantFoersteUttakAlder),
+            uttaksgrad =
+                if (gradert)
+                    if (onlyVilkaarsproeving) uttakGrad else utkantUttaksgrad
+                else
+                    UttakGradKode.P_100,
+            heltUttakFom = PensjonAlderDato(foedselsdato, heltUttakFomAlder)
+        )
+    }
+
+    /**
+     * Spesifikasjon for å simulere for ubetinget uttaksalder (normalder, dvs. alderen der enhver kan ta ut pensjon).
+     */
+    fun medUbetingetUttak(normalder: Alder): SimuleringSpec {
+        val uttakFomAlder = PensjonAlderDato(foedselDato!!, normalder)
+
+        return medUttak(
+            foersteUttakFom = uttakFomAlder,
+            uttaksgrad = UttakGradKode.P_100,
+            heltUttakFom = uttakFomAlder
+        )
+    }
+
+    fun medLavereUttaksgrad(
+        tillatOvergangFraHeltTilGradertUttak: Boolean = false
+    ): SimuleringSpec =
+        copy(
+            uttakGrad =
+                if (tillatOvergangFraHeltTilGradertUttak || isGradert())
+                    naermesteLavereUttaksgrad(uttakGrad)
+                else
+                    UttakGradKode.P_100
+        )
 
     fun gjelderLivsvarigAfp() =
         gjelderPrivatAfp || gjelderLivsvarigOffentligAfp()
@@ -286,7 +335,57 @@ data class SimuleringSpec(
         // NB: Simuleringstype AFP_ETTERF_ALDER har ingen variant for endring av pensjon
         type == SimuleringTypeEnum.AFP_ETTERF_ALDER
 
+    private fun gradertUttak(
+        foersteUttakFom: PensjonAlderDato,
+        uttaksgrad: UttakGradKode
+    ): GradertUttakSimuleringSpec? =
+        if (isGradert(uttaksgrad))
+            GradertUttakSimuleringSpec(
+                grad = uttaksgrad,
+                uttakFom = foersteUttakFom,
+                aarligInntektBeloep = inntektUnderGradertUttakBeloep
+            )
+        else
+            null
+
+    private fun heltUttak(heltUttakFom: PensjonAlderDato) =
+        HeltUttakSimuleringSpec(
+            uttakFom = heltUttakFom,
+            aarligInntektBeloep = inntektEtterHeltUttakBeloep,
+            inntektTom = inntektEtterHeltUttakTom?.let { PensjonAlderDato(foedselDato!!, it) } ?: heltUttakFom
+        )
+
+    private fun medUttak(
+        foersteUttakFom: PensjonAlderDato,
+        uttaksgrad: UttakGradKode,
+        heltUttakFom: PensjonAlderDato
+    ): SimuleringSpec {
+        val angittBeloep = angittInntektEtterHeltUttakBeloep
+        val angittTom = angittInntektEtterHeltUttakTom
+        val angittAntallAar = angittInntektEtterHeltUttakAntallAar
+        val heltUttakDato: LocalDate = heltUttak(heltUttakFom).uttakFom.dato
+        val inntektErUtloept = heltUttakDato.isAfter(angittTom ?: heltUttakDato)
+        val inntektBeloep = if (inntektErUtloept) 0 else angittBeloep
+        val inntektTom = if (inntektErUtloept) heltUttakDato.plusMonths(1).minusDays(1) else angittTom
+        val inntektAntallAar =
+            if (inntektErUtloept) 0 else inntektTom?.let { Period.between(heltUttakDato, it) }?.years ?: 0
+
+        return withUttak(
+            foersteUttakDato = gradertUttak(foersteUttakFom, uttaksgrad)?.uttakFom?.dato ?: heltUttakDato,
+            uttaksgrad = uttaksgrad,
+            heltUttakDato = heltUttakDato,
+            inntektEtterHeltUttakTom = inntektTom,
+            inntektEtterHeltUttakAntallAar = inntektAntallAar,
+            inntektEtterHeltUttakBeloep = inntektBeloep
+        ).apply { setAngitt(angittBeloep, angittTom, angittAntallAar) }
+    }
+
     private companion object {
+        /**
+         * Den "dårligste" uttaksgraden, dvs. den som gir minst pensjon,
+         * men som gir størst mulighet for innvilgelse i vilkårsprøvingen.
+         */
+        private val utkantUttaksgrad = UttakGradKode.P_20 // kun hvis gradert uttak
 
         private val simuleringstyperSomVedHeltUttakKreverAvsluttetUfoeretrygd: Set<SimuleringTypeEnum> =
             setOf(

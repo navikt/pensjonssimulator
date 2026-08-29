@@ -97,7 +97,7 @@ private fun simuleringSpec(
         forventetInntektBeloep = 250000,
         inntektUnderGradertUttakBeloep = 125000,
         inntektEtterHeltUttakBeloep = 67500,
-        inntektEtterHeltUttakAntallAar = null,
+        inntektEtterHeltUttakAntallAar = 0,
         inntektEtterHeltUttakTom = null,
         foedselAar = 1967,
         utlandAntallAar = 3,

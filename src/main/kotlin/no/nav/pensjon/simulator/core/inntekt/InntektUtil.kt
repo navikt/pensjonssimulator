@@ -52,10 +52,16 @@ object InntektUtil {
         foersteUttakDato: LocalDate?,
         heltUttakDato: LocalDate? = null,
         inntektEtterHeltUttakAntallAar: Int?
-    ): LocalDate? =
-        (heltUttakDato ?: foersteUttakDato)
-            ?.plusYears((inntektEtterHeltUttakAntallAar ?: 0).toLong())
-            ?.minusDays(1)
+    ): LocalDate? {
+        val antallAar = inntektEtterHeltUttakAntallAar?.coerceAtLeast(0) ?: 0
+
+        return (heltUttakDato ?: foersteUttakDato)?.let {
+            if (antallAar > 0)
+                it.plusYears(antallAar.toLong())?.minusDays(1)
+            else
+                it
+        }
+    }
 
     // Extracted from PEN: OpprettKravHodeHelper.createArliginntekt
     private fun periodevisInntekt(inntekt: FremtidigInntekt, antallMaaneder: Int) =

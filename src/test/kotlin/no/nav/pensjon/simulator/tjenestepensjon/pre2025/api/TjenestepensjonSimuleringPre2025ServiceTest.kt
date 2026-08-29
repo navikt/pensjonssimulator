@@ -117,7 +117,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
             inntektUnderGradertUttakBeloep shouldBe 0
             inntektEtterHeltUttakBeloep shouldBe 0
             inntektEtterHeltUttakAntallAar shouldBe 0
-            inntektEtterHeltUttakTom shouldBe LocalDate.of(2027, 1, 31)
+            inntektEtterHeltUttakTom shouldBe LocalDate.of(2027, 2, 1)
             foedselAar shouldBe 0
             utlandAntallAar shouldBe 0
             utlandPeriodeListe shouldHaveSize 0

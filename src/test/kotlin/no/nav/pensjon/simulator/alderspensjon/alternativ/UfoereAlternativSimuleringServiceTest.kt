@@ -24,7 +24,9 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
         context("utkanttilfellet avslått, senere førsteuttak ikke tillatt") {
             should("gi tomt resultat") {
                 val service = UfoereAlternativSimuleringService(
-                    simulator = arrangeAvslaattUtkanttilfelle(),
+                    simulator = arrangeAvslaattUtkanttilfelle(
+                        tillatSenereFoersteuttakForUfoere = false
+                    ),
                     normalderService = Arrange.normalder(foedselsdato),
                     alternativtUttakService = mockk(),
                     outputConverter = mockk(),
@@ -54,7 +56,9 @@ class UfoereAlternativSimuleringServiceTest : ShouldSpec({
         context("utkanttilfellet avslått, senere førsteuttak tillatt") {
             should("gi resultat for ubetinget uttak (100 % ved normalder)") {
                 val service = UfoereAlternativSimuleringService(
-                    simulator = arrangeAvslaattUtkanttilfelle(),
+                    simulator = arrangeAvslaattUtkanttilfelle(
+                        tillatSenereFoersteuttakForUfoere = true
+                    ),
                     normalderService = Arrange.normalder(foedselsdato), // 67 år 0 måneder
                     alternativtUttakService = mockk(),
                     outputConverter = mockk(),
@@ -263,7 +267,9 @@ private fun arrangeIngenInnvilgedeUttak(): SimulatorCore =
         } throws UtilstrekkeligOpptjeningException() // => avslag igjen
     }
 
-private fun arrangeAvslaattUtkanttilfelle(): SimulatorCore =
+private fun arrangeAvslaattUtkanttilfelle(
+    tillatSenereFoersteuttakForUfoere: Boolean = false
+): SimulatorCore =
     mockk {
         arrangeFoedselsdato(this)
 
@@ -272,7 +278,8 @@ private fun arrangeAvslaattUtkanttilfelle(): SimulatorCore =
                 simuleringSpec(
                     foersteUttakDato = LocalDate.of(2030, 2, 1), // konstant dato for gradert uttak
                     uttaksgrad = UttakGradKode.P_20, // minste uttaksgrad
-                    heltUttakDato = normertPensjoneringsdato
+                    heltUttakDato = normertPensjoneringsdato,
+                    tillatSenereFoersteuttakForUfoere
                 )
             )
         } throws UtilstrekkeligTrygdetidException()
@@ -302,7 +309,7 @@ private fun simuleringSpec(
         forventetInntektBeloep = 250000,
         inntektUnderGradertUttakBeloep = 125000,
         inntektEtterHeltUttakBeloep = 67500,
-        inntektEtterHeltUttakAntallAar = null,
+        inntektEtterHeltUttakAntallAar = 0,
         inntektEtterHeltUttakTom = null,
         foedselAar = 1967,
         utlandAntallAar = 3,

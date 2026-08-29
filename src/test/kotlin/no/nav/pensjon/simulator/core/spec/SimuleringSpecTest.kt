@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.core.spec
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
@@ -128,6 +129,43 @@ class SimuleringSpecTest : ShouldSpec({
         }
     }
 
+    context("medGradertIstedenforHeltUttak") {
+        should("bruke den største graderte uttaksgraden (80 %)") {
+            simuleringSpec(uttaksgrad = UttakGradKode.P_100)
+                .medGradertIstedenforHeltUttak(
+                    normalder = Alder(aar = 67, maaneder = 0),
+                    foedselsdato = LocalDate.of(1965, 1, 15)
+                ).uttakGrad shouldBe UttakGradKode.P_80
+        }
+    }
+
+    context("medUtkanttilfelleUttak") {
+        should("bruke den minste graderte uttaksgraden (20 %)") {
+            simuleringSpec(uttaksgrad = UttakGradKode.P_80)
+                .medUtkanttilfelleUttak(
+                    normalder = Alder(aar = 67, maaneder = 0),
+                    foedselsdato = LocalDate.of(1965, 1, 15)
+                ).uttakGrad shouldBe UttakGradKode.P_20
+        }
+    }
+
+    context("medUbetingetUttak") {
+        should("bruke dato for normert pensjonsalder som uttaksdato") {
+            simuleringSpec(
+                foedselsdato = LocalDate.of(1965, 1, 15)
+            ).medUbetingetUttak(
+                normalder = Alder(aar = 67, maaneder = 0),
+            ).foersteUttakDato shouldBe LocalDate.of(2032, 2, 1)
+        }
+    }
+
+    context("medLavereUttaksgrad") {
+        should("bruke neste lavere uttaksgrad") {
+            simuleringSpec(uttaksgrad = UttakGradKode.P_60)
+                .medLavereUttaksgrad().uttakGrad shouldBe UttakGradKode.P_50
+        }
+    }
+
     context("withHeltUttakDato") {
         context("ny uttaksdato er før inntektens sluttdato") {
             should("oppdatere inntektens varighet, ikke endre sluttdato og beløp") {
@@ -188,7 +226,7 @@ class SimuleringSpecTest : ShouldSpec({
                     heltUttakDato = LocalDate.of(2031, 1, 1),
                     inntektEtterHeltUttakTom = LocalDate.of(2035, 1, 31),
                     inntektEtterHeltUttakAntallAar = 4
-                )                    .withHeltUttakDato(null)
+                ).withHeltUttakDato(null)
 
                 with(spec) {
                     heltUttakDato shouldBe null

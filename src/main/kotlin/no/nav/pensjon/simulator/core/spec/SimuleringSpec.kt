@@ -172,7 +172,7 @@ data class SimuleringSpec(
         val angittBeloep = angittInntektEtterHeltUttakBeloep
         val angittTom = angittInntektEtterHeltUttakTom
         val angittAntallAar = angittInntektEtterHeltUttakAntallAar
-        val inntektErUtloept = dato?.isAfter(inntektEtterHeltUttakTom ?: dato) == true
+        val inntektErUtloept = dato?.isAfter(angittTom ?: dato) == true
         val inntektBeloep = if (inntektErUtloept) 0 else angittBeloep
         val inntektTom = if (inntektErUtloept) dato.plusMonths(1).minusDays(1) else angittTom
         val inntektAntallAar =
@@ -364,7 +364,7 @@ data class SimuleringSpec(
         val angittTom = angittInntektEtterHeltUttakTom
         val angittAntallAar = angittInntektEtterHeltUttakAntallAar
         val heltUttakDato: LocalDate = heltUttak(heltUttakFom).uttakFom.dato
-        val inntektErUtloept = heltUttakDato.isAfter(inntektEtterHeltUttakTom ?: heltUttakDato)
+        val inntektErUtloept = heltUttakDato.isAfter(angittTom ?: heltUttakDato)
         val inntektBeloep = if (inntektErUtloept) 0 else angittBeloep
         val inntektTom = if (inntektErUtloept) heltUttakDato.plusMonths(1).minusDays(1) else angittTom
         val inntektAntallAar =

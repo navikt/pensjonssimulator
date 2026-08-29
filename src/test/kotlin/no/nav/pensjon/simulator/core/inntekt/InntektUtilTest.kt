@@ -107,13 +107,33 @@ class InntektUtilTest : FunSpec({
             }
         }
 
-        context("antall år ikke angitt") {
-            test("bruke 0 år") {
+        context("antall år 0") {
+            test("gi dato lik uttaksdato") {
                 InntektUtil.heltUttakInntektTom(
                     foersteUttakDato = LocalDate.of(2022, 1, 1),
                     heltUttakDato = null,
+                    inntektEtterHeltUttakAntallAar = 0
+                ) shouldBe LocalDate.of(2022, 1, 1)
+            }
+        }
+
+        context("negativt antall år") {
+            test("gi dato lik uttaksdato") {
+                InntektUtil.heltUttakInntektTom(
+                    foersteUttakDato = LocalDate.of(2022, 1, 1),
+                    heltUttakDato = null,
+                    inntektEtterHeltUttakAntallAar = -1
+                ) shouldBe LocalDate.of(2022, 1, 1)
+            }
+        }
+
+        context("antall år ikke angitt") {
+            test("bruke 0 år") {
+                InntektUtil.heltUttakInntektTom(
+                    foersteUttakDato = LocalDate.of(2021, 1, 1),
+                    heltUttakDato = LocalDate.of(2022, 2, 1),
                     inntektEtterHeltUttakAntallAar = null
-                ) shouldBe LocalDate.of(2021, 12, 31)
+                ) shouldBe LocalDate.of(2022, 2, 1)
             }
         }
     }

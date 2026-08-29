@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.api.samhandler.np.v2.acl.spec
 
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
+import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -49,7 +50,11 @@ class SimuleringSpecMapperForNorskPensjon(
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
             inntektEtterHeltUttakBeloep = heltUttak?.aarligInntekt ?: foersteUttak.aarligInntekt ?: 0,
             inntektEtterHeltUttakAntallAar = source.antallInntektsaarEtterHeltUttak,
-            inntektEtterHeltUttakTom = (heltUttak?.fomDato ?: foersteUttakFom).plusYears((source.antallInntektsaarEtterHeltUttak ?: 0).toLong()).minusDays(1),
+            inntektEtterHeltUttakTom = heltUttakInntektTom(
+                foersteUttakDato = foersteUttakFom,
+                heltUttakDato = heltUttak?.fomDato,
+                inntektEtterHeltUttakAntallAar = source.antallInntektsaarEtterHeltUttak
+            ),
             foedselAar = 0,
             utlandAntallAar = source.aarIUtlandetEtter16 ?: 0,
             utlandPeriodeListe = mutableListOf(),

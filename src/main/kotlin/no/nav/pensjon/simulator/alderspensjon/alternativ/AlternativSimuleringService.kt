@@ -8,9 +8,6 @@ import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
-import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil
-import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.utkantSimuleringSpec
-import no.nav.pensjon.simulator.core.spec.SimuleringSpecUtil.withLavereUttakGrad
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
@@ -41,7 +38,7 @@ class AlternativSimuleringService(
         inkluderPensjonHvisUbetinget: Boolean
     ): SimulertPensjonEllerAlternativ {
         return try {
-            val lavereGradSpec: SimuleringSpec = withLavereUttakGrad(spec)
+            val lavereGradSpec: SimuleringSpec = spec.medLavereUttaksgrad()
             val result: SimulatorOutput = simulator.simuler(lavereGradSpec)
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
@@ -83,7 +80,7 @@ class AlternativSimuleringService(
         val normalder: Alder = normalderService.normalder(spec.foedselDato!!)
 
         try {
-            val utkantSpec: SimuleringSpec = utkantSimuleringSpec(spec, normalder, spec.foedselDato)
+            val utkantSpec: SimuleringSpec = spec.medUtkanttilfelleUttak(normalder, spec.foedselDato)
 
             if (utkantSpec.hasSameUttakAs(spec)) {
                 // spec has already resulted in 'avslag', so no point in trying again
@@ -122,7 +119,7 @@ class AlternativSimuleringService(
         normalder: Alder
     ): SimulertPensjonEllerAlternativ =
         try {
-            val ubetingetSpec: SimuleringSpec = SimuleringSpecUtil.ubetingetSimuleringSpec(spec, normalder)
+            val ubetingetSpec: SimuleringSpec = spec.medUbetingetUttak(normalder)
 
             alternativResponse(
                 spec = ubetingetSpec,

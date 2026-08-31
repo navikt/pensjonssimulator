@@ -29,7 +29,9 @@ object ServiceberegningAfpResultMapper {
             tilleggspensjon = source.tilleggspensjon,
             afpTillegg = source.afpTillegg,
             fpp = source.fpp,
-            saertillegg = source.sertillegg
+            saertillegg = source.sertillegg,
+            grad = source.grad,
+            erAvkortet = source.erAvkortet
         )
 
     private fun opptjening(source: OpptjeningGrunnlag) =

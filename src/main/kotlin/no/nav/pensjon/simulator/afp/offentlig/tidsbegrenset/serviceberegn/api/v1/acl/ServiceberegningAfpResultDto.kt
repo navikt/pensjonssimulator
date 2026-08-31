@@ -64,7 +64,13 @@ data class ServiceberegningFolketrygdberegnetAfpDto(
     val fpp: Double?,
 
     @field:Schema(description = "særtillegg (kronebeløp)")
-    val saertillegg: Int?
+    val saertillegg: Int?,
+
+    @field:Schema(description = "AFP-grad (prosent)")
+    val grad: Int?,
+
+    @field:Schema(description = "hvorvidt AFP-en er avkortet")
+    val erAvkortet: Boolean?
 )
 
 data class ServiceberegningOpptjeningDto(

@@ -16,8 +16,7 @@ class FppSimuleringFacade(
         val coreSpec: Simulering = specCreator.createSpec(
             uttakFom = spec.uttakFom,
             personinfo = spec.personopplysninger,
-            opptjeningListe = spec.opptjeningListe,
-            utenlandsoppholdListe = spec.personopplysninger.utenlandsoppholdListe
+            opptjeningListe = spec.opptjeningListe
         )
 
         return simulator.simulerPensjonsberegning(coreSpec)

@@ -93,9 +93,7 @@ class TidsbegrensetAfpSpecCreatorTest : ShouldSpec({
                     bruk shouldBe true
                     grunnlagKildeEnum shouldBe GrunnlagkildeEnum.SIMULERING
                 }
-                opptjeningsgrunnlagListe shouldBe mutableListOf()
                 ufoereOpptjeningGrunnlag?.maksUtbetalingsgradPerArUTListe shouldBe mutableListOf()
-                opptjeningsgrunnlagListe shouldBe mutableListOf()
                 fodselsdatoLd shouldBe LocalDate.of(1965, 10, 15)
                 flyktning shouldBe true
                 skiltesDelAvAvdodesTP shouldBe -99 // hard-coded

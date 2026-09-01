@@ -24,8 +24,7 @@ class TidsbegrensetAfpSimuleringFacade(
         specCreator.createSpec(
             uttakFom = spec.uttakFom,
             personinfo = spec.personopplysninger,
-            opptjeningListe = spec.opptjeningListe,
-            utenlandsoppholdListe = spec.personopplysninger.utenlandsoppholdListe
+            opptjeningListe = spec.opptjeningListe
         )
 
     private companion object {

@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset
 
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpPersongrunnlag.Companion.utenlandsopphold
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
@@ -16,7 +17,6 @@ import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Person
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
-import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
@@ -30,8 +30,7 @@ class TidsbegrensetAfpSpecCreator(
     fun createSpec(
         uttakFom: LocalDate,
         personinfo: PersonSpec,
-        opptjeningListe: List<FolketrygdOpptjeningSpec>,
-        utenlandsoppholdListe: List<UtlandPeriode>
+        opptjeningListe: List<FolketrygdOpptjeningSpec>
     ) =
         Simulering().apply {
             simuleringTypeEnum = SimuleringTypeEnum.AFP
@@ -42,7 +41,6 @@ class TidsbegrensetAfpSpecCreator(
                 uttakFom,
                 personinfo,
                 opptjeningListe,
-                utenlandsoppholdListe,
                 grunnbeloepService.naavaerendeGrunnbeloep()
             )
         }
@@ -51,11 +49,10 @@ class TidsbegrensetAfpSpecCreator(
         uttakFom: LocalDate,
         personinfo: PersonSpec,
         opptjeningListe: List<FolketrygdOpptjeningSpec>,
-        utenlandsoppholdListe: List<UtlandPeriode>,
         grunnbeloep: Int
     ): List<Persongrunnlag> {
         val grunnlagListe = mutableListOf(
-            persongrunnlagForSoeker(uttakFom, personinfo, opptjeningListe, utenlandsoppholdListe)
+            persongrunnlagForSoeker(uttakFom, personinfo, opptjeningListe)
         )
 
         if (epsSivilstatuser.any { it == personinfo.eps?.angittSivilstatus }) {
@@ -68,8 +65,7 @@ class TidsbegrensetAfpSpecCreator(
     private fun persongrunnlagForSoeker(
         uttakFom: LocalDate,
         personinfo: PersonSpec,
-        opptjeningListe: List<FolketrygdOpptjeningSpec>,
-        utenlandsoppholdListe: List<UtlandPeriode>
+        opptjeningListe: List<FolketrygdOpptjeningSpec>
     ): Persongrunnlag {
         val soekerPid = personinfo.pid
         val person: Person = personService.person(soekerPid)
@@ -79,8 +75,10 @@ class TidsbegrensetAfpSpecCreator(
             penPerson = penPerson(soekerPid, penPersonId = 1L)
 
             antallArUtland = foedselsdato?.let {
-                UtlandPeriodeConverter.limitedAntallAar(periodeListe = utenlandsoppholdListe, foedselsdato = it)
+                UtlandPeriodeConverter.limitedAntallAar(periodeListe = personinfo.utenlandsoppholdListe, foedselsdato = it)
             } ?: 0
+
+            utenlandsoppholdListe = personinfo.utenlandsoppholdListe.map(::utenlandsopphold).toMutableList()
 
             personDetaljListe.add(
                 persondetaljForSoeker(

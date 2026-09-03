@@ -60,15 +60,22 @@ object SimulertOpptjeningMapper {
         afpHistorikkListe.isNotEmpty()
                 && overlapperMedAaret(historikk = afpHistorikkListe[0], aar)
 
+    /**
+     * Argmentet 'grunnlag' inneholder faktisk opptjening, samt estimert framtidig opptjening.
+     * Argumentet 'resultatListe' inneholder beregnet framtidig opptjening, basert på grunnlaget og pensjonsuttak.
+     * Det er dermed sistnevnte som inneholder de 'riktigste' verdiene (da de tar hensyn til uttak).
+     * Merk at det er beholdningen på årets siste dag som brukes, da denne tar i betraktning endringer som har
+     * skjedd i løpet av året (f.eks. regulering og pensjonsuttak).
+     */
     private fun pensjonsbeholdning(
         grunnlag: Persongrunnlag,
         aar: Int,
         resultatListe: List<AbstraktBeregningsResultat>
     ): Pensjonsbeholdning? =
-        pensjonsbeholdningForAar(grunnlag.beholdninger, aar)
-            ?: forDato(resultatListe, foersteDag(aar))
-                ?.let(::alderspensjonsresultat2025)?.beregningKapittel20?.beholdninger?.beholdninger
-                ?.let(::sistePensjonsbeholdning)
+        forDato(resultatListe, sisteDag(aar))
+            ?.let(::alderspensjonsresultat2025)?.beregningKapittel20?.beholdninger?.beholdninger
+            ?.let(::sistePensjonsbeholdning)
+            ?: pensjonsbeholdningForAar(grunnlag.beholdninger, aar)
 
     /**
      * NB: Det er typisk to beholdninger per år (før og etter regulering);

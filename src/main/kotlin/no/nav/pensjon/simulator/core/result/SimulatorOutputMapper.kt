@@ -1,18 +1,19 @@
 package no.nav.pensjon.simulator.core.result
 
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
-import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
-import no.nav.pensjon.simulator.core.domain.regler.enum.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
+import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Beholdning
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
-import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
@@ -23,7 +24,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsva
  */
 object SimulatorOutputMapper {
 
-    // SimuleringEtter2011ResultatMapper.mapToSimuleringEtter2011Resultat
     fun mapToSimulatorOutput(
         simuleringSpec: SimuleringSpec,
         soekerGrunnlag: Persongrunnlag
@@ -191,74 +191,6 @@ object SimulatorOutputMapper {
             this.uttakGrad = beregningResultat.uttaksgrad.toDouble()
         }
 
-    /**
-     * The logic behind useNullAsDefaultPensjonspoeng is found in PEN:
-     * SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
-     * In PEN poengtallListe is nullable; if null then pensjonspoengPi becomes null
-     * Here poengtallListe is not nullable, so need useNullAsDefaultPensjonspoeng to carry this info
-     */
-    // SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
-    fun mapToSimulertOpptjening(
-        kalenderAar: Int,
-        resultatListe: List<AbstraktBeregningsResultat>,
-        soekerGrunnlag: Persongrunnlag,
-        poengtallListe: List<Poengtall>,
-        useNullAsDefaultPensjonspoeng: Boolean
-    ): SimulertOpptjening {
-        val opptjeningGrunnlagListe = soekerGrunnlag.opptjeningsgrunnlagListe
-
-        return SimulertOpptjening(
-            pensjonsgivendeInntekt = pensjonsgivendeInntektForAar(opptjeningGrunnlagListe, kalenderAar)?.pi ?: 0,
-            kalenderAar = kalenderAar,
-            pensjonsgivendeInntektPensjonspoeng = findValidForAar(poengtallListe, kalenderAar)?.pp
-                ?: if (useNullAsDefaultPensjonspoeng) null else 0.0,
-            omsorgPensjonspoeng = omsorgspoengForAar(opptjeningGrunnlagListe, kalenderAar),
-            pensjonBeholdning = pensjonBeholdning(soekerGrunnlag, kalenderAar, resultatListe)?.totalbelop?.toInt(),
-            omsorg = containsValidOmsorgsgrunnlagForAr(soekerGrunnlag.omsorgsgrunnlagListe, kalenderAar),
-            dagpenger = dagpengegrunnlagAvTypeEksistererForAar(
-                dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe,
-                type = DagpengetypeEnum.DP,
-                kalenderAar = kalenderAar
-            ),
-            dagpengerFiskere = dagpengegrunnlagAvTypeEksistererForAar(
-                dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe,
-                type = DagpengetypeEnum.DP_FF,
-                kalenderAar = kalenderAar
-            ),
-            foerstegangstjeneste = soekerGrunnlag.forstegangstjenestegrunnlag?.let {
-                containsValidForstegangstjenestePeriodeForAr(it.periodeListe, kalenderAar)
-            },
-            harUfoere = soekerGrunnlag.uforeHistorikk?.let {
-                findEarliestIntersectingWithYear(filterUforeperioder(it.uforeperiodeListe), kalenderAar) != null
-            },
-            harOffentligAfp = harOffentligAfp(soekerGrunnlag.afpHistorikkListe, kalenderAar),
-        )
-    }
-
-    //TODO: Sjekk hvilken AFP-type denne funksjonen dekker
-    private fun harOffentligAfp(afpHistorikkListe: List<AfpHistorikk>?, kalenderAar: Int) =
-        if (afpHistorikkListe.isNullOrEmpty())
-            false
-        else  // ref. no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.setAfpHistorikkListe
-            isIntersectingWithYear(element = afpHistorikkListe[0], year = kalenderAar)
-
-    // Part of SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
-    private fun pensjonBeholdning(
-        soekerGrunnlag: Persongrunnlag,
-        kalenderAar: Int,
-        resultatListe: List<AbstraktBeregningsResultat>
-    ): Pensjonsbeholdning? {
-        val beholdning = beholdningForAar(soekerGrunnlag.beholdninger, kalenderAar)
-        if (beholdning != null) return beholdning
-
-        val validBeregningsresultat =
-            findValidForDate(resultatListe, firstDayOf(kalenderAar)) as? BeregningsResultatAlderspensjon2025
-
-        return validBeregningsresultat?.let {
-            findLatestPensjonsbeholdning(it.beregningKapittel20?.beholdninger?.beholdninger.orEmpty())
-        }
-    }
-
     private fun erAp2011Beregning(kravhode: Kravhode): Boolean =
         kravhode.regelverkTypeEnum == RegelverkTypeEnum.N_REG_G_OPPTJ
 
@@ -268,168 +200,6 @@ object SimulatorOutputMapper {
     private fun getMonthsBetweenInRange1To12(firstDate: LocalDate, secondDate: LocalDate): Int {
         val monthsBetween = getMonthBetween(firstDate, secondDate) % MAANEDER_PER_AAR
         return if (monthsBetween == 0) MAANEDER_PER_AAR else monthsBetween
-    }
-
-    // SimuleringEtter2011ResultatMapper.findBeholdningOfTypeForYear
-    private fun beholdningForAar(beholdninger: List<Pensjonsbeholdning>, aar: Int): Pensjonsbeholdning? {
-        val pensjonsbeholdninger = extractPensjonsbeholdninger(beholdninger)
-        val filteredByTypeAndYear = sortedBeholdningSubset(pensjonsbeholdninger, aar)
-        // NB: Det er typisk to beholdninger per år (før og etter regulering);
-        // her plukkes den første i listen, men man vet ikke om den er før eller etter regulering:
-        return if (filteredByTypeAndYear.isEmpty()) null else filteredByTypeAndYear[0]
-    }
-
-    // Specific version of SimuleringEtter2011ResultatMapper.findLatestBeholdningOfType
-    private fun findLatestPensjonsbeholdning(beholdninger: List<Beholdning>): Pensjonsbeholdning {
-        val pensjonsbeholdninger =
-            extractPensjonsbeholdninger(beholdninger).sortedBy { it.ar } // PeriodisertInformasjonListeUtils + PeriodisertInformasjonAscendingDateComparator
-        // NB: using ar instead of fom, since fom is always null in response from regler
-        //TODO Sjekk om påstanden over er riktig
-        return pensjonsbeholdninger.last()
-    }
-
-    private fun pensjonsgivendeInntektForAar(
-        opptjeningGrunnlagListe: List<Opptjeningsgrunnlag>,
-        kalenderAar: Int
-    ): Opptjeningsgrunnlag? {
-        val filteredByYear = sortedOpptjeningsgrunnlagSubset(opptjeningGrunnlagListe, kalenderAar)
-        return extractPensjonsgivendeInntekter(filteredByYear).firstOrNull()
-    }
-
-    private fun omsorgspoengForAar(opptjeningGrunnlagListe: List<Opptjeningsgrunnlag>, kalenderAar: Int): Double {
-        var omsorgspoeng = 0.0
-        var priority = Int.MAX_VALUE
-
-        val omsorgTypes = arrayOf(
-            OpptjeningtypeEnum.OSFE,
-            OpptjeningtypeEnum.OBO7H,
-            OpptjeningtypeEnum.OBU7,
-            OpptjeningtypeEnum.OBO6H,
-            OpptjeningtypeEnum.OBU6
-        )
-
-        val prioritisedOmsorgTypeList = ArrayList(listOf(*omsorgTypes))
-        var tempPriority: Int
-
-        for (grunnlag in opptjeningGrunnlagListe) {
-            if (grunnlag.ar == kalenderAar) {
-                tempPriority = prioritisedOmsorgTypeList.indexOf(grunnlag.opptjeningTypeEnum)
-
-                if (tempPriority != -1 && tempPriority < priority) {
-                    priority = tempPriority
-                    omsorgspoeng = grunnlag.pp
-                }
-            }
-        }
-
-        return omsorgspoeng
-    }
-
-    private fun dagpengegrunnlagAvTypeEksistererForAar(
-        dagpengegrunnlagListe: List<Dagpengegrunnlag>,
-        type: DagpengetypeEnum,
-        kalenderAar: Int
-    ) =
-        sortedDagpengegrunnlagSubset(subsetOfTypes(dagpengegrunnlagListe, type), kalenderAar).isNotEmpty()
-
-    private fun filterUforeperioder(perioder: MutableList<Uforeperiode>): MutableList<Uforeperiode> =
-        perioder.filter { it.uforeTypeEnum != UforetypeEnum.VIRK_IKKE_UFOR }.toMutableList()
-
-    private fun isIntersectingWithYear(element: AfpHistorikk?, year: Int): Boolean {
-        if (element == null) return false
-        val jan1st = firstDayOf(year)
-        val dec31st = LocalDate.of(year, 12, 31)
-        return intersectsWithPossiblyOpenEndings(jan1st, dec31st, element.virkFomLd, element.virkTomLd, true)
-    }
-
-    // Specific variant of TypedInformationListeUtils.subsetOfTypes
-    private fun subsetOfTypes(list: List<Dagpengegrunnlag>, type: DagpengetypeEnum): List<Dagpengegrunnlag> =
-        list.filter { it.dagpengetypeEnum == type }
-
-    // Specific variant of TypedInformationListeUtils.subsetOfTypes
-    private fun extractPensjonsbeholdninger(list: List<Beholdning>): List<Pensjonsbeholdning> =
-        list.filter { it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B }.map { it as Pensjonsbeholdning }
-
-    // Specific variant of TypedInformationListeUtils.subsetOfTypes
-    private fun extractPensjonsgivendeInntekter(list: List<Opptjeningsgrunnlag>): List<Opptjeningsgrunnlag> =
-        list.filter { it.opptjeningTypeEnum == OpptjeningtypeEnum.PPI }
-
-    // ArligInformasjonListeUtils.sortedSubset + ArligInformasjonAscendingComparator
-    // Duplicate in RegdomOpprettOutputHelper
-    private fun sortedDagpengegrunnlagSubset(list: List<Dagpengegrunnlag>, year: Int): List<Dagpengegrunnlag> {
-        val result = list.filter { it.ar == year }.toMutableList()
-        result.sortBy { it.ar } //TODO: Seems unnecessary to sort this since year is same for all elements
-        return result
-    }
-
-    // ArligInformasjonListeUtils.sortedSubset + ArligInformasjonAscendingComparator
-    private fun sortedBeholdningSubset(list: List<Pensjonsbeholdning>, year: Int): List<Pensjonsbeholdning> {
-        val result = list.filter { it.ar == year }.toMutableList()
-        result.sortBy { it.ar } //TODO: Seems unnecessary to sort this since year is same for all elements
-        return result
-    }
-
-    // ArligInformasjonListeUtils.sortedSubset + ArligInformasjonAscendingComparator
-    private fun sortedOpptjeningsgrunnlagSubset(list: List<Opptjeningsgrunnlag>, year: Int): List<Opptjeningsgrunnlag> {
-        val result = list.filter { it.ar == year }.toMutableList()
-        result.sortBy { it.ar } //TODO: Seems unnecessary to sort this since year is same for all elements
-        return result
-    }
-
-    // PeriodisertInformasjonListeUtils.findValidForDate
-    private fun findValidForDate(list: List<AbstraktBeregningsResultat>, date: LocalDate): AbstraktBeregningsResultat? =
-        list.firstOrNull { isValidForDate(it, date) }
-
-    // From PeriodisertInformasjonUtils
-    private fun isValidForDate(element: AbstraktBeregningsResultat, date: LocalDate) =
-        isDateInPeriod(date, element.virkFomLd, element.virkTomLd)
-
-    // From ArligInformasjonListeUtils
-    private fun containsValidForstegangstjenestePeriodeForAr(list: List<ForstegangstjenestePeriode>, year: Int) =
-        findValidForAar(list, year) != null
-
-    // From ArligInformasjonListeUtils
-    private fun containsValidOmsorgsgrunnlagForAr(list: List<Omsorgsgrunnlag>, year: Int) =
-        findValidForAar(list, year) != null
-
-    // Specific variant of ArligInformasjonListeUtils.findValidForYear
-    private fun findValidForAar(list: List<ForstegangstjenestePeriode>, aar: Int): ForstegangstjenestePeriode? =
-        list.firstOrNull { it.fomDatoLd?.year == aar }
-
-    // Specific variant of ArligInformasjonListeUtils.findValidForYear
-    private fun findValidForAar(list: List<Omsorgsgrunnlag>, aar: Int): Omsorgsgrunnlag? =
-        list.firstOrNull { it.ar == aar }
-
-    // Specific variant of ArligInformasjonListeUtils.findValidForYear
-    private fun findValidForAar(list: List<Poengtall>, aar: Int): Poengtall? =
-        list.firstOrNull { it.ar == aar }
-
-    // From PeriodisertInformasjonListeUtils
-    private fun findEarliestIntersectingWithYear(list: List<Uforeperiode>, aar: Int): Uforeperiode? {
-        val jan1st = firstDayOf(aar)
-        val dec31st = LocalDate.of(aar, 12, 31)
-        return findEarliestIntersecting(list, jan1st, dec31st)
-    }
-
-    // From PeriodisertInformasjonListeUtils
-    private fun findEarliestIntersecting(
-        list: List<Uforeperiode>,
-        startDate: LocalDate,
-        endDate: LocalDate
-    ): Uforeperiode? {
-        var result: Uforeperiode? = null
-        var earliestDate: LocalDate? = LOCAL_ETERNITY
-
-        for (element in list) {
-            if (intersectsWithPossiblyOpenEndings(startDate, endDate, element.ufgFomLd, element.ufgTomLd, true)) {
-                if (isBeforeByDay(element.ufgFomLd, earliestDate, false)) {
-                    earliestDate = element.ufgFomLd
-                    result = element
-                }
-            }
-        }
-
-        return result
     }
 
     // Specific variant of ArligInformasjonListeUtils.findElementOfType
@@ -446,6 +216,4 @@ object SimulatorOutputMapper {
 
     private fun bruttoPerMaaned(pensjon: PensjonUnderUtbetaling?, ytelseType: YtelseskomponentTypeEnum) =
         firstYtelseOfType(pensjon?.ytelseskomponenter.orEmpty(), ytelseType)?.brutto
-
-    private fun firstDayOf(year: Int) = LocalDate.of(year, 1, 1)
 }

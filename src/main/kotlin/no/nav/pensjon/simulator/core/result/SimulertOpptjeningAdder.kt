@@ -6,7 +6,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResul
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2016
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
-import no.nav.pensjon.simulator.core.result.SimulatorOutputMapper.mapToSimulertOpptjening
+import no.nav.pensjon.simulator.core.result.SimulertOpptjeningMapper.simulertOpptjening
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import org.springframework.stereotype.Component
@@ -37,8 +37,8 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
 
         for (aar in foersteKalenderAar..sisteKalenderAar) {
             opptjeningListe.add(
-                mapToSimulertOpptjening(
-                    kalenderAar = aar,
+                simulertOpptjening(
+                    aar = aar,
                     resultatListe = beregningsresultatListe,
                     soekerGrunnlag,
                     poengtallListe = poengtallListe.orEmpty(),

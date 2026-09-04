@@ -22,15 +22,13 @@ object SimulertOpptjeningMapper {
     /**
      * The logic behind useNullAsDefaultPensjonspoeng is found in PEN:
      * SimuleringEtter2011ResultatMapper.mapToSimulertOpptjening
-     * In PEN poengtallListe is nullable; if null then pensjonspoengPi becomes null
-     * Here poengtallListe is not nullable, so need useNullAsDefaultPensjonspoeng to carry this info
      */
     fun simulertOpptjening(
         aar: Int,
-        resultatListe: List<AbstraktBeregningsResultat>,
         soekerGrunnlag: Persongrunnlag,
-        poengtallListe: List<Poengtall>,
-        useNullAsDefaultPensjonspoeng: Boolean
+        forrigeAlderspensjonsresultat: AbstraktBeregningsResultat?,
+        resultatListe: List<AbstraktBeregningsResultat>,
+        poengtallListe: List<Poengtall>
     ): SimulertOpptjening {
         val opptjeningsgrunnlagListe = soekerGrunnlag.opptjeningsgrunnlagListe
         val dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe
@@ -38,10 +36,14 @@ object SimulertOpptjeningMapper {
         return SimulertOpptjening(
             pensjonsgivendeInntekt = pensjonsgivendeInntektForAar(opptjeningsgrunnlagListe, aar)?.pi ?: 0,
             kalenderAar = aar,
-            pensjonsgivendeInntektPensjonspoeng = forAar(poengtallListe, aar)?.pp
-                ?: if (useNullAsDefaultPensjonspoeng) null else 0.0,
+            pensjonsgivendeInntektPensjonspoeng = forAar(poengtallListe, aar)?.pp ?: 0.0,
             omsorgPensjonspoeng = omsorgspoengForAar(opptjeningsgrunnlagListe, aar),
-            pensjonBeholdning = pensjonsbeholdning(soekerGrunnlag, aar, resultatListe)?.totalbelop?.toInt(),
+            pensjonBeholdning = pensjonsbeholdning(
+                aar,
+                soekerGrunnlag,
+                forrigeAlderspensjonsresultat,
+                resultatListe
+            )?.totalbelop?.toInt(),
             omsorg = harOmsorgsgrunnlagForAar(soekerGrunnlag.omsorgsgrunnlagListe, aar),
             dagpenger = forAarOgType(liste = dagpengegrunnlagListe, aar, type = DagpengetypeEnum.DP),
             dagpengerFiskere = forAarOgType(liste = dagpengegrunnlagListe, aar, type = DagpengetypeEnum.DP_FF),
@@ -68,14 +70,19 @@ object SimulertOpptjeningMapper {
      * skjedd i løpet av året (f.eks. regulering og pensjonsuttak).
      */
     private fun pensjonsbeholdning(
-        grunnlag: Persongrunnlag,
         aar: Int,
+        grunnlag: Persongrunnlag,
+        forrigeAlderspensjonsresultat: AbstraktBeregningsResultat?,
         resultatListe: List<AbstraktBeregningsResultat>
-    ): Pensjonsbeholdning? =
-        forDato(resultatListe, sisteDag(aar))
+    ): Pensjonsbeholdning? {
+        val dato = sisteDag(aar)
+
+        return (gjeldendeForDato(resultatListe, dato)
+            ?: gjeldendeForDato(forrigeAlderspensjonsresultat, dato))
             ?.let(::alderspensjonsresultat2025)?.beregningKapittel20?.beholdninger?.beholdninger
             ?.let(::sistePensjonsbeholdning)
             ?: pensjonsbeholdningForAar(grunnlag.beholdninger, aar)
+    }
 
     /**
      * NB: Det er typisk to beholdninger per år (før og etter regulering);
@@ -124,11 +131,14 @@ object SimulertOpptjeningMapper {
         resultat as? BeregningsResultatAlderspensjon2025
             ?: (resultat as? BeregningsResultatAlderspensjon2016)?.beregningsResultat2025
 
-    private fun forDato(list: List<AbstraktBeregningsResultat>, date: LocalDate): AbstraktBeregningsResultat? =
-        list.firstOrNull { gjelderDato(it, date) }
+    private fun gjeldendeForDato(list: List<AbstraktBeregningsResultat>, dato: LocalDate): AbstraktBeregningsResultat? =
+        list.firstOrNull { gjelderDato(it, dato) }
 
-    private fun gjelderDato(resultat: AbstraktBeregningsResultat, date: LocalDate): Boolean =
-        isDateInPeriod(date, resultat.virkFomLd, resultat.virkTomLd)
+    private fun gjeldendeForDato(resultat: AbstraktBeregningsResultat?, dato: LocalDate): AbstraktBeregningsResultat? =
+        resultat?.let { if (gjelderDato(it, dato)) it else null }
+
+    private fun gjelderDato(resultat: AbstraktBeregningsResultat, dato: LocalDate): Boolean =
+        isDateInPeriod(dato, resultat.virkFomLd, resultat.virkTomLd)
 
     private fun forAarOgType(liste: List<Dagpengegrunnlag>, aar: Int, type: DagpengetypeEnum): Boolean =
         liste.any { it.ar == aar && it.dagpengetypeEnum == type }

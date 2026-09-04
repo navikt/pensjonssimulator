@@ -20,7 +20,7 @@ import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.omtrentligTrygdetidAnta
 import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
 import java.time.LocalDate
 
-// 2026-04-23
+// Copied from pensjon-regler-api v2.4.2 2026-09-04
 /**
  * Persongrunnlag inneholder nødvendige data knyttet til en bestemt person.
  * Persongrunnlag brukes som inndata til kall på en regeltjeneste og må defineres før kallet.
@@ -76,32 +76,6 @@ class Persongrunnlag {
      * og med 2008 (sisteGyldigeOpptjeningsAr vil her være 2008).
      */
     var sisteGyldigeOpptjeningsAr = 0
-
-    /**
-     * Angir om opptjeningsinformasjonen er hentet fra Opptjeningsregisteret og
-     * registrert som grunnlag på kravet. Det vil være kun ett element i listen
-     * ved beregnings/vilkårsprøvingstjenester. Ved tjenesten
-     * KontrollerInformasjonsgrunnlag vil det være flere elementer.
-     */
-    var hentetPopp: Boolean? = null
-
-    /**
-     * Angir om informasjonen om inntektsinformasjon er hentet fra
-     * Inntektsregisteret og registrert som grunnlag på kravet.
-     */
-    var hentetInnt: Boolean? = null
-
-    /**
-     * Angir om informasjonen om institusjonsopphold er hentet fra
-     * Institusjonsoppholdsregisteret og registrert som grunnlag på kravet.
-     */
-    var hentetInst: Boolean? = null
-
-    /**
-     * Angir om trygdetidsinformasjon er hentet inn og registrert som grunnlag
-     * på kravet.
-     */
-    var hentetTT: Boolean? = null
 
     /**
      * Angir om informasjon om arbeidsforhold er hentet fra
@@ -380,10 +354,6 @@ class Persongrunnlag {
         flyktning = source.flyktning
         source.personDetaljListe.forEach { personDetaljListe.add(PersonDetalj(it)) }
         sistMedlITrygdenLd = source.sistMedlITrygdenLd
-        hentetPopp = source.hentetPopp
-        hentetInnt = source.hentetInnt
-        hentetInst = source.hentetInst
-        hentetTT = source.hentetTT
         hentetArbeid = source.hentetArbeid
         source.overkompUtl?.let { overkompUtl = it }
         source.opptjeningsgrunnlagListe.forEach { opptjeningsgrunnlagListe.add(Opptjeningsgrunnlag(it)) }
@@ -410,22 +380,12 @@ class Persongrunnlag {
             this.utenlandsoppholdListe.add(Utenlandsopphold(utenlandsopphold))
         }
 
-        if (source.trygdeavtale != null) {
-            this.trygdeavtale = Trygdeavtale(source.trygdeavtale!!)
-        }
-
-        if (source.trygdeavtaledetaljer != null) {
-            this.trygdeavtaledetaljer = Trygdeavtaledetaljer(source.trygdeavtaledetaljer!!)
-        }
-
-        this.inngangOgEksportGrunnlag = source.inngangOgEksportGrunnlag?.copy()
-        this.arligPGIMinst1G = source.arligPGIMinst1G
-        this.artikkel10 = source.artikkel10
-
-        if (source.vernepliktAr != null) {
-            this.vernepliktAr = source.vernepliktAr!!.clone()
-        }
-
+        source.trygdeavtale?.let { trygdeavtale = Trygdeavtale(it) }
+        source.trygdeavtaledetaljer?.let { trygdeavtaledetaljer = Trygdeavtaledetaljer(it) }
+        inngangOgEksportGrunnlag = source.inngangOgEksportGrunnlag?.copy()
+        arligPGIMinst1G = source.arligPGIMinst1G
+        artikkel10 = source.artikkel10
+        source.vernepliktAr?.let { vernepliktAr = it.clone() }
         skiltesDelAvAvdodesTP = source.skiltesDelAvAvdodesTP
         instOpphReduksjonsperiodeListe = source.instOpphReduksjonsperiodeListe.map(::InstOpphReduksjonsperiode)
 
@@ -433,9 +393,7 @@ class Persongrunnlag {
             this.instOpphFasteUtgifterperiodeListe.add(instOpphFasteUtgifterperiode.copy())
         }
 
-        if (source.bosattLandEnum != null) {
-            this.bosattLandEnum = source.bosattLandEnum
-        }
+        bosattLandEnum = source.bosattLandEnum
 
         if (!excludeForsteVirkningsdatoGrunnlag) {
             for (forsteVirkningsdatoGrunnlag in source.forsteVirkningsdatoGrunnlagListe) {
@@ -444,18 +402,13 @@ class Persongrunnlag {
         }
 
         trygdetidKapittel20 = source.trygdetidKapittel20?.copy()
-
-        if (source.pensjonsbeholdning != null) {
-            this.pensjonsbeholdning = Pensjonsbeholdning(source.pensjonsbeholdning!!)
-        }
+        source.pensjonsbeholdning?.let { pensjonsbeholdning = Pensjonsbeholdning(it) }
 
         for (dagpengegrunnlag in source.dagpengegrunnlagListe) {
             this.dagpengegrunnlagListe.add(Dagpengegrunnlag(dagpengegrunnlag))
         }
 
-        if (source.forstegangstjenestegrunnlag != null) {
-            this.forstegangstjenestegrunnlag = Forstegangstjeneste(source.forstegangstjenestegrunnlag!!)
-        }
+        source.forstegangstjenestegrunnlag?.let { forstegangstjenestegrunnlag = Forstegangstjeneste(it) }
 
         for (omsorgsgrunnlag in source.omsorgsgrunnlagListe) {
             this.omsorgsgrunnlagListe.add(omsorgsgrunnlag.copy())
@@ -486,9 +439,6 @@ class Persongrunnlag {
         uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
         ufoereOpptjeningGrunnlag = source.ufoereOpptjeningGrunnlag?.copy()
         yrkesskadegrunnlagList = source.yrkesskadegrunnlagList.map(::Yrkesskadegrunnlag).toMutableList()
-        //rawFodselsdato = source.rawFodselsdatoLd
-        //rawDodsdato = source.rawDodsdatoLd
-        //rawSistMedlITrygden = source.rawSistMedlITrygdenLd
         normertPensjonsalderGrunnlag = source.normertPensjonsalderGrunnlag?.let {
             NormertPensjonsalderGrunnlag(
                 ovreAr = it.ovreAr,
@@ -521,7 +471,7 @@ class Persongrunnlag {
      */
     fun findPersonDetaljIPersongrunnlag(rolle: GrunnlagsrolleEnum, checkBruk: Boolean): PersonDetalj? =
         personDetaljListe.firstOrNull {
-            (!checkBruk || it.bruk == true) && it.grunnlagsrolleEnum == rolle
+            (checkBruk.not() || it.bruk == true) && it.grunnlagsrolleEnum == rolle
         }
 
     // PEN: no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljWithRolleForPeriode
@@ -531,7 +481,7 @@ class Persongrunnlag {
         checkBruk: Boolean
     ): PersonDetalj? =
         personDetaljListe.firstOrNull {
-            (!checkBruk || it.bruk == true) &&
+            (checkBruk.not() || it.bruk == true) &&
                     rolle == it.grunnlagsrolleEnum &&
                     isDateInPeriod(virkningDato, it.virkFom, it.virkTom)
         }
@@ -579,7 +529,6 @@ class Persongrunnlag {
         personDetaljListe.any {
             it.bruk == true && it.isGrunnlagsrolleSamboer() && it.is3_2Samboer()
         }
-
 
     fun isSoeker(): Boolean =
         personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }

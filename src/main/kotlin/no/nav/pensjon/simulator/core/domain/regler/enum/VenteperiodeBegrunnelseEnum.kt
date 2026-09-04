@@ -1,9 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
 // Copied from pensjon-regler-api v2.4.2 2026-09-04
-enum class BeholdningtypeEnum {
-    AFP,
-    PEN_B,
-    GAR_PEN_B,
-    GAR_T_B
+enum class VenteperiodeBegrunnelseEnum {
+    FØRSTEGANGSBEHANDLING,
+    GRADSØKNING
 }

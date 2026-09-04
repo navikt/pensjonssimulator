@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
-enum class BegrunnelseTypeEnum  {
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
+enum class BegrunnelseTypeEnum {
     VIRKFOM_FOR_2011,
     UNDER_3_AR_TT,
     UNDER_62,
@@ -27,6 +28,7 @@ enum class BegrunnelseTypeEnum  {
     FT_ETTER_2022,
 
     // FIXME Nye som tidligere har kun vært i Pesys. Trenger vi disse?
+    FT_FRA_2025,
     ANNEN_HAR_ET,
     ANNULERING,
     BRUKER_AVSLAG_AP,
@@ -72,6 +74,7 @@ enum class BegrunnelseTypeEnum  {
     EKSPORT_FORBUD,
     BRUKERINITIERT,
     BT_KREVER_100_INNV,
+    GJT_FOM_2024,
 
-    ANNET // SIMDOM-ADD
+    ANNET // extra
 }

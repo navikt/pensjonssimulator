@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.vedtak
 
-// Copied from pensjon-regler-api 2026-01-16
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 class Uforegrad : AbstraktBeregningsvilkar() {
     /**
      * Angir Uføregraden UFG.
@@ -11,4 +11,9 @@ class Uforegrad : AbstraktBeregningsvilkar() {
      * Angir hvilende rett til garantigrad.
      */
     var erGarantigrad = false
+
+    /**
+     * Angir om uføregrad har økt uten at restarbeidsevne er vurdert
+     */
+    var øktUføregradUtenVurderingAvRestarbeidsevne = false
 }

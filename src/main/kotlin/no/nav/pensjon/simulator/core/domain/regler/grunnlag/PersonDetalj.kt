@@ -11,9 +11,9 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getLastDayOfMonth
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonth
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
-import no.nav.pensjon.simulator.person.relasjon.Soesken
 import java.time.LocalDate
 
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * PersonDetalj inneholder persondetaljer som er relevante for fastsettelse av vedtak i Pensjonsløsningen,
  * dvs detaljer om den faktiske rollen en bruker har i et krav, sivilstand , pensjonsfaglig vurdert
@@ -89,9 +89,6 @@ open class PersonDetalj {
 
     @JsonIgnore
     var virkTom: LocalDate? = null
-
-    @JsonIgnore
-    var soesken: Soesken? = null
     // end extra fields
 
     constructor()
@@ -110,7 +107,6 @@ open class PersonDetalj {
         }
 
         this.sivilstandTypeEnum = source.sivilstandTypeEnum
-
         this.sivilstandRelatertPerson = source.sivilstandRelatertPerson?.copy()
 
         if (source.borMedEnum != null) {
@@ -118,7 +114,6 @@ open class PersonDetalj {
         }
 
         this.barnDetalj = source.barnDetalj?.copy()
-
         this.tillegg = source.tillegg
         this.bruk = source.bruk
 
@@ -190,7 +185,12 @@ open class PersonDetalj {
     /**
      * EPS = Ektefelle/partner/samboer
      */
-    fun isEps() = hasGrunnlagsrolle(GrunnlagsrolleEnum.EKTEF, GrunnlagsrolleEnum.PARTNER, GrunnlagsrolleEnum.SAMBO)
+    fun isEps() =
+        hasGrunnlagsrolle(
+            GrunnlagsrolleEnum.EKTEF,
+            GrunnlagsrolleEnum.PARTNER,
+            GrunnlagsrolleEnum.SAMBO
+        )
 
     // PEN: no.nav.domain.pensjon.kjerne.grunnlag.PersonDetalj.isGrunnlagsrolleSamboer
     fun isGrunnlagsrolleSamboer(): Boolean =

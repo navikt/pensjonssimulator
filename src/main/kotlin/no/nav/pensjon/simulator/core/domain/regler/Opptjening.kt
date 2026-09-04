@@ -1,46 +1,38 @@
 package no.nav.pensjon.simulator.core.domain.regler
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * Dataholderklasse for opptjening. Objektet vil være både input og output fra regeltjenester.
  */
-class Opptjening(
-    var ar: Int = 0,
-    var opptjeningsgrunnlag: Double = 0.0,
-    var anvendtOpptjeningsgrunnlag: Double = 0.0,
-    var arligOpptjening: Double = 0.0,
-    var lonnsvekstInformasjon: LonnsvekstInformasjon? = null,
-    var pSatsOpptjening: Double = 0.0,
-    var poengtall: Poengtall? = null,
-    var inntektUtenDagpenger: Double = 0.0,
-    var uforeOpptjening: Uforeopptjening? = null,
-    var dagpenger: Double = 0.0,
-    var dagpengerFiskerOgFangstmenn: Double = 0.0,
-    var omsorg: Double = 0.0,
-    var forstegangstjeneste: Double = 0.0,
-    var arligOpptjeningOmsorg: Double = 0.0,
-    var arligOpptjeningUtenOmsorg: Double = 0.0,
+class Opptjening {
+    var ar = 0
+    var opptjeningsgrunnlag = 0.0
+    var anvendtOpptjeningsgrunnlag = 0.0
+    var arligOpptjening = 0.0
+    var lonnsvekstInformasjon: LonnsvekstInformasjon? = null
+    var pSatsOpptjening = 0.0
+    var poengtall: Poengtall? = null
+    var inntektUtenDagpenger = 0.0
+    var uforeOpptjening: Uforeopptjening? = null
+    var dagpenger = 0.0
+    var dagpengerFiskerOgFangstmenn = 0.0
+    var omsorg = 0.0
+    var forstegangstjeneste = 0.0
+    var arligOpptjeningOmsorg = 0.0
+    var arligOpptjeningUtenOmsorg = 0.0
 
-    @JsonIgnore var antFgtMnd: Double = 0.0,
-    @JsonIgnore var samletDagpenger: Double = 0.0,
-    @JsonIgnore var samletUtbetalteDagpenger: Double = 0.0,
-    @JsonIgnore var samletFerietillegg: Double = 0.0,
-    @JsonIgnore var samletBarnetillegg: Double = 0.0
-) {
-    // SIMDOM-ADD
-    @JsonIgnore var rawPoengtall: Poengtall? = null
+    //--- Extra:
 
     /**
      * Ref. PEN: CommonToPen.mapOpptjeningToPen (poengtall part)
      */
     fun finishInit() {
-        rawPoengtall = poengtall
-        poengtall = rawPoengtall?.let(::simplePoengtall)
+        poengtall = poengtall?.let(::simplePoengtall)
     }
 
     /**
@@ -56,15 +48,16 @@ class Opptjening(
             uforear = source.uforear
         }
 
-    constructor(source: Opptjening) : this() {
+    constructor()
+
+    constructor(source: Opptjening) {
         ar = source.ar
         opptjeningsgrunnlag = source.opptjeningsgrunnlag
         anvendtOpptjeningsgrunnlag = source.anvendtOpptjeningsgrunnlag
         arligOpptjening = source.arligOpptjening
         lonnsvekstInformasjon = source.lonnsvekstInformasjon?.copy()
-        poengtall = source.poengtall?.let(::Poengtall)
-        rawPoengtall = source.rawPoengtall?.let(::Poengtall)
         pSatsOpptjening = source.pSatsOpptjening
+        poengtall = source.poengtall?.let(::Poengtall)
         inntektUtenDagpenger = source.inntektUtenDagpenger
         uforeOpptjening = source.uforeOpptjening?.copy()
         dagpenger = source.dagpenger
@@ -73,10 +66,5 @@ class Opptjening(
         forstegangstjeneste = source.forstegangstjeneste
         arligOpptjeningOmsorg = source.arligOpptjeningOmsorg
         arligOpptjeningUtenOmsorg = source.arligOpptjeningUtenOmsorg
-        antFgtMnd = source.antFgtMnd
-        samletDagpenger = source.samletDagpenger
-        samletUtbetalteDagpenger = source.samletUtbetalteDagpenger
-        samletFerietillegg = source.samletFerietillegg
-        samletBarnetillegg = source.samletBarnetillegg
     }
 }

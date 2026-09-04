@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.JustertGarantip
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
 
-// Copied from pensjon-regler-api 2026-01-16
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 class Garantipensjonsbeholdning() : Beholdning() {
     var justertGarantipensjonsniva: JustertGarantipensjonsniva? = null
     var pensjonsbeholdning = 0.0
@@ -19,6 +19,12 @@ class Garantipensjonsbeholdning() : Beholdning() {
      * Garantipensjonsnivå sats
      */
     var sats = 0.0
+
+    /**
+     * Har ektefelle inntekt over 2G ved virk.
+     * Bidrar til å avgjøre [satsTypeEnum]
+     */
+    var ektefelleInntektOver2G: Boolean = false
 
     /**
      * Garantipensjonsnivå justert for trygdetid

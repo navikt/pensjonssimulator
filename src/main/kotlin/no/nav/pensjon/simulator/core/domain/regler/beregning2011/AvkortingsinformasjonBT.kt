@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.AvviksjusteringEnum
 
-// 2025-03-20
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * Angir detaljer rund avkortingen av barnetillegg.
  */

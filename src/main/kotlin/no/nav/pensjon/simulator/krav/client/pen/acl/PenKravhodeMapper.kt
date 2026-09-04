@@ -138,10 +138,6 @@ object PenKravhodeMapper {
             flyktning = source.flyktning
             sistMedlITrygdenLd = source.sistMedlITrygdenLd
             sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
-            hentetPopp = source.hentetPopp
-            hentetInnt = source.hentetInnt
-            hentetInst = source.hentetInst
-            hentetTT = source.hentetTT
             hentetArbeid = source.hentetArbeid
             overkompUtl = source.overkompUtl
             dodAvYrkesskade = source.dodAvYrkesskade

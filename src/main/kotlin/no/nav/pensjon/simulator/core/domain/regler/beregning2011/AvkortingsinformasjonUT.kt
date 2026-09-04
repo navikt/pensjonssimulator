@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-// Copied from pensjon-regler-api v2.0.0 2026-06-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * Angir detaljer rund avkortingen av uføretrygd.
  */
@@ -9,6 +9,16 @@ class AvkortingsinformasjonUT : AbstraktAvkortingsinformasjon() {
      * beløpsgrense.
      */
     var fribeløp = 0
+
+    /**
+     * Fribeløpet kan ikke overstige dette beløpet
+     */
+    var maksFribeløp = 0
+
+    /**
+     * Kartlegger virkår med hvilke perioder som har bidro faktor og grunnbeløp til fribeløp.
+     */
+    var fribeløpPeriodeListe: MutableList<FribeloepPeriode> = mutableListOf()
 
     /**
      * Sum av inntektskomponentene som ble lagt til grunn.

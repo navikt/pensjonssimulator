@@ -32,11 +32,6 @@ class SimulertOpptjeningAdderTest : FunSpec({
                 every { oevreAlderOppnaasDato(any()) } returns LocalDate.of(2029, 1, 1) // => sisteKalenderAar = 2029
             }
         ).addToOpptjeningListe(
-            opptjeningListe = opptjeningListe,
-            beregningsresultatListe = mutableListOf(
-                beregningsresultat2016(kalenderAar = 2027, pensjonspoeng = 1.23), // siste beregningsresultat
-                beregningsresultat2016(kalenderAar = 2026, pensjonspoeng = 2.34), // ikke siste beregningsresultat
-            ),
             soekerGrunnlag = Persongrunnlag().apply {
                 fodselsdatoLd = LocalDate.of(1960, 1, 1)
                 opptjeningsgrunnlagListe = mutableListOf(
@@ -44,6 +39,12 @@ class SimulertOpptjeningAdderTest : FunSpec({
                     Opptjeningsgrunnlag().apply { ar = 2026 } // => foersteKalenderAar = 2026
                 )
             },
+            forrigeAlderspensjonsresultat = null,
+            opptjeningListe = opptjeningListe,
+            beregningsresultatListe = mutableListOf(
+                beregningsresultat2016(kalenderAar = 2027, pensjonspoeng = 1.23), // siste beregningsresultat
+                beregningsresultat2016(kalenderAar = 2026, pensjonspoeng = 2.34), // ikke siste beregningsresultat
+            ),
             regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ // => bruk BeregningsResultatAlderspensjon2016
         )
 

@@ -61,10 +61,11 @@ class SimuleringResultPreparer(
 
         // Del 2
         opptjeningAdder.addToOpptjeningListe(
+            soekerGrunnlag,
+            forrigeAlderspensjonsresultat = preparerSpec.forrigeAlderspensjonBeregningResultat,
             opptjeningListe = simulatorOutput.opptjeningListe,
             beregningsresultatListe = preparerSpec.alderspensjonBeregningResultatListe,
-            soekerGrunnlag,
-            kravhode.regelverkTypeEnum
+            regelverkType = kravhode.regelverkTypeEnum
         )
 
         // Del 3

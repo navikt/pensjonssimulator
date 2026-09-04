@@ -17,9 +17,10 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
     // PEN: createAndMapSimulertOpptjeningListe in
     // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettOutputHelper
     fun addToOpptjeningListe(
+        soekerGrunnlag: Persongrunnlag,
+        forrigeAlderspensjonsresultat: AbstraktBeregningsResultat?,
         opptjeningListe: MutableList<SimulertOpptjening>,
         beregningsresultatListe: List<AbstraktBeregningsResultat>,
-        soekerGrunnlag: Persongrunnlag,
         regelverkType: RegelverkTypeEnum?
     ) {
         if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
@@ -38,11 +39,11 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
         for (aar in foersteKalenderAar..sisteKalenderAar) {
             opptjeningListe.add(
                 simulertOpptjening(
-                    aar = aar,
-                    resultatListe = beregningsresultatListe,
+                    aar,
                     soekerGrunnlag,
-                    poengtallListe = poengtallListe.orEmpty(),
-                    useNullAsDefaultPensjonspoeng = poengtallListe == null
+                    forrigeAlderspensjonsresultat,
+                    resultatListe = beregningsresultatListe,
+                    poengtallListe = poengtallListe.orEmpty()
                 )
             )
         }

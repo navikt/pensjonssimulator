@@ -24,6 +24,7 @@
         <logback.version>1.6.3</logback.version>
         <okhttp3.version>5.5.0</okhttp3.version>
         <kotest.version>6.2.4</kotest.version>
+        <tomcat.version>11.0.25</tomcat.version> <!-- Avoid critically vulnerable 11.01.24 coming from Spring Boot 4.1.1 -->
     </properties>
     <build>
         <finalName>pensjonssimulator</finalName>

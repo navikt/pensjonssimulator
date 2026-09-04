@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.JustertGarantip
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GarantiPensjonsnivaSatsEnum
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 class Garantipensjonsbeholdning() : Beholdning() {
     var justertGarantipensjonsniva: JustertGarantipensjonsniva? = null
     var pensjonsbeholdning = 0.0

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * Angir detaljer rund avkortingen av uføretrygd.
  */

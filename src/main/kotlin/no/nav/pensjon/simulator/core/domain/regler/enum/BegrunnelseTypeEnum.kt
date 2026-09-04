@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.enum
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 enum class BegrunnelseTypeEnum {
     VIRKFOM_FOR_2011,
     UNDER_3_AR_TT,

@@ -45,10 +45,12 @@ spec:
         flags:
           - name: cloudsql.enable_pgaudit
             value: "on"
-          - name: pgaudit.log_parameter
-            value: "on"
           - name: pgaudit.log
             value: "write,ddl,role,read"
+          - name: pgaudit.log_parameter
+            value: "on"
+          - name: pgaudit.log_relation
+            value: "on"
         databases:
           - name: psdb
             envVarPrefix: PSDB

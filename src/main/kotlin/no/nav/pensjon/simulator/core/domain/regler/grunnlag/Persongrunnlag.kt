@@ -20,7 +20,7 @@ import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.omtrentligTrygdetidAnta
 import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
 import java.time.LocalDate
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * Persongrunnlag inneholder nødvendige data knyttet til en bestemt person.
  * Persongrunnlag brukes som inndata til kall på en regeltjeneste og må defineres før kallet.

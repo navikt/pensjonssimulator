@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.core.domain.regler.beregning2011
 import no.nav.pensjon.simulator.core.domain.regler.enum.VenteperiodeBegrunnelseEnum
 import java.time.LocalDate
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 // NB: Name is 'FribeløpPeriode' in pensjon-regler-api
 class FribeloepPeriode(
     /**

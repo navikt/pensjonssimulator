@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.core.domain.regler
 
 import com.fasterxml.jackson.annotation.JsonGetter
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * Denne klassen representerer en pakkseddel som leveres sammen med resultatet
  * fra en regeltjeneste.

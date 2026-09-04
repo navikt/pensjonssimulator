@@ -13,7 +13,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.lastDayOfMonth
 import no.nav.pensjon.simulator.core.util.toNorwegianDateAtNoon
 import java.time.LocalDate
 
-// Copied from pensjon-regler-api v2.4.2 2026-09-04
+// Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
  * PersonDetalj inneholder persondetaljer som er relevante for fastsettelse av vedtak i Pensjonsløsningen,
  * dvs detaljer om den faktiske rollen en bruker har i et krav, sivilstand , pensjonsfaglig vurdert

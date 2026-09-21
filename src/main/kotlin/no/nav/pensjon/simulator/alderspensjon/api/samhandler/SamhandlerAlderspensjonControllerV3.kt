@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
+import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -42,6 +43,7 @@ class SamhandlerAlderspensjonControllerV3(
     private val specMapper: AlderspensjonSpecMapperV3,
     private val resultMapper: AlderspensjonResultMapperV3,
     private val traceAid: TraceAid,
+    private val personService: PersonService? = null,
     statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
@@ -92,7 +94,10 @@ class SamhandlerAlderspensjonControllerV3(
                 foersteUttakFom = spec.foersteUttakDato,
                 heltUttakFom = spec.heltUttakDato
             ).also {
-                log.debug { "$FUNCTION_ID_V3 response: $it" }
+                if (it.pensjonsbeholdningsperioder.orEmpty().any { p -> (p.garantipensjonsniva?.tt_anv ?: 0) <= 1 }) {
+                    val penPersonId = personService?.person(spec.pid)?.penPersonId
+                    log.warn { "$FUNCTION_ID_V3 liten tt_anv i response: $it for request $specV3 person-id $penPersonId" }
+                }
             }
         } catch (e: BadRequestException) {
             log.warn(e) { "$FUNCTION_ID_V3 bad request - $specV3" }

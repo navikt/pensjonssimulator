@@ -1,11 +1,12 @@
-package no.nav.pensjon.simulator.beholdning.client.pen
+package no.nav.pensjon.simulator.opptjening.client.pen
 
 import com.github.benmanes.caffeine.cache.Cache
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
-import no.nav.pensjon.simulator.beholdning.client.BeholdningClient
-import no.nav.pensjon.simulator.beholdning.client.pen.acl.PenBeholdningerMedGrunnlagSpecMapper
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningSpec
+import no.nav.pensjon.simulator.opptjening.client.pen.acl.PenOpptjening
+import no.nav.pensjon.simulator.opptjening.client.OpptjeningMedBeholdningClient
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.opptjening.Pensjonsopptjening
+import no.nav.pensjon.simulator.opptjening.client.pen.acl.PenOpptjeningSpec
 import no.nav.pensjon.simulator.tech.cache.CacheConfigurator.createCache
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -20,29 +21,30 @@ import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 @Component
-class PenBeholdningClient(
+class PenOpptjeningClient(
     @Value($$"${ps.pen.url}") baseUrl: String,
     @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     webClientBase: WebClientBase,
     cacheManager: CaffeineCacheManager,
     private val traceAid: TraceAid,
-) : ExternalServiceClient(retryAttempts), BeholdningClient {
+) : ExternalServiceClient(retryAttempts), OpptjeningMedBeholdningClient {
 
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
-    private val cache: Cache<BeholdningerMedGrunnlagSpec, BeholdningerMedGrunnlagResult> =
-        createCache("beholdningerMedGrunnlag", cacheManager)
+    private val cache: Cache<OpptjeningMedBeholdningSpec, Pensjonsopptjening> =
+        createCache("pen-pensjonsopptjening", cacheManager)
 
-    override fun fetchBeholdningerMedGrunnlag(spec: BeholdningerMedGrunnlagSpec): BeholdningerMedGrunnlagResult =
-        cache.getIfPresent(spec) ?: fetchFreshBeholdninger(spec).also { cache.put(spec, it) }
+    override fun fetchOpptjening(spec: OpptjeningMedBeholdningSpec): Pensjonsopptjening =
+        cache.getIfPresent(spec) ?: fetchFreshOpptjening(spec).also { cache.put(spec, it) }
 
     override fun service() = service
 
-    private fun fetchFreshBeholdninger(spec: BeholdningerMedGrunnlagSpec): BeholdningerMedGrunnlagResult {
+    private fun fetchFreshOpptjening(spec: OpptjeningMedBeholdningSpec): Pensjonsopptjening {
         val uri = "$BASE_PATH/$BEHOLDNINGER_MED_GRUNNLAG_PATH"
-        val dto = PenBeholdningerMedGrunnlagSpecMapper.toDto(spec)
+        val dto = PenOpptjeningSpec.fromInternalValue(spec)
 
         return try {
             webClient
@@ -53,11 +55,11 @@ class PenBeholdningClient(
                 .headers(::setHeaders)
                 .bodyValue(dto)
                 .retrieve()
-                .bodyToMono(BeholdningerMedGrunnlagResult::class.java)
+                .bodyToMono<PenOpptjening>()
                 .retryWhen(retryBackoffSpec(uri))
                 .block()
-                ?: emptyBeholdningerMedGrunnlagResult()
-            // NB: No mapping of response; it is assumed that PEN returns regler-compatible response body
+                ?.toInternalValue()
+                ?: Pensjonsopptjening.emptyInstance()
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $uri", e)
         } catch (e: WebClientResponseException) {
@@ -77,15 +79,5 @@ class PenBeholdningClient(
         private const val BEHOLDNINGER_MED_GRUNNLAG_PATH = "beholdning/v1/beholdninger-med-grunnlag"
 
         private val service = EgressService.PENSJONSFAGLIG_KJERNE
-
-        private fun emptyBeholdningerMedGrunnlagResult() =
-            BeholdningerMedGrunnlagResult(
-                beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
-            )
     }
 }

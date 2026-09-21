@@ -13,9 +13,11 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.LOCAL_ETERNITY
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.intersectsWithPossiblyOpenEndings
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
+import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import java.time.LocalDate
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning as ReglerPensjonsbeholdning
 
 object SimulertOpptjeningMapper {
 
@@ -26,9 +28,9 @@ object SimulertOpptjeningMapper {
     fun simulertOpptjening(
         aar: Int,
         soekerGrunnlag: Persongrunnlag,
-        forrigeAlderspensjonsresultat: AbstraktBeregningsResultat?,
         resultatListe: List<AbstraktBeregningsResultat>,
-        poengtallListe: List<Poengtall>
+        poengtallListe: List<Poengtall>,
+        sistePensjonsbeholdningPerAar: Map<Int, Pensjonsbeholdning>
     ): SimulertOpptjening {
         val opptjeningsgrunnlagListe = soekerGrunnlag.opptjeningsgrunnlagListe
         val dagpengegrunnlagListe = soekerGrunnlag.dagpengegrunnlagListe
@@ -38,12 +40,7 @@ object SimulertOpptjeningMapper {
             kalenderAar = aar,
             pensjonsgivendeInntektPensjonspoeng = forAar(poengtallListe, aar)?.pp ?: 0.0,
             omsorgPensjonspoeng = omsorgspoengForAar(opptjeningsgrunnlagListe, aar),
-            pensjonBeholdning = pensjonsbeholdning(
-                aar,
-                soekerGrunnlag,
-                forrigeAlderspensjonsresultat,
-                resultatListe
-            )?.totalbelop?.toInt(),
+            pensjonBeholdning = pensjonsbeholdningVedAaretsSlutt(aar,  resultatListe, sistePensjonsbeholdningPerAar)?.toInt(),
             omsorg = harOmsorgsgrunnlagForAar(soekerGrunnlag.omsorgsgrunnlagListe, aar),
             dagpenger = forAarOgType(liste = dagpengegrunnlagListe, aar, type = DagpengetypeEnum.DP),
             dagpengerFiskere = forAarOgType(liste = dagpengegrunnlagListe, aar, type = DagpengetypeEnum.DP_FF),
@@ -69,31 +66,28 @@ object SimulertOpptjeningMapper {
      * Merk at det er beholdningen på årets siste dag som brukes, da denne tar i betraktning endringer som har
      * skjedd i løpet av året (f.eks. regulering og pensjonsuttak).
      */
-    private fun pensjonsbeholdning(
+    private fun pensjonsbeholdningVedAaretsSlutt(
         aar: Int,
-        grunnlag: Persongrunnlag,
-        forrigeAlderspensjonsresultat: AbstraktBeregningsResultat?,
-        resultatListe: List<AbstraktBeregningsResultat>
-    ): Pensjonsbeholdning? {
-        val dato = sisteDag(aar)
+       // grunnlag: Persongrunnlag,
+        resultatListe: List<AbstraktBeregningsResultat>,
+        sistePensjonsbeholdningPerAar: Map<Int, Pensjonsbeholdning>
+    ): Double? =
+        pensjonsbeholdningForDato(resultatListe, dato = sisteDag(aar))
+          //  ?: grunnlag.pensjonsbeholdningPerAar[aar]?.totalbeloep
+            ?: sistePensjonsbeholdningPerAar[aar]?.totalbeloep
 
-        return (gjeldendeForDato(resultatListe, dato)
-            ?: gjeldendeForDato(forrigeAlderspensjonsresultat, dato))
+    private fun pensjonsbeholdningForDato(resultatListe: List<AbstraktBeregningsResultat>, dato: LocalDate): Double? =
+        (gjeldendeForDato(resultatListe, dato))
             ?.let(::alderspensjonsresultat2025)?.beregningKapittel20?.beholdninger?.beholdninger
-            ?.let(::sistePensjonsbeholdning)
-            ?: pensjonsbeholdningForAar(grunnlag.beholdninger, aar)
-    }
+            ?.let(::sistePensjonsbeholdning)?.totalbelop
 
     /**
-     * NB: Det er typisk to beholdninger per år (før og etter regulering);
-     * her plukkes den første i listen, men man vet ikke om den er før eller etter regulering
+     * Listen over beholdninger her er produsert av pensjon-regler, og da er ikke 'fom' og 'tom' definert,
+     * kun årstallet ('ar').
      */
-    private fun pensjonsbeholdningForAar(liste: List<Pensjonsbeholdning>, aar: Int): Pensjonsbeholdning? =
-        liste.firstOrNull { it.ar == aar && it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B }
-
-    private fun sistePensjonsbeholdning(liste: List<Beholdning>): Pensjonsbeholdning? =
+    private fun sistePensjonsbeholdning(liste: List<Beholdning>): ReglerPensjonsbeholdning? =
         liste.filter { it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B }
-            .maxByOrNull { it.ar } as? Pensjonsbeholdning
+            .maxByOrNull { it.ar } as? ReglerPensjonsbeholdning
 
     private fun pensjonsgivendeInntektForAar(liste: List<Opptjeningsgrunnlag>, aar: Int): Opptjeningsgrunnlag? =
         liste.firstOrNull { it.ar == aar && it.opptjeningTypeEnum == OpptjeningtypeEnum.PPI }
@@ -133,9 +127,6 @@ object SimulertOpptjeningMapper {
 
     private fun gjeldendeForDato(list: List<AbstraktBeregningsResultat>, dato: LocalDate): AbstraktBeregningsResultat? =
         list.firstOrNull { gjelderDato(it, dato) }
-
-    private fun gjeldendeForDato(resultat: AbstraktBeregningsResultat?, dato: LocalDate): AbstraktBeregningsResultat? =
-        resultat?.let { if (gjelderDato(it, dato)) it else null }
 
     private fun gjelderDato(resultat: AbstraktBeregningsResultat, dato: LocalDate): Boolean =
         isDateInPeriod(dato, resultat.virkFomLd, resultat.virkTomLd)

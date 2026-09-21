@@ -1,12 +1,13 @@
-package no.nav.pensjon.simulator.beholdning.client.pen
+package no.nav.pensjon.simulator.opptjening.client.pen
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagPersonSpec
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagResult
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagSpec
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningPersonSpec
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningSpec
+import no.nav.pensjon.simulator.opptjening.Pensjonsopptjening
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
@@ -15,20 +16,21 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.cache.caffeine.CaffeineCacheManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
-class PenBeholdningClientTest : FunSpec({
+class PenOpptjeningClientTest : ShouldSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
     fun client(context: BeanFactory) =
-        PenBeholdningClient(
+        PenOpptjeningClient(
             baseUrl!!,
             retryAttempts = "0",
-            webClientBase = context.getBean(WebClientBase::class.java),
+            webClientBase = context.getBean<WebClientBase>(),
             cacheManager = CaffeineCacheManager(),
             traceAid = mockk<TraceAid>(relaxed = true),
         )
@@ -43,16 +45,16 @@ class PenBeholdningClientTest : FunSpec({
         server?.shutdown()
     }
 
-    test("fetchBeholdningerMedGrunnlag") {
+    should("innhente opptjeningsgrunnlag og mappe til domenerepresentasjon") {
         server?.enqueue(
             MockResponse()
                 .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .setResponseCode(HttpStatus.OK.value()).setBody(PenBeholdningResponse.BODY)
+                .setResponseCode(HttpStatus.OK.value()).setBody(BODY)
         )
 
         Arrange.webClientContextRunner().run {
-            val result: BeholdningerMedGrunnlagResult = client(context = it).fetchBeholdningerMedGrunnlag(
-                BeholdningerMedGrunnlagSpec(
+            val result: Pensjonsopptjening = client(context = it).fetchOpptjening(
+                OpptjeningMedBeholdningSpec(
                     pid = pid,
                     hentPensjonspoeng = false,
                     hentGrunnlagForOpptjeninger = false,
@@ -61,33 +63,31 @@ class PenBeholdningClientTest : FunSpec({
                     regelverkType = null,
                     sakType = null,
                     personSpecListe = emptyList(),
-                    soekerSpec = BeholdningerMedGrunnlagPersonSpec(
+                    soekerSpec = OpptjeningMedBeholdningPersonSpec(
                         pid = pid, sisteGyldigeOpptjeningAar = 2024, isGrunnlagRolleSoeker = true
                     )
                 )
             )
 
             with(result) {
-                beholdningListe.size shouldBe 0
-                opptjeningGrunnlagListe.size shouldBe 2
+                beholdningListe shouldHaveSize 0
+                opptjeningGrunnlagListe shouldHaveSize 2
                 with(opptjeningGrunnlagListe[0]) {
                     ar shouldBe 2000
                     pi shouldBe 83237
                     opptjeningTypeEnum shouldBe OpptjeningtypeEnum.PPI
                 }
-                inntektGrunnlagListe.size shouldBe 0
-                dagpengerGrunnlagListe.size shouldBe 0
-                omsorgGrunnlagListe.size shouldBe 0
+                inntektGrunnlagListe shouldHaveSize 0
+                dagpengerGrunnlagListe shouldHaveSize 0
+                omsorgGrunnlagListe shouldHaveSize 0
                 forstegangstjeneste shouldBe null
             }
         }
     }
 })
 
-object PenBeholdningResponse {
-
-    @Language("json")
-    const val BODY = """{
+@Language("json")
+private const val BODY = """{
     "beholdningListe": [],
     "opptjeningGrunnlagListe": [
          {
@@ -125,4 +125,3 @@ object PenBeholdningResponse {
     "omsorgGrunnlagListe": [],
     "forstegangstjeneste": null
 }"""
-}

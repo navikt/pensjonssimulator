@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.core.result
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
@@ -16,7 +17,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import java.time.LocalDate
 
-class SimulertOpptjeningAdderTest : FunSpec({
+class SimulertOpptjeningAdderTest : ShouldSpec({
 
     /**
      * addToOpptjeningListe should:
@@ -24,7 +25,7 @@ class SimulertOpptjeningAdderTest : FunSpec({
      * Legge til nye opptjening-elementer for kalenderårene fra første opptjeningsgrunnlag til året for øvre aldersgrense
      * Hente pensjonspoeng fra siste alderspensjon-beregningsresultat
      */
-    test("addToOpptjeningListe") {
+    should("legge til ny opptjening for årene fra første opptjeningsgrunnlag til året for øvre aldersgrense") {
         val opptjeningListe = mutableListOf(SimulertOpptjening(kalenderAar = 2025)) // 1 initial opptjening element
 
         SimulertOpptjeningAdder(
@@ -39,7 +40,6 @@ class SimulertOpptjeningAdderTest : FunSpec({
                     Opptjeningsgrunnlag().apply { ar = 2026 } // => foersteKalenderAar = 2026
                 )
             },
-            forrigeAlderspensjonsresultat = null,
             opptjeningListe = opptjeningListe,
             beregningsresultatListe = mutableListOf(
                 beregningsresultat2016(kalenderAar = 2027, pensjonspoeng = 1.23), // siste beregningsresultat
@@ -48,13 +48,13 @@ class SimulertOpptjeningAdderTest : FunSpec({
             regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ // => bruk BeregningsResultatAlderspensjon2016
         )
 
-        opptjeningListe.size shouldBe 5
+        opptjeningListe shouldHaveSize 5
         opptjeningListe[0].kalenderAar shouldBe 2025 // => bevart eksisterende opptjening-element
         with(opptjeningListe[1]) {
             kalenderAar shouldBe 2026
             pensjonsgivendeInntektPensjonspoeng shouldBe 0.0 // pga. ikke siste beregningsresultat
         }
-         with(opptjeningListe[2]) {
+        with(opptjeningListe[2]) {
             kalenderAar shouldBe 2027
             pensjonsgivendeInntektPensjonspoeng shouldBe 1.23 // => hentet pensjonspoeng fra siste beregningsresultat
         }

@@ -68,12 +68,10 @@ object SimulertOpptjeningMapper {
      */
     private fun pensjonsbeholdningVedAaretsSlutt(
         aar: Int,
-       // grunnlag: Persongrunnlag,
         resultatListe: List<AbstraktBeregningsResultat>,
         sistePensjonsbeholdningPerAar: Map<Int, Pensjonsbeholdning>
     ): Double? =
         pensjonsbeholdningForDato(resultatListe, dato = sisteDag(aar))
-          //  ?: grunnlag.pensjonsbeholdningPerAar[aar]?.totalbeloep
             ?: sistePensjonsbeholdningPerAar[aar]?.totalbeloep
 
     private fun pensjonsbeholdningForDato(resultatListe: List<AbstraktBeregningsResultat>, dato: LocalDate): Double? =

@@ -52,7 +52,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -76,7 +76,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = null
         ) shouldBe null
@@ -93,7 +93,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = null }
         ) shouldBe null
@@ -110,7 +110,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )?.bosattLandEnum shouldBe LandkodeEnum.NOR
@@ -127,7 +127,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )?.inngangOgEksportGrunnlag?.fortsattMedlemFT shouldBe true
@@ -162,7 +162,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN),
+            spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN),
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -207,7 +207,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -265,7 +265,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -311,7 +311,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -358,7 +358,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -412,7 +412,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -452,7 +452,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -847,7 +847,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = person,
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -873,7 +873,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = person(),
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -895,7 +895,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = person(foedselsdato = null),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )?.opptjeningsgrunnlagListe.shouldBeEmpty()
@@ -916,7 +916,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = person(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )?.opptjeningsgrunnlagListe.shouldBeEmpty()
@@ -940,7 +940,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = person,
-            simuleringSpec = spec,
+            spec = spec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
@@ -979,7 +979,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             time = { LocalDate.of(2025, 1, 1) }
         ).getPersongrunnlagForSoeker(
             person = person(),
-            simuleringSpec = simuleringSpec,
+            spec = simuleringSpec,
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )

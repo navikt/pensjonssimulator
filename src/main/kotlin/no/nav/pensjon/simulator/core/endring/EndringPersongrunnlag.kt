@@ -41,7 +41,7 @@ class EndringPersongrunnlag(
     // SimulerEndringAvAPCommand.opprettPersongrunnlagForBruker
     fun getPersongrunnlagForSoeker(
         person: PenPerson,
-        simuleringSpec: SimuleringSpec,
+        spec: SimuleringSpec,
         endringKravhode: Kravhode,
         forrigeAlderspensjonBeregningResultat: AbstraktBeregningsResultat?
     ): Persongrunnlag? {
@@ -54,9 +54,9 @@ class EndringPersongrunnlag(
                 bosattLandEnum = LandkodeEnum.NOR
                 inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
                 sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
-                opptjeningsgrunnlagListe = opptjeningsgrunnlagListe(simuleringSpec, person, endringKravhode)
-                simuleringSpec.flyktning?.let { flyktning = it }
-                adjustPersondetaljListe(persongrunnlag = this, simuleringSpec)
+                opptjeningsgrunnlagListe = opptjeningsgrunnlagListe(spec, person, endringKravhode)
+                spec.flyktning?.let { flyktning = it }
+                adjustPersondetaljListe(persongrunnlag = this, spec)
             }
     }
 

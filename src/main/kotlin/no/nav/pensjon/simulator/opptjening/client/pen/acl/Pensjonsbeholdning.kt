@@ -24,7 +24,7 @@ open class Pensjonsbeholdning : PenBeholdning {
     fun toInternalValue() =
         DomainPensjonsbeholdning(
             aar = ar,
-            fom = fomLd,
+            fom = fomLd ?: LocalDate.of(ar, 1, 1),
             tom = tomLd,
             totalbeloep = totalbelop,
             opptjening = opptjening,

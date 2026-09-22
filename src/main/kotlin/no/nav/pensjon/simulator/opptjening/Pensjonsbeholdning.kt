@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 data class Pensjonsbeholdning(
     val aar: Int,
-    val fom: LocalDate? = null,
+    val fom: LocalDate = LocalDate.of(aar, 1, 1),
     val tom: LocalDate? = null,
     val totalbeloep: Double,
     val opptjening: Opptjening? = null,

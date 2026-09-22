@@ -47,11 +47,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = listOf(Opptjeningsgrunnlag().apply { ar = 2020 }),
-                omsorgGrunnlagListe = listOf(Omsorgsgrunnlag()),
-                inntektGrunnlagListe = listOf(Inntektsgrunnlag()),
-                dagpengerGrunnlagListe = listOf(Dagpengegrunnlag()),
-                forstegangstjeneste = forstegangstjeneste
+                opptjeningsgrunnlagListe = listOf(Opptjeningsgrunnlag().apply { ar = 2020 }),
+                omsorgsgrunnlagListe = listOf(Omsorgsgrunnlag()),
+                inntektsgrunnlagListe = listOf(Inntektsgrunnlag()),
+                dagpengegrunnlagListe = listOf(Dagpengegrunnlag()),
+                foerstegangstjeneste = forstegangstjeneste
             )
         )
 
@@ -74,11 +74,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = listOf(pensjonsbeholdning),
-                opptjeningGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
             )
         )
 
@@ -98,11 +98,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = listOf(Opptjeningsgrunnlag().apply { ar = 2021 }),
-                omsorgGrunnlagListe = listOf(Omsorgsgrunnlag()),
-                inntektGrunnlagListe = listOf(Inntektsgrunnlag()),
-                dagpengerGrunnlagListe = listOf(Dagpengegrunnlag()),
-                forstegangstjeneste = foerstegangstjeneste
+                opptjeningsgrunnlagListe = listOf(Opptjeningsgrunnlag().apply { ar = 2021 }),
+                omsorgsgrunnlagListe = listOf(Omsorgsgrunnlag()),
+                inntektsgrunnlagListe = listOf(Inntektsgrunnlag()),
+                dagpengegrunnlagListe = listOf(Dagpengegrunnlag()),
+                foerstegangstjeneste = foerstegangstjeneste
             )
         )
         val persongrunnlag = persongrunnlag()
@@ -129,11 +129,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = listOf(Pensjonsbeholdning(aar = 2024, totalbeloep = 500000.0)),
-                opptjeningGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
             )
         )
         val persongrunnlag = persongrunnlag()
@@ -156,11 +156,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = listOf(Pensjonsbeholdning(aar = 2024, totalbeloep = 500000.0)),
-                opptjeningGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
             )
         )
         val persongrunnlag = persongrunnlag()
@@ -180,11 +180,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
             )
         )
         val persongrunnlag = persongrunnlag()
@@ -206,11 +206,11 @@ class PersongrunnlagServiceTest : FunSpec({
         val opptjeningService = arrangeOpptjening(
             pensjonsopptjening = Pensjonsopptjening(
                 beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = listOf(newOpptjening),
-                omsorgGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = listOf(newOpptjening),
+                omsorgsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
             )
         )
         val persongrunnlag = Persongrunnlag().apply {
@@ -241,11 +241,11 @@ private val kravhode: Kravhode = Kravhode()
 private val emptyBeholdningResult =
     Pensjonsopptjening(
         beholdningListe = emptyList(),
-        opptjeningGrunnlagListe = emptyList(),
-        omsorgGrunnlagListe = emptyList(),
-        inntektGrunnlagListe = emptyList(),
-        dagpengerGrunnlagListe = emptyList(),
-        forstegangstjeneste = null
+        opptjeningsgrunnlagListe = emptyList(),
+        omsorgsgrunnlagListe = emptyList(),
+        inntektsgrunnlagListe = emptyList(),
+        dagpengegrunnlagListe = emptyList(),
+        foerstegangstjeneste = null
     )
 
 private val simuleringSpec =
@@ -304,5 +304,4 @@ private fun arrangePersongrunnlag(
 private fun arrangeOpptjening(pensjonsopptjening: Pensjonsopptjening): OpptjeningMedBeholdningService =
     mockk {
         every { pensjonsopptjening(any()) } returns pensjonsopptjening
-        //every { pensjonsbeholdningPerAar(any()) } returns emptyMap()
     }

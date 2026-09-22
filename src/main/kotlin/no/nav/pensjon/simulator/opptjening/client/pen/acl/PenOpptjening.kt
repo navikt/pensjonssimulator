@@ -21,10 +21,10 @@ data class PenOpptjening(
             beholdningListe = beholdningListe
                 .filter { it.beholdningsTypeEnum == BeholdningtypeEnum.PEN_B }
                 .map { (it as PenPensjonsbeholdning).toInternalValue() },
-            opptjeningGrunnlagListe = opptjeningGrunnlagListe,
-            inntektGrunnlagListe = inntektGrunnlagListe,
-            dagpengerGrunnlagListe = dagpengerGrunnlagListe,
-            omsorgGrunnlagListe = omsorgGrunnlagListe,
-            forstegangstjeneste = forstegangstjeneste
+            opptjeningsgrunnlagListe = opptjeningGrunnlagListe,
+            inntektsgrunnlagListe = inntektGrunnlagListe,
+            dagpengegrunnlagListe = dagpengerGrunnlagListe,
+            omsorgsgrunnlagListe = omsorgGrunnlagListe,
+            foerstegangstjeneste = forstegangstjeneste
         )
 }

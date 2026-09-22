@@ -185,7 +185,7 @@ class EndringPersongrunnlag(
 
     // SimulerEndringAvAPCommand.updateOpptjeningsgrunnlagOnPersongrunnlag
     private fun opptjeningsgrunnlagListe(spec: OpptjeningMedBeholdningSpec): MutableList<Opptjeningsgrunnlag> =
-        opptjeningService.pensjonsopptjening(spec).opptjeningGrunnlagListe.toMutableList()
+        opptjeningService.pensjonsopptjening(spec).opptjeningsgrunnlagListe.toMutableList()
 
     // SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun convertEpsToAvdoed(eps: Persongrunnlag, avdoed: Avdoed) {
@@ -207,8 +207,7 @@ class EndringPersongrunnlag(
 
         if (medGjenlevenderett) {
             val enke: PersonDetalj = enke(persongrunnlag) ?: enke(spec.avdoed?.doedDato)
-            persongrunnlag.personDetaljListe =
-                mutableListOf(enke) // only a single persondetalj is used when gjenlevenderett
+            persongrunnlag.personDetaljListe = mutableListOf(enke) // only a single persondetalj is used when gjenlevenderett
         } else {
             beholdRelevantePersondetaljer(persongrunnlag)
         }

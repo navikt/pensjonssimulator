@@ -40,11 +40,11 @@ class PersongrunnlagService(
         val spec = opptjeningSpec(pid, persongrunnlag, kravhode)
 
         with(opptjeningService.pensjonsopptjening(spec)) {
-            persongrunnlag.opptjeningsgrunnlagListe = opptjeningGrunnlagListe.toMutableList()
-            persongrunnlag.omsorgsgrunnlagListe = omsorgGrunnlagListe.toMutableList()
-            persongrunnlag.inntektsgrunnlagListe = inntektGrunnlagListe.toMutableList()
-            persongrunnlag.dagpengegrunnlagListe = dagpengerGrunnlagListe.toMutableList()
-            persongrunnlag.forstegangstjenestegrunnlag = forstegangstjeneste
+            persongrunnlag.opptjeningsgrunnlagListe = opptjeningsgrunnlagListe.toMutableList()
+            persongrunnlag.omsorgsgrunnlagListe = omsorgsgrunnlagListe.toMutableList()
+            persongrunnlag.inntektsgrunnlagListe = inntektsgrunnlagListe.toMutableList()
+            persongrunnlag.dagpengegrunnlagListe = dagpengegrunnlagListe.toMutableList()
+            persongrunnlag.forstegangstjenestegrunnlag = foerstegangstjeneste
 
             if (hentBeholdninger) {
                 beholdningListe.map(::reglerFormat).forEach(persongrunnlag.beholdninger::add)

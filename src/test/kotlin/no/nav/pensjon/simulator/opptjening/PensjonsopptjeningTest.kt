@@ -12,18 +12,18 @@ class PensjonsopptjeningTest : ShouldSpec({
 
             Pensjonsopptjening(
                 beholdningListe = listOf(Pensjonsbeholdning(aar = 1999, totalbeloep = 2.1)),
-                opptjeningGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = omsorgsgrunnlagListe,
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = omsorgsgrunnlagListe,
+                foerstegangstjeneste = null
             ).utenBeholdninger() shouldBe Pensjonsopptjening(
                 beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = omsorgsgrunnlagListe,
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = omsorgsgrunnlagListe,
+                foerstegangstjeneste = null
             )
         }
     }

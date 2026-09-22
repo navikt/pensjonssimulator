@@ -99,7 +99,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
         ) shouldBe null
     }
 
-    should("sette bosattLandEnum til NOR") {
+    should("sette Norge som bosatt land") {
         EndringPersongrunnlag(
             context = mockk(),
             kravService = arrangeKrav,
@@ -167,8 +167,10 @@ class EndringPersongrunnlagTest : ShouldSpec({
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
 
-        persongrunnlag!!.personDetaljListe shouldHaveSize 1
-        persongrunnlag.personDetaljListe[0].sivilstandTypeEnum shouldBe SivilstandEnum.ENKE
+        with(persongrunnlag!!) {
+            personDetaljListe shouldHaveSize 1
+            personDetaljListe[0].sivilstandTypeEnum shouldBe SivilstandEnum.ENKE
+        }
     }
 
     should("opprette ny enke-persondetalj fra avdoed.doedDato når ingen eksisterende ENKE finnes for ENDR_ALDER_M_GJEN") {
@@ -828,11 +830,11 @@ class EndringPersongrunnlagTest : ShouldSpec({
         }
         val beholdningResult = Pensjonsopptjening(
             beholdningListe = emptyList(),
-            opptjeningGrunnlagListe = listOf(opptjeningsgrunnlag1, opptjeningsgrunnlag2),
-            inntektGrunnlagListe = emptyList(),
-            dagpengerGrunnlagListe = emptyList(),
-            omsorgGrunnlagListe = emptyList(),
-            forstegangstjeneste = null
+            opptjeningsgrunnlagListe = listOf(opptjeningsgrunnlag1, opptjeningsgrunnlag2),
+            inntektsgrunnlagListe = emptyList(),
+            dagpengegrunnlagListe = emptyList(),
+            omsorgsgrunnlagListe = emptyList(),
+            foerstegangstjeneste = null
         )
         val opptjeningService: OpptjeningMedBeholdningService = arrangeOpptjening(beholdningResult)
         val persongrunnlagMapper = arrangePersongrunnlag
@@ -961,11 +963,11 @@ class EndringPersongrunnlagTest : ShouldSpec({
         }
         val beholdningResult = Pensjonsopptjening(
             beholdningListe = emptyList(),
-            opptjeningGrunnlagListe = listOf(opptjeningsgrunnlagPPI, opptjeningsgrunnlagOBU6),
-            inntektGrunnlagListe = emptyList(),
-            dagpengerGrunnlagListe = emptyList(),
-            omsorgGrunnlagListe = emptyList(),
-            forstegangstjeneste = null
+            opptjeningsgrunnlagListe = listOf(opptjeningsgrunnlagPPI, opptjeningsgrunnlagOBU6),
+            inntektsgrunnlagListe = emptyList(),
+            dagpengegrunnlagListe = emptyList(),
+            omsorgsgrunnlagListe = emptyList(),
+            foerstegangstjeneste = null
         )
         val opptjeningService: OpptjeningMedBeholdningService = arrangeOpptjening(beholdningResult)
 
@@ -1012,7 +1014,6 @@ private val arrangeSisteGyldigeOpptjeningsaar: GenerelleDataHolder =
 private fun arrangeOpptjening(pensjonsopptjening: Pensjonsopptjening): OpptjeningMedBeholdningService =
     mockk {
         every { pensjonsopptjening(any()) } returns pensjonsopptjening
-        //every { pensjonsbeholdningPerAar(any()) } returns emptyMap()
     }
 
 private fun kravhode(persongrunnlagListe: MutableList<Persongrunnlag> = mutableListOf()) =

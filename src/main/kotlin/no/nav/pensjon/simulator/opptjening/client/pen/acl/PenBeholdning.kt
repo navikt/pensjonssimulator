@@ -8,9 +8,6 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInfor
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.ReguleringsInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.FormelKodeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.AfpOpptjening
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantipensjonsbeholdning
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Garantitilleggsbeholdning
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
 

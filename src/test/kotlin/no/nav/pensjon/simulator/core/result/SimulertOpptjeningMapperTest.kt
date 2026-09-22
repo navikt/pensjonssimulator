@@ -261,7 +261,7 @@ private val fom: LocalDate = LocalDate.of(2024, 1, 1)
 private val tom: LocalDate = LocalDate.of(2024, 12, 31)
 
 private fun pensjonsbeholdningPerAar(aar: Int, beloep: Int): Map<Int, DomainPensjonsbeholdning> =
-    mapOf(2024 to DomainPensjonsbeholdning(aar, totalbeloep = beloep.toDouble()))
+    mapOf(aar to DomainPensjonsbeholdning(aar, totalbeloep = beloep.toDouble()))
 
 private fun offentligAfpGrunnlag(afpHistorikkListe: List<AfpHistorikk>) =
     Persongrunnlag().apply { this.afpHistorikkListe = afpHistorikkListe }

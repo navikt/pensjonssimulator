@@ -8,11 +8,11 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 
 data class Pensjonsopptjening(
     val beholdningListe: List<Pensjonsbeholdning>,
-    val opptjeningGrunnlagListe: List<Opptjeningsgrunnlag>,
-    val inntektGrunnlagListe: List<Inntektsgrunnlag>,
-    val dagpengerGrunnlagListe: List<Dagpengegrunnlag>,
-    val omsorgGrunnlagListe: List<Omsorgsgrunnlag>,
-    val forstegangstjeneste: Forstegangstjeneste?
+    val opptjeningsgrunnlagListe: List<Opptjeningsgrunnlag>,
+    val inntektsgrunnlagListe: List<Inntektsgrunnlag>,
+    val dagpengegrunnlagListe: List<Dagpengegrunnlag>,
+    val omsorgsgrunnlagListe: List<Omsorgsgrunnlag>,
+    val foerstegangstjeneste: Forstegangstjeneste?
 ) {
     fun utenBeholdninger() =
         copy(beholdningListe = emptyList())
@@ -21,11 +21,11 @@ data class Pensjonsopptjening(
         fun emptyInstance() =
             Pensjonsopptjening(
                 beholdningListe = emptyList(),
-                opptjeningGrunnlagListe = emptyList(),
-                inntektGrunnlagListe = emptyList(),
-                dagpengerGrunnlagListe = emptyList(),
-                omsorgGrunnlagListe = emptyList(),
-                forstegangstjeneste = null
+                opptjeningsgrunnlagListe = emptyList(),
+                inntektsgrunnlagListe = emptyList(),
+                dagpengegrunnlagListe = emptyList(),
+                omsorgsgrunnlagListe = emptyList(),
+                foerstegangstjeneste = null
             )
     }
 }

@@ -40,7 +40,7 @@ object SimulertOpptjeningMapper {
             kalenderAar = aar,
             pensjonsgivendeInntektPensjonspoeng = forAar(poengtallListe, aar)?.pp ?: 0.0,
             omsorgPensjonspoeng = omsorgspoengForAar(opptjeningsgrunnlagListe, aar),
-            pensjonBeholdning = pensjonsbeholdningVedAaretsSlutt(aar,  resultatListe, sistePensjonsbeholdningPerAar)?.toInt(),
+            pensjonBeholdning = pensjonsbeholdningVedAaretsSlutt(aar, resultatListe, sistePensjonsbeholdningPerAar),
             omsorg = harOmsorgsgrunnlagForAar(soekerGrunnlag.omsorgsgrunnlagListe, aar),
             dagpenger = forAarOgType(liste = dagpengegrunnlagListe, aar, type = DagpengetypeEnum.DP),
             dagpengerFiskere = forAarOgType(liste = dagpengegrunnlagListe, aar, type = DagpengetypeEnum.DP_FF),
@@ -70,14 +70,14 @@ object SimulertOpptjeningMapper {
         aar: Int,
         resultatListe: List<AbstraktBeregningsResultat>,
         sistePensjonsbeholdningPerAar: Map<Int, Pensjonsbeholdning>
-    ): Double? =
+    ): Int? =
         pensjonsbeholdningForDato(resultatListe, dato = sisteDag(aar))
-            ?: sistePensjonsbeholdningPerAar[aar]?.totalbeloep
+            ?: sistePensjonsbeholdningPerAar[aar]?.totalbeloep?.toInt()
 
-    private fun pensjonsbeholdningForDato(resultatListe: List<AbstraktBeregningsResultat>, dato: LocalDate): Double? =
+    private fun pensjonsbeholdningForDato(resultatListe: List<AbstraktBeregningsResultat>, dato: LocalDate): Int? =
         (gjeldendeForDato(resultatListe, dato))
             ?.let(::alderspensjonsresultat2025)?.beregningKapittel20?.beholdninger?.beholdninger
-            ?.let(::sistePensjonsbeholdning)?.totalbelop
+            ?.let(::sistePensjonsbeholdning)?.totalbelop?.toInt()
 
     /**
      * Listen over beholdninger her er produsert av pensjon-regler, og da er ikke 'fom' og 'tom' definert,

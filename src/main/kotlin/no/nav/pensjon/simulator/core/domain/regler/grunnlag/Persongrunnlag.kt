@@ -470,7 +470,7 @@ class Persongrunnlag {
         beholdninger
             .map { it.toInternalValue() }
             .groupBy { it.aar }
-            .map { (aar, beholdninger) -> aar to beholdninger.maxBy { it.fom!! } }
+            .map { (aar, beholdninger) -> aar to beholdninger.maxBy { it.fom } }
             .toMap()
 
     /**

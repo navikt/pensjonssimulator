@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
 import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.omtrentligTrygdetidAntallAar
 import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
 import java.time.LocalDate
+import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning as DomainPensjonsbeholdning
 
 // Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
@@ -464,6 +465,13 @@ class Persongrunnlag {
         // pensjon-regler only uses latest beholdning
         pensjonsbeholdning = findLatest(beholdninger) // cf. PEN kjerne.Persongrunnlag.getPensjonsbeholdning
     }
+
+    fun sistePensjonsbeholdningPerAar(): Map<Int, DomainPensjonsbeholdning> =
+        beholdninger
+            .map { it.toInternalValue() }
+            .groupBy { it.aar }
+            .map { (aar, beholdninger) -> aar to beholdninger.maxBy { it.fom } }
+            .toMap()
 
     /**
      * NB: Comment on source of this method (no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljIPersongrunnlag):

@@ -18,32 +18,32 @@ class SimulertOpptjeningAdder(private val normalderService: NormertPensjonsalder
     // no.nav.service.pensjon.simulering.support.command.abstractsimulerapfra2011.OpprettOutputHelper
     fun addToOpptjeningListe(
         soekerGrunnlag: Persongrunnlag,
-        forrigeAlderspensjonsresultat: AbstraktBeregningsResultat?,
         opptjeningListe: MutableList<SimulertOpptjening>,
         beregningsresultatListe: List<AbstraktBeregningsResultat>,
         regelverkType: RegelverkTypeEnum?
     ) {
         if (soekerGrunnlag.opptjeningsgrunnlagListe.isEmpty()) return
 
+        val foersteKalenderAar: Int = soekerGrunnlag.opptjeningsgrunnlagListe.minByOrNull { it.ar }?.ar ?: return
+
+        val sisteKalenderAar: Int = soekerGrunnlag.fodselsdatoLd?.let {
+            normalderService.oevreAlderOppnaasDato(foedselsdato = it).year
+        } ?: foersteKalenderAar
+
         val poengtallListe: List<Poengtall>? =
             sisteAlderspensjonBeregningsresultat2011(regelverkType, beregningsresultatListe)
                 ?.beregningsInformasjonKapittel19?.spt?.poengrekke?.poengtallListe
 
-        val foersteKalenderAar: Int = soekerGrunnlag.opptjeningsgrunnlagListe.minByOrNull { it.ar }?.ar ?: return
-
-        // 'Siste kalenderår' er pr. 2025 det året personen fyller 75 år,
-        // men det kan bli høyere i framtiden pga. økt pensjonsalder
-        val sisteKalenderAar =
-            normalderService.oevreAlderOppnaasDato(soekerGrunnlag.fodselsdatoLd!!).year
+        val sistePensjonsbeholdningPerAar = soekerGrunnlag.sistePensjonsbeholdningPerAar()
 
         for (aar in foersteKalenderAar..sisteKalenderAar) {
             opptjeningListe.add(
                 simulertOpptjening(
                     aar,
                     soekerGrunnlag,
-                    forrigeAlderspensjonsresultat,
                     resultatListe = beregningsresultatListe,
-                    poengtallListe = poengtallListe.orEmpty()
+                    poengtallListe = poengtallListe.orEmpty(),
+                    sistePensjonsbeholdningPerAar
                 )
             )
         }

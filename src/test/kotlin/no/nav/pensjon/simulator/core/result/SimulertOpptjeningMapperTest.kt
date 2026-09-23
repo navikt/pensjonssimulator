@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.UforetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import java.time.LocalDate
+import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning as DomainPensjonsbeholdning
 
 class SimulertOpptjeningMapperTest : ShouldSpec({
 
@@ -19,9 +20,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = Persongrunnlag(),
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = poengtallListe(aar = 2024, pensjonspoeng = 1.23)
+            poengtallListe = poengtallListe(aar = 2024, pensjonspoeng = 1.23),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).pensjonsgivendeInntektPensjonspoeng shouldBe 1.23
     }
 
@@ -30,9 +31,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
             SimulertOpptjeningMapper.simulertOpptjening(
                 aar = 2024,
                 soekerGrunnlag = Persongrunnlag(),
-                forrigeAlderspensjonsresultat = null,
                 resultatListe = emptyList(),
                 poengtallListe = poengtallListe(aar = 2023, pensjonspoeng = 2.1), // annet år
+                sistePensjonsbeholdningPerAar = emptyMap()
             ).pensjonsgivendeInntektPensjonspoeng shouldBe 0.0
         }
     }
@@ -51,9 +52,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = persongrunnlag,
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).pensjonsgivendeInntekt shouldBe 750000
     }
 
@@ -76,19 +77,19 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = persongrunnlag,
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).omsorgPensjonspoeng shouldBe 3.0 // OSFE has highest priority
     }
 
     should("hente pensjonsbeholdning fra persongrunnlaget") {
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
-            soekerGrunnlag = beholdningsgrunnlag(beloep = 3500000),
-            forrigeAlderspensjonsresultat = null,
+            soekerGrunnlag = Persongrunnlag(),
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = pensjonsbeholdningPerAar(aar = 2024, beloep = 3500000)
         ).pensjonBeholdning shouldBe 3500000
     }
 
@@ -96,9 +97,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = omsorgsgrunnlag(aar = 2024),
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).omsorg shouldBe true
     }
 
@@ -106,9 +107,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = omsorgsgrunnlag(aar = 2023), // annet år
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).omsorg shouldBe false
     }
 
@@ -116,9 +117,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = dagpengegrunnlag(aar = 2024, type = DagpengetypeEnum.DP),
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).dagpenger shouldBe true
     }
 
@@ -126,9 +127,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2023,
             soekerGrunnlag = dagpengegrunnlag(aar = 2023, type = DagpengetypeEnum.DP_FF),
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).dagpengerFiskere shouldBe true
     }
 
@@ -144,9 +145,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = persongrunnlag,
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).foerstegangstjeneste shouldBe true
     }
 
@@ -154,9 +155,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = ufoeregrunnlag(type = UforetypeEnum.UF_M_YRKE),
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).harUfoere shouldBe true
     }
 
@@ -164,9 +165,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = ufoeregrunnlag(type = UforetypeEnum.VIRK_IKKE_UFOR), // skal filtreres bort
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).harUfoere shouldBe false
     }
 
@@ -178,9 +179,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = persongrunnlag,
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).harOffentligAfp shouldBe true
     }
 
@@ -188,9 +189,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         SimulertOpptjeningMapper.simulertOpptjening(
             aar = 2024,
             soekerGrunnlag = offentligAfpGrunnlag(afpHistorikkListe = emptyList()),
-            forrigeAlderspensjonsresultat = null,
             resultatListe = emptyList(),
-            poengtallListe = emptyList()
+            poengtallListe = emptyList(),
+            sistePensjonsbeholdningPerAar = emptyMap()
         ).harOffentligAfp shouldBe false
     }
 
@@ -200,9 +201,9 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
                 SimulertOpptjeningMapper.simulertOpptjening(
                     aar = 2024,
                     soekerGrunnlag = Persongrunnlag(),
-                    forrigeAlderspensjonsresultat = null,
-                    resultatListe = listOf(alderspensjonsresultat2025(pensjonsbeholdning = 4200000)),
-                    poengtallListe = emptyList()
+                    resultatListe = listOf(alderspensjonsresultat2025(aar = 2024, pensjonsbeholdning = 4200000)),
+                    poengtallListe = emptyList(),
+                    sistePensjonsbeholdningPerAar = emptyMap()
                 ).pensjonBeholdning shouldBe 4200000
             }
         }
@@ -211,15 +212,15 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
             should("hente pensjonsbeholdningen fra beregningsresultatet 'type 2016'") {
                 val beregningsResultat = BeregningsResultatAlderspensjon2016().apply {
                     virkFomLd = fom
-                    beregningsResultat2025 = alderspensjonsresultat2025(pensjonsbeholdning = 4300000)
+                    beregningsResultat2025 = alderspensjonsresultat2025(aar = 2024, pensjonsbeholdning = 4300000)
                 }
 
                 SimulertOpptjeningMapper.simulertOpptjening(
                     aar = 2024,
                     soekerGrunnlag = Persongrunnlag(),
-                    forrigeAlderspensjonsresultat = null,
                     resultatListe = listOf(beregningsResultat),
-                    poengtallListe = emptyList()
+                    poengtallListe = emptyList(),
+                    sistePensjonsbeholdningPerAar = emptyMap()
                 ).pensjonBeholdning shouldBe 4300000
             }
         }
@@ -229,10 +230,10 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
         should("bruke verdien fra beregningsresultatet") {
             SimulertOpptjeningMapper.simulertOpptjening(
                 aar = 2024,
-                soekerGrunnlag = beholdningsgrunnlag(beloep = 5300000),
-                forrigeAlderspensjonsresultat = null,
-                resultatListe = listOf(alderspensjonsresultat2025(pensjonsbeholdning = 4500000)),
-                poengtallListe = emptyList()
+                soekerGrunnlag = Persongrunnlag(),
+                resultatListe = listOf(alderspensjonsresultat2025(aar = 2024, pensjonsbeholdning = 4500000)),
+                poengtallListe = emptyList(),
+                sistePensjonsbeholdningPerAar = pensjonsbeholdningPerAar(aar = 2024, beloep = 2500000)
             ).pensjonBeholdning shouldBe 4500000
         }
     }
@@ -240,16 +241,17 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
     context("beregnet pensjonsbeholdning gjelder siste del av året") {
         should("bruke beregnet pensjonsbeholdning") {
             SimulertOpptjeningMapper.simulertOpptjening(
-                aar = 2024,
-                soekerGrunnlag = beholdningsgrunnlag(beloep = 5300000),
-                forrigeAlderspensjonsresultat = null,
+                aar = 2025,
+                soekerGrunnlag = Persongrunnlag(),
                 resultatListe = listOf(
                     alderspensjonsresultat2025(
+                        aar = 2025,
                         pensjonsbeholdning = 4500000,
-                        virkningFom = LocalDate.of(2024, 12, 1)
+                        virkningFom = LocalDate.of(2025, 12, 1)
                     )
                 ),
-                poengtallListe = emptyList()
+                poengtallListe = emptyList(),
+                sistePensjonsbeholdningPerAar = pensjonsbeholdningPerAar(aar = 2025, beloep = 1500000)
             ).pensjonBeholdning shouldBe 4500000
         }
     }
@@ -258,15 +260,8 @@ class SimulertOpptjeningMapperTest : ShouldSpec({
 private val fom: LocalDate = LocalDate.of(2024, 1, 1)
 private val tom: LocalDate = LocalDate.of(2024, 12, 31)
 
-private fun beholdningsgrunnlag(beloep: Int): Persongrunnlag = Persongrunnlag().apply {
-    beholdninger = mutableListOf(
-        Pensjonsbeholdning().apply {
-            ar = 2024
-            totalbelop = beloep.toDouble()
-            beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
-        }
-    )
-}
+private fun pensjonsbeholdningPerAar(aar: Int, beloep: Int): Map<Int, DomainPensjonsbeholdning> =
+    mapOf(aar to DomainPensjonsbeholdning(aar, totalbeloep = beloep.toDouble()))
 
 private fun offentligAfpGrunnlag(afpHistorikkListe: List<AfpHistorikk>) =
     Persongrunnlag().apply { this.afpHistorikkListe = afpHistorikkListe }
@@ -299,7 +294,7 @@ private fun ufoeregrunnlag(type: UforetypeEnum) =
         }
     }
 
-private fun alderspensjonsresultat2025(pensjonsbeholdning: Int, virkningFom: LocalDate = fom) =
+private fun alderspensjonsresultat2025(aar: Int, pensjonsbeholdning: Int, virkningFom: LocalDate = fom) =
     BeregningsResultatAlderspensjon2025().apply {
         virkFomLd = virkningFom
         uttaksgrad = 100
@@ -307,7 +302,7 @@ private fun alderspensjonsresultat2025(pensjonsbeholdning: Int, virkningFom: Loc
             beholdninger = Beholdninger().apply {
                 beholdninger = listOf(
                     Pensjonsbeholdning().apply {
-                        ar = 2024
+                        ar = aar
                         totalbelop = pensjonsbeholdning.toDouble()
                         beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
                     }

@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.core.endring
 
-import no.nav.pensjon.simulator.beholdning.BeholdningerMedGrunnlagService
 import no.nav.pensjon.simulator.core.SimulatorContext
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
@@ -10,7 +9,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
-import no.nav.pensjon.simulator.core.person.BeholdningUtil.beholdningSpec
+import no.nav.pensjon.simulator.core.person.BeholdningUtil.opptjeningSpec
 import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.eps.EpsService
 import no.nav.pensjon.simulator.core.person.eps.EpsService.Companion.EPS_GRUNNBELOEP_MULTIPLIER
@@ -18,6 +17,9 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningService
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningSpec
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -30,7 +32,7 @@ import java.time.LocalDate
 class EndringPersongrunnlag(
     private val context: SimulatorContext,
     private val kravService: KravService,
-    private val beholdningService: BeholdningerMedGrunnlagService,
+    private val opptjeningService: OpptjeningMedBeholdningService,
     private val epsService: EpsService,
     private val persongrunnlagMapper: PersongrunnlagMapper,
     private val generelleDataHolder: GenerelleDataHolder,
@@ -52,7 +54,7 @@ class EndringPersongrunnlag(
                 bosattLandEnum = LandkodeEnum.NOR
                 inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
                 sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
-                opptjeningsgrunnlagListe = opptjeningGrunnlagListe(spec, endringKravhode, person)
+                opptjeningsgrunnlagListe = opptjeningsgrunnlagListe(spec, person, endringKravhode)
                 spec.flyktning?.let { flyktning = it }
                 adjustPersondetaljListe(persongrunnlag = this, spec)
             }
@@ -168,27 +170,22 @@ class EndringPersongrunnlag(
             }
         }
 
-    // SimulerEndringAvAPCommand.updateOpptjeningsgrunnlagOnPersongrunnlag
-    private fun opptjeningGrunnlagListe(
+    private fun persongrunnlag(spec: SimuleringSpec, person: PenPerson): Persongrunnlag? =
+        gyldigPerson(spec.pid, person)?.let { persongrunnlagMapper.mapToPersongrunnlag(person = it, spec) }
+
+    private fun opptjeningsgrunnlagListe(
         spec: SimuleringSpec,
-        kravhode: Kravhode,
-        person: PenPerson
-    ): MutableList<Opptjeningsgrunnlag> {
-        val pid = spec.pid
+        person: PenPerson,
+        kravhode: Kravhode
+    ): MutableList<Opptjeningsgrunnlag> =
+        persongrunnlag(spec, person)?.let {
+            opptjeningSpec(pid = spec.pid!!, persongrunnlag = it, kravhode)
+        }?.let(::opptjeningsgrunnlagListe)
+            ?: mutableListOf()
 
-        if (pid == null || person.foedselsdato == null)
-            return mutableListOf()
-
-        val persongrunnlag: Persongrunnlag = persongrunnlagMapper.mapToPersongrunnlag(person, spec)
-
-        // NB: The original code in SimulerEndringAvAPCommand in PEN used
-        // "midlertidig persongrunnlag - skal kun benyttes til å hente opptjeningsgrunnlag fra POPP"
-        // This is not necessary when using the data-minimized variant of 'fetchBeholdningerMedGrunnlag'
-        // (which does not use 'kravhode')
-
-        return beholdningService.getBeholdningerMedGrunnlag(beholdningSpec(pid, persongrunnlag, kravhode))
-            .opptjeningGrunnlagListe.toMutableList()
-    }
+    // SimulerEndringAvAPCommand.updateOpptjeningsgrunnlagOnPersongrunnlag
+    private fun opptjeningsgrunnlagListe(spec: OpptjeningMedBeholdningSpec): MutableList<Opptjeningsgrunnlag> =
+        opptjeningService.pensjonsopptjening(spec).opptjeningsgrunnlagListe.toMutableList()
 
     // SimulerEndringAvAPCommandHelper.convertEpsToAvdod
     private fun convertEpsToAvdoed(eps: Persongrunnlag, avdoed: Avdoed) {
@@ -385,5 +382,11 @@ class EndringPersongrunnlag(
         // Extracted from SimulerEndringAvAPCommandHelper.isPersonDetaljValid
         private fun isValidInFuture(detalj: PersonDetalj?) =
             detalj?.let { it.penRolleTom == null } == true
+
+        private fun gyldigPerson(pid: Pid?, person: PenPerson): PenPerson? =
+            if (pid == null || person.foedselsdato == null)
+                null
+            else
+                person
     }
 }

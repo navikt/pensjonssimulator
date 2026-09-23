@@ -1,19 +1,15 @@
-package no.nav.pensjon.simulator.core.domain.regler.grunnlag
+package no.nav.pensjon.simulator.opptjening.client.pen.acl
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
-import java.time.LocalDate
 import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning as DomainPensjonsbeholdning
+import java.time.LocalDate
 
-// 2026-04-23
-open class Pensjonsbeholdning : Beholdning {
+/**
+ * NB: This class must be named 'Pensjonsbeholdning', due to API constraints.
+ */
+open class Pensjonsbeholdning : PenBeholdning {
     override var beholdningsTypeEnum: BeholdningtypeEnum = BeholdningtypeEnum.PEN_B
-
-    // Extra:
-    @JsonIgnore
     var fomLd: LocalDate? = null
-
-    @JsonIgnore
     var tomLd: LocalDate? = null
 
     constructor() : super() {

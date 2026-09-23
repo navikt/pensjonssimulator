@@ -72,7 +72,6 @@ class SimuleringResultPreparerTest : FunSpec({
         verify {
             opptjeningAdder.addToOpptjeningListe(
                 soekerGrunnlag = any(),
-                forrigeAlderspensjonsresultat = null,
                 opptjeningListe = any(),
                 beregningsresultatListe = any(),
                 regelverkType = RegelverkTypeEnum.N_REG_G_OPPTJ

@@ -1,13 +1,13 @@
-package no.nav.pensjon.simulator.beholdning
+package no.nav.pensjon.simulator.opptjening
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
 import no.nav.pensjon.simulator.person.Pid
 
 /**
- * Specifies input to the 'beholdninger med grunnlag' service.
+ * Spesifiserer hva opptjeningstjenesten skal utføre.
  */
-data class BeholdningerMedGrunnlagSpec(
+data class OpptjeningMedBeholdningSpec(
     val pid: Pid,
     val hentPensjonspoeng: Boolean,
     val hentGrunnlagForOpptjeninger: Boolean,
@@ -15,11 +15,14 @@ data class BeholdningerMedGrunnlagSpec(
     val harUfoeretrygdKravlinje: Boolean,
     val regelverkType: RegelverkTypeEnum?,
     val sakType: SakTypeEnum?,
-    val personSpecListe: List<BeholdningerMedGrunnlagPersonSpec>,
-    val soekerSpec: BeholdningerMedGrunnlagPersonSpec
-)
+    val personSpecListe: List<OpptjeningMedBeholdningPersonSpec>,
+    val soekerSpec: OpptjeningMedBeholdningPersonSpec
+) {
+    fun medBeholdninger() =
+        copy(hentBeholdninger = true)
+}
 
-data class BeholdningerMedGrunnlagPersonSpec(
+data class OpptjeningMedBeholdningPersonSpec(
     val pid: Pid,
     val sisteGyldigeOpptjeningAar: Int,
     val isGrunnlagRolleSoeker: Boolean

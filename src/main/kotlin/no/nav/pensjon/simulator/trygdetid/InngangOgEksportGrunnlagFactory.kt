@@ -37,6 +37,7 @@ object InngangOgEksportGrunnlagFactory {
             if (regelverkType.isAlderspensjon2025) {
                 val antallArTrygdetidKapittel20 = trygdetidAntallAar(persongrunnlag.trygdetidPerioderKapittel20)
                 treArTrygdetidNorgeKap20 = antallArTrygdetidKapittel20 >= MINIMUM_TRYGDETID_ANTALL_AAR
+                //TODO femArTrygdetidNorge (hvis virkFom etter 1.1.2021) ?
             }
         }
 

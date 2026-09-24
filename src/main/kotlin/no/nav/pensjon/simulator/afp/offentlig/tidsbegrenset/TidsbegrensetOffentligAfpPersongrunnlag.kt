@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.krav.KravService
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
+import no.nav.pensjon.simulator.utland.UtlandUtil.defaultInngangOgEksportGrunnlag
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -117,7 +118,7 @@ class TidsbegrensetOffentligAfpPersongrunnlag(
             this.utenlandsoppholdListe = spec.utlandPeriodeListe.map(::utenlandsopphold).toMutableList()
             this.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
             this.bosattLandEnum = LandkodeEnum.NOR
-            this.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
+            this.inngangOgEksportGrunnlag = defaultInngangOgEksportGrunnlag()
         }
 
     // PEN: SimulerAFPogAPCommand.addInntektgrunnlagForEPS

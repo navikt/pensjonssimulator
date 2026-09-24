@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -14,6 +13,7 @@ import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
+import no.nav.pensjon.simulator.utland.UtlandUtil.defaultInngangOgEksportGrunnlag
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.util.*
@@ -37,7 +37,7 @@ class PersongrunnlagMapper(
         ).also {
             it.over60ArKanIkkeForsorgesSelv = false
             it.sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
-            it.inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
+            it.inngangOgEksportGrunnlag = defaultInngangOgEksportGrunnlag()
         }
 
     fun mapToEpsPersongrunnlag(sivilstatus: SivilstatusType, foedselsdato: LocalDate) =

@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.afp.privat.PrivatAfpSpec
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverBeregnerSpec
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
-import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAfpPrivat
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
@@ -26,20 +25,17 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.InnvilgetLivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SpecOverrider
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoRepopulator
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
 import no.nav.pensjon.simulator.tech.metric.Metrics
-import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
-import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -56,11 +52,11 @@ class SimulatorCore(
     private val privatAfpBeregner: PrivatAfpBeregner,
     private val generalPersonService: GeneralPersonService,
     private val personService: PersonService, // pensjonsrelaterte persondata
+    private val specOverrider: SpecOverrider,
     private val sakService: SakService,
     private val ytelseService: YtelseService,
     private val offentligAfpBeregner: OffentligAfpBeregner,
     private val grunnbeloepService: GrunnbeloepService,
-    private val normalderService: NormertPensjonsalderService,
     private val generelleDataHolder: GenerelleDataHolder,
     private val resultPreparer: SimuleringResultPreparer
 ) : UttakAlderDiscriminator {
@@ -81,23 +77,12 @@ class SimulatorCore(
         val personVirkningDatoCombo: FoersteVirkningDatoCombo? =
             initialSpec.pid?.let(sakService::personVirkningDato) // null if forenklet simulering
 
-        val person: PenPerson? = initialSpec.pid
-            ?.let(personService::person)
+        val person: PenPerson? = initialSpec.pid?.let(personService::person)
         //?.also { validateUfoeregrad(it, initialSpec) } <--- awaiting introducing this - plus logic needs to be refined
 
         val foedselsdato: LocalDate? = person?.foedselsdato
         val ytelser: LoependeYtelser = ytelseService.getLoependeYtelser(initialSpec)
-        val specWithAvdoed = specWithEventuellAvdoed(initialSpec, ytelser.avdoed)
-
-        val spec: SimuleringSpec =
-            if (specWithAvdoed.gjelderTidsbegrensetOffentligAfp())
-            // Ref. SimulerAFPogAPCommand.hentLopendeYtelser
-                specWithAvdoed.withHeltUttakDato(foedselsdato?.let {
-                    uttakDato(foedselsdato = it, uttakAlder = normalderService.normalder(it))
-                })
-            else
-                specWithAvdoed
-
+        val spec: SimuleringSpec = specOverrider.behandleSpec(initialSpec, ytelser, foedselsdato)
 
         if (gjelderEndring) {
             EndringValidator.validateRequestBasedOnLoependeYtelser(spec, ytelser.forrigeAlderspensjonBeregningResultat)
@@ -248,26 +233,6 @@ class SimulatorCore(
         generalPersonService.foedselsdato(pid)
 
     private companion object {
-
-        /**
-         * Hvis spesifikasjonen ikke inneholder informasjon om avdød, hent det fra eventuell eksisterende ytelse.
-         */
-        private fun specWithEventuellAvdoed(spec: SimuleringSpec, info: InformasjonOmAvdoed?) =
-            if (spec.avdoed == null)
-                info?.pid?.let {
-                    spec.withAvdoed(
-                        Avdoed(
-                            pid = it,
-                            antallAarUtenlands = info.antallAarUtenlands ?: 0,
-                            inntektFoerDoed = 0, // hypotese: inntekten er irrelevant ved endring
-                            doedDato = info.doedsdato ?: throw EgressException("Mangler dødsdato i ytelse"),
-                            erMedlemAvFolketrygden = info.harTilstrekkeligMedlemskapIFolketrygden == true,
-                            harInntektOver1G = info.aarligPensjonsgivendeInntektErMinst1G == true
-                        )
-                    )
-                } ?: spec
-            else
-                spec
 
         private fun innvilgetLivsvarigOffentligAfp(
             spec: SimuleringSpec,

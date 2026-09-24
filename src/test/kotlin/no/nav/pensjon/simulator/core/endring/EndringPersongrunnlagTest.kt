@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResul
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.BeregningsResultatAlderspensjon2025
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.SpecialBeregningInformasjon
 import no.nav.pensjon.simulator.core.domain.regler.enum.*
+import no.nav.pensjon.simulator.core.domain.regler.grunnlag.InngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
@@ -49,7 +50,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = simuleringSpec,
@@ -73,7 +74,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = simuleringSpec,
@@ -90,7 +91,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = simuleringSpec,
@@ -107,7 +108,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = simuleringSpec,
@@ -124,7 +125,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = simuleringSpec,
@@ -133,24 +134,25 @@ class EndringPersongrunnlagTest : ShouldSpec({
         )?.inngangOgEksportGrunnlag?.fortsattMedlemFT shouldBe true
     }
 
+    should("bruke 'inngang- og eksportgrunnlag'-verdiene fra forrige krav") {
+        EndringPersongrunnlag(
+            context = mockk(),
+            kravService = arrangeKravMed5AarTrygdetid,
+            opptjeningService = mockk(relaxed = true),
+            epsService = mockk(),
+            persongrunnlagMapper = mockk(relaxed = true),
+            generelleDataHolder = mockk(relaxed = true),
+            time = { idag }
+        ).getPersongrunnlagForSoeker(
+            person = PenPerson(),
+            spec = simuleringSpec,
+            endringKravhode = Kravhode(),
+            forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
+        )?.inngangOgEksportGrunnlag?.femArTrygdetidNorge shouldBe true
+    }
+
     should("opprette enke-persondetalj for ENDR_ALDER_M_GJEN") {
-        val kravService: KravService = mockk {
-            every { fetchKravhode(1L) } returns Kravhode().apply {
-                persongrunnlagListe = mutableListOf(
-                    Persongrunnlag().apply {
-                        personDetaljListe = mutableListOf(
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                                sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1)
-                                virkTom = LocalDate.of(2030, 1, 1)
-                            }
-                        )
-                    }
-                )
-            }
-        }
+        val kravService: KravService = arrangeKrav()
 
         val persongrunnlag = EndringPersongrunnlag(
             context = mockk(),
@@ -159,7 +161,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN),
@@ -185,15 +187,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             every { fetchKravhode(1L) } returns Kravhode().apply {
                 persongrunnlagListe = mutableListOf(
                     Persongrunnlag().apply {
-                        personDetaljListe = mutableListOf(
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                                sivilstandTypeEnum = SivilstandEnum.GIFT // Not ENKE
-                                virkFom = LocalDate.of(2020, 1, 1)
-                                virkTom = LocalDate.of(2030, 1, 1)
-                            }
-                        )
+                        personDetaljListe = mutableListOf(persondetalj(sivilstand = SivilstandEnum.GIFT)) // ikke ENKE
                     }
                 )
             }
@@ -206,7 +200,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = spec,
@@ -264,7 +258,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = spec,
@@ -310,7 +304,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = spec,
@@ -357,7 +351,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = spec,
@@ -377,27 +371,9 @@ class EndringPersongrunnlagTest : ShouldSpec({
                 persongrunnlagListe = mutableListOf(
                     Persongrunnlag().apply {
                         personDetaljListe = mutableListOf(
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                                sivilstandTypeEnum = SivilstandEnum.GIFT
-                                virkFom = LocalDate.of(2020, 1, 1)
-                                virkTom = LocalDate.of(2030, 1, 1)
-                            },
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                                sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1)
-                                virkTom = LocalDate.of(2030, 1, 1)
-                            },
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
-                                sivilstandTypeEnum = SivilstandEnum.UGIF
-                                virkFom = LocalDate.of(2020, 1, 1)
-                                virkTom = LocalDate.of(2030, 1, 1)
-                            }
+                            persondetalj(sivilstand = SivilstandEnum.GIFT),
+                            persondetalj(sivilstand = SivilstandEnum.ENKE),
+                            persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.BARN, sivilstand = SivilstandEnum.UGIF)
                         )
                     }
                 )
@@ -411,7 +387,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
             spec = spec,
@@ -420,46 +396,27 @@ class EndringPersongrunnlagTest : ShouldSpec({
         )
 
         // Should only have single ENKE PersonDetalj, others removed
-        persongrunnlag!!.personDetaljListe shouldHaveSize 1
-        persongrunnlag.personDetaljListe[0].sivilstandTypeEnum shouldBe SivilstandEnum.ENKE
+        with(persongrunnlag!!) {
+            personDetaljListe shouldHaveSize 1
+            personDetaljListe[0].sivilstandTypeEnum shouldBe SivilstandEnum.ENKE
+        }
     }
 
     should("sette flyktning fra spec for ENDR_ALDER_M_GJEN") {
-        val spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN).copy(flyktning = true)
-        val kravService: KravService = mockk {
-            every { fetchKravhode(1L) } returns Kravhode().apply {
-                persongrunnlagListe = mutableListOf(
-                    Persongrunnlag().apply {
-                        personDetaljListe = mutableListOf(
-                            PersonDetalj().apply {
-                                bruk = true
-                                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
-                                sivilstandTypeEnum = SivilstandEnum.ENKE
-                                virkFom = LocalDate.of(2020, 1, 1)
-                                virkTom = LocalDate.of(2030, 1, 1)
-                            }
-                        )
-                    }
-                )
-            }
-        }
-
-        val persongrunnlag = EndringPersongrunnlag(
+        EndringPersongrunnlag(
             context = mockk(),
-            kravService = kravService,
+            kravService = arrangeKrav(),
             opptjeningService = mockk(relaxed = true),
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = PenPerson(),
-            spec = spec,
+            spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN).copy(flyktning = true),
             endringKravhode = Kravhode(),
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
-        )
-
-        persongrunnlag!!.flyktning shouldBe true
+        )?.flyktning shouldBe true
     }
 
     // Tests for addPersongrunnlagForEpsToKravhode
@@ -476,7 +433,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = epsService,
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = spec,
             endringKravhode = endringKravhode,
@@ -490,15 +447,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
     should("legge til EPS persongrunnlag når gyldig EKTEF finnes") {
         val eksisterendeEps = Persongrunnlag().apply {
             penPerson = PenPerson(penPersonId = 2L)
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1)
-                    virkTom = LocalDate.of(2030, 1, 1)
-                    penRolleTom = null
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.EKTEF))
             inntektsgrunnlagListe = mutableListOf()
         }
         val kravService: KravService = mockk {
@@ -523,7 +472,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
             endringKravhode = endringKravhode,
@@ -563,7 +512,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
             endringKravhode = endringKravhode,
@@ -578,15 +527,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
     should("legge til inntektsgrunnlag for EPS når epsPaavirkerBeregningen er true") {
         val eksisterendeEps = Persongrunnlag().apply {
             penPerson = PenPerson(penPersonId = 2L)
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1)
-                    virkTom = LocalDate.of(2030, 1, 1)
-                    penRolleTom = null
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.EKTEF))
             inntektsgrunnlagListe = mutableListOf()
         }
         val kravService: KravService = mockk {
@@ -611,7 +552,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
             endringKravhode = endringKravhode,
@@ -628,15 +569,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
     should("filtrere ut FPI inntektsgrunnlag fra eksisterende persongrunnlag") {
         val eksisterendeEps = Persongrunnlag().apply {
             penPerson = PenPerson(penPersonId = 2L)
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1)
-                    virkTom = LocalDate.of(2030, 1, 1)
-                    penRolleTom = null
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.EKTEF))
             inntektsgrunnlagListe = mutableListOf(
                 Inntektsgrunnlag().apply {
                     bruk = true
@@ -664,7 +597,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
             endringKravhode = endringKravhode,
@@ -690,15 +623,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
         val eksisterendeEps = Persongrunnlag().apply {
             penPerson = PenPerson(penPersonId = 2L)
             fodselsdatoLd = LocalDate.of(1960, 1, 1)
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.EKTEF
-                    virkFom = LocalDate.of(2020, 1, 1)
-                    virkTom = LocalDate.of(2030, 1, 1)
-                    penRolleTom = null
-                }
-            )
+            personDetaljListe = mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.EKTEF))
             inntektsgrunnlagListe = mutableListOf()
             opptjeningsgrunnlagListe = mutableListOf()
         }
@@ -716,7 +641,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = spec,
             endringKravhode = endringKravhode,
@@ -738,15 +663,8 @@ class EndringPersongrunnlagTest : ShouldSpec({
     should("ikke legge til persongrunnlag når ingen gyldig EPS eller AVDOD finnes") {
         val eksisterendePersongrunnlag = Persongrunnlag().apply {
             penPerson = PenPerson(penPersonId = 2L)
-            personDetaljListe = mutableListOf(
-                PersonDetalj().apply {
-                    bruk = true
-                    grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN // Not EPS or AVDOD
-                    virkFom = LocalDate.of(2020, 1, 1)
-                    virkTom = LocalDate.of(2030, 1, 1)
-                    penRolleTom = null
-                }
-            )
+            personDetaljListe =
+                mutableListOf(persondetalj(grunnlagsrolle = GrunnlagsrolleEnum.BARN)) // ikke EPS eller AVDOD
             inntektsgrunnlagListe = mutableListOf()
         }
         val kravService: KravService = mockk {
@@ -763,7 +681,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
             endringKravhode = endringKravhode,
@@ -802,7 +720,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = mockk(relaxed = true),
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).addPersongrunnlagForEpsToKravhode(
             spec = simuleringSpec(type = SimuleringTypeEnum.ENDR_ALDER),
             endringKravhode = endringKravhode,
@@ -846,7 +764,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = persongrunnlagMapper,
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = person,
             spec = spec,
@@ -854,11 +772,13 @@ class EndringPersongrunnlagTest : ShouldSpec({
             forrigeAlderspensjonBeregningResultat = BeregningsResultatAlderspensjon2025().apply { kravId = 1L }
         )
 
-        persongrunnlag!!.opptjeningsgrunnlagListe shouldHaveSize 2
-        persongrunnlag.opptjeningsgrunnlagListe[0].ar shouldBe 2020
-        persongrunnlag.opptjeningsgrunnlagListe[0].pi shouldBe 500000
-        persongrunnlag.opptjeningsgrunnlagListe[1].ar shouldBe 2021
-        persongrunnlag.opptjeningsgrunnlagListe[1].pi shouldBe 550000
+        with(persongrunnlag!!) {
+            opptjeningsgrunnlagListe shouldHaveSize 2
+            opptjeningsgrunnlagListe[0].ar shouldBe 2020
+            opptjeningsgrunnlagListe[0].pi shouldBe 500000
+            opptjeningsgrunnlagListe[1].ar shouldBe 2021
+            opptjeningsgrunnlagListe[1].pi shouldBe 550000
+        }
     }
 
     should("returnere tom opptjeningsgrunnlagListe når pid er null (anonym simulering)") {
@@ -872,7 +792,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = person(),
             spec = spec,
@@ -894,7 +814,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = mockk(relaxed = true),
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = person(foedselsdato = null),
             spec = simuleringSpec,
@@ -915,7 +835,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = arrangePersongrunnlag,
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = person(),
             spec = simuleringSpec,
@@ -939,7 +859,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = persongrunnlagMapper,
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = person,
             spec = spec,
@@ -978,7 +898,7 @@ class EndringPersongrunnlagTest : ShouldSpec({
             epsService = mockk(),
             persongrunnlagMapper = arrangePersongrunnlag,
             generelleDataHolder = arrangeSisteGyldigeOpptjeningsaar,
-            time = { LocalDate.of(2025, 1, 1) }
+            time = { idag }
         ).getPersongrunnlagForSoeker(
             person = person(),
             spec = simuleringSpec,
@@ -994,37 +914,19 @@ class EndringPersongrunnlagTest : ShouldSpec({
     }
 })
 
-private val arrangePersongrunnlag: PersongrunnlagMapper =
-    mockk {
-        every {
-            mapToPersongrunnlag(any(), any())
-        } returns Persongrunnlag().apply {
-            penPerson = PenPerson().apply { pid = TestObjects.pid }
-        }
+private val idag: LocalDate = LocalDate.of(2025, 1, 1)
+
+private val persongrunnlagMed5AarTrygdetid =
+    Persongrunnlag().apply {
+        personDetaljListe = mutableListOf(
+            PersonDetalj().apply {
+                bruk = true
+                grunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER
+            })
+        inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { femArTrygdetidNorge = true }
     }
 
-private val arrangeKrav: KravService =
-    mockk {
-        every { fetchKravhode(1L) } returns kravhode(mutableListOf(persongrunnlag()))
-    }
-
-private val arrangeSisteGyldigeOpptjeningsaar: GenerelleDataHolder =
-    mockk { every { getSisteGyldigeOpptjeningsaar() } returns 2024 }
-
-private fun arrangeOpptjening(pensjonsopptjening: Pensjonsopptjening): OpptjeningMedBeholdningService =
-    mockk {
-        every { pensjonsopptjening(any()) } returns pensjonsopptjening
-    }
-
-private fun kravhode(persongrunnlagListe: MutableList<Persongrunnlag> = mutableListOf()) =
-    Kravhode().apply { this.persongrunnlagListe = persongrunnlagListe }
-
-private fun person(foedselsdato: LocalDate? = LocalDate.of(1963, 5, 15)) =
-    PenPerson().apply {
-        this.foedselsdato = foedselsdato
-    }
-
-private fun persongrunnlag() =
+private val persongrunnlag =
     Persongrunnlag().apply {
         personDetaljListe = mutableListOf(
             PersonDetalj().apply {
@@ -1054,8 +956,64 @@ private fun persongrunnlag() =
             PersonDetalj().apply {
                 bruk = true
                 grunnlagsrolleEnum = GrunnlagsrolleEnum.BARN
-                penRolleTom = LocalDate.of(2025, 1, 1) // => tom = "i dag" => detaljen er relevant
+                penRolleTom = idag // => tom = "i dag" => detaljen er relevant
                 virkTom = LocalDate.of(1901, 1, 1) // NB: virkTom has no effect
             }
         )
+    }
+
+private val arrangePersongrunnlag: PersongrunnlagMapper =
+    mockk {
+        every {
+            mapToPersongrunnlag(any(), any())
+        } returns Persongrunnlag().apply {
+            penPerson = PenPerson().apply { pid = TestObjects.pid }
+        }
+    }
+
+private val arrangeKrav: KravService =
+    mockk {
+        every { fetchKravhode(1L) } returns kravhode(persongrunnlagListe = mutableListOf(persongrunnlag))
+    }
+
+private val arrangeKravMed5AarTrygdetid: KravService =
+    mockk {
+        every { fetchKravhode(1L) } returns kravhode(mutableListOf(persongrunnlagMed5AarTrygdetid))
+    }
+
+private val arrangeSisteGyldigeOpptjeningsaar: GenerelleDataHolder =
+    mockk { every { getSisteGyldigeOpptjeningsaar() } returns 2024 }
+
+private fun arrangeKrav(): KravService =
+    mockk {
+        every { fetchKravhode(1L) } returns kravhode(
+            persongrunnlagListe = mutableListOf(
+                Persongrunnlag().apply {
+                    personDetaljListe = mutableListOf(persondetalj(sivilstand = SivilstandEnum.ENKE))
+                }
+            )
+        )
+    }
+
+private fun arrangeOpptjening(pensjonsopptjening: Pensjonsopptjening): OpptjeningMedBeholdningService =
+    mockk {
+        every { pensjonsopptjening(any()) } returns pensjonsopptjening
+    }
+
+private fun kravhode(persongrunnlagListe: MutableList<Persongrunnlag> = mutableListOf()) =
+    Kravhode().apply { this.persongrunnlagListe = persongrunnlagListe }
+
+private fun person(foedselsdato: LocalDate? = LocalDate.of(1963, 5, 15)) =
+    PenPerson().apply { this.foedselsdato = foedselsdato }
+
+private fun persondetalj(
+    grunnlagsrolle: GrunnlagsrolleEnum = GrunnlagsrolleEnum.SOKER,
+    sivilstand: SivilstandEnum? = null
+) =
+    PersonDetalj().apply {
+        bruk = true
+        grunnlagsrolleEnum = grunnlagsrolle
+        sivilstandTypeEnum = sivilstand
+        virkFom = LocalDate.of(2020, 1, 1)
+        virkTom = LocalDate.of(2030, 1, 1)
     }

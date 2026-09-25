@@ -10,7 +10,6 @@ import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecMapperV1
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSpecV1
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
-import no.nav.pensjon.simulator.alderspensjon.api.tpo.viapen.TpoViaPenAlderspensjonController.TpoSimuleringErrorDto
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.*
@@ -152,6 +151,11 @@ class FolketrygdberegnetAfpController(
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorDto(e))
+
+    /**
+     * Ref. PEN JsonErrorEntityBuilder.createErrorEntity
+     */
+    data class TpoSimuleringErrorDto(val feil: String)
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av folketrygdberegnet AFP V1"

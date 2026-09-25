@@ -12,7 +12,6 @@ import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpResult
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpBeregner
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpResult
-import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonBeregnerResult
 import no.nav.pensjon.simulator.core.beregn.AlderspensjonVilkaarsproeverOgBeregner
 import no.nav.pensjon.simulator.core.domain.Avdoed
@@ -35,16 +34,15 @@ import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimuleringResultPreparer
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.spec.SpecOverrider
 import no.nav.pensjon.simulator.core.virkning.FoersteVirkningDatoCombo
 import no.nav.pensjon.simulator.core.ytelse.LoependeYtelser
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
-import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.sak.SakService
-import no.nav.pensjon.simulator.ytelse.InformasjonOmAvdoed
 import no.nav.pensjon.simulator.ytelse.YtelseService
 import java.time.LocalDate
 
@@ -60,7 +58,7 @@ class SimulatorCoreTest : ShouldSpec({
                 type = SimuleringTypeEnum.ENDR_ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2027, 1, 1),
-                uttakGrad = UttakGradKode.P_100
+                uttaksgrad = UttakGradKode.P_100
             )
 
             simulatorCore().simuler(spec) shouldNotBe null
@@ -75,37 +73,6 @@ class SimulatorCoreTest : ShouldSpec({
             shouldThrow<InvalidArgumentException> {
                 simulatorCore().simuler(spec)
             }
-        }
-    }
-
-    context("simuler - avdød handling") {
-        should("use avdød from ytelser when available") {
-            val avdoedPid = Pid("98765432109")
-            val doedsdato = LocalDate.of(2020, 5, 15)
-
-            val ytelseService = mockk<YtelseService> {
-                every { getLoependeYtelser(any()) } returns LoependeYtelser(
-                    soekerVirkningFom = LocalDate.of(2025, 1, 1),
-                    privatAfpVirkningFom = null,
-                    sisteBeregning = null,
-                    forrigeAlderspensjonBeregningResultat = null,
-                    forrigePrivatAfpBeregningResultat = null,
-                    forrigeVedtakListe = mutableListOf(),
-                    avdoed = InformasjonOmAvdoed(
-                        pid = avdoedPid,
-                        doedsdato = doedsdato,
-                        foersteVirkningsdato = LocalDate.of(2020, 6, 1),
-                        aarligPensjonsgivendeInntektErMinst1G = null,
-                        harTilstrekkeligMedlemskapIFolketrygden = null,
-                        antallAarUtenlands = null,
-                        erFlyktning = null
-                    )
-                )
-            }
-
-            simulatorCore(ytelseService = ytelseService).simuler(
-                initialSpec = simuleringSpec(avdoed = null)
-            ) shouldNotBe null
         }
     }
 
@@ -179,45 +146,17 @@ class SimulatorCoreTest : ShouldSpec({
         }
 
         should("add personal data to output when not anonym") {
-            val personService = mockk<PersonService> {
-                every { person(any()) } returns PenPerson().apply {
-                    foedselsdato = LocalDate.of(1963, 1, 1)
-                }
-            }
-
             val result = simulatorCore(
-                soekerFoedselsdato = LocalDate.of(1963, 1, 1),
-                personService = personService
+                soekerFoedselsdato = date,
+                personService = arrangePerson(foedselsdato = date)
             ).simuler(
                 initialSpec = simuleringSpec(erAnonym = false)
             )
 
             with(result) {
-                registerData?.soekerFoedselsdato shouldBe LocalDate.of(1963, 1, 1)
+                registerData?.soekerFoedselsdato shouldBe date
                 persongrunnlag shouldNotBe null
             }
-        }
-    }
-
-    context("simuler - tidsbegrenset offentlig AFP") {
-        should("adjust heltUttakDato for tidsbegrenset offentlig AFP") {
-            val normalderService = mockk<NormertPensjonsalderService> {
-                every { normalder(any<LocalDate>()) } returns Alder(67, 0)
-            }
-
-            val personService = mockk<PersonService> {
-                every { person(any()) } returns PenPerson().apply {
-                    foedselsdato = LocalDate.of(1960, 6, 15)
-                }
-            }
-
-            val core = simulatorCore(
-                normalderService = normalderService,
-                personService = personService
-            )
-
-            // AFP_FPP gjelderTidsbegrensetOffentligAfp() returns true
-            core.simuler(initialSpec = simuleringSpec(type = SimuleringTypeEnum.AFP_FPP)) shouldNotBe null
         }
     }
 
@@ -256,12 +195,8 @@ class SimulatorCoreTest : ShouldSpec({
 
     context("simuler - knekkpunkt finding") {
         should("find knekkpunkter") {
-            val knekkpunktFinder = mockk<KnekkpunktFinder> {
-                every { finnKnekkpunkter(any()) } returns sortedMapOf()
-            }
-
+            val knekkpunktFinder = arrangeKnekkpunkt()
             simulatorCore(knekkpunktFinder = knekkpunktFinder).simuler(initialSpec = simuleringSpec())
-
             verify { knekkpunktFinder.finnKnekkpunkter(any()) }
         }
     }
@@ -286,12 +221,8 @@ class SimulatorCoreTest : ShouldSpec({
 
     context("simuler - result preparation") {
         should("prepare result with correct spec values") {
-            val resultPreparer = mockk<SimuleringResultPreparer> {
-                every { opprettOutput(any()) } returns SimulatorOutput()
-            }
-
+            val resultPreparer = arrangeOutput()
             simulatorCore(resultPreparer = resultPreparer).simuler(initialSpec = simuleringSpec())
-
             verify { resultPreparer.opprettOutput(any()) }
         }
     }
@@ -302,7 +233,7 @@ class SimulatorCoreTest : ShouldSpec({
                 type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2027, 1, 1),
-                uttakGrad = UttakGradKode.P_100,
+                uttaksgrad = UttakGradKode.P_100,
                 avdoed = Avdoed(
                     pid = Pid("98765432109"),
                     antallAarUtenlands = 0,
@@ -319,7 +250,7 @@ class SimulatorCoreTest : ShouldSpec({
                 type = SimuleringTypeEnum.ENDR_ALDER_M_GJEN,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2027, 1, 1),
-                uttakGrad = UttakGradKode.P_100,
+                uttaksgrad = UttakGradKode.P_100,
                 avdoed = null
             )
 
@@ -335,7 +266,7 @@ class SimulatorCoreTest : ShouldSpec({
                 type = SimuleringTypeEnum.ENDR_ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = null, // Missing for gradert uttak
-                uttakGrad = UttakGradKode.P_50
+                uttaksgrad = UttakGradKode.P_50
             )
 
             shouldThrow<InvalidArgumentException> {
@@ -347,35 +278,32 @@ class SimulatorCoreTest : ShouldSpec({
     context("fetchFoedselsdato") {
         should("delegate to generalPersonService") {
             val expectedDate = LocalDate.of(1965, 3, 20)
-            val generalPersonService = mockk<GeneralPersonService> {
-                every { foedselsdato(any()) } returns expectedDate
-            }
-
-            val core = simulatorCore(generalPersonService = generalPersonService)
+            val generalPersonService = arrangeFoedselsdato(expectedDate)
             val pid = Pid("12345678901")
 
-            core.fetchFoedselsdato(pid) shouldBe expectedDate
+            simulatorCore(generalPersonService = generalPersonService).fetchFoedselsdato(pid) shouldBe expectedDate
             verify { generalPersonService.foedselsdato(pid) }
         }
     }
 })
 
+private val date: LocalDate = LocalDate.of(1963, 1, 1)
+
 private fun simulatorCore(
     soekerFoedselsdato: LocalDate? = null,
     kravhodeCreator: KravhodeCreator = mockKravhodeCreator(),
     kravhodeUpdater: KravhodeUpdater = mockKravhodeUpdater(),
-    knekkpunktFinder: KnekkpunktFinder = mockKnekkpunktFinder(),
+    knekkpunktFinder: KnekkpunktFinder = arrangeKnekkpunkt(),
     alderspensjonVilkaarsproeverOgBeregner: AlderspensjonVilkaarsproeverOgBeregner = mockAlderspensjonBeregner(),
     privatAfpBeregner: PrivatAfpBeregner = mockk(relaxed = true),
-    generalPersonService: GeneralPersonService = mockGeneralPersonService(),
-    personService: PersonService = mockPersonService(),
+    generalPersonService: GeneralPersonService = arrangeFoedselsdato(),
+    personService: PersonService = arrangePerson(),
     sakService: SakService = mockSakService(),
     ytelseService: YtelseService = mockYtelseService(),
     offentligAfpBeregner: OffentligAfpBeregner = mockOffentligAfpBeregner(),
     grunnbeloepService: GrunnbeloepService = mockGrunnbeloepService(),
-    normalderService: NormertPensjonsalderService = mockNormalderService(),
     generelleDataHolder: GenerelleDataHolder = mockGenerelleDataHolder(),
-    resultPreparer: SimuleringResultPreparer = mockResultPreparer(soekerFoedselsdato)
+    resultPreparer: SimuleringResultPreparer = arrangeOutput(soekerFoedselsdato)
 ) =
     SimulatorCore(
         kravhodeCreator,
@@ -385,11 +313,11 @@ private fun simulatorCore(
         privatAfpBeregner,
         generalPersonService,
         personService,
+        specOverrider = arrangeNoOverride(),
         sakService,
         ytelseService,
         offentligAfpBeregner,
         grunnbeloepService,
-        normalderService,
         generelleDataHolder,
         resultPreparer
     )
@@ -402,10 +330,6 @@ private fun mockKravhodeUpdater(): KravhodeUpdater = mockk {
     every { updateKravhodeForFoersteKnekkpunkt(any()) } returns kravhode()
 }
 
-private fun mockKnekkpunktFinder(): KnekkpunktFinder = mockk {
-    every { finnKnekkpunkter(any()) } returns sortedMapOf()
-}
-
 private fun mockAlderspensjonBeregner(): AlderspensjonVilkaarsproeverOgBeregner = mockk {
     every { vilkaarsproevOgBeregnAlder(any()) } returns AlderspensjonBeregnerResult(
         beregningsresultater = mutableListOf(BeregningsResultatAlderspensjon2011()),
@@ -413,15 +337,28 @@ private fun mockAlderspensjonBeregner(): AlderspensjonVilkaarsproeverOgBeregner 
     )
 }
 
-private fun mockGeneralPersonService(): GeneralPersonService = mockk {
-    every { foedselsdato(any()) } returns LocalDate.of(1963, 1, 1)
-}
+private fun arrangeFoedselsdato(foedselsdato: LocalDate = date): GeneralPersonService =
+    mockk { every { foedselsdato(any()) } returns foedselsdato }
 
-private fun mockPersonService(): PersonService = mockk {
-    every { person(any()) } returns PenPerson().apply {
-        foedselsdato = LocalDate.of(1963, 1, 1)
+private fun arrangePerson(foedselsdato: LocalDate = date): PersonService =
+    mockk {
+        every { person(any()) } returns PenPerson().apply { this.foedselsdato = foedselsdato }
     }
-}
+
+private fun arrangeKnekkpunkt(): KnekkpunktFinder =
+    mockk { every { finnKnekkpunkter(any()) } returns sortedMapOf() }
+
+private fun arrangeNoOverride(): SpecOverrider =
+    mockk { every { behandleSpec(spec = any(), ytelser = any(), foedselsdato = any()) } returnsArgument 0 }
+
+private fun arrangeOutput(soekerFoedselsdato: LocalDate? = null): SimuleringResultPreparer =
+    mockk {
+        every {
+            opprettOutput(any())
+        } returns SimulatorOutput().apply {
+            registerData = soekerFoedselsdato?.let { RegisterData(soekerFoedselsdato = it) }
+        }
+    }
 
 private fun mockSakService(): SakService = mockk {
     every { personVirkningDato(any()) } returns FoersteVirkningDatoCombo(
@@ -453,26 +390,15 @@ private fun mockGrunnbeloepService(): GrunnbeloepService = mockk {
     every { naavaerendeGrunnbeloep() } returns 118620
 }
 
-private fun mockNormalderService(): NormertPensjonsalderService = mockk {
-    every { normalder(any<LocalDate>()) } returns Alder(67, 0)
-}
-
 private fun mockGenerelleDataHolder(): GenerelleDataHolder = mockk {
     every { getSisteGyldigeOpptjeningsaar() } returns 2023
 }
-
-private fun mockResultPreparer(soekerFoedselsdato: LocalDate?): SimuleringResultPreparer =
-    mockk {
-        every { opprettOutput(any()) } returns SimulatorOutput().apply {
-            registerData = RegisterData(soekerFoedselsdato = soekerFoedselsdato)
-        }
-    }
 
 private fun kravhode() =
     Kravhode().apply {
         persongrunnlagListe = mutableListOf(
             Persongrunnlag().apply {
-                fodselsdatoLd = LocalDate.of(1963, 1, 1)
+                fodselsdatoLd = date
                 penPerson = PenPerson().apply { penPersonId = 1L }
                 personDetaljListe = mutableListOf(
                     PersonDetalj().apply {
@@ -489,7 +415,7 @@ private fun simuleringSpec(
     pid: Pid? = Pid("12345678901"),
     foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),
     heltUttakDato: LocalDate? = LocalDate.of(2032, 6, 1),
-    uttakGrad: UttakGradKode = UttakGradKode.P_100,
+    uttaksgrad: UttakGradKode = UttakGradKode.P_100,
     erAnonym: Boolean = false,
     avdoed: Avdoed? = null
 ) = SimuleringSpec(
@@ -499,11 +425,11 @@ private fun simuleringSpec(
     foersteUttakDato = foersteUttakDato,
     heltUttakDato = heltUttakDato,
     pid = pid,
-    foedselDato = LocalDate.of(1963, 1, 1),
+    foedselDato = date,
     avdoed = avdoed,
     isTpOrigSimulering = false,
     simulerForTp = false,
-    uttakGrad = uttakGrad,
+    uttakGrad = uttaksgrad,
     forventetInntektBeloep = 250000,
     inntektUnderGradertUttakBeloep = 125000,
     inntektEtterHeltUttakBeloep = 67500,

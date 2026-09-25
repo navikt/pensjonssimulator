@@ -54,6 +54,7 @@ object TestObjects {
         sivilstatus: SivilstatusType = SivilstatusType.UGIF,
         epsHarPensjon: Boolean = false,
         foedselsdato: LocalDate? = null,
+        avdoed: Avdoed? = avdoed(),
         foersteUttakDato: LocalDate? = LocalDate.of(2029, 1, 1),
         heltUttakDato: LocalDate? = LocalDate.of(2032, 6, 1),
         inntektEtterHeltUttakTom: LocalDate? = null,
@@ -72,14 +73,7 @@ object TestObjects {
         heltUttakDato,
         pid = pid,
         foedselDato = foedselsdato,
-        avdoed = Avdoed(
-            pid = Pid("04925398980"),
-            antallAarUtenlands = 1,
-            inntektFoerDoed = 50000,
-            doedDato = LocalDate.of(2020, 11, 11),
-            erMedlemAvFolketrygden = true,
-            harInntektOver1G = false,
-        ),
+        avdoed,
         isTpOrigSimulering = false,
         simulerForTp = false,
         uttakGrad = uttaksgrad,
@@ -159,6 +153,16 @@ object TestObjects {
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false
     )
+
+    private fun avdoed() =
+        Avdoed(
+            pid = Pid("04925398980"),
+            antallAarUtenlands = 1,
+            inntektFoerDoed = 50000,
+            doedDato = LocalDate.of(2020, 11, 11),
+            erMedlemAvFolketrygden = true,
+            harInntektOver1G = false
+        )
 
     private fun utlandPeriodeListe(): MutableList<UtlandPeriode> =
         mutableListOf(

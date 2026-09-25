@@ -138,6 +138,9 @@ data class SimuleringSpec(
             type = if (type == SimuleringTypeEnum.ENDR_ALDER) SimuleringTypeEnum.ENDR_ALDER_M_GJEN else type
         )
 
+    fun utenUtenlandsopphold() =
+copy(utlandAntallAar = 0, utlandPeriodeListe = mutableListOf())
+
     fun withUttak(
         foersteUttakDato: LocalDate?,
         uttaksgrad: UttakGradKode,
@@ -169,6 +172,8 @@ data class SimuleringSpec(
         )
 
     fun withHeltUttakDato(dato: LocalDate?): SimuleringSpec {
+        if (dato == heltUttakDato) return this
+
         val angittBeloep = angittInntektEtterHeltUttakBeloep
         val angittTom = angittInntektEtterHeltUttakTom
         val angittAntallAar = angittInntektEtterHeltUttakAntallAar

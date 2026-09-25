@@ -72,7 +72,7 @@ class SpecOverrider(
      * Dette for å unngå å få feil trygdetid ved simulering av endring av alderspensjon.
      */
     private fun behandleUtenlandsopphold(spec: SimuleringSpec, ytelser: LoependeYtelser): SimuleringSpec =
-        if (spec.utlandAntallAar > 0 && harUtenlandsopphold(ytelser) == false)
+        if ((spec.utlandAntallAar > 0 || spec.utlandPeriodeListe.isNotEmpty()) && harUtenlandsopphold(ytelser) == false)
             spec.utenUtenlandsopphold()
         else
             spec

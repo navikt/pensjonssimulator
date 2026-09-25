@@ -139,7 +139,7 @@ data class SimuleringSpec(
         )
 
     fun utenUtenlandsopphold() =
-        copy(utlandAntallAar = 0)
+copy(utlandAntallAar = 0, utlandPeriodeListe = mutableListOf())
 
     fun withUttak(
         foersteUttakDato: LocalDate?,

@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.inntekt
 
 import no.nav.pensjon.simulator.g.GrunnbeloepService
+import no.nav.pensjon.simulator.opptjening.client.InntektClient
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import org.springframework.stereotype.Service

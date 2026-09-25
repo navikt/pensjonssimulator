@@ -80,7 +80,7 @@ private val emptyPensjon = SimulertPensjon(
     pensjonBeholdningPeriodeListe = emptyList(),
     harUttak = false,
     primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 0),
-    opptjeningGrunnlagListe = emptyList(),
+    aarligOpptjeningListe = emptyList(),
     opptjeningListe = emptyList()
 )
 

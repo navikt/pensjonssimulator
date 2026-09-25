@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.opptjening
+package no.nav.pensjon.simulator.opptjening.client.popp
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.testutil.arrangeResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.http.HttpStatus
 import java.time.LocalDate
 
@@ -25,7 +26,7 @@ class OpptjeningClientTest : FunSpec({
         OpptjeningClient(
             baseUrl!!,
             retryAttempts = "1",
-            webClientBase = context.getBean(WebClientBase::class.java),
+            webClientBase = context.getBean<WebClientBase>(),
             traceAid = mockk<TraceAid>(relaxed = true),
             time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
         )

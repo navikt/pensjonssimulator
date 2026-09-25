@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.g.GrunnbeloepService
+import no.nav.pensjon.simulator.opptjening.client.InntektClient
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate

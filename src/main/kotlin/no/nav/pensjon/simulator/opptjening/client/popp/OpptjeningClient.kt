@@ -1,11 +1,10 @@
-package no.nav.pensjon.simulator.opptjening
+package no.nav.pensjon.simulator.opptjening.client.popp
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.inntekt.LoependeInntekt
-import no.nav.pensjon.simulator.inntekt.InntektClient
-import no.nav.pensjon.simulator.opptjening.dto.OpptjeningsgrunnlagExtractor
-import no.nav.pensjon.simulator.opptjening.dto.OpptjeningsgrunnlagResponseDto
+import no.nav.pensjon.simulator.opptjening.client.InntektClient
+import no.nav.pensjon.simulator.opptjening.client.popp.acl.PoppOpptjeningsgrunnlagResult
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.MetricResult
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
@@ -20,6 +19,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 import java.time.LocalDate
 
 @Component
@@ -44,10 +44,10 @@ class OpptjeningClient(
                 .uri("/$OPPTJENINGSGRUNNLAG_PATH")
                 .headers { setHeaders(it, pid) }
                 .retrieve()
-                .bodyToMono(OpptjeningsgrunnlagResponseDto::class.java)
+                .bodyToMono<PoppOpptjeningsgrunnlagResult>()
                 .retryWhen(retryBackoffSpec(url))
                 .block()
-                ?.let(OpptjeningsgrunnlagExtractor::fromDto)
+                ?.toInternalValue()
                 .also { countCalls(MetricResult.OK) }
                 ?: zeroInntekt()
         } catch (e: WebClientRequestException) {

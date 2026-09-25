@@ -21,6 +21,7 @@ import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningService
 import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningSpec
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
+import no.nav.pensjon.simulator.utland.UtlandUtil.defaultInngangOgEksportGrunnlag
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -52,7 +53,7 @@ class EndringPersongrunnlag(
             ?.let(::Persongrunnlag)
             ?.apply {
                 bosattLandEnum = LandkodeEnum.NOR
-                inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
+                inngangOgEksportGrunnlag = inngangOgEksportGrunnlag ?: defaultInngangOgEksportGrunnlag()
                 sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
                 opptjeningsgrunnlagListe = opptjeningsgrunnlagListe(spec, person, endringKravhode)
                 spec.flyktning?.let { flyktning = it }

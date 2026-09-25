@@ -40,6 +40,7 @@ import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.tid.AarOgMaaned
 import no.nav.pensjon.simulator.tid.Overlapp
 import no.nav.pensjon.simulator.ufoere.UfoeretrygdUtbetalingService
+import no.nav.pensjon.simulator.utland.UtlandUtil.defaultInngangOgEksportGrunnlag
 import no.nav.pensjon.simulator.uttak.Uttaksgrad.HUNDRE_PROSENT
 import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Component
@@ -254,7 +255,7 @@ class KravhodeCreator(
             flyktning = false
             bosattLandEnum = norge
             personDetaljListe = mutableListOf(anonymPersondetalj(spec))
-            inngangOgEksportGrunnlag = InngangOgEksportGrunnlag().apply { fortsattMedlemFT = true }
+            inngangOgEksportGrunnlag = defaultInngangOgEksportGrunnlag()
             sisteGyldigeOpptjeningsAr = generelleDataHolder.getSisteGyldigeOpptjeningsaar()
         }
 

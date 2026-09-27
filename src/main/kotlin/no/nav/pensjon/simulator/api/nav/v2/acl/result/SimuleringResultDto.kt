@@ -37,6 +37,7 @@ data class AlderspensjonDto(
     val grunnpensjon: Int?,
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
+    val garantitillegg: Int?,
     val skjermingstillegg: Int?,
     val kapittel19Pensjon: Kapittel19PensjonDto?,
     val kapittel20Pensjon: Kapittel20PensjonDto?

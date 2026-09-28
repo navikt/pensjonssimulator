@@ -45,7 +45,7 @@ open class SimuleringResultMapperTest : ShouldSpec({
                             beloep = 123,
                             inntektspensjon = 124,
                             garantipensjon = SimulertGarantipensjon(aarligBeloep = 125, sats = 1.2),
-                            garantitillegg = 0,
+                            garantitillegg = 126,
                             delingstall = 1.3,
                             pensjonBeholdningFoerUttak = 127,
                             andelsbroekKap19 = 1.4,
@@ -108,7 +108,7 @@ open class SimuleringResultMapperTest : ShouldSpec({
                         andelsbroek = 1.5,
                         trygdetidAntallAar = 20,
                         garantipensjon = GarantipensjonDto(aarligBeloep = 125, maanedligBeloep = null, sats = 1.2),
-                        garantitillegg = 0
+                        garantitillegg = 126
                     ),
                     garantitillegg = 0
                 )

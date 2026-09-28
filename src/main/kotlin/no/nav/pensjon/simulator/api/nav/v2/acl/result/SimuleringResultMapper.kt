@@ -47,7 +47,6 @@ object SimuleringResultMapper {
             grunnpensjon = source.grunnpensjon,
             tilleggspensjon = source.tilleggspensjon,
             pensjonstillegg = source.pensjonstillegg,
-            garantitillegg = source.garantitillegg,
             skjermingstillegg = source.skjermingstillegg,
             kapittel19Pensjon = Kapittel19PensjonDto(
                 andelsbroek = source.andelsbroekKap19,

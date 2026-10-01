@@ -1,0 +1,106 @@
+{
+    "opptjeningsGrunnlag": {
+        "fnr": "12906498357",
+        "inntektListe": [
+            {
+                "changeStamp": {
+                    "createdBy": "POPPTESTDATA",
+                    "createdDate": 1676370071389,
+                    "updatedBy": "popp-testdata",
+                    "updatedDate": 1676370074646
+                },
+                "inntektId": 587127541,
+                "fnr": "12906498357",
+                "inntektAr": 2015,
+                "kilde": "PEN",
+                "kommune": "1337",
+                "piMerke": null,
+                "inntektType": "INN_LON",
+                "belop": 555000
+            },
+            {
+                "changeStamp": {
+                    "createdBy": "popp-testdata",
+                    "createdDate": 1676370074647,
+                    "updatedBy": "popp-testdata",
+                    "updatedDate": 1676370075045
+                },
+                "inntektId": 587127542,
+                "fnr": "12906498357",
+                "inntektAr": 2015,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "SUM_PI",
+                "belop": 555001
+            },
+            {
+                "changeStamp": {
+                    "createdBy": "POPPTESTDATA",
+                    "createdDate": 1676370071389,
+                    "updatedBy": "popp-testdata",
+                    "updatedDate": 1676370076420
+                },
+                "inntektId": 587127545,
+                "fnr": "12906498357",
+                "inntektAr": 2019,
+                "kilde": "PEN",
+                "kommune": "1337",
+                "piMerke": null,
+                "inntektType": "AI",
+                "belop": 555002
+            },
+            {
+                "changeStamp": {
+                    "createdBy": "popp-testdata",
+                    "createdDate": 1676370076422,
+                    "updatedBy": "popp-testdata",
+                    "updatedDate": 1676370076630
+                },
+                "inntektId": 587127546,
+                "fnr": "12906498357",
+                "inntektAr": 2020,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "PI66",
+                "belop": 555003
+            },
+            {
+                "changeStamp": {
+                    "createdBy": "BPOPP004",
+                    "createdDate": 1741603459547,
+                    "updatedBy": "BPOPP004",
+                    "updatedDate": 1741603459547
+                },
+                "inntektId": 591804372,
+                "fnr": "12906498357",
+                "inntektAr": 2016,
+                "kilde": "SKD",
+                "kommune": "2105",
+                "piMerke": null,
+                "inntektType": "INN_JSF",
+                "belop": 129475
+            },
+            {
+                "changeStamp": {
+                    "createdBy": "BPOPP004",
+                    "createdDate": 1741603459549,
+                    "updatedBy": "BPOPP004",
+                    "updatedDate": 1741603459549
+                },
+                "inntektId": 591804373,
+                "fnr": "12906498357",
+                "inntektAr": 2016,
+                "kilde": "SKD",
+                "kommune": "2105",
+                "piMerke": null,
+                "inntektType": "INN_SEL",
+                "belop": 165553
+            }
+        ],
+        "omsorgListe": [],
+        "dagpengerListe": [],
+        "forstegangstjeneste": null
+    }
+}

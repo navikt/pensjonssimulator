@@ -59,14 +59,14 @@ class PenOpptjeningClientTest : ShouldSpec({
                 OpptjeningMedBeholdningSpec(
                     pid = pid,
                     hentPensjonspoeng = false,
-                    hentGrunnlagForOpptjeninger = false,
+                    hentOpptjeningsgrunnlag = false,
                     hentBeholdninger = false,
                     harUfoeretrygdKravlinje = false,
                     regelverkType = null,
                     sakType = null,
                     personSpecListe = emptyList(),
                     soekerSpec = OpptjeningMedBeholdningPersonSpec(
-                        pid = pid, sisteGyldigeOpptjeningAar = 2024, isGrunnlagRolleSoeker = true
+                        pid = pid, sisteGyldigeOpptjeningsaar = 2024, gjelderSoeker = true
                     )
                 )
             )

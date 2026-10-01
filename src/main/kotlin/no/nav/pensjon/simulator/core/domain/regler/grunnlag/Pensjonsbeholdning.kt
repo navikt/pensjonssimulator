@@ -1,8 +1,10 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import no.nav.pensjon.simulator.core.domain.regler.Opptjening
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
 import java.time.LocalDate
+import java.time.Month
 import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning as DomainPensjonsbeholdning
 
 // 2026-04-23
@@ -25,6 +27,9 @@ open class Pensjonsbeholdning : Beholdning {
         tomLd = source.tomLd
     }
 
+    fun aar(): Int =
+        fomLd?.year ?: 0
+
     fun toInternalValue() =
         DomainPensjonsbeholdning(
             aar = ar,
@@ -37,4 +42,16 @@ open class Pensjonsbeholdning : Beholdning {
             formelkode = formelKodeEnum,
             merknadListe = merknadListe
         )
+
+    companion object {
+        fun dummy(aar: Int) =
+            Pensjonsbeholdning().apply {
+                totalbelop = 0.0
+                ar = aar
+                fomLd = LocalDate.of(aar, Month.JANUARY, 1)
+                tomLd = null
+                opptjening = null
+                opptjening = Opptjening.dummy(aar)
+            }
+    }
 }

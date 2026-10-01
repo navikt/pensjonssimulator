@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.opptjening.client.popp.acl
+package no.nav.pensjon.simulator.opptjening.client.popp.acl.inntekt
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe

@@ -17,16 +17,17 @@ import org.springframework.beans.factory.getBean
 import org.springframework.http.HttpStatus
 import java.time.LocalDate
 
-class OpptjeningClientTest : FunSpec({
+class PoppOpptjeningClientTest : FunSpec({
 
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
     fun client(context: BeanFactory) =
-        OpptjeningClient(
+        PoppOpptjeningClient(
             baseUrl!!,
             retryAttempts = "1",
             webClientBase = context.getBean<WebClientBase>(),
+            cacheManager = mockk(),
             traceAid = mockk<TraceAid>(relaxed = true),
             time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
         )

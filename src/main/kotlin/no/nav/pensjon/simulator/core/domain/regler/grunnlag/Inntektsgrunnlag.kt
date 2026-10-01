@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.domain.regler.grunnlag
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import java.time.LocalDate
@@ -67,5 +68,13 @@ class Inntektsgrunnlag {
         tomLd = source.tomLd
         bruk = source.bruk
         grunnlagKildeEnum = source.grunnlagKildeEnum
+        erRelevant = source.erRelevant
     }
+
+    //--- Extra:
+    @JsonIgnore
+    var erRelevant: Boolean = false
+
+    fun aar(): Int =
+        fomLd?.year ?: 0
 }

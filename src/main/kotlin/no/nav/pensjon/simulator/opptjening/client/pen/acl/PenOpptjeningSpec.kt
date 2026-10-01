@@ -25,7 +25,7 @@ data class PenOpptjeningSpec(
             PenOpptjeningSpec(
                 pid = source.pid.value,
                 hentPensjonspoeng = source.hentPensjonspoeng,
-                hentOpptjeningGrunnlag = source.hentGrunnlagForOpptjeninger,
+                hentOpptjeningGrunnlag = source.hentOpptjeningsgrunnlag,
                 hentBeholdninger = source.hentBeholdninger,
                 harUfoeretrygdKravlinje = source.harUfoeretrygdKravlinje,
                 regelverkType = source.regelverkType,
@@ -49,8 +49,8 @@ data class PenOpptjeningPersonSpec(
         fun fromInternalValue(source: OpptjeningMedBeholdningPersonSpec) =
             PenOpptjeningPersonSpec(
                 pid = source.pid.value,
-                sisteGyldigeOpptjeningAar = source.sisteGyldigeOpptjeningAar,
-                isGrunnlagRolleSoeker = source.isGrunnlagRolleSoeker
+                sisteGyldigeOpptjeningAar = source.sisteGyldigeOpptjeningsaar,
+                isGrunnlagRolleSoeker = source.gjelderSoeker
             )
     }
 }

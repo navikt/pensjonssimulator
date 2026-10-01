@@ -55,7 +55,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
 
     context("fetchSistLignedeInntekt") {
         should("returnere inntekt fra POPP") {
-            server?.arrangeOkJsonResponse(OK_RESPONSE_BODY)
+            server?.arrangeOkJsonResponse(MINIMAL_OPPTJENINGSGRUNNLAG_RESPONSE_BODY)
 
             Arrange.security()
             Arrange.webClientContextRunner().run {
@@ -83,7 +83,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
         context("internal server error") {
             should("forsøke på nytt") {
                 server?.arrangeResponse(HttpStatus.INTERNAL_SERVER_ERROR, "feil") // respons ved 1. forsøk
-                server?.arrangeOkJsonResponse(OK_RESPONSE_BODY) // respons ved 2. forsøk
+                server?.arrangeOkJsonResponse(MINIMAL_OPPTJENINGSGRUNNLAG_RESPONSE_BODY) // respons ved 2. forsøk
 
                 Arrange.security()
                 Arrange.webClientContextRunner().run {
@@ -222,7 +222,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
 })
 
 @Language("JSON")
-private const val OK_RESPONSE_BODY: String =
+private const val MINIMAL_OPPTJENINGSGRUNNLAG_RESPONSE_BODY: String =
     """{
               "opptjeningsGrunnlag": {
                 "inntektListe": [{

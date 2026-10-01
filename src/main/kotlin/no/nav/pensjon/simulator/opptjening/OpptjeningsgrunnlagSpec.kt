@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.person.Pid
 
 data class OpptjeningsgrunnlagSpec(
     val pid: Pid,
-    val grunnlagstypeListe: List<OpptjeningsgrunnlagType>,
+    val grunnlagstypeListe: List<OpptjeningsgrunnlagType> = emptyList(),
     val fomAar: Int? = null,
     val tomAar: Int? = null
 )

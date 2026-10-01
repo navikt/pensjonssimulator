@@ -29,8 +29,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
-import java.time.LocalDate
-import no.nav.pensjon.simulator.opptjening.client.popp.acl.inntekt.PoppOpptjeningsgrunnlagResult as PoppInntektResult
 
 @Component
 class PoppOpptjeningClient(
@@ -45,56 +43,57 @@ class PoppOpptjeningClient(
     private val webClient = webClientBase.withBaseUrl(baseUrl)
     private val log = KotlinLogging.logger {}
 
-    private val inntektCache: Cache<Pid, LoependeInntekt> =
-        createCache("popp-sist-lignede-inntekt", cacheManager)
-
     private val beholdningCache: Cache<BeholdningSpec, List<Pensjonsbeholdning>> =
         createCache("popp-beholdninger", cacheManager)
-
-    private val grunnlagCache: Cache<OpptjeningsgrunnlagSpec, OpptjeningsgrunnlagSamling> =
-        createCache("popp-opptjeningsgrunnlag", cacheManager)
 
     private val pensjonspoengCache: Cache<PensjonspoengSpec, List<Opptjeningsgrunnlag>> =
         createCache("popp-pensjonspoeng", cacheManager)
 
-    override fun fetchSistLignedeInntekt(pid: Pid): LoependeInntekt =
-        inntektCache.getIfPresent(pid) ?: fetchFreshSistLignedeInntekt(pid).also { inntektCache.put(pid, it) }
+    /**
+     * Cache for mapped 'opptjeningsgrunnlag' values
+     */
+    private val grunnlagCache: Cache<OpptjeningsgrunnlagSpec, OpptjeningsgrunnlagSamling> =
+        createCache("popp-opptjeningsgrunnlag", cacheManager)
+
+    /**
+     * Cache for mapped 'løpende inntekt' values
+     */
+    private val inntektCache: Cache<Pid, LoependeInntekt> =
+        createCache("popp-sist-lignede-inntekt", cacheManager)
+
+    /**
+     * Cache for unmapped opptjeningsgrunnlag DTO values (used for 'opptjeningsgrunnlag' and 'løpende inntekt')
+     */
+    private val grunnlagDtoCache: Cache<OpptjeningsgrunnlagSpec, PoppOpptjeningsgrunnlagResult> =
+        createCache("popp-opptjeningsgrunnlag-dto", cacheManager)
 
     override fun fetchBeholdninger(spec: BeholdningSpec): List<Pensjonsbeholdning> =
         beholdningCache.getIfPresent(spec) ?: fetchFreshBeholdninger(spec).also { beholdningCache.put(spec, it) }
 
-    override fun fetchOpptjeningsgrunnlag(spec: OpptjeningsgrunnlagSpec): OpptjeningsgrunnlagSamling =
-        grunnlagCache.getIfPresent(spec) ?: fetchFreshOpptjeningsgrunnlag(spec).also { grunnlagCache.put(spec, it) }
-
     override fun fetchPensjonspoeng(spec: PensjonspoengSpec): List<Opptjeningsgrunnlag> =
         pensjonspoengCache.getIfPresent(spec) ?: fetchFreshPensjonspoeng(spec).also { pensjonspoengCache.put(spec, it) }
+
+    override fun fetchOpptjeningsgrunnlag(spec: OpptjeningsgrunnlagSpec): OpptjeningsgrunnlagSamling =
+        grunnlagCache.getIfPresent(spec)
+            ?: fetchOpptjeningsgrunnlagDto(spec).toInternalValue()!!.also { grunnlagCache.put(spec, it) }
+
+    override fun fetchSistLignedeInntekt(pid: Pid): LoependeInntekt =
+        inntektCache.getIfPresent(pid) ?: freshLignetInntekt(pid).also { inntektCache.put(pid, it) }
 
     override fun service() = service
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 
-    private fun fetchFreshSistLignedeInntekt(pid: Pid): LoependeInntekt {
-        val url = "$baseUrl/$OPPTJENINGSGRUNNLAG_GET_PATH"
-        log.debug { "GET from URL: '$url'" }
+    private fun fetchOpptjeningsgrunnlagDto(spec: OpptjeningsgrunnlagSpec): PoppOpptjeningsgrunnlagResult =
+        grunnlagDtoCache.getIfPresent(spec) ?: freshOpptjeningsgrunnlagDto(spec).also { grunnlagDtoCache.put(spec, it) }
 
-        return try {
-            webClient
-                .get()
-                .uri("/$OPPTJENINGSGRUNNLAG_GET_PATH")
-                .headers { setHeadersForGet(it, pid) }
-                .retrieve()
-                .bodyToMono<PoppInntektResult>()
-                .retryWhen(retryBackoffSpec(url))
-                .block()
-                ?.toInternalValue()
-                .also { countCalls(MetricResult.OK) }
-                ?: zeroInntekt()
-        } catch (e: WebClientRequestException) {
-            throw EgressException("Failed calling $url", e)
-        } catch (e: WebClientResponseException) {
-            throw EgressException(e.responseBodyAsString, e)
-        }
-    }
+    private fun freshLignetInntekt(pid: Pid): LoependeInntekt =
+        fetchOpptjeningsgrunnlagDto(spec = OpptjeningsgrunnlagSpec(pid)).toLoependeInntekt()
+            ?: LoependeInntekt.ingen(aar = time.today().year)
+
+    private fun freshOpptjeningsgrunnlagDto(spec: OpptjeningsgrunnlagSpec): PoppOpptjeningsgrunnlagResult =
+        fetchFreshOpptjeningsgrunnlag(spec)
+            ?: PoppOpptjeningsgrunnlagResult(opptjeningsGrunnlag = PoppOpptjeningsgrunnlag(fnr = spec.pid.value))
 
     private fun fetchFreshBeholdninger(spec: BeholdningSpec): List<Pensjonsbeholdning> {
         val url = "$baseUrl/$BEHOLDNING_PATH"
@@ -121,7 +120,7 @@ class PoppOpptjeningClient(
         }
     }
 
-    private fun fetchFreshOpptjeningsgrunnlag(spec: OpptjeningsgrunnlagSpec): OpptjeningsgrunnlagSamling {
+    private fun fetchFreshOpptjeningsgrunnlag(spec: OpptjeningsgrunnlagSpec): PoppOpptjeningsgrunnlagResult? {
         val url = "$baseUrl/$OPPTJENINGSGRUNNLAG_PATH"
         log.debug { "POST to URL: '$url'" }
         val body = PoppOpptjeningsgrunnlagSpec.fromInternalValue(spec)
@@ -136,9 +135,7 @@ class PoppOpptjeningClient(
                 .bodyToMono<PoppOpptjeningsgrunnlagResult>()
                 .retryWhen(retryBackoffSpec(url))
                 .block()
-                ?.toInternalValue()
                 .also { countCalls(MetricResult.OK) }
-                ?: OpptjeningsgrunnlagSamling.empty(spec.pid)
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $url", e)
         } catch (e: WebClientResponseException) {
@@ -171,26 +168,13 @@ class PoppOpptjeningClient(
         }
     }
 
-    private fun setHeadersForGet(headers: HttpHeaders, pid: Pid) {
-        headers.setBearerAuth(EgressAccess.token(service).value)
-        headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
-        headers[CustomHttpHeaders.PID] = pid.value
-    }
-
     private fun setHeaders(headers: HttpHeaders) {
         headers.setBearerAuth(EgressAccess.token(service).value)
         headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
     }
 
-    private fun zeroInntekt() =
-        LoependeInntekt(
-            aarligBeloep = 0,
-            fom = LocalDate.of(time.today().year, 1, 1)
-        )
-
     companion object {
         private const val BEHOLDNING_PATH = "popp/api/beholdning"
-        private const val OPPTJENINGSGRUNNLAG_GET_PATH = "popp/api/opptjeningsgrunnlag"
         private const val OPPTJENINGSGRUNNLAG_PATH = "popp/api/opptjeningsgrunnlag/hent"
         private const val PENSJONSPOENG_PATH = "popp/api/pensjonspoeng/hent"
         private val service = EgressService.PENSJONSOPPTJENING

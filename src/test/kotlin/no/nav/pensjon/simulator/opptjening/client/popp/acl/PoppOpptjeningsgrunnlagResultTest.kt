@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.opptjening.client.popp.acl.inntekt
+package no.nav.pensjon.simulator.opptjening.client.popp.acl
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
@@ -29,7 +29,7 @@ class PoppOpptjeningsgrunnlagResultTest : ShouldSpec({
                         )
                     )
                 )
-            ).toInternalValue() shouldBe LoependeInntekt(
+            ).toLoependeInntekt() shouldBe LoependeInntekt(
                 aarligBeloep = 3,
                 fom = LocalDate.of(2023, 1, 1)
             )

@@ -3,14 +3,18 @@ package no.nav.pensjon.simulator.opptjening.client.popp.acl
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningPOPPTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
+import java.time.LocalDate
 
 data class PoppInntekt(
     val inntektAr: Int? = null,
     val belop: Long? = null,
     val inntektType: String? = null
 ) {
+    val isSumPensjonsgivendeInntekt: Boolean = inntektType == OpptjeningPOPPTypeEnum.SUM_PI.name
+
     fun erRelevant() =
         (inntektAr ?: 0) <= SISTE_SPESIALBEHANDLINGSAAR && typeErRelevant()
 
@@ -24,8 +28,16 @@ data class PoppInntekt(
             it.erRelevant = erRelevant()
         }
 
+    fun toLoependeInntekt(): LoependeInntekt? =
+        inntektAr?.let {
+            LoependeInntekt(
+                aarligBeloep = belop?.toInt() ?: 0,
+                fom = LocalDate.of(it, 1, 1)
+            )
+        }
+
     private fun typeErRelevant(): Boolean =
-        relevanteInntektstyper.contains(inntektType)
+        inntektType?.let(relevanteInntektstyper::contains) == true
 
     private fun inntekttype(): InntekttypeEnum? =
         if (typenavnForPensjonsgivendeInntekt1966 == inntektType)

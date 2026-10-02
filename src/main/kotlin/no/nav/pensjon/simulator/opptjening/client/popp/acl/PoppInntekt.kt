@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.opptjening.client.popp.acl
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningPOPPTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
@@ -25,7 +26,7 @@ data class PoppInntekt(
             it.fomLd = foersteDag(inntektAr ?: 0)
             it.tomLd = sisteDag(inntektAr ?: 0)
             it.belop = belop?.toInt() ?: 0
-            it.grunnlagKildeEnum = kilde?.let(::enumValueOf)
+            it.grunnlagKildeEnum = GrunnlagkildeEnum.fromValue(kilde)
             it.bruk = true
             it.erRelevant = erRelevant()
         }

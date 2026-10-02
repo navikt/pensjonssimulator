@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.api.nav.v2.acl.spec.SimuleringSpecMapperForNavV2
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulertOpptjening
-import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
@@ -337,7 +337,7 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
                     ),
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 39),
-                    opptjeningGrunnlagListe = listOf(OpptjeningGrunnlag(aar = 1999, pensjonsgivendeInntekt = 1002)),
+                    aarligOpptjeningListe = listOf(AarligOpptjening(aar = 1999, pensjonsgivendeInntekt = 1002)),
                     opptjeningListe = listOf(SimulertOpptjening(kalenderAar = 1999, pensjonsgivendeInntekt = 1002))
                 ),
                 alternativ = SimulertAlternativ(

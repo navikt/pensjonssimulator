@@ -15,7 +15,7 @@ object BeholdningUtil {
         OpptjeningMedBeholdningSpec(
             pid,
             hentPensjonspoeng = true,
-            hentGrunnlagForOpptjeninger = true,
+            hentOpptjeningsgrunnlag = true,
             hentBeholdninger = true,
             harUfoeretrygdKravlinje = kravhode.isUforetrygd(),
             regelverkType = kravhode.regelverkTypeEnum,
@@ -27,8 +27,8 @@ object BeholdningUtil {
     private fun personligOpptjeningSpec(pid: Pid, grunnlag: Persongrunnlag) =
         OpptjeningMedBeholdningPersonSpec(
             pid,
-            sisteGyldigeOpptjeningAar = grunnlag.sisteGyldigeOpptjeningsAr,
-            isGrunnlagRolleSoeker = soekerIBruk(grunnlag) != null
+            sisteGyldigeOpptjeningsaar = grunnlag.sisteGyldigeOpptjeningsAr,
+            gjelderSoeker = soekerIBruk(grunnlag) != null
         )
 
     private fun soekerIBruk(grunnlag: Persongrunnlag): PersonDetalj? =

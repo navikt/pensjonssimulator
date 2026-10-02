@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.LonnsvekstInformasjon
 import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.copy
 import no.nav.pensjon.simulator.core.domain.reglerextend.copy
+import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 
 // Copied from pensjon-regler-api v2.4.3 2026-09-04
 /**
@@ -66,5 +67,23 @@ class Opptjening {
         forstegangstjeneste = source.forstegangstjeneste
         arligOpptjeningOmsorg = source.arligOpptjeningOmsorg
         arligOpptjeningUtenOmsorg = source.arligOpptjeningUtenOmsorg
+    }
+
+    companion object{
+        fun dummy(aar: Int) =
+            Opptjening().apply {
+                ar = aar - OPPTJENING_ETTERSLEP_ANTALL_AAR
+                opptjeningsgrunnlag = 0.0
+                anvendtOpptjeningsgrunnlag = 0.0
+                arligOpptjening = 0.0
+                arligOpptjeningUtenOmsorg = 0.0
+                arligOpptjeningOmsorg = 0.0
+                inntektUtenDagpenger = 0.0
+                omsorg = 0.0
+                dagpenger = 0.0
+                dagpengerFiskerOgFangstmenn = 0.0
+                forstegangstjeneste = 0.0
+                uforeOpptjening = null
+            }
     }
 }

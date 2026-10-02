@@ -74,7 +74,7 @@ open class SimuleringResultMapperTest : ShouldSpec({
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 20),
                     maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
-                    opptjeningGrunnlagListe = emptyList(),
+                    aarligOpptjeningListe = emptyList(),
                     opptjeningListe = emptyList()
                 ),
                 alternativ = null,

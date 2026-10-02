@@ -22,7 +22,7 @@ import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import no.nav.pensjon.simulator.g.GrunnbeloepService
-import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.validity.Problem
@@ -100,7 +100,7 @@ class TidsbegrensetAfpSimuleringService(
     /**
      * Ref. pensjon-pselv: SamlesideFormPopulator.createPoengtallListeAndSetTpi
      */
-    private fun opptjening(simuleringsresultat: Simuleringsresultat): List<OpptjeningGrunnlag> =
+    private fun opptjening(simuleringsresultat: Simuleringsresultat): List<AarligOpptjening> =
         simuleringsresultat.beregning?.getBrukteYtelseskomponenter().orEmpty()
             .filter { it.ytelsekomponentTypeEnum == YtelseskomponentTypeEnum.TP }
             .flatMap { (it as? Tilleggspensjon)?.spt?.poengrekke?.poengtallListe.orEmpty() }
@@ -110,7 +110,7 @@ class TidsbegrensetAfpSimuleringService(
      * Ref. pensjon-pselv: SamlesideFormPopulator.createOpptjeningFormData
      */
     private fun opptjeningGrunnlag(poengtall: Poengtall) =
-        OpptjeningGrunnlag(
+        AarligOpptjening(
             aar = poengtall.ar,
             pensjonsgivendeInntekt = poengtall.pi,
             pensjonspoeng = poengtall.pp

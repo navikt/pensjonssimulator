@@ -9,13 +9,15 @@ data class PoppPensjonspoeng(
     val ar: Int? = null,
     val anvendtPi: Int? = null,
     val poeng: Double? = null,
-    val maxUforegrad: Int? = null
+    val maxUforegrad: Int? = null,
+    val kilde: String? = null // GrunnlagkildeEnum
 ) {
     fun toGrunnlag() =
         Opptjeningsgrunnlag().also {
             it.ar = ar ?: 0
             it.pp = poeng ?: 0.0
-            it.opptjeningTypeEnum = opptjeningType()
+            it.opptjeningTypeEnum = pensjonspoengType?.let(::enumValueOf)
+            it.grunnlagKildeEnum = inntekt?.kilde?.let(::enumValueOf)
 
             if (it.opptjeningTypeEnum == OpptjeningtypeEnum.PPI) {
                 it.pi = inntekt?.belop?.toInt() ?: 0
@@ -23,7 +25,4 @@ data class PoppPensjonspoeng(
                 it.maksUforegrad = maxUforegrad ?: 0
             }
         }
-
-    private fun opptjeningType(): OpptjeningtypeEnum? =
-        pensjonspoengType?.let { enumValueOf<OpptjeningtypeEnum>(it) }
 }

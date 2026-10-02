@@ -10,7 +10,7 @@ import java.time.LocalDate
 class PoppBeholdningTest : ShouldSpec({
 
     context("toPensjonsbeholdning") {
-        should("mappe til domenerepresentasjon a 'pensjonsbeholdning'") {
+        should("mappe til domenerepresentasjon av 'pensjonsbeholdning'") {
             val result: Pensjonsbeholdning =
                 PoppBeholdning(
                     belop = 123.4,
@@ -59,7 +59,24 @@ class PoppBeholdningTest : ShouldSpec({
                     arligOpptjening shouldBe 2.3
                     lonnsvekstInformasjon shouldBe null // ikke mappet
                     pSatsOpptjening shouldBe 0.0 // ditto
-                    poengtall shouldBe null // ditto
+                    with(poengtall!!) {
+                        // Ingen av feltene i poengtall mappes:
+                        pp shouldBe 0.0
+                        pia shouldBe 0
+                        pi shouldBe 0
+                        ar shouldBe 0
+                        bruktIBeregning shouldBe false
+                        gv shouldBe 0
+                        poengtallTypeEnum shouldBe null
+                        maksUforegrad shouldBe 0
+                        uforear shouldBe false
+                        merknadListe shouldBe mutableListOf()
+                        verdi shouldBe 0.0
+                        justertBelop shouldBe 0.0
+                        omsorg shouldBe false
+                        inntektIAvtaleland shouldBe false
+                        opptjeningsar shouldBe 0
+                    }
                     inntektUtenDagpenger shouldBe 16.7
                     dagpenger shouldBe 20.1
                     dagpengerFiskerOgFangstmenn shouldBe 21.2

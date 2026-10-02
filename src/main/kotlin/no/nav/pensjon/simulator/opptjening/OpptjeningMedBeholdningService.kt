@@ -203,7 +203,7 @@ class OpptjeningMedBeholdningService(
         private fun validate(spec: OpptjeningMedBeholdningSpec) {
             if (spec.harUfoeretrygdKravlinje && spec.hentPensjonspoeng && spec.hentOpptjeningsgrunnlag.not()) {
                 throw InvalidArgumentException(
-                    "HentBeholdningerMedGrunnlagRequest demands that if hentPensjonspoeng is true, then hentGrunnlagForOpptjeninger must be true as well"
+                    "OpptjeningMedBeholdningSpec demands that if hentPensjonspoeng is true, then hentOpptjeningsgrunnlag must be true as well"
                 )
             }
         }

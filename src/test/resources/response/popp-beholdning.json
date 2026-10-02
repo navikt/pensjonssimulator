@@ -304,7 +304,38 @@
                 }
             },
             "omsorgOpptjeningBelop": null,
-            "dagpengerOpptjeningBelop": null,
+            "dagpengerOpptjeningBelop": {
+                "dagpengerOpptjeningBelopId": 202069532,
+                "ar": 2010,
+                "belopOrdinar": 213278.846153846,
+                "belopFiskere": 1234.5,
+                "dagpengerListe": [
+                    {
+                        "dagpengerId": 201568122,
+                        "fnr": "03416023637",
+                        "dagpengerType": "DP",
+                        "rapportType": "FORST",
+                        "kilde": "ARENA",
+                        "ar": 2010,
+                        "utbetalteDagpenger": 133086,
+                        "uavkortetDagpengegrunnlag": 264294,
+                        "ferietillegg": 13217,
+                        "barnetillegg": 66356,
+                        "changeStamp": {
+                            "createdBy": "BPOPP023",
+                            "createdDate": 1744205056881,
+                            "updatedBy": "BPOPP023",
+                            "updatedDate": 1744205056881
+                        }
+                    }
+                ],
+                "changeStamp": {
+                    "createdBy": "BPOPP023",
+                    "createdDate": 1744205057050,
+                    "updatedBy": "BPOPP023",
+                    "updatedDate": 1744205057050
+                }
+            },
             "forstegangstjenesteOpptjeningBelop": null,
             "uforeOpptjeningBelop": null,
             "changeStamp": {

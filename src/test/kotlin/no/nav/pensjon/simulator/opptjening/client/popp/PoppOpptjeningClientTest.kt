@@ -188,6 +188,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
                             opptjeningsgrunnlag shouldBe 191561.2
                             anvendtOpptjeningsgrunnlag shouldBe 191500.0
                             arligOpptjening shouldBe 36547.9171028804
+                            arligOpptjeningUtenOmsorg shouldBe 34672.541
                             forstegangstjeneste shouldBe 0.0
                             inntektUtenDagpenger shouldBe 191561.3
                             omsorg shouldBe 0.0
@@ -197,6 +198,31 @@ class PoppOpptjeningClientTest : ShouldSpec({
                         }
                         lonnsvekstInformasjon shouldBe null
                         reguleringsInformasjon shouldBe null
+                    }
+                    with(this[3]) {
+                        ar shouldBe 1992
+                        fomLd shouldBe LocalDate.of(1992, 1, 1)
+                        tomLd shouldBe LocalDate.of(1992, 12, 31)
+                        totalbelop shouldBe 166014.511396495
+                        with(opptjening!!) {
+                            dagpenger shouldBe 213278.846153846
+                            dagpengerFiskerOgFangstmenn shouldBe 1234.5
+                        }
+                        with(lonnsvekstInformasjon!!) {
+                            lonnsvekst shouldBe 0.0
+                            reguleringsDatoLd shouldBe LocalDate.of(1991, 12, 31)
+                            uttaksgradVedRegulering shouldBe 0
+                        }
+                        with(reguleringsInformasjon!!) {
+                            lonnsvekst shouldBe 0.0
+                            fratrekksfaktor shouldBe 0.0
+                            gammelG shouldBe 0
+                            nyG shouldBe 0
+                            reguleringsfaktor shouldBe 0.0
+                            gjennomsnittligUttaksgradSisteAr shouldBe 0.0
+                            reguleringsbelop shouldBe 5181.87992977412
+                            prisOgLonnsvekst shouldBe 0.0
+                        }
                     }
                 }
             }

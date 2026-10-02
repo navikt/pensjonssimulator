@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.opptjening.client.popp.acl
 
 import no.nav.pensjon.simulator.core.domain.regler.Opptjening
+import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
 import no.nav.pensjon.simulator.core.util.PensjonTidUtil.OPPTJENING_ETTERSLEP_ANTALL_AAR
 import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
@@ -48,6 +49,7 @@ data class PoppBeholdning(
             inntektUtenDagpenger = inntektOpptjeningBelop?.belop ?: 0.0
             omsorg = omsorgOpptjeningBelop?.belop ?: 0.0
             uforeOpptjening = uforeOpptjeningBelop?.toUfoereopptjening()
+            poengtall = Poengtall() // NB: Tomt objekt, ref. CommonToReglerMapper.mapOpptjeningToPenRegler i PEN
 
             dagpengerOpptjeningBelop?.let {
                 dagpenger = it.belopOrdinar ?: 0.0

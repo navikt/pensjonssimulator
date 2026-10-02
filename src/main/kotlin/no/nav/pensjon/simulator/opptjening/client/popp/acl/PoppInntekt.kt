@@ -11,7 +11,8 @@ import java.time.LocalDate
 data class PoppInntekt(
     val inntektAr: Int? = null,
     val belop: Long? = null,
-    val inntektType: String? = null
+    val inntektType: String? = null,
+    val kilde: String? = null // GrunnlagkildeEnum
 ) {
     val isSumPensjonsgivendeInntekt: Boolean = inntektType == OpptjeningPOPPTypeEnum.SUM_PI.name
 
@@ -24,6 +25,7 @@ data class PoppInntekt(
             it.fomLd = foersteDag(inntektAr ?: 0)
             it.tomLd = sisteDag(inntektAr ?: 0)
             it.belop = belop?.toInt() ?: 0
+            it.grunnlagKildeEnum = kilde?.let(::enumValueOf)
             it.bruk = true
             it.erRelevant = erRelevant()
         }

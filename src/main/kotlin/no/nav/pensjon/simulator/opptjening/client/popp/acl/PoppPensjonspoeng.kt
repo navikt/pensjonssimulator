@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.opptjening.client.popp.acl
 
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 
@@ -17,7 +18,7 @@ data class PoppPensjonspoeng(
             it.ar = ar ?: 0
             it.pp = poeng ?: 0.0
             it.opptjeningTypeEnum = pensjonspoengType?.let(::enumValueOf)
-            it.grunnlagKildeEnum = inntekt?.kilde?.let(::enumValueOf)
+            it.grunnlagKildeEnum = GrunnlagkildeEnum.fromValue(inntekt?.kilde)
 
             if (it.opptjeningTypeEnum == OpptjeningtypeEnum.PPI) {
                 it.pi = inntekt?.belop?.toInt() ?: 0

@@ -6,13 +6,13 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.util.*
 
 data class PoppFoerstegangstjenestePeriode(
-    val periodeType: String? = null,
+    val periodeType: String? = null, // ForstegangstjenestetypeEnum
     val fomDato: Date? = null,
     val tomDato: Date? = null
 ) {
     fun toGrunnlag() =
         ForstegangstjenestePeriode().apply {
-            periodeTypeEnum = periodeType?.let { enumValueOf<ForstegangstjenestetypeEnum>(it) }
+            periodeTypeEnum = ForstegangstjenestetypeEnum.fromValue(periodeType)
             fomDatoLd = fomDato?.toNorwegianLocalDate()
             tomDatoLd = tomDato?.toNorwegianLocalDate()
         }

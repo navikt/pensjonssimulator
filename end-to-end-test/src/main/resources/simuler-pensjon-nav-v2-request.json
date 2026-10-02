@@ -1,0 +1,34 @@
+{
+  "pid": "30496102289",
+  "sivilstatus": "UGIFT",
+  "sisteInntekt": 500000,
+  "simuleringstype": "ENDRING_ALDERSPENSJON",
+  "gradertUttak": {
+    "grad": "FEMTI_PROSENT",
+    "uttakFomAlder": {
+      "aar": 66,
+      "maaneder": 0
+    },
+    "aarligInntekt": 500000
+  },
+  "heltUttak": {
+    "uttakFomAlder": {
+      "aar": 69,
+      "maaneder": 0
+    },
+    "aarligInntekt": 0,
+    "inntektTomAlder": {
+      "aar": 69,
+      "maaneder": 0
+    }
+  },
+  "utenlandsperiodeListe": [],
+  "eps": {
+    "levende": {
+      "harInntektOver2G": false,
+      "harPensjon": false
+    }
+  },
+  "offentligAfp": null,
+  "tillatSenereFoersteuttakForUfoere": true
+}

@@ -145,35 +145,16 @@ class OpptjeningMedBeholdningService(
         spec: OpptjeningMedBeholdningSpec,
         beholdAarEtterSisteGyldigeOpptjeningsaar: Boolean,
         sisteGyldigeOpptjeningsaar: Int
-    ): List<Opptjeningsgrunnlag> {
-        val opptjeningstyperPerAar: Map<Int, List<OpptjeningTypeMapping>> =
-            if (spec.hentOpptjeningsgrunnlag && spec.harUfoeretrygdKravlinje)
-                opptjeningstyperPerAar(grunnlag?.inntektListe.orEmpty())
-            else
-                emptyMap()
-
-        return pid?.let(opptjeningService::hentPensjonspoeng).orEmpty()
+    ): List<Opptjeningsgrunnlag> =
+        pid?.let(opptjeningService::hentPensjonspoeng).orEmpty()
             .filter { beholdAarEtterSisteGyldigeOpptjeningsaar || it.ar <= sisteGyldigeOpptjeningsaar }
             .onEach {
-                if (it.opptjeningTypeEnum == OpptjeningtypeEnum.PPI) {
-                    it.opptjeningTypeListe.addAll(opptjeningstyperPerAar[it.ar].orEmpty())
+                if (shouldAddOpptjeningstyper(grunnlag = it, spec)) {
+                    it.opptjeningTypeListe.addAll(
+                        opptjeningstyper(aar = it.ar, inntektListe = grunnlag?.inntektListe.orEmpty())
+                    )
                 }
             }
-    }
-
-    private fun opptjeningstyperPerAar(
-        inntektListe: List<Inntektsgrunnlag>
-    ): Map<Int, List<OpptjeningTypeMapping>> =
-        inntektListe
-            .groupBy { it.aar() }
-            .mapValues { it.value.mapNotNull(::opptjeningTypeMapping) }
-
-    private fun opptjeningTypeMapping(inntekt: Inntektsgrunnlag): OpptjeningTypeMapping? =
-        inntekt.inntektTypeEnum?.let {
-            OpptjeningTypeMapping().apply {
-                opptjeningPOPPTypeEnum = OpptjeningPOPPTypeEnum.valueOf(it.name)
-            }
-        }
 
     private fun opptjeningsgrunnlagTypeListe(
         kapittel20Innvirker: Boolean,
@@ -258,5 +239,24 @@ class OpptjeningMedBeholdningService(
                 beholdningListe.toMutableList().filter {
                     it.aar() <= soekerSpec.sisteGyldigeOpptjeningsaar + OPPTJENING_ETTERSLEP_ANTALL_AAR
                 }
+
+        private fun shouldAddOpptjeningstyper(
+            grunnlag: Opptjeningsgrunnlag,
+            spec: OpptjeningMedBeholdningSpec
+        ): Boolean =
+            grunnlag.opptjeningTypeListe.isEmpty()
+                    && grunnlag.opptjeningTypeEnum == OpptjeningtypeEnum.PPI
+                    && spec.hentOpptjeningsgrunnlag
+                    && spec.harUfoeretrygdKravlinje
+
+        private fun opptjeningstyper(aar: Int, inntektListe: List<Inntektsgrunnlag>): List<OpptjeningTypeMapping> =
+            inntektListe.filter { it.aar() == aar }.mapNotNull(::opptjeningTypeMapping)
+
+        private fun opptjeningTypeMapping(inntekt: Inntektsgrunnlag): OpptjeningTypeMapping? =
+            inntekt.inntektTypeEnum?.let {
+                OpptjeningTypeMapping().apply {
+                    opptjeningPOPPTypeEnum = OpptjeningPOPPTypeEnum.valueOf(it.name)
+                }
+            }
     }
 }

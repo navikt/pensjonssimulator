@@ -16,6 +16,7 @@ class PoppBeholdningTest : ShouldSpec({
                     belop = 123.4,
                     fomDato = LocalDate.of(2026, 1, 1).toNorwegianDateAtNoon(),
                     tomDato = LocalDate.of(2026, 12, 31).toNorwegianDateAtNoon(),
+                    beholdningType = "PEN_B",
                     beholdningGrunnlag = 1.2,
                     beholdningGrunnlagAvkortet = 0.9,
                     beholdningInnskudd = 2.3,

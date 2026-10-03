@@ -1,17 +1,18 @@
 package no.nav.pensjon.simulator.inntekt
 
 import no.nav.pensjon.simulator.g.GrunnbeloepService
+import no.nav.pensjon.simulator.opptjening.client.OpptjeningClient
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import org.springframework.stereotype.Service
 
 @Service
 class InntektService(
-    private val inntektClient: InntektClient,
+    private val opptjeningClient: OpptjeningClient,
     private val grunnbeloepService: GrunnbeloepService
 ) {
     fun hentSisteLignetInntekt(pid: Pid): LoependeInntekt =
-        inntektClient.fetchSistLignedeInntekt(pid)
+        opptjeningClient.fetchSistLignedeInntekt(pid)
 
     fun hentSisteMaanedsInntektOver1G(harInntektSisteMaanedOver1G: Boolean): Int =
         if (harInntektSisteMaanedOver1G)

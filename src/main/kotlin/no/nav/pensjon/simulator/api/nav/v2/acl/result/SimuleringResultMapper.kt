@@ -4,7 +4,7 @@ import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.core.result.SimulertOpptjening
-import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import no.nav.pensjon.simulator.validity.Problem
 
@@ -27,7 +27,7 @@ object SimuleringResultMapper {
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
             primaerTrygdetid = pensjon?.primaerTrygdetid?.let(::trygdetid),
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
-            pensjonsgivendeInntektListe = pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag),
+            pensjonsgivendeInntektListe = pensjon?.aarligOpptjeningListe.orEmpty().map(::opptjeningGrunnlag),
             opptjeningListe = pensjon?.opptjeningListe.orEmpty().map(::opptjening),
             problem = source?.problem?.let(::problem)
         )
@@ -177,7 +177,7 @@ object SimuleringResultMapper {
             alternativ = alternativ?.let(::alternativ)
         )
 
-    private fun opptjeningGrunnlag(source: OpptjeningGrunnlag) =
+    private fun opptjeningGrunnlag(source: AarligOpptjening) =
         AarligBeloepDto(
             aarstall = source.aar,
             beloep = source.pensjonsgivendeInntekt

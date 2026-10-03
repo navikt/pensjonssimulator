@@ -9,4 +9,12 @@ import java.time.LocalDate
 data class LoependeInntekt(
     val aarligBeloep: Int,
     val fom: LocalDate
-)
+) {
+    companion object {
+        fun ingen(aar: Int) =
+            LoependeInntekt(
+                aarligBeloep = 0,
+                fom = LocalDate.of(aar, 1, 1)
+            )
+    }
+}

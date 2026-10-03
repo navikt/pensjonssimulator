@@ -1,0 +1,760 @@
+{
+  "alderspensjonListe": [
+    {
+      "alderAar": 66,
+      "beloep": 155460,
+      "inntektspensjon": 124751,
+      "delingstall": 16.81,
+      "pensjonsbeholdningFoerUttak": 1402728,
+      "sluttpoengtall": 5.38,
+      "poengaarFoer92": 2,
+      "poengaarEtter91": 33,
+      "forholdstall": 1.171,
+      "grunnpensjon": 10230,
+      "tilleggspensjon": 20470,
+      "pensjonstillegg": -6058,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 40,
+        "basispensjon": 407628,
+        "restpensjon": 179753,
+        "minstePensjonsnivaaSats": 293062.0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 40,
+        "garantipensjon": {
+          "aarligBeloep": -13823,
+          "sats": 0.0
+        }
+      }
+    },
+    {
+      "alderAar": 67,
+      "beloep": 155460,
+      "inntektspensjon": 124751,
+      "delingstall": 0.0,
+      "pensjonsbeholdningFoerUttak": 2711835,
+      "sluttpoengtall": 5.38,
+      "poengaarFoer92": 2,
+      "poengaarEtter91": 34,
+      "forholdstall": 0.0,
+      "grunnpensjon": 10230,
+      "tilleggspensjon": 20470,
+      "pensjonstillegg": -6636,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 40,
+        "basispensjon": 415342,
+        "restpensjon": 187467,
+        "minstePensjonsnivaaSats": 293062.0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 40,
+        "garantipensjon": {
+          "aarligBeloep": -13823,
+          "sats": 0.0
+        },
+        "garantitillegg": -69265
+      }
+    },
+    {
+      "alderAar": 68,
+      "beloep": 155460,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 69,
+      "beloep": 361623,
+      "inntektspensjon": 285464,
+      "delingstall": 14.4,
+      "pensjonsbeholdningFoerUttak": 2892835,
+      "sluttpoengtall": 5.38,
+      "poengaarFoer92": 2,
+      "poengaarEtter91": 36,
+      "forholdstall": 1.003,
+      "grunnpensjon": 22173,
+      "tilleggspensjon": 48984,
+      "pensjonstillegg": -16889,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 40,
+        "basispensjon": 430769,
+        "restpensjon": 0,
+        "minstePensjonsnivaaSats": 293062.0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 40,
+        "garantipensjon": {
+          "aarligBeloep": -42026,
+          "sats": 0.0
+        }
+      }
+    },
+    {
+      "alderAar": 70,
+      "beloep": 367563,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 71,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 72,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 73,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 74,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 75,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 76,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 77,
+      "beloep": 368988,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    },
+    {
+      "alderAar": 0,
+      "beloep": 228120,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 0
+      }
+    }
+  ],
+  "alderspensjonMaanedsbeloep": {
+    "gradertUttakBeloep": 12955,
+    "heltUttakBeloep": 29719
+  },
+  "maanedligAlderspensjonForKnekkpunkter": {
+    "vedGradertUttak": {
+      "beloep": 12955,
+      "inntektspensjon": 10396,
+      "delingstall": 16.81,
+      "pensjonsbeholdningFoerUttak": 1402728,
+      "pensjonsbeholdningEtterUttak": 2621335,
+      "sluttpoengtall": 5.38,
+      "poengaarFoer92": 2,
+      "poengaarEtter91": 33,
+      "forholdstall": 1.171,
+      "grunnpensjon": 853,
+      "tilleggspensjon": 1706,
+      "pensjonstillegg": 0,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 40,
+        "basispensjon": 407628,
+        "restpensjon": 179753,
+        "minstePensjonsnivaaSats": 293062.0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 40,
+        "garantipensjon": {
+          "aarligBeloep": 0,
+          "maanedligBeloep": 0,
+          "sats": 0.0
+        }
+      }
+    },
+    "vedHeltUttak": {
+      "beloep": 29719,
+      "inntektspensjon": 23789,
+      "delingstall": 14.4,
+      "pensjonsbeholdningFoerUttak": 2892835,
+      "pensjonsbeholdningEtterUttak": 0,
+      "sluttpoengtall": 5.38,
+      "poengaarFoer92": 2,
+      "poengaarEtter91": 36,
+      "forholdstall": 1.003,
+      "grunnpensjon": 1848,
+      "tilleggspensjon": 4082,
+      "pensjonstillegg": 0,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 40,
+        "basispensjon": 430769,
+        "restpensjon": 0,
+        "minstePensjonsnivaaSats": 293062.0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 40,
+        "garantipensjon": {
+          "aarligBeloep": 0,
+          "maanedligBeloep": 0,
+          "sats": 0.0
+        }
+      }
+    },
+    "vedNormertPensjonsalder": {
+      "beloep": 12955,
+      "inntektspensjon": 10396,
+      "delingstall": 0.0,
+      "pensjonsbeholdningFoerUttak": 2711835,
+      "pensjonsbeholdningEtterUttak": 2711835,
+      "sluttpoengtall": 5.38,
+      "poengaarFoer92": 2,
+      "poengaarEtter91": 34,
+      "forholdstall": 0.0,
+      "grunnpensjon": 853,
+      "tilleggspensjon": 1706,
+      "pensjonstillegg": 0,
+      "kapittel19Pensjon": {
+        "andelsbroek": 0.2,
+        "trygdetidAntallAar": 40,
+        "basispensjon": 415342,
+        "restpensjon": 187467,
+        "minstePensjonsnivaaSats": 293062.0
+      },
+      "kapittel20Pensjon": {
+        "andelsbroek": 0.8,
+        "trygdetidAntallAar": 40,
+        "garantipensjon": {
+          "aarligBeloep": 0,
+          "maanedligBeloep": 0,
+          "sats": 0.0
+        },
+        "garantitillegg": 0
+      }
+    }
+  },
+  "livsvarigOffentligAfpListe": [],
+  "privatAfpListe": [],
+  "primaerTrygdetid": {
+    "antallAar": 40,
+    "erUtilstrekkelig": false
+  },
+  "vilkaarsproevingsresultat": {
+    "erInnvilget": true
+  },
+  "pensjonsgivendeInntektListe": [
+    {
+      "aarstall": 1990,
+      "beloep": 233494
+    },
+    {
+      "aarstall": 1991,
+      "beloep": 243633
+    },
+    {
+      "aarstall": 1992,
+      "beloep": 251519
+    },
+    {
+      "aarstall": 1993,
+      "beloep": 257542
+    },
+    {
+      "aarstall": 1994,
+      "beloep": 263015
+    },
+    {
+      "aarstall": 1995,
+      "beloep": 270157
+    },
+    {
+      "aarstall": 1996,
+      "beloep": 281027
+    },
+    {
+      "aarstall": 1997,
+      "beloep": 292084
+    },
+    {
+      "aarstall": 1998,
+      "beloep": 308865
+    },
+    {
+      "aarstall": 1999,
+      "beloep": 322844
+    },
+    {
+      "aarstall": 2000,
+      "beloep": 336432
+    },
+    {
+      "aarstall": 2001,
+      "beloep": 351913
+    },
+    {
+      "aarstall": 2002,
+      "beloep": 370203
+    },
+    {
+      "aarstall": 2003,
+      "beloep": 389195
+    },
+    {
+      "aarstall": 2004,
+      "beloep": 404321
+    },
+    {
+      "aarstall": 2005,
+      "beloep": 417674
+    },
+    {
+      "aarstall": 2006,
+      "beloep": 432292
+    },
+    {
+      "aarstall": 2007,
+      "beloep": 455547
+    },
+    {
+      "aarstall": 2008,
+      "beloep": 480604
+    },
+    {
+      "aarstall": 2009,
+      "beloep": 500758
+    },
+    {
+      "aarstall": 2010,
+      "beloep": 519639
+    },
+    {
+      "aarstall": 2011,
+      "beloep": 542609
+    },
+    {
+      "aarstall": 2012,
+      "beloep": 564369
+    },
+    {
+      "aarstall": 2013,
+      "beloep": 585587
+    },
+    {
+      "aarstall": 2014,
+      "beloep": 607313
+    },
+    {
+      "aarstall": 2015,
+      "beloep": 622432
+    },
+    {
+      "aarstall": 2016,
+      "beloep": 637996
+    },
+    {
+      "aarstall": 2017,
+      "beloep": 648712
+    },
+    {
+      "aarstall": 2018,
+      "beloep": 666230
+    },
+    {
+      "aarstall": 2019,
+      "beloep": 687553
+    },
+    {
+      "aarstall": 2020,
+      "beloep": 701371
+    },
+    {
+      "aarstall": 2021,
+      "beloep": 728236
+    },
+    {
+      "aarstall": 2022,
+      "beloep": 763480
+    },
+    {
+      "aarstall": 2023,
+      "beloep": 808371
+    },
+    {
+      "aarstall": 2025,
+      "beloep": 500000
+    },
+    {
+      "aarstall": 2026,
+      "beloep": 500000
+    },
+    {
+      "aarstall": 2027,
+      "beloep": 500000
+    },
+    {
+      "aarstall": 2028,
+      "beloep": 500000
+    },
+    {
+      "aarstall": 2029,
+      "beloep": 500000
+    },
+    {
+      "aarstall": 2030,
+      "beloep": 375000
+    }
+  ],
+  "opptjeningListe": [
+    {
+      "aarstall": 1990,
+      "pensjonsgivendeInntekt": 233494,
+      "pensjonspoeng": 5.95
+    },
+    {
+      "aarstall": 1991,
+      "pensjonsgivendeInntekt": 243633,
+      "pensjonspoeng": 5.95
+    },
+    {
+      "aarstall": 1992,
+      "pensjonsgivendeInntekt": 251519,
+      "pensjonsbeholdning": 44097,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1993,
+      "pensjonsgivendeInntekt": 257542,
+      "pensjonsbeholdning": 91050,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1994,
+      "pensjonsgivendeInntekt": 263015,
+      "pensjonsbeholdning": 139845,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1995,
+      "pensjonsgivendeInntekt": 270157,
+      "pensjonsbeholdning": 190422,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1996,
+      "pensjonsgivendeInntekt": 281027,
+      "pensjonsbeholdning": 244492,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1997,
+      "pensjonsgivendeInntekt": 292084,
+      "pensjonsbeholdning": 305195,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1998,
+      "pensjonsgivendeInntekt": 308865,
+      "pensjonsbeholdning": 370070,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 1999,
+      "pensjonsgivendeInntekt": 322844,
+      "pensjonsbeholdning": 447236,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2000,
+      "pensjonsgivendeInntekt": 336432,
+      "pensjonsbeholdning": 525912,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2001,
+      "pensjonsgivendeInntekt": 351913,
+      "pensjonsbeholdning": 608942,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2002,
+      "pensjonsgivendeInntekt": 370203,
+      "pensjonsbeholdning": 700658,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2003,
+      "pensjonsgivendeInntekt": 389195,
+      "pensjonsbeholdning": 804080,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2004,
+      "pensjonsgivendeInntekt": 404321,
+      "pensjonsbeholdning": 915776,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2005,
+      "pensjonsgivendeInntekt": 417674,
+      "pensjonsbeholdning": 1024549,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2006,
+      "pensjonsgivendeInntekt": 432292,
+      "pensjonsbeholdning": 1133983,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2007,
+      "pensjonsgivendeInntekt": 455547,
+      "pensjonsbeholdning": 1251916,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2008,
+      "pensjonsgivendeInntekt": 480604,
+      "pensjonsbeholdning": 1401718,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2009,
+      "pensjonsgivendeInntekt": 500758,
+      "pensjonsbeholdning": 1565807,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2010,
+      "pensjonsgivendeInntekt": 519639,
+      "pensjonsbeholdning": 1809040,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2011,
+      "pensjonsgivendeInntekt": 542609,
+      "pensjonsbeholdning": 1994324,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2012,
+      "pensjonsgivendeInntekt": 564369,
+      "pensjonsbeholdning": 2170888,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2013,
+      "pensjonsgivendeInntekt": 585587,
+      "pensjonsbeholdning": 2360683,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2014,
+      "pensjonsgivendeInntekt": 607313,
+      "pensjonsbeholdning": 2558556,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2015,
+      "pensjonsgivendeInntekt": 622432,
+      "pensjonsbeholdning": 2721055,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2016,
+      "pensjonsgivendeInntekt": 637996,
+      "pensjonsbeholdning": 2913224,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2017,
+      "pensjonsgivendeInntekt": 648712,
+      "pensjonsbeholdning": 3064287,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2018,
+      "pensjonsgivendeInntekt": 666230,
+      "pensjonsbeholdning": 3292564,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2019,
+      "pensjonsgivendeInntekt": 687553,
+      "pensjonsbeholdning": 3519339,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2020,
+      "pensjonsgivendeInntekt": 701371,
+      "pensjonsbeholdning": 3699709,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2021,
+      "pensjonsgivendeInntekt": 728236,
+      "pensjonsbeholdning": 4017889,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2022,
+      "pensjonsgivendeInntekt": 763480,
+      "pensjonsbeholdning": 4349860,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2023,
+      "pensjonsgivendeInntekt": 808371,
+      "pensjonsbeholdning": 4777998,
+      "pensjonspoeng": 5.32
+    },
+    {
+      "aarstall": 2024,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 5151997,
+      "pensjonspoeng": 0.0
+    },
+    {
+      "aarstall": 2025,
+      "pensjonsgivendeInntekt": 500000,
+      "pensjonspoeng": 2.9
+    },
+    {
+      "aarstall": 2026,
+      "pensjonsgivendeInntekt": 500000,
+      "pensjonspoeng": 2.72
+    },
+    {
+      "aarstall": 2027,
+      "pensjonsgivendeInntekt": 500000,
+      "pensjonsbeholdning": 2621335,
+      "pensjonspoeng": 2.72
+    },
+    {
+      "aarstall": 2028,
+      "pensjonsgivendeInntekt": 500000,
+      "pensjonsbeholdning": 2711835,
+      "pensjonspoeng": 2.72
+    },
+    {
+      "aarstall": 2029,
+      "pensjonsgivendeInntekt": 500000,
+      "pensjonsbeholdning": 2802335,
+      "pensjonspoeng": 2.72
+    },
+    {
+      "aarstall": 2030,
+      "pensjonsgivendeInntekt": 375000,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 1.79
+    },
+    {
+      "aarstall": 2031,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 0.0
+    },
+    {
+      "aarstall": 2032,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 0.0
+    },
+    {
+      "aarstall": 2033,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 0.0
+    },
+    {
+      "aarstall": 2034,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 0.0
+    },
+    {
+      "aarstall": 2035,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 0.0
+    },
+    {
+      "aarstall": 2036,
+      "pensjonsgivendeInntekt": 0,
+      "pensjonsbeholdning": 0,
+      "pensjonspoeng": 0.0
+    }
+  ]
+}

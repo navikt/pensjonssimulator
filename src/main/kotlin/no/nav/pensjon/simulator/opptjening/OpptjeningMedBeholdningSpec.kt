@@ -10,7 +10,7 @@ import no.nav.pensjon.simulator.person.Pid
 data class OpptjeningMedBeholdningSpec(
     val pid: Pid,
     val hentPensjonspoeng: Boolean,
-    val hentGrunnlagForOpptjeninger: Boolean,
+    val hentOpptjeningsgrunnlag: Boolean,
     val hentBeholdninger: Boolean,
     val harUfoeretrygdKravlinje: Boolean,
     val regelverkType: RegelverkTypeEnum?,
@@ -24,6 +24,6 @@ data class OpptjeningMedBeholdningSpec(
 
 data class OpptjeningMedBeholdningPersonSpec(
     val pid: Pid,
-    val sisteGyldigeOpptjeningAar: Int,
-    val isGrunnlagRolleSoeker: Boolean
+    val sisteGyldigeOpptjeningsaar: Int,
+    val gjelderSoeker: Boolean
 )

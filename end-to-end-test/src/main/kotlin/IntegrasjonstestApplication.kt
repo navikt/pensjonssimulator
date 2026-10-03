@@ -17,11 +17,6 @@ suspend fun main() {
             responseResource = "afp-etterfulgt-av-alder-response.json",
         ),
         Resource(
-            path = "/api/v4/simuler-alderspensjon",
-            requestResource = "simuler-alderspensjon-v4-request.json",
-            responseResource = "simuler-alderspensjon-v4-response.json",
-        ),
-        Resource(
             path = "/api/v1/tidligst-mulig-uttak",
             requestResource = "tidligst-mulig-uttak-request.json",
             responseResource = "tidligst-mulig-uttak-response.json",
@@ -31,10 +26,22 @@ suspend fun main() {
             requestResource = "simuler-folketrygdbeholdning-request.json",
             responseResource = "simuler-folketrygdbeholdning-response.json",
         ),
+        /* Utkommentert, siden E2E-testopplegget ikke støtter 'client credentials'-token (kun Maskinporten)
+        // NB: Siden uttakstidspunkt i v2/simuler-pensjon angis med alder, vil denne feile når uttaksdato på et tidspunkt blir for tidlig:
+        Resource(
+            path = "/api/nav/v2/simuler-pensjon",
+            requestResource = "simuler-pensjon-nav-v2-request.json",
+            responseResource = "simuler-pensjon-nav-v2-response.json",
+        ),*/
         Resource(
             path = "/api/v3/simuler-alderspensjon",
             requestResource = "simuler-alderspensjon-v3-request.json",
             responseResource = "simuler-alderspensjon-v3-response.json",
+        ),
+        Resource(
+            path = "/api/v4/simuler-alderspensjon",
+            requestResource = "simuler-alderspensjon-v4-request.json",
+            responseResource = "simuler-alderspensjon-v4-response.json",
         )
     )
 

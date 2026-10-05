@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.opptjening.client.popp.acl
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningPOPPTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Inntektsgrunnlag
 import java.time.LocalDate
 
@@ -51,6 +52,7 @@ class PoppInntektTest : ShouldSpec({
                 belop shouldBe 123
                 bruk shouldBe true // hardkodet
                 erRelevant shouldBe true
+                poppOpptjeningType shouldBe OpptjeningPOPPTypeEnum.PI66
             }
         }
     }

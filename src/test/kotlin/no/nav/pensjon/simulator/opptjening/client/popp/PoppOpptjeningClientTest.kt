@@ -102,7 +102,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
                         fomLd shouldBe LocalDate.of(2015, 1, 1)
                         tomLd shouldBe LocalDate.of(2015, 12, 31)
                         belop shouldBe 555000
-                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.PEN
+                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.POPP
                         bruk shouldBe true
                         erRelevant shouldBe false
                     }
@@ -120,7 +120,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
                         fomLd shouldBe LocalDate.of(2019, 1, 1)
                         tomLd shouldBe LocalDate.of(2019, 12, 31)
                         belop shouldBe 555002
-                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.PEN
+                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.POPP
                         bruk shouldBe true
                         erRelevant shouldBe false
                     }
@@ -134,10 +134,10 @@ class PoppOpptjeningClientTest : ShouldSpec({
                         erRelevant shouldBe false
                     }
                     with(inntektListe[4]) {
-                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.OVRIG // Ingen 'SKD' i GrunnlagkildeEnum
+                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.POPP // 'POPP' anses alltid som kilde
                     }
                     with(inntektListe[5]) {
-                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.OVRIG // Ingen 'SKD' i GrunnlagkildeEnum
+                        grunnlagKildeEnum shouldBe GrunnlagkildeEnum.POPP
                     }
                 }
             }

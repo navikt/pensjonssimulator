@@ -40,9 +40,8 @@ class PoppOpptjeningClientTest : ShouldSpec({
             baseUrl!!,
             retryAttempts = "1",
             webClientBase = context.getBean<WebClientBase>(),
-            cacheManager = mockk(relaxed = true),
-            traceAid = mockk(relaxed = true),
-            time = { LocalDate.of(2024, 6, 15) } // "dagens dato"
+            cache = PoppOpptjeningCache(cacheManager = mockk(relaxed = true)),
+            traceAid = mockk(relaxed = true)
         )
 
     beforeSpec {
@@ -67,20 +66,6 @@ class PoppOpptjeningClientTest : ShouldSpec({
             }
         }
 
-        context("tom respons") {
-            should("returnere 0 inntekt med f.o.m.-dato lik 1. januar inneværende år") {
-                server?.arrangeResponse(HttpStatus.OK, "")
-
-                Arrange.security()
-                Arrange.webClientContextRunner().run {
-                    client(context = it).fetchSistLignedeInntekt(Pid("12345678910")) shouldBe LoependeInntekt(
-                        aarligBeloep = 0,
-                        fom = LocalDate.of(2024, 1, 1) // "inneværende år" er 2024 siden "dagens dato" er 2024-06-15
-                    )
-                }
-            }
-        }
-
         context("internal server error") {
             should("forsøke på nytt") {
                 server?.arrangeResponse(HttpStatus.INTERNAL_SERVER_ERROR, "feil") // respons ved 1. forsøk
@@ -88,7 +73,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
 
                 Arrange.security()
                 Arrange.webClientContextRunner().run {
-                    client(context = it).fetchSistLignedeInntekt(Pid("12345678910")).aarligBeloep shouldBe 123456
+                    client(context = it).fetchSistLignedeInntekt(Pid("12345678910"))?.aarligBeloep shouldBe 123456
                 }
             }
         }
@@ -110,7 +95,7 @@ class PoppOpptjeningClientTest : ShouldSpec({
                         grunnlagstypeListe = emptyList()
                     )
                 )
-                with(result) {
+                with(result!!) {
                     inntektListe shouldHaveSize 6
                     with(inntektListe[0]) {
                         inntektTypeEnum shouldBe null

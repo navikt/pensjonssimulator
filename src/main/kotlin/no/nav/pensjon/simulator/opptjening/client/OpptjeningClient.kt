@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.person.Pid
 
 interface OpptjeningClient {
 
-    fun fetchSistLignedeInntekt(pid: Pid): LoependeInntekt
+    fun fetchSistLignedeInntekt(pid: Pid): LoependeInntekt?
 
     fun fetchBeholdninger(spec: BeholdningSpec): List<Pensjonsbeholdning>
 

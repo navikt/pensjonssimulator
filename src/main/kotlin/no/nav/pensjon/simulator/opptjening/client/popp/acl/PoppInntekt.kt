@@ -12,7 +12,7 @@ import java.time.LocalDate
 data class PoppInntekt(
     val inntektAr: Int? = null,
     val belop: Long? = null,
-    val inntektType: String? = null,
+    val inntektType: String? = null, // OpptjeningPOPPTypeEnum
     val kilde: String? = null // GrunnlagkildeEnum
 ) {
     val isSumPensjonsgivendeInntekt: Boolean = inntektType == OpptjeningPOPPTypeEnum.SUM_PI.name
@@ -22,13 +22,15 @@ data class PoppInntekt(
 
     fun toGrunnlag() =
         Inntektsgrunnlag().also {
-            it.inntektTypeEnum = inntekttype()
+            it.inntektTypeEnum = inntekttypeEnum()
             it.fomLd = foersteDag(inntektAr ?: 0)
             it.tomLd = sisteDag(inntektAr ?: 0)
             it.belop = belop?.toInt() ?: 0
-            it.grunnlagKildeEnum = GrunnlagkildeEnum.fromValue(kilde)
+            // Sett POPP som kilde, ref. PEN GrunnlagForOpptjeningerHelper.addInntektsgrunnlag:
+            it.grunnlagKildeEnum = GrunnlagkildeEnum.POPP // NB: ikke fromValue(kilde)
             it.bruk = true
             it.erRelevant = erRelevant()
+            it.poppOpptjeningType = inntektType?.let(OpptjeningPOPPTypeEnum::valueOf)
         }
 
     fun toLoependeInntekt(): LoependeInntekt? =
@@ -42,13 +44,12 @@ data class PoppInntekt(
     private fun typeErRelevant(): Boolean =
         inntektType?.let(relevanteInntektstyper::contains) == true
 
-    private fun inntekttype(): InntekttypeEnum? =
-        if (typenavnForPensjonsgivendeInntekt1966 == inntektType)
-            InntekttypeEnum.ARBLIGN
-        else if (typenavnForAntattInntekt == inntektType)
-            InntekttypeEnum.AI // Antatt inntekt
-        else
-            null
+    private fun inntekttypeEnum(): InntekttypeEnum? =
+        when (inntektType) {
+            OpptjeningPOPPTypeEnum.PI66.name -> InntekttypeEnum.ARBLIGN
+            OpptjeningPOPPTypeEnum.AI.name -> InntekttypeEnum.AI // Antatt inntekt
+            else -> null
+        }
 
     private companion object {
         /**
@@ -57,10 +58,7 @@ data class PoppInntekt(
          */
         private const val SISTE_SPESIALBEHANDLINGSAAR: Int = 1967
 
-        private val typenavnForPensjonsgivendeInntekt1966: String = OpptjeningPOPPTypeEnum.PI66.name
-        private val typenavnForAntattInntekt: String = InntekttypeEnum.AI.name
-
         private val relevanteInntektstyper: Set<String> =
-            setOf(typenavnForPensjonsgivendeInntekt1966, typenavnForAntattInntekt)
+            setOf(OpptjeningPOPPTypeEnum.PI66.name, OpptjeningPOPPTypeEnum.AI.name)
     }
 }

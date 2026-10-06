@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.opptjening
 
-import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningPOPPTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
@@ -253,10 +252,8 @@ class OpptjeningMedBeholdningService(
             inntektListe.filter { it.aar() == aar }.mapNotNull(::opptjeningTypeMapping)
 
         private fun opptjeningTypeMapping(inntekt: Inntektsgrunnlag): OpptjeningTypeMapping? =
-            inntekt.inntektTypeEnum?.let {
-                OpptjeningTypeMapping().apply {
-                    opptjeningPOPPTypeEnum = OpptjeningPOPPTypeEnum.valueOf(it.name)
-                }
+            inntekt.poppOpptjeningType?.let {
+                OpptjeningTypeMapping().apply { opptjeningPOPPTypeEnum = it }
             }
     }
 }

@@ -202,7 +202,9 @@ class OpptjeningMedBeholdningService(
         private fun validate(spec: OpptjeningMedBeholdningSpec) {
             if (spec.harUfoeretrygdKravlinje && spec.hentPensjonspoeng && spec.hentOpptjeningsgrunnlag.not()) {
                 throw InvalidArgumentException(
-                    "OpptjeningMedBeholdningSpec demands that if hentPensjonspoeng is true, then hentOpptjeningsgrunnlag must be true as well"
+                    "I spesifikasjonen for opptjening med beholdning er det angitt at personen har" +
+                            " en uføretrygd-kravlinje og at pensjonspoeng skal hentes" +
+                            " - da må det også angis at opptjeningsgrunnlag skal hentes"
                 )
             }
         }

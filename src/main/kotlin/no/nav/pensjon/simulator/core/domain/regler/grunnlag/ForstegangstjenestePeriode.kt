@@ -10,7 +10,7 @@ class ForstegangstjenestePeriode {
     var periodeTypeEnum: ForstegangstjenestetypeEnum? = null
 
     // Extra:
-    fun ar(): Int? = fomDatoLd?.year
+    fun aar(): Int? = fomDatoLd?.year
 
     constructor()
 

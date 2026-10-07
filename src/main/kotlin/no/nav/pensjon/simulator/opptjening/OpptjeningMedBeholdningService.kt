@@ -32,10 +32,11 @@ class OpptjeningMedBeholdningService(
 
     private fun getPensjonsopptjening(spec: OpptjeningMedBeholdningSpec): Pensjonsopptjening {
         validate(spec)
-        val soekerPid = spec.pid
+        val soekerPid: Pid = spec.pid
         val personSpec: OpptjeningMedBeholdningPersonSpec = spec.personSpecListe.first { it.pid == spec.pid }
-        val kapittel20Innvirker = kapittel20Innvirker(soekerPid)
-        val gjelderPrivatAfp = spec.sakType == SakTypeEnum.AFP_PRIVAT
+        val sisteGyldigeOpptjeningsaar: Int = personSpec.sisteGyldigeOpptjeningsaar
+        val kapittel20Innvirker: Boolean = kapittel20Innvirker(soekerPid)
+        val gjelderPrivatAfp: Boolean = spec.sakType == SakTypeEnum.AFP_PRIVAT
 
         val beholdAarEtterSisteGyldigeOpptjeningsaar =
             aarEtterSisteGyldigeOpptjeningsaarSkalFjernes(
@@ -45,10 +46,15 @@ class OpptjeningMedBeholdningService(
             ).not()
 
         val opptjeningsgrunnlag: OpptjeningsgrunnlagSamling? =
-            opptjeningService.hentOpptjeningsgrunnlagSamling(
-                soekerPid,
-                grunnlagstypeListe = opptjeningsgrunnlagTypeListe(kapittel20Innvirker, gjelderPrivatAfp)
-            )
+            if (spec.hentOpptjeningsgrunnlag)
+                opptjeningService.hentOpptjeningsgrunnlagSamling(
+                    soekerPid,
+                    grunnlagstypeListe = opptjeningsgrunnlagTypeListe(kapittel20Innvirker, gjelderPrivatAfp)
+                )
+            else
+                null
+
+        val inntektListe: List<Inntektsgrunnlag> = opptjeningsgrunnlag?.inntektListe.orEmpty()
 
         return Pensjonsopptjening(
             beholdningListe =
@@ -59,39 +65,34 @@ class OpptjeningMedBeholdningService(
             opptjeningsgrunnlagListe =
                 if (spec.hentPensjonspoeng)
                     pensjonspoengListe(
-                        opptjeningsgrunnlag,
+                        inntektListe,
                         soekerPid,
                         spec,
                         beholdAarEtterSisteGyldigeOpptjeningsaar,
-                        personSpec.sisteGyldigeOpptjeningsaar
+                        sisteGyldigeOpptjeningsaar
                     )
                 else
                     emptyList(),
             inntektsgrunnlagListe =
                 if (spec.hentOpptjeningsgrunnlag)
-                    inntektsgrunnlagListe(
-                        opptjeningsgrunnlag,
-                        beholdAarEtterSisteGyldigeOpptjeningsaar,
-                        personSpec.sisteGyldigeOpptjeningsaar
-                    )
+                    inntektListe.filter {
+                        it.erRelevant &&
+                                (beholdAarEtterSisteGyldigeOpptjeningsaar || it.aar() <= sisteGyldigeOpptjeningsaar)
+                    }
                 else
                     emptyList(),
             dagpengegrunnlagListe =
                 if (spec.hentOpptjeningsgrunnlag && kapittel20Innvirker)
-                    dagpengegrunnlagListe(
-                        opptjeningsgrunnlag,
-                        beholdAarEtterSisteGyldigeOpptjeningsaar,
-                        personSpec.sisteGyldigeOpptjeningsaar
-                    )
+                    opptjeningsgrunnlag?.dagpengeListe.orEmpty().filter {
+                        beholdAarEtterSisteGyldigeOpptjeningsaar || it.ar <= sisteGyldigeOpptjeningsaar
+                    }
                 else
                     emptyList(),
             omsorgsgrunnlagListe =
                 if (spec.hentOpptjeningsgrunnlag && (kapittel20Innvirker || gjelderPrivatAfp))
-                    omsorgsgrunnlagListe(
-                        opptjeningsgrunnlag,
-                        beholdAarEtterSisteGyldigeOpptjeningsaar,
-                        personSpec.sisteGyldigeOpptjeningsaar
-                    )
+                    opptjeningsgrunnlag?.omsorgListe.orEmpty().filter {
+                        beholdAarEtterSisteGyldigeOpptjeningsaar || it.ar <= sisteGyldigeOpptjeningsaar
+                    }
                 else
                     emptyList(),
             foerstegangstjeneste =
@@ -111,35 +112,8 @@ class OpptjeningMedBeholdningService(
             beholdningListe = opptjeningService.hentBeholdningListe(soekerPid)
         ).ifEmpty { dummyPensjonsbeholdning() }
 
-    private fun inntektsgrunnlagListe(
-        grunnlag: OpptjeningsgrunnlagSamling?,
-        beholdAarEtterSisteGyldigeOpptjeningsaar: Boolean,
-        sisteGyldigeOpptjeningsaar: Int
-    ): List<Inntektsgrunnlag> =
-        grunnlag?.inntektListe.orEmpty()
-            .filter {
-                it.erRelevant &&
-                        (beholdAarEtterSisteGyldigeOpptjeningsaar || it.aar() <= sisteGyldigeOpptjeningsaar)
-            }
-
-    private fun dagpengegrunnlagListe(
-        grunnlag: OpptjeningsgrunnlagSamling?,
-        beholdAarEtterSisteGyldigeOpptjeningsaar: Boolean,
-        sisteGyldigeOpptjeningsaar: Int
-    ): List<Dagpengegrunnlag> =
-        grunnlag?.dagpengeListe.orEmpty()
-            .filter { beholdAarEtterSisteGyldigeOpptjeningsaar || it.ar <= sisteGyldigeOpptjeningsaar }
-
-    private fun omsorgsgrunnlagListe(
-        grunnlag: OpptjeningsgrunnlagSamling?,
-        beholdAarEtterSisteGyldigeOpptjeningsaar: Boolean,
-        sisteGyldigeOpptjeningsaar: Int
-    ): List<Omsorgsgrunnlag> =
-        grunnlag?.omsorgListe.orEmpty()
-            .filter { beholdAarEtterSisteGyldigeOpptjeningsaar || it.ar <= sisteGyldigeOpptjeningsaar }
-
     private fun pensjonspoengListe(
-        grunnlag: OpptjeningsgrunnlagSamling?,
+        inntektListe: List<Inntektsgrunnlag>,
         pid: Pid?,
         spec: OpptjeningMedBeholdningSpec,
         beholdAarEtterSisteGyldigeOpptjeningsaar: Boolean,
@@ -149,9 +123,7 @@ class OpptjeningMedBeholdningService(
             .filter { beholdAarEtterSisteGyldigeOpptjeningsaar || it.ar <= sisteGyldigeOpptjeningsaar }
             .onEach {
                 if (shouldAddOpptjeningstyper(grunnlag = it, spec)) {
-                    it.opptjeningTypeListe.addAll(
-                        opptjeningstyper(aar = it.ar, inntektListe = grunnlag?.inntektListe.orEmpty())
-                    )
+                    it.opptjeningTypeListe.addAll(opptjeningstyper(aar = it.ar, inntektListe))
                 }
             }
 

@@ -8,14 +8,14 @@ metadata:
 spec:
   image: {{ image }}
   replicas:
-    min: 3
-    max: 5
+    min: 4
+    max: 6
     cpuThresholdPercentage: 70
   resources:
     limits:
       memory: 3072Mi
     requests:
-      cpu: 200m
+      cpu: 400m
       memory: 1536Mi
   ingresses:
     - https://pensjonssimulator.intern.nav.no

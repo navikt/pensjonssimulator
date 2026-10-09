@@ -5,8 +5,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.pensjon.simulator.core.domain.regler.enum.BeholdningtypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.DagpengetypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.ForstegangstjenestetypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagkildeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.InntekttypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.OmsorgTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.OpptjeningtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning
@@ -138,6 +141,38 @@ class PoppOpptjeningClientTest : ShouldSpec({
                     }
                     with(inntektListe[5]) {
                         grunnlagKildeEnum shouldBe GrunnlagkildeEnum.POPP
+                    }
+                    dagpengeListe shouldHaveSize 1
+                    with(dagpengeListe[0]) {
+                        ar shouldBe 2023
+                        dagpengetypeEnum shouldBe DagpengetypeEnum.DP
+                        uavkortetDagpengegrunnlag shouldBe 600000
+                        utbetalteDagpenger shouldBe 400000
+                        ferietillegg shouldBe 500
+                        barnetillegg shouldBe 600
+                    }
+                    omsorgListe shouldHaveSize 2
+                    with(omsorgListe[0]) {
+                        ar shouldBe 1992
+                        omsorgTypeEnum shouldBe OmsorgTypeEnum.OBU7
+                        pidOmsorgFor shouldBe Pid("03478912683")
+                        personOmsorgFor shouldBe null // ikke tilordnet av POPP-klienten
+                        bruk shouldBe true // hardkodet
+                    }
+                    with(omsorgListe[1]) {
+                        ar shouldBe 1993
+                        omsorgTypeEnum shouldBe OmsorgTypeEnum.OSFE
+                        pidOmsorgFor shouldBe Pid("14426111250")
+                        personOmsorgFor shouldBe null // ikke tilordnet av POPP-klienten
+                        bruk shouldBe true // hardkodet
+                    }
+                    with(foerstegangstjeneste!!) {
+                        periodeListe shouldHaveSize 1
+                        with(periodeListe[0]) {
+                            fomDatoLd shouldBe LocalDate.of(2012, 1, 1)
+                            tomDatoLd shouldBe LocalDate.of(2012, 12, 31)
+                            periodeTypeEnum shouldBe ForstegangstjenestetypeEnum.NORMAL
+                        }
                     }
                 }
             }

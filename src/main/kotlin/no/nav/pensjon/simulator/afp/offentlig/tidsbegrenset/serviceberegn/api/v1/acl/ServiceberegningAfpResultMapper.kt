@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.serviceberegn.api.v
 
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.FolketrygdberegnetAfp
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.serviceberegn.ServiceberegningAfpResult
-import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.validity.Problem
 
 object ServiceberegningAfpResultMapper {
@@ -34,7 +34,7 @@ object ServiceberegningAfpResultMapper {
             erAvkortet = source.erAvkortet
         )
 
-    private fun opptjening(source: OpptjeningGrunnlag) =
+    private fun opptjening(source: AarligOpptjening) =
         ServiceberegningOpptjeningDto(
             aarstall = source.aar,
             pensjonsgivendeInntekt = source.pensjonsgivendeInntekt,

@@ -11,7 +11,7 @@ class OpptjeningMedBeholdningSpecTest : ShouldSpec({
             OpptjeningMedBeholdningSpec(
                 pid = pid,
                 hentPensjonspoeng = true,
-                hentGrunnlagForOpptjeninger = false,
+                hentOpptjeningsgrunnlag = false,
                 hentBeholdninger = false,
                 harUfoeretrygdKravlinje = true,
                 regelverkType = null,
@@ -19,13 +19,13 @@ class OpptjeningMedBeholdningSpecTest : ShouldSpec({
                 personSpecListe = emptyList(),
                 soekerSpec = OpptjeningMedBeholdningPersonSpec(
                     pid = pid,
-                    sisteGyldigeOpptjeningAar = 2000,
-                    isGrunnlagRolleSoeker = false
+                    sisteGyldigeOpptjeningsaar = 2000,
+                    gjelderSoeker = false
                 )
             ).medBeholdninger() shouldBe OpptjeningMedBeholdningSpec(
                 pid = pid,
                 hentPensjonspoeng = true,
-                hentGrunnlagForOpptjeninger = false,
+                hentOpptjeningsgrunnlag = false,
                 hentBeholdninger = true, // endret
                 harUfoeretrygdKravlinje = true,
                 regelverkType = null,
@@ -33,8 +33,8 @@ class OpptjeningMedBeholdningSpecTest : ShouldSpec({
                 personSpecListe = emptyList(),
                 soekerSpec = OpptjeningMedBeholdningPersonSpec(
                     pid = pid,
-                    sisteGyldigeOpptjeningAar = 2000,
-                    isGrunnlagRolleSoeker = false
+                    sisteGyldigeOpptjeningsaar = 2000,
+                    gjelderSoeker = false
                 )
             )
         }

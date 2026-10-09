@@ -88,5 +88,13 @@ enum class GrunnlagkildeEnum {
     SIMULERING,
 
     /** Tjenestebasert persondatasystem (det gamle personregisteret) */
-    TPS
+    TPS;
+
+    //--- Extra:
+    companion object {
+        private val valuesByName = entries.associateBy { it.name }
+
+        fun fromValue(value: String?): GrunnlagkildeEnum =
+            valuesByName[value] ?: OVRIG
+    }
 }

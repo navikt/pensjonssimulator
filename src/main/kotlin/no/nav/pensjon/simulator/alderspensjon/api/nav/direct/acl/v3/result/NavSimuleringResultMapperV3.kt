@@ -2,7 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.api.nav.direct.acl.v3.result
 
 import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
-import no.nav.pensjon.simulator.opptjening.OpptjeningGrunnlag
+import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 
 /**
@@ -24,7 +24,7 @@ object NavSimuleringResultMapperV3 {
             vilkaarsproeving = vilkaarsproevingResultat(source?.alternativ),
             tilstrekkeligTrygdetidForGarantipensjon = primaerTrygdetid.erTilstrekkelig,
             trygdetid = primaerTrygdetid.kapittel19.coerceAtLeast(primaerTrygdetid.kapittel20), //TODO sjekk det faglige her
-            opptjeningGrunnlagListe = pensjon?.opptjeningGrunnlagListe.orEmpty().map(::opptjeningGrunnlag)
+            opptjeningGrunnlagListe = pensjon?.aarligOpptjeningListe.orEmpty().map(::opptjeningGrunnlag)
         )
     }
 
@@ -98,7 +98,7 @@ object NavSimuleringResultMapperV3 {
             alternativ = source?.let(::alternativ)
         )
 
-    private fun opptjeningGrunnlag(source: OpptjeningGrunnlag) =
+    private fun opptjeningGrunnlag(source: AarligOpptjening) =
         NavOpptjeningGrunnlagV3(
             aar = source.aar,
             pensjonsgivendeInntektBeloep = source.pensjonsgivendeInntekt

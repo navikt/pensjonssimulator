@@ -1,0 +1,174 @@
+{
+    "pensjonspoeng": [
+        {
+            "pensjonspoengId": 658205719,
+            "changeStamp": {
+                "createdBy": "pensjon-testdata-ser",
+                "createdDate": 1743424523977,
+                "updatedBy": "pensjon-testdata-ser",
+                "updatedDate": 1743424523977
+            },
+            "fnr": "22456134991",
+            "fnrOmsorgFor": null,
+            "kilde": "PEN",
+            "pensjonspoengType": "PPI",
+            "inntekt": {
+                "changeStamp": {
+                    "createdBy": "pensjon-testdata-ser",
+                    "createdDate": 1743424523951,
+                    "updatedBy": "pensjon-testdata-ser",
+                    "updatedDate": 1743424524129
+                },
+                "inntektId": 593842009,
+                "fnr": "22456134991",
+                "inntektAr": 2001,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "SUM_PI",
+                "belop": 124205
+            },
+            "omsorg": null,
+            "ar": 2001,
+            "anvendtPi": 124200,
+            "poeng": 1.45,
+            "maxUforegrad": null
+        },
+        {
+            "pensjonspoengId": 658205473,
+            "changeStamp": {
+                "createdBy": "pensjon-testdata-ser",
+                "createdDate": 1743424524323,
+                "updatedBy": "pensjon-testdata-ser",
+                "updatedDate": 1743424524323
+            },
+            "fnr": "22456134991",
+            "fnrOmsorgFor": null,
+            "kilde": "PEN",
+            "pensjonspoengType": "PPI",
+            "inntekt": {
+                "changeStamp": {
+                    "createdBy": "pensjon-testdata-ser",
+                    "createdDate": 1743424524291,
+                    "updatedBy": "pensjon-testdata-ser",
+                    "updatedDate": 1743424524494
+                },
+                "inntektId": 593841967,
+                "fnr": "22456134991",
+                "inntektAr": 2002,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "SUM_PI",
+                "belop": 130660
+            },
+            "omsorg": null,
+            "ar": 2002,
+            "anvendtPi": 130660,
+            "poeng": 1.45,
+            "maxUforegrad": null
+        },
+        {
+            "pensjonspoengId": 658205720,
+            "changeStamp": {
+                "createdBy": "pensjon-testdata-ser",
+                "createdDate": 1743424524688,
+                "updatedBy": "pensjon-testdata-ser",
+                "updatedDate": 1743424524688
+            },
+            "fnr": "22456134991",
+            "fnrOmsorgFor": null,
+            "kilde": "PEN",
+            "pensjonspoengType": "PPI",
+            "inntekt": {
+                "changeStamp": {
+                    "createdBy": "pensjon-testdata-ser",
+                    "createdDate": 1743424524655,
+                    "updatedBy": "pensjon-testdata-ser",
+                    "updatedDate": 1743424524864
+                },
+                "inntektId": 593842011,
+                "fnr": "22456134991",
+                "inntektAr": 2003,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "SUM_PI",
+                "belop": 137363
+            },
+            "omsorg": null,
+            "ar": 2003,
+            "anvendtPi": 137363,
+            "poeng": 1.45,
+            "maxUforegrad": null
+        },
+        {
+            "pensjonspoengId": 658205721,
+            "changeStamp": {
+                "createdBy": "pensjon-testdata-ser",
+                "createdDate": 1743424525041,
+                "updatedBy": "pensjon-testdata-ser",
+                "updatedDate": 1743424525041
+            },
+            "fnr": "22456134991",
+            "fnrOmsorgFor": null,
+            "kilde": "PEN",
+            "pensjonspoengType": "PPI",
+            "inntekt": {
+                "changeStamp": {
+                    "createdBy": "pensjon-testdata-ser",
+                    "createdDate": 1743424525010,
+                    "updatedBy": "pensjon-testdata-ser",
+                    "updatedDate": 1743424525177
+                },
+                "inntektId": 593842013,
+                "fnr": "22456134991",
+                "inntektAr": 2004,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "SUM_PI",
+                "belop": 142702
+            },
+            "omsorg": null,
+            "ar": 2004,
+            "anvendtPi": 142702,
+            "poeng": 1.45,
+            "maxUforegrad": null
+        },
+        {
+            "pensjonspoengId": 658205474,
+            "changeStamp": {
+                "createdBy": "pensjon-testdata-ser",
+                "createdDate": 1743424525376,
+                "updatedBy": "pensjon-testdata-ser",
+                "updatedDate": 1743424525376
+            },
+            "fnr": "22456134991",
+            "fnrOmsorgFor": null,
+            "kilde": "PEN",
+            "pensjonspoengType": "PPI",
+            "inntekt": {
+                "changeStamp": {
+                    "createdBy": "pensjon-testdata-ser",
+                    "createdDate": 1743424525353,
+                    "updatedBy": "pensjon-testdata-ser",
+                    "updatedDate": 1743424525519
+                },
+                "inntektId": 593841969,
+                "fnr": "22456134991",
+                "inntektAr": 2005,
+                "kilde": "POPP",
+                "kommune": null,
+                "piMerke": null,
+                "inntektType": "SUM_PI",
+                "belop": 147414
+            },
+            "omsorg": null,
+            "ar": 2005,
+            "anvendtPi": 147414,
+            "poeng": 1.45,
+            "maxUforegrad": null
+        }
+    ]
+}

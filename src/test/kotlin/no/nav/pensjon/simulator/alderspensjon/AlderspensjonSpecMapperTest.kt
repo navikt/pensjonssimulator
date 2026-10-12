@@ -98,7 +98,7 @@ private fun simuleringSpec(type: SimuleringTypeEnum, livsvarigOffentligAfpRettFo
         tidsbegrensetOffentligAfp = null,
         erAnonym = false,
         ignoreAvslag = false,
-        isHentPensjonsbeholdninger = true,
+        brukBeregnetBeholdningVedPensjonsberegning = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false

@@ -175,7 +175,7 @@ class SimulatorCore(
                     gjeldendeAfpPrivatBeregningsresultat = gjeldendePrivatAfpBeregningResultat,
                     forsteVirkAfpPrivat = ytelser.privatAfpVirkningFom,
                     afpOffentligLivsvarigBeregningsresultat = simulertOffentligAfp.livsvarig,
-                    isHentPensjonsbeholdninger = spec.isHentPensjonsbeholdninger,
+                    brukBeregnetBeholdning = spec.brukBeregnetBeholdningVedPensjonsberegning,
                     kravGjelder = kravhode.gjelder ?: KravGjelder.FORSTEG_BH,
                     sakId = kravhode.sakId,
                     sakType = kravhode.sakType,

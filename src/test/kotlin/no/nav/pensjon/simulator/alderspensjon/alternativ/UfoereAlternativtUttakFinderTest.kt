@@ -259,7 +259,7 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
                 tidsbegrensetOffentligAfp = it.tidsbegrensetOffentligAfp,
                 erAnonym = it.erAnonym,
                 ignoreAvslag = it.ignoreAvslag,
-                isHentPensjonsbeholdninger = it.isHentPensjonsbeholdninger,
+                brukBeregnetBeholdningVedPensjonsberegning = it.brukBeregnetBeholdningVedPensjonsberegning,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = it.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
                 onlyVilkaarsproeving = true,
                 epsKanOverskrives = it.epsKanOverskrives
@@ -311,7 +311,7 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
                 tidsbegrensetOffentligAfp = it.tidsbegrensetOffentligAfp,
                 erAnonym = true,
                 ignoreAvslag = it.ignoreAvslag,
-                isHentPensjonsbeholdninger = it.isHentPensjonsbeholdninger,
+                brukBeregnetBeholdningVedPensjonsberegning = it.brukBeregnetBeholdningVedPensjonsberegning,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = it.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
                 onlyVilkaarsproeving = it.onlyVilkaarsproeving,
                 epsKanOverskrives = it.epsKanOverskrives

@@ -57,7 +57,7 @@ class AnonymSimuleringSpecMapperV1Test : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

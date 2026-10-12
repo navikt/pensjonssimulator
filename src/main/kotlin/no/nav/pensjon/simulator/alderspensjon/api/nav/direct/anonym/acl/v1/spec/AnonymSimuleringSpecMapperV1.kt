@@ -42,7 +42,7 @@ object AnonymSimuleringSpecMapperV1 {
             brukFremtidigInntekt = false,
             livsvarigOffentligAfp = null,
             tidsbegrensetOffentligAfp = null,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

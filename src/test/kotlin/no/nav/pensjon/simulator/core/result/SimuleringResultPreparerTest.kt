@@ -692,7 +692,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -1263,7 +1263,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2063,7 +2063,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2167,7 +2167,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2271,7 +2271,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2386,7 +2386,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2489,7 +2489,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2594,7 +2594,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2685,7 +2685,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2773,7 +2773,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2869,7 +2869,7 @@ class SimuleringResultPreparerTest : FunSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = true,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -2948,7 +2948,7 @@ private fun resultPreparerSpec(
         tidsbegrensetOffentligAfp = null,
         erAnonym = true,
         ignoreAvslag = false,
-        isHentPensjonsbeholdninger = false,
+        brukBeregnetBeholdningVedPensjonsberegning = false,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = outputSimulertBeregningsInformasjonForAllKnekkpunkter,
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false

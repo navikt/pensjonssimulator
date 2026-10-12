@@ -60,7 +60,7 @@ class SimulerOffentligTjenestepensjonMapperV3(
             tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true,
+            brukBeregnetBeholdningVedPensjonsberegning = true,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

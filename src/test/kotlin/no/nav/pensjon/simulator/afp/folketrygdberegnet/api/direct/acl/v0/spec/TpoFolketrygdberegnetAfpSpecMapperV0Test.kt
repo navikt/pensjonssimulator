@@ -314,7 +314,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : ShouldSpec({
         result.livsvarigOffentligAfp shouldBe null
         result.erAnonym shouldBe false
         result.ignoreAvslag shouldBe false
-        result.isHentPensjonsbeholdninger shouldBe false
+        result.brukBeregnetBeholdningVedPensjonsberegning shouldBe false
         result.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter shouldBe false
         result.onlyVilkaarsproeving shouldBe false
         result.epsKanOverskrives shouldBe false

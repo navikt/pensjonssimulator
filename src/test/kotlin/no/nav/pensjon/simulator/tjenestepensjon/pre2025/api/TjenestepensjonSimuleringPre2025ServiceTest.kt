@@ -74,7 +74,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
             //default verdier uansett hva som er satt i dto
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter shouldBe true
-            isHentPensjonsbeholdninger shouldBe true
+            brukBeregnetBeholdningVedPensjonsberegning shouldBe true
             inntektOver1GAntallAar shouldBe 0
             brukFremtidigInntekt shouldBe false
             fremtidigInntektListe shouldBe emptyList()
@@ -126,7 +126,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : StringSpec({
 
             //default verdier uansett hva som er satt i dto
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter shouldBe true
-            isHentPensjonsbeholdninger shouldBe true
+            brukBeregnetBeholdningVedPensjonsberegning shouldBe true
             inntektOver1GAntallAar shouldBe 0
             brukFremtidigInntekt shouldBe false
             fremtidigInntektListe shouldBe emptyList()

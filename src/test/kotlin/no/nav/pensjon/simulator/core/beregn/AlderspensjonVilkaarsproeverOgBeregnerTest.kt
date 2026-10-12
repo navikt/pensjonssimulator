@@ -722,7 +722,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
             knekkpunkter = sortedMapOf(
                 LocalDate.of(2025, 1, 1) to mutableListOf(KnekkpunktAarsak.UTG)
             ),
-            isHentPensjonsbeholdninger = true
+            brukBeregnetBeholdning = true
         )
 
         val result = beregner.vilkaarsproevOgBeregnAlder(spec)
@@ -791,7 +791,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
             knekkpunkter = sortedMapOf(
                 LocalDate.of(2025, 1, 1) to mutableListOf(KnekkpunktAarsak.UTG)
             ),
-            isHentPensjonsbeholdninger = true
+            brukBeregnetBeholdning = true
         )
 
         val result = beregner.vilkaarsproevOgBeregnAlder(spec)
@@ -834,7 +834,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
             knekkpunkter = sortedMapOf(
                 LocalDate.of(2025, 1, 1) to mutableListOf(KnekkpunktAarsak.UTG)
             ),
-            isHentPensjonsbeholdninger = false // Disabled
+            brukBeregnetBeholdning = false // Disabled
         )
 
         val result = beregner.vilkaarsproevOgBeregnAlder(spec)
@@ -872,7 +872,7 @@ class AlderspensjonVilkaarsproeverOgBeregnerTest : FunSpec({
             knekkpunkter = sortedMapOf(
                 LocalDate.of(2025, 1, 1) to mutableListOf(KnekkpunktAarsak.UTG)
             ),
-            isHentPensjonsbeholdninger = true // Enabled, but regelverkType is wrong
+            brukBeregnetBeholdning = true // Enabled, but regelverkType is wrong
         )
 
         val result = beregner.vilkaarsproevOgBeregnAlder(spec)
@@ -983,7 +983,7 @@ private fun createSpec(
     afpPrivatBeregningsresultater: MutableList<BeregningsResultatAfpPrivat> = mutableListOf(),
     gjeldendeAfpPrivatBeregningsresultat: BeregningsResultatAfpPrivat? = null,
     forsteVirkAfpPrivat: LocalDate? = null,
-    isHentPensjonsbeholdninger: Boolean = false,
+    brukBeregnetBeholdning: Boolean = false,
     kravGjelder: KravGjelder = KravGjelder.FORSTEG_BH,
     sakId: Long? = null,
     sakType: SakTypeEnum? = null,
@@ -1001,7 +1001,7 @@ private fun createSpec(
     afpPrivatBeregningsresultater = afpPrivatBeregningsresultater,
     gjeldendeAfpPrivatBeregningsresultat = gjeldendeAfpPrivatBeregningsresultat,
     forsteVirkAfpPrivat = forsteVirkAfpPrivat,
-    isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
+    brukBeregnetBeholdning = brukBeregnetBeholdning,
     kravGjelder = kravGjelder,
     sakId = sakId,
     sakType = sakType,

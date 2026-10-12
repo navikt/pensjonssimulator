@@ -18,7 +18,7 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
 
     fun fromSimuleringSpecV2(
         source: NavSimuleringSpecV2,
-        isHentPensjonsbeholdninger: Boolean,
+        brukBeregnetBeholdningVedPensjonsberegning: Boolean,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
     ): SimuleringSpec {
         val pid = source.fnr?.let(::Pid)
@@ -61,7 +61,7 @@ class NavSimuleringSpecMapperV2(val personService: GeneralPersonService) {
             tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = isHentPensjonsbeholdninger,
+            brukBeregnetBeholdningVedPensjonsberegning = brukBeregnetBeholdningVedPensjonsberegning,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

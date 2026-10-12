@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.FaktiskBeholdningsbrukSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningService
 import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning
@@ -112,7 +113,7 @@ class PersongrunnlagServiceTest : FunSpec({
                 persongrunnlag,
                 kravhode,
                 pid = personId,
-                hentBeholdninger = false
+                beholdningSpec = FaktiskBeholdningsbrukSpec(settFaktiskBeholdningSomBeholdning = false)
             )
 
         with(persongrunnlag) {
@@ -125,55 +126,44 @@ class PersongrunnlagServiceTest : FunSpec({
         }
     }
 
-    test("addBeholdningerMedGrunnlagToPersongrunnlag should add beholdninger when hentBeholdninger=true") {
-        val opptjeningService = arrangeOpptjening(
-            pensjonsopptjening = Pensjonsopptjening(
-                beholdningListe = listOf(Pensjonsbeholdning(aar = 2024, totalbeloep = 500000.0)),
-                opptjeningsgrunnlagListe = emptyList(),
-                omsorgsgrunnlagListe = emptyList(),
-                inntektsgrunnlagListe = emptyList(),
-                dagpengegrunnlagListe = emptyList(),
-                foerstegangstjeneste = null
-            )
-        )
-        val persongrunnlag = persongrunnlag()
+    context("addBeholdningerMedGrunnlagToPersongrunnlag") {
+        context("spesifisert at faktisk beholdning skal settes som beholdning") {
+            test("skal tilordne 'beholdninger'") {
+                val persongrunnlag = persongrunnlag()
 
-        PersongrunnlagService(opptjeningService, mockk())
-            .addBeholdningerMedGrunnlagToPersongrunnlag(
-                persongrunnlag,
-                kravhode,
-                pid = personId,
-                hentBeholdninger = true
-            )
+                PersongrunnlagService(opptjeningService = arrangeBeholdning(), persongrunnlagMapper = mockk())
+                    .addBeholdningerMedGrunnlagToPersongrunnlag(
+                        persongrunnlag,
+                        kravhode,
+                        pid = personId,
+                        beholdningSpec = FaktiskBeholdningsbrukSpec(settFaktiskBeholdningSomBeholdning = true)
+                    )
 
-        with(persongrunnlag) {
-            beholdninger shouldHaveSize 1
-            beholdninger[0].totalbelop shouldBe 500000.0
+                with(persongrunnlag) {
+                    beholdninger shouldHaveSize 1
+                    faktiskeBeholdninger shouldHaveSize 0
+                }
+            }
         }
-    }
 
-    test("addBeholdningerMedGrunnlagToPersongrunnlag should not add beholdninger when hentBeholdninger=false") {
-        val opptjeningService = arrangeOpptjening(
-            pensjonsopptjening = Pensjonsopptjening(
-                beholdningListe = listOf(Pensjonsbeholdning(aar = 2024, totalbeloep = 500000.0)),
-                opptjeningsgrunnlagListe = emptyList(),
-                omsorgsgrunnlagListe = emptyList(),
-                inntektsgrunnlagListe = emptyList(),
-                dagpengegrunnlagListe = emptyList(),
-                foerstegangstjeneste = null
-            )
-        )
-        val persongrunnlag = persongrunnlag()
+        context("spesifisert at resultatet skal inkludere faktisk beholdning") {
+            test("skal tilordne 'faktiskeBeholdninger'") {
+                val persongrunnlag = persongrunnlag()
 
-        PersongrunnlagService(opptjeningService, mockk())
-            .addBeholdningerMedGrunnlagToPersongrunnlag(
-                persongrunnlag,
-                kravhode,
-                pid = personId,
-                hentBeholdninger = false
-            )
+                PersongrunnlagService(opptjeningService = arrangeBeholdning(), persongrunnlagMapper = mockk())
+                    .addBeholdningerMedGrunnlagToPersongrunnlag(
+                        persongrunnlag,
+                        kravhode,
+                        pid = personId,
+                        beholdningSpec = FaktiskBeholdningsbrukSpec(resultatSkalInkludereFaktiskBeholdning = true)
+                    )
 
-        persongrunnlag.beholdninger.shouldBeEmpty()
+                with(persongrunnlag) {
+                    faktiskeBeholdninger shouldHaveSize 1
+                    beholdninger shouldHaveSize 0
+                }
+            }
+        }
     }
 
     test("addBeholdningerMedGrunnlagToPersongrunnlag should handle null forstegangstjeneste") {
@@ -194,7 +184,7 @@ class PersongrunnlagServiceTest : FunSpec({
                 persongrunnlag,
                 kravhode,
                 pid = personId,
-                hentBeholdninger = false
+                beholdningSpec = FaktiskBeholdningsbrukSpec()
             )
 
         persongrunnlag.forstegangstjenestegrunnlag shouldBe null
@@ -223,7 +213,7 @@ class PersongrunnlagServiceTest : FunSpec({
                 persongrunnlag,
                 kravhode,
                 pid = personId,
-                hentBeholdninger = false
+                beholdningSpec = FaktiskBeholdningsbrukSpec()
             )
 
         // Should replace, not append
@@ -278,7 +268,7 @@ private val simuleringSpec =
         tidsbegrensetOffentligAfp = null,
         erAnonym = false,
         ignoreAvslag = false,
-        isHentPensjonsbeholdninger = true,
+        brukBeregnetBeholdningVedPensjonsberegning = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false
@@ -300,6 +290,18 @@ private fun arrangePersongrunnlag(
     mockk {
         every { mapToPersongrunnlag(person, any()) } returns persongrunnlag
     }
+
+private fun arrangeBeholdning(): OpptjeningMedBeholdningService =
+    arrangeOpptjening(
+        pensjonsopptjening = Pensjonsopptjening(
+            beholdningListe = listOf(Pensjonsbeholdning(aar = 2024, totalbeloep = 500000.0)),
+            opptjeningsgrunnlagListe = emptyList(),
+            omsorgsgrunnlagListe = emptyList(),
+            inntektsgrunnlagListe = emptyList(),
+            dagpengegrunnlagListe = emptyList(),
+            foerstegangstjeneste = null
+        )
+    )
 
 private fun arrangeOpptjening(pensjonsopptjening: Pensjonsopptjening): OpptjeningMedBeholdningService =
     mockk {

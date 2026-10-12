@@ -60,7 +60,7 @@ class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GeneralPersonServi
             tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false, //TODO verify
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false, //TODO verify
+            brukBeregnetBeholdningVedPensjonsberegning = false, //TODO verify
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false, //TODO verify
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false,

@@ -51,7 +51,7 @@ object AlderspensjonSpecMapper {
             tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in the result
+            brukBeregnetBeholdningVedPensjonsberegning = true, // also controls whether to include 'simulert beregningsinformasjon' in the result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

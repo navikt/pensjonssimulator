@@ -100,7 +100,7 @@ object TestObjects {
         },
         erAnonym = false,
         ignoreAvslag = false,
-        isHentPensjonsbeholdninger = true,
+        brukBeregnetBeholdningVedPensjonsberegning = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false,
@@ -148,7 +148,8 @@ object TestObjects {
         tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
         erAnonym = false,
         ignoreAvslag = false,
-        isHentPensjonsbeholdninger = false,
+        brukBeregnetBeholdningVedPensjonsberegning = false,
+        resultatSkalInkludereFaktiskBeholdning = true,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
         onlyVilkaarsproeving = false,
         epsKanOverskrives = false

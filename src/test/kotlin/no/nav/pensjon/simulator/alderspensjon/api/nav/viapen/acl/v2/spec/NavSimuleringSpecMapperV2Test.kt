@@ -67,7 +67,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     )
                 )
             ),
-            isHentPensjonsbeholdninger = true,
+            brukBeregnetBeholdningVedPensjonsberegning = true,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
         ) shouldBe
                 SimuleringSpec(
@@ -119,7 +119,7 @@ class NavSimuleringSpecMapperV2Test : FunSpec({
                     tidsbegrensetOffentligAfp = null,
                     erAnonym = false,
                     ignoreAvslag = false,
-                    isHentPensjonsbeholdninger = true,
+                    brukBeregnetBeholdningVedPensjonsberegning = true,
                     isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
                     onlyVilkaarsproeving = false,
                     epsKanOverskrives = false

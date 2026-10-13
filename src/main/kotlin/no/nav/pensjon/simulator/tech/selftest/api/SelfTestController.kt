@@ -2,6 +2,13 @@ package no.nav.pensjon.simulator.tech.selftest.api
 
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.servlet.http.HttpServletRequest
+import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.SakTypeEnum
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningPersonSpec
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningService
+import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningSpec
+import no.nav.pensjon.simulator.opptjening.Pensjonsopptjening
+import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.SecurityContextEnricher
 import no.nav.pensjon.simulator.tech.selftest.SelfTest
 import no.nav.pensjon.simulator.tech.selftest.api.acl.SelfTestResultMapperV1.dto
@@ -17,8 +24,38 @@ import java.nio.charset.StandardCharsets
 @RestController
 class SelfTestController(
     private val selfTest: SelfTest,
+    private val c: OpptjeningMedBeholdningService?,
     private val securityContextEnricher: SecurityContextEnricher
 ) {
+
+    @GetMapping("internal/opp")
+    fun opp(request: HttpServletRequest): Pensjonsopptjening {
+        securityContextEnricher.enrichAuthentication(request)
+        return c!!.pensjonsopptjening(
+            OpptjeningMedBeholdningSpec(
+                pid = Pid("14426111250"),
+                hentPensjonspoeng = false,
+                hentOpptjeningsgrunnlag = true,
+                hentBeholdninger = false,
+                harUfoeretrygdKravlinje = true,
+                regelverkType = RegelverkTypeEnum.N_REG_G_N_OPPTJ,
+                sakType = SakTypeEnum.ALDER,
+                personSpecListe = listOf(
+                    OpptjeningMedBeholdningPersonSpec(
+                        pid = Pid("14426111250"),
+                        sisteGyldigeOpptjeningsaar = 2024,
+                        gjelderSoeker = true
+                    )
+                ),
+                soekerSpec = OpptjeningMedBeholdningPersonSpec(
+                    pid = Pid("14426111250"),
+                    sisteGyldigeOpptjeningsaar = 2024,
+                    gjelderSoeker = true
+                )
+            )
+        )
+    }
+
     @GetMapping("internal/selftest")
     @Operation(
         summary = "Selvtest",

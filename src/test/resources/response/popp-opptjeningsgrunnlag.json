@@ -99,8 +99,84 @@
                 "belop": 165553
             }
         ],
-        "omsorgListe": [],
-        "dagpengerListe": [],
-        "forstegangstjeneste": null
+        "omsorgListe": [
+            {
+                "omsorgId": 210879912,
+                "fnr": "12906498357",
+                "fnrOmsorgFor": "03478912683",
+                "omsorgType": "OBU7",
+                "kilde": "PP01",
+                "ar": 1992,
+                "changeStamp": {
+                    "createdBy": "pensjon-pen-q2",
+                    "createdDate": 1775652680691,
+                    "updatedBy": "pensjon-pen-q2",
+                    "updatedDate": 1775652680691
+                }
+            },
+            {
+                "omsorgId": 210879913,
+                "fnr": "12906498357",
+                "fnrOmsorgFor": "14426111250",
+                "omsorgType": "OSFE",
+                "kilde": "PP01",
+                "ar": 1993,
+                "changeStamp": {
+                    "createdBy": "pensjon-pen-q2",
+                    "createdDate": 1775652681121,
+                    "updatedBy": "pensjon-pen-q2",
+                    "updatedDate": 1775652681121
+                }
+            }
+        ],
+        "dagpengerListe": [
+            {
+                "dagpengerId": 201977714,
+                "fnr": "12906498357",
+                "dagpengerType": "DP",
+                "rapportType": "FORST",
+                "kilde": "PEN",
+                "ar": 2023,
+                "utbetalteDagpenger": 400000,
+                "uavkortetDagpengegrunnlag": 600000,
+                "ferietillegg": 500,
+                "barnetillegg": 600,
+                "changeStamp": {
+                    "createdBy": "Z994593",
+                    "createdDate": 1782891135458,
+                    "updatedBy": "Z994593",
+                    "updatedDate": 1782891135458
+                }
+            }
+        ],
+        "forstegangstjeneste": {
+            "forstegangstjenesteId": 200345932,
+            "fnr": "12906498357",
+            "kilde": "PEN",
+            "rapportType": "FORST",
+            "tjenestestartDato": 1325372400000,
+            "dimitteringDato": 1356908400000,
+            "forstegangstjenestePeriodeListe": [
+                {
+                    "forstegangstjenestePeriodeId": 200433825,
+                    "periodeType": "NORMAL",
+                    "tjenesteType": "MIL",
+                    "fomDato": 1325372400000,
+                    "tomDato": 1356908400000,
+                    "changeStamp": {
+                        "createdBy": "Z994593",
+                        "createdDate": 1782890978281,
+                        "updatedBy": "Z994593",
+                        "updatedDate": 1782890978281
+                    }
+                }
+            ],
+            "changeStamp": {
+                "createdBy": "Z994593",
+                "createdDate": 1782890978281,
+                "updatedBy": "Z994593",
+                "updatedDate": 1782890978281
+            }
+        }
     }
 }

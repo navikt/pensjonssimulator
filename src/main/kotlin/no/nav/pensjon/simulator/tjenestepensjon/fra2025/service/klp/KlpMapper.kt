@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
@@ -11,7 +12,7 @@ import java.time.LocalDate
 
 object KlpMapper {
 
-    private const val ANNEN_TP_ORDNING_BURDE_SIMULERE = "IKKE_SISTE_ORDNING"
+    private val log = KotlinLogging.logger {}
 
     fun toRequestDto(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
         KlpSimulerTjenestepensjonRequest(
@@ -33,9 +34,11 @@ object KlpMapper {
             utbetalingsperioder = response.utbetalingsListe.map(::utbetalingsperiode),
             aarsakIngenUtbetaling = response.arsakIngenUtbetaling.map { "${it.statusBeskrivelse}: ${it.ytelseType}" },
             betingetTjenestepensjonErInkludert = response.utbetalingsListe.any(::erBetingetTjenestepensjon),
-            erSisteOrdning = response.arsakIngenUtbetaling.none { it.statusKode == ANNEN_TP_ORDNING_BURDE_SIMULERE },
+            erSisteOrdning = response.arsakIngenUtbetaling.none(::erIkkeSisteOrdning),
             serviceData = listOf("Request: ${request?.toString()}", "Response: $response")
-        )
+        ).also {
+            log.info { "Mapping response from KLP $response" }
+        }
 
     private fun heltUttakAlleYtelser(fom: LocalDate) =
         Uttak(
@@ -71,4 +74,7 @@ object KlpMapper {
 
     private fun erBetingetTjenestepensjon(utbetaling: Utbetaling): Boolean =
         utbetaling.ytelseType == KlpTjenestepensjonYtelseType.BETINGET_TJENESTEPENSJON.externalValue
+
+    private fun erIkkeSisteOrdning(aarsak: ArsakIngenUtbetaling): Boolean =
+        aarsak.statusKode == AarsakIngenUtbetalingStatus.IKKE_SISTE_ORDNING.name
 }

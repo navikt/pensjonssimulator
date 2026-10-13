@@ -12,12 +12,12 @@ spec:
       jwkUrl: "https://maskinporten.no/jwk"
       issuer: "https://maskinporten.no/"
   ingress:
-    className: nais-ingress-external
+    className: external-haproxy
     enabled: true
     hosts:
       - host: pensjon-gw.nav.no
         paths:
           - path: /simuler/alderspensjon/
-            pathType: ImplementationSpecific
+            pathType: Prefix
           - path: /pensjonssimulator/
-            pathType: ImplementationSpecific
+            pathType: Prefix

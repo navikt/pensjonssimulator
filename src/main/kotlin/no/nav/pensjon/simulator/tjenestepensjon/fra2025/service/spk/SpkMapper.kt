@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
+import mu.KotlinLogging
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
@@ -10,6 +11,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import java.time.LocalDate
 
 object SpkMapper {
+
+    private val log = KotlinLogging.logger {}
 
     fun toRequestDto(spec: OffentligTjenestepensjonFra2025SimuleringSpec) =
         SpkSimulerTjenestepensjonRequest(
@@ -33,9 +36,11 @@ object SpkMapper {
             betingetTjenestepensjonErInkludert = response.utbetalingListe
                 .flatMap { it.delytelseListe }
                 .any(::erBetingetTjenestepensjon),
-            erSisteOrdning = response.aarsakIngenUtbetaling.none { it.statusKode == "IKKE_SISTE_ORDNING" }, //TODO enum
+            erSisteOrdning = response.aarsakIngenUtbetaling.none(::erIkkeSisteOrdning),
             serviceData = listOf("Request: ${request?.toString()}", "Response: $response")
-        )
+        ).also {
+            log.info { "Mapping response from SPK $response" }
+        }
 
     /**
      * Inntekter f.o.m. fjorårets første dag til siste 'f.o.m.'-dato i listen over fremtidige inntekter.
@@ -85,6 +90,9 @@ object SpkMapper {
 
     private fun erBetingetTjenestepensjon(ytelse: Delytelse): Boolean =
         ytelse.ytelseType == SpkTjenestepensjonYtelseType.BETINGET_TJENESTEPENSJON.externalValue
+
+    private fun erIkkeSisteOrdning(aarsak: AarsakIngenUtbetaling): Boolean =
+        aarsak.statusKode == AarsakIngenUtbetalingStatus.IKKE_SISTE_ORDNING.name
 
     private fun fjoraaretsFoersteDag(): LocalDate =
         LocalDate.now().minusYears(1).withDayOfYear(1)

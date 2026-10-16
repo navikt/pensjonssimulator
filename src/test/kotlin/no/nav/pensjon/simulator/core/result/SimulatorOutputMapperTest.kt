@@ -60,34 +60,29 @@ class SimulatorOutputMapperTest : FunSpec({
     // =====================================================
 
     test("simulertPrivatAfpPeriode should map aarligBeloep and alderAar") {
-        val resultat = createBeregningsResultatAfpPrivat()
-
         val result = SimulatorOutputMapper.simulertPrivatAfpPeriode(
             aarligBeloep = 250000,
-            resultat = resultat,
+            resultat = privatAfpBeregningsresultat(),
             alder = 62
         )
 
-        result.aarligBeloep shouldBe 250000
-        result.alderAar shouldBe 62
+        with(result) {
+            aarligBeloep shouldBe 250000
+            alderAar shouldBe 62
+        }
     }
 
     test("simulertPrivatAfpPeriode should map maanedligBeloep from pensjonUnderUtbetaling") {
-        val resultat = createBeregningsResultatAfpPrivat(totalbelopNetto = 20833)
-
-        val result = SimulatorOutputMapper.simulertPrivatAfpPeriode(
+        SimulatorOutputMapper.simulertPrivatAfpPeriode(
             aarligBeloep = 250000,
-            resultat = resultat,
+            resultat = privatAfpBeregningsresultat(nettoTotalbeloep = 20833),
             alder = 62
-        )
-
-        result.maanedligBeloep shouldBe 20833
+        ).maanedligBeloep shouldBe 20833
     }
 
     test("simulertPrivatAfpPeriode should map livsvarig from AfpPrivatLivsvarig") {
-        val resultat = createBeregningsResultatAfpPrivat()
-        resultat.pensjonUnderUtbetaling?.addYtelseskomponent(
-            AfpPrivatLivsvarig().apply {
+        val resultat = privatAfpBeregningsresultat(
+            ytelse = AfpPrivatLivsvarig().apply {
                 ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.AFP_PRIVAT_LIVSVARIG
                 netto = 15000
                 afpForholdstall = 1.045
@@ -101,74 +96,63 @@ class SimulatorOutputMapperTest : FunSpec({
             alder = 62
         )
 
-        result.livsvarig shouldBe 15000
-        result.afpForholdstall shouldBe 1.045
-        result.justeringBeloep shouldBe 500
+        with(result) {
+            livsvarig shouldBe 15000
+            afpForholdstall shouldBe 1.045
+            justeringBeloep shouldBe 500
+        }
     }
 
     test("simulertPrivatAfpPeriode should map kronetillegg") {
-        val resultat = createBeregningsResultatAfpPrivat()
-        resultat.pensjonUnderUtbetaling?.addYtelseskomponent(
-            AfpKronetillegg().apply {
+        val resultat = privatAfpBeregningsresultat(
+            ytelse = AfpKronetillegg().apply {
                 ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.AFP_KRONETILLEGG
                 netto = 1200
             }
         )
 
-        val result = SimulatorOutputMapper.simulertPrivatAfpPeriode(
+        SimulatorOutputMapper.simulertPrivatAfpPeriode(
             aarligBeloep = 250000,
             resultat = resultat,
             alder = 62
-        )
-
-        result.kronetillegg shouldBe 1200
+        ).kronetillegg shouldBe 1200
     }
 
     test("simulertPrivatAfpPeriode should map kompensasjonstillegg") {
-        val resultat = createBeregningsResultatAfpPrivat()
-        resultat.pensjonUnderUtbetaling?.addYtelseskomponent(
-            AfpKompensasjonstillegg().apply {
+        val resultat = privatAfpBeregningsresultat(
+            ytelse = AfpKompensasjonstillegg().apply {
                 ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.AFP_KOMP_TILLEGG
                 netto = 800
             }
         )
 
-        val result = SimulatorOutputMapper.simulertPrivatAfpPeriode(
+        SimulatorOutputMapper.simulertPrivatAfpPeriode(
             aarligBeloep = 250000,
             resultat = resultat,
             alder = 62
-        )
-
-        result.kompensasjonstillegg shouldBe 800
+        ).kompensasjonstillegg shouldBe 800
     }
 
-    test("simulertPrivatAfpPeriode should map afpOpptjening from afpPrivatBeregning") {
-        val resultat = createBeregningsResultatAfpPrivat()
-        resultat.afpPrivatBeregning = AfpPrivatBeregning().apply {
-            afpOpptjening = AfpOpptjening().apply {
-                totalbelop = 3500000.0
+    test("simulertPrivatAfpPeriode should map afpOpptjening from afpPrivatBeregning and round to nearest integer") {
+        val resultat = privatAfpBeregningsresultat().apply {
+            afpPrivatBeregning = AfpPrivatBeregning().apply {
+                afpOpptjening = AfpOpptjening().apply { totalbelop = 3500000.6 }
             }
         }
 
-        val result = SimulatorOutputMapper.simulertPrivatAfpPeriode(
+        SimulatorOutputMapper.simulertPrivatAfpPeriode(
             aarligBeloep = 250000,
             resultat = resultat,
             alder = 62
-        )
-
-        result.afpOpptjening shouldBe 3500000
+        ).afpOpptjening shouldBe 3500001
     }
 
     test("simulertPrivatAfpPeriode should return zero afpOpptjening when not present") {
-        val resultat = createBeregningsResultatAfpPrivat()
-
-        val result = SimulatorOutputMapper.simulertPrivatAfpPeriode(
+        SimulatorOutputMapper.simulertPrivatAfpPeriode(
             aarligBeloep = 250000,
-            resultat = resultat,
+            resultat = privatAfpBeregningsresultat(),
             alder = 62
-        )
-
-        result.afpOpptjening shouldBe 0
+        ).afpOpptjening shouldBe 0
     }
 
     // =====================================================
@@ -456,35 +440,30 @@ class SimulatorOutputMapperTest : FunSpec({
         result.tt_anv_kap20 shouldBe 40
     }
 
-    test("mapToSimulertBeregningsinformasjon should map garantipensjonssats for AP2025") {
-        val kravhode = createKravhode(RegelverkTypeEnum.N_REG_N_OPPTJ)
-        val beregningsResultat = createBeregningsResultatAlderspensjon2025()
-        beregningsResultat.beregningKapittel20 = AldersberegningKapittel20().apply {
-            beholdninger = Beholdninger().apply {
-                beholdninger = listOf(
-                    Pensjonsbeholdning().apply {
-                        ar = 2037
-                        totalbelop = 4500000.0
-                    },
-                    Garantipensjonsbeholdning().apply {
-                        ar = 2037
-                        sats = 2.0
-                    }
-                )
+    test("mapToSimulertBeregningsinformasjon should map garantipensjonssats for AP2025 and round pensjonBeholdningEtterUttak to nearest integer") {
+        val beregningsresultat = createBeregningsResultatAlderspensjon2025().apply {
+            beregningKapittel20 = AldersberegningKapittel20().apply {
+                beholdninger = Beholdninger().apply {
+                    beholdninger = listOf(
+                        Pensjonsbeholdning().apply { ar = 2037; totalbelop = 4500000.5 },
+                        Garantipensjonsbeholdning().apply { ar = 2037; sats = 2.0 }
+                    )
+                }
             }
         }
-        val simulertAlderspensjon = SimulertAlderspensjon()
 
         val result = SimulatorOutputMapper.mapToSimulertBeregningsinformasjon(
-            kravhode = kravhode,
-            beregningResultat = beregningsResultat,
-            simulertAlderspensjon = simulertAlderspensjon,
+            kravhode = createKravhode(RegelverkTypeEnum.N_REG_N_OPPTJ),
+            beregningResultat = beregningsresultat,
+            simulertAlderspensjon = SimulertAlderspensjon(),
             foedselsdato = LocalDate.of(1970, 6, 15),
             knekkpunkt = LocalDate.of(2037, 7, 1)
         )
 
-        result.garantipensjonssats shouldBe 2.0
-        result.pensjonBeholdningEtterUttak shouldBe 4500000
+        with(result) {
+            garantipensjonssats shouldBe 2.0
+            pensjonBeholdningEtterUttak shouldBe 4500001
+        }
     }
 
     // =====================================================
@@ -790,13 +769,16 @@ private fun createKravhode(regelverkType: RegelverkTypeEnum): Kravhode =
         regelverkTypeEnum = regelverkType
     }
 
-private fun createBeregningsResultatAfpPrivat(
-    totalbelopNetto: Int = 0
-): BeregningsResultatAfpPrivat =
+private fun privatAfpBeregningsresultat(ytelse: Ytelseskomponent): BeregningsResultatAfpPrivat =
+    privatAfpBeregningsresultat().apply {
+        pensjonUnderUtbetaling?.addYtelseskomponent(ytelse)
+    }
+
+private fun privatAfpBeregningsresultat(nettoTotalbeloep: Int = 0): BeregningsResultatAfpPrivat =
     BeregningsResultatAfpPrivat().apply {
         uttaksgrad = 100
         pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-            this.totalbelopNetto = totalbelopNetto
+            totalbelopNetto = nettoTotalbeloep
         }
     }
 

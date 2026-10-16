@@ -60,7 +60,7 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

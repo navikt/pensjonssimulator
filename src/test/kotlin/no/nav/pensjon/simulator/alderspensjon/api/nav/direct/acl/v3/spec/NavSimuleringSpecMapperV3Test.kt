@@ -101,7 +101,7 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // to produce månedsbeløp
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
@@ -163,7 +163,7 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

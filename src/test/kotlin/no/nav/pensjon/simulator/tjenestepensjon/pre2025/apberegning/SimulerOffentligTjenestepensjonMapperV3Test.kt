@@ -206,7 +206,7 @@ class SimulerOffentligTjenestepensjonMapperV3Test : FunSpec({
         result.livsvarigOffentligAfp shouldBe null
         result.erAnonym shouldBe false
         result.ignoreAvslag shouldBe false
-        result.isHentPensjonsbeholdninger shouldBe true
+        result.brukBeregnetBeholdningVedPensjonsberegning shouldBe true
         result.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter shouldBe true
         result.onlyVilkaarsproeving shouldBe false
         result.epsKanOverskrives shouldBe false

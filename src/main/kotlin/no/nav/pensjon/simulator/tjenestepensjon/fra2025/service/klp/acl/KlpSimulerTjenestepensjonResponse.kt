@@ -6,7 +6,7 @@ data class KlpSimulerTjenestepensjonResponse(
     val inkludertOrdningListe: List<InkludertOrdning>,
     val utbetalingsListe: List<Utbetaling>,
     val arsakIngenUtbetaling: List<ArsakIngenUtbetaling>,
-    val betingetTjenestepensjonErInkludert: Boolean,
+    val betingetTjenestepensjonErInkludert: Boolean
 )
 
 data class InkludertOrdning(
@@ -17,11 +17,15 @@ data class Utbetaling(
     val fraOgMedDato: LocalDate,
     val manedligUtbetaling: Int,
     val arligUtbetaling: Int,
-    val ytelseType: String
+    val ytelseType: String // KlpTjenestepensjonYtelseType
 )
 
 data class ArsakIngenUtbetaling(
-    val statusKode: String,
+    val statusKode: String, // AarsakIngenUtbetalingStatus
     val statusBeskrivelse: String,
-    val ytelseType: String,
+    val ytelseType: String
 )
+
+enum class AarsakIngenUtbetalingStatus {
+    IKKE_SISTE_ORDNING
+}

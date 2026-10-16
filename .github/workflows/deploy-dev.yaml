@@ -27,7 +27,7 @@ jobs:
         with:
           ref: 'sandbox'
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        uses: github/codeql-action/init@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
           languages: java
       - name: Setup java
@@ -39,12 +39,12 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@2892aa5e19bbd11bc0cff5427e3b750a04d9e3c2 # v4.38.2
+        uses: github/codeql-action/analyze@24c54180a607b1449ed407dd24f251e4e9147c8d # v4.38.3
         with:
           category: "/language:java"
       - name: Create Docker image
         id: image-creation
-        uses: nais/docker-build-push@bfe52e3ad6d0e96fd1056a03acb7b619aaffb39d # v0
+        uses: nais/docker-build-push@dd7421d5068057a020ca46ead966c26190c516b1 # v0
         with:
           dockerfile: .docker/Dockerfile
           team: pensjonskalkulator
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Deploy
-        uses: nais/deploy/actions/deploy@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/deploy@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         env:
           CLUSTER: dev-gcp
           IMAGE: ${{ needs.build.outputs.image }}
@@ -77,12 +77,12 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Deploy KrakenD config
-        uses: nais/deploy/actions/deploy@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/deploy@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/krakend-dev.yaml
       - name: Deploy API endpoints config
-        uses: nais/deploy/actions/deploy@9850be311389ca754d9a9f2280615419d738c891 # v3
+        uses: nais/deploy/actions/deploy@d003bddf74ce5b96fa3056ae60bd4b9b3bbc89ef # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/apiendpoints.yaml

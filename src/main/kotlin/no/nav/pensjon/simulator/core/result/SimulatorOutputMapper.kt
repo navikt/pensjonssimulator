@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import java.time.LocalDate
+import kotlin.math.roundToInt
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
 
 /**
@@ -55,7 +56,7 @@ object SimulatorOutputMapper {
             kompensasjonstillegg = afpKompensasjonstillegg?.netto ?: 0,
             afpForholdstall = privatAfp?.afpForholdstall,
             justeringBeloep = privatAfp?.justeringsbelop,
-            afpOpptjening = resultat.afpPrivatBeregning?.afpOpptjening?.totalbelop?.toInt() ?: 0
+            afpOpptjening = resultat.afpPrivatBeregning?.afpOpptjening?.totalbelop?.roundToInt() ?: 0
         )
     }
 
@@ -105,8 +106,9 @@ object SimulatorOutputMapper {
                     beregningsresultatKapittel20.pensjonUnderUtbetaling?.totalbelopNettoAr?.toInt() ?: 0
                 this.kapittel20Pensjon = pensjonKapittel20
                 this.vektetKapittel20Pensjon = (pensjonKapittel20 * simulertAlderspensjon.kapittel20Andel).toInt()
-                this.pensjonBeholdningEtterUttak =
-                    firstPensjonsbeholdning(beregningKapittel20?.beholdninger?.beholdninger.orEmpty())?.totalbelop?.toInt()
+                this.pensjonBeholdningEtterUttak = firstPensjonsbeholdning(
+                    beregningKapittel20?.beholdninger?.beholdninger.orEmpty()
+                )?.totalbelop?.roundToInt()
             }
 
             if (beregningsresultatKapittel19 != null) { // ref. jira.adeo.no/browse/PEB-442
@@ -202,12 +204,9 @@ object SimulatorOutputMapper {
         return if (monthsBetween == 0) MAANEDER_PER_AAR else monthsBetween
     }
 
-    // Specific variant of ArligInformasjonListeUtils.findElementOfType
-    // Duplicate in RegdomOpprettOutputHelper
     private fun firstPensjonsbeholdning(list: List<Beholdning>): Pensjonsbeholdning? =
         list.firstOrNull { BeholdningtypeEnum.PEN_B == it.beholdningsTypeEnum } as? Pensjonsbeholdning
 
-    // Specific variant of ArligInformasjonListeUtils.findElementOfType
     private fun firstYtelseOfType(list: List<Ytelseskomponent>, type: YtelseskomponentTypeEnum): Ytelseskomponent? =
         list.firstOrNull { it.ytelsekomponentTypeEnum == type }
 

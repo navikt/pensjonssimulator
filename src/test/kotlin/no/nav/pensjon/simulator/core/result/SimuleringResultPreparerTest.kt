@@ -1840,28 +1840,26 @@ class SimuleringResultPreparerTest : FunSpec({
         periode67 shouldNotBe null
     }
 
-    test("findBeholdningFraBeregningsresultat with N_REG_G_N_OPPTJ extracts beholdning from forrigeResultat and sets pensjonBeholdningFoerUttak") {
+    test("findBeholdningFraBeregningsresultat with N_REG_G_N_OPPTJ extracts beholdning from forrigeResultat and sets pensjonBeholdningFoerUttak rounded to nearest integer") {
         // This test verifies that findBeholdningFraBeregningsresultat is called when forrigeResultat exists
         // and correctly extracts beholdning from BeregningsResultatAlderspensjon2016.beregningsResultat2025.beregningKapittel20.beholdninger
-        val opptjeningAdder = mockk<SimulertOpptjeningAdder>(relaxed = true)
-        val normalderService = mockk<NormertPensjonsalderService>()
-        val time = mockk<Time>()
-        val preparer = SimuleringResultPreparer(opptjeningAdder, normalderService, time)
-
         val foedselsdato = LocalDate.of(1960, 6, 15)
         val foersteUttakDato = LocalDate.of(2025, 7, 1) // Started pension earlier
         val today = LocalDate.of(2026, 8, 1) // User is already receiving pension
-
-        every { normalderService.normalder(foedselsdato) } returns Alder(67, 0)
-        every { normalderService.normertPensjoneringsdato(foedselsdato) } returns LocalDate.of(2027, 7, 1)
-        every { normalderService.opptjeningMaxAlderAar(foedselsdato) } returns 75
-        every { time.today() } returns today
+        val time: Time = mockk { every { today() } returns today }
+        val opptjeningAdder: SimulertOpptjeningAdder = mockk(relaxed = true)
+        val normalderService: NormertPensjonsalderService = mockk {
+            every { normalder(foedselsdato) } returns Alder(67, 0)
+            every { normertPensjoneringsdato(foedselsdato) } returns LocalDate.of(2027, 7, 1)
+            every { opptjeningMaxAlderAar(foedselsdato) } returns 75
+        }
+        val preparer = SimuleringResultPreparer(opptjeningAdder, normalderService, time)
 
         // Create forrigeResultat (existing/running pension) with beholdning
         val forrigePensjonsbeholdning =
             Pensjonsbeholdning().apply {
                 ar = 2025
-                totalbelop = 2200000.0
+                totalbelop = 2200000.7
                 beholdningsTypeEnum = BeholdningtypeEnum.PEN_B
             }
 
@@ -1869,14 +1867,10 @@ class SimuleringResultPreparerTest : FunSpec({
             virkFomLd = LocalDate.of(2025, 8, 1)
             virkTomLd = null
             andelKapittel19 = 5
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-                totalbelopNetto = 22000
-            }
+            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply { totalbelopNetto = 22000 }
             beregningsResultat2025 = BeregningsResultatAlderspensjon2025().apply {
                 beregningKapittel20 = AldersberegningKapittel20().apply {
-                    beholdninger = Beholdninger().apply {
-                        beholdninger = listOf(forrigePensjonsbeholdning)
-                    }
+                    beholdninger = Beholdninger().apply { beholdninger = listOf(forrigePensjonsbeholdning) }
                 }
             }
         }
@@ -1886,9 +1880,7 @@ class SimuleringResultPreparerTest : FunSpec({
             virkFomLd = LocalDate.of(2026, 10, 1) // After today
             virkTomLd = null
             andelKapittel19 = 5
-            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply {
-                totalbelopNetto = 24000
-            }
+            pensjonUnderUtbetaling = PensjonUnderUtbetaling().apply { totalbelopNetto = 24000 }
         }
 
         val spec = resultPreparerSpec(
@@ -1903,13 +1895,11 @@ class SimuleringResultPreparerTest : FunSpec({
 
         result.alderspensjon shouldNotBe null
         // Find the knekkpunkt info that used forrigeResultat
-        val allBeregningsinfo = result.alderspensjon!!.pensjonPeriodeListe
-            .flatMap { it.simulertBeregningInformasjonListe }
+        val allBeregningsinfo =
+            result.alderspensjon!!.pensjonPeriodeListe.flatMap { it.simulertBeregningInformasjonListe }
         allBeregningsinfo.isNotEmpty() shouldBe true
-        // pensjonBeholdningFoerUttak should be set from forrigeResultat's beholdning (2,200,000)
-        val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
-        infoWithBeholdningFoerUttak shouldNotBe null
-        infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 2200000
+        // pensjonBeholdningFoerUttak should be set from forrigeResultat's beholdning (rounded):
+        allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }?.pensjonBeholdningFoerUttak shouldBe 2200001
     }
 
     test("findBeholdningFraBeregningsresultat with N_REG_N_OPPTJ extracts beholdning from forrigeResultat and sets pensjonBeholdningFoerUttak") {

@@ -174,6 +174,34 @@ class PersongrunnlagTest : ShouldSpec({
             }
         }
     }
+
+    context("'copy' constructor") {
+        should("kopiere beholdninger, inkludert faktiske") {
+            val original = Persongrunnlag().apply {
+                beholdninger = mutableListOf(
+                    Pensjonsbeholdning().apply { ar = 2025 },
+                    Pensjonsbeholdning().apply { ar = 2026 }
+                )
+                faktiskeBeholdninger = listOf(
+                    Pensjonsbeholdning().apply { ar = 2022 },
+                    Pensjonsbeholdning().apply { ar = 2023 },
+                    Pensjonsbeholdning().apply { ar = 2024 }
+                )
+            }
+
+            val kopi = Persongrunnlag(original)
+
+            with(kopi) {
+                beholdninger shouldHaveSize 2
+                beholdninger[0].ar shouldBe 2025
+                beholdninger[1].ar shouldBe 2026
+                faktiskeBeholdninger shouldHaveSize 3
+                faktiskeBeholdninger[0].ar shouldBe 2022
+                faktiskeBeholdninger[1].ar shouldBe 2023
+                faktiskeBeholdninger[2].ar shouldBe 2024
+            }
+        }
+    }
 })
 
 private fun pensjonsbeholdning(aar: Int, maaned: Int, beloep: Int) =

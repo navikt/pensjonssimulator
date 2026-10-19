@@ -447,6 +447,7 @@ class Persongrunnlag {
         gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
         barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder.map { it.copy() }.toMutableList()
         beholdninger = source.beholdninger.map { it.copy() }.toMutableList()
+        faktiskeBeholdninger = source.faktiskeBeholdninger.map { it.copy() }.toMutableList()
         livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe.map { it.copy() }
         trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
         uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
@@ -476,6 +477,7 @@ class Persongrunnlag {
         beholdninger.addAll(list)
         // pensjon-regler only uses latest beholdning
         pensjonsbeholdning = findLatest(beholdninger) // cf. PEN kjerne.Persongrunnlag.getPensjonsbeholdning
+        // NB: Feltet 'faktiskeBeholdninger' skal ikke påvirkes her
     }
 
     /**

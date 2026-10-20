@@ -8,6 +8,7 @@ object Organisasjoner {
     val norskPensjon = Organisasjonsnummer("890050212")
     val KLP = Organisasjonsnummer("938708606")
     val SPK = Organisasjonsnummer("982583462")
+    val STOREBRAND = Organisasjonsnummer("931936492")
 
     private val organisasjonNavnForNummer =
         mapOf(
@@ -21,7 +22,7 @@ object Organisasjoner {
             "982759412" to "OPF", // Oslo Pensjonsforsikring
             SPK.value to "SPK", // Statens pensjonskasse
             "958995369" to "StL", // Storebrand Livsforsikring
-            "931936492" to "StP"  // Storebrand Pensjonstjenester
+            STOREBRAND.value to "StP"  // Storebrand Pensjonstjenester
         )
 
     fun navn(organisasjonsnummer: Organisasjonsnummer): String =

@@ -6,6 +6,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.StorebrandTjenestepensjonService
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Service
 
@@ -14,6 +15,7 @@ class TjenestepensjonFra2025Service(
     private val tpregisteretClient: TpregisteretClient,
     private val spk: SpkTjenestepensjonService,
     private val klp: KlpTjenestepensjonService,
+    private val storebrand: StorebrandTjenestepensjonService,
     private val sisteTpOrdningService: SisteTpOrdningService,
 ) {
     private val log = KotlinLogging.logger {}
@@ -40,7 +42,8 @@ class TjenestepensjonFra2025Service(
             when (ordning) {
                 "3010" -> spk.simuler(spec, ordning) // TpNummer for SPK
                 "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
-                else -> Result.failure(TpOrdningStoettesIkkeException(tilTpOrdningVisningsnavn(tpOrdningerNavn)))
+                "4081", "4083", "4098" -> storebrand.simuler(spec, ordning) // TpNummer for Storebrand
+                else -> Result.failure(TpOrdningStoettesIkkeException(tpOrdningerNavn.joinToString { it }))
             }.run {
                 onSuccess { return tpOrdningerNavn to this }
                 onFailure { if (it is TomSimuleringFraTpOrdningException) return tpOrdningerNavn to this } //Skjer kun hvis siste ordning
@@ -56,13 +59,5 @@ class TjenestepensjonFra2025Service(
 
         log.info { "Ingen simulering fra $tpOrdninger: ${simulertTpListe.map { it.exceptionOrNull()?.message }.joinToString(";")}" }
         return tpOrdningerNavn to simulertTpListe.first()
-    }
-
-    fun tilTpOrdningVisningsnavn(tpOrdningerNavn:  List<String>) =
-        tpOrdningerNavn.find { it.contains(AKTUELL_TP_ORDNING, ignoreCase = true) } ?: OEVRIGE_TP_ORDNINGER
-
-    companion object {
-        private const val OEVRIGE_TP_ORDNINGER = "Øvrige TP-Ordninger"
-        private const val AKTUELL_TP_ORDNING = "Storebrand"
     }
 }

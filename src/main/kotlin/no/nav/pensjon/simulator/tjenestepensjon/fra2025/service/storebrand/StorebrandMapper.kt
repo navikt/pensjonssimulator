@@ -40,11 +40,11 @@ object StorebrandMapper {
             tpLeverandoer = EgressService.STOREBRAND.description,
             ordningsListe = response.inkludertOrdningListe.map { Ordning(tpNummer = it.tpnr) },
             utbetalingsperioder = response.utbetalingListe.flatMap(::utbetalingsperioder),
-            aarsakIngenUtbetaling = response.aarsakIngenUtbetaling.map { "${it.statusBeskrivelse}: ${it.ytelseType}" },
+            aarsakIngenUtbetaling = response.aarsakIngenUtbetaling?.map { "${it.statusBeskrivelse}: ${it.ytelseType}" } ?: emptyList(),
             betingetTjenestepensjonErInkludert = response.utbetalingListe
                 .flatMap { it.delytelseListe }
                 .any(::erBetingetTjenestepensjon),
-            erSisteOrdning = response.aarsakIngenUtbetaling.none(::erIkkeSisteOrdning),
+            erSisteOrdning = response.aarsakIngenUtbetaling?.none(::erIkkeSisteOrdning) == true,
             serviceData = listOf("Request: ${request?.toString()}", "Response: $response")
         ).also {
             log.info { "Mapping response from STOREBRAND $response" }

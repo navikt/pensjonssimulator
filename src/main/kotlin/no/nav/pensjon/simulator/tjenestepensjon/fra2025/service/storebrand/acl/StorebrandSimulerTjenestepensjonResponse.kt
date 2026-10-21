@@ -6,8 +6,9 @@ import java.time.LocalDate
 
 data class StorebrandSimulerTjenestepensjonResponse(
     val inkludertOrdningListe: List<InkludertOrdning>,
+    @param:JsonFormat(with = [JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY])
     val utbetalingListe: List<Utbetaling>,
-    val aarsakIngenUtbetaling: List<AarsakIngenUtbetaling>
+    val aarsakIngenUtbetaling: List<AarsakIngenUtbetaling>?
 )
 
 data class InkludertOrdning(

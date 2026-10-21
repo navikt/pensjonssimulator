@@ -84,7 +84,7 @@ object StorebrandMapper {
         Uttak(
             ytelseType = StorebrandTjenestepensjonYtelseType.ALLE.externalValue,
             fraOgMedDato = spec.uttaksdato,
-            uttaksgrad = null
+            uttaksgrad = 100
         )
 
     private fun erBetingetTjenestepensjon(ytelse: Delytelse): Boolean =

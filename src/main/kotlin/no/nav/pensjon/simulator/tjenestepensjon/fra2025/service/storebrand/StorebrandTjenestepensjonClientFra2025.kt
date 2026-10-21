@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
+import tools.jackson.databind.ObjectMapper
 
 @Service("storebrand")
 class StorebrandTjenestepensjonClientFra2025(
@@ -34,7 +35,8 @@ class StorebrandTjenestepensjonClientFra2025(
     @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
-    private val sammenligner: SammenlignAFPService
+    private val sammenligner: SammenlignAFPService,
+    private val objectMapper: ObjectMapper
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
 
     override val service = service()
@@ -61,9 +63,13 @@ class StorebrandTjenestepensjonClientFra2025(
                 .bodyValue(request)
                 .headers(::setHeaders)
                 .retrieve()
-                .bodyToMono<StorebrandSimulerTjenestepensjonResponse>()
+                .bodyToMono<String>()
                 .block()
-                ?.let { success(spec, request, response = it) }
+                ?.let { responseBody ->
+                    log.debug { "Raw response from ${service.shortName}: $responseBody" }
+                    val response = objectMapper.readValue(responseBody, StorebrandSimulerTjenestepensjonResponse::class.java)
+                    success(spec, request, response)
+                }
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
             "Failed to simulate tjenestepensjon 2025 with ${service.shortName} ${e.responseBodyAsString}".let {

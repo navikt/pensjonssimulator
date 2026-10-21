@@ -20,15 +20,12 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.AarsakIngenUtbetaling
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Delytelse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.InkludertOrdning
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.StorebrandSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Utbetaling
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.*
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean
 import org.springframework.http.HttpStatus
+import tools.jackson.databind.ObjectMapper
 import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 
@@ -52,7 +49,8 @@ class StorebrandTjenestepensjonClientFra2025Test : FunSpec({
             webClientBase = context.getBean<WebClientBase>(),
             traceAid = mockk(relaxed = true),
             sporingslogg = sporingslogg,
-            sammenligner = sammenligner
+            sammenligner = sammenligner,
+            objectMapper = context.getBean<ObjectMapper>()
         )
 
     beforeSpec {

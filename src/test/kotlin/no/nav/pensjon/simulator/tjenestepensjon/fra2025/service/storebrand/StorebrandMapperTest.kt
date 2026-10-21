@@ -36,7 +36,7 @@ class StorebrandMapperTest : ShouldSpec({
                 uttaksListe.map { it.ytelseType } shouldBe listOf("ALLE")
                 uttaksListe.forEach {
                     it.fraOgMedDato shouldBe spec.uttaksdato
-                    it.uttaksgrad shouldBe null
+                    it.uttaksgrad shouldBe 100
                 }
                 fremtidigInntektListe shouldHaveSize 2
                 fremtidigInntektListe[0].aarligInntekt shouldBe spec.sisteInntekt

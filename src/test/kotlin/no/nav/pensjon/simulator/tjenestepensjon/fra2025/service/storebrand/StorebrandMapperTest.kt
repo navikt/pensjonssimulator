@@ -78,6 +78,24 @@ class StorebrandMapperTest : ShouldSpec({
             }
         }
 
+        should("tolke null aarsakIngenUtbetaling som siste ordning uten aarsaker") {
+            val response = response().copy(aarsakIngenUtbetaling = null)
+
+            val result = StorebrandMapper.fromResponseDto(response)
+
+            result.erSisteOrdning shouldBe true
+            result.aarsakIngenUtbetaling shouldBe emptyList()
+        }
+
+        should("tolke tom aarsakIngenUtbetaling som siste ordning uten aarsaker") {
+            val response = response().copy(aarsakIngenUtbetaling = emptyList())
+
+            val result = StorebrandMapper.fromResponseDto(response)
+
+            result.erSisteOrdning shouldBe true
+            result.aarsakIngenUtbetaling shouldBe emptyList()
+        }
+
         should("markere respons med ikke siste ordning") {
             val response = StorebrandSimulerTjenestepensjonResponse(
                 inkludertOrdningListe = listOf(InkludertOrdning(tpnr = "4081")),

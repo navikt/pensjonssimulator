@@ -84,6 +84,40 @@ class StorebrandTjenestepensjonClientFra2025Test : FunSpec({
         }
     }
 
+    test("leser enkelt utbetalingsobjekt og null aarsakIngenUtbetaling fra Storebrand") {
+        server?.arrangeOkJsonResponse(
+            """
+            {
+              "inkludertOrdningListe": [{"tpnr": "4083"}],
+              "utbetalingListe": {
+                "fraOgMedDato": "2027-05-01",
+                "delytelseListe": [
+                  {"ytelseType": "APOF2020", "maanedligBelop": 305},
+                  {"ytelseType": "OAFP", "maanedligBelop": 7072}
+                ]
+              },
+              "aarsakIngenUtbetaling": null
+            }
+            """.trimIndent()
+        )
+
+        Arrange.webClientContextRunner().run {
+            val result = client(it).simuler(dummySpec("1963-02-05", afpErForespurt = true), "4083")
+
+            result.isSuccess shouldBe true
+            with(result.getOrNull().shouldNotBeNull()) {
+                ordningsListe.map { it.tpNummer } shouldBe listOf("4083")
+                utbetalingsperioder shouldHaveSize 2
+                utbetalingsperioder.map { it.fom } shouldBe List(2) { LocalDate.of(2027, 5, 1) }
+                utbetalingsperioder.map { it.ytelseType } shouldBe listOf("APOF2020", "OAFP")
+                utbetalingsperioder.map { it.maanedligBelop } shouldBe listOf(305, 7072)
+                aarsakIngenUtbetaling shouldBe emptyList()
+                erSisteOrdning shouldBe true
+            }
+            server?.takeRequest()?.path shouldBe "/4083/ofa/v1/tjenestepensjon/simuler"
+        }
+    }
+
     test("returnerer feil ved feilrespons fra Storebrand") {
         server?.arrangeResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, body = "feil")
 

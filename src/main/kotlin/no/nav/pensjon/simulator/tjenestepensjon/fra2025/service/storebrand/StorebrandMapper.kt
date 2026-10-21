@@ -44,7 +44,7 @@ object StorebrandMapper {
             betingetTjenestepensjonErInkludert = response.utbetalingListe
                 .flatMap { it.delytelseListe }
                 .any(::erBetingetTjenestepensjon),
-            erSisteOrdning = response.aarsakIngenUtbetaling?.none(::erIkkeSisteOrdning) == true,
+            erSisteOrdning = response.aarsakIngenUtbetaling?.none(::erIkkeSisteOrdning) ?: true,
             serviceData = listOf("Request: ${request?.toString()}", "Response: $response")
         ).also {
             log.info { "Mapping response from STOREBRAND $response" }

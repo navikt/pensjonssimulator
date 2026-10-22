@@ -16,7 +16,6 @@ import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
@@ -118,9 +117,6 @@ class NavViaPenAlderspensjonController(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$AP_FUNCTION_ID invalid enum value - request - $specV2" }
             throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$AP_FUNCTION_ID inkonsistent grunnlag - request - $specV2" }
-            throw e
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$AP_FUNCTION_ID person for gammel - request - $specV2" }
             throw e
@@ -207,9 +203,6 @@ class NavViaPenAlderspensjonController(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$TP_FUNCTION_ID invalid enum value - request - $specV2" }
             throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$TP_FUNCTION_ID inkonsistent grunnlag - request - $specV2" }
-            throw e
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$TP_FUNCTION_ID person for gammel - request - $specV2" }
             throw e
@@ -242,7 +235,6 @@ class NavViaPenAlderspensjonController(
             DateTimeParseException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,

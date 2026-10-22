@@ -87,9 +87,6 @@ class FolketrygdberegnetAfpController(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$FUNCTION_ID invalid enum value - request - $specV1" }
             throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV1" }
-            throw e
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV1" }
             throw e
@@ -124,7 +121,6 @@ class FolketrygdberegnetAfpController(
             DateTimeParseException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,

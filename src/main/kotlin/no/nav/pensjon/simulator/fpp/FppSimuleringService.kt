@@ -10,8 +10,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
@@ -54,7 +52,7 @@ class FppSimuleringService(
         createVilkaarsvedtakListe(coreSpec)
 
         if (AFP == coreSpec.simuleringTypeEnum) {
-            val simuleringsresultat: Simuleringsresultat = simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(coreSpec)
+            val simuleringsresultat = vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(coreSpec)
             val status: VedtakResultatEnum = simuleringsresultat.statusEnum ?: VedtakResultatEnum.INNV
 
             if (status == VedtakResultatEnum.AVSL || status == VedtakResultatEnum.VETIKKE) {
@@ -69,7 +67,7 @@ class FppSimuleringService(
             }
         }
 
-        val simuleringsresultat = simulerMedFeilhaandtering(
+        val simuleringsresultat = simuler(
             coreSpec,
             extraSpec = extraSimuleringSpec(coreSpec)
         ).apply {
@@ -142,13 +140,6 @@ class FppSimuleringService(
         }
     }
 
-    private fun simulerMedFeilhaandtering(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
-        try {
-            simuler(coreSpec, extraSpec)
-        } catch (e: RegelmotorValideringException) {
-            throw KonsistensenIGrunnlagetErFeilException(e)
-        }
-
     private fun simuler(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
         when (coreSpec.simuleringTypeEnum) {
             ALDER -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER)
@@ -187,13 +178,6 @@ class FppSimuleringService(
         soekersPersongrunnlag!!.barnekull = Barnekull().apply { this.antallBarn = antallBarn }
         return simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = BARN)
     }
-
-    private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
-        try {
-            vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(spec)
-        } catch (e: RegelmotorValideringException) {
-            throw KonsistensenIGrunnlagetErFeilException(e)
-        }
 
     private fun extraSimuleringSpec(coreSpec: Simulering): ExtraSimuleringSpec {
         val beregnForsoergingstillegg = coreSpec.vilkarsvedtakliste.any {

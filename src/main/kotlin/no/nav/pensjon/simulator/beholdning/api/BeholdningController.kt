@@ -81,9 +81,6 @@ class BeholdningController(
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -114,7 +111,6 @@ class BeholdningController(
             BadRequestException::class,
             BadSpecException::class,
             InvalidArgumentException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,

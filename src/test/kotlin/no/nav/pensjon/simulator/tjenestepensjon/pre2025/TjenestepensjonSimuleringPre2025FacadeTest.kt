@@ -6,7 +6,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslagAarsak
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
 import no.nav.pensjon.simulator.validity.Problem
@@ -56,21 +55,6 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
                     )
         }
     }
-
-    context("konsistensfeil uten beskrivelse") {
-        should("gi resultat med 'annen klientfeil' og navnet på exception") {
-            TjenestepensjonSimuleringPre2025Facade(
-                beregningService = arrangeProblem(
-                    e = KonsistensenIGrunnlagetErFeilException(e = MatchException(null, null))
-                ),
-                tjenestepensjonSimulator = mockk()
-            ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
-                    Problem(
-                        type = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - KonsistensenIGrunnlagetErFeilException"
-                    )
-        }
-    }
 })
 
 private const val SENSITIV_INFO = "noe sensitivt"
@@ -89,7 +73,7 @@ private fun arrangeAvslag(
     )
 
 private fun arrangeProblem(e: Exception): TjenestepensjonSimuleringPre2025SpecBeregningService =
-    mockk<TjenestepensjonSimuleringPre2025SpecBeregningService>().apply {
+    mockk {
         every {
             kompletterMedAlderspensjonsberegning(any(), any())
         } throws e

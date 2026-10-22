@@ -151,17 +151,6 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                     )
         }
 
-        should("return INTERN_DATA_INKONSISTENS problem on KonsistensenIGrunnlagetErFeilException") {
-            val result = badService(
-                simulatorException = KonsistensenIGrunnlagetErFeilException(RuntimeException("inkonsistent"))
-            ).simuler(validSpec)
-
-            with(result) {
-                suksess shouldBe false
-                problem?.type shouldBe ProblemType.INTERN_DATA_INKONSISTENS
-            }
-        }
-
         should("return ANNEN_KLIENTFEIL problem on PersonForUngException") {
             badService(simulatorException = PersonForUngException("for ung"))
                 .simuler(validSpec) shouldBe

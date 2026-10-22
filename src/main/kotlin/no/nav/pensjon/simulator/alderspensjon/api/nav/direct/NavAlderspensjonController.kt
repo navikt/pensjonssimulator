@@ -82,8 +82,6 @@ class NavAlderspensjonController(
             resultWithErrorInfo("argument", e, specV3)
         } catch (e: InvalidArgumentException) {
             resultWithErrorInfo("argument", e, specV3)
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            resultWithErrorInfo("grunnlagskonsistens", e, specV3)
         } catch (e: PersonForGammelException) {
             resultWithErrorInfo("personalder (for høy)", e, specV3)
         } catch (e: PersonForUngException) {

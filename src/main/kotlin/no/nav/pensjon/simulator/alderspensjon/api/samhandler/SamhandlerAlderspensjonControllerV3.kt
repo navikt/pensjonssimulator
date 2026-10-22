@@ -117,9 +117,6 @@ class SamhandlerAlderspensjonControllerV3(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$FUNCTION_ID_V3 invalid enum value - request - $specV3" }
             throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID_V3 inkonsistent grunnlag - request - $specV3" }
-            throw e
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID_V3 person for gammel - request - $specV3" }
             throw e
@@ -153,7 +150,6 @@ class SamhandlerAlderspensjonControllerV3(
             DateTimeParseException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,

@@ -14,8 +14,6 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
@@ -119,16 +117,12 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
     //   -> DefaultSimuleringConsumerService.simulerVilkarsprovAfp
     //   -> SimulerVilkarsprovAfpConsumerCommand.execute
     private fun vilkarsproevAfp(spec: Simulering): Simuleringsresultat =
-        try {
-            context.simulerVilkarsprovTidsbegrensetOffentligAfp(
-                spec = SimuleringRequest(
-                    simulering = fjernTrygdeavtale(spec),
-                    fom = spec.uttaksdatoLd
-                )
+        context.simulerVilkarsprovTidsbegrensetOffentligAfp(
+            spec = SimuleringRequest(
+                simulering = fjernTrygdeavtale(spec),
+                fom = spec.uttaksdatoLd
             )
-        } catch (e: RegelmotorValideringException) {
-            throw KonsistensenIGrunnlagetErFeilException(e)
-        }
+        )
 
     private fun ufoerehistorikk(persongrunnlag: Persongrunnlag, spec: Simulering): Uforehistorikk? =
         persongrunnlag.penPerson?.pid?.let {
@@ -220,19 +214,15 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
     private fun simulerAfp(spec: Simulering): Simuleringsresultat {
         setBeregnForsoergingstilleggAndEktefelleMottarPensjon(spec) // TODO use function arguments instead?
 
-        try {
-            if (SimuleringTypeEnum.AFP == spec.simuleringTypeEnum) {
-                return simulerAfp(
-                    spec,
-                    beregnInstopphold,
-                    beregnForsorgingstillegg,
-                    ektefelleMottarPensjon
-                )
-            } else {
-                throw RuntimeException("Unsupported simuleringtype in tidsbegrenset offentlig AFP context: ${spec.simuleringTypeEnum}")
-            }
-        } catch (e: RegelmotorValideringException) {
-            throw KonsistensenIGrunnlagetErFeilException(e)
+        if (SimuleringTypeEnum.AFP == spec.simuleringTypeEnum) {
+            return simulerAfp(
+                spec,
+                beregnInstopphold,
+                beregnForsorgingstillegg,
+                ektefelleMottarPensjon
+            )
+        } else {
+            throw RuntimeException("Unsupported simuleringtype in tidsbegrenset offentlig AFP context: ${spec.simuleringTypeEnum}")
         }
     }
 

@@ -91,9 +91,6 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
             throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
-            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV0" }
             resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)

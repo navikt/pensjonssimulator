@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.core.person.PersongrunnlagMapper
 import no.nav.pensjon.simulator.core.person.PersongrunnlagService
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.erEps
 import no.nav.pensjon.simulator.core.person.eps.EpsUtil.gjelderGjenlevenderett
+import no.nav.pensjon.simulator.core.spec.FaktiskBeholdningsbrukSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.AarligInntekt
@@ -86,7 +87,10 @@ class EpsService(
             persongrunnlag,
             kravhode,
             pid = avdoed.pid,
-            hentBeholdninger = true
+            beholdningSpec = FaktiskBeholdningsbrukSpec(
+                settFaktiskBeholdningSomBeholdning = true,
+                resultatSkalInkludereFaktiskBeholdning = false // ikke for avdød
+            )
         )
 
         filterAndUpdateInntektsgrunnlaglistOnPersongrunnlag(persongrunnlag)

@@ -118,7 +118,7 @@ class FolketrygdberegnetAfpSpecMapperV1Test : ShouldSpec({
             ),
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

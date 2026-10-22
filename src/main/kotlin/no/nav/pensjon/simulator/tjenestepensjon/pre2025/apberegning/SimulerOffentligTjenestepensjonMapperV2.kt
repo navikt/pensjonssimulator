@@ -57,7 +57,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true,
+            brukBeregnetBeholdningVedPensjonsberegning = true,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

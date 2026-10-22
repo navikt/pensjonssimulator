@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.person.BeholdningUtil.opptjeningSpec
+import no.nav.pensjon.simulator.core.spec.FaktiskBeholdningsbrukSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.opptjening.OpptjeningMedBeholdningService
 import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning
@@ -24,7 +25,10 @@ class PersongrunnlagService(
             persongrunnlag,
             kravhode,
             pid = person.pid!!,
-            hentBeholdninger = false
+            beholdningSpec = FaktiskBeholdningsbrukSpec(
+                settFaktiskBeholdningSomBeholdning = false,
+                resultatSkalInkludereFaktiskBeholdning = spec.resultatSkalInkludereFaktiskBeholdning
+            )
         )
 
         return persongrunnlag
@@ -35,7 +39,7 @@ class PersongrunnlagService(
         persongrunnlag: Persongrunnlag,
         kravhode: Kravhode,
         pid: Pid,
-        hentBeholdninger: Boolean
+        beholdningSpec: FaktiskBeholdningsbrukSpec
     ) {
         val spec = opptjeningSpec(pid, persongrunnlag, kravhode)
 
@@ -46,8 +50,16 @@ class PersongrunnlagService(
             persongrunnlag.dagpengegrunnlagListe = dagpengegrunnlagListe.toMutableList()
             persongrunnlag.forstegangstjenestegrunnlag = foerstegangstjeneste
 
-            if (hentBeholdninger) {
-                beholdningListe.map(::reglerFormat).forEach(persongrunnlag.beholdninger::add)
+            if (beholdningSpec.brukBeholdning) {
+                val faktiskBeholdningListe = beholdningListe.map(::reglerFormat)
+
+                if (beholdningSpec.settFaktiskBeholdningSomBeholdning) {
+                    persongrunnlag.beholdninger = faktiskBeholdningListe.toMutableList()
+                }
+
+                if (beholdningSpec.resultatSkalInkludereFaktiskBeholdning) {
+                    persongrunnlag.faktiskeBeholdninger = faktiskBeholdningListe
+                }
             }
         }
     }

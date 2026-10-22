@@ -77,7 +77,7 @@ class SimuleringSpecMapperForNav(
                     offentligAfp?.harInntektMaanedenFoerUttak?.let(inntektService::hentSisteMaanedsInntektOver1G)
             ),
 
-            isHentPensjonsbeholdninger = false,
+            brukBeregnetBeholdningVedPensjonsberegning = false,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false // verdier fra vedtak vil dermed brukes istedenfor brukeroppgitte verdier

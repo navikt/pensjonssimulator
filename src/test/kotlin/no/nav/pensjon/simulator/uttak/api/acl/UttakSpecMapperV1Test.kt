@@ -66,7 +66,7 @@ class UttakSpecMapperV1Test : ShouldSpec({
             tidsbegrensetOffentligAfp = null,
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true,
+            brukBeregnetBeholdningVedPensjonsberegning = true,
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true,
             onlyVilkaarsproeving = true, // true for 'tidligst mulig uttak'
             epsKanOverskrives = false

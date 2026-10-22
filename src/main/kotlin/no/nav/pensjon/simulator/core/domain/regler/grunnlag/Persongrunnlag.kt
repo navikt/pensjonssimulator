@@ -322,8 +322,20 @@ class Persongrunnlag {
     var barnetilleggVurderingsperioder: MutableList<BarnetilleggVurderingsperiode> =
         mutableListOf() // discriminator: BT_VURDERINGSPERIODE
 
+    /**
+     * Vil inneholde enten:
+     * - faktiske beholdninger (fra POPP), eller
+     * - beregnede beholdninger (fra pensjon-regler)
+     * (avhengig av om 'replaceBeholdninger' blir utført)
+     */
     @JsonIgnore
     var beholdninger: MutableList<Pensjonsbeholdning> = mutableListOf() // BEHOLDNING
+
+    /**
+     * Vil inneholde faktiske beholdninger fra opptjeningsregisteret (POPP).
+     */
+    @JsonIgnore
+    var faktiskeBeholdninger: List<Pensjonsbeholdning> = emptyList()
 
     @JsonIgnore
     var livsvarigOffentligAfpGrunnlagListe: List<AfpOffentligLivsvarigGrunnlag> = emptyList()
@@ -435,6 +447,7 @@ class Persongrunnlag {
         gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
         barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder.map { it.copy() }.toMutableList()
         beholdninger = source.beholdninger.map { it.copy() }.toMutableList()
+        faktiskeBeholdninger = source.faktiskeBeholdninger.map { it.copy() }.toMutableList()
         livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe.map { it.copy() }
         trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
         uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
@@ -464,14 +477,28 @@ class Persongrunnlag {
         beholdninger.addAll(list)
         // pensjon-regler only uses latest beholdning
         pensjonsbeholdning = findLatest(beholdninger) // cf. PEN kjerne.Persongrunnlag.getPensjonsbeholdning
+        // NB: Feltet 'faktiskeBeholdninger' skal ikke påvirkes her
     }
 
-    fun sistePensjonsbeholdningPerAar(): Map<Int, DomainPensjonsbeholdning> =
-        beholdninger
-            .map { it.toInternalValue() }
-            .groupBy { it.aar }
-            .map { (aar, beholdninger) -> aar to beholdninger.maxBy { it.fom } }
-            .toMap()
+    /**
+     * For hvert år, finner siste beholdning det året.
+     * For årene der det finnes en faktisk (registrert) beholdning, brukes denne,
+     * mens for årende etter dette brukes beregnet (simulert) beholdning.
+     */
+    fun sistePensjonsbeholdningPerAar(): Map<Int, DomainPensjonsbeholdning> {
+        if (faktiskeBeholdninger.isEmpty()) return sisteBeholdningPerAar(beholdninger)
+
+        val sisteBeholdningPerAar: MutableMap<Int, DomainPensjonsbeholdning> =
+            sisteBeholdningPerAar(faktiskeBeholdninger).toMutableMap()
+
+        val sisteFaktiskeAar: Int = faktiskeBeholdninger.maxOf { it.aar() }
+
+        val beregnedeBeholdningerEtterSisteAar: List<Pensjonsbeholdning> =
+            beholdninger.filter { it.aar() > sisteFaktiskeAar }
+
+        beregnedeBeholdningerEtterSisteAar.forEach { sisteBeholdningPerAar[it.aar()] = it.toInternalValue() }
+        return sisteBeholdningPerAar
+    }
 
     /**
      * NB: Comment on source of this method (no.nav.domain.pensjon.kjerne.grunnlag.Persongrunnlag.findPersonDetaljIPersongrunnlag):
@@ -596,5 +623,16 @@ class Persongrunnlag {
 
     private fun nyesteTrygdetidMedStartdato(): Trygdetid? =
         trygdetider.filter { it.virkFomLd != null }.maxByOrNull { it.virkFomLd!! }
+
+    private companion object {
+        private fun sisteBeholdningPerAar(
+            beholdningListe: List<Pensjonsbeholdning>
+        ): Map<Int, DomainPensjonsbeholdning> =
+            beholdningListe
+                .map { it.toInternalValue() }
+                .groupBy { it.aar }
+                .map { (aar, beholdninger) -> aar to beholdninger.maxBy { it.fom } }
+                .toMap()
+    }
     // end extra
 }

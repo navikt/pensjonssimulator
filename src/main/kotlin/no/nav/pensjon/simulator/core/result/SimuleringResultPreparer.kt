@@ -40,6 +40,7 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.*
+import kotlin.math.roundToInt
 
 @Component
 class SimuleringResultPreparer(
@@ -581,7 +582,7 @@ class SimuleringResultPreparer(
                     forrigeResultat,
                     beregningsresultat
                 )
-                simulertBeregningsinfo.pensjonBeholdningFoerUttak = pensjonsbeholdning?.totalbelop?.toInt()
+                simulertBeregningsinfo.pensjonBeholdningFoerUttak = pensjonsbeholdning?.totalbelop?.roundToInt()
                 simulertBeregningsinfo.nOkap19 = (simulertBeregningsinfo.basispensjon ?: 0) - forrigeBasispensjon
                 simulertBeregningsinfo.nOkap20 =
                     (simulertBeregningsinfo.pensjonBeholdningEtterUttak ?: 0) - (forrigeBeholdning ?: 0)
@@ -642,12 +643,11 @@ class SimuleringResultPreparer(
         private fun basispensjon(beregningKapittel19: AldersberegningKapittel19?): Int =
             beregningKapittel19?.basispensjon?.totalbelop?.toInt() ?: 0
 
-        // OpprettOutputHelper.fetchForrigePenB
         private fun pensjonsbeholdning(beregningResultat: BeregningsResultatAlderspensjon2025?): Int =
             findElementOfType(
                 list = beregningResultat?.beregningKapittel20?.beholdninger?.beholdninger.orEmpty(),
                 type = BeholdningtypeEnum.PEN_B
-            )?.totalbelop?.toInt() ?: 0
+            )?.totalbelop?.roundToInt() ?: 0 //TODO: Unit test for roundToInt here
 
         private fun findPensjonsbeholdningFoerUttak(
             kravhode: Kravhode,

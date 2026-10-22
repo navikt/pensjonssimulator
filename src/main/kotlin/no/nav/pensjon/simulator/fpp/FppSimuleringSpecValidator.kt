@@ -7,9 +7,9 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.AFP
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum.ALDER
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 //TODO align with Pre2025OffentligAfpSpecValidator
@@ -18,26 +18,26 @@ object FppSimuleringSpecValidator {
 
     fun validate(spec: Simulering) {
         val simuleringType: SimuleringTypeEnum = spec.simuleringTypeEnum
-            ?: throw ImplementationUnrecoverableException("simulering.simuleringType")
+            ?: throw BadSpecException("simulering.simuleringType")
 
         if (spec.uttaksdatoLd == null)
-            throw ImplementationUnrecoverableException("simulering.uttaksdato")
+            throw BadSpecException("simulering.uttaksdato")
 
         if (AFP == simuleringType && spec.afpOrdningEnum == null)
-            throw ImplementationUnrecoverableException("simulering.afpordning")
+            throw BadSpecException("simulering.afpordning")
 
         if (spec.persongrunnlagListe.isEmpty())
-            throw ImplementationUnrecoverableException("simulering.persongrunnlagListe")
+            throw BadSpecException("simulering.persongrunnlagListe")
 
         if (spec.persongrunnlagListe.any { it.personDetaljListe.isEmpty() })
-            throw ImplementationUnrecoverableException("simulering.persongrunnlagListe.persondetaljliste")
+            throw BadSpecException("simulering.persongrunnlagListe.persondetaljliste")
 
         val soeker: Persongrunnlag =
             persongrunnlagForRolle(grunnlagListe = spec.persongrunnlagListe, rolle = GrunnlagsrolleEnum.SOKER)
-                ?: throw ImplementationUnrecoverableException("simulering.persongrunnlagListe.soeker")
+                ?: throw BadSpecException("simulering.persongrunnlagListe.soeker")
 
         val soekersFoedselsdato: LocalDate = soeker.fodselsdatoLd
-            ?: throw ImplementationUnrecoverableException("simulering.persongrunnlagListe.soeker.fodselsdato")
+            ?: throw BadSpecException("simulering.persongrunnlagListe.soeker.fodselsdato")
 
         val uttaksdato: LocalDate = spec.uttaksdatoLd!!
 

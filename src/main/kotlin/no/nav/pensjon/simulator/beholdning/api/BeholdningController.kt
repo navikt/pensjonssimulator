@@ -75,9 +75,6 @@ class BeholdningController(
         } catch (e: BadSpecException) {
             log.warn { "$FUNCTION_ID bad spec - ${e.message} - $specV1" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -114,7 +111,6 @@ class BeholdningController(
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
         ]
@@ -124,7 +120,9 @@ class BeholdningController(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class
+            EgressException::class,
+            RegelmotorValideringException::class,
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =

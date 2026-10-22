@@ -52,8 +52,6 @@ class AlderspensjonOgPrivatAfpService(
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
             problem(e, type = if (e.isClientError) ProblemType.ANNEN_SERVERFEIL else ProblemType.TREDJEPARTSFEIL)
-        } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.IMPLEMENTASJONSFEIL)
         } catch (e: InternDataInkonsistensException) {
             problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: InvalidArgumentException) {

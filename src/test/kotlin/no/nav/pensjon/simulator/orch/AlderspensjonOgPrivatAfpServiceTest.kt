@@ -193,16 +193,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                     )
         }
 
-        should("return IMPLEMENTASJONSFEIL problem on ImplementationUnrecoverableException") {
-            badService(simulatorException = ImplementationUnrecoverableException("implementation error"))
-                .simuler(validSpec) shouldBe
-                    errorResult(
-                        problemType = ProblemType.IMPLEMENTASJONSFEIL,
-                        beskrivelse = "Ukjent feil - ImplementationUnrecoverableException"
-                    )
-        }
-
-        should("return IMPLEMENTASJONSFEIL problem on ImplementationUnrecoverableException") {
+        should("return INTERN_DATA_INKONSISTENS problem on InternDataInkonsistensException") {
             badService(simulatorException = InternDataInkonsistensException("data error"))
                 .simuler(validSpec) shouldBe
                     errorResult(

@@ -1,7 +1,6 @@
 package no.nav.pensjon.simulator.regel.client.pensjonregler
 
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.regel.client.GenericRegelClient
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
@@ -34,7 +33,7 @@ class PensjonReglerGenericRegelClient(
         return try {
             callPensjonRegler(serviceName, request, responseClass)
         } catch (e: Exception) {
-            throw ImplementationUnrecoverableException("Request failed to pensjon-regler", e)
+            throw EgressException("Request failed to pensjon-regler", e)
         }
     }
 

@@ -78,9 +78,6 @@ class FolketrygdberegnetAfpController(
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV1" }
             throw e
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
-            throw e
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV1" }
             throw e
@@ -124,7 +121,6 @@ class FolketrygdberegnetAfpController(
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
         ]
@@ -134,7 +130,9 @@ class FolketrygdberegnetAfpController(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class
+            EgressException::class,
+            RegelmotorValideringException::class,
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =

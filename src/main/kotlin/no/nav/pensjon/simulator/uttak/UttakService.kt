@@ -67,8 +67,6 @@ class UttakService(
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: InvalidEnumValueException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
-        } catch (e: KanIkkeBeregnesException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: PersonForGammelException) {

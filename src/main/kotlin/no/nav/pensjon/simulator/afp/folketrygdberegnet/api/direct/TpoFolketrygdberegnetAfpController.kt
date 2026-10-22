@@ -97,9 +97,6 @@ class TpoFolketrygdberegnetAfpController(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$FUNCTION_ID invalid enum value - request - $specV0" }
             throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$FUNCTION_ID kan ikke beregnes - request - $specV0" }
-            throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
             throw e
@@ -138,7 +135,6 @@ class TpoFolketrygdberegnetAfpController(
             FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KanIkkeBeregnesException::class,
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,

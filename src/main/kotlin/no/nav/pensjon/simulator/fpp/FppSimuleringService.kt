@@ -10,8 +10,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
@@ -147,8 +145,6 @@ class FppSimuleringService(
     private fun simulerMedFeilhaandtering(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
         try {
             simuler(coreSpec, extraSpec)
-        } catch (e: KanIkkeBeregnesException) {
-            throw FeilISimuleringsgrunnlagetException(e)
         } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }
@@ -195,8 +191,6 @@ class FppSimuleringService(
     private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
         try {
             vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(spec)
-        } catch (e: KanIkkeBeregnesException) {
-            throw FeilISimuleringsgrunnlagetException(e)
         } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }

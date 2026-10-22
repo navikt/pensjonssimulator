@@ -120,9 +120,6 @@ class SamhandlerAlderspensjonControllerV3(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$FUNCTION_ID_V3 invalid enum value - request - $specV3" }
             throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$FUNCTION_ID_V3 kan ikke beregnes - request - $specV3" }
-            throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$FUNCTION_ID_V3 inkonsistent grunnlag - request - $specV3" }
             throw e
@@ -160,7 +157,6 @@ class SamhandlerAlderspensjonControllerV3(
             FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KanIkkeBeregnesException::class,
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,

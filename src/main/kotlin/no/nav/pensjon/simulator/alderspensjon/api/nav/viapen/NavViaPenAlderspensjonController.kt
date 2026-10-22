@@ -17,7 +17,6 @@ import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.PersonForGammelException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
@@ -123,9 +122,6 @@ class NavViaPenAlderspensjonController(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$AP_FUNCTION_ID invalid enum value - request - $specV2" }
             throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$AP_FUNCTION_ID kan ikke beregnes - request - $specV2" }
-            throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$AP_FUNCTION_ID inkonsistent grunnlag - request - $specV2" }
             throw e
@@ -218,9 +214,6 @@ class NavViaPenAlderspensjonController(
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$TP_FUNCTION_ID invalid enum value - request - $specV2" }
             throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$TP_FUNCTION_ID kan ikke beregnes - request - $specV2" }
-            throw e
         } catch (e: KonsistensenIGrunnlagetErFeilException) {
             log.warn(e) { "$TP_FUNCTION_ID inkonsistent grunnlag - request - $specV2" }
             throw e
@@ -257,7 +250,6 @@ class NavViaPenAlderspensjonController(
             FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KanIkkeBeregnesException::class,
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,

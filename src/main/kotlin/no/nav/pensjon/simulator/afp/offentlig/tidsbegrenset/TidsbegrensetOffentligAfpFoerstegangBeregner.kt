@@ -14,8 +14,6 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.to.SimuleringRequest
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
 import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -128,8 +126,6 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
                     fom = spec.uttaksdatoLd
                 )
             )
-        } catch (e: KanIkkeBeregnesException) {
-            throw FeilISimuleringsgrunnlagetException(e)
         } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }
@@ -235,8 +231,6 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             } else {
                 throw RuntimeException("Unsupported simuleringtype in tidsbegrenset offentlig AFP context: ${spec.simuleringTypeEnum}")
             }
-        } catch (e: KanIkkeBeregnesException) {
-            throw FeilISimuleringsgrunnlagetException(e)
         } catch (e: RegelmotorValideringException) {
             throw KonsistensenIGrunnlagetErFeilException(e)
         }

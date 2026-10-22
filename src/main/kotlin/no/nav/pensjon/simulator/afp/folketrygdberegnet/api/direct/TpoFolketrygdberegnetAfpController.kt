@@ -85,23 +85,11 @@ class TpoFolketrygdberegnetAfpController(
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV0" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
-            throw e
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
-            throw e
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV0" }
             throw e
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$FUNCTION_ID invalid enum value - request - $specV0" }
-            throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$FUNCTION_ID kan ikke beregnes - request - $specV0" }
-            throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
             throw e
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV0" }
@@ -135,15 +123,11 @@ class TpoFolketrygdberegnetAfpController(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KanIkkeBeregnesException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
         ]
@@ -153,7 +137,9 @@ class TpoFolketrygdberegnetAfpController(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class
+            EgressException::class,
+            RegelmotorValideringException::class,
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =

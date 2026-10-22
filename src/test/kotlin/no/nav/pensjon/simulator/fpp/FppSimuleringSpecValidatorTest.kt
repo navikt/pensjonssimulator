@@ -9,20 +9,20 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.PersonForUngException
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 class FppSimuleringSpecValidatorTest : ShouldSpec({
 
     should("feilmelde udefinert simuleringstype") {
-        shouldThrow<ImplementationUnrecoverableException> {
+        shouldThrow<BadSpecException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply { simuleringTypeEnum = null })
         }.message shouldBe "simulering.simuleringType"
     }
 
     should("feilmelde udefinert uttaksdato") {
-        shouldThrow<ImplementationUnrecoverableException> {
+        shouldThrow<BadSpecException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.GJENLEVENDE
                 uttaksdatoLd = null
@@ -31,7 +31,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
     }
 
     should("feilmelde udefinert AFP-ordning hvis simuleringstype er AFP") {
-        shouldThrow<ImplementationUnrecoverableException> {
+        shouldThrow<BadSpecException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.AFP
                 uttaksdatoLd = uttaksdato()
@@ -41,7 +41,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
     }
 
     should("feilmelde tom liste av persongrunnlag") {
-        shouldThrow<ImplementationUnrecoverableException> {
+        shouldThrow<BadSpecException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER_M_GJEN
                 uttaksdatoLd = uttaksdato()
@@ -51,7 +51,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
     }
 
     should("feilmelde tom liste av persondetaljer") {
-        shouldThrow<ImplementationUnrecoverableException> {
+        shouldThrow<BadSpecException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER_M_GJEN
                 uttaksdatoLd = uttaksdato()
@@ -61,7 +61,7 @@ class FppSimuleringSpecValidatorTest : ShouldSpec({
     }
 
     should("feilmelde udefinert fødselsdato for søkeren") {
-        shouldThrow<ImplementationUnrecoverableException> {
+        shouldThrow<BadSpecException> {
             FppSimuleringSpecValidator.validate(spec = Simulering().apply {
                 simuleringTypeEnum = SimuleringTypeEnum.ALDER
                 uttaksdatoLd = uttaksdato()

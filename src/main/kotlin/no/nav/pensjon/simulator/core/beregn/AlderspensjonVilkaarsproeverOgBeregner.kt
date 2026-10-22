@@ -341,7 +341,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private fun getSisteAldersberegning(
         kravhode: Kravhode,
         forrigeVedtakListe: List<VilkarsVedtak>,
-        forrigeBeregningResultat: AbstraktBeregningsResultat?
+        forrigeBeregningsresultat: AbstraktBeregningsResultat
     ): SisteBeregning? {
         val originalRegelverkType = kravhode.regelverkTypeEnum
 
@@ -349,7 +349,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             sisteBeregningCreator.opprettSisteBeregning(
                 kravhode = kravhode,
                 vedtakListe = forrigeVedtakListe,
-                beregningResultat = forrigeBeregningResultat
+                beregningsresultat = forrigeBeregningsresultat
             )
 
         kravhode.regelverkTypeEnum = originalRegelverkType

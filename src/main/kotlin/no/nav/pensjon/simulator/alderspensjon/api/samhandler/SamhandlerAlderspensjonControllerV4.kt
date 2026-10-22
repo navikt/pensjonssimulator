@@ -88,9 +88,6 @@ class SamhandlerAlderspensjonControllerV4(
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID_V4 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn { "$FUNCTION_ID_V4 feil i simuleringsgrunnlaget - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
         } catch (e: InternDataInkonsistensException) {
             log.warn { "$FUNCTION_ID_V4 intern datainkonsistens - ${e.message} - request: $specV4" }
             feilInfoResultV4(e)

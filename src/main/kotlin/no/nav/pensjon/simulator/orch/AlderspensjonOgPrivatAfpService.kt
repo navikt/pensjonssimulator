@@ -52,20 +52,12 @@ class AlderspensjonOgPrivatAfpService(
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
             problem(e, type = if (e.isClientError) ProblemType.ANNEN_SERVERFEIL else ProblemType.TREDJEPARTSFEIL)
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
-        } catch (e: ImplementationUnrecoverableException) {
-            problem(e, type = ProblemType.IMPLEMENTASJONSFEIL)
         } catch (e: InternDataInkonsistensException) {
             problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: InvalidArgumentException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: InvalidEnumValueException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
-        } catch (e: KanIkkeBeregnesException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            problem(e, type = ProblemType.INTERN_DATA_INKONSISTENS)
         } catch (e: PersonForGammelException) {
             problem(e, type = ProblemType.PERSON_FOR_HOEY_ALDER)
         } catch (e: PersonForUngException) {

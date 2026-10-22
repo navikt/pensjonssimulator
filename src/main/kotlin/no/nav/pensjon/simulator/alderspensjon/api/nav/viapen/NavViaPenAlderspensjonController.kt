@@ -14,7 +14,6 @@ import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimu
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.spec.NavSimuleringSpecV2
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.SimulatorCore
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
 import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.exception.InvalidArgumentException
 import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
@@ -110,9 +109,6 @@ class NavViaPenAlderspensjonController(
         } catch (e: DateTimeParseException) {
             log.warn { "$AP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${extractExceptionNames(e)} - request: $specV2" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$AP_FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV2" }
-            throw e
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$AP_FUNCTION_ID unrecoverable error - request - $specV2" }
             throw e
@@ -202,9 +198,6 @@ class NavViaPenAlderspensjonController(
         } catch (e: DateTimeParseException) {
             log.warn { "$TP_FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${extractExceptionNames(e)} - request: $specV2" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$TP_FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV2" }
-            throw e
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$TP_FUNCTION_ID unrecoverable error - request - $specV2" }
             throw e
@@ -247,7 +240,6 @@ class NavViaPenAlderspensjonController(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
             KonsistensenIGrunnlagetErFeilException::class,

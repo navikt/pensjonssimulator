@@ -75,9 +75,6 @@ class BeholdningController(
         } catch (e: BadSpecException) {
             log.warn { "$FUNCTION_ID bad spec - ${e.message} - $specV1" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
@@ -116,7 +113,6 @@ class BeholdningController(
         value = [
             BadRequestException::class,
             BadSpecException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,

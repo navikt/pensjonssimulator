@@ -76,8 +76,6 @@ class NavAlderspensjonController(
                 service.simulerAlderspensjon(spec, inkluderPensjonHvisUbetinget = false)
 
             toDto(result)
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            resultWithErrorInfo("simuleringsgrunnlaget", e, specV3)
         } catch (e: ImplementationUnrecoverableException) {
             resultWithErrorInfo("systemet", e, specV3)
         } catch (e: IllegalArgumentException) {

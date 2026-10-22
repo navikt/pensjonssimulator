@@ -36,7 +36,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 harTidligereUttak = false,
                 harLoependePrivatAfp = true
             )
-            val resultPreparer = mockk<AlderspensjonOgPrivatAfpResultPreparer>().apply {
+            val resultPreparer: AlderspensjonOgPrivatAfpResultPreparer = mockk {
                 every {
                     result(simulatorOutput, pid = spec.pid!!, harLoependePrivatAfp = true, uttakListe = emptyList())
                 } returns expectedResult
@@ -130,15 +130,6 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                     errorResult(
                         problemType = ProblemType.ANNEN_KLIENTFEIL,
                         beskrivelse = "Ukjent feil - DateTimeParseException"
-                    )
-        }
-
-        should("return ANNEN_KLIENTFEIL problem on FeilISimuleringsgrunnlagetException") {
-            badService(simulatorException = FeilISimuleringsgrunnlagetException("feil i grunnlag"))
-                .simuler(validSpec) shouldBe
-                    errorResult(
-                        problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - FeilISimuleringsgrunnlagetException"
                     )
         }
 
@@ -299,10 +290,10 @@ private fun badService(simulatorException: Exception) =
     ) { today }
 
 private fun arrangeCore(output: SimulatorOutput = SimulatorOutput()): SimulatorCore =
-    mockk<SimulatorCore> { every { simuler(any()) } returns output }
+    mockk { every { simuler(any()) } returns output }
 
 private fun arrangeResultPreparer(harLoependeAfpSlot: CapturingSlot<Boolean>): AlderspensjonOgPrivatAfpResultPreparer =
-    mockk<AlderspensjonOgPrivatAfpResultPreparer> {
+    mockk {
         every {
             result(
                 simulatorOutput = any(),
@@ -314,7 +305,7 @@ private fun arrangeResultPreparer(harLoependeAfpSlot: CapturingSlot<Boolean>): A
     }
 
 private fun arrangePrivatAfpYtelse(dato: LocalDate?): YtelseService =
-    mockk<YtelseService> {
+    mockk {
         every { getLoependeYtelser(any()) } returns mockk {
             every { privatAfpVirkningFom } returns dato
         }

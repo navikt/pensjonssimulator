@@ -108,9 +108,6 @@ class SamhandlerAlderspensjonControllerV3(
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID_V3 feil datoformat (forventet yyyy-mm-dd) - ${extractExceptionNames(e)} - request: $specV3" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID_V3 feil i simuleringsgrunnlaget - request - $specV3" }
-            throw e
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID_V3 unrecoverable error - request - $specV3" }
             throw e
@@ -154,7 +151,6 @@ class SamhandlerAlderspensjonControllerV3(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
             KonsistensenIGrunnlagetErFeilException::class,

@@ -57,8 +57,6 @@ class UttakService(
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: EgressException) {
             problem(e, type = if (e.isClientError) ProblemType.ANNEN_SERVERFEIL else ProblemType.TREDJEPARTSFEIL)
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: ImplementationUnrecoverableException) {
             problem(e, type = ProblemType.IMPLEMENTASJONSFEIL)
         } catch (e: InternDataInkonsistensException) {

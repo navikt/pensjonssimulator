@@ -85,9 +85,6 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
-            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: IllegalArgumentException) {
             log.warn(e) { "$FUNCTION_ID ulovlig verdi - ${e.message} - $specV0" }
             throw e

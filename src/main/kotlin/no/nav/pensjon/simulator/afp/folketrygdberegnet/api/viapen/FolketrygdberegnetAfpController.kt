@@ -78,9 +78,6 @@ class FolketrygdberegnetAfpController(
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV1" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV1" }
-            throw e
         } catch (e: ImplementationUnrecoverableException) {
             log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
             throw e
@@ -125,7 +122,6 @@ class FolketrygdberegnetAfpController(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
             KonsistensenIGrunnlagetErFeilException::class,

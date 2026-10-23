@@ -586,7 +586,7 @@ private fun createSimuleringSpec(
     tidsbegrensetOffentligAfp = null,
     erAnonym = false,
     ignoreAvslag = false,
-    isHentPensjonsbeholdninger = false,
+    brukBeregnetBeholdningVedPensjonsberegning = false,
     isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
     onlyVilkaarsproeving = false,
     epsKanOverskrives = false

@@ -82,7 +82,7 @@ class NavViaPenAlderspensjonController(
         return try {
             val spec: SimuleringSpec = specMapper.fromSimuleringSpecV2(
                 source = specV2,
-                isHentPensjonsbeholdninger = false,
+                brukBeregnetBeholdningVedPensjonsberegning = false,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false
             )
 
@@ -171,7 +171,7 @@ class NavViaPenAlderspensjonController(
         return try {
             val spec: SimuleringSpec = specMapper.fromSimuleringSpecV2(
                 source = specV2,
-                isHentPensjonsbeholdninger = true,
+                brukBeregnetBeholdningVedPensjonsberegning = true,
                 isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true
             )
 

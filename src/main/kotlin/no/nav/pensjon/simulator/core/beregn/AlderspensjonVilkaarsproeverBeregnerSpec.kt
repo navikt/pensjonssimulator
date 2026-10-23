@@ -13,8 +13,6 @@ import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import java.time.LocalDate
 import java.util.*
 
-// PEN:
-// no.nav.service.pensjon.simulering.abstractsimulerapfra2011.VilkarsprovOgBeregnAlderspensjonRequest
 data class AlderspensjonVilkaarsproeverBeregnerSpec(
     val kravhode: Kravhode,
     var knekkpunkter: SortedMap<LocalDate, MutableList<KnekkpunktAarsak>>,
@@ -27,7 +25,7 @@ data class AlderspensjonVilkaarsproeverBeregnerSpec(
     var afpPrivatBeregningsresultater: MutableList<BeregningsResultatAfpPrivat>,
     var gjeldendeAfpPrivatBeregningsresultat: BeregningsResultatAfpPrivat? = null,
     val forsteVirkAfpPrivat: LocalDate?,
-    val isHentPensjonsbeholdninger: Boolean,
+    val brukBeregnetBeholdning: Boolean,
     val kravGjelder: KravGjelder,
     val sakId: Long?,
     val sakType: SakTypeEnum?,

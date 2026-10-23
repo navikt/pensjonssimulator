@@ -17,6 +17,7 @@ import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
 import java.time.LocalDate
+import kotlin.math.roundToInt
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Pensjonsbeholdning as ReglerPensjonsbeholdning
 
 object SimulertOpptjeningMapper {
@@ -72,12 +73,12 @@ object SimulertOpptjeningMapper {
         sistePensjonsbeholdningPerAar: Map<Int, Pensjonsbeholdning>
     ): Int? =
         pensjonsbeholdningForDato(resultatListe, dato = sisteDag(aar))
-            ?: sistePensjonsbeholdningPerAar[aar]?.totalbeloep?.toInt()
+            ?: sistePensjonsbeholdningPerAar[aar]?.totalbeloep?.roundToInt()
 
     private fun pensjonsbeholdningForDato(resultatListe: List<AbstraktBeregningsResultat>, dato: LocalDate): Int? =
         (gjeldendeForDato(resultatListe, dato))
             ?.let(::alderspensjonsresultat2025)?.beregningKapittel20?.beholdninger?.beholdninger
-            ?.let(::sistePensjonsbeholdning)?.totalbelop?.toInt()
+            ?.let(::sistePensjonsbeholdning)?.totalbelop?.roundToInt()
 
     /**
      * Listen over beholdninger her er produsert av pensjon-regler, og da er ikke 'fom' og 'tom' definert,

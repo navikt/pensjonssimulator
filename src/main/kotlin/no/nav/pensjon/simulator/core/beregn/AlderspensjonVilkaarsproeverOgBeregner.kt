@@ -222,7 +222,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             // Corresponds to part 10
-            if (shouldAddPensjonBeholdningPerioder(spec.isHentPensjonsbeholdninger, kravhode.regelverkTypeEnum)) {
+            if (skalInkludereBeholdningsperioder(
+                    brukBeregnetBeholdning = spec.brukBeregnetBeholdning,
+                    regelverkType = kravhode.regelverkTypeEnum
+                )
+            ) {
                 val beholdningListe: MutableList<Pensjonsbeholdning> =
                     context.beregnOpptjening(
                         beholdningTom = knekkpunktDato,
@@ -485,11 +489,11 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
         }
 
-        private fun shouldAddPensjonBeholdningPerioder(
-            hentPensjonBeholdninger: Boolean,
+        private fun skalInkludereBeholdningsperioder(
+            brukBeregnetBeholdning: Boolean,
             regelverkType: RegelverkTypeEnum?
         ) =
-            hentPensjonBeholdninger &&
+            brukBeregnetBeholdning &&
                     EnumSet.of(RegelverkTypeEnum.N_REG_N_OPPTJ, RegelverkTypeEnum.N_REG_G_N_OPPTJ)
                         .contains(regelverkType)
 
@@ -505,7 +509,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             forrigeResultat: AbstraktBeregningsResultat,
             knekkpunktDato: LocalDate
         ) {
-            forrigeResultat.virkTomLd =knekkpunktDato.minusDays(1)
+            forrigeResultat.virkTomLd = knekkpunktDato.minusDays(1)
         }
 
         private fun findValidForDate(list: MutableList<BeregningsResultatAfpPrivat>, date: LocalDate) =

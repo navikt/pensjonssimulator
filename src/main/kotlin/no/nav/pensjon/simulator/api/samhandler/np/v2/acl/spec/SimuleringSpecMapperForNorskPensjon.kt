@@ -66,7 +66,7 @@ class SimuleringSpecMapperForNorskPensjon(
             tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true, // true for samhandler
+            brukBeregnetBeholdningVedPensjonsberegning = true, // true for samhandler
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for samhandler
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

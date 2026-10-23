@@ -77,7 +77,7 @@ class FolketrygdBeholdningService(
             tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = true, // true for folketrygdbeholdning
-            isHentPensjonsbeholdninger = true, // true for TPO
+            brukBeregnetBeholdningVedPensjonsberegning = true, // true for TPO
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // true for TPO
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false

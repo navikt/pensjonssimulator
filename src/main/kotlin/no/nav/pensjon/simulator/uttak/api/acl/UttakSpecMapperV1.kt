@@ -50,7 +50,7 @@ class UttakSpecMapperV1(val personService: GeneralPersonService) {
             tidsbegrensetOffentligAfp = null, // never used in this context
             erAnonym = false,
             ignoreAvslag = false,
-            isHentPensjonsbeholdninger = true, // also controls whether to include 'simulert beregningsinformasjon' in result
+            brukBeregnetBeholdningVedPensjonsberegning = true, // also controls whether to include 'simulert beregningsinformasjon' in result
             isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = true, // cf. SimulerAlderspensjonProviderV3.simulerAlderspensjon line 54
             onlyVilkaarsproeving = true,
             epsKanOverskrives = false

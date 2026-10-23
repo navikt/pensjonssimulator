@@ -17,7 +17,6 @@ import java.time.LocalDate
 import java.time.Period
 import java.util.*
 
-// PEN: no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011
 data class SimuleringSpec(
     val type: SimuleringTypeEnum,
     val sivilstatus: SivilstatusType,
@@ -50,7 +49,8 @@ data class SimuleringSpec(
     val tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpSpec?,
     val erAnonym: Boolean, // støtter uinnlogget kalkulator
     val ignoreAvslag: Boolean, // simulering fullføres selv med for lav opptjening/trygdetid
-    val isHentPensjonsbeholdninger: Boolean,
+    val brukBeregnetBeholdningVedPensjonsberegning: Boolean,
+    val resultatSkalInkludereFaktiskBeholdning: Boolean = false,
     val isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean,
     val onlyVilkaarsproeving: Boolean,
     val epsKanOverskrives: Boolean,
@@ -139,7 +139,7 @@ data class SimuleringSpec(
         )
 
     fun utenUtenlandsopphold() =
-copy(utlandAntallAar = 0, utlandPeriodeListe = mutableListOf())
+        copy(utlandAntallAar = 0, utlandPeriodeListe = mutableListOf())
 
     fun withUttak(
         foersteUttakDato: LocalDate?,

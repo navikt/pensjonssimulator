@@ -32,6 +32,9 @@ data class SimulerOffentligTjenestepensjonResult(
                 brukerErMedlemAvTPOrdningSomIkkeStoettes = true,
                 relevanteTpOrdninger = relevanteTpOrdninger
             )
+
+        fun problemresultat(problem: Problem) =
+            SimulerOffentligTjenestepensjonResult(tpnr = "", navnOrdning = "", problem = problem)
     }
 }
 

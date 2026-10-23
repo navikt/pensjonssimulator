@@ -33,7 +33,7 @@ class PensjonReglerGenericRegelClient(
         return try {
             callPensjonRegler(serviceName, request, responseClass)
         } catch (e: Exception) {
-            throw EgressException("Request failed to pensjon-regler", e)
+            throw e as? EgressException ?: EgressException("Request failed to pensjon-regler", e)
         }
     }
 

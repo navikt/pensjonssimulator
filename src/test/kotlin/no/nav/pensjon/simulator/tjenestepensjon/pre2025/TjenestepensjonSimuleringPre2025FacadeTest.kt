@@ -24,7 +24,7 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
                         navnOrdning = "",
                         problem = Problem(
                             type = ProblemType.ANNEN_KLIENTFEIL,
-                            beskrivelse = "Ukjent feil - TidsbegrensetOffentligAfpAvslaattException"
+                            beskrivelse = "TidsbegrensetOffentligAfpAvslaattException"
                         )
                     )
         }
@@ -38,7 +38,7 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
             ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
                     Problem(
                         type = ProblemType.PERSON_FOR_LAV_ALDER,
-                        beskrivelse = "Ukjent feil - TidsbegrensetOffentligAfpAvslaattException"
+                        beskrivelse = "TidsbegrensetOffentligAfpAvslaattException"
                     )
         }
     }
@@ -51,7 +51,7 @@ class TjenestepensjonSimuleringPre2025FacadeTest : ShouldSpec({
             ).simuler(simuleringSpec, stillingsprosentSpec).problem shouldBe
                     Problem(
                         type = ProblemType.UTILSTREKKELIG_OPPTJENING,
-                        beskrivelse = "Ukjent feil - UtilstrekkeligOpptjeningException"
+                        beskrivelse = "UtilstrekkeligOpptjeningException"
                     )
         }
     }

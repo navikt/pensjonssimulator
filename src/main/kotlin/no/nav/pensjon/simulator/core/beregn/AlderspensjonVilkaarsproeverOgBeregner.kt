@@ -173,7 +173,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
             }
 
             // Corresponds to part 6
-            val gjeldendeBeregningsresultat = beregner.beregnAlderspensjon(
+            val gjeldendeBeregningsresultat: AbstraktBeregningsResultat = beregner.beregnAlderspensjon(
                 kravhode,
                 vedtakListe = forrigeVedtakListe,
                 virkningDato = knekkpunktDato,
@@ -341,7 +341,7 @@ class AlderspensjonVilkaarsproeverOgBeregner(
     private fun getSisteAldersberegning(
         kravhode: Kravhode,
         forrigeVedtakListe: List<VilkarsVedtak>,
-        forrigeBeregningsresultat: AbstraktBeregningsResultat
+        forrigeBeregningsresultat: AbstraktBeregningsResultat?
     ): SisteBeregning? {
         val originalRegelverkType = kravhode.regelverkTypeEnum
 

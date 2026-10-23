@@ -27,28 +27,37 @@ class TjenestepensjonSimuleringPre2025Facade(
                 beregningService.kompletterMedAlderspensjonsberegning(simuleringSpec, stillingsprosentSpec)
 
             tjenestepensjonSimulator.simuler(spec)
-        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
-            problem(e, type = e.aarsak?.problemType)
         } catch (e: RegelmotorValideringException) {
-            problem(e)
+            regelbrudd(e)
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            inndataProblem(e, type = e.aarsak?.problemType ?: ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: UtilstrekkeligOpptjeningException) {
-            problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
+            inndataProblem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
-            problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
+            inndataProblem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
         }
 
-    private fun problem(e: RuntimeException, type: ProblemType? = null) =
-        SimulerOffentligTjenestepensjonResult(
-            tpnr = "",
-            navnOrdning = "",
-            problem = Problem(
-                type ?: ProblemType.ANNEN_KLIENTFEIL,
-                beskrivelse = message(e).also { log.warn { it } }
-            )
-        )
+    private fun inndataProblem(e: RuntimeException, type: ProblemType) =
+        SimulerOffentligTjenestepensjonResult.problemresultat(Problem(type, beskrivelse(e))).also {
+            log.info(e) { feilmelding(aarsak = "problem i inndata") }
+        }
+
+    /**
+     * Regelbrudd klassifiseres som serverfeil, da det kan skyldes inkonsistente data internt i Nav.
+     */
+    private fun regelbrudd(e: RegelmotorValideringException): SimulerOffentligTjenestepensjonResult =
+        SimulerOffentligTjenestepensjonResult.problemresultat(
+            Problem(type = ProblemType.ANNEN_SERVERFEIL, beskrivelse(e))
+        ).also {
+            val merknader = e.merknadListe.joinToString { it.asString() }
+            log.warn(e) { feilmelding(aarsak = "regelbrudd - $merknader") }
+        }
 
     private companion object {
-        private fun message(e: RuntimeException): String =
-            "Ukjent feil - ${e.javaClass.simpleName}"
+        private fun feilmelding(aarsak: String): String =
+            "TjenestepensjonSimuleringPre2025 feilet grunnet $aarsak"
+
+        private fun beskrivelse(e: RuntimeException): String =
+            e.javaClass.simpleName // ingen sensitiv info i beskrivelsen
     }
 }

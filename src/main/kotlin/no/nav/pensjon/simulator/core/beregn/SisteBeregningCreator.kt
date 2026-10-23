@@ -31,7 +31,7 @@ class SisteBeregningCreator(
     fun opprettSisteBeregning(
         kravhode: Kravhode,
         vedtakListe: List<VilkarsVedtak>,
-        beregningsresultat: AbstraktBeregningsResultat
+        beregningsresultat: AbstraktBeregningsResultat?
     ): SisteBeregning? {
         val spec: SisteBeregningSpec =
             createOpprettSisteBeregningParameter(kravhode, vedtakListe, beregningsresultat)

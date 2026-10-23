@@ -85,18 +85,9 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
         } catch (e: BadSpecException) {
             log.warn(e) { "$FUNCTION_ID bad request - ${e.message} - $specV0" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV0" }
-            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: IllegalArgumentException) {
             log.warn(e) { "$FUNCTION_ID ulovlig verdi - ${e.message} - $specV0" }
             throw e
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV0" }
-            throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV0" }
-            resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FEIL_I_GRUNNLAG)
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV0" }
             resultMapper.tomResponsMedAarsak(AarsakIkkeSuccessV0.FOR_HOEY_ALDER)
@@ -128,8 +119,9 @@ class TpoAfpEtterfulgtAvAlderspensjonController(
 
     @ExceptionHandler(
         value = [
+            EgressException::class,
             RegelmotorValideringException::class,
-            ImplementationUnrecoverableException::class
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<TpoSimuleringErrorDto> =

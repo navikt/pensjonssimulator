@@ -75,20 +75,8 @@ class BeholdningController(
         } catch (e: BadSpecException) {
             log.warn { "$FUNCTION_ID bad spec - ${e.message} - $specV1" } // not log.warn(e)
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID feil i simuleringsgrunnlaget - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID unrecoverable error - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID invalid argument - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$FUNCTION_ID kan ikke beregnes - request - $specV1" }
-            throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID inkonsistent grunnlag - request - $specV1" }
             throw e // delegate handling to ExceptionHandler to avoid returning ResponseEntity<Any>
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID person for gammel - request - $specV1" }
@@ -119,14 +107,10 @@ class BeholdningController(
         value = [
             BadRequestException::class,
             BadSpecException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
-            KanIkkeBeregnesException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
         ]
@@ -136,7 +120,9 @@ class BeholdningController(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class
+            EgressException::class,
+            RegelmotorValideringException::class,
+            Exception::class
         ]
     )
     fun handleInternalServerError(e: RuntimeException): ResponseEntity<FolketrygdBeholdningErrorV1> =

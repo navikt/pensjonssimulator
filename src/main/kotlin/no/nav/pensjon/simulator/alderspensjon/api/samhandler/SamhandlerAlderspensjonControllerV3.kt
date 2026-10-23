@@ -108,23 +108,11 @@ class SamhandlerAlderspensjonControllerV3(
         } catch (e: DateTimeParseException) {
             log.warn { "$FUNCTION_ID_V3 feil datoformat (forventet yyyy-mm-dd) - ${extractExceptionNames(e)} - request: $specV3" }
             throw e
-        } catch (e: FeilISimuleringsgrunnlagetException) {
-            log.warn(e) { "$FUNCTION_ID_V3 feil i simuleringsgrunnlaget - request - $specV3" }
-            throw e
-        } catch (e: ImplementationUnrecoverableException) {
-            log.error(e) { "$FUNCTION_ID_V3 unrecoverable error - request - $specV3" }
-            throw e
         } catch (e: InvalidArgumentException) {
             log.warn(e) { "$FUNCTION_ID_V3 invalid argument - request - $specV3" }
             throw e
         } catch (e: InvalidEnumValueException) {
             log.warn(e) { "$FUNCTION_ID_V3 invalid enum value - request - $specV3" }
-            throw e
-        } catch (e: KanIkkeBeregnesException) {
-            log.warn(e) { "$FUNCTION_ID_V3 kan ikke beregnes - request - $specV3" }
-            throw e
-        } catch (e: KonsistensenIGrunnlagetErFeilException) {
-            log.warn(e) { "$FUNCTION_ID_V3 inkonsistent grunnlag - request - $specV3" }
             throw e
         } catch (e: PersonForGammelException) {
             log.warn(e) { "$FUNCTION_ID_V3 person for gammel - request - $specV3" }
@@ -157,15 +145,11 @@ class SamhandlerAlderspensjonControllerV3(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
-            FeilISimuleringsgrunnlagetException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
-            KanIkkeBeregnesException::class,
-            KonsistensenIGrunnlagetErFeilException::class,
             PersonForGammelException::class,
             PersonForUngException::class,
             TidsbegrensetOffentligAfpAvslaattException::class,
-            RegelmotorValideringException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
             //TODO PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
@@ -177,8 +161,8 @@ class SamhandlerAlderspensjonControllerV3(
 
     @ExceptionHandler(
         value = [
-            ImplementationUnrecoverableException::class,
             EgressException::class,
+            RegelmotorValideringException::class,
             Exception::class
         ]
     )

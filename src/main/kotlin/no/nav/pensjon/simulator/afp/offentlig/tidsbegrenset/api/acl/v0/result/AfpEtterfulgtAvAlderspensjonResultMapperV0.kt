@@ -5,9 +5,9 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Grunnpensjon
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Sertillegg
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Tilleggspensjon
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.result.*
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -47,15 +47,15 @@ class AfpEtterfulgtAvAlderspensjonResultMapperV0(private val afpGrad: AfpGrad) {
 
     private fun validAfpBeregning(source: SimulatorOutput): Beregning =
         source.tidsbegrensetOffentligAfp?.beregning
-            ?: throw ImplementationUnrecoverableException("tidsbegrenset offentlig AFP mangler i beregningsresultatet")
+            ?: throw InternDataInkonsistensException("tidsbegrenset offentlig AFP mangler i beregningsresultatet")
 
     private fun validAlderspensjon(source: SimulatorOutput): SimulertAlderspensjon =
         source.alderspensjon
-            ?: throw ImplementationUnrecoverableException("alderspensjon mangler i beregningsresultatet")
+            ?: throw InternDataInkonsistensException("alderspensjon mangler i beregningsresultatet")
 
     private fun validGrunnbeloep(source: SimulatorOutput): Int =
         source.registerData?.grunnbeloep
-            ?: throw ImplementationUnrecoverableException("grunnbeløp mangler i beregningsresultatet")
+            ?: throw InternDataInkonsistensException("grunnbeløp mangler i beregningsresultatet")
 
     private fun folketrygdberegnetAfp(
         fom: LocalDate,

@@ -14,10 +14,6 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uforeperiode
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.FeilISimuleringsgrunnlagetException
-import no.nav.pensjon.simulator.core.exception.KanIkkeBeregnesException
-import no.nav.pensjon.simulator.core.exception.KonsistensenIGrunnlagetErFeilException
-import no.nav.pensjon.simulator.core.exception.RegelmotorValideringException
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
 import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
@@ -65,7 +61,7 @@ class TidsbegrensetAfpSimuleringService(
         createVilkaarsvedtakListe(coreSpec)
 
         if (AFP == coreSpec.simuleringTypeEnum) {
-            val simuleringsresultat: Simuleringsresultat = simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(coreSpec)
+            val simuleringsresultat = vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(coreSpec)
             val status: VedtakResultatEnum = simuleringsresultat.statusEnum ?: VedtakResultatEnum.INNV
 
             if (status == VedtakResultatEnum.AVSL || status == VedtakResultatEnum.VETIKKE) {
@@ -81,7 +77,7 @@ class TidsbegrensetAfpSimuleringService(
             }
         }
 
-        val simuleringsresultat: Simuleringsresultat = simulerMedFeilhaandtering(
+        val simuleringsresultat: Simuleringsresultat = simuler(
             coreSpec,
             extraSpec = extraSimuleringSpec(coreSpec)
         ).apply {
@@ -174,15 +170,6 @@ class TidsbegrensetAfpSimuleringService(
         }
     }
 
-    private fun simulerMedFeilhaandtering(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
-        try {
-            simuler(coreSpec, extraSpec)
-        } catch (e: KanIkkeBeregnesException) {
-            throw FeilISimuleringsgrunnlagetException(e)
-        } catch (e: RegelmotorValideringException) {
-            throw KonsistensenIGrunnlagetErFeilException(e)
-        }
-
     private fun simuler(coreSpec: Simulering, extraSpec: ExtraSimuleringSpec): Simuleringsresultat =
         when (coreSpec.simuleringTypeEnum) {
             ALDER -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = ALDER)
@@ -190,15 +177,6 @@ class TidsbegrensetAfpSimuleringService(
             AFP -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = AFP)
             GJENLEVENDE -> simulator.simulerPensjon(coreSpec, extraSpec, simuleringType = GJENLEVENDE)
             else -> Simuleringsresultat()
-        }
-
-    private fun simulerVilkaarsproevingAvTidsbegrensetOffentligAfp(spec: Simulering): Simuleringsresultat =
-        try {
-            vilkaarsproever.vilkaarsproevTidsbegrensetOffentligAfp(spec)
-        } catch (e: KanIkkeBeregnesException) {
-            throw FeilISimuleringsgrunnlagetException(e)
-        } catch (e: RegelmotorValideringException) {
-            throw KonsistensenIGrunnlagetErFeilException(e)
         }
 
     private fun extraSimuleringSpec(coreSpec: Simulering): ExtraSimuleringSpec {

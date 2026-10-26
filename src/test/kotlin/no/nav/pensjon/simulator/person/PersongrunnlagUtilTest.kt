@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.fpp
+package no.nav.pensjon.simulator.person
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
@@ -6,11 +6,11 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 
-class FppSimuleringUtilTest : ShouldSpec({
+class PersongrunnlagUtilTest : ShouldSpec({
 
     context("persongrunnlagForRolle") {
         should("gi 'null' hvis ingen persondetalj med angitt rolle") {
-            FppSimuleringUtil.persongrunnlagForRolle(
+            PersongrunnlagUtil.persongrunnlagForRolle(
                 grunnlagListe = listOf(
                     Persongrunnlag().apply {
                         personDetaljListe = persondetaljerMed(rolle = GrunnlagsrolleEnum.MOR)
@@ -24,7 +24,7 @@ class FppSimuleringUtilTest : ShouldSpec({
                 personDetaljListe = persondetaljerMed(rolle = GrunnlagsrolleEnum.FAR)
             }
 
-            FppSimuleringUtil.persongrunnlagForRolle(
+            PersongrunnlagUtil.persongrunnlagForRolle(
                 grunnlagListe = listOf(persongrunnlag),
                 rolle = GrunnlagsrolleEnum.FAR
             ) shouldBe persongrunnlag

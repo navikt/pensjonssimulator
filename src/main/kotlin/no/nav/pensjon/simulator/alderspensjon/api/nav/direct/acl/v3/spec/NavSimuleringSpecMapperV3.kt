@@ -71,7 +71,7 @@ class NavSimuleringSpecMapperV3(
             livsvarigOffentligAfp = source.innvilgetLivsvarigOffentligAfp?.let(::livsvarigOffentligAfp),
 
             // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
-            tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(
                 simuleringSpec = source,
                 inntektAarligBeloep = gradertUttak?.aarligInntekt,
                 inntektSisteMaanedOver1G =
@@ -142,7 +142,7 @@ class NavSimuleringSpecMapperV3(
             )
         )
 
-    private fun pre2025OffentligAfpSpec(
+    private fun tidsbegrensetOffentligAfpSpec(
         simuleringSpec: NavSimuleringSpecV3,
         inntektAarligBeloep: Int?,
         inntektSisteMaanedOver1G: Int?

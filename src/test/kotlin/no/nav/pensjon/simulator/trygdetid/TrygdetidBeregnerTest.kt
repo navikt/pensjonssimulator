@@ -1,11 +1,11 @@
-package no.nav.pensjon.simulator.fpp
+package no.nav.pensjon.simulator.trygdetid
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Utenlandsopphold
 import java.time.LocalDate
 
-class FppTrygdetidBeregnerTest : ShouldSpec({
+class TrygdetidBeregnerTest : ShouldSpec({
 
     context("trygdetidAntallAar") {
         /**
@@ -13,7 +13,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
          * Trygdetid: 35 år 3 md 13 dg -> 35 år
          */
         should("legge sammen sammenhengende utenlandsopphold") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -30,7 +30,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
         }
 
         should("legge sammen usammenhengende utenlandsopphold") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -52,7 +52,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
          */
         context("antall måneder er 6 eller mer") {
             should("runde av antall år oppover") {
-                FppTrygdetidBeregner.trygdetidAntallAar(
+                TrygdetidBeregner.trygdetidAntallAar(
                     foedselsdato,
                     utenlandsoppholdListe = listOf(
                         Utenlandsopphold().apply {
@@ -71,7 +71,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
          */
         context("antall måneder er mindre enn 6") {
             should("runde av antall år nedover") {
-                FppTrygdetidBeregner.trygdetidAntallAar(
+                TrygdetidBeregner.trygdetidAntallAar(
                     foedselsdato,
                     utenlandsoppholdListe = listOf(
                         Utenlandsopphold().apply {
@@ -85,7 +85,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
         }
 
         should("ignorere år før minstealder for trygdetid (16 år)") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -98,7 +98,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
         }
 
         should("ignorere år etter maks-alder for opptjening (66 år)") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -111,7 +111,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
         }
 
         should("behandle udefinert sluttår som siste opptjeningsår (66 år)") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -124,7 +124,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
         }
 
         should("behandle udefinert startår som første år med trygdetid (16 år)") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -137,7 +137,7 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
         }
 
         should("gi full trygdetid (40 år) hvis flyktning") {
-            FppTrygdetidBeregner.trygdetidAntallAar(
+            TrygdetidBeregner.trygdetidAntallAar(
                 foedselsdato,
                 utenlandsoppholdListe = listOf(
                     Utenlandsopphold().apply {
@@ -152,33 +152,33 @@ class FppTrygdetidBeregnerTest : ShouldSpec({
 
     context("unoeyaktigTrygdetidAntallAar") {
         should("beregne trygdetid ved å trekke antall år utenlands fra maksimal opptjeningstid (51 år)") {
-            FppTrygdetidBeregner.omtrentligTrygdetidAntallAar(
+            TrygdetidBeregner.omtrentligTrygdetidAntallAar(
                 antallArUtland = 20,
                 flyktning = false
             ) shouldBe 31
         }
 
         should("gi full trygdetid (40 år) hvis flyktning") {
-            FppTrygdetidBeregner.omtrentligTrygdetidAntallAar(
+            TrygdetidBeregner.omtrentligTrygdetidAntallAar(
                 antallArUtland = 20,
                 flyktning = true
             ) shouldBe 40
         }
 
         should("begrense oppad til 40 år") {
-            FppTrygdetidBeregner.omtrentligTrygdetidAntallAar(
+            TrygdetidBeregner.omtrentligTrygdetidAntallAar(
                 antallArUtland = 0,
                 flyktning = false
             ) shouldBe 40
 
-            FppTrygdetidBeregner.omtrentligTrygdetidAntallAar(
+            TrygdetidBeregner.omtrentligTrygdetidAntallAar(
                 antallArUtland = 5,
                 flyktning = false
             ) shouldBe 40
         }
 
         should("begrense nedad til 0 år") {
-            FppTrygdetidBeregner.omtrentligTrygdetidAntallAar(
+            TrygdetidBeregner.omtrentligTrygdetidAntallAar(
                 antallArUtland = 100,
                 flyktning = false
             ) shouldBe 0

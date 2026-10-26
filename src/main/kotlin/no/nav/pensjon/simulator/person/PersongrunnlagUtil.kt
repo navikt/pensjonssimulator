@@ -1,16 +1,13 @@
-package no.nav.pensjon.simulator.fpp
+package no.nav.pensjon.simulator.person
 
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 
-object FppSimuleringUtil {
+object PersongrunnlagUtil {
 
-    //TODO merge with findPersongrunnlagHavingRolle
     fun persongrunnlagForRolle(
         grunnlagListe: List<Persongrunnlag>,
         rolle: GrunnlagsrolleEnum
     ): Persongrunnlag? =
-        grunnlagListe.firstOrNull { p ->
-            p.personDetaljListe.any { rolle == it.grunnlagsrolleEnum }
-        }
+        grunnlagListe.firstOrNull { it.harRolle(rolle) }
 }

@@ -7,11 +7,12 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.RegelverkTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.VedtakResultatEnum
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
-import no.nav.pensjon.simulator.core.exception.ImplementationUnrecoverableException
 import no.nav.pensjon.simulator.core.krav.KravlinjeStatus
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -30,18 +31,10 @@ class SisteBeregningCreator(
     fun opprettSisteBeregning(
         kravhode: Kravhode,
         vedtakListe: List<VilkarsVedtak>,
-        beregningResultat: AbstraktBeregningsResultat?
+        beregningsresultat: AbstraktBeregningsResultat?
     ): SisteBeregning? {
-        validate(beregning = null, kravhode = kravhode, virkningFom = null, beregningResult = beregningResultat)
-
         val spec: SisteBeregningSpec =
-            createOpprettSisteBeregningParameter(
-                beregning = null,
-                kravhode = kravhode,
-                vedtakListe = vedtakListe,
-                virkningFom = null,
-                beregningResultat = beregningResultat
-            )
+            createOpprettSisteBeregningParameter(kravhode, vedtakListe, beregningsresultat)
 
         if (spec.isRegelverk1967 && spec.regelverk1967VirkToEarly) {
             return null
@@ -50,10 +43,10 @@ class SisteBeregningCreator(
         spec.regelverkKodePaNyttKrav = spec.kravhode?.regelverkTypeEnum
 
         spec.forrigeKravhode =
-            findForrigeKravhode(beregningResultat, kravhode.kravId)
+            findForrigeKravhode(beregningsresultat, kravhode.kravId)
                 ?: periodiserGrunnlag(spec.kravhode!!, spec.fomDato, spec.tomDato) // periodiserGrunnlagFraNyttKrav
 
-        return sisteBeregningCreator(spec).createBeregning(spec, beregningResultat)
+        return sisteBeregningCreator(spec).createBeregning(spec, beregningsresultat)
     }
 
     // OpprettSisteBeregningCommand.findForrigeKravhode
@@ -81,7 +74,7 @@ class SisteBeregningCreator(
         val regelverkType = spec.regelverkKodePaNyttKrav
 
         if (spec.isRegelverk1967) {
-            throw RuntimeException("Regelverk1967 not supported")
+            throw BadSpecException("Regelverk1967 not supported")
         }
 
         return when (regelverkType) {
@@ -93,8 +86,6 @@ class SisteBeregningCreator(
     }
 
     private companion object {
-        // OpprettSisteBeregningCommand.REGULERINGS_DATO
-        private val reguleringDato = LocalDate.of(2011, 5, 1)
 
         // SimpleFpenService.periodiserGrunnlag
         private fun periodiserGrunnlag(kravhode: Kravhode, fom: LocalDate?, tom: LocalDate?): Kravhode =
@@ -108,44 +99,23 @@ class SisteBeregningCreator(
 
         // OpprettSisteBeregningCommand.createOpprettSisteBeregningParameter
         private fun createOpprettSisteBeregningParameter(
-            beregning: AbstraktBeregningsResultat?,
             kravhode: Kravhode,
             vedtakListe: List<VilkarsVedtak>,
-            virkningFom: LocalDate?,
-            beregningResultat: AbstraktBeregningsResultat?
+            beregningsresultat: AbstraktBeregningsResultat?
         ): SisteBeregningSpec {
-            val isRegelverk1967 = beregning != null
-
-            if (isRegelverk1967) {
-                val etterRegulering = isAfterByDay(virkningFom, reguleringDato, true)
-
-                return SisteBeregningSpec(
-                    isRegelverk1967 = true,
-                    kravhode = kravhode,
-                    beregning = beregning,
-                    beregningsresultat = beregningResultat,
-                    vilkarsvedtakListe = vedtakListe,
-                    regelverk1967VirkToEarly = etterRegulering,
-                    fomDato = if (etterRegulering) null else beregning.virkFomLd,
-                    tomDato = if (etterRegulering) null else beregning.virkTomLd,
-                    filtrertVilkarsvedtakList = emptyList(),
-                    forrigeKravhode = null,
-                    regelverkKodePaNyttKrav = null
-                )
-            }
-
             val filtrertVedtakListe: List<VilkarsVedtak> =
-                beregningResultat?.virkFomLd?.let { filtrerVedtak(it, beregningResultat.virkTomLd, vedtakListe) }
-                    ?: throw ImplementationUnrecoverableException("Missing beregningsresultat.virkFom")
+                beregningsresultat?.virkFomLd?.let {
+                    filtrerVedtak(fom = it, tom = beregningsresultat.virkTomLd, vedtakListe)
+                } ?: throw InternDataInkonsistensException("Missing beregningsresultat.virkFom")
 
             return SisteBeregningSpec(
                 isRegelverk1967 = false,
                 kravhode = kravhode,
-                beregning = beregning,
-                beregningsresultat = beregningResultat,
+                beregning = null,
+                beregningsresultat = beregningsresultat,
                 vilkarsvedtakListe = vedtakListe,
-                fomDato = beregningResultat.virkFomLd!!,
-                tomDato = beregningResultat.virkTomLd,
+                fomDato = beregningsresultat.virkFomLd,
+                tomDato = beregningsresultat.virkTomLd,
                 filtrertVilkarsvedtakList = filtrertVedtakListe,
                 forrigeKravhode = null,
                 regelverkKodePaNyttKrav = null
@@ -154,7 +124,11 @@ class SisteBeregningCreator(
 
         // SimpleBeregningService.filtrerVilkarsvedtak
         // -> FiltrerVilkarsvedtakCommand.execute
-        private fun filtrerVedtak(fom: LocalDate, tom: LocalDate?, vedtakListe: List<VilkarsVedtak>): List<VilkarsVedtak> =
+        private fun filtrerVedtak(
+            fom: LocalDate,
+            tom: LocalDate?,
+            vedtakListe: List<VilkarsVedtak>
+        ): List<VilkarsVedtak> =
             vedtakListe.filter {
                 isInnvilget(it.vilkarsvedtakResultatEnum)
                         && isVilkarsprovdOrFerdig(it.kravlinje)
@@ -187,19 +161,5 @@ class SisteBeregningCreator(
                 date == null -> false
                 else -> isAfterByDay(virkTom, date, true)
             }
-
-        // OpprettSisteBeregningCommand.validateRequest
-        private fun validate(
-            beregning: AbstraktBeregningsResultat?,
-            kravhode: Kravhode,
-            virkningFom: LocalDate?,
-            beregningResult: AbstraktBeregningsResultat?
-        ) {
-            requireNotNull(kravhode) { "kravhode is required" }
-            require(beregning != null || beregningResult != null) { "beregning and beregningsresultat cannot both be null" }
-            require(beregning == null || beregningResult == null) { "beregning and beregningsresultat cannot both be set" }
-            //require(beregningsresultat == null || vilkarsvedtakListe != null) { "vilkarsvedtakListe is required when beregningsresultat is set" }
-            require(beregning == null || virkningFom != null) { "datoVirkFom is required when beregning is set" }
-        }
     }
 }

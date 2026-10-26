@@ -166,6 +166,11 @@ class SimulertBeregningInformasjon {
     var individueltMinstenivaaTillegg: Int? = null
 
     /**
+     * Minstenivatillegg individuelt per måned.
+     */
+    var individueltMinstenivaaTilleggPerMaaned: Int? = null
+
+    /**
      * Minstenivatillegg pensjonistpar.
      */
     var pensjonistParMinstenivaaTillegg: Int? = null

@@ -30,7 +30,7 @@ import tools.jackson.databind.ObjectMapper
 
 @Service("storebrand")
 class StorebrandTjenestepensjonClientFra2025(
-    @Value($$"${storebrand.tp-simulering.fra-2025.url}") baseUrl: String,
+    @Value($$"${storebrand.tp-simulering.fra-2025.url}") private val baseUrl: String,
     @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
     @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
@@ -83,7 +83,7 @@ class StorebrandTjenestepensjonClientFra2025(
             }
         } catch (e: EgressException) {
             "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
-                log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
+                log.error(e) { "$it med url $baseUrl/$tpNummer/$SIMULER_PATH - status: ${e.statusCode}" }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         }

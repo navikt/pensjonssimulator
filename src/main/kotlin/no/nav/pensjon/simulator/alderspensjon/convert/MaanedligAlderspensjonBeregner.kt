@@ -46,6 +46,7 @@ class MaanedligAlderspensjonBeregner(
                 tilleggspensjon = info.tilleggspensjonPerMaaned,
                 pensjonstillegg = info.pensjonstilleggPerMaaned,
                 skjermingstillegg = info.skjermingstilleggPerMaaned,
+                minstenivaatilleggIndividuelt = info.individueltMinstenivaaTilleggPerMaaned,
                 andelsbroekKap19 = kapittel19Andel,
                 andelsbroekKap20 = kapittel20Andel,
                 basispensjon = info.basispensjon,

@@ -46,12 +46,12 @@ class StorebrandTjenestepensjonClientFra2025(
         tpNummer: String
     ): Result<SimulertTjenestepensjon> {
         val request: StorebrandSimulerTjenestepensjonRequest = toRequestDto(spec)
-        log.debug { "Simulating tjenestepensjon 2025 with ${service.shortName} with request $request" }
+        log.info { "${service.shortName} request $request" }
 
         sporingslogg.logUtgaaendeRequest(
             organisasjonsnummer = Organisasjoner.STOREBRAND,
             pid = spec.pid,
-            leverteData = request.toString()
+            leverteData = request.toAuditString()
         )
 
         return try {
@@ -63,7 +63,8 @@ class StorebrandTjenestepensjonClientFra2025(
                 .retrieve()
                 .bodyToMono<StorebrandSimulerTjenestepensjonResponse>()
                 .block()
-                ?.let { success(spec, request, response = it) }
+                ?.let { rawResponse -> success(spec, request, response = rawResponse)
+                    .also { log.info { "${service.shortName} response $it" } }}
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
             "Failed to simulate tjenestepensjon 2025 with ${service.shortName} ${e.responseBodyAsString}".let {

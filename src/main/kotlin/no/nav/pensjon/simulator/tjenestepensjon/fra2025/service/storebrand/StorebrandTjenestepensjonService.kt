@@ -78,7 +78,7 @@ class StorebrandTjenestepensjonService(
     private companion object {
 
         private val ekskluderteYtelseTyper: List<String> =
-            TjenestepensjonYtelseType.entries.filter { it.erEkskludertForSpk }.map { it.kode }
+            TjenestepensjonYtelseType.entries.filter { it.erEkskludertForStorebrand }.map { it.kode }
 
         private fun ekskludert(periode: Utbetalingsperiode): Boolean =
             periode.ytelseType in ekskluderteYtelseTyper

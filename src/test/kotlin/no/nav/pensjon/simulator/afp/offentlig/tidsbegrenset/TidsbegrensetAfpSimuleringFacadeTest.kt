@@ -18,7 +18,7 @@ class TidsbegrensetAfpSimuleringFacadeTest : ShouldSpec({
             should("gi resultat med problem av type 'annen klientfeil'") {
                 TidsbegrensetAfpSimuleringFacade(
                     specCreator = mockk(relaxed = true),
-                    simulator = arrrangeBadSpec()
+                    simulator = arrangeBadSpec()
                 ).simulerAfpForFpp(
                     TidsbegrensetAfpSpec(
                         uttakFom = LocalDate.of(2021, 1, 1),
@@ -35,5 +35,5 @@ class TidsbegrensetAfpSimuleringFacadeTest : ShouldSpec({
     }
 })
 
-private fun arrrangeBadSpec(): TidsbegrensetAfpSimuleringService =
+private fun arrangeBadSpec(): TidsbegrensetAfpSimuleringService =
     mockk { every { simulerPensjonsberegning(any()) } throws BadSpecException("feil") }

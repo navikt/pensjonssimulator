@@ -9,7 +9,15 @@ data class StorebrandSimulerTjenestepensjonRequest(
     val aarIUtlandetEtter16: Int,
     val epsPensjon: Boolean,
     val eps2G: Boolean
-)
+){
+    override fun toString(): String {
+        return "StorebrandSimulering(uttaksListe=$uttaksListe, fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, epsPensjon=$epsPensjon, eps2G=$eps2G)"
+    }
+
+    fun toAuditString(): String {
+        return "StorebrandSimulerTjenestepensjonRequest(personId=$personId, uttaksListe=$uttaksListe, fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, epsPensjon=$epsPensjon, eps2G=$eps2G)"
+    }
+}
 
 data class Uttak(
     val ytelseType: String,

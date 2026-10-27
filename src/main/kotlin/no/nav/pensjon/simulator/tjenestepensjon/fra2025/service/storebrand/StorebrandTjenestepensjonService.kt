@@ -65,7 +65,7 @@ class StorebrandTjenestepensjonService(
                 utbetalingsliste = pensjon.utbetalingsperioder.filterNot(::ekskludert),
                 foedselsdato
             ),
-            betingetTjenestepensjonErInkludert = pensjon.betingetTjenestepensjonErInkludert,
+            betingetTjenestepensjonErInkludert = false,
             serviceData = pensjon.serviceData
         )
 

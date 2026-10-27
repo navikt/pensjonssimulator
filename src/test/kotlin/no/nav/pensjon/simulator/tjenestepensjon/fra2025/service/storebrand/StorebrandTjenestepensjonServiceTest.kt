@@ -46,7 +46,7 @@ class StorebrandTjenestepensjonServiceTest : FunSpec({
             ordningsListe shouldHaveSize 1
             utbetalingsperioder shouldHaveSize 1
             utbetalingsperioder.single().maanedsBeloep shouldBe 3000
-            betingetTjenestepensjonErInkludert shouldBe true
+            betingetTjenestepensjonErInkludert shouldBe false
             serviceData shouldBe listOf("request", "response")
         }
     }

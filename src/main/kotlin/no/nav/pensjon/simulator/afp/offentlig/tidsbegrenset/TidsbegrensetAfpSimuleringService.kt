@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset
 
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpFoerstegangBeregner.Companion.simulerTrygdetid
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpSpecValidator.validateInput
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.GeneralPensjonSimuleringService
 import no.nav.pensjon.simulator.core.domain.regler.PenPerson
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Poengtall
@@ -15,11 +17,11 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simulering
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
 import no.nav.pensjon.simulator.core.spec.ExtraSimuleringSpec
-import no.nav.pensjon.simulator.fpp.FppSimuleringSpecValidator.validate
-import no.nav.pensjon.simulator.fpp.FppSimuleringUtil.persongrunnlagForRolle
 import no.nav.pensjon.simulator.g.GrunnbeloepService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.person.PersonService
+import no.nav.pensjon.simulator.person.PersongrunnlagUtil.persongrunnlagForRolle
 import no.nav.pensjon.simulator.person.relasjon.eps.EpsUtil.epsMottarPensjon
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -35,6 +37,7 @@ class TidsbegrensetAfpSimuleringService(
     private val simulator: GeneralPensjonSimuleringService,
     private val vilkaarsproever: AfpVilkaarsproever,
     private val personService: PersonService,
+    private val normalderService: NormertPensjonsalderService,
     private val grunnbeloepService: GrunnbeloepService
 ) {
     // PEN: SimpleSimuleringService.simulerPensjonsberegning
@@ -42,7 +45,7 @@ class TidsbegrensetAfpSimuleringService(
     // -------------------------------------------------------
     // NB: Compare with TidsbegrensetOffentligAfpFoerstegangBeregner.simulerPensjonsberegning
     fun simulerPensjonsberegning(coreSpec: Simulering): TidsbegrensetAfpSimuleringResult {
-        validate(coreSpec)
+        validateInput(coreSpec, normalder(coreSpec))
         val tilstrekkeligTrygdetid: Boolean = simulerTrygdetid(coreSpec)
 
         if (tilstrekkeligTrygdetid.not()) {
@@ -93,6 +96,9 @@ class TidsbegrensetAfpSimuleringService(
         )
     }
 
+    private fun normalder(spec: Simulering): Alder =
+        spec.pid?.let(normalderService::normalder) ?: Alder(67, 0)
+
     /**
      * Ref. pensjon-pselv: SamlesideFormPopulator.createPoengtallListeAndSetTpi
      */
@@ -121,11 +127,6 @@ class TidsbegrensetAfpSimuleringService(
 
         if (simuleringType == ALDER_M_GJEN) {
             addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.AVDOD)
-        }
-
-        if (simuleringType == BARN) { //TODO fjern støtte for barnepensjon etc.
-            addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.MOR)
-            addUfoerehistorikk(spec, rolle = GrunnlagsrolleEnum.FAR)
         }
     }
 
@@ -223,9 +224,9 @@ class TidsbegrensetAfpSimuleringService(
             grunnbeloep: Int
         ): KravlinjeTypeEnum? =
             when {
-                rolle == GrunnlagsrolleEnum.SOKER -> simuleringType?.let(::kravlinjeTypeForSoeker)
+                rolle == GrunnlagsrolleEnum.SOKER -> simuleringType?.soekerKravlinjeType
 
-                rolle == GrunnlagsrolleEnum.AVDOD && ALDER_M_GJEN == simuleringType -> KravlinjeTypeEnum.GJR
+                rolle == GrunnlagsrolleEnum.AVDOD -> simuleringType?.avdoedKravlinjeType
 
                 rolle == GrunnlagsrolleEnum.BARN && (ALDER == simuleringType || ALDER_M_GJEN == simuleringType)
                         && personDetalj.barnDetalj?.inntektOver1G != true -> KravlinjeTypeEnum.BT
@@ -234,16 +235,6 @@ class TidsbegrensetAfpSimuleringService(
                         BorMedTypeEnum.SAMBOER1_5 == personDetalj.borMedEnum &&
                         harRettTilEktefelleTillegg(simuleringType, persongrunnlag, grunnbeloep) -> KravlinjeTypeEnum.ET
 
-                else -> null
-            }
-
-        private fun kravlinjeTypeForSoeker(simuleringType: SimuleringTypeEnum): KravlinjeTypeEnum? =
-            when (simuleringType) {
-                ALDER -> KravlinjeTypeEnum.AP
-                ALDER_M_GJEN -> KravlinjeTypeEnum.AP
-                AFP -> KravlinjeTypeEnum.AFP
-                GJENLEVENDE -> KravlinjeTypeEnum.GJP
-                BARN -> KravlinjeTypeEnum.BP
                 else -> null
             }
 

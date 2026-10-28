@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.fpp
+package no.nav.pensjon.simulator.trygdetid
 
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Utenlandsopphold
 import no.nav.pensjon.simulator.core.spec.UtlandPeriodeConverter.TRYGDETID_MINSTEALDER_AAR
@@ -13,7 +13,7 @@ import java.time.Period
  * Utenlandsopphold fratrekkes denne perioden; dette gir trygdetiden.
  * Trygdetiden avrundes til hele år.
  */
-object FppTrygdetidBeregner {
+object TrygdetidBeregner {
 
     private val maxOpptjeningsperiode = Period.of(OPPTJENING_MAX_ANTALL_AAR, 0, 0)
 

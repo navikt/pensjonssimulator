@@ -54,7 +54,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             flyktning = source.flyktning,
             epsHarInntektOver2G = source.eps2G == true,
             livsvarigOffentligAfp = null,
-            tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(source),
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(source),
             erAnonym = false,
             ignoreAvslag = false,
             brukBeregnetBeholdningVedPensjonsberegning = true,
@@ -71,7 +71,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
         )
     }
 
-    fun pre2025OffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV2): TidsbegrensetOffentligAfpSpec? =
+    fun tidsbegrensetOffentligAfpSpec(simuleringSpec: SimuleringEtter2011SpecV2): TidsbegrensetOffentligAfpSpec? =
         if (simuleringSpec.simuleringType == SimuleringTypeSpecV2.AFP_ETTERF_ALDER)
             TidsbegrensetOffentligAfpSpec(
                 afpOrdning = AFPtypeEnum.valueOf(simuleringSpec.afpOrdning!!.name),

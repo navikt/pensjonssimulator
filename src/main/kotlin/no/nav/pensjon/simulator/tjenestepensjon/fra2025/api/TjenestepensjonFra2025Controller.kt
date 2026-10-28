@@ -13,11 +13,18 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.OffentligTjen
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025ResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.TjenestepensjonFra2025Aggregator.aggregerVellykketRespons
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.SimulerOffentligTjenestepensjonFra2025SpecV2
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.TjenestepensjonFra2025Aggregator.aggregerVellykketRespons
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.TjenestepensjonFra2025Aggregator.aggregerVellykketResponsV2
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.TjenestepensjonFra2025Aggregator.mapToRelevantTpOrdning
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.OffentligTjenestepensjonFra2025SimuleringSpecMapperV2
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.ResultatTypeDtoV2
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.SimulerOffentligTjenestepensjonFra2025ResultV2
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TpSimuleringResultatFra2025
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
+import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -59,9 +66,9 @@ class TjenestepensjonFra2025Controller(
         countCall(FUNCTION_ID)
         try {
             validateSpec(specV1)
-            val simuleringsresultat: Pair<List<String>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
+            val simuleringsresultat: Pair<List<TpForhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
                 OffentligTjenestepensjonFra2025SimuleringSpecMapperV1.fromDto(specV1))
-            val relevanteTpOrdninger = simuleringsresultat.first
+            val relevanteTpOrdninger = simuleringsresultat.first.map { it.navn }
             return simuleringsresultat.second.fold(
                 onSuccess = {
                     val aggregerVellykketRespons: SimulerOffentligTjenestepensjonFra2025ResultV1 = aggregerVellykketRespons(it, relevanteTpOrdninger)
@@ -89,6 +96,59 @@ class TjenestepensjonFra2025Controller(
         }
     }
 
+    @PostMapping("v2/simuler-oftp/fra-2025")
+    @Operation(
+        summary = "Simuler tjenestepensjon fra 2025 V2",
+        description = "Henter simulering av utbetaling av tjenestepensjon fra TP-levernadør.",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Simulering av tjenestepensjon utført."
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Simulering kunne ikke utføres pga. uakseptabel input."
+            )
+        ]
+    )
+    fun simulerV2(@RequestBody specV2: SimulerOffentligTjenestepensjonFra2025SpecV2): SimulerOffentligTjenestepensjonFra2025ResultV2 {
+        traceAid.begin()
+        log.debug { "$FUNCTION_ID request: $specV2" }
+        countCall(FUNCTION_ID)
+        try {
+            validateSpecV2(specV2)
+            val simuleringsresultat: Pair<List<TpForhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
+                OffentligTjenestepensjonFra2025SimuleringSpecMapperV2.fromDto(specV2))
+            val relevanteTpOrdninger = mapToRelevantTpOrdning(simuleringsresultat.first)
+            return simuleringsresultat.second.fold(
+                onSuccess = {
+                    val aggregerVellykketRespons: SimulerOffentligTjenestepensjonFra2025ResultV2 = aggregerVellykketResponsV2(it, relevanteTpOrdninger)
+                        .also { _ -> Metrics.countTjenestepensjonSimuleringFra2025(TpSimuleringResultatFra2025.OK, it.tpLeverandoer.shortName) }
+                    log.debug { "Simulering vellykket: $aggregerVellykketRespons" }
+                    aggregerVellykketRespons
+                },
+                onFailure = { e ->
+                    countMetric(e)
+                    when (e) {
+                        is BrukerErIkkeMedlemException -> SimulerOffentligTjenestepensjonFra2025ResultV2(ResultatTypeDtoV2.BRUKER_ER_IKKE_MEDLEM_HOS_TP_ORDNING, e.message, relevanteTpOrdninger)
+                        is TpOrdningStoettesIkkeException -> SimulerOffentligTjenestepensjonFra2025ResultV2(ResultatTypeDtoV2.TP_ORDNING_ER_IKKE_STOTTET, e.message, relevanteTpOrdninger)
+                        is TjenestepensjonSimuleringException -> SimulerOffentligTjenestepensjonFra2025ResultV2(ResultatTypeDtoV2.TEKNISK_FEIL_FRA_TP_ORDNING, e.message, relevanteTpOrdninger)
+                        is TomSimuleringFraTpOrdningException -> SimulerOffentligTjenestepensjonFra2025ResultV2(ResultatTypeDtoV2.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING, "Simulering fra ${e.tpOrdning} inneholder ingen utbetalingsperioder", relevanteTpOrdninger)
+                        is IkkeSisteOrdningException -> SimulerOffentligTjenestepensjonFra2025ResultV2(ResultatTypeDtoV2.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING, "Simulering fra ${e.tpOrdning} inneholder ingen utbetalingsperioder", relevanteTpOrdninger)
+                        is TpregisteretException -> { log.error(e) { "Simulering feilet pga feil fra tpregisteret: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message) }
+                        else -> { log.error(e) { "Simulering feilet: ${e.message}" }; throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.message) }
+                    }
+                })
+        } catch (e: UgyldigSpecException) {
+            countMetric(e)
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST, e.message)
+        } finally {
+            traceAid.end()
+        }
+    }
+
     override fun errorMessage() = ERROR_MESSAGE
 
     private fun countMetric(e: Throwable) {
@@ -100,6 +160,14 @@ class TjenestepensjonFra2025Controller(
     }
 
     private fun validateSpec(spec: SimulerOffentligTjenestepensjonFra2025SpecV1) {
+        if (spec.erApoteker) {
+            throw UgyldigSpecException("Apoteker støttes ikke")
+        }
+        if (spec.foedselsdato.isBefore(MINSTE_FOEDSELSDATO)) {
+            throw UgyldigSpecException("Fødselsdato før $MINSTE_FOEDSELSDATO støttes ikke")
+        }
+    }
+    private fun validateSpecV2(spec: SimulerOffentligTjenestepensjonFra2025SpecV2) {
         if (spec.erApoteker) {
             throw UgyldigSpecException("Apoteker støttes ikke")
         }

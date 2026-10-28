@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
+import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
@@ -74,7 +75,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
         test("returnerer SUCCESS med simuleringsresultat") {
             val spec = dummySpec()
             every { service.simuler(any()) } returns Pair(
-                listOf("3010"),
+                listOf(dummyTpForhold()),
                 Result.success(dummySimulertTjenestepensjon())
             )
 
@@ -88,14 +89,14 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
                 utbetalingsperioder[0].maanedligBeloep shouldBe 5000
                 betingetTjenestepensjonErInkludert shouldBe false
             }
-            result.relevanteTpOrdninger shouldBe listOf("3010")
+            result.relevanteTpOrdninger shouldBe listOf("Statens Pensjonskasse")
         }
     }
 
     context("exception handling") {
         test("BrukerErIkkeMedlemException returnerer BRUKER_ER_IKKE_MEDLEM_HOS_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("3010"), Result.failure(BrukerErIkkeMedlemException()))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(BrukerErIkkeMedlemException()))
 
             val result = controller.simuler(spec)
 
@@ -104,7 +105,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
 
         test("TpOrdningStoettesIkkeException returnerer TP_ORDNING_ER_IKKE_STOTTET") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("9999"), Result.failure(TpOrdningStoettesIkkeException("9999")))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold("9999")), Result.failure(TpOrdningStoettesIkkeException("9999")))
 
             val result = controller.simuler(spec)
 
@@ -113,7 +114,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
 
         test("TjenestepensjonSimuleringException returnerer TEKNISK_FEIL_FRA_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("3010"), Result.failure(TjenestepensjonSimuleringException("Feil", "SPK")))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(TjenestepensjonSimuleringException("Feil", "SPK")))
 
             val result = controller.simuler(spec)
 
@@ -122,7 +123,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
 
         test("TomSimuleringFraTpOrdningException returnerer INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("3010"), Result.failure(TomSimuleringFraTpOrdningException("SPK")))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(TomSimuleringFraTpOrdningException("SPK")))
 
             val result = controller.simuler(spec)
 
@@ -131,7 +132,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
 
         test("IkkeSisteOrdningException returnerer INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("3010"), Result.failure(IkkeSisteOrdningException("SPK")))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(IkkeSisteOrdningException("SPK")))
 
             val result = controller.simuler(spec)
 
@@ -140,7 +141,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
 
         test("TpregisteretException kaster ResponseStatusException med INTERNAL_SERVER_ERROR") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("3010"), Result.failure(TpregisteretException("Feil fra tpregisteret")))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(TpregisteretException("Feil fra tpregisteret")))
 
             val exception = shouldThrow<ResponseStatusException> {
                 controller.simuler(spec)
@@ -151,7 +152,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
 
         test("ukjent exception kaster ResponseStatusException med INTERNAL_SERVER_ERROR") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf("3010"), Result.failure(RuntimeException("Ukjent feil")))
+            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(RuntimeException("Ukjent feil")))
 
             val exception = shouldThrow<ResponseStatusException> {
                 controller.simuler(spec)
@@ -162,6 +163,12 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
     }
 }) {
     companion object {
+        private fun dummyTpForhold(tpNr: String = "3010") = TpForhold(
+            tpNr = tpNr,
+            navn = "Statens Pensjonskasse",
+            datoSistOpptjening = null
+        )
+
         fun dummySpec(
             foedselsdato: LocalDate = LocalDate.of(1963, 2, 5),
             erApoteker: Boolean = false

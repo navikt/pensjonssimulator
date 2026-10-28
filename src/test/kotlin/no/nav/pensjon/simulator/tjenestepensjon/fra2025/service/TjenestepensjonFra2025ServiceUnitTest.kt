@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TpOrdningStoet
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningNavService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.StorebrandTjenestepensjonService
 import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.http.HttpStatus
@@ -31,16 +32,18 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
     val tp = mockk<TpregisteretClient>(relaxed = true)
     val spk = mockk<SpkTjenestepensjonService>(relaxed = true)
     val klp = mockk<KlpTjenestepensjonService>(relaxed = true)
+    val storebrand = mockk<StorebrandTjenestepensjonService>(relaxed = true)
 
     val service = TjenestepensjonFra2025Service(
         tpregisteretClient = tp,
         spk = spk,
         klp = klp,
+        storebrand = storebrand,
         sisteTpOrdningService = SisteTpOrdningNavService()
     )
 
     beforeTest {
-        clearMocks(tp, spk, klp)
+        clearMocks(tp, spk, klp, storebrand)
     }
 
     test("simuler success fra SPK") {
@@ -133,6 +136,23 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         tpRes.utbetalingsperioder.size shouldBe 1
     }
 
+    STOREBRAND_TP_NUMRE.forEach { tpNummer ->
+        test("simuler success fra Storebrand $tpNummer") {
+            val spec = dummySpec(foedselsdato = "1963-02-05")
+            every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(tpNummer))
+            every { storebrand.simuler(spec, tpNummer) } returns dummyResult(EgressService.STOREBRAND, tpNummer)
+
+            val res = service.simuler(spec)
+
+            res.second.isSuccess.shouldBeTrue()
+            val tpRes = res.second.getOrNull().shouldNotBeNull()
+            tpRes.tpLeverandoer shouldBe EgressService.STOREBRAND
+            tpRes.tpNummer shouldBe tpNummer
+            tpRes.ordningsListe.size shouldBe 1
+            tpRes.utbetalingsperioder.size shouldBe 1
+        }
+    }
+
     test("simulering feiler når SPK og KLP returnerer tomt resultat") {
         val spec = dummySpec(foedselsdato = "1963-02-05")
         every { tp.findAlleTpForhold(spec.pid) } returns listOf(dummyTpOrdning(SPK_TP_NUMMER), dummyTpOrdning(KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER))
@@ -149,6 +169,7 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         const val SPK_TP_NUMMER = "3010"
         const val KLP_TP_NUMMER = "3200"
         const val KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER = "4082"
+        val STOREBRAND_TP_NUMRE = listOf("4081", "4083", "4098")
 
         fun dummySpec(
             foedselsdato: String,

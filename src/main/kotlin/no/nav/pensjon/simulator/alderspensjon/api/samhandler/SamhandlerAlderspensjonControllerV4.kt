@@ -6,27 +6,27 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.alderspensjon.AlderspensjonResult
 import no.nav.pensjon.simulator.alderspensjon.AlderspensjonService
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.*
 import no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4.AlderspensjonResultMapperV4.resultV4
 import no.nav.pensjon.simulator.alderspensjon.spec.AlderspensjonSpec
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
-import no.nav.pensjon.simulator.core.exception.*
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
-import no.nav.pensjon.simulator.tech.web.BadRequestException
-import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
-import no.nav.pensjon.simulator.validity.BadSpecException
-import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractUnsafeMessages
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
-import java.time.format.DateTimeParseException
+import tools.jackson.databind.json.JsonMapper
 
 /**
  * REST-controller for simulering av alderspensjon for personer født 1963 eller senere.
@@ -39,6 +39,7 @@ import java.time.format.DateTimeParseException
 class SamhandlerAlderspensjonControllerV4(
     private val service: AlderspensjonService,
     private val traceAid: TraceAid,
+    private val jsonMapper: JsonMapper,
     statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
@@ -72,7 +73,7 @@ class SamhandlerAlderspensjonControllerV4(
     fun simulerAlderspensjon(
         @RequestBody specV4: AlderspensjonSpecV4,
         request: HttpServletRequest
-    ): AlderspensjonResultV4 {
+    ): ResponseEntity<AlderspensjonResultV4> {
         traceAid.begin(request)
         countCall(FUNCTION_ID_V4)
 
@@ -81,65 +82,65 @@ class SamhandlerAlderspensjonControllerV4(
             registrerHendelse(simuleringstype = SimuleringTypeEnum.ALDER)
             request.setAttribute(SporingInterceptor.PID_ATTRIBUTE_NAME, spec.pid)
             verifiserAtBrukerTilknyttetTpLeverandoer(spec.pid)
-            resultV4(timed(service::simulerAlderspensjon, spec, FUNCTION_ID_V4))
-        } catch (e: BadSpecException) {
-            log.warn { "$FUNCTION_ID_V4 feil i spesifikasjonen - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: DateTimeParseException) {
-            log.warn { "$FUNCTION_ID_V4 feil datoformat (forventet yyyy-mm-dd) - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: InternDataInkonsistensException) {
-            log.warn { "$FUNCTION_ID_V4 intern datainkonsistens - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: InvalidArgumentException) {
-            log.warn { "$FUNCTION_ID_V4 invalid argument - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: InvalidEnumValueException) {
-            log.warn { "$FUNCTION_ID_V4 invalid enum value - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: RegelmotorValideringException) {
-            log.warn { "$FUNCTION_ID_V4 feil i regelmotorvalidering - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e)
-        } catch (e: UtilstrekkeligOpptjeningException) {
-            log.info { "$FUNCTION_ID_V4 utilstrekkelig opptjening - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING)
-        } catch (e: UtilstrekkeligTrygdetidException) {
-            log.info { "$FUNCTION_ID_V4 utilstrekkelig trygdetid - ${e.message} - request: $specV4" }
-            feilInfoResultV4(e, PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID)
-        } catch (e: EgressException) {
-            handle(e)!!
-        } catch (e: BadRequestException) {
-            badRequest(e)!!
+            val result: AlderspensjonResult = service.simulerAlderspensjon(spec)
+            result.problem?.let(::problemEntity) ?: okEntity(result)
+        } catch (e: Exception) {
+            log.error(e) { "$$FUNCTION_ID_V4 intern feil for spec ${jsonMapper.writeValueAsRedactedString(specV4)}" }
+            throw e
         } finally {
             traceAid.end()
         }
     }
 
+    @ExceptionHandler(value = [HttpMessageNotReadableException::class])
+    private fun handleMalformedRequest(e: Exception): ResponseEntity<AlderspensjonResultV4> =
+        badRequestEntity(e)
+            .also {
+                log.warn { "$FUNCTION_ID_V4 - request not readable - ${extractUnsafeMessages(e)}" }
+            }
+
     @ExceptionHandler(value = [Exception::class])
-    private fun handleInternalServerError(e: RuntimeException): ResponseEntity<AlderspensjonResultV4> =
-        ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(feilInfoResultV4(e))
+    private fun handleInternalServerError(e: Exception): ResponseEntity<AlderspensjonResultV4> =
+        internalErrorEntity(e)
 
     override fun errorMessage() = ERROR_MESSAGE
+
+    private fun okEntity(result: AlderspensjonResult): ResponseEntity<AlderspensjonResultV4> =
+        ResponseEntity
+            .status(HttpStatus.OK)
+            .body(resultV4(result))
+
+    private fun problemEntity(problem: Problem): ResponseEntity<AlderspensjonResultV4> =
+        ResponseEntity
+            .status(problem.type.let(::httpStatus))
+            .body(AlderspensjonResultV4.forFeil(problem, callId = traceAid.callId()))
+
+    private fun badRequestEntity(e: Exception): ResponseEntity<AlderspensjonResultV4> =
+        ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(AlderspensjonResultV4.forFeil(e, callId = traceAid.callId()))
+
+    private fun internalErrorEntity(e: Exception): ResponseEntity<AlderspensjonResultV4> =
+        ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(AlderspensjonResultV4.forFeil(e, callId = traceAid.callId()))
 
     private companion object {
         private const val ERROR_MESSAGE = "feil ved simulering av alderspensjon V4"
         private const val FUNCTION_ID_V4 = "apv4"
 
-        private fun feilInfoResultV4(
-            e: Exception,
-            status: PensjonSimuleringStatusKodeV4 = PensjonSimuleringStatusKodeV4.ANNET
-        ) =
-            AlderspensjonResultV4(
-                simuleringSuksess = false,
-                aarsakListeIkkeSuksess = listOf(
-                    PensjonSimuleringStatusV4(
-                        statusKode = status.externalValue,
-                        statusBeskrivelse = e.javaClass.simpleName
-                    )
-                ),
-                alderspensjon = emptyList(),
-                forslagVedForLavOpptjening = null,
-                harUttak = false
-            )
+        /**
+         * NB: Dette endepunktet bruker HTTP-status 'OK' for de fleste unntakstilfeller.
+         * Problemårsaken formidles gjennom feltet 'aarsakListeIkkeSuksess' i responsen.
+         */
+        private fun httpStatus(type: ProblemType) =
+            when (type) {
+                ProblemType.ANNEN_KLIENTFEIL -> HttpStatus.BAD_REQUEST
+                ProblemType.IMPLEMENTASJONSFEIL -> HttpStatus.INTERNAL_SERVER_ERROR
+                ProblemType.INTERN_DATA_INKONSISTENS -> HttpStatus.INTERNAL_SERVER_ERROR
+                ProblemType.TREDJEPARTSFEIL -> HttpStatus.INTERNAL_SERVER_ERROR
+                ProblemType.ANNEN_SERVERFEIL -> HttpStatus.INTERNAL_SERVER_ERROR
+                else -> HttpStatus.OK
+            }
     }
 }

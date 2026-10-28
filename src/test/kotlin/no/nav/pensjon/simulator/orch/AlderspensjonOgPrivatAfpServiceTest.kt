@@ -78,39 +78,45 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
     }
 
     context("feil i spesifikasjonen") {
-        should("return UGYLDIG_UTTAKSDATO problem when foersteUttakDato is before today") {
-            val spec = simuleringSpec(foersteUttakDato = LocalDate.of(2023, 1, 1))
+        context("første uttaksdato er før dagens dato") {
+            should("inkludere problembeskrivelse i returverdien") {
+                val spec = simuleringSpec(foersteUttakDato = LocalDate.of(2023, 1, 1))
 
-            goodService.simuler(spec) shouldBe errorResult(
-                problemType = ProblemType.UGYLDIG_UTTAKSDATO,
-                beskrivelse = "BadSpecException"
-            )
+                goodService.simuler(spec) shouldBe errorResult(
+                    problemType = ProblemType.UGYLDIG_UTTAKSDATO,
+                    beskrivelse = "Dato for første uttak (2023-01-01) er for tidlig"
+                )
+            }
         }
 
-        should("return UGYLDIG_UTTAKSDATO problem when foersteUttakDato is null") {
-            val spec = simuleringSpec(foersteUttakDato = null)
+        context("første uttaksdato er ikke angitt") {
+            should("inkludere problembeskrivelse i returverdien") {
+                val spec = simuleringSpec(foersteUttakDato = null)
 
-            goodService.simuler(spec) shouldBe errorResult(
-                problemType = ProblemType.UGYLDIG_UTTAKSDATO,
-                beskrivelse = "BadSpecException"
-            )
+                goodService.simuler(spec) shouldBe errorResult(
+                    problemType = ProblemType.UGYLDIG_UTTAKSDATO,
+                    beskrivelse = "Dato for første uttak mangler"
+                )
+            }
         }
 
-        should("return UGYLDIG_INNTEKT problem when fremtidig inntekt has negative beloep") {
-            val spec = simuleringSpec(
-                foersteUttakDato = LocalDate.of(2029, 1, 1),
-                inntektSpecListe = listOf(
-                    FremtidigInntekt(
-                        aarligInntektBeloep = -1,
-                        fom = LocalDate.of(2029, 1, 1)
+        context("inntekt har negativt beløp") {
+            should("inkludere problembeskrivelse i returverdien") {
+                val spec = simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2029, 1, 1),
+                    inntektSpecListe = listOf(
+                        FremtidigInntekt(
+                            aarligInntektBeloep = -1,
+                            fom = LocalDate.of(2029, 1, 1)
+                        )
                     )
                 )
-            )
 
-            goodService.simuler(spec) shouldBe errorResult(
-                problemType = ProblemType.UGYLDIG_INNTEKT,
-                beskrivelse = "BadSpecException"
-            )
+                goodService.simuler(spec) shouldBe errorResult(
+                    problemType = ProblemType.UGYLDIG_INNTEKT,
+                    beskrivelse = "En fremtidig inntekt har negativt beløp"
+                )
+            }
         }
     }
 
@@ -160,11 +166,11 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                     )
         }
 
-        should("return ANNEN_KLIENTFEIL problem on RegelmotorValideringException") {
+        should("return REGELBRUDD problem on RegelmotorValideringException") {
             badService(simulatorException = RegelmotorValideringException("validering feilet"))
                 .simuler(validSpec) shouldBe
                     errorResult(
-                        problemType = ProblemType.ANNEN_SERVERFEIL,
+                        problemType = ProblemType.REGELBRUDD,
                         beskrivelse = "RegelmotorValideringException"
                     )
         }

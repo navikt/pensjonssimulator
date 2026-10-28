@@ -70,7 +70,7 @@ class UttakService(
         } catch (e: PersonForUngException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: RegelmotorValideringException) {
-            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
+            problem(e, type = ProblemType.REGELBRUDD)
         } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
             problem(e, type = e.aarsak?.problemType ?: ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: UtilstrekkeligOpptjeningException) {

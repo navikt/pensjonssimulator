@@ -76,7 +76,7 @@ class AlderspensjonService(
         } catch (e: PersonForUngException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: RegelmotorValideringException) {
-            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
+            problem(e, type = ProblemType.REGELBRUDD)
         } catch (e: UtilstrekkeligOpptjeningException) {
             problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {

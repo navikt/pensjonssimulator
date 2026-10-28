@@ -43,6 +43,7 @@ object IngressErrorHandler {
      * and are therefore safe to expose to external clients.
      */
     private val safeExceptions = setOf(
+        BadSpecException::class.java,
         DateTimeParseException::class.java,
         HttpMessageNotReadableException::class.java,
         MismatchedInputException::class.java,

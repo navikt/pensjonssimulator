@@ -25,7 +25,7 @@ class AlderspensjonServiceTest : ShouldSpec({
                 )
             ).problem shouldBe Problem(
                 type = ProblemType.UGYLDIG_INNTEKT,
-                beskrivelse = "BadSpecException"
+                beskrivelse = "En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden"
             )
         }
     }
@@ -45,7 +45,7 @@ class AlderspensjonServiceTest : ShouldSpec({
                 )
             ).problem shouldBe Problem(
                 type = ProblemType.UGYLDIG_INNTEKT,
-                beskrivelse = "BadSpecException"
+                beskrivelse = "To fremtidige inntekter har samme f.o.m.-dato"
             )
         }
     }
@@ -61,7 +61,7 @@ class AlderspensjonServiceTest : ShouldSpec({
                 )
             ).problem shouldBe Problem(
                 type = ProblemType.UGYLDIG_INNTEKT,
-                beskrivelse = "BadSpecException"
+                beskrivelse = "En fremtidig inntekt har negativt beløp"
             )
         }
     }

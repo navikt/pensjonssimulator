@@ -38,10 +38,10 @@ object StorebrandMapper {
     ) =
         SimulertTjenestepensjon(
             tpLeverandoer = EgressService.STOREBRAND.description,
-            ordningsListe = response.inkludertOrdningListe.map { Ordning(tpNummer = it.tpnr) },
-            utbetalingsperioder = response.utbetalingListe.flatMap(::utbetalingsperioder),
+            ordningsListe = response.inkludertOrdningListe.orEmpty().map { Ordning(tpNummer = it.tpnr) },
+            utbetalingsperioder = response.utbetalingListe.orEmpty().flatMap(::utbetalingsperioder),
             aarsakIngenUtbetaling = response.aarsakIngenUtbetaling?.map { "${it.statusBeskrivelse}: ${it.ytelseType}" } ?: emptyList(),
-            betingetTjenestepensjonErInkludert = response.utbetalingListe
+            betingetTjenestepensjonErInkludert = response.utbetalingListe.orEmpty()
                 .flatMap { it.delytelseListe }
                 .any(::erBetingetTjenestepensjon),
             erSisteOrdning = response.aarsakIngenUtbetaling?.none(::erIkkeSisteOrdning) ?: true,

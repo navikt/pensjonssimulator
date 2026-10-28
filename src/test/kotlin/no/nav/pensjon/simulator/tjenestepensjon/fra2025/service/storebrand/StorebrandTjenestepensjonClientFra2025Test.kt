@@ -118,6 +118,27 @@ class StorebrandTjenestepensjonClientFra2025Test : FunSpec({
         }
     }
 
+    test("leser rårespons med årsak til ingen utbetaling og null i øvrige felt") {
+        server?.arrangeOkJsonResponse(
+            """{"inkludertOrdningListe":null,"utbetalingListe":null,"aarsakIngenUtbetaling":[{"statusKode":"IKKE_SISTE_ORDNING","statusBeskrivelse":"Vi er ikke siste ordning","ytelseType":"ALLE"}]}"""
+        )
+
+        Arrange.webClientContextRunner().run {
+            val result = client(it).simuler(dummySpec("1963-02-05"), "4081")
+
+            result.isSuccess shouldBe true
+            with(result.getOrNull().shouldNotBeNull()) {
+                tpLeverandoer shouldBe "Storebrand"
+                ordningsListe shouldBe emptyList()
+                utbetalingsperioder shouldBe emptyList()
+                aarsakIngenUtbetaling shouldBe listOf("Vi er ikke siste ordning: ALLE")
+                betingetTjenestepensjonErInkludert shouldBe false
+                erSisteOrdning shouldBe false
+            }
+            server?.takeRequest()?.path shouldBe "/4081/ofa/v1/tjenestepensjon/simuler"
+        }
+    }
+
     test("returnerer feil ved feilrespons fra Storebrand") {
         server?.arrangeResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, body = "feil")
 

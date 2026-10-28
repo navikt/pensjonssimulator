@@ -83,7 +83,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
 
             goodService.simuler(spec) shouldBe errorResult(
                 problemType = ProblemType.UGYLDIG_UTTAKSDATO,
-                beskrivelse = "Ukjent feil - BadSpecException"
+                beskrivelse = "BadSpecException"
             )
         }
 
@@ -92,7 +92,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
 
             goodService.simuler(spec) shouldBe errorResult(
                 problemType = ProblemType.UGYLDIG_UTTAKSDATO,
-                beskrivelse = "Ukjent feil - BadSpecException"
+                beskrivelse = "BadSpecException"
             )
         }
 
@@ -109,7 +109,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
 
             goodService.simuler(spec) shouldBe errorResult(
                 problemType = ProblemType.UGYLDIG_INNTEKT,
-                beskrivelse = "Ukjent feil - BadSpecException"
+                beskrivelse = "BadSpecException"
             )
         }
     }
@@ -120,7 +120,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - BadRequestException"
+                        beskrivelse = "BadRequestException"
                     )
         }
 
@@ -129,7 +129,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - DateTimeParseException"
+                        beskrivelse = "parse error"
                     )
         }
 
@@ -138,7 +138,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - InvalidArgumentException"
+                        beskrivelse = "InvalidArgumentException"
                     )
         }
 
@@ -147,7 +147,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - InvalidEnumValueException"
+                        beskrivelse = "InvalidEnumValueException"
                     )
         }
 
@@ -156,7 +156,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - PersonForUngException"
+                        beskrivelse = "PersonForUngException"
                     )
         }
 
@@ -164,8 +164,8 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             badService(simulatorException = RegelmotorValideringException("validering feilet"))
                 .simuler(validSpec) shouldBe
                     errorResult(
-                        problemType = ProblemType.ANNEN_KLIENTFEIL,
-                        beskrivelse = "Ukjent feil - RegelmotorValideringException"
+                        problemType = ProblemType.ANNEN_SERVERFEIL,
+                        beskrivelse = "RegelmotorValideringException"
                     )
         }
     }
@@ -176,7 +176,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.ANNEN_SERVERFEIL,
-                        beskrivelse = "Ukjent feil - EgressException"
+                        beskrivelse = "EgressException"
                     )
         }
 
@@ -189,7 +189,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             ).simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.TREDJEPARTSFEIL,
-                        beskrivelse = "Ukjent feil - EgressException"
+                        beskrivelse = "EgressException"
                     )
         }
 
@@ -198,7 +198,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.INTERN_DATA_INKONSISTENS,
-                        beskrivelse = "Ukjent feil - InternDataInkonsistensException"
+                        beskrivelse = "InternDataInkonsistensException"
                     )
         }
     }
@@ -209,7 +209,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.PERSON_FOR_HOEY_ALDER,
-                        beskrivelse = "Ukjent feil - PersonForGammelException"
+                        beskrivelse = "PersonForGammelException"
                     )
         }
 
@@ -218,7 +218,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.UTILSTREKKELIG_OPPTJENING,
-                        beskrivelse = "Ukjent feil - UtilstrekkeligOpptjeningException"
+                        beskrivelse = "UtilstrekkeligOpptjeningException"
                     )
         }
 
@@ -228,7 +228,7 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
             with(result) {
                 suksess shouldBe false
                 problem?.type shouldBe ProblemType.UTILSTREKKELIG_TRYGDETID
-                problem?.beskrivelse shouldBe "Ukjent feil - UtilstrekkeligTrygdetidException"
+                problem?.beskrivelse shouldBe "UtilstrekkeligTrygdetidException"
             }
         }
     }

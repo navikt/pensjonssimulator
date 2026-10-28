@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.validity
 
+import org.springframework.http.converter.HttpMessageNotReadableException
 import tools.jackson.databind.exc.MismatchedInputException
 import java.time.format.DateTimeParseException
 
@@ -43,6 +44,7 @@ object IngressErrorHandler {
      */
     private val safeExceptions = setOf(
         DateTimeParseException::class.java,
+        HttpMessageNotReadableException::class.java,
         MismatchedInputException::class.java,
         NullPointerException::class.java
     )

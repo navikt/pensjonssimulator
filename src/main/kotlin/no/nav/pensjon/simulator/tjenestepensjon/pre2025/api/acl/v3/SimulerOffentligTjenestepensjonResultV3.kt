@@ -31,6 +31,7 @@ enum class Pre2025TpV3ProblemType(
     UTILSTREKKELIG_OPPTJENING(internalValue = ProblemType.UTILSTREKKELIG_OPPTJENING),
     UTILSTREKKELIG_TRYGDETID(internalValue = ProblemType.UTILSTREKKELIG_TRYGDETID),
     ANNEN_KLIENTFEIL(internalValue = ProblemType.ANNEN_KLIENTFEIL),
+    REGELBRUDD(internalValue = ProblemType.REGELBRUDD, httpStatus = HttpStatus.INTERNAL_SERVER_ERROR),
     INTERN_DATA_INKONSISTENS(
         internalValue = ProblemType.INTERN_DATA_INKONSISTENS,
         httpStatus = HttpStatus.INTERNAL_SERVER_ERROR
@@ -40,8 +41,9 @@ enum class Pre2025TpV3ProblemType(
     ANNEN_SERVERFEIL(internalValue = ProblemType.ANNEN_SERVERFEIL, httpStatus = HttpStatus.INTERNAL_SERVER_ERROR);
 
     companion object {
+        private val valuesByInternal = entries.associateBy { it.internalValue }
 
         fun from(internalValue: ProblemType): Pre2025TpV3ProblemType =
-            entries.firstOrNull { it.internalValue == internalValue } ?: ANNEN_SERVERFEIL
+            valuesByInternal[internalValue] ?: ANNEN_SERVERFEIL
     }
 }

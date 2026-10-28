@@ -11,6 +11,7 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
 import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -63,7 +64,7 @@ class AlderspensjonOgPrivatAfpService(
         } catch (e: PersonForUngException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: RegelmotorValideringException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
         } catch (e: UtilstrekkeligOpptjeningException) {
             problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
@@ -79,7 +80,8 @@ class AlderspensjonOgPrivatAfpService(
                 harNaavaerendeUttak = false,
                 harTidligereUttak = false,
                 harLoependePrivatAfp = false,
-                problem = Problem(type, beskrivelse = "Ukjent feil - ${e.javaClass.simpleName}")
+                problem = Problem(type, beskrivelse = extractSafeMessage(e))
+                    .also { it.log(e) { "AP og privat AFP OBS" } }
             )
     }
 }

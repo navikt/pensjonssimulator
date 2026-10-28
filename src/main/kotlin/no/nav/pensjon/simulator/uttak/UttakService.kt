@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.uttak
 
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alder.PensjonAlderDato
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
@@ -14,6 +15,7 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
 import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -68,7 +70,9 @@ class UttakService(
         } catch (e: PersonForUngException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: RegelmotorValideringException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e, type = ProblemType.ANNEN_SERVERFEIL)
+        } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
+            problem(e, type = e.aarsak?.problemType ?: ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: UtilstrekkeligOpptjeningException) {
             problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
         } catch (e: UtilstrekkeligTrygdetidException) {
@@ -92,7 +96,7 @@ class UttakService(
             TidligstMuligUttak(
                 uttaksdato = null,
                 uttaksgrad = Uttaksgrad.NULL,
-                problem = Problem(type, beskrivelse = e.javaClass.simpleName)
+                problem = Problem(type, beskrivelse = extractSafeMessage(e)).also { it.log(e) { "TMU OBS" } }
             )
     }
 }

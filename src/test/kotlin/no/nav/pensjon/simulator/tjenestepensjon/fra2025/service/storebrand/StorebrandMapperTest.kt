@@ -96,6 +96,55 @@ class StorebrandMapperTest : ShouldSpec({
             result.erSisteOrdning shouldBe false
             result.aarsakIngenUtbetaling shouldBe listOf("Ikke siste ordning: OAFP")
         }
+
+        should("mappe ikke siste ordning når ordninger og utbetalinger er null") {
+            val response = StorebrandSimulerTjenestepensjonResponse(
+                inkludertOrdningListe = null,
+                utbetalingListe = null,
+                aarsakIngenUtbetaling = listOf(
+                    AarsakIngenUtbetaling(
+                        statusKode = "IKKE_SISTE_ORDNING",
+                        statusBeskrivelse = "Vi er ikke siste ordning",
+                        ytelseType = "ALLE"
+                    )
+                )
+            )
+
+            val result = StorebrandMapper.fromResponseDto(response)
+
+            with(result) {
+                tpLeverandoer shouldBe "Storebrand"
+                ordningsListe shouldBe emptyList()
+                utbetalingsperioder shouldBe emptyList()
+                aarsakIngenUtbetaling shouldBe listOf("Vi er ikke siste ordning: ALLE")
+                betingetTjenestepensjonErInkludert shouldBe false
+                erSisteOrdning shouldBe false
+            }
+        }
+
+        should("bevare annen årsak til ingen utbetaling når ordninger og utbetalinger er null") {
+            val response = StorebrandSimulerTjenestepensjonResponse(
+                inkludertOrdningListe = null,
+                utbetalingListe = null,
+                aarsakIngenUtbetaling = listOf(
+                    AarsakIngenUtbetaling(
+                        statusKode = "IKKE_STOETTET",
+                        statusBeskrivelse = "Ikke stoettet",
+                        ytelseType = "SAERALDERSPAASLAG"
+                    )
+                )
+            )
+
+            val result = StorebrandMapper.fromResponseDto(response)
+
+            with(result) {
+                ordningsListe shouldBe emptyList()
+                utbetalingsperioder shouldBe emptyList()
+                aarsakIngenUtbetaling shouldBe listOf("Ikke stoettet: SAERALDERSPAASLAG")
+                betingetTjenestepensjonErInkludert shouldBe false
+                erSisteOrdning shouldBe true
+            }
+        }
     }
 }) {
     private companion object {

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING
 import java.time.LocalDate
 
 data class StorebrandSimulerTjenestepensjonResponse(
-    val inkludertOrdningListe: List<InkludertOrdning>,
+    val inkludertOrdningListe: List<InkludertOrdning>?,
     @param:JsonFormat(with = [JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY])
-    val utbetalingListe: List<Utbetaling>,
+    val utbetalingListe: List<Utbetaling>?,
     val aarsakIngenUtbetaling: List<AarsakIngenUtbetaling>?
 )
 

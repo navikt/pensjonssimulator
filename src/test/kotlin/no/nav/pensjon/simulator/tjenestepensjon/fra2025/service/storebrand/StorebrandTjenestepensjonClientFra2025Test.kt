@@ -20,7 +20,11 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.*
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.AarsakIngenUtbetaling
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Delytelse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.InkludertOrdning
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.StorebrandSimulerTjenestepensjonResponse
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Utbetaling
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.beans.factory.BeanFactory
 import org.springframework.beans.factory.getBean

@@ -1,15 +1,15 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult.Companion.tpOrdningStoettesIkke
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
-import no.nav.pensjon.simulator.tpregisteret.TpOrdningId
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Component
 
 /**
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component
  */
 @Component
 class TjenestepensjonSimuleringPre2025Service(
-    private val tpregisteretClient: TpregisteretClient,
+    private val client: TjenestepensjonsforholdClient,
     private val spkStillingsprosentService: SpkStillingsprosentService,
     private val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025
 ) {
@@ -29,12 +29,8 @@ class TjenestepensjonSimuleringPre2025Service(
         try {
             val pid = spec.pid
 
-            val alleForhold: List<TpOrdning> = tpregisteretClient.findAlleTpForhold(pid)
-                .mapNotNull { forhold ->
-                    tpregisteretClient.findTssId(forhold.tpNr)
-                        ?.let { TpOrdningId(tpId = forhold.tpNr, tssId = it) }
-                        ?.toTpOrdning(forhold)
-                }
+            val alleForhold: List<Tjenestepensjonsordning> = client.findAlleTpForhold(pid)
+                .mapNotNull(::tpOrdning)
 
             if (alleForhold.isEmpty()) {
                 log.debug { "No TP-forhold found for person" }
@@ -71,6 +67,16 @@ class TjenestepensjonSimuleringPre2025Service(
             throw e
         }
     }
+
+    private fun tpOrdning(forhold: Tjenestepensjonsforhold): Tjenestepensjonsordning? =
+        client.findTssId(tpNr = forhold.tpNr)?.let {
+            Tjenestepensjonsordning(
+                navn = forhold.navn,
+                tpNr = forhold.tpNr,
+                datoSistOpptjening = forhold.datoSistOpptjening,
+                tssId = it
+            )
+        }
 
     companion object {
         val FNR_REGEX = """[0-9]{11}""".toRegex()

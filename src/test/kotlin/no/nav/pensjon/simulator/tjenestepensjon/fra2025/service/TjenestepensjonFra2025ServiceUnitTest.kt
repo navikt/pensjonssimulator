@@ -10,6 +10,8 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
@@ -20,8 +22,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningNavService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.StorebrandTjenestepensjonService
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.http.HttpStatus
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.server.ResponseStatusException
@@ -29,7 +29,7 @@ import java.time.LocalDate
 
 class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
 
-    val tp = mockk<TpregisteretClient>(relaxed = true)
+    val tp = mockk<TjenestepensjonsforholdClient>(relaxed = true)
     val spk = mockk<SpkTjenestepensjonService>(relaxed = true)
     val klp = mockk<KlpTjenestepensjonService>(relaxed = true)
     val storebrand = mockk<StorebrandTjenestepensjonService>(relaxed = true)
@@ -189,7 +189,7 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         )
 
         fun dummyTpOrdning(tpNummer: String) =
-            TpForhold(tpNr = tpNummer, navn = "Statens pensjonskasse", datoSistOpptjening = null)
+            Tjenestepensjonsforhold(tpNr = tpNummer, navn = "Statens pensjonskasse", datoSistOpptjening = null)
 
         fun dummyResult(leverandoer: EgressService, tpNummer: String) =
             Result.success(

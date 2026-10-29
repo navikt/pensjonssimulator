@@ -11,7 +11,7 @@ import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
 import org.intellij.lang.annotations.Language
 import org.springframework.http.HttpStatus

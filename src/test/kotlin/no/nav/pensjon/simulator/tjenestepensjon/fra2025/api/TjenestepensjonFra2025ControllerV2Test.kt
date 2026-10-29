@@ -13,6 +13,7 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.RelevantOrdningV2
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.ResultatTypeDtoV2
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.SimulerOffentligTjenestepensjonFra2025SpecV2
@@ -23,7 +24,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
@@ -34,8 +34,8 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
     val service = mockk<TjenestepensjonFra2025Service>()
     val controller = TjenestepensjonFra2025Controller(traceAid, service)
     val tpOrdninger = listOf(
-        TpForhold("3010", "Statens Pensjonskasse", LocalDate.of(2025, 1, 1)),
-        TpForhold("4081", "Storebrand", null)
+        Tjenestepensjonsforhold("3010", "Statens Pensjonskasse", LocalDate.of(2025, 1, 1)),
+        Tjenestepensjonsforhold("4081", "Storebrand", null)
     )
     val relevanteTpOrdninger = listOf(
         RelevantOrdningV2("Statens Pensjonskasse", "3010"),

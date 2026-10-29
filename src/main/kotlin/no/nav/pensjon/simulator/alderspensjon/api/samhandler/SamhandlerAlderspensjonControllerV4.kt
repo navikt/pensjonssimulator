@@ -20,7 +20,7 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import org.springframework.http.HttpStatus

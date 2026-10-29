@@ -3,29 +3,30 @@ package no.nav.pensjon.simulator.tpregisteret
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
-import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.organisasjonsnummer
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.tp.TpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.springframework.beans.factory.BeanFactory
+import org.springframework.beans.factory.getBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
-class TpregisteretClientTest : FunSpec({
+class TpClientTest : FunSpec({
     var server: MockWebServer? = null
     var baseUrl: String? = null
 
     fun client(context: BeanFactory) =
-        TpregisteretClient(
+        TpClient(
             baseUrl!!,
             retryAttempts = "0",
-            webClientBase = context.getBean(WebClientBase::class.java),
-            traceAid = mockk<TraceAid>(relaxed = true),
+            webClientBase = context.getBean<WebClientBase>(),
+            traceAid = mockk(relaxed = true)
         )
 
     beforeSpec {

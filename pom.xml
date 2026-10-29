@@ -20,7 +20,7 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>25</kotlin.compiler.jvmTarget>
         <kotlin.version>2.4.21</kotlin.version>
-        <flyway.version>13.10.3</flyway.version>
+        <flyway.version>13.11.1</flyway.version>
         <logback.version>1.6.5</logback.version>
         <okhttp3.version>5.5.0</okhttp3.version>
         <kotest.version>6.2.6</kotest.version>

@@ -15,10 +15,7 @@ import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
@@ -53,7 +50,7 @@ class ControllerBaseTest : ShouldSpec({
     context("verifiserAtBrukerTilknyttetTpLeverandoer") {
         should("ikke kaste exception når personen er tilknyttet tjenestepensjonsleverandør") {
             val controller = TestController(
-                traceAid = mock(),
+                traceAid = mockk(),
                 organisasjonsnummerProvider = arrangeOrganisasjonsnummer(nummer = "123456789"),
                 tilknytningService = arrangeErTilknyttet()
             )
@@ -206,8 +203,8 @@ class ControllerBaseTest : ShouldSpec({
  * NB: Since Organisasjonsnummer is a @JvmInline value class, Mockk does not support it. Using Mockito instead.
  */
 private fun arrangeOrganisasjonsnummer(nummer: String): OrganisasjonsnummerProvider =
-    mock<OrganisasjonsnummerProvider>().apply {
-        whenever(provideOrganisasjonsnummer()).thenReturn(Organisasjonsnummer(nummer))
+    mockk {
+        every { provideOrganisasjonsnummer() } returns Organisasjonsnummer(nummer)
     }
 
 /**
@@ -215,8 +212,8 @@ private fun arrangeOrganisasjonsnummer(nummer: String): OrganisasjonsnummerProvi
  * have to use Mockito for TilknytningService if they are mocked in the same test.
  */
 private fun arrangeErTilknyttet(): TilknytningService =
-    mock<TilknytningService>().apply {
-        whenever(erPersonTilknyttetTjenestepensjonsordning(any(), any())).thenReturn(true)
+    mockk {
+        every { erPersonTilknyttetTjenestepensjonsordning(any(), any()) } returns true
     }
 
 class TestController(

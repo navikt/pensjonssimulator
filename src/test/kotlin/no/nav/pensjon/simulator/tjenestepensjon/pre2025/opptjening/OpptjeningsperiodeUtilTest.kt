@@ -4,14 +4,14 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import java.time.LocalDate
 
 class OpptjeningsperiodeUtilTest : ShouldSpec({
 
     fun tpOrdning(tpNr: String = "1234") =
-        TpOrdning(navn = "Ordning $tpNr", tpNr = tpNr, tssId = "tss-$tpNr")
+        Tjenestepensjonsordning(navn = "Ordning $tpNr", tpNr = tpNr, tssId = "tss-$tpNr")
 
     fun stillingsprosent(
         datoFom: LocalDate = LocalDate.of(2020, 1, 1),

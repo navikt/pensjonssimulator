@@ -1,15 +1,15 @@
-package no.nav.pensjon.simulator.tjenestepensjon
+package no.nav.pensjon.simulator.tjenestepensjon.forhold
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.EgressException
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
-class TilknytningService(val client: TpregisteretClient) {
+class TilknytningService(val client: TjenestepensjonsforholdClient) {
 
     val log = KotlinLogging.logger { }
 

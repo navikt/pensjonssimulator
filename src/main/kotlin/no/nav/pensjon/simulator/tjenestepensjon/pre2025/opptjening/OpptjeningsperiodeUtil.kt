@@ -1,12 +1,12 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening
 
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Opptjeningsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 
 object OpptjeningsperiodeUtil {
 
-    fun getOpptjeningsperiodeListe(tpOrdning: TpOrdning, stillingsprosentListe: List<Stillingsprosent>) =
+    fun getOpptjeningsperiodeListe(tpOrdning: Tjenestepensjonsordning, stillingsprosentListe: List<Stillingsprosent>) =
         mapOf(tpOrdning to opptjeningsperiodeListe(stillingsprosentListe))
 
     private fun opptjeningsperiodeListe(

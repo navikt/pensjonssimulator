@@ -7,13 +7,13 @@ import io.mockk.*
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper.XMLHentStillingsprosentListeResponse
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLStillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlToken
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.ws.client.WebServiceIOException
 import org.springframework.ws.client.WebServiceTransportException
 import org.springframework.ws.client.core.WebServiceTemplate
@@ -30,7 +30,7 @@ class SpkStillingsprosentSoapClientTest : StringSpec({
     val fnr = Pid("12345678901")
     val orgnummer = Organisasjoner.SPK
 
-    val tpOrdning = TpOrdning(
+    val tpOrdning = Tjenestepensjonsordning(
         navn = "pensjonskasse",
         tpNr = "1234",
         datoSistOpptjening = LocalDate.now(),

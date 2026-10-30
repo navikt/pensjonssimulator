@@ -127,7 +127,7 @@ class UttakController(
     private fun handleInternalError(e: Exception): ResponseEntity<TidligstMuligUttakResultV1> =
         with(TidligstMuligUttakFeilTypeV1.TEKNISK_FEIL) {
             log.error(e) { "$FUNCTION_ID - unknown error - ${extractUnsafeMessages(e)}" }
-            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = e.javaClass.simpleName))
+            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = extractSafeMessage(e)))
         }
 
     private companion object {

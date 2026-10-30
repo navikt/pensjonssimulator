@@ -3,6 +3,10 @@ package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v4
 import com.fasterxml.jackson.annotation.JsonFormat
 import no.nav.pensjon.simulator.alderspensjon.PensjonSimuleringStatusKode
 import no.nav.pensjon.simulator.alderspensjon.PensjonType
+import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
+import no.nav.pensjon.simulator.validity.Problem
+import no.nav.pensjon.simulator.validity.ProblemType
 import java.time.LocalDate
 
 /**
@@ -15,7 +19,49 @@ data class AlderspensjonResultV4(
     val alderspensjon: List<AlderspensjonFraFolketrygdenV4>,
     val forslagVedForLavOpptjening: ForslagVedForLavOpptjeningV4?,
     val harUttak: Boolean
-)
+) {
+    companion object {
+
+        fun forFeil(e: Exception, callId: String) =
+            forFeil(
+                beskrivelse = extractSafeMessage(e),
+                status = PensjonSimuleringStatusKodeV4.ANNET,
+                callId
+            )
+
+        fun forFeil(problem: Problem, callId: String) =
+            forFeil(
+                beskrivelse = problem.beskrivelse,
+                status = problem.type.let(::simuleringStatusKode),
+                callId
+            )
+
+        private fun forFeil(
+            beskrivelse: String,
+            status: PensjonSimuleringStatusKodeV4,
+            callId: String
+        ) =
+            AlderspensjonResultV4(
+                simuleringSuksess = false,
+                aarsakListeIkkeSuksess = listOf(
+                    PensjonSimuleringStatusV4(
+                        statusKode = status.externalValue,
+                        statusBeskrivelse = "Call ID: $callId | Error: feil ved simulering av alderspensjon V4 | Details: $beskrivelse"
+                    )
+                ),
+                alderspensjon = emptyList(),
+                forslagVedForLavOpptjening = null,
+                harUttak = false
+            )
+
+        private fun simuleringStatusKode(type: ProblemType): PensjonSimuleringStatusKodeV4 =
+            when (type) {
+                ProblemType.UTILSTREKKELIG_OPPTJENING -> PensjonSimuleringStatusKodeV4.AVSLAG_FOR_LAV_OPPTJENING
+                ProblemType.UTILSTREKKELIG_TRYGDETID -> PensjonSimuleringStatusKodeV4.AVSLAG_FOR_KORT_TRYGDETID
+                else -> PensjonSimuleringStatusKodeV4.ANNET
+            }
+    }
+}
 
 data class AlderspensjonFraFolketrygdenV4(
     @param:JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd") val fraOgMedDato: LocalDate,
@@ -48,12 +94,15 @@ enum class PensjonTypeV4(val externalValue: String, val internalValue: PensjonTy
     GARANTIPENSJON("garantiPensjon", PensjonType.GARANTIPENSJON);
 
     companion object {
-        @OptIn(ExperimentalStdlibApi::class)
-        fun fromInternalValue(value: PensjonType): PensjonTypeV4 = entries.single { it.internalValue == value }
+        private val valuesByInternal = entries.associateBy { it.internalValue }
+
+        fun fromInternalValue(value: PensjonType): PensjonTypeV4 =
+            valuesByInternal[value]
+                ?: throw InvalidEnumValueException("Mangler V4-mapping for intern pensjonstype $value")
     }
 }
 
-enum class PensjonSimuleringStatusKodeV4 (val externalValue: String, val internalValue: PensjonSimuleringStatusKode) {
+enum class PensjonSimuleringStatusKodeV4(val externalValue: String, val internalValue: PensjonSimuleringStatusKode) {
     AVSLAG_FOR_LAV_OPPTJENING("AVSLAG_FOR_LAV_OPPTJENING", PensjonSimuleringStatusKode.AVSLAG_FOR_LAV_OPPTJENING),
     AVSLAG_FOR_KORT_TRYGDETID("AVSLAG_FOR_KORT_TRYGDETID", PensjonSimuleringStatusKode.AVSLAG_FOR_KORT_TRYGDETID),
     BRUKER_FOEDT_FOER_1943("BRUKER_FODT_FOR_1943", PensjonSimuleringStatusKode.BRUKER_FOEDT_FOER_1943),
@@ -63,8 +112,9 @@ enum class PensjonSimuleringStatusKodeV4 (val externalValue: String, val interna
     ANNET("ANNET", PensjonSimuleringStatusKode.ANNET);
 
     companion object {
-        @OptIn(ExperimentalStdlibApi::class)
+        private val valuesByInternal = entries.associateBy { it.internalValue }
+
         fun fromInternalValue(value: PensjonSimuleringStatusKode): PensjonSimuleringStatusKodeV4 =
-            entries.singleOrNull { it.internalValue == value } ?: ANNET
+            valuesByInternal[value] ?: ANNET
     }
 }

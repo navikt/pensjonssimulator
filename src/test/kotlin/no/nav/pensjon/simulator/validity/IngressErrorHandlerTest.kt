@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.validity
 
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.mockk
+import org.springframework.http.converter.HttpMessageNotReadableException
 import tools.jackson.databind.exc.MismatchedInputException
 import tools.jackson.databind.json.JsonMapper
 import java.time.format.DateTimeParseException
@@ -55,6 +57,11 @@ class IngressErrorHandlerTest : ShouldSpec({
     context("extractSafeMessage") {
         should("betrakte DateTimeParseException som sikker") {
             val exception = DateTimeParseException("Oops", "2023.01.01", 4)
+            IngressErrorHandler.extractSafeMessage(exception) shouldBe "Oops"
+        }
+
+        should("betrakte HttpMessageNotReadableException som sikker") {
+            val exception = HttpMessageNotReadableException("Oops", mockk())
             IngressErrorHandler.extractSafeMessage(exception) shouldBe "Oops"
         }
 

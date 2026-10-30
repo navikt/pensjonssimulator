@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
@@ -16,6 +15,7 @@ import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
 import no.nav.pensjon.simulator.tech.web.BadRequestException
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
 import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -34,8 +34,6 @@ class SimuleringFacade(
     private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
-    private val log = KotlinLogging.logger {}
-
     fun simulerAlderspensjon(
         spec: SimuleringSpec,
         inkluderPensjonHvisUbetinget: Boolean
@@ -86,7 +84,7 @@ class SimuleringFacade(
         } catch (e: PersonForUngException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: RegelmotorValideringException) {
-            problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
+            problem(e, type = ProblemType.REGELBRUDD)
         } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
             problem(e, type = e.aarsak?.problemType ?: ProblemType.ANNEN_KLIENTFEIL)
         }
@@ -123,17 +121,6 @@ class SimuleringFacade(
     private fun hasUfoereperiode(spec: SimuleringSpec): Boolean =
         spec.pid?.let { ufoereService.hasUfoereperiode(it, spec.foersteUttakDato!!) } == true
 
-    private fun problem(e: RuntimeException, type: ProblemType) =
-        e.let {
-            log.error(it) { "simulering feilet - ${it.message}" }
-
-            SimulertPensjonEllerAlternativ(
-                pensjon = null,
-                alternativ = null,
-                problem = Problem(type, beskrivelse = it.javaClass.simpleName)
-            )
-        }
-
     private companion object {
 
         /**
@@ -153,5 +140,13 @@ class SimuleringFacade(
         private fun isReducible(grad: UttakGradKode): Boolean =
             grad !== UttakGradKode.P_20 // 20 % is lowest gradert uttak
                     && grad !== UttakGradKode.P_100 // 100 % is not gradert uttak and hence not "adjustable" to a lower grad
+
+        private fun problem(e: RuntimeException, type: ProblemType) =
+            SimulertPensjonEllerAlternativ(
+                pensjon = null,
+                alternativ = null,
+                problem = Problem(type, beskrivelse = extractSafeMessage(e))
+                    .also { it.log(e) { "simulering OBS" } }
+            )
     }
 }

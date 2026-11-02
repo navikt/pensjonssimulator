@@ -355,9 +355,7 @@ private fun arrangeOutput(soekerFoedselsdato: LocalDate? = null): SimuleringResu
     mockk {
         every {
             opprettOutput(any())
-        } returns SimulatorOutput().apply {
-            registerData = soekerFoedselsdato?.let { RegisterData(soekerFoedselsdato = it) }
-        }
+        } returns SimulatorOutput(registerData = soekerFoedselsdato?.let { RegisterData(soekerFoedselsdato = it) })
     }
 
 private fun mockSakService(): SakService = mockk {

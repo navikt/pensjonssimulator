@@ -20,6 +20,7 @@ data class SimuleringResultDto(
     @Deprecated("Bruk opptjeningListe")
     @field:NotNull val pensjonsgivendeInntektListe: List<AarligBeloepDto>,
     @field:NotNull val opptjeningListe: List<OpptjeningDto>,
+    val fremtidigePensjonspoeng: Double? = null,
     val problem: ProblemDto? = null
 )
 

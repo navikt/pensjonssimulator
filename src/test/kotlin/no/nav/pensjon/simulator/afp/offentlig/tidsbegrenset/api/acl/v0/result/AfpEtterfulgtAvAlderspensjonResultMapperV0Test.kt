@@ -132,15 +132,15 @@ private fun mockSimulatorOutput(
     fom: LocalDate,
     kapittel19Andel: Double = 3.0
 ) =
-    SimulatorOutput().apply {
-        tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp(fom)
-        alderspensjon = alderspensjon(kapittel19Andel, foersteUtbetalingFom = fom)
-        sivilstand = SivilstandEnum.GIFT
-        epsHarPensjon = true
-        epsHarInntektOver2G = true
-        heltUttakDato = fom
+    SimulatorOutput(
+        tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp(fom),
+        alderspensjon = alderspensjon(kapittel19Andel, foersteUtbetalingFom = fom),
+        sivilstand = SivilstandEnum.GIFT,
+        epsHarPensjon = true,
+        epsHarInntektOver2G = true,
+        heltUttakDato = fom,
         registerData = RegisterData(grunnbeloep = 2)
-    }
+    )
 
 private fun folketrygdberegnetAfp(tidsbegrensetOffentligAfp: Simuleringsresultat): FolketrygdberegnetAfpV0 {
     val beregning = tidsbegrensetOffentligAfp.beregning!!
@@ -196,7 +196,7 @@ private fun alderspensjonFraFolketrygdenResultatListe(
                 ),
                 tilleggspensjon = TilleggspensjonV0(
                     maanedligUtbetaling = beregningsinfo.tilleggspensjonPerMaaned!!,
-                    grunnbeloep = output.registerData?.grunnbeloep!!,
+                    grunnbeloep = output.registerData.grunnbeloep,
                     sluttpoengTall = beregningsinfo.spt!!,
                     antallPoengaarTilOgMed1991 = beregningsinfo.pa_f92!!,
                     antallPoengaarFraOgMed1992 = beregningsinfo.pa_e91!!

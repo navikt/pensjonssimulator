@@ -36,9 +36,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
-            simuleringResult = SimulatorOutput().apply {
-                registerData = RegisterData(sisteGyldigeOpptjeningAar = 2023)
-            },
+            simuleringResult = SimulatorOutput(registerData = RegisterData(sisteGyldigeOpptjeningAar = 2023)),
             pid,
             foersteUttakFom = LocalDate.of(2037, 3, 1),
             heltUttakFom = null
@@ -75,7 +73,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
-            simuleringResult = SimulatorOutput().apply {
+            simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
                         SimulertBeregningInformasjon().apply {
@@ -93,7 +91,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
                         }
                     )
                 }
-            },
+            ),
             pid,
             foersteUttakFom = normertPensjoneringsdato.minusYears(2),
             heltUttakFom = null
@@ -130,7 +128,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
-            simuleringResult = SimulatorOutput().apply {
+            simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
                         // Skal ikke mappes, siden datoFom < foersteUttakFom:
@@ -145,7 +143,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
                         }
                     )
                 }
-            },
+            ),
             pid,
             foersteUttakFom,
             heltUttakFom = null
@@ -164,7 +162,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             outputConverter = mockk(relaxed = true),
             time = mockk<Time>().apply { every { today() } returns today }
         ).map(
-            simuleringResult = SimulatorOutput().apply {
+            simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     uttakGradListe = listOf(
                         Uttaksgrad().apply {
@@ -173,7 +171,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
                             uttaksgrad = 50
                         })
                 }
-            },
+            ),
             pid,
             foersteUttakFom = LocalDate.of(2038, 1, 1),
             heltUttakFom = null
@@ -192,7 +190,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             outputConverter = mockk(relaxed = true),
             time = mockk<Time>().apply { every { today() } returns today }
         ).map(
-            simuleringResult = SimulatorOutput().apply {
+            simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     uttakGradListe = listOf(
                         // Skal ikke medføre 'har uttak', siden uttaksgrad = 0:
@@ -208,7 +206,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
                             uttaksgrad = 20
                         })
                 }
-            },
+            ),
             pid,
             foersteUttakFom = LocalDate.of(2038, 1, 1),
             heltUttakFom = null
@@ -238,7 +236,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             },
             time = mockk(relaxed = true)
         ).map(
-            simuleringResult = SimulatorOutput().apply {
+            simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
                         SimulertBeregningInformasjon().apply {
@@ -255,7 +253,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
                         }
                     )
                 }
-            },
+            ),
             pid,
             foersteUttakFom = LocalDate.of(2037, 2, 1),
             heltUttakFom = null // ikke-gradert
@@ -291,7 +289,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
             },
             time = mockk(relaxed = true)
         ).map(
-            simuleringResult = SimulatorOutput().apply {
+            simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
                         // Skal ikke mappes, siden datoFom ikke matcher foersteUttakFom/heltUttakFom:
@@ -314,7 +312,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
                         }
                     )
                 }
-            },
+            ),
             pid,
             foersteUttakFom,
             heltUttakFom

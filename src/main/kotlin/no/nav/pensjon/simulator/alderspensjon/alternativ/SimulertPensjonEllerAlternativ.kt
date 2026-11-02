@@ -7,7 +7,8 @@ import java.time.LocalDate
 
 data class SimulertPensjonEllerAlternativ(
     val pensjon: SimulertPensjon?,
-    val alternativ: SimulertAlternativ?,
+    val alternativ: SimulertAlternativ? = null,
+    val fpp: Double? = null,
     val problem: Problem? = null
 )
 

@@ -190,14 +190,13 @@ class SimulatorCore(
             sisteLignetInntektAar = initialSpec.registerData?.sisteLignetInntektAar,
             sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar(),
             soekerFoedselsdato = foedselsdato,
-            grunnbeloep = grunnbeloep
+            grunnbeloep = grunnbeloep,
+            afpHistorikkListe = person?.afpHistorikkListe.orEmpty()
         )
 
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
-                SimulatorOutput().apply {
-                    tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringResult
-                }
+                SimulatorOutput(tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringResult)
             else
                 resultPreparer.opprettOutput(
                     ResultPreparerSpec(
@@ -223,10 +222,10 @@ class SimulatorCore(
         return if (spec.erAnonym)
             output
         else
-            output.apply {
-                this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
-                this.heltUttakDato = spec.heltUttakDato
-            }
+            output.med(
+                persongrunnlag = kravhode.hentPersongrunnlagForSoker(),
+                heltUttakFom = spec.heltUttakDato
+            )
     }
 
     override fun fetchFoedselsdato(pid: Pid): LocalDate =

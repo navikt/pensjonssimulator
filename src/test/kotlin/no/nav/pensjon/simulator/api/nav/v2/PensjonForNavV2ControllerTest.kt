@@ -243,7 +243,7 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
   "pensjonsgivendeInntektListe": [],
   "problem": {
     "kode": "ANNEN_KLIENTFEIL",
-    "beskrivelse": "Cannot deserialize value of type `no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto` from String \"TI_PROSENT\": not one of the values accepted for Enum class: [FOERTI_PROSENT, SEKSTI_PROSENT, NULL, FEMTI_PROSENT, HUNDRE_PROSENT, AATTI_PROSENT, TJUE_PROSENT]\n at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); byte offset: #194] (through reference chain: no.nav.pensjon.simulator.api.nav.v2.acl.spec.SimuleringSpecDto[\"gradertUttak\"]->no.nav.pensjon.simulator.api.nav.v2.acl.spec.GradertUttakSpecDto[\"grad\"])"
+    "beskrivelse": "JSON parse error: Cannot deserialize value of type `no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto` from String \"TI_PROSENT\": not one of the values accepted for Enum class: [FOERTI_PROSENT, SEKSTI_PROSENT, NULL, FEMTI_PROSENT, HUNDRE_PROSENT, AATTI_PROSENT, TJUE_PROSENT]"
   }
 }"""
 

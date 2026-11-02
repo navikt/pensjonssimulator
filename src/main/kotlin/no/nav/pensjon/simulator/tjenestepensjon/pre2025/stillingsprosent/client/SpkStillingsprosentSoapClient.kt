@@ -4,6 +4,7 @@ import mu.KotlinLogging
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.acl.TpOrdningSpecMapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.SOAPAdapter
@@ -11,10 +12,9 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.FNR
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.HentStillingsprosentListeRequest
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.XMLHentStillingsprosentListeRequestWrapper
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.saml.SamlTokenClient
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.ws.client.WebServiceFaultException
@@ -33,7 +33,7 @@ class SpkStillingsprosentSoapClient(
 ) : WebServiceGatewaySupport(), StillingsprosentClient {
     private val log = KotlinLogging.logger {}
 
-    override fun getStillingsprosenter(pid: Pid, tpOrdning: TpOrdning): List<Stillingsprosent> {
+    override fun getStillingsprosenter(pid: Pid, tpOrdning: Tjenestepensjonsordning): List<Stillingsprosent> {
         val dto = HentStillingsprosentListeRequest(
             fnr = FNR(pid.value),
             tpOrdning = TpOrdningSpecMapper.toDto(tpOrdning)

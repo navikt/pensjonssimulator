@@ -18,7 +18,7 @@ import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractUnsafeMessages
 import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType

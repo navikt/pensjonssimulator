@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl
 
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025ResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimuleringsResultatDto
@@ -14,11 +16,13 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.SimuleringsRe
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.UtbetalingPerAlderV2
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
 
 object TjenestepensjonFra2025Aggregator {
 
-    fun aggregerVellykketRespons(simulertTjenestepensjon: SimulertTjenestepensjonMedMaanedsUtbetalinger, tpOrdninger: List<String>) =
+    fun aggregerVellykketRespons(
+        simulertTjenestepensjon: SimulertTjenestepensjonMedMaanedsUtbetalinger,
+        tpOrdninger: List<String>
+    ) =
         SimulerOffentligTjenestepensjonFra2025ResultV1(
             relevanteTpOrdninger = tpOrdninger,
             simuleringsResultatStatus = SimuleringsResultatStatusDto(ResultatTypeDto.SUCCESS),
@@ -37,14 +41,7 @@ object TjenestepensjonFra2025Aggregator {
             val sluttAlder = maanedsutbetalinger
                 .getOrNull(index + 1)
                 ?.fraOgMedAlder
-                ?.let {
-                    if (it.maaneder == 0) {
-                        Alder(it.aar - 1, 11)
-                    }
-                    else{
-                        Alder(it.aar, it.maaneder - 1)
-                    }
-                }
+                ?.let(::minusEnMaaned)
             aarligeUtbetalinger.add(
                 UtbetalingPerAlder(
                     startAlder = maanedsutbetalinger[index].fraOgMedAlder,
@@ -56,7 +53,10 @@ object TjenestepensjonFra2025Aggregator {
         return aarligeUtbetalinger
     }
 
-    fun aggregerVellykketResponsV2(simulertTjenestepensjon: SimulertTjenestepensjonMedMaanedsUtbetalinger, tpOrdninger: List<RelevantOrdningV2>) =
+    fun aggregerVellykketResponsV2(
+        simulertTjenestepensjon: SimulertTjenestepensjonMedMaanedsUtbetalinger,
+        tpOrdninger: List<RelevantOrdningV2>
+    ) =
         SimulerOffentligTjenestepensjonFra2025ResultV2(
             relevanteTpOrdninger = tpOrdninger,
             simuleringsResultatStatus = SimuleringsResultatStatusDtoV2(ResultatTypeDtoV2.SUCCESS),
@@ -69,12 +69,8 @@ object TjenestepensjonFra2025Aggregator {
             serviceData = simulertTjenestepensjon.serviceData
         )
 
-    fun mapToRelevantTpOrdning(tpOrdninger: List<TpForhold>) = tpOrdninger.map {
-        RelevantOrdningV2(
-            it.navn,
-            it.tpNr
-        )
-    }
+    fun mapToRelevantTpOrdning(tpOrdninger: List<Tjenestepensjonsforhold>) =
+        tpOrdninger.map { RelevantOrdningV2(it.navn, tpNummer = it.tpNr) }
 
     fun aggregerTilAarligePerioderV2(maanedsutbetalinger: List<Maanedsutbetaling>): List<UtbetalingPerAlderV2> {
         val aarligeUtbetalinger = mutableListOf<UtbetalingPerAlderV2>()
@@ -82,14 +78,7 @@ object TjenestepensjonFra2025Aggregator {
             val sluttAlder = maanedsutbetalinger
                 .getOrNull(index + 1)
                 ?.fraOgMedAlder
-                ?.let {
-                    if (it.maaneder == 0) {
-                        Alder(it.aar - 1, 11)
-                    }
-                    else{
-                        Alder(it.aar, it.maaneder - 1)
-                    }
-                }
+                ?.let(::minusEnMaaned)
             aarligeUtbetalinger.add(
                 UtbetalingPerAlderV2(
                     startAlder = maanedsutbetalinger[index].fraOgMedAlder,
@@ -100,4 +89,10 @@ object TjenestepensjonFra2025Aggregator {
         }
         return aarligeUtbetalinger
     }
+
+    private fun minusEnMaaned(alder: Alder): Alder =
+        if (alder.maaneder == 0)
+            Alder(alder.aar - 1, MAANEDER_PER_AAR - 1)
+        else
+            Alder(alder.aar, alder.maaneder - 1)
 }

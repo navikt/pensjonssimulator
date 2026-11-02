@@ -19,7 +19,7 @@ import no.nav.pensjon.simulator.orch.AlderspensjonOgPrivatAfpService
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

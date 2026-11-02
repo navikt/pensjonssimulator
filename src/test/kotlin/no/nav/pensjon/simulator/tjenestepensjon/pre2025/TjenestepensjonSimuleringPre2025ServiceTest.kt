@@ -7,14 +7,14 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
@@ -36,7 +36,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
     )
 
     fun spkForhold(tpNr: String = "3010", navn: String = "SPK") =
-        TpForhold(tpNr = tpNr, navn = navn, datoSistOpptjening = null)
+        Tjenestepensjonsforhold(tpNr = tpNr, navn = navn, datoSistOpptjening = null)
 
     fun stillingsprosent() = Stillingsprosent(
         datoFom = LocalDate.of(2020, 1, 1),
@@ -48,9 +48,9 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
     )
 
     fun tpregisteretClient(
-        forhold: List<TpForhold> = listOf(spkForhold()),
+        forhold: List<Tjenestepensjonsforhold> = listOf(spkForhold()),
         tssIdMap: Map<String, String?> = mapOf("3010" to "tss-3010")
-    ) = mockk<TpregisteretClient> {
+    ) = mockk<TjenestepensjonsforholdClient> {
         every { findAlleTpForhold(pid) } returns forhold
         tssIdMap.forEach { (tpNr, tssId) ->
             every { findTssId(tpNr) } returns tssId
@@ -58,7 +58,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
     }
 
     fun service(
-        tpClient: TpregisteretClient = tpregisteretClient(),
+        tpClient: TjenestepensjonsforholdClient = tpregisteretClient(),
         spkStillingsprosent: SpkStillingsprosentService = mockk {
             every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
@@ -126,7 +126,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
 
     test("simuler returns tpOrdningStoettesIkke when no SPK ordning found") {
         val tpClient = tpregisteretClient(
-            forhold = listOf(TpForhold(tpNr = "9999", navn = "Annen ordning", datoSistOpptjening = null)),
+            forhold = listOf(Tjenestepensjonsforhold(tpNr = "9999", navn = "Annen ordning", datoSistOpptjening = null)),
             tssIdMap = mapOf("9999" to "tss-9999")
         )
 
@@ -137,7 +137,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
 
     test("simuler finds SPK membership with tpNr 3060") {
         val tpClient = tpregisteretClient(
-            forhold = listOf(TpForhold(tpNr = "3060", navn = "SPK 3060", datoSistOpptjening = null)),
+            forhold = listOf(Tjenestepensjonsforhold(tpNr = "3060", navn = "SPK 3060", datoSistOpptjening = null)),
             tssIdMap = mapOf("3060" to "tss-3060")
         )
 

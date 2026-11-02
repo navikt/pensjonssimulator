@@ -1,10 +1,10 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering
 
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.opptjening.OpptjeningsperiodeUtil
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.TjenestepensjonClientPre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import org.springframework.stereotype.Service
 
 @Service
@@ -12,7 +12,7 @@ class SPKTjenestepensjonServicePre2025(private val tjenestepensjonClient: Tjenes
     fun simulerOffentligTjenestepensjon(
         spec: TjenestepensjonSimuleringPre2025Spec,
         stillingsprosentListe: List<Stillingsprosent>,
-        tpOrdning: TpOrdning
+        tpOrdning: Tjenestepensjonsordning
     ): SimulerOffentligTjenestepensjonResult {
         val opptjeningsperioderVedTpOrdning =
             OpptjeningsperiodeUtil.getOpptjeningsperiodeListe(tpOrdning, stillingsprosentListe)
@@ -26,7 +26,7 @@ class SPKTjenestepensjonServicePre2025(private val tjenestepensjonClient: Tjenes
     }
 
     private fun tpForholdListe(
-        opptjeningsperioderVedTpOrdning: Map<TpOrdning, List<Opptjeningsperiode>>
+        opptjeningsperioderVedTpOrdning: Map<Tjenestepensjonsordning, List<Opptjeningsperiode>>
     ): List<TpForhold> =
         opptjeningsperioderVedTpOrdning.map {
             TpForhold(

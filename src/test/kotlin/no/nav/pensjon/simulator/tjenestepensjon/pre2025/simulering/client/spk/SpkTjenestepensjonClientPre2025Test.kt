@@ -11,10 +11,10 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.YtelseCode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.intellij.lang.annotations.Language
@@ -75,7 +75,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
         tpForhold = emptyList()
     )
 
-    val tpDto = TpOrdning(navn = "SPK", tpNr = "3010", datoSistOpptjening = LocalDate.now(), tssId = "12345")
+    val tpDto = Tjenestepensjonsordning(navn = "SPK", tpNr = "3010", datoSistOpptjening = LocalDate.now(), tssId = "12345")
 
     "1) getResponse returns body from server" {
         Arrange.webClientContextRunner().run {

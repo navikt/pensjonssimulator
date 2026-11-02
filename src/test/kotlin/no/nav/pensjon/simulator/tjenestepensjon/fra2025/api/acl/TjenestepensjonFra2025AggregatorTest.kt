@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025ResultV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimuleringsResultatDto
@@ -18,7 +19,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v2.UtbetalingPer
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import java.time.LocalDate
 
 class TjenestepensjonFra2025AggregatorTest : FunSpec({
@@ -129,8 +129,8 @@ class TjenestepensjonFra2025AggregatorTest : FunSpec({
 
         test("bevarer navn, nummer og rekkefølge uavhengig av siste opptjeningsdato") {
             val ordninger = listOf(
-                TpForhold("4081", "Storebrand", null),
-                TpForhold("3010", "Statens Pensjonskasse", LocalDate.of(2025, 1, 1))
+                Tjenestepensjonsforhold("4081", "Storebrand", null),
+                Tjenestepensjonsforhold("3010", "Statens Pensjonskasse", LocalDate.of(2025, 1, 1))
             )
 
             TjenestepensjonFra2025Aggregator.mapToRelevantTpOrdning(ordninger) shouldBe listOf(

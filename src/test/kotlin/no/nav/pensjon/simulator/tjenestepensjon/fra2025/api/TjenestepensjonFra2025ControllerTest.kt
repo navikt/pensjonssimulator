@@ -12,6 +12,7 @@ import io.mockk.verify
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025SpecV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Maanedsutbetaling
@@ -19,7 +20,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
@@ -163,11 +163,12 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
     }
 }) {
     companion object {
-        private fun dummyTpForhold(tpNr: String = "3010") = TpForhold(
-            tpNr = tpNr,
-            navn = "Statens Pensjonskasse",
-            datoSistOpptjening = null
-        )
+        private fun dummyTpForhold(tpNr: String = "3010") =
+            Tjenestepensjonsforhold(
+                tpNr = tpNr,
+                navn = "Statens Pensjonskasse",
+                datoSistOpptjening = null
+            )
 
         fun dummySpec(
             foedselsdato: LocalDate = LocalDate.of(1963, 2, 5),

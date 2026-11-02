@@ -9,13 +9,13 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import java.time.LocalDate
 
 class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldSpec({
@@ -38,7 +38,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     )
 
     fun spkForhold(tpNr: String = "3010", navn: String = "SPK") =
-        TpForhold(tpNr = tpNr, navn = navn, datoSistOpptjening = null)
+        Tjenestepensjonsforhold(tpNr = tpNr, navn = navn, datoSistOpptjening = null)
 
     fun stillingsprosent() = Stillingsprosent(
         datoFom = LocalDate.of(2020, 1, 1),
@@ -49,10 +49,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
         stillingsuavhengigTilleggslonn = null
     )
 
-    fun tpregisteretClient(
-        forhold: List<TpForhold> = listOf(spkForhold()),
+    fun tjenestepensjonsforholdClient(
+        forhold: List<Tjenestepensjonsforhold> = listOf(spkForhold()),
         tssIdMap: Map<String, String?> = mapOf("3010" to "tss-3010")
-    ) = mockk<TpregisteretClient> {
+    ) = mockk<TjenestepensjonsforholdClient> {
         every { findAlleTpForhold(pid) } returns forhold
         tssIdMap.forEach { (tpNr, tssId) ->
             every { findTssId(tpNr) } returns tssId
@@ -64,7 +64,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     }
 
     fun service(
-        tpClient: TpregisteretClient = tpregisteretClient(),
+        tpClient: TjenestepensjonsforholdClient = tjenestepensjonsforholdClient(),
         spkStillingsprosent: SpkStillingsprosentService = mockk {
             every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
@@ -102,7 +102,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     // --- No TP-forhold ---
 
     should("return ikkeMedlem when no TP-forhold found") {
-        val tpClient = tpregisteretClient(forhold = emptyList())
+        val tpClient = tjenestepensjonsforholdClient(forhold = emptyList())
 
         val result = service(tpClient = tpClient).simuler(spec())
 
@@ -115,7 +115,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     // --- No TSS ID ---
 
     should("return ikkeMedlem when TSS-ID is undefined for all forhold") {
-        val tpClient = tpregisteretClient(
+        val tpClient = tjenestepensjonsforholdClient(
             forhold = listOf(spkForhold()),
             tssIdMap = mapOf("3010" to null)
         )
@@ -126,8 +126,8 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     // --- No supported TP-ordning ---
 
     should("return tpOrdningStoettesIkke with ordning names when no TP-ordning found") {
-        val tpClient = tpregisteretClient(
-            forhold = listOf(TpForhold(tpNr = "9999", navn = "Annen ordning", datoSistOpptjening = null)),
+        val tpClient = tjenestepensjonsforholdClient(
+            forhold = listOf(Tjenestepensjonsforhold(tpNr = "9999", navn = "Annen ordning", datoSistOpptjening = null)),
             tssIdMap = mapOf("9999" to "tss-9999")
         )
 
@@ -140,8 +140,8 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     }
 
     should("find SPK membership with TP-nummer 3060") {
-        val tpClient = tpregisteretClient(
-            forhold = listOf(TpForhold(tpNr = "3060", navn = "SPK 3060", datoSistOpptjening = null)),
+        val tpClient = tjenestepensjonsforholdClient(
+            forhold = listOf(Tjenestepensjonsforhold(tpNr = "3060", navn = "SPK 3060", datoSistOpptjening = null)),
             tssIdMap = mapOf("3060" to "tss-3060")
         )
 
@@ -241,7 +241,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     // --- EgressException before SPK membership found ---
 
     should("rethrow EgressException when SPK-medlemskap is null") {
-        val tpClient = mockk<TpregisteretClient> {
+        val tpClient = mockk<TjenestepensjonsforholdClient> {
             every { findAlleTpForhold(pid) } throws EgressException(
                 """{"errorCode":"CALC001","message":"error"}"""
             )

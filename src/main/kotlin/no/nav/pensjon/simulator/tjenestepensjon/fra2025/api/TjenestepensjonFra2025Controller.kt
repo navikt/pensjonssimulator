@@ -9,6 +9,7 @@ import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.selftest.SelfTest.Companion.APPLICATION_NAME
 import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.OffentligTjenestepensjonFra2025SimuleringSpecMapperV1
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.ResultatTypeDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.api.acl.v1.SimulerOffentligTjenestepensjonFra2025ResultV1
@@ -24,7 +25,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TpSimuleringResultatFra2025
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Service
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -66,7 +66,7 @@ class TjenestepensjonFra2025Controller(
         countCall(FUNCTION_ID)
         try {
             validateSpec(specV1)
-            val simuleringsresultat: Pair<List<TpForhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
+            val simuleringsresultat: Pair<List<Tjenestepensjonsforhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
                 OffentligTjenestepensjonFra2025SimuleringSpecMapperV1.fromDto(specV1))
             val relevanteTpOrdninger = simuleringsresultat.first.map { it.navn }
             return simuleringsresultat.second.fold(
@@ -119,7 +119,7 @@ class TjenestepensjonFra2025Controller(
         countCall(FUNCTION_ID)
         try {
             validateSpecV2(specV2)
-            val simuleringsresultat: Pair<List<TpForhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
+            val simuleringsresultat: Pair<List<Tjenestepensjonsforhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> = tjenestepensjonFra2025Service.simuler(
                 OffentligTjenestepensjonFra2025SimuleringSpecMapperV2.fromDto(specV2))
             val relevanteTpOrdninger = mapToRelevantTpOrdning(simuleringsresultat.first)
             return simuleringsresultat.second.fold(

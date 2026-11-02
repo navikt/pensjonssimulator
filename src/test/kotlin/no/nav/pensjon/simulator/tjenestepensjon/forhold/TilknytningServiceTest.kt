@@ -1,4 +1,4 @@
-package no.nav.pensjon.simulator.tjenestepensjon
+package no.nav.pensjon.simulator.tjenestepensjon.forhold
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -7,7 +7,7 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.testutil.TestObjects.organisasjonsnummer
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import org.springframework.http.HttpStatus
 
 class TilknytningServiceTest : FunSpec({
@@ -23,7 +23,7 @@ class TilknytningServiceTest : FunSpec({
     }
 
     test("erPersonTilknyttetTjenestepensjonsordning should be false when person ikke funnet") {
-        val client = mockk<TpregisteretClient>().apply {
+        val client: TjenestepensjonsforholdClient = mockk {
             every { hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) } throws
                     EgressException(
                         message = "Person ikke funnet.",
@@ -36,7 +36,7 @@ class TilknytningServiceTest : FunSpec({
     }
 })
 
-private fun client(erTilknyttet: Boolean): TpregisteretClient =
-    mockk<TpregisteretClient>().apply {
+private fun client(erTilknyttet: Boolean): TjenestepensjonsforholdClient =
+    mockk {
         every { hentErBrukerTilknyttetTpLeverandoer(pid, organisasjonsnummer) } returns erTilknyttet
     }

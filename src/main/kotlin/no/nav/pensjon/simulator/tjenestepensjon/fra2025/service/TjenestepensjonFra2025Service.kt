@@ -1,19 +1,19 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjonMedMaanedsUtbetalinger
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.*
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.sisteordning.SisteTpOrdningService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkTjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.StorebrandTjenestepensjonService
-import no.nav.pensjon.simulator.tpregisteret.TpForhold
-import no.nav.pensjon.simulator.tpregisteret.TpregisteretClient
 import org.springframework.stereotype.Service
 
 @Service
 class TjenestepensjonFra2025Service(
-    private val tpregisteretClient: TpregisteretClient,
+    private val tpregisteretClient: TjenestepensjonsforholdClient,
     private val spk: SpkTjenestepensjonService,
     private val klp: KlpTjenestepensjonService,
     private val storebrand: StorebrandTjenestepensjonService,
@@ -22,18 +22,18 @@ class TjenestepensjonFra2025Service(
     private val log = KotlinLogging.logger {}
 
     fun simuler(spec: OffentligTjenestepensjonFra2025SimuleringSpec):
-            Pair<List<TpForhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> {
+            Pair<List<Tjenestepensjonsforhold>, Result<SimulertTjenestepensjonMedMaanedsUtbetalinger>> {
 
-        val tpOrdninger: List<TpForhold> = try {
+        val tpOrdninger: List<Tjenestepensjonsforhold> = try {
             tpregisteretClient.findAlleTpForhold(spec.pid)
         } catch (e: TpregisteretException) {
-            return emptyList<TpForhold>() to Result.failure(e)
+            return emptyList<Tjenestepensjonsforhold>() to Result.failure(e)
         }
 
         val sisteOrdningerNr = sisteTpOrdningService.finnSisteOrdningKandidater(tpOrdninger)
 
         if (sisteOrdningerNr.isEmpty()) {
-            return emptyList<TpForhold>() to Result.failure(BrukerErIkkeMedlemException())
+            return emptyList<Tjenestepensjonsforhold>() to Result.failure(BrukerErIkkeMedlemException())
         }
 
         log.info { "Fant TP-ordninger med numre: $sisteOrdningerNr" }

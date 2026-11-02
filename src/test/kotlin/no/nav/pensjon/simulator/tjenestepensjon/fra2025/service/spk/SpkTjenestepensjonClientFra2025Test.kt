@@ -18,7 +18,6 @@ import no.nav.pensjon.simulator.testutil.arrangeResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.*
 import okhttp3.mockwebserver.MockResponse
@@ -39,18 +38,13 @@ class SpkTjenestepensjonClientFra2025Test : FunSpec({
         every { logUtgaaendeRequest(Organisasjoner.SPK, any<Pid>(), any<String>()) } just runs
     }
 
-    val sammenligner = mockk<SammenlignAFPService> {
-        every { sammenlignOgLoggAfp(any(), any()) } just runs
-    }
-
     fun client(context: BeanFactory) =
         SpkTjenestepensjonClientFra2025(
             baseUrl!!,
             retryAttempts = "0",
             webClientBase = context.getBean<WebClientBase>(),
             traceAid = mockk(relaxed = true),
-            sporingslogg,
-            sammenligner
+            sporingslogg
         )
 
     beforeSpec {

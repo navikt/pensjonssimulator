@@ -10,6 +10,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdni
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.SammenlignAfpService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TpUtil.grupperMedDatoFra
 import org.springframework.beans.factory.annotation.Qualifier
@@ -19,7 +20,8 @@ import java.time.LocalDate
 @Service
 class StorebrandTjenestepensjonService(
     @param:Qualifier("storebrand") private val client: TjenestepensjonFra2025Client,
-    private val featureToggleService: FeatureToggleService
+    private val featureToggleService: FeatureToggleService,
+    private val sammenlignAFPService: SammenlignAfpService,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -29,9 +31,11 @@ class StorebrandTjenestepensjonService(
     ): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
         when {
             featureToggleService.isEnabled("TPP-231_SIMULER_STOREBRAND") ->
-                client.simuler(spec, tpNummer).fold(
-                    onSuccess = { result(pensjon = it, spec.foedselsdato, tpNummer) },
-                    onFailure = { Result.failure(exception = it) }
+                client.simuler(spec, tpNummer)
+                    .onSuccess { sammenlignAFPService.sammenlignOgLoggAfp(spec, it, client.service.shortName) }
+                    .fold(
+                        onSuccess = { result(pensjon = it, spec.foedselsdato, tpNummer)},
+                        onFailure = { Result.failure(exception = it) }
                 )
 
             else -> failure()

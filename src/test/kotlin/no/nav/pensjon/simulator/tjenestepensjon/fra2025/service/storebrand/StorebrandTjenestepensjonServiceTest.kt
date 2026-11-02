@@ -19,23 +19,26 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.Tjenestepensjo
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TomSimuleringFraTpOrdningException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.SammenlignAfpService
 import java.time.LocalDate
 
 class StorebrandTjenestepensjonServiceTest : FunSpec({
 
     val client = mockk<TjenestepensjonFra2025Client>()
     val featureToggleService = mockk<FeatureToggleService>()
-    val service = StorebrandTjenestepensjonService(client, featureToggleService)
+    val sammenligner = mockk<SammenlignAfpService>(relaxUnitFun = true)
+    val service = StorebrandTjenestepensjonService(client, featureToggleService, sammenligner)
 
     beforeTest {
-        clearMocks(client, featureToggleService)
+        clearMocks(client, featureToggleService, sammenligner)
         every { client.service } returns EgressService.STOREBRAND
     }
 
     test("simulerer og filtrerer offentlig AFP fra Storebrand") {
         val spec = dummySpec(foedselsdato = "1963-02-05", afpErForespurt = true)
+        val clientResult = success()
         every { featureToggleService.isEnabled(FEATURE_TOGGLE) } returns true
-        every { client.simuler(spec, TP_NUMMER) } returns success()
+        every { client.simuler(spec, TP_NUMMER) } returns clientResult
 
         val result = service.simuler(spec, TP_NUMMER)
 
@@ -49,6 +52,9 @@ class StorebrandTjenestepensjonServiceTest : FunSpec({
             betingetTjenestepensjonErInkludert shouldBe false
             serviceData shouldBe listOf("request", "response")
         }
+        verify(exactly = 1) {
+            sammenligner.sammenlignOgLoggAfp(spec, clientResult.getOrThrow(), EgressService.STOREBRAND.shortName)
+        }
     }
 
     test("simulerer ikke når feature toggle er av") {
@@ -60,6 +66,7 @@ class StorebrandTjenestepensjonServiceTest : FunSpec({
         result.isFailure shouldBe true
         result.exceptionOrNull().shouldBeInstanceOf<TjenestepensjonSimuleringException>()
         verify(exactly = 0) { client.simuler(any(), any()) }
+        verify(exactly = 0) { sammenligner.sammenlignOgLoggAfp(any(), any(), any()) }
     }
 
     test("returnerer ikke siste ordning-feil") {

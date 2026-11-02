@@ -20,7 +20,6 @@ import no.nav.pensjon.simulator.testutil.arrangeResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.ArsakIngenUtbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.InkludertOrdning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonResponse
@@ -42,10 +41,6 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
         every { logUtgaaendeRequest(Organisasjoner.KLP, any<Pid>(), any<String>()) } just runs
     }
 
-    val sammenligner = mockk<SammenlignAFPService> {
-        every { sammenlignOgLoggAfp(any(), any()) } just runs
-    }
-
     fun client(context: BeanFactory, retryAttempts: Int = 0, isDevelopment: Boolean = false) =
         KlpTjenestepensjonClientFra2025(
             baseUrl!!,
@@ -53,7 +48,6 @@ class KlpTjenestepensjonClientFra2025Test : FunSpec({
             webClientBase = context.getBean<WebClientBase>(),
             traceAid = mockk<TraceAid>(relaxed = true),
             sporingslogg,
-            sammenligner,
             isDevelopment = { isDevelopment }
         )
 

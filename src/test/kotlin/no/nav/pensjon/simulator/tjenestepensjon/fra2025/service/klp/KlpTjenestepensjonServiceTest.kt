@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
@@ -15,21 +16,24 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.SammenlignAfpService
 import java.time.LocalDate
 
 class KlpTjenestepensjonServiceTest : ShouldSpec({
 
     val client: TjenestepensjonFra2025Client = mockk()
-    val service = KlpTjenestepensjonService(client)
+    val sammenligner = mockk<SammenlignAfpService>(relaxUnitFun = true)
+    val service = KlpTjenestepensjonService(client, sammenligner)
 
     beforeTest {
-        clearMocks(client)
+        clearMocks(client, sammenligner)
         every { client.service } returns EgressService.KLP
     }
 
     should("ikke inkludere betinget tjenestepensjon og offentlig AFP i simulering") {
         val spec = spec()
-        every { client.simuler(spec, tpNummer = "4082") } returns success()
+        val clientResult = success()
+        every { client.simuler(spec, tpNummer = "4082") } returns clientResult
 
         val result = service.simuler(spec, tpNummer = "4082")
 
@@ -37,6 +41,9 @@ class KlpTjenestepensjonServiceTest : ShouldSpec({
         with(result.getOrNull().shouldNotBeNull()) {
             betingetTjenestepensjonErInkludert shouldBe false
             utbetalingsperioder shouldHaveSize 2
+        }
+        verify(exactly = 1) {
+            sammenligner.sammenlignOgLoggAfp(spec, clientResult.getOrThrow(), EgressService.KLP.shortName)
         }
     }
 

@@ -13,10 +13,9 @@ import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.toRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.fromResponseDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.SpkMapper.toRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk.acl.SpkSimulerTjenestepensjonResponse
 import org.springframework.beans.factory.annotation.Qualifier
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
+import kotlin.Result.Companion.success
 
 @Service("spk")
 class SpkTjenestepensjonClientFra2025(
@@ -34,7 +34,6 @@ class SpkTjenestepensjonClientFra2025(
     @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
-    private val sammenligner: SammenlignAFPService
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
 
     override val service = service()
@@ -63,7 +62,7 @@ class SpkTjenestepensjonClientFra2025(
                 .retrieve()
                 .bodyToMono<SpkSimulerTjenestepensjonResponse>()
                 .block()
-                ?.let { success(spec, request, response = it) }
+                ?.let { success(fromResponseDto(it, request)) }
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
             "Failed to simulate tjenestepensjon 2025 with ${service.shortName} ${e.responseBodyAsString}".let {
@@ -82,16 +81,6 @@ class SpkTjenestepensjonClientFra2025(
             }
         }
     }
-
-    private fun success(
-        spec: OffentligTjenestepensjonFra2025SimuleringSpec,
-        request: SpkSimulerTjenestepensjonRequest,
-        response: SpkSimulerTjenestepensjonResponse
-    ): Result<SimulertTjenestepensjon> =
-        Result.success(
-            fromResponseDto(response, request)
-                .also { sammenligner.sammenlignOgLoggAfp(spec, it.utbetalingsperioder) }
-        )
 
     private fun setHeaders(headers: HttpHeaders) {
         headers.setBearerAuth(EgressAccess.token(service).value)

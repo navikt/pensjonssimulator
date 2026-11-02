@@ -169,7 +169,7 @@ class TjenestepensjonFra2025ServiceUnitTest : FunSpec({
         const val SPK_TP_NUMMER = "3010"
         const val KLP_TP_NUMMER = "3200"
         const val KLP_ASKER_KOMMUNALE_PENSJONSKASSE_TP_NUMMER = "4082"
-        val STOREBRAND_TP_NUMRE = listOf("4081", "4083", "4098")
+        val STOREBRAND_TP_NUMRE = listOf("3670", "4083", "4098")
 
         fun dummySpec(
             foedselsdato: String,

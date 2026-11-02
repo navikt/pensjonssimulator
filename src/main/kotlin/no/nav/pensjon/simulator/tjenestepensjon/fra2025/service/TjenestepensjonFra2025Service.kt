@@ -42,7 +42,7 @@ class TjenestepensjonFra2025Service(
             when (ordning) {
                 "3010" -> spk.simuler(spec, ordning) // TpNummer for SPK
                 "4082", "3200" -> klp.simuler(spec, ordning) // TpNummer for KLP
-                "4081", "4083", "4098" -> storebrand.simuler(spec, ordning) // TpNummer for Storebrand
+                "3670", "4083", "4098" -> storebrand.simuler(spec, ordning) // TpNummer for Storebrand
                 else -> Result.failure(TpOrdningStoettesIkkeException(tpOrdninger.joinToString { it.navn }))
             }.run {
                 onSuccess { return tpOrdninger to this }

@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.afp.offentlig.livsvarig.beregning.LivsvarigOffen
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpYtelseMedDelingstall
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
@@ -51,7 +52,7 @@ class SammenlignAfpServiceTest : FunSpec({
         pid = request.pid,
         foedselsdato = request.foedselsdato,
         fom = fom,
-        fremtidigInntektListe = listOf(LoependeInntekt(aarligBeloep = 300000, fom = fom))
+        fremtidigInntektListe = listOf(FremtidigInntekt(aarligInntektBeloep = 300000, fom = fom))
     )
 
     beforeSpec {
@@ -91,6 +92,7 @@ class SammenlignAfpServiceTest : FunSpec({
 
         service.sammenlignOgLoggAfp(
             request,
+            { expectedSpec.fremtidigInntektListe },
             SimulertTjenestepensjon(
                 tpLeverandoer = tpOrdning,
                 utbetalingsperioder = tpYtelser,
@@ -106,7 +108,7 @@ class SammenlignAfpServiceTest : FunSpec({
         test("skips comparison when the feature toggle for $tpOrdning is disabled") {
             every { featureToggleService.isEnabled("SAMMENLIGN_NAV_BEREGNET_AFP_MED_$tpOrdning") } returns false
 
-            service.sammenlignOgLoggAfp(request, mockk(), tpOrdning)
+            service.sammenlignOgLoggAfp(request, { error("Income function must not be called") }, mockk(), tpOrdning)
 
             verify(exactly = 0) { navBeregnetAfpService.simuler(any()) }
             appender.list.size shouldBe 0

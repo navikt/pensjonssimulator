@@ -28,7 +28,14 @@ class KlpTjenestepensjonService(
         tpNummer: String
     ): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
         client.simuler(spec, tpNummer)
-            .onSuccess { sammenlignAFPService.sammenlignOgLoggAfp(spec, it, client.service.shortName) }
+            .onSuccess {
+                sammenlignAFPService.sammenlignOgLoggAfp(
+                    request = spec,
+                    inntekterMapper = KlpMapper::inntekter,
+                    simulertTjenestepensjon = it,
+                    tpOrdning = client.service.shortName
+                )
+            }
             .fold(
                 onSuccess = { result(pensjon = it, spec.foedselsdato, tpNummer) },
                 onFailure = { Result.failure(exception = it) }

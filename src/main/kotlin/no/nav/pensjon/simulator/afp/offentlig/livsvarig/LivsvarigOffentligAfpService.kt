@@ -5,7 +5,6 @@ import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.OVERGANG_TID
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.beregning.LivsvarigOffentligAfpBeregningService
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.grunnlag.LivsvarigOffentligAfpResult
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
-import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Service
@@ -33,8 +32,8 @@ class LivsvarigOffentligAfpService(
         val fom: LocalDate = foersteAarMedUregistrertInntekt()
         val til: LocalDate = sisteAarMedAfpOpptjeningInntekt(foedselsdato)
 
-        val fremtidigInntektListe: List<LoependeInntekt> =
-            if (brukFremtidigInntekt) fremtidigeInntekter.map { LoependeInntekt(it.aarligInntektBeloep, it.fom) }
+        val fremtidigInntektListe: List<FremtidigInntekt> =
+            if (brukFremtidigInntekt) fremtidigeInntekter.map { FremtidigInntekt(it.aarligInntektBeloep, it.fom) }
             else forventedeInntekter(fom, til, forventetAarligInntektBeloep)
 
         val result = service.simuler(LivsvarigOffentligAfpSpec(
@@ -47,7 +46,7 @@ class LivsvarigOffentligAfpService(
         return result
     }
 
-    private fun forventedeInntekter(fom: LocalDate, til: LocalDate, forventetAarligBeloep: Int): List<LoependeInntekt> =
+    private fun forventedeInntekter(fom: LocalDate, til: LocalDate, forventetAarligBeloep: Int): List<FremtidigInntekt> =
         if (fom.isBefore(til))
             aarligInntektListe(fom, til, aarligBeloep = forventetAarligBeloep)
         else
@@ -83,7 +82,7 @@ class LivsvarigOffentligAfpService(
         private fun sisteAarMedAfpOpptjeningInntekt(foedselsdato: LocalDate): LocalDate =
             foedselsdato.plusYears(LIVSVARIG_OFFENTLIG_AFP_OPPTJENING_ALDERSGRENSE_AAR)
 
-        private fun aarligInntektListe(fom: LocalDate, til: LocalDate, aarligBeloep: Int): List<LoependeInntekt> =
+        private fun aarligInntektListe(fom: LocalDate, til: LocalDate, aarligBeloep: Int): List<FremtidigInntekt> =
             aarligeDatoer(fom, til)
                 .map { inntektVedAaretsStart(dato = it, aarligBeloep) }
                 .toList()
@@ -92,8 +91,8 @@ class LivsvarigOffentligAfpService(
             fom.datesUntil(til, Period.ofYears(1))
 
         private fun inntektVedAaretsStart(dato: LocalDate, aarligBeloep: Int) =
-            LoependeInntekt(
-                aarligBeloep,
+            FremtidigInntekt(
+                aarligInntektBeloep = aarligBeloep,
                 fom = dato.withMonth(1).withDayOfMonth(1)
             )
     }

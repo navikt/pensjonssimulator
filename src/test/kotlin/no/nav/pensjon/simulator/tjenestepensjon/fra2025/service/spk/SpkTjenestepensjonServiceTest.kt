@@ -108,6 +108,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
         verify(exactly = 1) {
             sammenligner.sammenlignOgLoggAfp(
                 spec,
+                SpkMapper::inntekter,
                 match { it.utbetalingsperioder.single().ytelseType == "OAFP" },
                 EgressService.SPK.shortName
             )
@@ -129,7 +130,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
                 .shouldBeInstanceOf<TjenestepensjonSimuleringException>()
                 .message.contains("Simulering av tjenestepensjon hos SPK er slått av") shouldBe true
         }
-        verify(exactly = 0) { sammenligner.sammenlignOgLoggAfp(any(), any(), any()) }
+        verify(exactly = 0) { sammenligner.sammenlignOgLoggAfp(any(), any(), any(), any()) }
     }
 
     test("result skal være 'failure' hvis ikke siste ordning") {

@@ -5,7 +5,7 @@ import java.time.LocalDate
 data class SpkSimulerTjenestepensjonRequest(
     val personId: String,
     val uttaksListe: List<Uttak>,
-    val fremtidigInntektListe: List<FremtidigInntekt>,
+    val fremtidigInntektListe: List<SpkFremtidigInntekt>,
     val aarIUtlandetEtter16: Int,
     val epsPensjon: Boolean,
     val eps2G: Boolean
@@ -17,7 +17,7 @@ data class Uttak(
     val uttaksgrad: Int?
 )
 
-data class FremtidigInntekt(
+data class SpkFremtidigInntekt(
     val aarligInntekt: Int,
     val fraOgMedDato: LocalDate,
 )

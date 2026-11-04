@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav
 
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.beregning.LivsvarigOffentligAfpBeregningService
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
@@ -18,13 +19,14 @@ class SammenlignAfpService(
     @Async("loggingExecutor")
     fun sammenlignOgLoggAfp(
         request: OffentligTjenestepensjonFra2025SimuleringSpec,
+        inntekterMapper: (spec: OffentligTjenestepensjonFra2025SimuleringSpec) -> List<FremtidigInntekt>,
         simulertTjenestepensjon: SimulertTjenestepensjon,
         tpOrdning: String
     ) {
 
         featureToggleService.isEnabled("SAMMENLIGN_NAV_BEREGNET_AFP_MED_$tpOrdning") || return
 
-        val livsvarigOffentligAfpSpec = AfpYtelseMapper.toLivsvarigOffentligAfpSpec(request)
+        val livsvarigOffentligAfpSpec = AfpYtelseMapper.toLivsvarigOffentligAfpSpec(request, inntekterMapper)
 
         val navResultat = navBeregnetAfpService.simuler(livsvarigOffentligAfpSpec).afpYtelseListe
         val hentetResultat = simulertTjenestepensjon.utbetalingsperioder.filter { it.ytelseType == "OAFP" }

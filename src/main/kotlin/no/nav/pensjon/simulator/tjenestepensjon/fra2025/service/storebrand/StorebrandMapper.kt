@@ -1,21 +1,14 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.AarsakIngenUtbetaling
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.AarsakIngenUtbetalingStatus
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Delytelse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.FremtidigInntekt
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.StorebrandSimulerTjenestepensjonRequest
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.StorebrandSimulerTjenestepensjonResponse
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.StorebrandTjenestepensjonYtelseType
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Utbetaling
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Uttak
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.*
 import java.time.LocalDate
 
 object StorebrandMapper {
@@ -26,7 +19,9 @@ object StorebrandMapper {
         StorebrandSimulerTjenestepensjonRequest(
             personId = spec.pid.value,
             uttaksListe = listOf(uttak(spec)),
-            fremtidigInntektListe = inntekter(spec),
+            fremtidigInntektListe = inntekter(spec).map {
+                StorebrandFremtidigInntekt(aarligInntekt = it.aarligInntektBeloep, fraOgMedDato = it.fom)
+            },
             aarIUtlandetEtter16 = spec.utlandAntallAar,
             epsPensjon = spec.epsHarPensjon,
             eps2G = spec.epsHarInntektOver2G
@@ -53,7 +48,7 @@ object StorebrandMapper {
     /**
      * Inntekter f.o.m. fjorårets første dag til siste 'f.o.m.'-dato i listen over fremtidige inntekter.
      */
-    private fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
+    fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
         val inntektListe = mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
         inntektListe.addAll(spec.fremtidigeInntekter.map(::inntekt))
         return inntektListe
@@ -61,14 +56,14 @@ object StorebrandMapper {
 
     private fun naaverendeInntekt(aarligInntekt: Int) =
         FremtidigInntekt(
-            fraOgMedDato = fjoraaretsFoersteDag(),
-            aarligInntekt = aarligInntekt
+            fom = fjoraaretsFoersteDag(),
+            aarligInntektBeloep = aarligInntekt
         )
 
     private fun inntekt(spec: TjenestepensjonInntektSpec) =
         FremtidigInntekt(
-            fraOgMedDato = spec.fom,
-            aarligInntekt = spec.aarligInntekt
+            fom = spec.fom,
+            aarligInntektBeloep = spec.aarligInntekt
         )
 
     private fun utbetalingsperioder(utbetaling: Utbetaling): List<Utbetalingsperiode> =

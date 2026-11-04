@@ -5,7 +5,7 @@ import java.time.LocalDate
 data class KlpSimulerTjenestepensjonRequest(
     val personId: String,
     val uttaksListe: List<Uttak>,
-    val fremtidigInntektsListe: List<FremtidigInntekt>,
+    val fremtidigInntektsListe: List<KlpFremtidigInntekt>,
     val arIUtlandetEtter16: Int,
     val epsPensjon: Boolean,
     val eps2G: Boolean
@@ -17,7 +17,7 @@ data class Uttak(
     val uttaksgrad: Int
 )
 
-data class FremtidigInntekt(
+data class KlpFremtidigInntekt(
     val fraOgMedDato: LocalDate,
     val arligInntekt: Int
 )

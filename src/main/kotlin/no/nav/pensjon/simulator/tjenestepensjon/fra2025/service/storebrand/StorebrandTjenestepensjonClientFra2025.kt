@@ -13,7 +13,6 @@ import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.StorebrandMapper.fromResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.StorebrandMapper.toRequestDto
@@ -34,7 +33,6 @@ class StorebrandTjenestepensjonClientFra2025(
     @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
-    private val sammenligner: SammenlignAFPService
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
 
     override val service = service()
@@ -63,7 +61,7 @@ class StorebrandTjenestepensjonClientFra2025(
                 .retrieve()
                 .bodyToMono<StorebrandSimulerTjenestepensjonResponse>()
                 .block()
-                ?.let { rawResponse -> success(spec, request, response = rawResponse)
+                ?.let { rawResponse -> Result.success(fromResponseDto(rawResponse, request))
                     .also { log.info { "${service.shortName} response $it" } }}
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
@@ -83,16 +81,6 @@ class StorebrandTjenestepensjonClientFra2025(
             }
         }
     }
-
-    private fun success(
-        spec: OffentligTjenestepensjonFra2025SimuleringSpec,
-        request: StorebrandSimulerTjenestepensjonRequest,
-        response: StorebrandSimulerTjenestepensjonResponse
-    ): Result<SimulertTjenestepensjon> =
-        Result.success(
-            fromResponseDto(response, request)
-                .also { sammenligner.sammenlignOgLoggAfp(spec, it.utbetalingsperioder) }
-        )
 
     private fun setHeaders(headers: HttpHeaders) {
         headers.setBearerAuth(EgressAccess.token(service).value)

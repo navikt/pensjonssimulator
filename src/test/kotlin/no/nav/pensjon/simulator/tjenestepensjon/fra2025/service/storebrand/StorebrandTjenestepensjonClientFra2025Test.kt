@@ -18,7 +18,6 @@ import no.nav.pensjon.simulator.testutil.arrangeOkJsonResponse
 import no.nav.pensjon.simulator.testutil.arrangeResponse
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.AarsakIngenUtbetaling
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl.Delytelse
@@ -41,9 +40,6 @@ class StorebrandTjenestepensjonClientFra2025Test : FunSpec({
     val sporingslogg = mockk<SporingsloggService> {
         every { logUtgaaendeRequest(Organisasjoner.STOREBRAND, any<Pid>(), any<String>()) } just runs
     }
-    val sammenligner = mockk<SammenlignAFPService> {
-        every { sammenlignOgLoggAfp(any(), any()) } just runs
-    }
 
     fun client(context: BeanFactory) =
         StorebrandTjenestepensjonClientFra2025(
@@ -51,8 +47,7 @@ class StorebrandTjenestepensjonClientFra2025Test : FunSpec({
             retryAttempts = "0",
             webClientBase = context.getBean<WebClientBase>(),
             traceAid = mockk(relaxed = true),
-            sporingslogg = sporingslogg,
-            sammenligner = sammenligner
+            sporingslogg = sporingslogg
         )
 
     beforeSpec {

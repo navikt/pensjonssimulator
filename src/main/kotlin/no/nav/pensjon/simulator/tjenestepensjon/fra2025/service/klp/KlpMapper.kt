@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
@@ -18,7 +19,9 @@ object KlpMapper {
         KlpSimulerTjenestepensjonRequest(
             personId = spec.pid.value,
             uttaksListe = listOf(heltUttakAlleYtelser(fom = spec.uttaksdato)),
-            fremtidigInntektsListe = inntekter(spec),
+            fremtidigInntektsListe = inntekter(spec).map {
+                KlpFremtidigInntekt(fraOgMedDato = it.fom, arligInntekt = it.aarligInntektBeloep)
+            },
             arIUtlandetEtter16 = spec.utlandAntallAar,
             epsPensjon = spec.epsHarPensjon,
             eps2G = spec.epsHarInntektOver2G
@@ -47,7 +50,7 @@ object KlpMapper {
             uttaksgrad = 100 // prosent
         )
 
-    private fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): MutableList<FremtidigInntekt> {
+    fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
         val inntektListe = mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
         inntektListe.addAll(spec.fremtidigeInntekter.map(::inntekt))
         return inntektListe
@@ -55,14 +58,14 @@ object KlpMapper {
 
     private fun naaverendeInntekt(aarligInntekt: Int) =
         FremtidigInntekt(
-            fraOgMedDato = LocalDate.now(),
-            arligInntekt = aarligInntekt
+            fom = LocalDate.now(),
+            aarligInntektBeloep = aarligInntekt
         )
 
     private fun inntekt(source: TjenestepensjonInntektSpec) =
         FremtidigInntekt(
-            fraOgMedDato = source.fom,
-            arligInntekt = source.aarligInntekt
+            fom = source.fom,
+            aarligInntektBeloep = source.aarligInntekt
         )
 
     private fun utbetalingsperiode(source: Utbetaling) =

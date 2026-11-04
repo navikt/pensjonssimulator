@@ -53,7 +53,9 @@ class StorebrandTjenestepensjonServiceTest : FunSpec({
             serviceData shouldBe listOf("request", "response")
         }
         verify(exactly = 1) {
-            sammenligner.sammenlignOgLoggAfp(spec, clientResult.getOrThrow(), EgressService.STOREBRAND.shortName)
+            sammenligner.sammenlignOgLoggAfp(
+                spec, StorebrandMapper::inntekter, clientResult.getOrThrow(), EgressService.STOREBRAND.shortName
+            )
         }
     }
 
@@ -66,7 +68,7 @@ class StorebrandTjenestepensjonServiceTest : FunSpec({
         result.isFailure shouldBe true
         result.exceptionOrNull().shouldBeInstanceOf<TjenestepensjonSimuleringException>()
         verify(exactly = 0) { client.simuler(any(), any()) }
-        verify(exactly = 0) { sammenligner.sammenlignOgLoggAfp(any(), any(), any()) }
+        verify(exactly = 0) { sammenligner.sammenlignOgLoggAfp(any(), any(), any(), any()) }
     }
 
     test("returnerer ikke siste ordning-feil") {

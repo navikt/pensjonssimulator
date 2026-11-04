@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.afp.offentlig.livsvarig.beholdninger.client.acl
 
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsperiode
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 
 object SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper {
@@ -20,9 +21,9 @@ object SimulerLivsvarigOffentligAfpBeholdningsgrunnlagMapper {
             SimulerLivsvarigOffentligAfpBeholdningsperiode(pensjonsbeholdning = it.belop, fom = it.fraOgMedDato)
         }
 
-    private fun inntektsperiode(inntekt: LoependeInntekt) =
+    private fun inntektsperiode(inntekt: FremtidigInntekt) =
         Inntektsperiode(
             fraOgMedDato = inntekt.fom,
-            arligInntekt = inntekt.aarligBeloep
+            arligInntekt = inntekt.aarligInntektBeloep
         )
 }

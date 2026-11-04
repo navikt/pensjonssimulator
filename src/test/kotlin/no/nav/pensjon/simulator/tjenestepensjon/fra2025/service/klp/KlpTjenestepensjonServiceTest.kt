@@ -43,7 +43,9 @@ class KlpTjenestepensjonServiceTest : ShouldSpec({
             utbetalingsperioder shouldHaveSize 2
         }
         verify(exactly = 1) {
-            sammenligner.sammenlignOgLoggAfp(spec, clientResult.getOrThrow(), EgressService.KLP.shortName)
+            sammenligner.sammenlignOgLoggAfp(
+                spec, KlpMapper::inntekter, clientResult.getOrThrow(), EgressService.KLP.shortName
+            )
         }
     }
 

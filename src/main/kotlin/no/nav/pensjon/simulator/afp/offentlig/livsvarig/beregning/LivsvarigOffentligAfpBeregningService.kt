@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.afp.offentlig.livsvarig.beregning
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.beholdninger.SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.beregning.domain.AfpBeregningsgrunnlag
@@ -14,8 +13,6 @@ class LivsvarigOffentligAfpBeregningService(
     val afpBeholdningClient: SimulerLivsvarigOffentligAfpBeholdningsgrunnlagClient,
     val simulatorContext: SimulatorContext
 ) {
-    private val log = KotlinLogging.logger {}
-
     fun simuler(spec: LivsvarigOffentligAfpSpec): LivsvarigOffentligAfpResult {
         val beregningsgrunnlag: List<AfpBeregningsgrunnlag> = AfpBeregningsgrunnlagBuilder()
             .medSpec(spec)

@@ -33,7 +33,14 @@ class SpkTjenestepensjonService(
         when {
             featureToggleService.isEnabled(PEN_715_SIMULER_SPK) ->
                 client.simuler(spec, tpNummer)
-                    .onSuccess { sammenlignAFPService.sammenlignOgLoggAfp(spec, it, client.service.shortName) }
+                    .onSuccess {
+                        sammenlignAFPService.sammenlignOgLoggAfp(
+                            request = spec,
+                            inntekterMapper = SpkMapper::inntekter,
+                            simulertTjenestepensjon = it,
+                            tpOrdning = client.service.shortName
+                        )
+                    }
                     .fold(
                         onSuccess = { result(pensjon = it, spec.foedselsdato, tpNummer) },
                         onFailure = { Result.failure(exception = it) }

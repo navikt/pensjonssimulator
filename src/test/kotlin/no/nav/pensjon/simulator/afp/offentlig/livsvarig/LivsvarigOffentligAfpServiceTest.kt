@@ -56,8 +56,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
                     foedselsdato,
                     fom = virkningDato,
                     fremtidigInntektListe = listOf(
-                        LoependeInntekt(aarligBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
-                        LoependeInntekt(aarligBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
+                        FremtidigInntekt(aarligInntektBeloep = 123000, LocalDate.of(2024, 1, 1)), // 2024 = 2025 - 1
+                        FremtidigInntekt(aarligInntektBeloep = 123000, LocalDate.of(2025, 1, 1))  // 2025 = 1964 + 62 - 1
                     )
                 )
             )
@@ -106,8 +106,8 @@ class LivsvarigOffentligAfpServiceTest : FunSpec({
                     foedselsdato,
                     fom = virkningDato,
                     fremtidigInntektListe = listOf(
-                        LoependeInntekt(aarligBeloep = 234000, LocalDate.of(2024, 2, 1)),
-                        LoependeInntekt(aarligBeloep = 123000, LocalDate.of(2025, 3, 1))
+                        FremtidigInntekt(aarligInntektBeloep = 234000, LocalDate.of(2024, 2, 1)),
+                        FremtidigInntekt(aarligInntektBeloep = 123000, LocalDate.of(2025, 3, 1))
                     )
                 )
             )

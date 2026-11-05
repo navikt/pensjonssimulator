@@ -103,6 +103,7 @@ private object NavSimuleringResultMapperV3Test2Objects {
                         restpensjon = 61,
                         pensjonstillegg = 17,
                         skjermingstillegg = 18,
+                        minstenivaatilleggIndividuelt = null,
                         kapittel19Gjenlevendetillegg = 19,
                         minstePensjonsnivaaSats = 20.0
                     )

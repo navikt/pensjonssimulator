@@ -126,6 +126,7 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
             restpensjon = info?.restBasisPensjon,
             pensjonstillegg = info?.pensjonstillegg,
             skjermingstillegg = info?.skjermingstillegg,
+            minstenivaatilleggIndividuelt = info?.individueltMinstenivaaTillegg,
             kapittel19Gjenlevendetillegg = info?.gjtAPKap19,
             minstePensjonsnivaaSats = info?.minstePensjonsnivaSats
         )

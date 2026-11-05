@@ -94,7 +94,7 @@ class AlderspensjonService(
                     today = time.today(),
                     inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                 ),
-                fpp = result.registerData?.afpHistorikkListe?.firstOrNull()?.afpFpp
+                fremtidigePensjonspoeng = result.registerData?.afpHistorikkListe?.firstOrNull()?.afpFpp
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:

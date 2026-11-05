@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.api.nav.v2.acl.result
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -20,7 +21,10 @@ data class SimuleringResultDto(
     @Deprecated("Bruk opptjeningListe")
     @field:NotNull val pensjonsgivendeInntektListe: List<AarligBeloepDto>,
     @field:NotNull val opptjeningListe: List<OpptjeningDto>,
+
+    @field:Schema(description = "Fremtidige pensjonspoeng (registrert verdi)")
     val fremtidigePensjonspoeng: Double? = null,
+
     val problem: ProblemDto? = null
 )
 

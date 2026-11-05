@@ -29,7 +29,7 @@ object SimuleringResultMapper {
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
             pensjonsgivendeInntektListe = pensjon?.aarligOpptjeningListe.orEmpty().map(::opptjeningGrunnlag),
             opptjeningListe = pensjon?.opptjeningListe.orEmpty().map(::opptjening),
-            fremtidigePensjonspoeng = source?.fpp,
+            fremtidigePensjonspoeng = source?.fremtidigePensjonspoeng,
             problem = source?.problem?.let(::problem)
         )
     }

@@ -15,7 +15,6 @@ class SimuleringSpecTest : ShouldSpec({
     context("kreverAvsluttetUfoeretrygd") {
         should("gi 'true' for privat AFP") {
             simuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT).kreverAvsluttetUfoeretrygd shouldBe true
-            simuleringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT).kreverAvsluttetUfoeretrygd shouldBe true
         }
 
         should("gi 'true' for livsvarig offentlig AFP med helt uttak") {

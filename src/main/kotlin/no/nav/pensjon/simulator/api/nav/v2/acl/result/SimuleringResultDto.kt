@@ -42,9 +42,6 @@ data class SimuleringResultDto(
     @field:NotNull
     val opptjeningListe: List<OpptjeningDto>,
 
-    @field:Schema(description = "Fremtidige pensjonspoeng (registrert verdi)")
-    val fremtidigePensjonspoeng: Double? = null,
-
     @field:Schema(description = "Eventuelt problem som oppstod under simuleringen")
     val problem: ProblemDto? = null
 )

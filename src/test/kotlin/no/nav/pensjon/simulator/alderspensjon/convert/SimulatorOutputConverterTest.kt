@@ -97,6 +97,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                     restpensjon = 550,
                     pensjonstillegg = 600,
                     skjermingstillegg = 700,
+                    minstenivaatilleggIndividuelt = null,
                     kapittel19Gjenlevendetillegg = 800,
                     minstePensjonsnivaaSats = 11.22
                 )

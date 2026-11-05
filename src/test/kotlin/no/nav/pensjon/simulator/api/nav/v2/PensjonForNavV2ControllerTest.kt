@@ -273,6 +273,7 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
                             restpensjon = 876,
                             pensjonstillegg = 789,
                             skjermingstillegg = 890,
+                            minstenivaatilleggIndividuelt = null,
                             kapittel19Gjenlevendetillegg = 321,
                             minstePensjonsnivaaSats = 0.9
                         )

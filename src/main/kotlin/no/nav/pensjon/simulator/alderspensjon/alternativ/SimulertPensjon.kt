@@ -43,7 +43,7 @@ data class SimulertAarligAlderspensjon(
     val restpensjon: Int?, // kapittel 19
     val pensjonstillegg: Int?,
     val skjermingstillegg: Int?,
-    val minstenivaatilleggIndividuelt: Int? = null,
+    val minstenivaatilleggIndividuelt: Int?,
     val kapittel19Gjenlevendetillegg: Int?,
     val minstePensjonsnivaaSats: Double? // kapittel 19
 )

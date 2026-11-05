@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Beregning
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Opptjeningsgrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
@@ -17,7 +16,6 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -65,8 +63,6 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
                 .map(::beholdningPeriode),
             harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
             primaerTrygdetid = foersteTrygdetid(periodeListe),
-            aarligOpptjeningListe = source.persongrunnlag?.opptjeningsgrunnlagListe.orEmpty()
-                .map(::opptjeningGrunnlag).sortedBy { it.aar },
             opptjeningListe = source.opptjeningListe
         )
     }
@@ -239,12 +235,6 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
             satsType = "",
             sats = 0.0,
             anvendtTrygdetid = 0
-        )
-
-    private fun opptjeningGrunnlag(source: Opptjeningsgrunnlag) =
-        AarligOpptjening(
-            aar = source.ar,
-            pensjonsgivendeInntekt = source.pi
         )
 
     private fun alderAar(foedselsdato: LocalDate, dato: LocalDate): Int =

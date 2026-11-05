@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.api.nav.v2.acl.result
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -9,17 +10,39 @@ import org.springframework.http.HttpStatus
 
 @JsonInclude(NON_NULL)
 data class SimuleringResultDto(
-    @field:NotNull val alderspensjonListe: List<AlderspensjonDto>,
+    @field:Schema(description = "Prognosert alderspensjon for hvert år")
+    @field:NotNull
+    val alderspensjonListe: List<AlderspensjonDto>,
+
+    @field:Schema(description = "Prognosert utbetalt månedsbeløp for alderspensjon")
     val alderspensjonMaanedsbeloep: UttaksbeloepDto?,
+
+    @field:Schema(description = "Prognosert utbetalt månedlig alderspensjon for knekkpunkter")
     val maanedligAlderspensjonForKnekkpunkter: MaanedligAlderspensjonForKnekkpunkter?,
-    @field:NotNull val livsvarigOffentligAfpListe: List<AldersbestemtUtbetalingDto>,
+
+    @field:Schema(description = "Prognosert livsvarig AFP i offentlig sektor for hvert år")
+    @field:NotNull
+    val livsvarigOffentligAfpListe: List<AldersbestemtUtbetalingDto>,
+
+    @field:Schema(description = "Prognosert tidsbegrenset AFP i offentlig sektor")
     val tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpDto?,
-    @field:NotNull val privatAfpListe: List<PrivatAfpDto>,
+
+    @field:Schema(description = "Prognosert livsvarig AFP i privat sektor for hvert år")
+    @field:NotNull
+    val privatAfpListe: List<PrivatAfpDto>,
+
+    @field:Schema(description = "Primær trygdetid")
     val primaerTrygdetid: TrygdetidDto?,
-    @field:NotNull val vilkaarsproevingsresultat: VilkaarsproevingsresultatDto,
-    @Deprecated("Bruk opptjeningListe")
-    @field:NotNull val pensjonsgivendeInntektListe: List<AarligBeloepDto>,
-    @field:NotNull val opptjeningListe: List<OpptjeningDto>,
+
+    @field:Schema(description = "Resultatet av vilkårsprøvingen i henhold til pensjonsregelverket")
+    @field:NotNull
+    val vilkaarsproevingsresultat: VilkaarsproevingsresultatDto,
+
+    @field:Schema(description = "Opptjeningsdata brukt i beregningen for hvert år")
+    @field:NotNull
+    val opptjeningListe: List<OpptjeningDto>,
+
+    @field:Schema(description = "Eventuelt problem som oppstod under simuleringen")
     val problem: ProblemDto? = null
 )
 
@@ -142,11 +165,6 @@ data class OpptjeningDto(
 data class VilkaarsproevingsresultatDto(
     @field:NotNull val erInnvilget: Boolean,
     val alternativ: UttaksparametreDto?
-)
-
-data class AarligBeloepDto(
-    @field:NotNull val aarstall: Int,
-    @field:NotNull val beloep: Int
 )
 
 /**

@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon
 
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
+import no.nav.pensjon.simulator.validity.Problem
 import java.time.LocalDate
 
 data class AlderspensjonResult(
@@ -8,7 +9,8 @@ data class AlderspensjonResult(
     val aarsakListeIkkeSuksess: List<PensjonSimuleringStatus>,
     val alderspensjon: List<AlderspensjonFraFolketrygden>,
     val forslagVedForLavOpptjening: ForslagVedForLavOpptjening?,
-    val harUttak: Boolean
+    val harUttak: Boolean,
+    val problem: Problem? = null
 )
 
 data class AlderspensjonFraFolketrygden(
@@ -64,9 +66,10 @@ enum class Uttaksgrad(val prosentsats: Int) {
     HUNDRE_PROSENT(prosentsats = 100);
 
     companion object {
-        @OptIn(ExperimentalStdlibApi::class)
-        fun from(prosentsats: Int?) =
-            entries.singleOrNull { it.prosentsats == prosentsats }
+        private val valuesByProsentsats = entries.associateBy { it.prosentsats }
+
+        fun from(prosentsats: Int?): Uttaksgrad =
+            prosentsats?.let { valuesByProsentsats[it] }
                 ?: throw InvalidEnumValueException("Ugyldig prosentsats for uttaksgrad: $prosentsats")
     }
 }

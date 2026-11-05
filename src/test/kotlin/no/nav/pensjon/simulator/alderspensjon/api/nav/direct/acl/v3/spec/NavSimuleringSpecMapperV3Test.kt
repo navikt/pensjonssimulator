@@ -19,6 +19,7 @@ import java.util.*
 
 class NavSimuleringSpecMapperV3Test : ShouldSpec({
     val foedselsdato = LocalDate.of(1964, 7, 20)
+    val idag = LocalDate.of(2025, 6, 10)
 
     should("fetch fødselsdato and map values") {
         val fremtidigInntektListeFraAar = foedselsdato.plusYears(58).year
@@ -28,7 +29,8 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
         NavSimuleringSpecMapperV3(
             personService = Arrange.foedselsdato(foedselsdato.year, foedselsdato.monthValue, foedselsdato.dayOfMonth),
             inntektService = arrangeInntekt(),
-            grunnbeloepService = mockk()
+            grunnbeloepService = mockk(),
+            time = { idag }
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
                 pid.value,
@@ -113,7 +115,8 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
         NavSimuleringSpecMapperV3(
             personService = Arrange.foedselsdato(foedselsdato.year, foedselsdato.monthValue, foedselsdato.dayOfMonth),
             inntektService = arrangeInntekt(),
-            grunnbeloepService = mockk()
+            grunnbeloepService = mockk(),
+            time = { idag }
         ).fromNavSimuleringSpecV3(
             source = NavSimuleringSpecV3(
                 pid.value,

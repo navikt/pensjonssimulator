@@ -12,8 +12,12 @@ class MaskinportenTokenService(
 
     override fun getEgressToken(ingressToken: String, audience: String, user: String): RawJwt {
         val accessParameter = TokenAccessParameter.jwtBearer("urn:ietf:params:oauth:grant-type:jwt-bearer")
-        val tokenValue = maskinportenClient.getTokenData(accessParameter = accessParameter, scope = audience, user = user)
+        val tokenValue = maskinportenClient.getTokenData(accessParameter = accessParameter, scope = audience, user = USER)
             .accessToken
         return RawJwt(tokenValue)
+    }
+
+    companion object {
+        private const val USER = "maskinporten-application"
     }
 }

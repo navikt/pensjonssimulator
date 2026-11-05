@@ -5,15 +5,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetAfpSimuleringFacade
 import no.nav.pensjon.simulator.common.api.ControllerBase
-import no.nav.pensjon.simulator.fpp.FppSimuleringFacade
+import no.nav.pensjon.simulator.fpp.api.v1.acl.*
 import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringResultMapper.toDto
-import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringResultDto
-import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringSpecDto
 import no.nav.pensjon.simulator.fpp.api.v1.acl.FppSimuleringSpecMapper.fromDto
-import no.nav.pensjon.simulator.fpp.api.v1.acl.SimuleringstypeDto
-import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemDto
-import no.nav.pensjon.simulator.fpp.api.v1.acl.ProblemtypeDto
 import no.nav.pensjon.simulator.fpp.api.v2.acl.FppSimuleringResultDtoV2
 import no.nav.pensjon.simulator.fpp.api.v2.acl.FppSimuleringResultMapperV2
 import no.nav.pensjon.simulator.statistikk.StatistikkService
@@ -31,7 +27,7 @@ import tools.jackson.databind.json.JsonMapper
 @RequestMapping("api/nav")
 @SecurityRequirement(name = "BearerAuthentication")
 class FppController(
-    private val service: FppSimuleringFacade,
+    private val service: TidsbegrensetAfpSimuleringFacade,
     private val traceAid: TraceAid,
     private val jsonMapper: JsonMapper,
     statistikk: StatistikkService
@@ -78,12 +74,14 @@ class FppController(
     ): ResponseEntity<FppSimuleringResultDto> {
         traceAid.begin()
         countCall(functionName = FUNCTION_ID)
-        log.info { "spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
+        log.info { "fpp v1 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 
         return try {
             registrerHendelse(simuleringstype = simuleringType.internalValue)
-            val result = service.simulerPensjon(fromDto(spec))
-            ResponseEntity.status(HttpStatus.OK).body(toDto(result))
+            val result = service.simulerAfpForFpp(fromDto(spec))
+            val dto = toDto(result)
+            log.info { "fpp v1 result ${jsonMapper.writeValueAsRedactedString(dto)}" }
+            ResponseEntity.status(HttpStatus.OK).body(dto)
         } catch (e: Exception) {
             log.error(e) { "$FUNCTION_ID intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
             throw e
@@ -110,12 +108,14 @@ class FppController(
     ): ResponseEntity<FppSimuleringResultDtoV2> {
         traceAid.begin()
         countCall(functionName = FUNCTION_ID_V2)
-        log.info { "v2 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
+        log.info { "fpp v2 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 
         return try {
             registrerHendelse(simuleringstype = simuleringType.internalValue)
-            val result = service.simulerPensjon(fromDto(spec))
-            ResponseEntity.status(HttpStatus.OK).body(FppSimuleringResultMapperV2.toDto(result))
+            val result = service.simulerAfpForFpp(fromDto(spec))
+            val dto = FppSimuleringResultMapperV2.toDto(result)
+            log.info { "fpp v2 result ${jsonMapper.writeValueAsRedactedString(dto)}" }
+            ResponseEntity.status(HttpStatus.OK).body(dto)
         } catch (e: Exception) {
             log.error(e) { "$FUNCTION_ID_V2 intern feil for spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
             throw e

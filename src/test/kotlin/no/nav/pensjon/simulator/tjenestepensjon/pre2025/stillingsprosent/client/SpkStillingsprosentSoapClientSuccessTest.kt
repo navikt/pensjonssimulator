@@ -12,10 +12,10 @@ import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.web.SoapClientConfig.Companion.PATH
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.arrangeResponse
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.XMLHentStillingsprosentListeRequestWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XMLHentStillingsprosentListeResponseWrapper
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.HttpStatus
 import org.springframework.oxm.jaxb.Jaxb2Marshaller
@@ -47,7 +47,7 @@ class SpkStillingsprosentSoapClientSuccessTest : ShouldSpec({
 
         client.getStillingsprosenter(
             pid = Pid("12345678901"),
-            tpOrdning = TpOrdning(
+            tpOrdning = Tjenestepensjonsordning(
                 navn = "pensjonskasse",
                 tpNr = "1234",
                 datoSistOpptjening = LocalDate.of(2025, 1, 1),

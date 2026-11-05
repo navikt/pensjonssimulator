@@ -1,0 +1,124 @@
+package no.nav.pensjon.simulator.tjenestepensjon.forhold.client.tp
+
+import mu.KotlinLogging
+import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
+import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
+import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+import no.nav.pensjon.simulator.tech.trace.TraceAid
+import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
+import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tech.web.WebClientBase
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.tp.acl.TpLeverandoerTilknytningResult
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.tp.acl.TpForholdResult
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.*
+import reactor.core.publisher.Mono
+
+/**
+ * Henter data om tjenestepensjonsforhold fra applikasjonen 'tp' (github.com/navikt/tp).
+ */
+@Component
+class TpClient(
+    @Value($$"${tjenestepensjon.url}") baseUrl: String,
+    @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String,
+    webClientBase: WebClientBase,
+    private val traceAid: TraceAid
+) : ExternalServiceClient(retryAttempts), TjenestepensjonsforholdClient {
+
+    private val log = KotlinLogging.logger {}
+    private val webClient = webClientBase.withBaseUrl(baseUrl)
+//TODO cache?
+
+    /**
+     * Ref. github.com/navikt/tp -> TjenestepensjonController: POST /api/tjenestepensjon/hasForhold
+     */
+    override fun hentErBrukerTilknyttetTpLeverandoer(pid: Pid, organisasjonsnummer: Organisasjonsnummer): Boolean {
+        val uri = "$PATH/hasForhold?orgnr=${organisasjonsnummer.value}"
+        return try {
+            val response = webClient.post()
+                .uri(uri)
+                .bodyValue(pid.value)
+                .headers(::setHeaders)
+                .retrieve()
+                .bodyToMono<TpLeverandoerTilknytningResult>()
+                .block()
+            response?.forhold ?: logAndReturnFalse("Tom responsebody fra ${service.shortName}", organisasjonsnummer)
+        } catch (e: WebClientRequestException) {
+            logAndReturnFalse("Failed calling $uri", organisasjonsnummer, e)
+        } catch (e: WebClientResponseException) {
+            logAndReturnFalse(e.responseBodyAsString, organisasjonsnummer, e)
+        } catch (e: Exception) {
+            logAndReturnFalse(
+                "Unexpected exception ${e.message}, while calling ${service.shortName}",
+                organisasjonsnummer,
+                e
+            )
+        }
+    }
+
+    /**
+     * Ref. github.com/navikt/tp -> SamhandlerController: GET /api/intern/tjenestepensjon/forhold/
+     */
+    override fun findAlleTpForhold(pid: Pid): List<Tjenestepensjonsforhold> =
+        webClient.get()
+            .uri(FORHOLD_PATH)
+            .headers { setHeaders(it); it[CustomHttpHeaders.PID] = pid.value }
+            .exchangeToMono(::handleAlleTpForholdResponse)
+            .block()
+            .orEmpty()
+
+    /**
+     * Ref. github.com/navikt/tp -> TpConfigController: GET /api/tpconfig/tssnr/{tpNr}
+     */
+    override fun findTssId(tpNr: String): String? =
+        try {
+            webClient.get()
+                .uri("$TSS_PATH$tpNr")
+                .retrieve()
+                .bodyToMono<String>()
+                .block()
+        } catch (_: WebClientResponseException.NotFound) {
+            null
+        }
+
+    private fun handleAlleTpForholdResponse(response: ClientResponse): Mono<List<Tjenestepensjonsforhold>> =
+        when (response.statusCode()) {
+            HttpStatus.OK -> response.bodyToMono<TpForholdResult>().map { it.toInternalValue() }
+            HttpStatus.NOT_FOUND -> Mono.empty()
+            else -> Mono.error(RuntimeException("Error fetching data from TP: Received status code ${response.statusCode()} fra tpregisteret"))
+        }
+
+    private fun logAndReturnFalse(
+        feilmelding: String,
+        organisasjonsnummer: Organisasjonsnummer,
+        e: Exception? = null
+    ): Boolean {
+        val message = "Teknisk feil ved verifisering av at brukeren er tilknyttet tjenestepensjonsordning" +
+                " med organisasjonsnummer $organisasjonsnummer: $feilmelding"
+        e?.let { log.error(e) { message } } ?: log.error { message }
+        return false
+    }
+
+    override fun service() = service
+
+    override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
+
+    private fun setHeaders(headers: HttpHeaders) {
+        headers.setBearerAuth(EgressAccess.token(service).value)
+        headers[CustomHttpHeaders.CALL_ID] = traceAid.callId()
+    }
+
+    companion object {
+        private const val PATH = "/api/tjenestepensjon"
+        private const val FORHOLD_PATH = "/api/intern/tjenestepensjon/forhold/"
+        private const val TSS_PATH = "/api/tpconfig/tssnr/"
+        private val service = EgressService.TP_REGISTERET
+    }
+}

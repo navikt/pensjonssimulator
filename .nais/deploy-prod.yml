@@ -76,6 +76,7 @@ spec:
       consumes:
         - name: "spk:nav"
         - name: "klp:oftp/simulering"
+        - name: "stbsbp:nav"
       exposes:
         - name: "simulering"
           enabled: true
@@ -186,6 +187,7 @@ spec:
         - host: tp-api.prod-fss-pub.nais.io
         - host: api.prod.spk.no
         - host: api.klp.no
+        - host: api.ofa.storebrand.no
   env:
     - name: FSS_GATEWAY_SERVICE_ID
       value: prod-fss:pensjonselvbetjening:pensjon-selvbetjening-fss-gateway
@@ -227,6 +229,8 @@ spec:
       value: https://api.prod.spk.no
     - name: SPK_TP_SIMULERING_FRA_2025_URL
       value: https://api.prod.spk.no
+    - name: STOREBRAND_TP_SIMULERING_FRA_2025_URL
+      value: https://api.ofa.storebrand.no/sbp
     - name: KLP_TP_SIMULERING_FRA_2025_URL
       value: https://api.klp.no
     - name: STDOUT_LOG_OUTPUT

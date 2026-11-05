@@ -15,10 +15,9 @@ import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.SammenlignAFPService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
-import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.toRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.fromResponseDto
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.KlpMapper.toRequestDto
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.InkludertOrdning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonRequest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl.KlpSimulerTjenestepensjonResponse
@@ -30,6 +29,7 @@ import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
+import kotlin.Result.Companion.success
 
 @Service("klp")
 class KlpTjenestepensjonClientFra2025(
@@ -38,7 +38,6 @@ class KlpTjenestepensjonClientFra2025(
     @Qualifier("long-timeout") webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogg: SporingsloggService,
-    private val sammenligner: SammenlignAFPService,
     private val isDevelopment: () -> Boolean = { EnvironmentUtil.isDevelopment() },
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonFra2025Client {
 
@@ -53,7 +52,7 @@ class KlpTjenestepensjonClientFra2025(
         val request: KlpSimulerTjenestepensjonRequest = toRequestDto(spec)
 
         if (isDevelopment())
-            return success(request, spec, mockResponse(spec))
+            return success(fromResponseDto(mockResponse(spec)))
 
         sporingslogg.logUtgaaendeRequest(Organisasjoner.KLP, spec.pid, request.toString())
 
@@ -66,7 +65,7 @@ class KlpTjenestepensjonClientFra2025(
                 .retrieve()
                 .bodyToMono<KlpSimulerTjenestepensjonResponse>()
                 .block()
-                ?.let { success(request, spec, it) }
+                ?.let { success(fromResponseDto(it, request)) }
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
             "Failed to simulate tjenestepensjon 2025 at ${service.shortName} ${e.responseBodyAsString}".let {
@@ -85,15 +84,6 @@ class KlpTjenestepensjonClientFra2025(
             }
         }
     }
-
-    private fun success(
-        request: KlpSimulerTjenestepensjonRequest,
-        spec: OffentligTjenestepensjonFra2025SimuleringSpec,
-        response: KlpSimulerTjenestepensjonResponse
-    ): Result<SimulertTjenestepensjon> =
-        Result.success(
-            fromResponseDto(response, request)
-                .also { sammenligner.sammenlignOgLoggAfp(spec, it.utbetalingsperioder) })
 
     private fun setHeaders(headers: HttpHeaders) {
         headers.setBearerAuth(EgressAccess.token(service).value)

@@ -14,7 +14,7 @@ import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
-import no.nav.pensjon.simulator.tjenestepensjon.TilknytningService
+import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import no.nav.pensjon.simulator.uttak.UttakService
 import no.nav.pensjon.simulator.uttak.api.acl.*
 import no.nav.pensjon.simulator.uttak.api.acl.UttakResultMapperV1.resultV1
@@ -127,7 +127,7 @@ class UttakController(
     private fun handleInternalError(e: Exception): ResponseEntity<TidligstMuligUttakResultV1> =
         with(TidligstMuligUttakFeilTypeV1.TEKNISK_FEIL) {
             log.error(e) { "$FUNCTION_ID - unknown error - ${extractUnsafeMessages(e)}" }
-            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = e.javaClass.simpleName))
+            ResponseEntity.status(this.httpStatus).body(problem(type = this, beskrivelse = extractSafeMessage(e)))
         }
 
     private companion object {

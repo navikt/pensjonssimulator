@@ -1,6 +1,8 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.spk
 
 import mu.KotlinLogging
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
+import no.nav.pensjon.simulator.inntekt.LoependeInntekt
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
@@ -18,7 +20,9 @@ object SpkMapper {
         SpkSimulerTjenestepensjonRequest(
             personId = spec.pid.value,
             uttaksListe = uttakListe(spec),
-            fremtidigInntektListe = inntekter(spec),
+            fremtidigInntektListe = inntekter(spec).map {
+                SpkFremtidigInntekt(aarligInntekt = it.aarligInntektBeloep, fraOgMedDato = it.fom)
+            },
             aarIUtlandetEtter16 = spec.utlandAntallAar,
             epsPensjon = spec.epsHarPensjon,
             eps2G = spec.epsHarInntektOver2G
@@ -45,7 +49,7 @@ object SpkMapper {
     /**
      * Inntekter f.o.m. fjorårets første dag til siste 'f.o.m.'-dato i listen over fremtidige inntekter.
      */
-    private fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
+    fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
         val inntektListe = mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
         inntektListe.addAll(spec.fremtidigeInntekter.map(::inntekt))
         return inntektListe
@@ -53,14 +57,14 @@ object SpkMapper {
 
     private fun naaverendeInntekt(aarligInntekt: Int) =
         FremtidigInntekt(
-            fraOgMedDato = fjoraaretsFoersteDag(),
-            aarligInntekt = aarligInntekt
+            fom = fjoraaretsFoersteDag(),
+            aarligInntektBeloep = aarligInntekt
         )
 
     private fun inntekt(spec: TjenestepensjonInntektSpec) =
         FremtidigInntekt(
-            fraOgMedDato = spec.fom,
-            aarligInntekt = spec.aarligInntekt
+            fom = spec.fom,
+            aarligInntektBeloep = spec.aarligInntekt
         )
 
     private fun utbetalingsperioder(utbetaling: Utbetaling): List<Utbetalingsperiode> =

@@ -17,22 +17,30 @@ object TidsbegrensetOffentligAfpSpecValidator {
 
     // PEN: SimulerPensjonsberegningCommand.validateInput
     fun validateInput(spec: Simulering, normalder: Alder) {
-        val simuleringType = spec.simuleringTypeEnum ?: throw BadSpecException("Spec for tidsbegrenset AFP mangler simuleringType")
-        val uttaksdato: LocalDate = spec.uttaksdatoLd ?: throw BadSpecException("Spec for tidsbegrenset AFP mangler uttaksdato")
+        val simuleringType = spec.simuleringTypeEnum ?: badSpec(mangel = "simuleringType")
+        val uttaksdato: LocalDate = spec.uttaksdatoLd ?: badSpec(mangel = "uttaksdato")
 
-        if (SimuleringTypeEnum.AFP == simuleringType && spec.afpOrdningEnum == null) {
-            throw BadSpecException("Spec for tidsbegrenset AFP mangler AFP-ordning")
-        }
+        if (SimuleringTypeEnum.AFP == simuleringType && spec.afpOrdningEnum == null)
+            badSpec(mangel = "AFP-ordning")
 
-        // PEN: SimulerPensjonsberegningCommand.findPersongrunnlagWithGivenRole
         val soekerGrunnlag: Persongrunnlag =
-            spec.persongrunnlagListe.firstOrNull { hasRolle(persongrunnlag = it, rolle = GrunnlagsrolleEnum.SOKER) }
-                ?: throw BadSpecException("Spec for tidsbegrenset AFP mangler persongrunnlag for søker")
+            spec.persongrunnlagListe.firstOrNull { it.harRolle(rolle = GrunnlagsrolleEnum.SOKER) }
+                ?: badSpec(mangel = "persongrunnlag for søker")
 
-        val foedselsdato = soekerGrunnlag.fodselsdatoLd!!
-        val foedselsmaaned: Int = foedselsdato.monthValue
+        soekerGrunnlag.fodselsdatoLd?.let {
+            validateAlder(it, uttaksdato, simuleringType, normalder)
+        } ?: badSpec(mangel = "fødselsdato for søker")
+    }
+
+    private fun validateAlder(
+        date: LocalDate,
+        uttaksdato: LocalDate,
+        simuleringType: SimuleringTypeEnum,
+        normalder: Alder
+    ) {
+        val foedselsmaaned: Int = date.monthValue
         val uttaksmaaned = uttaksdato.monthValue
-        val uttaksalderAar = uttaksdato.year - foedselsdato.year
+        val uttaksalderAar = uttaksdato.year - date.year
 
         if (SimuleringTypeEnum.ALDER == simuleringType) {
             //TODO should 'uttakMaaned <= foedselMaaned' be 'uttakMaaned <= foedselMaaned + normalder.maaneder'?
@@ -50,6 +58,7 @@ object TidsbegrensetOffentligAfpSpecValidator {
         }
     }
 
-    private fun hasRolle(persongrunnlag: Persongrunnlag, rolle: GrunnlagsrolleEnum) =
-        persongrunnlag.personDetaljListe.any { rolle == it.grunnlagsrolleEnum }
+    private fun badSpec(mangel: String): Nothing {
+        throw BadSpecException("Spec for tidsbegrenset AFP mangler $mangel")
+    }
 }

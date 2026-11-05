@@ -96,6 +96,22 @@ class TidsbegrensetOffentligAfpSpecValidatorTest : FunSpec({
         }.message shouldBe "Spec for tidsbegrenset AFP mangler persongrunnlag for søker"
     }
 
+    test("Manglende søker-fødselsdato skal forhindres med BadSpecException") {
+        shouldThrow<BadSpecException> {
+            TidsbegrensetOffentligAfpSpecValidator.validateInput(
+                spec = Simulering().apply {
+                    simuleringTypeEnum = SimuleringTypeEnum.ALDER
+                    uttaksdatoLd = dato
+                    persongrunnlagListe = mutableListOf(Persongrunnlag().apply {
+                        fodselsdatoLd = null // mangler
+                        personDetaljListe = soeker
+                    })
+                },
+                normalder
+            )
+        }.message shouldBe "Spec for tidsbegrenset AFP mangler fødselsdato for søker"
+    }
+
     test("Alderspensjonsimulering med søker yngre enn normalder skal forhindres med PersonForUngException") {
         shouldThrow<PersonForUngException> {
             TidsbegrensetOffentligAfpSpecValidator.validateInput(

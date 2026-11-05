@@ -11,13 +11,15 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenest
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TpUtil.grupperMedDatoFra
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TpUtil.redact
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.SammenlignAfpService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
 @Service
 class KlpTjenestepensjonService(
-    @param:Qualifier("klp") private val client: TjenestepensjonFra2025Client
+    @param:Qualifier("klp") private val client: TjenestepensjonFra2025Client,
+    private val sammenlignAFPService: SammenlignAfpService,
 ) {
     private val log = KotlinLogging.logger {}
 
@@ -26,6 +28,14 @@ class KlpTjenestepensjonService(
         tpNummer: String
     ): Result<SimulertTjenestepensjonMedMaanedsUtbetalinger> =
         client.simuler(spec, tpNummer)
+            .onSuccess {
+                sammenlignAFPService.sammenlignOgLoggAfp(
+                    request = spec,
+                    inntekterMapper = KlpMapper::inntekter,
+                    simulertTjenestepensjon = it,
+                    tpOrdning = client.service.shortName
+                )
+            }
             .fold(
                 onSuccess = { result(pensjon = it, spec.foedselsdato, tpNummer) },
                 onFailure = { Result.failure(exception = it) }

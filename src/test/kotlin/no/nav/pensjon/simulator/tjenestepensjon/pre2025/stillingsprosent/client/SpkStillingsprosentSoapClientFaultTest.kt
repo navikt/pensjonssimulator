@@ -14,10 +14,10 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tech.web.SoapClientConfig.Companion.PATH
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.arrangeResponse
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.AuthAttachingHttpRequestInterceptor
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.request.XMLHentStillingsprosentListeRequestWrapper
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.marshalling.response.XmlFaultWrapper
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import okhttp3.mockwebserver.MockWebServer
 import org.springframework.http.HttpStatus
 import org.springframework.oxm.jaxb.Jaxb2Marshaller
@@ -51,7 +51,7 @@ class SpkStillingsprosentSoapClientFaultTest : ShouldSpec({
         shouldThrow<EgressException> {
             client.getStillingsprosenter(
                 pid = Pid("12345678901"),
-                tpOrdning = TpOrdning(
+                tpOrdning = Tjenestepensjonsordning(
                     navn = "pensjonskasse",
                     tpNr = "1234",
                     datoSistOpptjening = LocalDate.of(2025, 1, 1),

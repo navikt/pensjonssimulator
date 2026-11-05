@@ -14,6 +14,7 @@ import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Component
@@ -28,7 +29,8 @@ import java.util.*
 class NavSimuleringSpecMapperV3(
     private val personService: GeneralPersonService,
     private val inntektService: InntektService,
-    private val grunnbeloepService: GrunnbeloepService
+    private val grunnbeloepService: GrunnbeloepService,
+    private val time: Time
 ) {
     fun fromNavSimuleringSpecV3(source: NavSimuleringSpecV3): SimuleringSpec {
         val pid = Pid(source.pid)
@@ -71,7 +73,7 @@ class NavSimuleringSpecMapperV3(
             livsvarigOffentligAfp = source.innvilgetLivsvarigOffentligAfp?.let(::livsvarigOffentligAfp),
 
             // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
-            tidsbegrensetOffentligAfp = pre2025OffentligAfpSpec(
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfpSpec(
                 simuleringSpec = source,
                 inntektAarligBeloep = gradertUttak?.aarligInntekt,
                 inntektSisteMaanedOver1G =
@@ -142,7 +144,7 @@ class NavSimuleringSpecMapperV3(
             )
         )
 
-    private fun pre2025OffentligAfpSpec(
+    private fun tidsbegrensetOffentligAfpSpec(
         simuleringSpec: NavSimuleringSpecV3,
         inntektAarligBeloep: Int?,
         inntektSisteMaanedOver1G: Int?
@@ -167,7 +169,7 @@ class NavSimuleringSpecMapperV3(
     private fun alder(source: NavSimuleringAlderSpecV3) = Alder(source.aar, source.maaneder)
 
     private fun validated(uttakFom: LocalDate): LocalDate =
-        if (uttakFom < LocalDate.now())
+        if (uttakFom < time.today())
             throw RegelmotorValideringException("Uttaksdato ($uttakFom) kan ikke være i fortid")
         else
             uttakFom

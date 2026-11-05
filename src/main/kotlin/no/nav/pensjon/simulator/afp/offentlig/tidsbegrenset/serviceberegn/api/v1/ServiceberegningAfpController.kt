@@ -104,7 +104,7 @@ class ServiceberegningAfpController(
     @ExceptionHandler(value = [Exception::class])
     private fun internalError(e: Exception): ResponseEntity<ServiceberegningAfpResultDto> =
         ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(problem(ServiceberegningProblemtypeDto.ANNEN_SERVERFEIL, e.javaClass.simpleName))
+            .body(problem(ServiceberegningProblemtypeDto.ANNEN_SERVERFEIL, extractSafeMessage(e)))
 
     private companion object {
         private const val TJENESTE = "simulering AFP for serviceberegning"

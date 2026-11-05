@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.alderspensjon
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
@@ -9,14 +8,14 @@ import no.nav.pensjon.simulator.alderspensjon.spec.PensjonInntektSpec
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
-import no.nav.pensjon.simulator.validity.BadSpecException
+import no.nav.pensjon.simulator.validity.Problem
 import no.nav.pensjon.simulator.validity.ProblemType
 import java.time.LocalDate
 
 class AlderspensjonServiceTest : ShouldSpec({
 
-    should("gi feilmelding for inntekt som ikke starter 1. i måneden") {
-        shouldThrow<BadSpecException> {
+    context("inntekt som ikke starter 1. i måneden") {
+        should("inkludere problembeskrivelse i returverdien") {
             simulerAlderspensjon(
                 inntektSpecListe = listOf(
                     PensjonInntektSpec(
@@ -24,15 +23,15 @@ class AlderspensjonServiceTest : ShouldSpec({
                         fom = LocalDate.of(2027, 1, 2),
                     )
                 )
+            ).problem shouldBe Problem(
+                type = ProblemType.UGYLDIG_INNTEKT,
+                beskrivelse = "En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden"
             )
-        } shouldBe BadSpecException(
-            message = "En fremtidig inntekt har f.o.m.-dato som ikke er den 1. i måneden",
-            problemType = ProblemType.UGYLDIG_INNTEKT
-        )
+        }
     }
 
-    should("gi feilmelding for inntekter med ikke-unik f.o.m.-dato") {
-        shouldThrow<BadSpecException> {
+    context("inntekter med ikke-unik f.o.m.-dato") {
+        should("inkludere problembeskrivelse i returverdien") {
             simulerAlderspensjon(
                 inntektSpecListe = listOf(
                     PensjonInntektSpec(
@@ -44,15 +43,15 @@ class AlderspensjonServiceTest : ShouldSpec({
                         fom = LocalDate.of(2025, 1, 1), // samme fom som forrige
                     )
                 )
+            ).problem shouldBe Problem(
+                type = ProblemType.UGYLDIG_INNTEKT,
+                beskrivelse = "To fremtidige inntekter har samme f.o.m.-dato"
             )
-        } shouldBe BadSpecException(
-            message = "To fremtidige inntekter har samme f.o.m.-dato",
-            problemType = ProblemType.UGYLDIG_INNTEKT
-        )
+        }
     }
 
-    should("gi feilmelding for negativ inntekt") {
-        shouldThrow<BadSpecException> {
+    context("negativ inntekt") {
+        should("inkludere problembeskrivelse i returverdien") {
             simulerAlderspensjon(
                 inntektSpecListe = listOf(
                     PensjonInntektSpec(
@@ -60,11 +59,11 @@ class AlderspensjonServiceTest : ShouldSpec({
                         fom = LocalDate.of(2027, 1, 1),
                     )
                 )
+            ).problem shouldBe Problem(
+                type = ProblemType.UGYLDIG_INNTEKT,
+                beskrivelse = "En fremtidig inntekt har negativt beløp"
             )
-        } shouldBe BadSpecException(
-            message = "En fremtidig inntekt har negativt beløp",
-            problemType = ProblemType.UGYLDIG_INNTEKT
-        )
+        }
     }
 })
 

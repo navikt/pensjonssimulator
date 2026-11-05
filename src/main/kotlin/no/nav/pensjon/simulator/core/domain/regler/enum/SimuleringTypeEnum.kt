@@ -5,11 +5,14 @@ package no.nav.pensjon.simulator.core.domain.regler.enum
  * 2025-01-29
  * Plus 'livsvarig AFP i offentlig sektor' (ref. SimuleringSpecAlderspensjon1963Plus in PEN).
  */
-enum class SimuleringTypeEnum {
+enum class SimuleringTypeEnum(
+    val soekerKravlinjeType: KravlinjeTypeEnum? = null,
+    val avdoedKravlinjeType: KravlinjeTypeEnum? = null
+) {
     /**
      * AFP
      */
-    AFP,
+    AFP(soekerKravlinjeType = KravlinjeTypeEnum.AFP),
     /**
      * "Pre-2025" AFP i offentlig sektor etterfulgt av alderspensjon
      */
@@ -21,7 +24,7 @@ enum class SimuleringTypeEnum {
     /**
      * Alderspensjon
      */
-    ALDER,
+    ALDER(soekerKravlinjeType = KravlinjeTypeEnum.AP),
     /**
      * Alderspensjon
      */
@@ -37,7 +40,7 @@ enum class SimuleringTypeEnum {
     /**
      * Alderspensjon med gjenlevenderettigheter
      */
-    ALDER_M_GJEN,
+    ALDER_M_GJEN(soekerKravlinjeType = KravlinjeTypeEnum.AP, avdoedKravlinjeType = KravlinjeTypeEnum.GJR),
     /**
      * Barnepensjon
      */
@@ -61,5 +64,5 @@ enum class SimuleringTypeEnum {
     /**
      * Gjenlevendepensjon
      */
-    GJENLEVENDE
+    GJENLEVENDE(soekerKravlinjeType = KravlinjeTypeEnum.GJP)
 }

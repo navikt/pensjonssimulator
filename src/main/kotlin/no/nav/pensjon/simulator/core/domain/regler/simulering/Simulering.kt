@@ -1,9 +1,11 @@
 package no.nav.pensjon.simulator.core.domain.regler.simulering
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.domain.regler.vedtak.VilkarsVedtak
+import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
 // 2026-04-07
@@ -30,4 +32,8 @@ class Simulering {
     var persongrunnlagListe: List<Persongrunnlag> = mutableListOf()
 
     var vilkarsvedtakliste: MutableList<VilkarsVedtak> = mutableListOf()
+
+    //--- Extra:
+    @JsonIgnore
+    var pid: Pid? = null
 }

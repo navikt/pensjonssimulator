@@ -19,6 +19,7 @@ import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
 import no.nav.pensjon.simulator.g.GrunnbeloepService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
+import no.nav.pensjon.simulator.person.PersongrunnlagUtil.persongrunnlagForRolle
 import no.nav.pensjon.simulator.trygdetid.TrygdetidUtil.MINIMUM_TRYGDETID_ANTALL_AAR
 import no.nav.pensjon.simulator.vedtak.VilkaarsvedtakKravlinje
 import org.springframework.stereotype.Component
@@ -141,7 +142,7 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             || simuleringType == SimuleringTypeEnum.AFP
         ) {
             val soekerGrunnlag: Persongrunnlag? =
-                findPersongrunnlagHavingRolle(spec.persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
+                persongrunnlagForRolle(spec.persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
 
             soekerGrunnlag?.let {
                 val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, spec)
@@ -154,33 +155,9 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
 
         if (simuleringType == SimuleringTypeEnum.ALDER_M_GJEN) {
             val avdoedGrunnlag: Persongrunnlag? =
-                findPersongrunnlagHavingRolle(spec.persongrunnlagListe, GrunnlagsrolleEnum.AVDOD)
+                persongrunnlagForRolle(spec.persongrunnlagListe, GrunnlagsrolleEnum.AVDOD)
 
             avdoedGrunnlag?.let {
-                val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, spec)
-
-                if (historikk?.containsActualUforeperiode() == true) {
-                    it.uforeHistorikk = historikk
-                }
-            }
-        }
-
-        if (simuleringType == SimuleringTypeEnum.BARN) {
-            val morGrunnlag: Persongrunnlag? =
-                findPersongrunnlagHavingRolle(spec.persongrunnlagListe, GrunnlagsrolleEnum.MOR)
-
-            morGrunnlag?.let {
-                val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, spec)
-
-                if (historikk?.containsActualUforeperiode() == true) {
-                    it.uforeHistorikk = historikk
-                }
-            }
-
-            val farGrunnlag: Persongrunnlag? =
-                findPersongrunnlagHavingRolle(spec.persongrunnlagListe, GrunnlagsrolleEnum.FAR)
-
-            farGrunnlag?.let {
                 val historikk: Uforehistorikk? = ufoerehistorikk(persongrunnlag = it, spec)
 
                 if (historikk?.containsActualUforeperiode() == true) {
@@ -432,10 +409,11 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             val rolle = personDetalj.grunnlagsrolleEnum
             val simuleringType: SimuleringTypeEnum? = spec.simuleringTypeEnum
 
+            //TODO Merge with TidsbegrensetAfpSimuleringService.kravlinjeType() ?
             if (GrunnlagsrolleEnum.SOKER == rolle) {
-                kravlinjeType = simuleringType?.let(::soekerKravlinjeType)
+                kravlinjeType = simuleringType?.soekerKravlinjeType
             } else if (GrunnlagsrolleEnum.AVDOD == rolle) {
-                kravlinjeType = simuleringType?.let(::avdoedKravlinjeType)
+                kravlinjeType = simuleringType?.avdoedKravlinjeType
             } else if (GrunnlagsrolleEnum.BARN == rolle) {
                 if (SimuleringTypeEnum.ALDER == simuleringType || SimuleringTypeEnum.ALDER_M_GJEN == simuleringType) {
                     if (personDetalj.barnDetalj?.inntektOver1G != true) {
@@ -468,17 +446,6 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
                 afpOrdningEnum = spec.tidsbegrensetOffentligAfp?.afpOrdning
                 this.persongrunnlagListe = persongrunnlagListe
             }
-
-        // PEN: SimulerPensjonsberegningCommand.findPersongrunnlagWithGivenRole
-        private fun findPersongrunnlagHavingRolle(
-            persongrunnlagListe: List<Persongrunnlag>,
-            rolle: GrunnlagsrolleEnum
-        ): Persongrunnlag? =
-            persongrunnlagListe.firstOrNull { hasRolle(persongrunnlag = it, rolle) }
-
-        // PEN: Extracted from SimulerPensjonsberegningCommand.findPersongrunnlagWithGivenRole
-        private fun hasRolle(persongrunnlag: Persongrunnlag, rolle: GrunnlagsrolleEnum) =
-            persongrunnlag.personDetaljListe.any { rolle == it.grunnlagsrolleEnum }
 
         // PEN: Extracted from SimulerPensjonsberegningCommand.execute
         private fun avslag(status: VedtakResultatEnum) =
@@ -555,24 +522,6 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             (GrunnlagsrolleEnum.EKTEF.name == rolle
                     || GrunnlagsrolleEnum.PARTNER.name == rolle
                     || GrunnlagsrolleEnum.SAMBO.name == rolle && (BorMedTypeEnum.SAMBOER1_5 == personDetalj.borMedEnum))
-
-        // PEN: Extracted from SimulerPensjonsberegningCommand.updateVilkarsvedtak
-        private fun soekerKravlinjeType(simuleringType: SimuleringTypeEnum): KravlinjeTypeEnum? =
-            when (simuleringType) {
-                SimuleringTypeEnum.ALDER -> KravlinjeTypeEnum.AP
-                SimuleringTypeEnum.ALDER_M_GJEN -> KravlinjeTypeEnum.AP
-                SimuleringTypeEnum.AFP -> KravlinjeTypeEnum.AFP
-                SimuleringTypeEnum.GJENLEVENDE -> KravlinjeTypeEnum.GJP
-                SimuleringTypeEnum.BARN -> KravlinjeTypeEnum.BP
-                else -> null
-            }
-
-        // PEN: Extracted from SimulerPensjonsberegningCommand.updateVilkarsvedtak
-        private fun avdoedKravlinjeType(simuleringType: SimuleringTypeEnum): KravlinjeTypeEnum? =
-            when (simuleringType) {
-                SimuleringTypeEnum.ALDER_M_GJEN -> KravlinjeTypeEnum.GJR
-                else -> null
-            }
 
         private fun sjekkAvslag(resultat: Simuleringsresultat) {
             if (ikkeInnvilget(resultat.statusEnum)) {

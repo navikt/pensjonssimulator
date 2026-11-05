@@ -7,8 +7,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.SpkStillingsprosentSoapClient
-import no.nav.pensjon.simulator.tpregisteret.TpOrdning
 import java.time.LocalDate
 
 class SpkStillingsprosentServiceTest : FunSpec({
@@ -16,7 +16,7 @@ class SpkStillingsprosentServiceTest : FunSpec({
     val pid = Pid("12345678910")
 
     fun tpOrdning() =
-        TpOrdning(
+        Tjenestepensjonsordning(
             navn = "SPK",
             tpNr = "3010",
             tssId = "tss-3010"

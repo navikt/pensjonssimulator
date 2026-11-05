@@ -43,6 +43,8 @@ class TidsbegrensetAfpSpecCreator(
                 opptjeningListe,
                 grunnbeloepService.naavaerendeGrunnbeloep()
             )
+
+            pid = personinfo.pid
         }
 
     private fun persongrunnlagListe(

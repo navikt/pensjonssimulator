@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
+import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
 import java.time.LocalDate
 
 class PersongrunnlagTest : ShouldSpec({
@@ -44,6 +45,24 @@ class PersongrunnlagTest : ShouldSpec({
                 trygdetider[1].tt shouldBe 36
                 trygdetid?.tt shouldBe 36
             }
+        }
+    }
+
+    context("harRolle") {
+        should("gi 'false' hvis ingen persondetalj med angitt rolle") {
+            Persongrunnlag().apply {
+                personDetaljListe = enPersondetalj(rolle = GrunnlagsrolleEnum.MOR, skalBrukes = true)
+            }.harRolle(
+                rolle = GrunnlagsrolleEnum.SOKER
+            ) shouldBe false
+        }
+
+        should("gi 'true' hvis en persondetalj har angitt rolle, selv om den ikke skal brukes") {
+            Persongrunnlag().apply {
+                personDetaljListe = enPersondetalj(rolle = GrunnlagsrolleEnum.PARTNER, skalBrukes = false)
+            }.harRolle(
+                rolle = GrunnlagsrolleEnum.PARTNER
+            ) shouldBe true
         }
     }
 
@@ -209,6 +228,14 @@ private fun pensjonsbeholdning(aar: Int, maaned: Int, beloep: Int) =
         fomLd = LocalDate.of(aar, maaned, 1)
         totalbelop = beloep.toDouble()
     }
+
+private fun enPersondetalj(rolle: GrunnlagsrolleEnum, skalBrukes: Boolean): MutableList<PersonDetalj> =
+    mutableListOf(
+        PersonDetalj().apply {
+            grunnlagsrolleEnum = rolle
+            bruk = skalBrukes
+        }
+    )
 
 private fun trygdetid(aar: Int) =
     Trygdetid().apply { virkFomLd = LocalDate.of(aar, 1, 1) }

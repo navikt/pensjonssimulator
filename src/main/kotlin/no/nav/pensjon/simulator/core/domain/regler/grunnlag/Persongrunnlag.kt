@@ -16,8 +16,8 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.grunnlag.copy
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isDateInPeriod
 import no.nav.pensjon.simulator.core.ufoere.UfoereOpptjeningGrunnlag
 import no.nav.pensjon.simulator.core.util.PeriodeUtil.findLatest
-import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.omtrentligTrygdetidAntallAar
-import no.nav.pensjon.simulator.fpp.FppTrygdetidBeregner.trygdetidAntallAar
+import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregner.omtrentligTrygdetidAntallAar
+import no.nav.pensjon.simulator.trygdetid.TrygdetidBeregner.trygdetidAntallAar
 import java.time.LocalDate
 import no.nav.pensjon.simulator.opptjening.Pensjonsbeholdning as DomainPensjonsbeholdning
 
@@ -566,7 +566,10 @@ class Persongrunnlag {
         }
 
     fun isSoeker(): Boolean =
-        personDetaljListe.any { GrunnlagsrolleEnum.SOKER == it.grunnlagsrolleEnum }
+        harRolle(GrunnlagsrolleEnum.SOKER)
+
+    fun harRolle(rolle: GrunnlagsrolleEnum): Boolean =
+        personDetaljListe.any { rolle == it.grunnlagsrolleEnum }
 
     /**
      * Finner nyeste trygdetid, hvis ingen finnes returneres null

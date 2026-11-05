@@ -9,6 +9,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService.Companion.PEN_715_SIMULER_SPK
@@ -20,16 +21,18 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.IkkeSisteOrdni
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.exception.TjenestepensjonSimuleringException
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025ServiceUnitTest.Companion.dummySpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.SammenlignAfpService
 import java.time.LocalDate
 
 class SpkTjenestepensjonServiceTest : FunSpec({
 
     val client: TjenestepensjonFra2025Client = mockk()
     val featureToggleService = mockk<FeatureToggleService>(relaxed = true)
-    val service = SpkTjenestepensjonService(client, featureToggleService)
+    val sammenligner = mockk<SammenlignAfpService>(relaxUnitFun = true)
+    val service = SpkTjenestepensjonService(client, featureToggleService, sammenligner)
 
     beforeTest {
-        clearMocks(client, featureToggleService)
+        clearMocks(client, featureToggleService, sammenligner)
         every { client.service } returns EgressService.SPK
     }
 
@@ -102,6 +105,14 @@ class SpkTjenestepensjonServiceTest : FunSpec({
             ordningsListe shouldHaveSize 1
             utbetalingsperioder.shouldBeEmpty()
         }
+        verify(exactly = 1) {
+            sammenligner.sammenlignOgLoggAfp(
+                spec,
+                SpkMapper::inntekter,
+                match { it.utbetalingsperioder.single().ytelseType == "OAFP" },
+                EgressService.SPK.shortName
+            )
+        }
     }
 
     test("simulering skal ikke gjøres hvis feature toggle er av") {
@@ -119,6 +130,7 @@ class SpkTjenestepensjonServiceTest : FunSpec({
                 .shouldBeInstanceOf<TjenestepensjonSimuleringException>()
                 .message.contains("Simulering av tjenestepensjon hos SPK er slått av") shouldBe true
         }
+        verify(exactly = 0) { sammenligner.sammenlignOgLoggAfp(any(), any(), any(), any()) }
     }
 
     test("result skal være 'failure' hvis ikke siste ordning") {

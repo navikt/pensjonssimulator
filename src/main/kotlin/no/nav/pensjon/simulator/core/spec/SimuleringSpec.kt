@@ -78,18 +78,14 @@ data class SimuleringSpec(
 
     val erHeltUttak: Boolean = uttakGrad == UttakGradKode.P_100
 
-    val gjelderPrivatAfp: Boolean =
-        EnumSet.of(
-            SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
-            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
-        ).contains(type)
+    val gjelderPrivatAfp: Boolean = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT == type //TODO check callers
 
     /**
      * Uføretrygd må avsluttes før uttak av pensjon i følgende tilfeller:
      * - Ved uttak (helt eller gradert) av alderspensjon i kombinasjon med privat AFP
      * - Ved helt uttak av alderspensjon
      */
-    val kreverAvsluttetUfoeretrygd: Boolean =
+    val kreverAvsluttetUfoeretrygd: Boolean = //TODO brukere med løpende alderspensjon med privat AFP har ikke uføretrygd
         gjelderPrivatAfp || simuleringstyperSomVedHeltUttakKreverAvsluttetUfoeretrygd.contains(type) && erHeltUttak
 
     val limitedUtenlandsoppholdAntallAar: Int =
@@ -281,10 +277,9 @@ data class SimuleringSpec(
     fun gjelder2FaseSimulering() =
         gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()
 
-    fun gjelderEndring() =
+    fun gjelderEndring() = //TODO sjekk hvem kaller denne
         EnumSet.of(
             SimuleringTypeEnum.ENDR_ALDER,
-            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
             SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
             SimuleringTypeEnum.ENDR_ALDER_M_GJEN
         ).contains(type)
@@ -292,7 +287,6 @@ data class SimuleringSpec(
     fun gjelderEndringUtenLivsvarigOffentligAfp() =
         EnumSet.of(
             SimuleringTypeEnum.ENDR_ALDER,
-            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
             SimuleringTypeEnum.ENDR_ALDER_M_GJEN
         ).contains(type)
 

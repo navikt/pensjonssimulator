@@ -56,7 +56,8 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
                 tidsbegrensetOffentligAfp(
                     beregning = it,
                     foedselsdato = source.registerData?.soekerFoedselsdato,
-                    inntektVedAfpUttak = inntektVedTidsbegrensetOffentligAfpUttak
+                    inntektVedAfpUttak = inntektVedTidsbegrensetOffentligAfpUttak,
+                    registrerteFremtidigePensjonspoeng = source.registerData?.fremtidigePensjonspoeng
                 )
             },
             privatAfp = source.privatAfpPeriodeListe.map(::privatAfp),
@@ -181,7 +182,8 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
     private fun tidsbegrensetOffentligAfp(
         beregning: Beregning,
         foedselsdato: LocalDate?,
-        inntektVedAfpUttak: Int?
+        inntektVedAfpUttak: Int?,
+        registrerteFremtidigePensjonspoeng: Double?
     ): SimulertTidsbegrensetOffentligAfp? =
         if (foedselsdato == null)
             null
@@ -191,7 +193,7 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
                 val poengrekke = sluttpoengtall?.poengrekke
 
                 SimulertTidsbegrensetOffentligAfp(
-                    alderAar = alderAar(foedselsdato, it),
+                    alderAar = alderAar(foedselsdato, dato = it),
                     totaltAfpBeloep = beregning.netto,
                     tidligereArbeidsinntekt = poengrekke?.tpi ?: 0,
                     grunnbeloep = beregning.g,
@@ -208,7 +210,9 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
                         inntektVedAfpUttak = inntektVedAfpUttak ?: 0,
                         tidligereInntekt = poengrekke?.tpi ?: 0
                     ),
-                    afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true
+                    afpAvkortetTil70Prosent = beregning.gpAfpPensjonsregulert?.brukt == true,
+                    fremtidigePensjonspoeng = (sluttpoengtall?.poengrekke?.fpp?.pt ?: 0.0)
+                        .coerceAtLeast(registrerteFremtidigePensjonspoeng ?: 0.0)
                 )
             }
 

@@ -21,10 +21,6 @@ data class SimuleringResultDto(
     @Deprecated("Bruk opptjeningListe")
     @field:NotNull val pensjonsgivendeInntektListe: List<AarligBeloepDto>,
     @field:NotNull val opptjeningListe: List<OpptjeningDto>,
-
-    @field:Schema(description = "Fremtidige pensjonspoeng (registrert verdi)")
-    val fremtidigePensjonspoeng: Double? = null,
-
     val problem: ProblemDto? = null
 )
 
@@ -123,7 +119,11 @@ data class TidsbegrensetOffentligAfpDto(
     @field:NotNull val afpTillegg: Int,
     @field:NotNull val saertillegg: Int,
     @field:NotNull val afpGrad: Int,
-    @field:NotNull val erAvkortet: Boolean
+    @field:NotNull val erAvkortet: Boolean,
+
+    @field:Schema(description = "Fremtidige pensjonspoeng (registrert eller simulert verdi)")
+    @field:NotNull
+    val fremtidigePensjonspoeng: Double
 )
 
 data class PrivatAfpDto(

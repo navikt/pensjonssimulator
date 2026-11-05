@@ -18,12 +18,11 @@ class TidsbegrensetOffentligAfpTerminatorTest : FunSpec({
         }
         val grunnlag = persongrunnlag(historikk)
 
-        val result = TidsbegrensetOffentligAfpTerminator.terminateTidsbegrensetOffentligAfp(
+        TidsbegrensetOffentligAfpTerminator.terminateTidsbegrensetOffentligAfp(
             kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(grunnlag) },
             foersteUttakDato = LocalDate.of(2025, 1, 1) // => calculated virkning-t.o.m. = 2025-01-31 (day before)
-        )
+        ).simuleringsresultat shouldBe null
 
-        result.simuleringResult shouldBe null
         historikk.virkTomLd shouldBe null
         grunnlag.afpHistorikkListe.size shouldBe 0
     }
@@ -35,12 +34,11 @@ class TidsbegrensetOffentligAfpTerminatorTest : FunSpec({
         }
         val grunnlag = persongrunnlag(historikk)
 
-        val result = TidsbegrensetOffentligAfpTerminator.terminateTidsbegrensetOffentligAfp(
+        TidsbegrensetOffentligAfpTerminator.terminateTidsbegrensetOffentligAfp(
             kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(grunnlag) },
             foersteUttakDato = LocalDate.of(2025, 2, 1) // => calculated virkning-t.o.m. = 2025-01-31 (day before)
-        )
+        ).simuleringsresultat shouldBe null
 
-        result.simuleringResult shouldBe null
         historikk.virkTomLd shouldBe LocalDate.of(2025, 1, 31)
         grunnlag.afpHistorikkListe.size shouldBe 1
     }

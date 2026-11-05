@@ -119,7 +119,7 @@ class SimulatorCoreTest : ShouldSpec({
             val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
                 every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
                     tidsbegrenset = TidsbegrensetOffentligAfpResult(
-                        simuleringResult = Simuleringsresultat(),
+                        simuleringsresultat = Simuleringsresultat(),
                         kravhode = kravhode()
                     ),
                     livsvarig = null,

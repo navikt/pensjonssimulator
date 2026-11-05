@@ -55,8 +55,12 @@ class OffentligAfpBeregnerTest : ShouldSpec({
         should("return tidsbegrenset result and modified kravhode") {
             val originalKravhode = Kravhode()
             val modifiedKravhode = Kravhode()
-            val simuleringResult = Simuleringsresultat()
-            val afpResult = TidsbegrensetOffentligAfpResult(simuleringResult, modifiedKravhode)
+            val simuleringsresultat = Simuleringsresultat()
+            val afpResult = TidsbegrensetOffentligAfpResult(
+                simuleringsresultat,
+                registrerteFremtidigePensjonspoeng = 1.2,
+                kravhode = modifiedKravhode
+            )
 
             OffentligAfpBeregner(
                 tidsbegrensetFoerstegangBeregner = arrangeTidsbegrensetFoerstegang(afpResult),
@@ -69,7 +73,11 @@ class OffentligAfpBeregnerTest : ShouldSpec({
                 foedselsdato = foedselsdatoSomMedfoererTidsbegrensetAfp,
                 pid
             ) shouldBe OffentligAfpResult(
-                tidsbegrenset = TidsbegrensetOffentligAfpResult(simuleringResult, modifiedKravhode),
+                tidsbegrenset = TidsbegrensetOffentligAfpResult(
+                    simuleringsresultat,
+                    registrerteFremtidigePensjonspoeng = 1.2,
+                    kravhode = modifiedKravhode
+                ),
                 livsvarig = null,
                 modifiedKravhode
             )
@@ -79,8 +87,12 @@ class OffentligAfpBeregnerTest : ShouldSpec({
     context("beregnAfp ved endring uten livsvarig offentlig AFP") {
         should("return tidsbegrenset result and original kravhode") {
             val kravhode = Kravhode()
-            val simuleringResult = Simuleringsresultat()
-            val afpResult = TidsbegrensetOffentligAfpResult(simuleringResult, kravhode)
+            val simuleringsresultat = Simuleringsresultat()
+            val afpResult = TidsbegrensetOffentligAfpResult(
+                simuleringsresultat,
+                registrerteFremtidigePensjonspoeng = 1.2,
+                kravhode
+            )
 
             OffentligAfpBeregner(
                 tidsbegrensetFoerstegangBeregner = mockk(),
@@ -93,7 +105,11 @@ class OffentligAfpBeregnerTest : ShouldSpec({
                 foedselsdato = foedselsdatoSomMedfoererTidsbegrensetAfp,
                 pid
             ) shouldBe OffentligAfpResult(
-                tidsbegrenset = TidsbegrensetOffentligAfpResult(simuleringResult, kravhode),
+                tidsbegrenset = TidsbegrensetOffentligAfpResult(
+                    simuleringsresultat,
+                    registrerteFremtidigePensjonspoeng = 1.2,
+                    kravhode
+                ),
                 livsvarig = null,
                 kravhode
             )
@@ -115,7 +131,7 @@ class OffentligAfpBeregnerTest : ShouldSpec({
                 foedselsdato = foedselsdatoSomMedfoererTidsbegrensetAfp,
                 pid
             ) shouldBe OffentligAfpResult(
-                tidsbegrenset = TidsbegrensetOffentligAfpResult(simuleringResult = null, kravhode), // terminert
+                tidsbegrenset = TidsbegrensetOffentligAfpResult(kravhode = kravhode), // terminert
                 livsvarig = null,
                 kravhode
             )

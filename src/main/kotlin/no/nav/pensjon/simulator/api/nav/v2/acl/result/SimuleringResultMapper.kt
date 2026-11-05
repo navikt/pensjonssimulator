@@ -29,7 +29,6 @@ object SimuleringResultMapper {
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
             pensjonsgivendeInntektListe = pensjon?.aarligOpptjeningListe.orEmpty().map(::opptjeningGrunnlag),
             opptjeningListe = pensjon?.opptjeningListe.orEmpty().map(::opptjening),
-            fremtidigePensjonspoeng = source?.fremtidigePensjonspoeng,
             problem = source?.problem?.let(::problem)
         )
     }
@@ -138,7 +137,8 @@ object SimuleringResultMapper {
             afpTillegg = source.afpTillegg,
             saertillegg = source.saertillegg,
             afpGrad = source.afpGrad,
-            erAvkortet = source.afpAvkortetTil70Prosent
+            erAvkortet = source.afpAvkortetTil70Prosent,
+            fremtidigePensjonspoeng = source.fremtidigePensjonspoeng
         )
 
     private fun privatAfp(source: SimulertPrivatAfp) =

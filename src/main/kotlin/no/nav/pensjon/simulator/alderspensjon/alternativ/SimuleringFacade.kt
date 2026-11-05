@@ -55,8 +55,7 @@ class SimuleringFacade(
                         gradertUttakDato = if (spec.isGradert()) spec.foersteUttakDato else null,
                         heltUttakDato = heltUttakDato(spec),
                         normertPensjoneringsdato = spec.foedselDato?.let(normalderService::normertPensjoneringsdato)
-                    ),
-                fremtidigePensjonspoeng = result.registerData?.afpHistorikkListe?.firstOrNull()?.afpFpp
+                    )
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:

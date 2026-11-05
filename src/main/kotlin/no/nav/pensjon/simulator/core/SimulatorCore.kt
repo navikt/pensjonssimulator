@@ -191,12 +191,12 @@ class SimulatorCore(
             sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar(),
             soekerFoedselsdato = foedselsdato,
             grunnbeloep = grunnbeloep,
-            afpHistorikkListe = person?.afpHistorikkListe.orEmpty()
+            fremtidigePensjonspoeng = simulertOffentligAfp.tidsbegrenset?.registrerteFremtidigePensjonspoeng
         )
 
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
-                SimulatorOutput(tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringResult)
+                SimulatorOutput(tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringsresultat)
             else
                 resultPreparer.opprettOutput(
                     ResultPreparerSpec(
@@ -206,7 +206,7 @@ class SimulatorCore(
                         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                         forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                         forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
-                        tidsbegrensetOffentligAfpBeregningResultat = simulertOffentligAfp.tidsbegrenset?.simuleringResult,
+                        tidsbegrensetOffentligAfpBeregningResultat = simulertOffentligAfp.tidsbegrenset?.simuleringsresultat,
                         livsvarigOffentligAfpBeregningResultatListe =
                             LivsvarigOffentligAfpPeriodeConverter.aarligePerioder(
                                 result = innvilgetLivsvarigOffentligAfp(spec, foedselsdato)

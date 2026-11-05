@@ -133,7 +133,8 @@ private object NavSimuleringResultMapperV3Test2Objects {
                     afpTillegg = 21,
                     saertillegg = 22,
                     afpGrad = 23,
-                    afpAvkortetTil70Prosent = false
+                    afpAvkortetTil70Prosent = false,
+                    fremtidigePensjonspoeng = 1.2
                 ),
                 livsvarigOffentligAfp = listOf(
                     SimulertLivsvarigOffentligAfp(

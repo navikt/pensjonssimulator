@@ -29,7 +29,6 @@ open class SimuleringResultMapperTest : ShouldSpec({
                 erInnvilget = true, // siden alternativ = null
                 alternativ = null
             ),
-            pensjonsgivendeInntektListe = emptyList(),
             opptjeningListe = emptyList(),
             problem = null
         )
@@ -74,7 +73,6 @@ open class SimuleringResultMapperTest : ShouldSpec({
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 20),
                     maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
-                    aarligOpptjeningListe = emptyList(),
                     opptjeningListe = emptyList()
                 ),
                 alternativ = null,
@@ -129,7 +127,6 @@ open class SimuleringResultMapperTest : ShouldSpec({
                 erUtilstrekkelig = false
             ),
             vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(erInnvilget = true, alternativ = null),
-            pensjonsgivendeInntektListe = emptyList(),
             opptjeningListe = emptyList(),
             problem = null
         )
@@ -152,7 +149,6 @@ open class SimuleringResultMapperTest : ShouldSpec({
                 privatAfpListe = emptyList(),
                 primaerTrygdetid = null,
                 vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(erInnvilget = false, alternativ = null),
-                pensjonsgivendeInntektListe = emptyList(),
                 opptjeningListe = emptyList(),
                 problem = ProblemDto(kode = ProblemTypeDto.PERSON_IKKE_FUNNET, beskrivelse = "x")
             )

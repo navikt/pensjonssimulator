@@ -198,7 +198,8 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
     "afpTillegg": 789,
     "saertillegg": 890,
     "afpGrad": 80,
-    "erAvkortet": false
+    "erAvkortet": false,
+    "fremtidigePensjonspoeng": 1.2
   },
   "privatAfpListe": [{
     "alderAar": 66,
@@ -312,7 +313,8 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
                         afpTillegg = 789,
                         saertillegg = 890,
                         afpGrad = 80,
-                        afpAvkortetTil70Prosent = false
+                        afpAvkortetTil70Prosent = false,
+                        fremtidigePensjonspoeng = 1.2
                     ),
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(

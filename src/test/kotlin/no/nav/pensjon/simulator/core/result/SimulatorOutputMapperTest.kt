@@ -20,39 +20,24 @@ class SimulatorOutputMapperTest : FunSpec({
     // =====================================================
 
     test("mapToSimulatorOutput should map epsHarInntektOver2G from spec") {
-        val spec = createSimuleringSpec(epsHarInntektOver2G = true)
-        val persongrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.GIFT)
-
-        val result = SimulatorOutputMapper.mapToSimulatorOutput(
-            simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag
-        )
-
-        result.epsHarInntektOver2G shouldBe true
+        SimulatorOutputMapper.mapToSimulatorOutput(
+            spec = createSimuleringSpec(epsHarInntektOver2G = true),
+            soekerGrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.GIFT)
+        ).epsHarInntektOver2G shouldBe true
     }
 
     test("mapToSimulatorOutput should map epsHarPensjon from spec") {
-        val spec = createSimuleringSpec(epsHarPensjon = true)
-        val persongrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.GIFT)
-
-        val result = SimulatorOutputMapper.mapToSimulatorOutput(
-            simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag
-        )
-
-        result.epsHarPensjon shouldBe true
+        SimulatorOutputMapper.mapToSimulatorOutput(
+            spec = createSimuleringSpec(epsHarPensjon = true),
+            soekerGrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.GIFT)
+        ).epsHarPensjon shouldBe true
     }
 
     test("mapToSimulatorOutput should map sivilstand from first person detail") {
-        val spec = createSimuleringSpec()
-        val persongrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.GIFT)
-
-        val result = SimulatorOutputMapper.mapToSimulatorOutput(
-            simuleringSpec = spec,
-            soekerGrunnlag = persongrunnlag
-        )
-
-        result.sivilstand shouldBe SivilstandEnum.GIFT
+        SimulatorOutputMapper.mapToSimulatorOutput(
+            spec = createSimuleringSpec(),
+            soekerGrunnlag = createPersongrunnlagWithSoeker(SivilstandEnum.GIFT)
+        ).sivilstand shouldBe SivilstandEnum.GIFT
     }
 
     // =====================================================

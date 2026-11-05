@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.core.domain.reglerextend.beregning2011.privatAfp
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.getMonthBetween
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
+import no.nav.pensjon.simulator.validity.InternDataInkonsistensException
 import java.time.LocalDate
 import kotlin.math.roundToInt
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsvarig as PrivatAfp
@@ -25,16 +26,13 @@ import no.nav.pensjon.simulator.core.domain.regler.beregning2011.AfpPrivatLivsva
  */
 object SimulatorOutputMapper {
 
-    fun mapToSimulatorOutput(
-        simuleringSpec: SimuleringSpec,
-        soekerGrunnlag: Persongrunnlag
-    ) =
-        SimulatorOutput().apply {
-            this.epsHarInntektOver2G = simuleringSpec.epsHarInntektOver2G
-            this.epsHarPensjon = simuleringSpec.epsHarPensjon
-            this.sivilstand = soekerGrunnlag.personDetaljListe[0].sivilstandTypeEnum
-                ?: throw RuntimeException("Undefined sivilstand")
-        }
+    fun mapToSimulatorOutput(spec: SimuleringSpec, soekerGrunnlag: Persongrunnlag) =
+        SimulatorOutput(
+            epsHarInntektOver2G = spec.epsHarInntektOver2G,
+            epsHarPensjon = spec.epsHarPensjon,
+            sivilstand = soekerGrunnlag.personDetaljListe.firstOrNull()?.sivilstandTypeEnum
+                ?: throw InternDataInkonsistensException("udefinert sivilstand i søkers persongrunnlag")
+        )
 
     fun simulertPrivatAfpPeriode(
         aarligBeloep: Int,

@@ -190,14 +190,13 @@ class SimulatorCore(
             sisteLignetInntektAar = initialSpec.registerData?.sisteLignetInntektAar,
             sisteGyldigeOpptjeningAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar(),
             soekerFoedselsdato = foedselsdato,
-            grunnbeloep = grunnbeloep
+            grunnbeloep = grunnbeloep,
+            fremtidigePensjonspoeng = simulertOffentligAfp.tidsbegrenset?.registrerteFremtidigePensjonspoeng
         )
 
         val output: SimulatorOutput =
             if (spec.type == SimuleringTypeEnum.AFP_FPP) // ref. PEN: SimulerAFPogAPCommand.opprettOutput
-                SimulatorOutput().apply {
-                    tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringResult
-                }
+                SimulatorOutput(tidsbegrensetOffentligAfp = simulertOffentligAfp.tidsbegrenset?.simuleringsresultat)
             else
                 resultPreparer.opprettOutput(
                     ResultPreparerSpec(
@@ -207,7 +206,7 @@ class SimulatorCore(
                         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                         forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                         forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
-                        tidsbegrensetOffentligAfpBeregningResultat = simulertOffentligAfp.tidsbegrenset?.simuleringResult,
+                        tidsbegrensetOffentligAfpBeregningResultat = simulertOffentligAfp.tidsbegrenset?.simuleringsresultat,
                         livsvarigOffentligAfpBeregningResultatListe =
                             LivsvarigOffentligAfpPeriodeConverter.aarligePerioder(
                                 result = innvilgetLivsvarigOffentligAfp(spec, foedselsdato)
@@ -223,10 +222,10 @@ class SimulatorCore(
         return if (spec.erAnonym)
             output
         else
-            output.apply {
-                this.persongrunnlag = kravhode.hentPersongrunnlagForSoker()
-                this.heltUttakDato = spec.heltUttakDato
-            }
+            output.med(
+                persongrunnlag = kravhode.hentPersongrunnlagForSoker(),
+                heltUttakFom = spec.heltUttakDato
+            )
     }
 
     override fun fetchFoedselsdato(pid: Pid): LocalDate =

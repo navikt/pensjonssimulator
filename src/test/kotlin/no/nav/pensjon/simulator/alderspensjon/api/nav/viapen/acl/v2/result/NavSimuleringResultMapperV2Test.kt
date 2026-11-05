@@ -16,15 +16,15 @@ class NavSimuleringResultMapperV2Test : FunSpec({
 
     test("toSimuleringResultV2 should use null (undefined) as default for pensjonspoengPi") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
-            SimulatorOutput().apply {
-                opptjeningListe.add(SimulertOpptjening(pensjonsgivendeInntektPensjonspoeng = null))
-            }
+            SimulatorOutput(
+                opptjeningListe = mutableListOf((SimulertOpptjening(pensjonsgivendeInntektPensjonspoeng = null)))
+            )
         ).opptjeningListe[0].pensjonspoengPi shouldBe null
     }
 
     test("toSimuleringResultV2 should use aar from poengtall as merknad aar") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
-            SimulatorOutput().apply {
+            SimulatorOutput(
                 tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply {
                         tp = Tilleggspensjon().apply {
@@ -40,14 +40,14 @@ class NavSimuleringResultMapperV2Test : FunSpec({
                         }
                     }
                 }
-            }
+            )
         ).afpOffentlig?.beregning?.ytelseskomponenter[0]
             ?.spt?.poengrekke?.poengtallListe[0]?.merknadListe[0]?.ar shouldBe 2025
     }
 
     test("toSimuleringResultV2 should return distinct merknader") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
-            SimulatorOutput().apply {
+            SimulatorOutput(
                 tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply {
                         tp = Tilleggspensjon().apply {
@@ -59,13 +59,13 @@ class NavSimuleringResultMapperV2Test : FunSpec({
                         }
                     }
                 }
-            }
+            )
         ).afpOffentlig?.beregning?.ytelseskomponenter[0]?.merknader?.size shouldBe 2
     }
 
     test("toSimuleringResultV2 should use special separator for merknad-argumenter") {
         NavSimuleringResultMapperV2.toSimuleringResultV2(
-            SimulatorOutput().apply {
+            SimulatorOutput(
                 tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
                     beregning = Beregning().apply {
                         tp = Tilleggspensjon().apply {
@@ -78,7 +78,7 @@ class NavSimuleringResultMapperV2Test : FunSpec({
                         }
                     }
                 }
-            }
+            )
         ).afpOffentlig?.beregning?.ytelseskomponenter[0]?.merknader[0]?.argumentListeString shouldBe "A¤B"
     }
 })

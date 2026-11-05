@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.util.toNorwegianLocalDate
 import java.time.LocalDate
 import java.util.*
 
+//TODO Slå sammen med TidsbegrensetOffentligAfpEndringBeregner ?
 /**
  * Tidsbegrenset offentlig AFP uten sluttdato (virkning t.o.m.) får satt en sluttdato (termineres).
  * Dette er en betingelse for å kunne starte alderspensjon.
@@ -22,16 +23,16 @@ object TidsbegrensetOffentligAfpTerminator {
     //  and SimulerEndringAvAPCommand.beregnAfpOffentlig
     fun terminateTidsbegrensetOffentligAfp(
         kravhode: Kravhode,
-        foersteUttakDato: LocalDate?,
+        foersteUttakDato: LocalDate?
     ): TidsbegrensetOffentligAfpResult {
-        val persongrunnlag: Persongrunnlag = kravhode.hentPersongrunnlagForSoker()
-        val afpHistorikk: AfpHistorikk? = persongrunnlag.afpHistorikkListe.firstOrNull()
+        val soekerGrunnlag: Persongrunnlag = kravhode.hentPersongrunnlagForSoker()
+        val historikk: AfpHistorikk? = afpHistorikk(soekerGrunnlag)
 
-        if (afpHistorikk == null || afpHistorikk.virkTomLd != null) {
-            return TidsbegrensetOffentligAfpResult(simuleringResult = null, kravhode)
+        if (historikk == null || historikk.virkTomLd != null) {
+            return TidsbegrensetOffentligAfpResult(kravhode = kravhode)
         }
 
-        val alderspensjonFom: Date? = persongrunnlag.fodselsdatoLd?.let {
+        val alderspensjonFom: Date? = soekerGrunnlag.fodselsdatoLd?.let {
             firstDayOfMonthAfterUserTurnsGivenAge(foedselsdato = it, alderAar = AFP_VIRKNING_TOM_ALDER_AAR)
         }
 
@@ -44,12 +45,22 @@ object TidsbegrensetOffentligAfpTerminator {
         val virkningTom: LocalDate? = dagenEtterAfpVirkningTom?.minusDays(1)
 
         // Remove AFP-historikk if calculated virkning-t.o.m. is before virkning-f.o.m.:
-        if (afpHistorikk.virkFomLd != null && isAfterByDay(virkningTom, afpHistorikk.virkFomLd, false)) {
-            afpHistorikk.virkTomLd = virkningTom
+        if (historikk.virkFomLd != null && isAfterByDay(virkningTom, historikk.virkFomLd, false)) {
+            historikk.virkTomLd = virkningTom
         } else {
-            persongrunnlag.afpHistorikkListe = mutableListOf()
+            soekerGrunnlag.afpHistorikkListe = mutableListOf()
         }
 
-        return TidsbegrensetOffentligAfpResult(simuleringResult = null, kravhode)
+        return TidsbegrensetOffentligAfpResult(
+            registrerteFremtidigePensjonspoeng = afpHistorikk(soekerGrunnlag)?.afpFpp,
+            kravhode = kravhode
+        )
     }
+
+    /**
+     * Det antas at AFP-historikken hentet fra PEN inneholder maks. ett element.
+     * (PEN velger elementene som har status "i bruk", og det antas at maks. ett har denne statusen.)
+     */
+    private fun afpHistorikk(grunnlag: Persongrunnlag): AfpHistorikk? =
+        grunnlag.afpHistorikkListe.firstOrNull()
 }

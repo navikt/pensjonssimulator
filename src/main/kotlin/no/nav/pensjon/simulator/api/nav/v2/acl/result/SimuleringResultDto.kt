@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.api.nav.v2.acl.result
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.validity.ProblemType
@@ -118,7 +119,11 @@ data class TidsbegrensetOffentligAfpDto(
     @field:NotNull val afpTillegg: Int,
     @field:NotNull val saertillegg: Int,
     @field:NotNull val afpGrad: Int,
-    @field:NotNull val erAvkortet: Boolean
+    @field:NotNull val erAvkortet: Boolean,
+
+    @field:Schema(description = "Fremtidige pensjonspoeng (registrert eller simulert verdi)")
+    @field:NotNull
+    val fremtidigePensjonspoeng: Double
 )
 
 data class PrivatAfpDto(

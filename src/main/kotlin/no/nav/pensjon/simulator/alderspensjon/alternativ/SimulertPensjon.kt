@@ -109,7 +109,8 @@ data class SimulertTidsbegrensetOffentligAfp(
     val afpTillegg: Int,
     val saertillegg: Int,
     val afpGrad: Int,
-    val afpAvkortetTil70Prosent: Boolean
+    val afpAvkortetTil70Prosent: Boolean,
+    val fremtidigePensjonspoeng: Double
 )
 
 data class SimulertLivsvarigOffentligAfp(

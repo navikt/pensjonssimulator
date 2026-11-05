@@ -19,7 +19,7 @@ class PenKravhodeMapperTest : ShouldSpec({
                             rolleFomDatoLd = LocalDate.of(2021, 1, 1),
                             rolleTomDatoLd = LocalDate.of(2022, 2, 2),
                             sivilstandTypeEnum = SivilstandEnum.GIFT,
-                            sivilstandRelatertPerson = PenPenPerson().apply { penPersonId = 1 },
+                            sivilstandRelatertPerson = PenPenPerson(penPersonId = 1),
                             borMedEnum = BorMedTypeEnum.SAMBOER3_2,
                             barnDetalj = PenBarnDetalj().apply { inntektOver1G = true },
                             tillegg = true,
@@ -68,7 +68,7 @@ class PenKravhodeMapperTest : ShouldSpec({
                     land = "CZE_V1"
                     kravlinjeTypeEnum = KravlinjeTypeEnum.BP
                     hovedKravlinje = true
-                    relatertPerson = PenPenPerson().apply { penPersonId = 1L }
+                    relatertPerson = PenPenPerson(penPersonId = 1L)
                 })
         }
 

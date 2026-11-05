@@ -15,10 +15,7 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
     }
 
     should("return null when beregning is null") {
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat()
-        }
-
+        val output = SimulatorOutput(tidsbegrensetOffentligAfp = Simuleringsresultat())
         TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output) shouldBe null
     }
 
@@ -50,11 +47,8 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
             afpTillegg = AfpTillegg().apply { netto = 3000 }
             st = Sertillegg().apply { netto = 2000 }
         }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
 
-        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
+        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))
 
         with(result!!) {
             totalbelopAfp shouldBe 25000
@@ -74,13 +68,9 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
     }
 
     should("convert virkFom to Norwegian noon") {
-        val virkFomDate = LocalDate.of(2029, 6, 15)
-        val beregning = Beregning().apply { virkFomLd = virkFomDate }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
+        val beregning = Beregning().apply { virkFomLd = LocalDate.of(2029, 6, 15) }
 
-        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
+        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))
 
         val calendar = Calendar.getInstance(TimeZone.getTimeZone("Europe/Oslo"))
         calendar.time = result!!.virkFom!!
@@ -92,20 +82,13 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
 
     should("set virkFom to null when beregning virkFom is null") {
         val beregning = Beregning().apply { virkFomLd = null }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
-
-        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)!!.virkFom shouldBe null
+        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))!!.virkFom shouldBe null
     }
 
     should("handle null tilleggspensjon") {
         val beregning = Beregning().apply { tp = null }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
 
-        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
+        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))
 
         with(result!!) {
             sluttpoengtall shouldBe null
@@ -120,16 +103,10 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
 
     should("handle null sluttpoengtall in tilleggspensjon") {
         val beregning = Beregning().apply {
-            tp = Tilleggspensjon().apply {
-                spt = null
-                netto = 5000
-            }
-        }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
+            tp = Tilleggspensjon().apply { spt = null; netto = 5000 }
         }
 
-        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
+        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))
 
         with(result!!) {
             sluttpoengtall shouldBe null
@@ -145,17 +122,11 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
     should("handle null poengrekke in sluttpoengtall") {
         val beregning = Beregning().apply {
             tp = Tilleggspensjon().apply {
-                spt = Sluttpoengtall().apply {
-                    pt = 3.45
-                    poengrekke = null
-                }
+                spt = Sluttpoengtall().apply { pt = 3.45; poengrekke = null }
             }
         }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
 
-        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
+        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))
 
         with(result!!) {
             sluttpoengtall shouldBe 3.45
@@ -171,18 +142,12 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
         val beregning = Beregning().apply {
             tp = Tilleggspensjon().apply {
                 spt = Sluttpoengtall().apply {
-                    poengrekke = Poengrekke().apply {
-                        fpp = null
-                        tpi = 100000
-                    }
+                    poengrekke = Poengrekke().apply { fpp = null; tpi = 100000 }
                 }
             }
         }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
 
-        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
+        val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))
 
         with(result!!) {
             fpp shouldBe null
@@ -192,35 +157,21 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
 
     should("handle null grunnpensjon") {
         val beregning = Beregning().apply { gp = null }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
-
-        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)!!.grunnpensjon shouldBe null
+        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))!!.grunnpensjon shouldBe null
     }
 
     should("handle null AFP-tillegg") {
         val beregning = Beregning().apply { afpTillegg = null }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
-
-        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)!!.afpTillegg shouldBe null
+        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))!!.afpTillegg shouldBe null
     }
 
     should("handle null særtillegg") {
         val beregning = Beregning().apply { st = null }
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
-        }
-
-        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)!!.sertillegg shouldBe null
+        TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output(beregning))!!.sertillegg shouldBe null
     }
 
     should("use default zero values for netto, tt_anv, and g on empty beregning") {
-        val output = SimulatorOutput().apply {
-            tidsbegrensetOffentligAfp = Simuleringsresultat().apply { beregning = Beregning() }
-        }
+        val output = output(Beregning())
 
         val result = TpoFolketrygdberegnetAfpResultMapperV0.toResultV0(output)
 
@@ -231,3 +182,8 @@ class TpoFolketrygdberegnetAfpResultMapperV0Test : ShouldSpec({
         }
     }
 })
+
+private fun output(beregning: Beregning) =
+    SimulatorOutput(
+        tidsbegrensetOffentligAfp = Simuleringsresultat().apply { this.beregning = beregning }
+    )

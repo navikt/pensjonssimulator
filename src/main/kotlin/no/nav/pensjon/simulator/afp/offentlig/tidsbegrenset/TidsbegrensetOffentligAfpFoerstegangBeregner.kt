@@ -62,15 +62,18 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             )
         }
 
-        persongrunnlagHavingRolle(persongrunnlagListe, GrunnlagsrolleEnum.SOKER)?.apply {
-            inntektsgrunnlagListe.add(inntektsgrunnlagMaanedenFoerUttak(spec))
-        }
-
+        val soekerGrunnlag = persongrunnlagHavingRolle(persongrunnlagListe, GrunnlagsrolleEnum.SOKER)
+        soekerGrunnlag?.apply { inntektsgrunnlagListe.add(inntektsgrunnlagMaanedenFoerUttak(spec)) }
         val normalder: Alder = normalderService.normalder(spec.pid!!)
         val simuleringResultat: Simuleringsresultat = simulerPensjonsberegning(spec, persongrunnlagListe, normalder)
         sjekkAvslag(simuleringResultat)
         populateKravhodeWithAfpHistorikk(kravhode, simuleringResultat.beregning, spec)
-        return TidsbegrensetOffentligAfpResult(simuleringResultat, kravhode)
+
+        return TidsbegrensetOffentligAfpResult(
+            simuleringResultat,
+            registrerteFremtidigePensjonspoeng = soekerGrunnlag?.afpHistorikkListe?.firstOrNull()?.afpFpp,
+            kravhode
+        )
     }
 
     private fun simulerPensjonsberegning(
@@ -309,6 +312,7 @@ class TidsbegrensetOffentligAfpFoerstegangBeregner(
             return tilstrekkelig
         }
 
+        //TODO return AfpHistorikk
         private fun populateKravhodeWithAfpHistorikk(
             kravhode: Kravhode,
             beregning: Beregning?,

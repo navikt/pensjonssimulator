@@ -50,7 +50,7 @@ class SpkTjenestepensjonClientFra2025(
         sporingslogg.logUtgaaendeRequest(
             organisasjonsnummer = Organisasjoner.SPK,
             pid = spec.pid,
-            leverteData = request.toAuiditString()
+            leverteData = request.toAuditString()
         )
 
         return try {

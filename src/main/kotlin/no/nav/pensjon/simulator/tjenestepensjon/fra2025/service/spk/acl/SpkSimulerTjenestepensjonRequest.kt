@@ -17,7 +17,7 @@ data class SpkSimulerTjenestepensjonRequest(
                 "epsPensjon=$epsPensjon, eps2G=$eps2G)")!!
     }
 
-    fun toAuiditString(): String {
+    fun toAuditString(): String {
         return "SpkSimulerTjenestepensjonRequest(personId=$personId, uttaksListe=$uttaksListe, " +
                 "fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, " +
                 "epsPensjon=$epsPensjon, eps2G=$eps2G)"

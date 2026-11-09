@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand.acl
 
+import no.nav.pensjon.simulator.person.FoedselsnummerUtil
 import java.time.LocalDate
 
 data class StorebrandSimulerTjenestepensjonRequest(
@@ -11,11 +12,15 @@ data class StorebrandSimulerTjenestepensjonRequest(
     val eps2G: Boolean
 ){
     override fun toString(): String {
-        return "StorebrandSimulering(uttaksListe=$uttaksListe, fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, epsPensjon=$epsPensjon, eps2G=$eps2G)"
+        return FoedselsnummerUtil.redact("(personId=$personId, uttaksListe=$uttaksListe, " +
+                "fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, " +
+                "epsPensjon=$epsPensjon, eps2G=$eps2G)")!!
     }
 
     fun toAuditString(): String {
-        return "StorebrandSimulerTjenestepensjonRequest(personId=$personId, uttaksListe=$uttaksListe, fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, epsPensjon=$epsPensjon, eps2G=$eps2G)"
+        return "StorebrandSimulerTjenestepensjonRequest(personId=$personId, uttaksListe=$uttaksListe, " +
+                "fremtidigInntektListe=$fremtidigInntektListe, aarIUtlandetEtter16=$aarIUtlandetEtter16, " +
+                "epsPensjon=$epsPensjon, eps2G=$eps2G)"
     }
 }
 

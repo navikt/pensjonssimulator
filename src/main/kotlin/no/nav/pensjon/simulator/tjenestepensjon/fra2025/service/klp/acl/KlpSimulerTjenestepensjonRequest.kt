@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp.acl
 
+import no.nav.pensjon.simulator.person.FoedselsnummerUtil
 import java.time.LocalDate
 
 data class KlpSimulerTjenestepensjonRequest(
@@ -9,7 +10,19 @@ data class KlpSimulerTjenestepensjonRequest(
     val arIUtlandetEtter16: Int,
     val epsPensjon: Boolean,
     val eps2G: Boolean
-)
+){
+    override fun toString(): String {
+        return FoedselsnummerUtil.redact("(personId=$personId, uttaksListe=$uttaksListe, " +
+                "fremtidigInntektsListe=$fremtidigInntektsListe, arIUtlandetEtter16=$arIUtlandetEtter16, " +
+                "epsPensjon=$epsPensjon, eps2G=$eps2G)")!!
+    }
+
+    fun toAuditString(): String {
+        return "KlpSimulerTjenestepensjonRequest(personId=$personId, uttaksListe=$uttaksListe, " +
+                "fremtidigInntektsListe=$fremtidigInntektsListe, arIUtlandetEtter16=$arIUtlandetEtter16, " +
+                "epsPensjon=$epsPensjon, eps2G=$eps2G)"
+    }
+}
 
 data class Uttak(
     val ytelseType: String,

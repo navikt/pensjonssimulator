@@ -61,6 +61,7 @@ data class AlderspensjonDto(
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
     val skjermingstillegg: Int?,
+    val minstenivaatilleggIndividuelt: Int?,
     val kapittel19Pensjon: Kapittel19PensjonDto?,
     val kapittel20Pensjon: Kapittel20PensjonDto?
 )
@@ -117,6 +118,7 @@ data class MaanedligAlderspensjon(
     val tilleggspensjon: Int?,
     val pensjonstillegg: Int?,
     val skjermingstillegg: Int?,
+    val minstenivaatilleggIndividuelt: Int?,
     val kapittel19Pensjon: Kapittel19PensjonDto?,
     val kapittel20Pensjon: Kapittel20PensjonDto?
 )

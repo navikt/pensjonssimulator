@@ -45,6 +45,7 @@ object SimuleringResultMapper {
             tilleggspensjon = source.tilleggspensjon,
             pensjonstillegg = source.pensjonstillegg,
             skjermingstillegg = source.skjermingstillegg,
+            minstenivaatilleggIndividuelt = source.minstenivaatilleggIndividuelt,
             kapittel19Pensjon = Kapittel19PensjonDto(
                 andelsbroek = source.andelsbroekKap19,
                 trygdetidAntallAar = source.trygdetidKap19 ?: 0,
@@ -97,6 +98,7 @@ object SimuleringResultMapper {
             tilleggspensjon = source.tilleggspensjon,
             pensjonstillegg = source.pensjonstillegg,
             skjermingstillegg = source.skjermingstillegg,
+            minstenivaatilleggIndividuelt = source.minstenivaatilleggIndividuelt,
             kapittel19Pensjon = Kapittel19PensjonDto(
                 andelsbroek = source.andelsbroekKap19,
                 trygdetidAntallAar = source.trygdetidKap19 ?: 0,

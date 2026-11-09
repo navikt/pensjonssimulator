@@ -97,6 +97,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                     restpensjon = 550,
                     pensjonstillegg = 600,
                     skjermingstillegg = 700,
+                    minstenivaatilleggIndividuelt = null,
                     kapittel19Gjenlevendetillegg = 800,
                     minstePensjonsnivaaSats = 11.22
                 )
@@ -243,6 +244,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                 tilleggspensjon = 900,
                 pensjonstillegg = 200,
                 skjermingstillegg = 50,
+                minstenivaatilleggIndividuelt = null,
                 andelsbroekKap19 = 0.3,
                 andelsbroekKap20 = 0.7,
                 basispensjon = 1200,
@@ -268,6 +270,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                 tilleggspensjon = null,
                 pensjonstillegg = null,
                 skjermingstillegg = null,
+                minstenivaatilleggIndividuelt = null,
                 andelsbroekKap19 = 0.3,
                 andelsbroekKap20 = 0.7,
                 basispensjon = null,
@@ -293,6 +296,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                 tilleggspensjon = null,
                 pensjonstillegg = null,
                 skjermingstillegg = null,
+                minstenivaatilleggIndividuelt = null,
                 andelsbroekKap19 = 0.3,
                 andelsbroekKap20 = 0.7,
                 basispensjon = null,

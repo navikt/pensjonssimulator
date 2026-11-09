@@ -98,61 +98,63 @@ private fun simulertPensjonEllerAlternativ(alderspensjonFraFolketrygden: List<Si
                     restpensjon = 61,
                     pensjonstillegg = 17,
                     skjermingstillegg = 18,
-                    kapittel19Gjenlevendetillegg = 19,
-                    minstePensjonsnivaaSats = 20.0
-                )
-            ),
-            maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
-            alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
-            privatAfp = listOf(
-                SimulertPrivatAfp(
-                    alderAar = 9,
-                    beloep = 10,
-                    kompensasjonstillegg = 100,
-                    kronetillegg = 101,
-                    livsvarig = 102,
-                    maanedligBeloep = 1
-                )
-            ),
-            tidsbegrensetOffentligAfp = SimulertTidsbegrensetOffentligAfp(
-                alderAar = 11,
-                totaltAfpBeloep = 12,
-                tidligereArbeidsinntekt = 13,
-                grunnbeloep = 14,
-                sluttpoengtall = 15.0,
-                trygdetid = 16,
-                poengaarTom1991 = 17,
-                poengaarFom1992 = 18,
-                grunnpensjon = 19,
-                tilleggspensjon = 20,
-                afpTillegg = 21,
-                saertillegg = 22,
-                afpGrad = 23,
-                afpAvkortetTil70Prosent = false
-            ),
-            livsvarigOffentligAfp = listOf(
-                SimulertLivsvarigOffentligAfp(
-                    alderAar = 13,
-                    beloep = 14,
-                    maanedligBeloep = 1
-                )
-            ),
-            pensjonBeholdningPeriodeListe = listOf(
-                SimulertPensjonBeholdningPeriode(
-                    datoFom = LocalDate.now(),
-                    pensjonBeholdning = 15.0,
-                    garantipensjonBeholdning = 16.0,
-                    garantitilleggBeholdning = 17.0,
-                    garantipensjonNivaa = SimulertGarantipensjonNivaa(
-                        beloep = 18.0,
-                        satsType = "REGULERINGSFAKTOR",
-                        sats = 19.0,
-                        anvendtTrygdetid = 20,
+                    minstenivaatilleggIndividuelt = null,
+                        kapittel19Gjenlevendetillegg = 19,
+                        minstePensjonsnivaaSats = 20.0
                     )
-                )
-            ),
-            harUttak = true,
-            primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 21),
+                ),
+                maanedligAlderspensjonForKnekkpunkter = emptyKnekkpunkter,
+                alderspensjonFraFolketrygden = alderspensjonFraFolketrygden,
+                privatAfp = listOf(
+                    SimulertPrivatAfp(
+                        alderAar = 9,
+                        beloep = 10,
+                        kompensasjonstillegg = 100,
+                        kronetillegg = 101,
+                        livsvarig = 102,
+                        maanedligBeloep = 1
+                    )
+                ),
+                tidsbegrensetOffentligAfp = SimulertTidsbegrensetOffentligAfp(
+                    alderAar = 11,
+                    totaltAfpBeloep = 12,
+                    tidligereArbeidsinntekt = 13,
+                    grunnbeloep = 14,
+                    sluttpoengtall = 15.0,
+                    trygdetid = 16,
+                    poengaarTom1991 = 17,
+                    poengaarFom1992 = 18,
+                    grunnpensjon = 19,
+                    tilleggspensjon = 20,
+                    afpTillegg = 21,
+                    saertillegg = 22,
+                    afpGrad = 23,
+                    afpAvkortetTil70Prosent = false
+                ),
+                livsvarigOffentligAfp = listOf(
+                    SimulertLivsvarigOffentligAfp(
+                        alderAar = 13,
+                        beloep = 14,
+                        maanedligBeloep = 1
+                    )
+                ),
+                pensjonBeholdningPeriodeListe = listOf(
+                    SimulertPensjonBeholdningPeriode(
+                        datoFom = LocalDate.now(),
+                        pensjonBeholdning = 15.0,
+                        garantipensjonBeholdning = 16.0,
+                        garantitilleggBeholdning = 17.0,
+                        garantipensjonNivaa = SimulertGarantipensjonNivaa(
+                            beloep = 18.0,
+                            satsType = "REGULERINGSFAKTOR",
+                            sats = 19.0,
+                            anvendtTrygdetid = 20,
+                        )
+                    )
+                ),
+                harUttak = true,
+                primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 21),
+
             opptjeningListe = listOf(SimulertOpptjening(kalenderAar = 22, pensjonsgivendeInntekt = 23))
         ),
         alternativ = null

@@ -61,6 +61,7 @@ open class SimuleringResultMapperTest : ShouldSpec({
                             restpensjon = 135,
                             pensjonstillegg = 136,
                             skjermingstillegg = 137,
+                            minstenivaatilleggIndividuelt = null,
                             kapittel19Gjenlevendetillegg = 138,
                             minstePensjonsnivaaSats = 1.8
                         )
@@ -93,6 +94,7 @@ open class SimuleringResultMapperTest : ShouldSpec({
                     grunnpensjon = 133,
                     tilleggspensjon = 134,
                     pensjonstillegg = 136,
+                    minstenivaatilleggIndividuelt = null,
                     skjermingstillegg = 137,
                     kapittel19Pensjon = Kapittel19PensjonDto(
                         andelsbroek = 1.4,

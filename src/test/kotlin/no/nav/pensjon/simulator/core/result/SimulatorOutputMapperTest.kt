@@ -653,6 +653,7 @@ class SimulatorOutputMapperTest : FunSpec({
             minstenivatilleggIndividuelt = MinstenivatilleggIndividuelt().apply {
                 ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV
                 bruttoPerAr = 12000.0
+                brutto = 1000
             }
             minstenivatilleggPensjonistpar = MinstenivatilleggPensjonistpar().apply {
                 ytelsekomponentTypeEnum = YtelseskomponentTypeEnum.MIN_NIVA_TILL_PPAR
@@ -670,6 +671,7 @@ class SimulatorOutputMapperTest : FunSpec({
 
         with(result) {
             individueltMinstenivaaTillegg shouldBe 12000
+            individueltMinstenivaaTilleggPerMaaned shouldBe 1000
             pensjonistParMinstenivaaTillegg shouldBe 8000
         }
     }

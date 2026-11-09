@@ -33,6 +33,7 @@ open class MaanedligAlderspensjonBeregnerTest : ShouldSpec({
                     tilleggspensjon = 900,
                     pensjonstillegg = 200,
                     skjermingstillegg = 50,
+                    minstenivaatilleggIndividuelt = null,
                     andelsbroekKap19 = 0.3,
                     andelsbroekKap20 = 0.7,
                     basispensjon = 1200,

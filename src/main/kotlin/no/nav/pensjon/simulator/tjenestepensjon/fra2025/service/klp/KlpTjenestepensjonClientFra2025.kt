@@ -54,7 +54,7 @@ class KlpTjenestepensjonClientFra2025(
         if (isDevelopment())
             return success(fromResponseDto(mockResponse(spec)))
 
-        sporingslogg.logUtgaaendeRequest(Organisasjoner.KLP, spec.pid, request.toString())
+        sporingslogg.logUtgaaendeRequest(Organisasjoner.KLP, spec.pid, request.toAuditString())
 
         return try {
             webClient
@@ -68,7 +68,7 @@ class KlpTjenestepensjonClientFra2025(
                 ?.let { success(fromResponseDto(it, request)) }
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
-            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} ${e.responseBodyAsString}".let {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} with req: $request, response: ${e.responseBodyAsString}".let {
                 log.error(e) { it }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }

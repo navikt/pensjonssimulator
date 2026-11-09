@@ -50,7 +50,7 @@ class SpkTjenestepensjonClientFra2025(
         sporingslogg.logUtgaaendeRequest(
             organisasjonsnummer = Organisasjoner.SPK,
             pid = spec.pid,
-            leverteData = request.toString()
+            leverteData = request.toAuditString()
         )
 
         return try {
@@ -65,7 +65,7 @@ class SpkTjenestepensjonClientFra2025(
                 ?.let { success(fromResponseDto(it, request)) }
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
-            "Failed to simulate tjenestepensjon 2025 with ${service.shortName} ${e.responseBodyAsString}".let {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} with req: $request, response: ${e.responseBodyAsString}".let {
                 log.error(e) { it }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }

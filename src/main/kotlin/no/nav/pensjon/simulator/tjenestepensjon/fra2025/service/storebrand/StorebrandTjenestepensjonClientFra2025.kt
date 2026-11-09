@@ -65,7 +65,7 @@ class StorebrandTjenestepensjonClientFra2025(
                     .also { log.info { "${service.shortName} response $it" } }}
                 ?: Result.failure(TjenestepensjonSimuleringException("No response body", service.shortName))
         } catch (e: WebClientResponseException) {
-            "Failed to simulate tjenestepensjon 2025 with ${service.shortName} ${e.responseBodyAsString}".let {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} with req: $request, response: ${e.responseBodyAsString}".let {
                 log.error(e) { it }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }

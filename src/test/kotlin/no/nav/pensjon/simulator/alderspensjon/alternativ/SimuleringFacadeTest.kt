@@ -22,7 +22,6 @@ class SimuleringFacadeTest : ShouldSpec({
 
     context("utilstrekkelig opptjening ved alternativ simulering") {
         should("returnere resultat med problembeskrivelse") {
-
             SimuleringFacade(
                 simulator = arrangeUtilstrekkeligOpptjening(),
                 alternativSimulering = arrangeUtilstrekkeligOpptjeningAlternativ(),
@@ -43,7 +42,7 @@ class SimuleringFacadeTest : ShouldSpec({
                         alternativ = null,
                         problem = Problem(
                             type = ProblemType.UTILSTREKKELIG_OPPTJENING,
-                            beskrivelse = "UtilstrekkeligOpptjeningException"
+                            beskrivelse = "10 kr"
                         )
                     )
         }
@@ -73,7 +72,7 @@ class SimuleringFacadeTest : ShouldSpec({
                         alternativ = null,
                         problem = Problem(
                             type = ProblemType.UTILSTREKKELIG_TRYGDETID,
-                            beskrivelse = "UtilstrekkeligTrygdetidException"
+                            beskrivelse = "1 år"
                         )
                     )
 

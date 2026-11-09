@@ -224,17 +224,17 @@ class AlderspensjonOgPrivatAfpServiceTest : ShouldSpec({
                 .simuler(validSpec) shouldBe
                     errorResult(
                         problemType = ProblemType.UTILSTREKKELIG_OPPTJENING,
-                        beskrivelse = "UtilstrekkeligOpptjeningException"
+                        beskrivelse = "for lav opptjening"
                     )
         }
 
         should("return UTILSTREKKELIG_TRYGDETID problem on UtilstrekkeligTrygdetidException") {
-            val result = badService(simulatorException = UtilstrekkeligTrygdetidException()).simuler(validSpec)
+            val result = badService(simulatorException = UtilstrekkeligTrygdetidException("2 år")).simuler(validSpec)
 
             with(result) {
                 suksess shouldBe false
                 problem?.type shouldBe ProblemType.UTILSTREKKELIG_TRYGDETID
-                problem?.beskrivelse shouldBe "UtilstrekkeligTrygdetidException"
+                problem?.beskrivelse shouldBe "2 år"
             }
         }
     }

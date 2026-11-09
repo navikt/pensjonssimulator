@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.validity
 
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import org.springframework.http.converter.HttpMessageNotReadableException
 import tools.jackson.databind.exc.MismatchedInputException
 import java.time.format.DateTimeParseException
@@ -47,6 +49,8 @@ object IngressErrorHandler {
         DateTimeParseException::class.java,
         HttpMessageNotReadableException::class.java,
         MismatchedInputException::class.java,
-        NullPointerException::class.java
+        NullPointerException::class.java,
+        UtilstrekkeligOpptjeningException::class.java,
+        UtilstrekkeligTrygdetidException::class.java
     )
 }

@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.alderspensjon.Uttaksgrad
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.core.result.SimulertOpptjening
-import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import no.nav.pensjon.simulator.validity.Problem
 
@@ -19,15 +18,13 @@ object SimuleringResultMapper {
         return SimuleringResultDto(
             alderspensjonListe = pensjon?.alderspensjon.orEmpty().map(::alderspensjon),
             alderspensjonMaanedsbeloep = maanedsbeloep(pensjon?.alderspensjonFraFolketrygden.orEmpty()),
-            maanedligAlderspensjonForKnekkpunkter = pensjon?.maanedligAlderspensjonForKnekkpunkter?.let(
-                ::maanedligAlderspensjonForKnekkpunkter
-            ),
+            maanedligAlderspensjonForKnekkpunkter = pensjon?.maanedligAlderspensjonForKnekkpunkter
+                ?.let(::maanedligAlderspensjonForKnekkpunkter),
             livsvarigOffentligAfpListe = pensjon?.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             tidsbegrensetOffentligAfp = pensjon?.tidsbegrensetOffentligAfp?.let(::tidsbegrensetOffentligAfp),
             privatAfpListe = pensjon?.privatAfp.orEmpty().map(::privatAfp),
             primaerTrygdetid = pensjon?.primaerTrygdetid?.let(::trygdetid),
             vilkaarsproevingsresultat = vilkaarsproevingsresultat(source?.alternativ, source?.problem),
-            pensjonsgivendeInntektListe = pensjon?.aarligOpptjeningListe.orEmpty().map(::opptjeningGrunnlag),
             opptjeningListe = pensjon?.opptjeningListe.orEmpty().map(::opptjening),
             problem = source?.problem?.let(::problem)
         )
@@ -177,12 +174,6 @@ object SimuleringResultMapper {
         VilkaarsproevingsresultatDto(
             erInnvilget = alternativ == null && problem == null,
             alternativ = alternativ?.let(::alternativ)
-        )
-
-    private fun opptjeningGrunnlag(source: AarligOpptjening) =
-        AarligBeloepDto(
-            aarstall = source.aar,
-            beloep = source.pensjonsgivendeInntekt
         )
 
     private fun alternativ(source: SimulertAlternativ) =

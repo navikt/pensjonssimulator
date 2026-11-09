@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.api.nav.v2.acl.spec.SimuleringSpecMapperForNavV2
 import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulertOpptjening
-import no.nav.pensjon.simulator.opptjening.AarligOpptjening
 import no.nav.pensjon.simulator.statistikk.StatistikkService
 import no.nav.pensjon.simulator.tech.sporing.SporingsloggService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
@@ -226,9 +225,9 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
       }
     }
   },
-  "pensjonsgivendeInntektListe": [{
+  "opptjeningListe": [{
     "aarstall": 1999,
-    "beloep": 1002
+    "pensjonsgivendeInntekt": 1002
   }]
 }"""
 
@@ -240,7 +239,7 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
   "vilkaarsproevingsresultat": {
     "erInnvilget": false
   },
-  "pensjonsgivendeInntektListe": [],
+  "opptjeningListe": [],
   "problem": {
     "kode": "ANNEN_KLIENTFEIL",
     "beskrivelse": "JSON parse error: Cannot deserialize value of type `no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto` from String \"TI_PROSENT\": not one of the values accepted for Enum class: [FOERTI_PROSENT, SEKSTI_PROSENT, NULL, FEMTI_PROSENT, HUNDRE_PROSENT, AATTI_PROSENT, TJUE_PROSENT]"
@@ -338,7 +337,6 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
                     ),
                     harUttak = true,
                     primaerTrygdetid = Trygdetid(kapittel19 = 0, kapittel20 = 39),
-                    aarligOpptjeningListe = listOf(AarligOpptjening(aar = 1999, pensjonsgivendeInntekt = 1002)),
                     opptjeningListe = listOf(SimulertOpptjening(kalenderAar = 1999, pensjonsgivendeInntekt = 1002))
                 ),
                 alternativ = SimulertAlternativ(

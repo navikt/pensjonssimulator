@@ -117,7 +117,6 @@ open class SimulatorOutputConverterTest : FunSpec({
             pensjonBeholdningPeriodeListe = emptyList(),
             harUttak = false,
             primaerTrygdetid = Trygdetid(kapittel19 = 19, kapittel20 = 4),
-            aarligOpptjeningListe = emptyList(),
             opptjeningListe = emptyList()
         )
     }

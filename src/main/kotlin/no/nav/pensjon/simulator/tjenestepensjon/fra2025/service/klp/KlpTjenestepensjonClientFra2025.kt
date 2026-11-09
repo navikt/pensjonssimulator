@@ -73,12 +73,12 @@ class KlpTjenestepensjonClientFra2025(
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: WebClientRequestException) {
-            "Failed to send request to simulate tjenestepensjon 2025 at ${service.shortName}".let {
+            "Failed to send request to simulate tjenestepensjon 2025 at ${service.shortName} with req: $request".let {
                 log.error(e) { "$it med url ${e.uri}" }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: EgressException) {
-            "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} with req: $request".let {
                 log.error(e) { "$it med url $SIMULER_PATH/$tpNummer - status: ${e.statusCode}" }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }

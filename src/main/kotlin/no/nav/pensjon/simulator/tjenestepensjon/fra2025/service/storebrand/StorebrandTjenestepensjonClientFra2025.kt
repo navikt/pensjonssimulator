@@ -70,12 +70,12 @@ class StorebrandTjenestepensjonClientFra2025(
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: WebClientRequestException) {
-            "Failed to send request to simulate tjenestepensjon 2025 with ${service.shortName}".let {
+            "Failed to send request to simulate tjenestepensjon 2025 with ${service.shortName} and req: $request".let {
                 log.error(e) { "$it med url ${e.uri}" }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }
         } catch (e: EgressException) {
-            "Failed to simulate tjenestepensjon 2025 at ${service.shortName}".let {
+            "Failed to simulate tjenestepensjon 2025 at ${service.shortName} with req: $request".let {
                 log.error(e) { "$it med url $baseUrl/$tpNummer/$SIMULER_PATH - status: ${e.statusCode}" }
                 Result.failure(TjenestepensjonSimuleringException(it, service.shortName))
             }

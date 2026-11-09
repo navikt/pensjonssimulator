@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.alderspensjon.alternativ
 
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
+import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
 import no.nav.pensjon.simulator.alderspensjon.spec.SimuleringSpecValidator.validate
 import no.nav.pensjon.simulator.core.SimulatorCore
@@ -60,11 +61,21 @@ class SimuleringFacade(
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
             // Brukers angitte parametre ga "avslått" resultat; prøv med alternative parametre:
-            alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget, e)
-                ?: problem(e, type = ProblemType.UTILSTREKKELIG_OPPTJENING)
+            alternativ(
+                spec,
+                gjelderUfoereMedAfp,
+                inkluderPensjonHvisUbetinget,
+                exception = e,
+                ProblemType.UTILSTREKKELIG_OPPTJENING
+            )
         } catch (e: UtilstrekkeligTrygdetidException) {
-            alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget, e)
-                ?: problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
+            alternativ(
+                spec,
+                gjelderUfoereMedAfp,
+                inkluderPensjonHvisUbetinget,
+                exception = e,
+                ProblemType.UTILSTREKKELIG_TRYGDETID
+            )
         } catch (e: BadRequestException) {
             problem(e, type = ProblemType.ANNEN_KLIENTFEIL)
         } catch (e: BadSpecException) {
@@ -88,6 +99,22 @@ class SimuleringFacade(
         } catch (e: TidsbegrensetOffentligAfpAvslaattException) {
             problem(e, type = e.aarsak?.problemType ?: ProblemType.ANNEN_KLIENTFEIL)
         }
+    }
+
+    private fun alternativ(
+        spec: SimuleringSpec,
+        gjelderUfoereMedAfp: Boolean,
+        inkluderPensjonHvisUbetinget: Boolean,
+        exception: RuntimeException,
+        problemType: ProblemType
+    ): SimulertPensjonEllerAlternativ {
+        val alderVedUttak = Alder.from(spec.foedselDato!!, spec.foersteUttakDato!!)
+
+        return if (alderVedUttak greaterThan normalderService.normalder(spec.foedselDato))
+            problem(exception, type = problemType)
+        else
+            alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget, exception)
+                ?: problem(exception, type = problemType)
     }
 
     private fun alternativ(

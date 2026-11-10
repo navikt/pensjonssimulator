@@ -1,5 +1,6 @@
 package no.nav.pensjon.simulator.core.result
 
+import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.regler.beregning.Ytelseskomponent
 import no.nav.pensjon.simulator.core.domain.regler.beregning2011.*
@@ -58,7 +59,7 @@ class SimuleringResultPreparer(
         forceKap19OutputIfSimulerForTp(kravhode, simuleringSpec)
 
         // Del 1
-        val simulatorOutput = SimulatorOutputMapper.mapToSimulatorOutput(simuleringSpec, soekerGrunnlag)
+        var simulatorOutput = SimulatorOutputMapper.mapToSimulatorOutput(simuleringSpec, soekerGrunnlag)
 
         // Del 2
         opptjeningAdder.addToOpptjeningListe(
@@ -69,21 +70,22 @@ class SimuleringResultPreparer(
         )
 
         // Del 3
-        createAndMapSimulertAlderspensjon(
-            simulatorOutput,
-            simuleringSpec,
-            kravhode,
-            soekerGrunnlag,
-            preparerSpec.alderspensjonBeregningResultatListe,
-            preparerSpec.forrigeAlderspensjonBeregningResultat,
-            preparerSpec.pensjonBeholdningPeriodeListe,
-            preparerSpec.outputSimulertBeregningsInformasjonForAllKnekkpunkter
+        simulatorOutput = simulatorOutput.med(
+            alderspensjon = createAndMapSimulertAlderspensjon(
+                simuleringSpec,
+                kravhode,
+                soekerGrunnlag,
+                preparerSpec.alderspensjonBeregningResultatListe,
+                preparerSpec.forrigeAlderspensjonBeregningResultat,
+                preparerSpec.pensjonBeholdningPeriodeListe,
+                preparerSpec.outputSimulertBeregningsInformasjonForAllKnekkpunkter
+            )
         )
 
         // Del 4
         if (preparerSpec.privatAfpBeregningResultatListe.isNotEmpty() || preparerSpec.forrigePrivatAfpBeregningResultat != null) {
             createAndMapSimulertPrivatAfpPeriodeListe(
-                simulatorOutput,
+                simulatorOutput.privatAfpPeriodeListe,
                 simuleringSpec,
                 preparerSpec.privatAfpBeregningResultatListe,
                 soekerGrunnlag,
@@ -91,12 +93,11 @@ class SimuleringResultPreparer(
             )
         }
 
-        // Del 5
-        simulatorOutput.tidsbegrensetOffentligAfp = preparerSpec.tidsbegrensetOffentligAfpBeregningResultat
-        simulatorOutput.livsvarigOffentligAfp = preparerSpec.livsvarigOffentligAfpBeregningResultatListe
-        simulatorOutput.registerData = preparerSpec.registerData
-
-        return simulatorOutput
+        return simulatorOutput.med(
+            tidsbegrensetOffentligAfp = preparerSpec.tidsbegrensetOffentligAfpBeregningResultat,
+            livsvarigOffentligAfpListe = preparerSpec.livsvarigOffentligAfpBeregningResultatListe,
+            registerData = preparerSpec.registerData
+        )
     }
 
     // OpprettOutputHelper.addPensjonsperioderToSimulertAlder
@@ -291,7 +292,6 @@ class SimuleringResultPreparer(
     }
 
     private fun createAndMapSimulertAlderspensjon(
-        simulatorOutput: SimulatorOutput,
         simuleringSpec: SimuleringSpec,
         kravhode: Kravhode,
         soekerGrunnlag: Persongrunnlag,
@@ -299,8 +299,7 @@ class SimuleringResultPreparer(
         forrigeResultat: AbstraktBeregningsResultat?,
         pensjonBeholdningPeriodeListe: List<BeholdningPeriode>,
         outputSimulertBeregningInformasjonForAllKnekkpunkter: Boolean
-    ) {
-
+    ): SimulertAlderspensjon {
         // Del 3.1
         val simulertAlderspensjon = simulertAlderspensjonMedRegelverkAndel(kravhode, resultatListe)
 
@@ -321,11 +320,11 @@ class SimuleringResultPreparer(
 
         // Del 3.4
         simulertAlderspensjon.uttakGradListe = kravhode.uttaksgradListe
-        simulatorOutput.alderspensjon = simulertAlderspensjon
+        return simulertAlderspensjon
     }
 
     private fun createAndMapSimulertPrivatAfpPeriodeListe(
-        simulatorOutput: SimulatorOutput,
+        privatAfpPeriodeListe: MutableList<PrivatAfpPeriode>,
         simuleringSpec: SimuleringSpec,
         privatAfpBeregningResultatListe: MutableList<BeregningsResultatAfpPrivat>,
         soekerGrunnlag: Persongrunnlag,
@@ -350,7 +349,7 @@ class SimuleringResultPreparer(
                 findEarliestIntersecting(privatAfpBeregningResultatListe, beloepPeriode.start, beloepPeriode.slutt)
 
             afpResultat?.let {
-                simulatorOutput.privatAfpPeriodeListe.add(
+                privatAfpPeriodeListe.add(
                     simulertPrivatAfpPeriode(
                         aarligBeloep = beloepPeriode.beloep,
                         resultat = it,
@@ -361,7 +360,7 @@ class SimuleringResultPreparer(
         }
 
         forrigeAfpBeregningsresultatKopi?.let {
-            simulatorOutput.privatAfpPeriodeListe.add(
+            privatAfpPeriodeListe.add(
                 simulertPrivatAfpPeriode(
                     aarligBeloep = it.pensjonUnderUtbetaling?.totalbelopNettoAr?.toInt() ?: 0,
                     resultat = it,

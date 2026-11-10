@@ -7,11 +7,10 @@ import java.time.LocalDate
 
 data class SimulertPensjonEllerAlternativ(
     val pensjon: SimulertPensjon?,
-    val alternativ: SimulertAlternativ?,
+    val alternativ: SimulertAlternativ? = null,
     val problem: Problem? = null
 )
 
-// PEN: SimulatorSimulertAlternativ
 data class SimulertAlternativ(
     val gradertUttakAlder: SimulertUttakAlder?,
     val uttakGrad: UttakGradKode,
@@ -19,7 +18,6 @@ data class SimulertAlternativ(
     val resultStatus: SimulatorResultStatus
 )
 
-// PEN: SimulatorSimulertUttaksalder
 data class SimulertUttakAlder(
     val alder: Alder,
     val uttakDato: LocalDate

@@ -98,9 +98,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 1.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 0.0
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 1.0
+            kapittel20Andel shouldBe 0.0
+        }
     }
 
     test("opprettOutput sets alderspensjon with kapittel20Andel for N_REG_N_OPPTJ") {
@@ -122,9 +123,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("opprettOutput sets tidsbegrensetOffentligAfp when provided") {
@@ -176,10 +178,7 @@ class SimuleringResultPreparerTest : FunSpec({
             alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat)
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.pensjonPeriodeListe.isNotEmpty() shouldBe true
+        preparer.opprettOutput(spec).alderspensjon!!.pensjonPeriodeListe.isNotEmpty() shouldBe true
     }
 
     test("opprettOutput handles forrige alderspensjon beregningsresultat") {
@@ -258,9 +257,7 @@ class SimuleringResultPreparerTest : FunSpec({
             privatAfpBeregningResultatListe = mutableListOf(afpResultat)
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.privatAfpPeriodeListe.isNotEmpty() shouldBe true
+        preparer.opprettOutput(spec).privatAfpPeriodeListe.isNotEmpty() shouldBe true
     }
 
     test("opprettOutput forces Kap19 output when simulerForTp is true and regelverkType is N_REG_N_OPPTJ") {
@@ -313,9 +310,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         // When simulerForTp is false, regelverkType stays N_REG_N_OPPTJ,
         // which results in kapittel20Andel = 1.0
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("opprettOutput sets uttakGradListe from kravhode") {
@@ -342,9 +340,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.uttakGradListe shouldHaveSize 1
-        result.alderspensjon!!.uttakGradListe[0].uttaksgrad shouldBe 50
+        with(result.alderspensjon!!) {
+            uttakGradListe shouldHaveSize 1
+            uttakGradListe[0].uttaksgrad shouldBe 50
+        }
     }
 
     test("opprettOutput sets pensjonBeholdningListe from spec") {
@@ -374,9 +373,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.pensjonBeholdningListe shouldHaveSize 1
-        result.alderspensjon!!.pensjonBeholdningListe[0].pensjonsbeholdning shouldBe 2000000.0
+        with(result.alderspensjon!!) {
+            pensjonBeholdningListe shouldHaveSize 1
+            pensjonBeholdningListe[0].pensjonsbeholdning shouldBe 2000000.0
+        }
     }
 
     test("opprettOutput handles AFP etterfulgt av alderspensjon simulation type") {
@@ -410,9 +410,7 @@ class SimuleringResultPreparerTest : FunSpec({
             alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat)
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
+        preparer.opprettOutput(spec).alderspensjon shouldNotBe null
     }
 
     test("opprettOutput handles livsvarigOffentligAfp results") {
@@ -433,10 +431,7 @@ class SimuleringResultPreparerTest : FunSpec({
             livsvarigOffentligAfpBeregningResultatListe = listOf(livsvarigAfpOutput)
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.livsvarigOffentligAfp shouldNotBe null
-        result.livsvarigOffentligAfp!! shouldHaveSize 1
+        preparer.opprettOutput(spec).livsvarigOffentligAfp!! shouldHaveSize 1
     }
 
     test("opprettOutput handles 2016 regelverk with mixed kapittel andeler") {
@@ -471,9 +466,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.5
-        result.alderspensjon!!.kapittel20Andel shouldBe 0.5
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 0.5
+            kapittel20Andel shouldBe 0.5
+        }
     }
 
     test("opprettOutput with gradert uttak creates correct pensjonsperioder") {
@@ -511,10 +507,7 @@ class SimuleringResultPreparerTest : FunSpec({
             alderspensjonBeregningResultatListe = mutableListOf(gradertResultat, heltResultat)
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.pensjonPeriodeListe.isNotEmpty() shouldBe true
+        preparer.opprettOutput(spec).alderspensjon!!.pensjonPeriodeListe.isNotEmpty() shouldBe true
     }
 
     test("opprettOutput creates simulertBeregningInformasjonListe when outputSimulertBeregningsInformasjonForAllKnekkpunkter is true") {
@@ -630,9 +623,10 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("opprettOutput correctly handles sivilstand from persongrunnlag") {
@@ -697,14 +691,15 @@ class SimuleringResultPreparerTest : FunSpec({
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
-
         val spec = preparerSpec(simuleringSpec, kravhode, null, sisteGyldigeOpptjeningAar = 2023)
 
         val result = preparer.opprettOutput(spec)
 
-        result.sivilstand shouldBe SivilstandEnum.GIFT
-        result.epsHarPensjon shouldBe true
-        result.epsHarInntektOver2G shouldBe true
+        with(result) {
+            sivilstand shouldBe SivilstandEnum.GIFT
+            epsHarPensjon shouldBe true
+            epsHarInntektOver2G shouldBe true
+        }
     }
 
     test("opprettOutput returns empty privatAfpPeriodeListe when no AFP results") {
@@ -725,9 +720,7 @@ class SimuleringResultPreparerTest : FunSpec({
             privatAfpBeregningResultatListe = mutableListOf()
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.privatAfpPeriodeListe shouldHaveSize 0
+        preparer.opprettOutput(spec).privatAfpPeriodeListe shouldHaveSize 0
     }
 
     test("opprettOutput handles empty alderspensjon beregningsresultat list") {
@@ -747,9 +740,7 @@ class SimuleringResultPreparerTest : FunSpec({
             alderspensjonBeregningResultatListe = mutableListOf()
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
+        preparer.opprettOutput(spec).alderspensjon shouldNotBe null
         // With empty result list, the pensjonsperiodeListe will be generated but empty for age periods
     }
 
@@ -796,9 +787,7 @@ class SimuleringResultPreparerTest : FunSpec({
             forrigeAlderspensjonBeregningResultat = forrigeResultat
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
+        preparer.opprettOutput(spec).alderspensjon shouldNotBe null
     }
 
     test("opprettOutput with forrige beregningsresultat 2016 extracts basispensjon and beholdning") {
@@ -849,10 +838,7 @@ class SimuleringResultPreparerTest : FunSpec({
             forrigeAlderspensjonBeregningResultat = forrigeResultat
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.5
+        preparer.opprettOutput(spec).alderspensjon!!.kapittel19Andel shouldBe 0.5
     }
 
     test("opprettOutput with forrige beregningsresultat 2025 extracts beholdning") {
@@ -894,10 +880,7 @@ class SimuleringResultPreparerTest : FunSpec({
             forrigeAlderspensjonBeregningResultat = forrigeResultat
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        preparer.opprettOutput(spec).alderspensjon!!.kapittel20Andel shouldBe 1.0
     }
 
     test("opprettOutput with early uttak before normertPensjoneringsdato adds extra knekkpunkt") {
@@ -928,10 +911,7 @@ class SimuleringResultPreparerTest : FunSpec({
             alderspensjonBeregningResultatListe = mutableListOf(beregningsresultat)
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.alderspensjon shouldNotBe null
-        result.alderspensjon!!.pensjonPeriodeListe.isNotEmpty() shouldBe true
+        preparer.opprettOutput(spec).alderspensjon!!.pensjonPeriodeListe.isNotEmpty() shouldBe true
     }
 
     test("opprettOutput calculates start alder when alderVedFoersteUttak equals alderToday") {
@@ -1053,9 +1033,7 @@ class SimuleringResultPreparerTest : FunSpec({
             forrigePrivatAfpBeregningResultat = forrigeAfpResultat
         )
 
-        val result = preparer.opprettOutput(spec)
-
-        result.privatAfpPeriodeListe.isNotEmpty() shouldBe true
+        preparer.opprettOutput(spec).privatAfpPeriodeListe.isNotEmpty() shouldBe true
     }
 
     test("opprettOutput handles 2016 regelverk with null andelKapittel19") {
@@ -1091,10 +1069,11 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
         // andelKapittel19 = 0 means kapittel19Andel = 0.0, kapittel20Andel = 1.0
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("opprettOutput handles persongrunnlag from spec correctly") {
@@ -1276,7 +1255,6 @@ class SimuleringResultPreparerTest : FunSpec({
                 totalbelopNetto = 28000
             }
         }
-
         val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2034)
 
         preparer.opprettOutput(spec).alderspensjon shouldNotBe null
@@ -1441,11 +1419,12 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // Should have simulertBeregningInformasjon for both gradert and helt uttak dates
-        result.alderspensjon!!.simulertBeregningInformasjonListe.isNotEmpty() shouldBe true
-        // The list should have entries for gradertUttakDato (2028-02-01) and heltUttakDato (2030-02-01)
-        result.alderspensjon!!.simulertBeregningInformasjonListe.size shouldBeGreaterThanOrEqualTo 2
+        with(result.alderspensjon!!) {
+            // Should have simulertBeregningInformasjon for both gradert and helt uttak dates
+            simulertBeregningInformasjonListe.isNotEmpty() shouldBe true
+            // The list should have entries for gradertUttakDato (2028-02-01) and heltUttakDato (2030-02-01)
+            simulertBeregningInformasjonListe.size shouldBeGreaterThanOrEqualTo 2
+        }
     }
 
     test("opprettOutput removes ektefelletillegg from totalbeloep when brukt is true") {
@@ -1576,10 +1555,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns today
 
         // Create barnetillegg fellesbarn with brukt=true
-        val barnetilleggFellesbarn = BarnetilleggFellesbarn().apply {
-            brukt = true
-            netto = 1500
-        }
+        val barnetilleggFellesbarn = BarnetilleggFellesbarn().apply { brukt = true; netto = 1500 }
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
@@ -1630,10 +1606,7 @@ class SimuleringResultPreparerTest : FunSpec({
         every { time.today() } returns today
 
         // Create barnetillegg saerkullsbarn with brukt=true
-        val barnetilleggSaerkullsbarn = BarnetilleggSerkullsbarn().apply {
-            brukt = true
-            netto = 1800
-        }
+        val barnetilleggSaerkullsbarn = BarnetilleggSerkullsbarn().apply { brukt = true; netto = 1800 }
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
@@ -1683,20 +1656,9 @@ class SimuleringResultPreparerTest : FunSpec({
         every { normalderService.opptjeningMaxAlderAar(foedselsdato) } returns 75
         every { time.today() } returns today
 
-        val ektefelletillegg = Ektefelletillegg().apply {
-            brukt = true
-            netto = 2000
-        }
-
-        val barnetilleggFellesbarn = BarnetilleggFellesbarn().apply {
-            brukt = true
-            netto = 1500
-        }
-
-        val barnetilleggSaerkullsbarn = BarnetilleggSerkullsbarn().apply {
-            brukt = true
-            netto = 1000
-        }
+        val ektefelletillegg = Ektefelletillegg().apply { brukt = true; netto = 2000 }
+        val barnetilleggFellesbarn = BarnetilleggFellesbarn().apply { brukt = true; netto = 1500 }
+        val barnetilleggSaerkullsbarn = BarnetilleggSerkullsbarn().apply { brukt = true; netto = 1000 }
 
         val forrigeResultat = BeregningsResultatAlderspensjon2011().apply {
             virkFomLd = LocalDate.of(2025, 3, 1)
@@ -1779,13 +1741,13 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // For N_REG_G_N_OPPTJ (2016 mixed rules), kapittel19Andel and kapittel20Andel should reflect the mix
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.5
-        result.alderspensjon!!.kapittel20Andel shouldBe 0.5
-        // The pensjonPeriode for age 67 should exist
-        val periode67 = result.alderspensjon!!.pensjonPeriodeListe.find { it.alderAar == 67 }
-        periode67 shouldNotBe null
+        with(result.alderspensjon!!) {
+            // For N_REG_G_N_OPPTJ (2016 mixed rules), kapittel19Andel and kapittel20Andel should reflect the mix
+            kapittel19Andel shouldBe 0.5
+            kapittel20Andel shouldBe 0.5
+            // The pensjonPeriode for age 67 should exist
+            pensjonPeriodeListe.find { it.alderAar == 67 } shouldNotBe null
+        }
     }
 
     test("findBeholdningFraBeregningsresultat with N_REG_N_OPPTJ extracts beholdning from 2025 resultat") {
@@ -1831,13 +1793,13 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // For N_REG_N_OPPTJ (2025 rules), kapittel20Andel should be 1.0
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
-        // The pensjonPeriode for age 67 should exist
-        val periode67 = result.alderspensjon!!.pensjonPeriodeListe.find { it.alderAar == 67 }
-        periode67 shouldNotBe null
+        with(result.alderspensjon!!) {
+            // For N_REG_N_OPPTJ (2025 rules), kapittel20Andel should be 1.0
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+            // The pensjonPeriode for age 67 should exist
+            pensjonPeriodeListe.find { it.alderAar == 67 } shouldNotBe null
+        }
     }
 
     test("findBeholdningFraBeregningsresultat with N_REG_G_N_OPPTJ extracts beholdning from forrigeResultat and sets pensjonBeholdningFoerUttak rounded to nearest integer") {
@@ -2058,27 +2020,27 @@ class SimuleringResultPreparerTest : FunSpec({
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
-
         val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2016, sisteGyldigeOpptjeningAar = 2034)
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // Check that pensjonPeriodeListe has periods
-        val periods = result.alderspensjon!!.pensjonPeriodeListe
-        periods.isNotEmpty() shouldBe true
-        // Check that periods have the expected ages (starting from 67)
-        periods.any { it.alderAar == 67 } shouldBe true
-        // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
-        val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
-        allBeregningsinfo.isNotEmpty() shouldBe true
-        // Verify pensjonBeholdningFoerUttak is set from persongrunnlag.beholdninger (2,450,000)
-        val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
-        infoWithBeholdningFoerUttak shouldNotBe null
-        infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 2450000
-        // For N_REG_G_N_OPPTJ, kapittel andel should be 0.5 (50%)
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.5
-        result.alderspensjon!!.kapittel20Andel shouldBe 0.5
+        with(result.alderspensjon!!) {
+            // Check that pensjonPeriodeListe has periods
+            val periods = pensjonPeriodeListe
+            periods.isNotEmpty() shouldBe true
+            // Check that periods have the expected ages (starting from 67)
+            periods.any { it.alderAar == 67 } shouldBe true
+            // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
+            val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
+            allBeregningsinfo.isNotEmpty() shouldBe true
+            // Verify pensjonBeholdningFoerUttak is set from persongrunnlag.beholdninger (2,450,000)
+            val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
+            infoWithBeholdningFoerUttak shouldNotBe null
+            infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 2450000
+            // For N_REG_G_N_OPPTJ, kapittel andel should be 0.5 (50%)
+            kapittel19Andel shouldBe 0.5
+            kapittel20Andel shouldBe 0.5
+        }
     }
 
     test("findBeholdningFraPersongrunnlag with N_REG_N_OPPTJ sets pensjonBeholdningFoerUttak from persongrunnlag beholdninger") {
@@ -2162,27 +2124,27 @@ class SimuleringResultPreparerTest : FunSpec({
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
-
         val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // Check that pensjonPeriodeListe has periods
-        val periods = result.alderspensjon!!.pensjonPeriodeListe
-        periods.isNotEmpty() shouldBe true
-        // Check that periods have the expected ages (starting from 67)
-        periods.any { it.alderAar == 67 } shouldBe true
-        // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
-        val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
-        allBeregningsinfo.isNotEmpty() shouldBe true
-        // Verify pensjonBeholdningFoerUttak is set from persongrunnlag.beholdninger (3,650,000)
-        val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
-        infoWithBeholdningFoerUttak shouldNotBe null
-        infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 3650000
-        // For N_REG_N_OPPTJ (pure kapittel 20), andel should be 0 and 1.0
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            // Check that pensjonPeriodeListe has periods
+            val periods = pensjonPeriodeListe
+            periods.isNotEmpty() shouldBe true
+            // Check that periods have the expected ages (starting from 67)
+            periods.any { it.alderAar == 67 } shouldBe true
+            // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
+            val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
+            allBeregningsinfo.isNotEmpty() shouldBe true
+            // Verify pensjonBeholdningFoerUttak is set from persongrunnlag.beholdninger (3,650,000)
+            val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
+            infoWithBeholdningFoerUttak shouldNotBe null
+            infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 3650000
+            // For N_REG_N_OPPTJ (pure kapittel 20), andel should be 0 and 1.0
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("findBeholdningFraPersongrunnlag returns null when regelverkType is N_REG_G_OPPTJ") {
@@ -2271,21 +2233,22 @@ class SimuleringResultPreparerTest : FunSpec({
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // Check that pensjonPeriodeListe has periods
-        val periods = result.alderspensjon!!.pensjonPeriodeListe
-        periods.isNotEmpty() shouldBe true
-        // Check that periods have the expected ages (starting from 67)
-        periods.any { it.alderAar == 67 } shouldBe true
-        // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
-        val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
-        allBeregningsinfo.isNotEmpty() shouldBe true
-        // For N_REG_G_OPPTJ, findBeholdningFraPersongrunnlag returns null, so pensjonBeholdningFoerUttak should be null
-        val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
-        infoWithBeholdningFoerUttak shouldBe null
-        // For N_REG_G_OPPTJ (pure kapittel 19), andel should be 1.0 and 0
-        result.alderspensjon!!.kapittel19Andel shouldBe 1.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 0.0
+        with(result.alderspensjon!!) {
+            // Check that pensjonPeriodeListe has periods
+            val periods = pensjonPeriodeListe
+            periods.isNotEmpty() shouldBe true
+            // Check that periods have the expected ages (starting from 67)
+            periods.any { it.alderAar == 67 } shouldBe true
+            // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
+            val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
+            allBeregningsinfo.isNotEmpty() shouldBe true
+            // For N_REG_G_OPPTJ, findBeholdningFraPersongrunnlag returns null, so pensjonBeholdningFoerUttak should be null
+            val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
+            infoWithBeholdningFoerUttak shouldBe null
+            // For N_REG_G_OPPTJ (pure kapittel 19), andel should be 1.0 and 0
+            kapittel19Andel shouldBe 1.0
+            kapittel20Andel shouldBe 0.0
+        }
     }
 
     test("findBeholdningFraPersongrunnlag filters beholdninger by year and returns latest") {
@@ -2381,27 +2344,27 @@ class SimuleringResultPreparerTest : FunSpec({
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
-
         val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // Check that pensjonPeriodeListe has periods
-        val periods = result.alderspensjon!!.pensjonPeriodeListe
-        periods.isNotEmpty() shouldBe true
-        // Check that periods have the expected ages (starting from 67)
-        periods.any { it.alderAar == 67 } shouldBe true
-        // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
-        val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
-        allBeregningsinfo.isNotEmpty() shouldBe true
-        // Verify pensjonBeholdningFoerUttak is set to latest beholdning for year 2037 (3,500,000)
-        val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
-        infoWithBeholdningFoerUttak shouldNotBe null
-        infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 3500000
-        // For N_REG_N_OPPTJ (pure kapittel 20), andel should be 0 and 1.0
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            // Check that pensjonPeriodeListe has periods
+            val periods = pensjonPeriodeListe
+            periods.isNotEmpty() shouldBe true
+            // Check that periods have the expected ages (starting from 67)
+            periods.any { it.alderAar == 67 } shouldBe true
+            // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
+            val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
+            allBeregningsinfo.isNotEmpty() shouldBe true
+            // Verify pensjonBeholdningFoerUttak is set to latest beholdning for year 2037 (3,500,000)
+            val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
+            infoWithBeholdningFoerUttak shouldNotBe null
+            infoWithBeholdningFoerUttak!!.pensjonBeholdningFoerUttak shouldBe 3500000
+            // For N_REG_N_OPPTJ (pure kapittel 20), andel should be 0 and 1.0
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("findBeholdningFraPersongrunnlag returns null when no beholdning matches year") {
@@ -2484,26 +2447,26 @@ class SimuleringResultPreparerTest : FunSpec({
             onlyVilkaarsproeving = false,
             epsKanOverskrives = false
         )
-
         val spec = preparerSpec(simuleringSpec, kravhode, beregningsresultat2025, sisteGyldigeOpptjeningAar = 2035)
 
         val result = preparer.opprettOutput(spec)
 
-        result.alderspensjon shouldNotBe null
-        // Check that pensjonPeriodeListe has periods
-        val periods = result.alderspensjon!!.pensjonPeriodeListe
-        periods.isNotEmpty() shouldBe true
-        // Check that periods have the expected ages (starting from 67)
-        periods.any { it.alderAar == 67 } shouldBe true
-        // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
-        val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
-        allBeregningsinfo.isNotEmpty() shouldBe true
-        // Verify pensjonBeholdningFoerUttak is null because no beholdning matches year 2037
-        val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
-        infoWithBeholdningFoerUttak shouldBe null
-        // For N_REG_N_OPPTJ (pure kapittel 20), andel should be 0 and 1.0
-        result.alderspensjon!!.kapittel19Andel shouldBe 0.0
-        result.alderspensjon!!.kapittel20Andel shouldBe 1.0
+        with(result.alderspensjon!!) {
+            // Check that pensjonPeriodeListe has periods
+            val periods = pensjonPeriodeListe
+            periods.isNotEmpty() shouldBe true
+            // Check that periods have the expected ages (starting from 67)
+            periods.any { it.alderAar == 67 } shouldBe true
+            // Verify simulertBeregningInformasjonListe on PensjonPeriode is populated
+            val allBeregningsinfo = periods.flatMap { it.simulertBeregningInformasjonListe }
+            allBeregningsinfo.isNotEmpty() shouldBe true
+            // Verify pensjonBeholdningFoerUttak is null because no beholdning matches year 2037
+            val infoWithBeholdningFoerUttak = allBeregningsinfo.find { it.pensjonBeholdningFoerUttak != null }
+            infoWithBeholdningFoerUttak shouldBe null
+            // For N_REG_N_OPPTJ (pure kapittel 20), andel should be 0 and 1.0
+            kapittel19Andel shouldBe 0.0
+            kapittel20Andel shouldBe 1.0
+        }
     }
 
     test("findBeholdningFraPersongrunnlag with N_REG_G_N_OPPTJ finds beholdning from persongrunnlag") {

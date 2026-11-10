@@ -9,5 +9,6 @@ data class RegisterData(
     val sisteLignetInntektAar: Int? = null,
     val sisteGyldigeOpptjeningAar: Int? = null,
     val grunnbeloep: Int? = null,
-    val soekerFoedselsdato: LocalDate? = null
+    val soekerFoedselsdato: LocalDate? = null,
+    val fremtidigePensjonspoeng: Double? = null
 )

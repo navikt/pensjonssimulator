@@ -85,7 +85,8 @@ open class NavSimuleringResultMapperV3Test : FunSpec({
                         afpTillegg = 789,
                         saertillegg = 890,
                         afpGrad = 80,
-                        afpAvkortetTil70Prosent = false
+                        afpAvkortetTil70Prosent = false,
+                        fremtidigePensjonspoeng = 1.2
                     ),
                     livsvarigOffentligAfp = listOf(
                         SimulertLivsvarigOffentligAfp(

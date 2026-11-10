@@ -129,7 +129,8 @@ private fun simulertPensjonEllerAlternativ(alderspensjonFraFolketrygden: List<Si
                     afpTillegg = 21,
                     saertillegg = 22,
                     afpGrad = 23,
-                    afpAvkortetTil70Prosent = false
+                    afpAvkortetTil70Prosent = false,
+                    fremtidigePensjonspoeng = 1.2
                 ),
                 livsvarigOffentligAfp = listOf(
                     SimulertLivsvarigOffentligAfp(

@@ -119,7 +119,7 @@ class SimulatorCoreTest : ShouldSpec({
             val offentligAfpBeregner = mockk<OffentligAfpBeregner> {
                 every { beregnAfp(any(), any(), any(), any(), any()) } returns OffentligAfpResult(
                     tidsbegrenset = TidsbegrensetOffentligAfpResult(
-                        simuleringResult = Simuleringsresultat(),
+                        simuleringsresultat = Simuleringsresultat(),
                         kravhode = kravhode()
                     ),
                     livsvarig = null,
@@ -355,9 +355,7 @@ private fun arrangeOutput(soekerFoedselsdato: LocalDate? = null): SimuleringResu
     mockk {
         every {
             opprettOutput(any())
-        } returns SimulatorOutput().apply {
-            registerData = soekerFoedselsdato?.let { RegisterData(soekerFoedselsdato = it) }
-        }
+        } returns SimulatorOutput(registerData = soekerFoedselsdato?.let { RegisterData(soekerFoedselsdato = it) })
     }
 
 private fun mockSakService(): SakService = mockk {

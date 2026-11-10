@@ -27,7 +27,7 @@ class TidsbegrensetOffentligAfpFoerstegangBeregnerTest : ShouldSpec({
             spec = simuleringSpec(afpOrdning = AFPtypeEnum.AFPSTAT), // foersteUttakDato = 2029-01-01
             kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlag) },
             forrigeAlderspensjonBeregningResultat = null
-        ).simuleringResult?.statusEnum shouldBe VedtakResultatEnum.INNV
+        ).simuleringsresultat?.statusEnum shouldBe VedtakResultatEnum.INNV
     }
 })
 

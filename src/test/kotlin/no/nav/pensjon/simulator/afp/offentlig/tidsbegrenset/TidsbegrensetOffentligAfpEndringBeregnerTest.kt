@@ -32,7 +32,7 @@ class TidsbegrensetOffentligAfpEndringBeregnerTest : FunSpec({
         ).beregnAfp(
             kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlag) },
             foersteUttakDato = LocalDate.of(2026, 1, 1) // => virkningTom = normalderDato - 1 dag = 2024-12-31
-        ).simuleringResult shouldBe null
+        ).simuleringsresultat shouldBe null
 
         persongrunnlag.afpHistorikkListe.size shouldBe 0 // AFP-listen er tømt
     }
@@ -54,7 +54,7 @@ class TidsbegrensetOffentligAfpEndringBeregnerTest : FunSpec({
         ).beregnAfp(
             kravhode = Kravhode().apply { persongrunnlagListe = mutableListOf(persongrunnlag) },
             foersteUttakDato = LocalDate.of(2024, 7, 1) // => virkningTom = foersteUttakDato - 1 dag = 2024-06-30
-        ).simuleringResult shouldBe null
+        ).simuleringsresultat shouldBe null
 
         with(persongrunnlag) {
             afpHistorikkListe.size shouldBe 2

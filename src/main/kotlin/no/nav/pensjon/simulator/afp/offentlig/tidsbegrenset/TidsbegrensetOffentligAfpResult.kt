@@ -4,6 +4,7 @@ import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresultat
 
 data class TidsbegrensetOffentligAfpResult(
-    val simuleringResult: Simuleringsresultat?,
-    val kravhode: Kravhode
+    val simuleringsresultat: Simuleringsresultat? = null,
+    val registrerteFremtidigePensjonspoeng: Double? = null,
+    val kravhode: Kravhode // kravhode med modifisert AFP-historikk
 )

@@ -143,7 +143,11 @@ data class TidsbegrensetOffentligAfpDto(
     @field:NotNull val afpTillegg: Int,
     @field:NotNull val saertillegg: Int,
     @field:NotNull val afpGrad: Int,
-    @field:NotNull val erAvkortet: Boolean
+    @field:NotNull val erAvkortet: Boolean,
+
+    @field:Schema(description = "Fremtidige pensjonspoeng (registrert eller simulert verdi)")
+    @field:NotNull
+    val fremtidigePensjonspoeng: Double
 )
 
 data class PrivatAfpDto(

@@ -27,12 +27,15 @@ import java.time.LocalDate
 class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
 
     "Offentlig AFP etterfulgt av alderpensjon blir aggregert til spec" {
-        val simResultat = mockSimulatorOutput(erOffentligAnsatt = true)
-        val spec: SimuleringSpec = mockSimuleringSpec()
-        val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
+        val output = simulatorOutput(erOffentligAnsatt = true)
+        val spec: SimuleringSpec = simuleringSpec()
+        val stillingsprosent = StillingsprosentSpec(
+            heltUttak = StillingsprOffCodeV2.P_100,
+            gradertUttak = StillingsprOffCodeV2.P_60
+        )
 
         val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(
-            simuleringResultat = simResultat,
+            simuleringResultat = output,
             simuleringSpec = spec,
             stillingsprosentSpec = stillingsprosent,
             sisteGyldigeOpptjeningsaar = 2024
@@ -41,7 +44,7 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
         with(result) {
             pid shouldBe spec.pid
             foedselsdato shouldBe spec.foedselDato
-            simulertOffentligAfp?.brutto shouldBe simResultat.tidsbegrensetOffentligAfp?.beregning?.brutto
+            simulertOffentligAfp?.brutto shouldBe output.tidsbegrensetOffentligAfp?.beregning?.brutto
             sisteTpOrdningsTpNummer shouldBe "TPNR"
             simulertPrivatAfp.shouldBeNull()
             sivilstand.name shouldBe spec.sivilstatus.name
@@ -74,13 +77,14 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
     }
 
     "Privat AFP blir aggregert til spec" {
-        val simResultat = mockSimulatorOutput(erOffentligAnsatt = false)
-        val spec: SimuleringSpec =
-            mockSimuleringSpec(type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT, helt = LocalDate.of(2029, 11, 1))
+        val spec: SimuleringSpec = simuleringSpec(
+            type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
+            heltUttakFom = LocalDate.of(2029, 11, 1)
+        )
         val stillingsprosent = StillingsprosentSpec(StillingsprOffCodeV2.P_100, StillingsprOffCodeV2.P_60)
 
         val result: TjenestepensjonSimuleringPre2025Spec = TjenestepensjonSimuleringPre2025SpecAggregator.aggregateSpec(
-            simuleringResultat = simResultat,
+            simuleringResultat = simulatorOutput(erOffentligAnsatt = false),
             simuleringSpec = spec,
             stillingsprosentSpec = stillingsprosent,
             sisteGyldigeOpptjeningsaar = 2024
@@ -118,16 +122,16 @@ class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
     }
 })
 
-private fun mockSimuleringSpec(
+private fun simuleringSpec(
     type: SimuleringTypeEnum = SimuleringTypeEnum.AFP_ETTERF_ALDER,
-    foerste: LocalDate = LocalDate.of(2027, 10, 1),
-    helt: LocalDate? = null
+    foersteUttakFom: LocalDate = LocalDate.of(2027, 10, 1),
+    heltUttakFom: LocalDate? = null
 ) = SimuleringSpec(
     type = type,
     sivilstatus = SivilstatusType.GIFT,
     epsHarPensjon = false,
-    foersteUttakDato = foerste,
-    heltUttakDato = helt,
+    foersteUttakDato = foersteUttakFom,
+    heltUttakDato = heltUttakFom,
     pid = Pid("12345678910"),
     foedselDato = LocalDate.of(1962, 10, 2),
     avdoed = null,
@@ -158,8 +162,8 @@ private fun mockSimuleringSpec(
     registerData = null
 )
 
-private fun mockSimulatorOutput(erOffentligAnsatt: Boolean) =
-    SimulatorOutput().apply {
+private fun simulatorOutput(erOffentligAnsatt: Boolean) =
+    SimulatorOutput(
         alderspensjon = SimulertAlderspensjon().apply {
             pensjonBeholdningListe = listOf(
                 BeholdningPeriode(
@@ -193,14 +197,17 @@ private fun mockSimulatorOutput(erOffentligAnsatt: Boolean) =
                     spt = 19.0
                 }
             )
-
-            if (erOffentligAnsatt) {
-                tidsbegrensetOffentligAfp = Simuleringsresultat().apply {
-                    beregning = Beregning().apply { brutto = 9 }
-                }
-            } else {
-                tidsbegrensetOffentligAfp = null
-                privatAfpPeriodeListe.add(
+        },
+        tidsbegrensetOffentligAfp =
+            if (erOffentligAnsatt)
+                Simuleringsresultat().apply { beregning = Beregning().apply { brutto = 9 } }
+            else
+                null,
+        privatAfpPeriodeListe =
+            if (erOffentligAnsatt)
+                mutableListOf()
+            else
+                mutableListOf(
                     PrivatAfpPeriode(
                         afpOpptjening = 20,
                         alderAar = 62,
@@ -212,11 +219,6 @@ private fun mockSimulatorOutput(erOffentligAnsatt: Boolean) =
                         afpForholdstall = 26.0,
                         justeringBeloep = 27
                     )
-                )
-            }
-
-            registerData = RegisterData(
-                soekerFoedselsdato = LocalDate.of(1962, 10, 2)
-            )
-        }
-    }
+                ),
+        registerData = RegisterData(soekerFoedselsdato = LocalDate.of(1962, 10, 2))
+    )

@@ -7,20 +7,36 @@ import no.nav.pensjon.simulator.core.domain.regler.simulering.Simuleringsresulta
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import java.time.LocalDate
 
-/**
- * PEN: no.nav.domain.pensjon.kjerne.simulering.SimuleringEtter2011Resultat
- */
-class SimulatorOutput {
-    //TODO data class
-    var alderspensjon: SimulertAlderspensjon? = null
-    var tidsbegrensetOffentligAfp: Simuleringsresultat? = null
-    var livsvarigOffentligAfp: List<LivsvarigOffentligAfpOutput>? = null
-    var sivilstand: SivilstandEnum = SivilstandEnum.NULL
-    var epsHarPensjon: Boolean = false
-    var epsHarInntektOver2G: Boolean = false
-    val privatAfpPeriodeListe: MutableList<PrivatAfpPeriode> = mutableListOf()
-    val opptjeningListe: MutableList<SimulertOpptjening> = mutableListOf()
-    var persongrunnlag: Persongrunnlag? = null
-    var heltUttakDato: LocalDate? = null
-    var registerData: RegisterData? = null
+data class SimulatorOutput(
+    val alderspensjon: SimulertAlderspensjon? = null,
+    val tidsbegrensetOffentligAfp: Simuleringsresultat? = null,
+    val livsvarigOffentligAfp: List<LivsvarigOffentligAfpOutput>? = null,
+    val sivilstand: SivilstandEnum = SivilstandEnum.NULL,
+    val epsHarPensjon: Boolean = false,
+    val epsHarInntektOver2G: Boolean = false,
+    val privatAfpPeriodeListe: MutableList<PrivatAfpPeriode> = mutableListOf(),
+    val opptjeningListe: MutableList<SimulertOpptjening> = mutableListOf(),
+    val persongrunnlag: Persongrunnlag? = null,
+    val heltUttakDato: LocalDate? = null,
+    val registerData: RegisterData? = null
+) {
+    fun med(alderspensjon: SimulertAlderspensjon?): SimulatorOutput =
+        copy(alderspensjon = alderspensjon)
+
+    fun med(persongrunnlag: Persongrunnlag, heltUttakFom: LocalDate?): SimulatorOutput =
+        copy(
+            persongrunnlag = persongrunnlag,
+            heltUttakDato = heltUttakFom
+        )
+
+    fun med(
+        tidsbegrensetOffentligAfp: Simuleringsresultat?,
+        livsvarigOffentligAfpListe: List<LivsvarigOffentligAfpOutput>?,
+        registerData: RegisterData
+    ): SimulatorOutput =
+        copy(
+            tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
+            livsvarigOffentligAfp = livsvarigOffentligAfpListe,
+            registerData = registerData
+        )
 }

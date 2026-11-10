@@ -3,6 +3,8 @@ package no.nav.pensjon.simulator.validity
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
+import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
 import org.springframework.http.converter.HttpMessageNotReadableException
 import tools.jackson.databind.exc.MismatchedInputException
 import tools.jackson.databind.json.JsonMapper
@@ -62,6 +64,16 @@ class IngressErrorHandlerTest : ShouldSpec({
 
         should("betrakte HttpMessageNotReadableException som sikker") {
             val exception = HttpMessageNotReadableException("Oops", mockk())
+            IngressErrorHandler.extractSafeMessage(exception) shouldBe "Oops"
+        }
+
+        should("betrakte UtilstrekkeligOpptjeningException som sikker") {
+            val exception = UtilstrekkeligOpptjeningException("Oops")
+            IngressErrorHandler.extractSafeMessage(exception) shouldBe "Oops"
+        }
+
+        should("betrakte UtilstrekkeligTrygdetidException som sikker") {
+            val exception = UtilstrekkeligTrygdetidException("Oops")
             IngressErrorHandler.extractSafeMessage(exception) shouldBe "Oops"
         }
 

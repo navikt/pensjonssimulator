@@ -26,10 +26,10 @@ object AvslagHandler {
 
     private fun handleAvslag(begrunnelse: BegrunnelseTypeEnum) {
         when (begrunnelse) {
-            BegrunnelseTypeEnum.UNDER_1_AR_TT -> throw UtilstrekkeligTrygdetidException()
-            BegrunnelseTypeEnum.UNDER_3_AR_TT -> throw UtilstrekkeligTrygdetidException()
-            BegrunnelseTypeEnum.UNDER_5_AR_TT -> throw UtilstrekkeligTrygdetidException()
-            BegrunnelseTypeEnum.UNDER_20_AR_TT_2025 -> throw UtilstrekkeligTrygdetidException()
+            BegrunnelseTypeEnum.UNDER_1_AR_TT -> utilstrekkeligTrygdetid(botid = 1)
+            BegrunnelseTypeEnum.UNDER_3_AR_TT -> utilstrekkeligTrygdetid(botid = 3)
+            BegrunnelseTypeEnum.UNDER_5_AR_TT -> utilstrekkeligTrygdetid(botid = 5)
+            BegrunnelseTypeEnum.UNDER_20_AR_TT_2025 -> utilstrekkeligTrygdetid(botid = 20)
             BegrunnelseTypeEnum.LAVT_TIDLIG_UTTAK -> throw UtilstrekkeligOpptjeningException()
 
             BegrunnelseTypeEnum.UTG_MINDRE_ETT_AR ->
@@ -37,5 +37,9 @@ object AvslagHandler {
 
             else -> log.warn { "vilkårsprøving ga avslag grunnet $begrunnelse" }
         }
+    }
+
+    private fun utilstrekkeligTrygdetid(botid: Int): Nothing {
+        throw UtilstrekkeligTrygdetidException("Vilkår for forutgående medlemskap ikke oppfylt (under $botid år botid)")
     }
 }

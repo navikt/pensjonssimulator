@@ -4,8 +4,10 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.core.domain.regler.TTPeriode
 import no.nav.pensjon.simulator.core.domain.regler.Trygdetid
 import no.nav.pensjon.simulator.core.domain.regler.enum.GrunnlagsrolleEnum
+import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import java.time.LocalDate
 
 class PersongrunnlagTest : ShouldSpec({
@@ -220,8 +222,57 @@ class PersongrunnlagTest : ShouldSpec({
                 faktiskeBeholdninger[2].ar shouldBe 2024
             }
         }
+
+        should("kopiere trygdetid") {
+            val kopi = Persongrunnlag(source = persongrunnlagMedTrygdetid())
+
+            with(kopi) {
+                trygdetid?.tt shouldBe 19
+                trygdetidKapittel20?.tt shouldBe 20
+                trygdetidAlternativ?.tt shouldBe 5
+                trygdetider shouldHaveSize 1
+                trygdetider.first().tt shouldBe 15
+                trygdetidPerioder shouldHaveSize 2
+                trygdetidPerioder[0].landEnum shouldBe LandkodeEnum.SWE
+                trygdetidPerioder[1].fomLd shouldBe LocalDate.of(2021, 1, 1)
+                trygdetidPerioderKapittel20 shouldHaveSize 2
+                trygdetidPerioderKapittel20[0].poengIInnAr shouldBe true
+                trygdetidPerioderKapittel20[1].poengIUtAr shouldBe true
+            }
+        }
+
+        context("ekskluder trygdetid") {
+            should("ikke kopiere trygdetid") {
+                val kopi = Persongrunnlag(source = persongrunnlagMedTrygdetid(), excludeTrygdetidPerioder = true)
+
+                with(kopi) {
+                    trygdetid shouldBe null
+                    trygdetidKapittel20 shouldBe null
+                    trygdetidAlternativ shouldBe null
+                    trygdetider shouldHaveSize 0
+                    trygdetidPerioder shouldHaveSize 0
+                    trygdetidPerioderKapittel20 shouldHaveSize 0
+                }
+            }
+        }
     }
 })
+
+private fun persongrunnlagMedTrygdetid() =
+    Persongrunnlag().apply {
+        trygdetid = Trygdetid().apply { tt = 19 }
+        trygdetidKapittel20 = Trygdetid().apply { tt = 20 }
+        trygdetidAlternativ = Trygdetid().apply { tt = 5 }
+        trygdetider = mutableListOf(Trygdetid().apply { tt = 15 })
+        trygdetidPerioder = mutableListOf(
+            TTPeriode().apply { landEnum = LandkodeEnum.SWE },
+            TTPeriode().apply { fomLd = LocalDate.of(2021, 1, 1) }
+        )
+        trygdetidPerioderKapittel20 = mutableListOf(
+            TTPeriode().apply { poengIInnAr = true },
+            TTPeriode().apply { poengIUtAr = true }
+        )
+    }
 
 private fun pensjonsbeholdning(aar: Int, maaned: Int, beloep: Int) =
     Pensjonsbeholdning().apply {

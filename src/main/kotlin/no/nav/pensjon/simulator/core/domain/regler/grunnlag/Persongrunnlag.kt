@@ -375,9 +375,12 @@ class Persongrunnlag {
         if (excludeTrygdetidPerioder.not()) {
             source.trygdetidPerioder.forEach { trygdetidPerioder.add(it.copy()) }
             source.trygdetidPerioderKapittel20.forEach { trygdetidPerioderKapittel20.add(it.copy()) }
+            trygdetid = source.trygdetid?.copy()
+            trygdetidKapittel20 = source.trygdetidKapittel20?.copy()
+            trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
+            trygdetidAlternativ = source.trygdetidAlternativ?.copy()
         }
 
-        trygdetid = source.trygdetid?.copy()
         source.uforegrunnlag?.let { uforegrunnlag = Uforegrunnlag(it) }
         source.uforeHistorikk?.let { uforeHistorikk = Uforehistorikk(it) }
         source.yrkesskadegrunnlag?.let { yrkesskadegrunnlag = Yrkesskadegrunnlag(it) }
@@ -414,7 +417,6 @@ class Persongrunnlag {
             }
         }
 
-        trygdetidKapittel20 = source.trygdetidKapittel20?.copy()
         source.pensjonsbeholdning?.let { pensjonsbeholdning = Pensjonsbeholdning(it) }
 
         for (dagpengegrunnlag in source.dagpengegrunnlagListe) {
@@ -434,22 +436,17 @@ class Persongrunnlag {
         arbeidsforholdEtterUforgrunnlagListe = source.arbeidsforholdEtterUforgrunnlagListe.map { it.copy() }
         overgangsInfoUPtilUT = source.overgangsInfoUPtilUT?.copy()
         utbetalingsgradUTListe = source.utbetalingsgradUTListe.map { it.copy() }
-        trygdetidAlternativ = source.trygdetidAlternativ?.copy()
         sisteGyldigeOpptjeningsAr = source.sisteGyldigeOpptjeningsAr
         barnetilleggVurderingsperiode = source.barnetilleggVurderingsperiode
         afpTpoUpGrunnlag = source.afpTpoUpGrunnlag?.copy()
 
-        //for (vilkarsVedtak in persongrunnlag.vilkarsvedtakEPSListe) {
-        //    this.vilkarsvedtakEPSListe.add(VilkarsVedtak(vilkarsVedtak))
-        //}
         //--- Extra:
-        gjelderOmsorg = source.gjelderOmsorg //: Boolean = false
-        gjelderUforetrygd = source.gjelderUforetrygd //: Boolean = false
+        gjelderOmsorg = source.gjelderOmsorg
+        gjelderUforetrygd = source.gjelderUforetrygd
         barnetilleggVurderingsperioder = source.barnetilleggVurderingsperioder.map { it.copy() }.toMutableList()
         beholdninger = source.beholdninger.map { it.copy() }.toMutableList()
         faktiskeBeholdninger = source.faktiskeBeholdninger.map { it.copy() }.toMutableList()
         livsvarigOffentligAfpGrunnlagListe = source.livsvarigOffentligAfpGrunnlagListe.map { it.copy() }
-        trygdetider = source.trygdetider.map { it.copy() }.toMutableList()
         uforegrunnlagList = source.uforegrunnlagList.map(::Uforegrunnlag).toMutableList()
         ufoereOpptjeningGrunnlag = source.ufoereOpptjeningGrunnlag?.copy()
         yrkesskadegrunnlagList = source.yrkesskadegrunnlagList.map(::Yrkesskadegrunnlag).toMutableList()

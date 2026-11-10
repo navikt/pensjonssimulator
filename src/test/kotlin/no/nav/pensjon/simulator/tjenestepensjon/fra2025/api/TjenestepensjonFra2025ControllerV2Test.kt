@@ -62,7 +62,7 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
                 statusCode shouldBe HttpStatus.BAD_REQUEST
                 reason shouldContain "Apoteker"
             }
-            verify { service.simuler(any()) wasNot called }
+            verify { service wasNot called }
         }
 
         test("skal avvise spec med foedselsdato før 1963-01-01") {
@@ -77,7 +77,7 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
                 statusCode shouldBe HttpStatus.BAD_REQUEST
                 reason shouldContain "Fødselsdato"
             }
-            verify { service.simuler(any()) wasNot called }
+            verify { service wasNot called }
         }
 
         test("skal akseptere spec med foedselsdato 1963-01-01") {

@@ -7,15 +7,16 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import jakarta.servlet.http.HttpServletRequest
-import org.mockito.kotlin.any
 
 class TraceAidTest : FunSpec({
 
     test("'begin' should generate call ID if none supplied") {
         val callIdGenerator: CallIdGenerator = mockk { every { newId() } returns "generated" }
+        val request: HttpServletRequest = mockk { every { getHeader(any()) } returns null }
+
         val traceAid = TraceAid(callIdGenerator)
 
-        traceAid.begin(any()) // none supplied
+        traceAid.begin(request) // none supplied
 
         traceAid.callId() shouldBe "generated"
     }

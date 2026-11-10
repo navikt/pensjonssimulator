@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.mockk.called
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -39,24 +40,28 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
             val spec = dummySpec(erApoteker = true)
 
             val exception = shouldThrow<ResponseStatusException> {
-                controller.simuler(spec)
+                controller.simuler(specV1 = spec, request = mockk())
             }
 
-            exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-            exception.reason shouldContain "Apoteker"
-            verify(exactly = 0) { service.simuler(any()) }
+            with(exception) {
+                statusCode shouldBe HttpStatus.BAD_REQUEST
+                reason shouldContain "Apoteker"
+            }
+            verify { service.simuler(any()) wasNot called }
         }
 
         test("skal avvise spec med foedselsdato før 1963-01-01") {
             val spec = dummySpec(foedselsdato = LocalDate.of(1962, 12, 31))
 
             val exception = shouldThrow<ResponseStatusException> {
-                controller.simuler(spec)
+                controller.simuler(specV1 = spec, request = mockk())
             }
 
-            exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-            exception.reason shouldContain "Fødselsdato"
-            verify(exactly = 0) { service.simuler(any()) }
+            with(exception) {
+                statusCode shouldBe HttpStatus.BAD_REQUEST
+                reason shouldContain "Fødselsdato"
+            }
+            verify { service.simuler(any()) wasNot called }
         }
 
         test("skal akseptere spec med foedselsdato 1963-01-01") {
@@ -64,7 +69,7 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
             every { service.simuler(any()) } returns Pair(emptyList(), Result.failure(RuntimeException("test")))
 
             shouldThrow<ResponseStatusException> {
-                controller.simuler(spec)
+                controller.simuler(specV1 = spec, request = mockk())
             }
 
             verify(exactly = 1) { service.simuler(any()) }
@@ -79,125 +84,137 @@ class TjenestepensjonFra2025ControllerTest : FunSpec({
                 Result.success(dummySimulertTjenestepensjon())
             )
 
-            val result = controller.simuler(spec)
+            val result = controller.simuler(specV1 = spec, request = mockk())
 
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.SUCCESS
-            with(result.simuleringsResultat.shouldNotBeNull()) {
-                tpLeverandoer shouldBe "Statens Pensjonskasse"
-                tpNummer shouldBe "3010"
-                utbetalingsperioder.size shouldBe 1
-                utbetalingsperioder[0].maanedligBeloep shouldBe 5000
-                betingetTjenestepensjonErInkludert shouldBe false
+            with(result) {
+                simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.SUCCESS
+                with(simuleringsResultat.shouldNotBeNull()) {
+                    tpLeverandoer shouldBe "Statens Pensjonskasse"
+                    tpNummer shouldBe "3010"
+                    utbetalingsperioder.size shouldBe 1
+                    utbetalingsperioder[0].maanedligBeloep shouldBe 5000
+                    betingetTjenestepensjonErInkludert shouldBe false
+                }
+                relevanteTpOrdninger shouldBe listOf("Statens Pensjonskasse")
             }
-            result.relevanteTpOrdninger shouldBe listOf("Statens Pensjonskasse")
         }
     }
 
     context("exception handling") {
         test("BrukerErIkkeMedlemException returnerer BRUKER_ER_IKKE_MEDLEM_HOS_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(BrukerErIkkeMedlemException()))
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold()),
+                Result.failure(BrukerErIkkeMedlemException())
+            )
 
-            val result = controller.simuler(spec)
-
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.BRUKER_ER_IKKE_MEDLEM_HOS_TP_ORDNING
+            controller.simuler(specV1 = spec, request = mockk())
+                .simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.BRUKER_ER_IKKE_MEDLEM_HOS_TP_ORDNING
         }
 
         test("TpOrdningStoettesIkkeException returnerer TP_ORDNING_ER_IKKE_STOTTET") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold("9999")), Result.failure(TpOrdningStoettesIkkeException("9999")))
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold("9999")),
+                Result.failure(TpOrdningStoettesIkkeException("9999"))
+            )
 
-            val result = controller.simuler(spec)
-
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.TP_ORDNING_ER_IKKE_STOTTET
+            controller.simuler(specV1 = spec, request = mockk())
+                .simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.TP_ORDNING_ER_IKKE_STOTTET
         }
 
         test("TjenestepensjonSimuleringException returnerer TEKNISK_FEIL_FRA_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(TjenestepensjonSimuleringException("Feil", "SPK")))
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold()),
+                Result.failure(TjenestepensjonSimuleringException("Feil", "SPK"))
+            )
 
-            val result = controller.simuler(spec)
-
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.TEKNISK_FEIL_FRA_TP_ORDNING
+            controller.simuler(specV1 = spec, request = mockk())
+                .simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.TEKNISK_FEIL_FRA_TP_ORDNING
         }
 
         test("TomSimuleringFraTpOrdningException returnerer INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(TomSimuleringFraTpOrdningException("SPK")))
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold()),
+                Result.failure(TomSimuleringFraTpOrdningException("SPK"))
+            )
 
-            val result = controller.simuler(spec)
-
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING
+            controller.simuler(specV1 = spec, request = mockk())
+                .simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING
         }
 
         test("IkkeSisteOrdningException returnerer INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(IkkeSisteOrdningException("SPK")))
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold()),
+                Result.failure(IkkeSisteOrdningException("SPK"))
+            )
 
-            val result = controller.simuler(spec)
-
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING
+            controller.simuler(specV1 = spec, request = mockk())
+                .simuleringsResultatStatus.resultatType shouldBe ResultatTypeDto.INGEN_UTBETALINGSPERIODER_FRA_TP_ORDNING
         }
 
         test("TpregisteretException kaster ResponseStatusException med INTERNAL_SERVER_ERROR") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(TpregisteretException("Feil fra tpregisteret")))
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold()),
+                Result.failure(TpregisteretException("Feil fra tpregisteret"))
+            )
 
-            val exception = shouldThrow<ResponseStatusException> {
-                controller.simuler(spec)
-            }
-
-            exception.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
+            shouldThrow<ResponseStatusException> {
+                controller.simuler(specV1 = spec, request = mockk())
+            }.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
         }
 
         test("ukjent exception kaster ResponseStatusException med INTERNAL_SERVER_ERROR") {
             val spec = dummySpec()
-            every { service.simuler(any()) } returns Pair(listOf(dummyTpForhold()), Result.failure(RuntimeException("Ukjent feil")))
-
-            val exception = shouldThrow<ResponseStatusException> {
-                controller.simuler(spec)
-            }
-
-            exception.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
-        }
-    }
-}) {
-    companion object {
-        private fun dummyTpForhold(tpNr: String = "3010") =
-            Tjenestepensjonsforhold(
-                tpNr = tpNr,
-                navn = "Statens Pensjonskasse",
-                datoSistOpptjening = null
+            every { service.simuler(any()) } returns Pair(
+                listOf(dummyTpForhold()),
+                Result.failure(RuntimeException("Ukjent feil"))
             )
 
-        fun dummySpec(
-            foedselsdato: LocalDate = LocalDate.of(1963, 2, 5),
-            erApoteker: Boolean = false
-        ) = SimulerOffentligTjenestepensjonFra2025SpecV1(
-            pid = "12345678910",
-            foedselsdato = foedselsdato,
-            uttaksdato = LocalDate.of(2025, 3, 1),
-            sisteInntekt = 500000,
-            aarIUtlandetEtter16 = 0,
-            brukerBaOmAfp = false,
-            epsPensjon = false,
-            eps2G = false,
-            fremtidigeInntekter = emptyList(),
-            erApoteker = erApoteker
-        )
-
-        fun dummySimulertTjenestepensjon() = SimulertTjenestepensjonMedMaanedsUtbetalinger(
-            tpLeverandoer = EgressService.SPK,
-            tpNummer = "3010",
-            ordningsListe = listOf(Ordning("3010")),
-            utbetalingsperioder = listOf(
-                Maanedsutbetaling(
-                    fraOgMedDato = LocalDate.of(2025, 3, 1),
-                    fraOgMedAlder = Alder(62, 0),
-                    maanedsBeloep = 5000
-                )
-            ),
-            betingetTjenestepensjonErInkludert = false
-        )
+            shouldThrow<ResponseStatusException> {
+                controller.simuler(specV1 = spec, request = mockk())
+            }.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
+        }
     }
-}
+})
+
+private fun dummyTpForhold(tpNr: String = "3010") =
+    Tjenestepensjonsforhold(
+        tpNr = tpNr,
+        navn = "Statens Pensjonskasse",
+        datoSistOpptjening = null
+    )
+
+private fun dummySpec(
+    foedselsdato: LocalDate = LocalDate.of(1963, 2, 5),
+    erApoteker: Boolean = false
+) = SimulerOffentligTjenestepensjonFra2025SpecV1(
+    pid = "12345678910",
+    foedselsdato = foedselsdato,
+    uttaksdato = LocalDate.of(2025, 3, 1),
+    sisteInntekt = 500000,
+    aarIUtlandetEtter16 = 0,
+    brukerBaOmAfp = false,
+    epsPensjon = false,
+    eps2G = false,
+    fremtidigeInntekter = emptyList(),
+    erApoteker = erApoteker
+)
+
+private fun dummySimulertTjenestepensjon() = SimulertTjenestepensjonMedMaanedsUtbetalinger(
+    tpLeverandoer = EgressService.SPK,
+    tpNummer = "3010",
+    ordningsListe = listOf(Ordning("3010")),
+    utbetalingsperioder = listOf(
+        Maanedsutbetaling(
+            fraOgMedDato = LocalDate.of(2025, 3, 1),
+            fraOgMedAlder = Alder(62, 0),
+            maanedsBeloep = 5000
+        )
+    ),
+    betingetTjenestepensjonErInkludert = false
+)

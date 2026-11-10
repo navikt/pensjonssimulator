@@ -59,7 +59,7 @@ open class PensjonForNavV2ControllerTest : ShouldSpec() {
             every { sporingsloggService.log(any(), any(), any()) } returns Unit
             every { simuleringSpecMapper.fromDto(any()) } returns TestObjects.simuleringSpec
             every { statistikkService.takeSnapshotIfNeeded() } returns Unit
-            every { traceAid.begin() } returns Unit
+            every { traceAid.begin(any()) } returns Unit
         }
 
         context("request OK") {

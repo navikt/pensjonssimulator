@@ -84,7 +84,7 @@ class PensjonForNorskPensjonController(
         @RequestBody specDto: SimuleringSpecDto,
         request: HttpServletRequest
     ): ResponseEntity<SimuleringResultDto> {
-        traceAid.begin()
+        traceAid.begin(request)
         countCall(functionName = FUNCTION_ID)
 
         return try {

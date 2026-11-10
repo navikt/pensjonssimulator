@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.FolketrygdberegnetAfpResultMapperV1.toResultV1
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.result.FolketrygdberegnetAfpResultV1
@@ -60,8 +61,11 @@ class FolketrygdberegnetAfpController(
             )
         ]
     )
-    fun simulerFramtidigePensjonspoeng(@RequestBody specV1: FolketrygdberegnetAfpSpecV1): FolketrygdberegnetAfpResultV1? {
-        traceAid.begin()
+    fun simulerFramtidigePensjonspoeng(
+        @RequestBody specV1: FolketrygdberegnetAfpSpecV1,
+        request: HttpServletRequest
+    ): FolketrygdberegnetAfpResultV1? {
+        traceAid.begin(request)
         countCall(FUNCTION_ID)
 
         return try {

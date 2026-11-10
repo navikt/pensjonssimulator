@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import io.mockk.called
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -33,13 +34,13 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
     val traceAid = mockk<TraceAid>(relaxed = true)
     val service = mockk<TjenestepensjonFra2025Service>()
     val controller = TjenestepensjonFra2025Controller(traceAid, service)
-    val tpOrdninger = listOf(
-        Tjenestepensjonsforhold("3010", "Statens Pensjonskasse", LocalDate.of(2025, 1, 1)),
-        Tjenestepensjonsforhold("4081", "Storebrand", null)
+    val tpForholdListe = listOf(
+        Tjenestepensjonsforhold(tpNr = "3010", navn = "Statens Pensjonskasse", datoSistOpptjening = LocalDate.of(2025, 1, 1)),
+        Tjenestepensjonsforhold(tpNr = "4081", navn = "Storebrand", datoSistOpptjening = null)
     )
     val relevanteTpOrdninger = listOf(
-        RelevantOrdningV2("Statens Pensjonskasse", "3010"),
-        RelevantOrdningV2("Storebrand", "4081")
+        RelevantOrdningV2(navn = "Statens Pensjonskasse", tpNummer = "3010"),
+        RelevantOrdningV2(navn = "Storebrand", tpNummer = "4081")
     )
 
     beforeTest {
@@ -47,35 +48,45 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
     }
 
     afterTest {
-        verify(exactly = 1) { traceAid.begin() }
+        verify(exactly = 1) { traceAid.begin(any()) }
         verify(exactly = 1) { traceAid.end() }
     }
 
     context("validering") {
         test("skal avvise spec med erApoteker=true") {
             val exception = shouldThrow<ResponseStatusException> {
-                controller.simulerV2(dummySpec(erApoteker = true))
+                controller.simulerV2(specV2 = dummySpec(erApoteker = true), request = mockk())
             }
 
-            exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-            exception.reason shouldContain "Apoteker"
-            verify(exactly = 0) { service.simuler(any()) }
+            with(exception) {
+                statusCode shouldBe HttpStatus.BAD_REQUEST
+                reason shouldContain "Apoteker"
+            }
+            verify { service.simuler(any()) wasNot called }
         }
 
         test("skal avvise spec med foedselsdato før 1963-01-01") {
             val exception = shouldThrow<ResponseStatusException> {
-                controller.simulerV2(dummySpec(foedselsdato = LocalDate.of(1962, 12, 31)))
+                controller.simulerV2(
+                    specV2 = dummySpec(foedselsdato = LocalDate.of(1962, 12, 31)),
+                    request = mockk()
+                )
             }
 
-            exception.statusCode shouldBe HttpStatus.BAD_REQUEST
-            exception.reason shouldContain "Fødselsdato"
-            verify(exactly = 0) { service.simuler(any()) }
+            with(exception) {
+                statusCode shouldBe HttpStatus.BAD_REQUEST
+                reason shouldContain "Fødselsdato"
+            }
+            verify { service.simuler(any()) wasNot called }
         }
 
         test("skal akseptere spec med foedselsdato 1963-01-01") {
-            every { service.simuler(any()) } returns (tpOrdninger to Result.success(dummySimulertTjenestepensjon()))
+            every { service.simuler(any()) } returns (tpForholdListe to Result.success(dummySimulertTjenestepensjon()))
 
-            val result = controller.simulerV2(dummySpec(foedselsdato = LocalDate.of(1963, 1, 1)))
+            val result = controller.simulerV2(
+                specV2 = dummySpec(foedselsdato = LocalDate.of(1963, 1, 1)),
+                request = mockk()
+            )
 
             result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDtoV2.SUCCESS
             verify(exactly = 1) {
@@ -100,20 +111,28 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
                 gjelderApoteker = false
             )
             every { service.simuler(expectedSpec) } returns
-                    (tpOrdninger to Result.success(dummySimulertTjenestepensjon()))
+                    (tpForholdListe to Result.success(dummySimulertTjenestepensjon()))
 
-            val result = controller.simulerV2(spec)
+            val result = controller.simulerV2(specV2 = spec, request = mockk())
 
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDtoV2.SUCCESS
-            result.simuleringsResultatStatus.feilmelding shouldBe null
-            with(result.simuleringsResultat.shouldNotBeNull()) {
-                tpLeverandoer shouldBe "Statens Pensjonskasse"
-                tpNummer shouldBe "3010"
-                utbetalingsperioder shouldBe listOf(UtbetalingPerAlderV2(Alder(62, 0), null, 5000))
-                betingetTjenestepensjonErInkludert shouldBe false
+            with(result) {
+                simuleringsResultatStatus.resultatType shouldBe ResultatTypeDtoV2.SUCCESS
+                simuleringsResultatStatus.feilmelding shouldBe null
+                with(simuleringsResultat.shouldNotBeNull()) {
+                    tpLeverandoer shouldBe "Statens Pensjonskasse"
+                    tpNummer shouldBe "3010"
+                    utbetalingsperioder shouldBe listOf(
+                        UtbetalingPerAlderV2(
+                            startAlder = Alder(aar = 62, maaneder = 0),
+                            sluttAlder = null,
+                            maanedligBeloep = 5000
+                        )
+                    )
+                    betingetTjenestepensjonErInkludert shouldBe false
+                }
+                relevanteTpOrdninger shouldBe relevanteTpOrdninger
+                serviceData shouldBe listOf("request", "response")
             }
-            result.relevanteTpOrdninger shouldBe relevanteTpOrdninger
-            result.serviceData shouldBe listOf("request", "response")
             verify(exactly = 1) { service.simuler(expectedSpec) }
         }
     }
@@ -147,14 +166,16 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
             )
         ).forEach { (exception, resultatType, feilmelding) ->
             test("${exception::class.simpleName} returnerer $resultatType") {
-                every { service.simuler(any()) } returns (tpOrdninger to Result.failure(exception))
+                every { service.simuler(any()) } returns (tpForholdListe to Result.failure(exception))
 
-                val result = controller.simulerV2(dummySpec())
+                val result = controller.simulerV2(specV2 = dummySpec(), request = mockk())
 
-                result.simuleringsResultatStatus.resultatType shouldBe resultatType
-                result.simuleringsResultatStatus.feilmelding shouldBe feilmelding
-                result.simuleringsResultat shouldBe null
-                result.relevanteTpOrdninger shouldBe relevanteTpOrdninger
+                with(result) {
+                    simuleringsResultatStatus.resultatType shouldBe resultatType
+                    simuleringsResultatStatus.feilmelding shouldBe feilmelding
+                    simuleringsResultat shouldBe null
+                    this.relevanteTpOrdninger shouldBe relevanteTpOrdninger
+                }
             }
         }
 
@@ -163,44 +184,50 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
             RuntimeException("Ukjent feil")
         ).forEach { exception ->
             test("${exception::class.simpleName} kaster ResponseStatusException med INTERNAL_SERVER_ERROR") {
-                every { service.simuler(any()) } returns (tpOrdninger to Result.failure(exception))
+                every { service.simuler(any()) } returns (tpForholdListe to Result.failure(exception))
 
                 val result = shouldThrow<ResponseStatusException> {
-                    controller.simulerV2(dummySpec())
+                    controller.simulerV2(specV2 = dummySpec(), request = mockk())
                 }
 
-                result.statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
-                result.reason shouldBe exception.message
+                with(result) {
+                    statusCode shouldBe HttpStatus.INTERNAL_SERVER_ERROR
+                    reason shouldBe exception.message
+                }
             }
         }
     }
-}) {
-    private companion object {
-        fun dummySpec(
-            foedselsdato: LocalDate = LocalDate.of(1963, 2, 5),
-            erApoteker: Boolean = false
-        ) = SimulerOffentligTjenestepensjonFra2025SpecV2(
-            pid = "12345678910",
-            foedselsdato = foedselsdato,
-            uttaksdato = LocalDate.of(2025, 3, 1),
-            sisteInntekt = 500000,
-            aarIUtlandetEtter16 = 0,
-            brukerBaOmAfp = false,
-            epsPensjon = false,
-            eps2G = false,
-            fremtidigeInntekter = emptyList(),
-            erApoteker = erApoteker
-        )
+})
 
-        fun dummySimulertTjenestepensjon() = SimulertTjenestepensjonMedMaanedsUtbetalinger(
-            tpLeverandoer = EgressService.SPK,
-            tpNummer = "3010",
-            ordningsListe = listOf(Ordning("3010")),
-            utbetalingsperioder = listOf(
-                Maanedsutbetaling(LocalDate.of(2025, 3, 1), Alder(62, 0), 5000)
-            ),
-            betingetTjenestepensjonErInkludert = false,
-            serviceData = listOf("request", "response")
-        )
-    }
-}
+private fun dummySpec(
+    foedselsdato: LocalDate = LocalDate.of(1963, 2, 5),
+    erApoteker: Boolean = false
+) =
+    SimulerOffentligTjenestepensjonFra2025SpecV2(
+        pid = "12345678910",
+        foedselsdato = foedselsdato,
+        uttaksdato = LocalDate.of(2025, 3, 1),
+        sisteInntekt = 500000,
+        aarIUtlandetEtter16 = 0,
+        brukerBaOmAfp = false,
+        epsPensjon = false,
+        eps2G = false,
+        fremtidigeInntekter = emptyList(),
+        erApoteker = erApoteker
+    )
+
+private fun dummySimulertTjenestepensjon() =
+    SimulertTjenestepensjonMedMaanedsUtbetalinger(
+        tpLeverandoer = EgressService.SPK,
+        tpNummer = "3010",
+        ordningsListe = listOf(Ordning(tpNummer = "3010")),
+        utbetalingsperioder = listOf(
+            Maanedsutbetaling(
+                fraOgMedDato = LocalDate.of(2025, 3, 1),
+                fraOgMedAlder = Alder(aar = 62, maaneder = 0),
+                maanedsBeloep = 5000
+            )
+        ),
+        betingetTjenestepensjonErInkludert = false,
+        serviceData = listOf("request", "response")
+    )

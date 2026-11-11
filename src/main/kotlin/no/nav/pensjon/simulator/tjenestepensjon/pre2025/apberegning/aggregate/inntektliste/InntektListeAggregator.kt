@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.inntektliste
 
-import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.alderVedOvergangFraTidsbegrensetAfpTilAlderspensjon
 import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Inntekt
 import java.time.LocalDate
@@ -12,90 +12,63 @@ object InntektListeAggregator {
         actualTime: LocalDate = LocalDate.now(),
         sisteGyldigeOpptjeningsaar: Int
     ): List<Inntekt> {
-        val inntektList: MutableList<Inntekt> = ArrayList()
-
-        // First inntekt before uttak
+        val inntektListe: MutableList<Inntekt> = mutableListOf()
         val inntektFoerFoersteUttak = spec.inntektFoerFoersteUttak
-        inntektList.add(
+
+        inntektListe.add(
             Inntekt(
-                actualTime.withYear(sisteGyldigeOpptjeningsaar + 1).withDayOfYear(1),
-                inntektFoerFoersteUttak.toDouble()
+                fom = actualTime.withYear(sisteGyldigeOpptjeningsaar + 1).withDayOfYear(1),
+                beloep = inntektFoerFoersteUttak.toDouble()
             )
         )
 
         // inntekt from forsteUttaksDato
         val inntektUnderGradertEllerHeltUttak =
-            if (spec.gradertUttak || spec.simuleringTypeErAfpEtterfAlder) {
+            if (spec.gradertUttak || spec.simuleringTypeErAfpEtterfAlder)
                 spec.inntektUnderGradertUttakBeloep
-            } else {
+            else
                 spec.inntektEtterHeltUttakBeloep
-            }
 
         if (inntektUnderGradertEllerHeltUttak != inntektFoerFoersteUttak) {
             addInntektToListIfPreviuslyIsNotSameAmount(
-                inntektList, spec.foersteUttakDato, inntektUnderGradertEllerHeltUttak.toDouble()
+                inntektListe, spec.foersteUttakDato, inntektUnderGradertEllerHeltUttak.toDouble()
             )
         }
-
-        var date: LocalDate? = spec.heltUttakDato
 
         // Inntekt from heltUttak (optional)
-        if (spec.simuleringTypeErAfpEtterfAlder) {
-            date = fromAlder(foedselDato = spec.foedselsdato, alder = Alder(67, 0))
-        }
+        val date = datoForHeltUttak(spec)
 
         // is only sett if simuleringSpec.heltUttakDato is not null or simuleringSpec.type is AFP_ETTERF_ALDER
-        if (date != null) {
+        datoForHeltUttak(spec)?.let {
             addInntektToListIfPreviuslyIsNotSameAmount(
-                inntektList,
-                date,
-                spec.inntektEtterHeltUttakBeloep.toDouble()
+                inntektListe,
+                fom = it,
+                beloep = spec.inntektEtterHeltUttakBeloep.toDouble()
             )
         }
 
-        addInntektToListIfPreviuslyIsNotSameAmount(
-            inntektList,
-            getEndingDateForInntektList(spec),
-            0.0
-        )
+        addInntektToListIfPreviuslyIsNotSameAmount(inntektListe, fom = spec.inntektTom(), beloep = 0.0)
 
-        return inntektList
+        return inntektListe
     }
+
+    /**
+     * NB: Sammenlign denne med SimuleringEtter2011SpecV2.datoForHeltUttak
+     */
+    private fun datoForHeltUttak(spec: InntektListeSpec): LocalDate? =
+        if (spec.simuleringTypeErAfpEtterfAlder)
+            fromAlder(spec.foedselsdato, alder = alderVedOvergangFraTidsbegrensetAfpTilAlderspensjon)
+        else
+            spec.heltUttakDato
 
     // if the amount is the same as previous inntekt, it is continuation of the previous inntekt and there is no point in adding.
-    fun addInntektToListIfPreviuslyIsNotSameAmount(
-        inntektList: MutableList<Inntekt>,
-        date: LocalDate,
-        inntekt: Double
+    private fun addInntektToListIfPreviuslyIsNotSameAmount(
+        inntektListe: MutableList<Inntekt>,
+        fom: LocalDate,
+        beloep: Double
     ) {
-        if (inntektList[inntektList.size - 1].beloep != inntekt) {
-            inntektList.add(Inntekt(date, inntekt))
-        }
-    }
-
-    fun getEndingDateForInntektList(spec: InntektListeSpec): LocalDate {
-        val date: LocalDate =
-            if (spec.simuleringTypeErAfpEtterfAlder)
-            // Inntekt from heltUttak (optional)
-            // Compenstating for bad front-end data, should be unnecesary
-                fromAlder(foedselDato = spec.foedselsdato, alder = Alder(67, 0))
-            else
-                spec.heltUttakDato ?: spec.foersteUttakDato
-
-        // Two possible end date for Inntekt, on that is 75 or one that is optional for before 75.
-        val dateWithUserAt75AndFirstDayAtNextMonth: LocalDate =
-            fromAlder(foedselDato = spec.foedselsdato, alder = Alder(75, 0))
-        val dateWithAddedAntallArInntektEtterHeltUttak: LocalDate =
-            date.plusYears(spec.inntektEtterHeltUttakAntallAar?.toLong() ?: 0L)
-        //TODO use inntektEtterHeltUttakTom?
-
-        // Check the ending of the final Inntekt, added option to ending before 75 or sett to 75.
-        return if (spec.inntektEtterHeltUttakBeloep > 0 && (spec.inntektEtterHeltUttakAntallAar ?: 0) > 0
-            && dateWithAddedAntallArInntektEtterHeltUttak.isBefore(dateWithUserAt75AndFirstDayAtNextMonth)
-        ) {
-            dateWithAddedAntallArInntektEtterHeltUttak
-        } else {
-            dateWithUserAt75AndFirstDayAtNextMonth
+        if (inntektListe[inntektListe.size - 1].beloep != beloep) {
+            inntektListe.add(Inntekt(fom, beloep))
         }
     }
 }

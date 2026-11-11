@@ -2,6 +2,8 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.swagger.v3.oas.annotations.media.Schema
+import no.nav.pensjon.simulator.afp.offentlig.OffentligAfpConstants.alderVedOvergangFraTidsbegrensetAfpTilAlderspensjon
+import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
 import no.nav.pensjon.simulator.person.Pid
 import java.time.LocalDate
 
@@ -104,14 +106,14 @@ data class SimuleringEtter2011SpecV2(
     var simulerForTp: Boolean? = null,
 
     @param:Schema(description = "Utenlandsperioder brukt i simulering.")
-    var utenlandsperiodeForSimuleringList: List<UtenlandsperiodeForSimuleringV2> = listOf(),
+    var utenlandsperiodeForSimuleringList: List<UtenlandsperiodeForSimuleringV2> = emptyList(),
 
     // Not used in PSELV but included to avoid failing on unknown properties:
     @param:Schema(description = "Fremtidige inntekter brukt i simulering.")
-    var fremtidigInntektList: List<FremtidigInntektV2> = listOf(),
+    var fremtidigInntektList: List<FremtidigInntektV2> = emptyList(),
 
     @param:Schema(description = "Egenregistrerte TP-er (lagring/visning).")
-    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2> = listOf(),
+    var brukerRegTPListe: List<BrukerRegTjenestepensjonV2> = emptyList(),
 
     @param:Schema(description = "Brukeroppgitt ansettelsessektor. Benyttes ikke ved simulering, kun ved lagring/henting. Eksempel: ANNET, OFFENTLIG, PRIVAT")
     var ansettelsessektor: AnsattTypeCodeV2? = null,
@@ -121,7 +123,24 @@ data class SimuleringEtter2011SpecV2(
 
     @param:Schema(description = "Offentlig stillingsprosent ved gradert uttak.")
     var stillingsprosentOffGradertUttak: StillingsprOffCodeV2? = null,
-)
+) {
+    /**
+     * Mapper 'antall år inntekt etter helt uttak' til 'sluttdato (til og med) for inntekt etter helt uttak'.
+     */
+    fun inntektEtterHeltUttakTom(foedselsdato: LocalDate): LocalDate =
+        if (antallArInntektEtterHeltUttak > 0)
+            datoForHeltUttak(foedselsdato)
+                .plusYears(antallArInntektEtterHeltUttak.toLong())
+                .minusDays(1)
+        else
+            datoForHeltUttak(foedselsdato) //TODO: bruke minusDays(1) her også?
+
+    private fun datoForHeltUttak(foedselsdato: LocalDate): LocalDate =
+        if (simuleringType == SimuleringTypeSpecV2.AFP_ETTERF_ALDER)
+            fromAlder(foedselsdato, alder = alderVedOvergangFraTidsbegrensetAfpTilAlderspensjon)
+        else
+            heltUttakDato ?: forsteUttakDato!!
+}
 
 data class Fnr(val pid: String) {
     override fun toString(): String {

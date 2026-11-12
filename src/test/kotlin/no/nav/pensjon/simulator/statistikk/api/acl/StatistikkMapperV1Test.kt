@@ -131,7 +131,6 @@ class StatistikkMapperV1Test : FunSpec({
                 SimuleringTypeEnum.BARN to SimuleringTypeEnumV1.BARN,
                 SimuleringTypeEnum.ENDR_ALDER to SimuleringTypeEnumV1.ENDR_ALDER,
                 SimuleringTypeEnum.ENDR_ALDER_M_GJEN to SimuleringTypeEnumV1.ENDR_ALDER_M_GJEN,
-                SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT to SimuleringTypeEnumV1.ENDR_AP_M_AFP_PRIVAT,
                 SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG to SimuleringTypeEnumV1.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
                 SimuleringTypeEnum.GJENLEVENDE to SimuleringTypeEnumV1.GJENLEVENDE
             )

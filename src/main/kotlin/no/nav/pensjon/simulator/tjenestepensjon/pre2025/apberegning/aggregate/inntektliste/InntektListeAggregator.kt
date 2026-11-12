@@ -36,8 +36,6 @@ object InntektListeAggregator {
         }
 
         // Inntekt from heltUttak (optional)
-        val date = datoForHeltUttak(spec)
-
         // is only sett if simuleringSpec.heltUttakDato is not null or simuleringSpec.type is AFP_ETTERF_ALDER
         datoForHeltUttak(spec)?.let {
             addInntektToListIfPreviuslyIsNotSameAmount(
@@ -48,7 +46,6 @@ object InntektListeAggregator {
         }
 
         addInntektToListIfPreviuslyIsNotSameAmount(inntektListe, fom = spec.inntektTom(), beloep = 0.0)
-
         return inntektListe
     }
 

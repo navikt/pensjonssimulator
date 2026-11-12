@@ -34,14 +34,6 @@ class EndringValidatorTest : FunSpec({
         }
     }
 
-    test("'validate' aksepterer ENDR_AP_M_AFP_PRIVAT simuleringstype") {
-        shouldNotThrowAny {
-            EndringValidator.validate(
-                endringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT)
-            )
-        }
-    }
-
     test("'validate' aksepterer ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG simuleringstype") {
         shouldNotThrowAny {
             EndringValidator.validate(

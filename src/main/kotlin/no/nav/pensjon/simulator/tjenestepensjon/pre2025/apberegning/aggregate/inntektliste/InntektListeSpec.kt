@@ -1,5 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.inntektliste
 
+import no.nav.pensjon.simulator.alder.Alder.Companion.fromAlder
+import no.nav.pensjon.simulator.opptjening.OpptjeningConstants.hoeyesteAlderForOpptjening
 import java.time.LocalDate
 
 data class InntektListeSpec(
@@ -9,11 +11,19 @@ data class InntektListeSpec(
     val simuleringTypeErAfpEtterfAlder: Boolean,
     val inntektUnderGradertUttakBeloep: Int,
     val inntektEtterHeltUttakBeloep: Int,
-
-    @Deprecated("Bruk inntektEtterHeltUttakTom")
-    val inntektEtterHeltUttakAntallAar: Int?,
-
-    val inntektEtterHeltUttakTom: LocalDate?,
+    val inntektEtterHeltUttakTom: LocalDate,
     val foersteUttakDato: LocalDate,
     val heltUttakDato: LocalDate?
-)
+) {
+    fun inntektTom(): LocalDate {
+        val sisteMuligeOpptjeningsdato: LocalDate =
+            fromAlder(foedselsdato, alder = hoeyesteAlderForOpptjening)
+
+        return if (inntektEtterHeltUttakBeloep > 0
+            && inntektEtterHeltUttakTom.isBefore(sisteMuligeOpptjeningsdato)
+        )
+            inntektEtterHeltUttakTom
+        else
+            sisteMuligeOpptjeningsdato
+    }
+}

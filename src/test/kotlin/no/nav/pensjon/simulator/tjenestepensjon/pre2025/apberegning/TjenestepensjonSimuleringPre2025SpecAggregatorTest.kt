@@ -23,14 +23,15 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.StillingsprOffCodeV2
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
 import java.time.LocalDate
+import java.time.Month
 
 class TjenestepensjonSimuleringPre2025SpecAggregatorTest : StringSpec({
 
-    "Offentlig AFP etterfulgt av alderpensjon blir aggregert til spec" {
+    "Offentlig AFP etterfulgt av alderspensjon blir aggregert til spec" {
         val output = simulatorOutput(erOffentligAnsatt = true)
         val spec: SimuleringSpec = simuleringSpec()
         val stillingsprosent = StillingsprosentSpec(
-            heltUttak = StillingsprOffCodeV2.P_100,
+            heltUttak = StillingsprOffCodeV2.P_100, //TODO: Ikke bruk DTO (StillingsprOffCodeV2) i domenelaget
             gradertUttak = StillingsprOffCodeV2.P_60
         )
 
@@ -142,7 +143,7 @@ private fun simuleringSpec(
     inntektUnderGradertUttakBeloep = 400_000,
     inntektEtterHeltUttakBeloep = 0,
     inntektEtterHeltUttakAntallAar = null,
-    inntektEtterHeltUttakTom = null,
+    inntektEtterHeltUttakTom = LocalDate.of(2031, Month.FEBRUARY, 28),
     foedselAar = 1960,
     utlandAntallAar = 0,
     utlandPeriodeListe = mutableListOf(),

@@ -13,58 +13,59 @@ class InntektListeSpecMapperTest : StringSpec({
 
     "createSpec skal mappe alle felter i InntektListeSpec" {
         val foedselsdato = LocalDate.of(1960, 1, 1)
-        val simSpec = simuleringSpecInntekter(
+        val simuleringSpec = simuleringSpecInntekter(
             inntektUnderGradertUttakBeloep = 1,
             inntektEtterHeltUttakBeloep = 2,
-            inntektEtterHeltUttakAntallAar = 3,
+            inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31),
         )
-        val inntektSpec = InntektListeSpecMapper.createSpec(simSpec, foedselsdato)
 
-        inntektSpec.foedselsdato shouldBe foedselsdato
-        inntektSpec.inntektFoerFoersteUttak shouldBe simSpec.forventetInntektBeloep
-        inntektSpec.gradertUttak shouldBe true
-        inntektSpec.simuleringTypeErAfpEtterfAlder shouldBe true
-        inntektSpec.inntektUnderGradertUttakBeloep shouldBe simSpec.inntektUnderGradertUttakBeloep
-        inntektSpec.inntektEtterHeltUttakBeloep shouldBe simSpec.inntektEtterHeltUttakBeloep
-        inntektSpec.inntektEtterHeltUttakAntallAar shouldBe simSpec.inntektEtterHeltUttakAntallAar
-        inntektSpec.inntektEtterHeltUttakTom shouldBe simSpec.inntektEtterHeltUttakTom
-        inntektSpec.foersteUttakDato shouldBe simSpec.foersteUttakDato
-        inntektSpec.heltUttakDato shouldBe simSpec.heltUttakDato
+        val inntektSpec = InntektListeSpecMapper.createSpec(simuleringSpec, foedselsdato)
+
+        with(inntektSpec) {
+            this.foedselsdato shouldBe foedselsdato
+            inntektFoerFoersteUttak shouldBe simuleringSpec.forventetInntektBeloep
+            gradertUttak shouldBe true
+            simuleringTypeErAfpEtterfAlder shouldBe true
+            inntektUnderGradertUttakBeloep shouldBe simuleringSpec.inntektUnderGradertUttakBeloep
+            inntektEtterHeltUttakBeloep shouldBe simuleringSpec.inntektEtterHeltUttakBeloep
+            inntektEtterHeltUttakTom shouldBe simuleringSpec.inntektEtterHeltUttakTom
+            foersteUttakDato shouldBe simuleringSpec.foersteUttakDato
+            heltUttakDato shouldBe simuleringSpec.heltUttakDato
+        }
     }
 
     "100% uttakgrad skal mappes til helt uttak" {
         val foedselsdato = LocalDate.of(1960, 1, 1)
-        val simSpec = simuleringSpecInntekter(uttaksgrad = UttakGradKode.P_100)
-        val inntektSpec = InntektListeSpecMapper.createSpec(simSpec, foedselsdato)
+        val simuleringSpec = simuleringSpecInntekter(uttaksgrad = UttakGradKode.P_100)
 
-        inntektSpec.gradertUttak shouldBe false
+        InntektListeSpecMapper.createSpec(simuleringSpec, foedselsdato).gradertUttak shouldBe false
     }
 
     "kun AFP_ETTERF_ALDER skal føre til simuleringTypeErAfpEtterfAlder=true" {
         val foedselsdato = LocalDate.of(1960, 1, 1)
         for (simuleringType: SimuleringTypeEnum in SimuleringTypeEnum.entries) {
             if (simuleringType == SimuleringTypeEnum.AFP_ETTERF_ALDER) continue
-            val simSpec = simuleringSpecInntekter(type = simuleringType)
-            val (_, _, _, simuleringTypeErAfpEtterfAlder) = InntektListeSpecMapper.createSpec(simSpec, foedselsdato)
+            val simuleringSpec = simuleringSpecInntekter(type = simuleringType)
+            val (_, _, _, simuleringTypeErAfpEtterfAlder) = InntektListeSpecMapper.createSpec(simuleringSpec, foedselsdato)
             simuleringTypeErAfpEtterfAlder shouldBe false
         }
     }
 })
 
-fun simuleringSpecInntekter(
+private fun simuleringSpecInntekter(
     type: SimuleringTypeEnum = SimuleringTypeEnum.AFP_ETTERF_ALDER,
-    foerste: LocalDate = LocalDate.of(2027, 10, 1),
-    heltUttaksdato: LocalDate? = LocalDate.of(2029, 11, 1),
+    foersteUttakDato: LocalDate = LocalDate.of(2027, 10, 1),
+    heltUttakDato: LocalDate? = LocalDate.of(2029, 11, 1),
     uttaksgrad: UttakGradKode = UttakGradKode.P_80,
     inntektUnderGradertUttakBeloep: Int = 400_000,
     inntektEtterHeltUttakBeloep: Int = 50_000,
-    inntektEtterHeltUttakAntallAar: Int? = null
+    inntektEtterHeltUttakTom: LocalDate? = LocalDate.of(2030, 12, 31)
 ) = SimuleringSpec(
     type = type,
     sivilstatus = SivilstatusType.GIFT,
     epsHarPensjon = false,
-    foersteUttakDato = foerste,
-    heltUttakDato = heltUttaksdato,
+    foersteUttakDato = foersteUttakDato,
+    heltUttakDato = heltUttakDato,
     pid = Pid("12345678910"),
     foedselDato = LocalDate.of(1962, 10, 2),
     avdoed = null,
@@ -74,8 +75,8 @@ fun simuleringSpecInntekter(
     forventetInntektBeloep = 500_000,
     inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
     inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
-    inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
-    inntektEtterHeltUttakTom = null,
+    inntektEtterHeltUttakAntallAar = null,
+    inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
     foedselAar = 1960,
     utlandAntallAar = 0,
     utlandPeriodeListe = mutableListOf(),

@@ -133,6 +133,24 @@ class SimuleringStatistikkRowMapperTest : FunSpec({
         result?.antall shouldBe 42
     }
 
+    test("mapper historisk ENDR_AP_M_AFP_PRIVAT fra databasen") {
+        val rowMapper = SimuleringStatistikkRowMapper()
+        val resultSet = mockk<ResultSet>()
+        every { resultSet.getString("ORG_NR") } returns "123456789"
+        every { resultSet.getString("SIMULERINGSTYPE") } returns "ENDR_AP_M_AFP_PRIVAT"
+        every { resultSet.getInt("ANTALL") } returns 42
+
+        val result = rowMapper.mapRow(resultSet, 0)
+
+        result shouldBe SimuleringStatistikk(
+            hendelse = SimuleringHendelse(
+                organisasjonsnummer = Organisasjonsnummer("123456789"),
+                simuleringstype = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
+            ),
+            antall = 42
+        )
+    }
+
     test("mapper ulike simuleringstyper") {
         val rowMapper = SimuleringStatistikkRowMapper()
 

@@ -1,6 +1,6 @@
 package no.nav.pensjon.simulator.core.spec
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.direct.acl.v0.spec.TpoFolketrygdberegnetAfpSimuleringTypeSpecV0
 import no.nav.pensjon.simulator.afp.folketrygdberegnet.api.viapen.acl.v1.spec.FolketrygdberegnetAfpSimuleringTypeSpecV1
@@ -21,11 +21,11 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v3.SimuleringTyp
 import tools.jackson.databind.json.JsonMapper
 import java.time.LocalDate
 
-class LegacySimuleringTypeAliasTest : FunSpec({
+class LegacySimuleringTypeAliasTest : ShouldSpec({
     val jsonMapper = JsonMapper.builder().findAndAddModules().build()
     val legacyAndCanonicalValues = listOf("ENDR_AP_M_AFP_PRIVAT", "ENDR_ALDER")
 
-    test("Nav V3 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical Nav V3 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", NavSimuleringTypeSpecV3::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
@@ -33,7 +33,7 @@ class LegacySimuleringTypeAliasTest : FunSpec({
         }
     }
 
-    test("Nav V2 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical Nav V2 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", NavSimuleringTypeSpecV2::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
@@ -41,7 +41,7 @@ class LegacySimuleringTypeAliasTest : FunSpec({
         }
     }
 
-    test("anonymous V1 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical anonymous V1 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", AnonymSimuleringTypeSpecV1::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
@@ -49,14 +49,14 @@ class LegacySimuleringTypeAliasTest : FunSpec({
         }
     }
 
-    test("Nav DTO accepts its original public spelling and canonical change type as ENDR_ALDER") {
+    should("accept the original Nav DTO public spelling and canonical change type as ENDR_ALDER") {
         listOf("ENDRING_ALDERSPENSJON_MED_PRIVAT_AFP", "ENDRING_ALDERSPENSJON").forEach { value ->
             jsonMapper.readValue("\"$value\"", SimuleringstypeSpecDto::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
         }
     }
 
-    test("OFTP accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical OFTP change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", OftpSimuleringTypeSpec::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
@@ -64,21 +64,21 @@ class LegacySimuleringTypeAliasTest : FunSpec({
         }
     }
 
-    test("tjenestepensjon V2 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical tjenestepensjon V2 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", SimuleringTypeSpecV2::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
         }
     }
 
-    test("tjenestepensjon V3 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical tjenestepensjon V3 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", SimuleringTypeSpecV3::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
         }
     }
 
-    test("TPO folketrygdberegnet AFP V0 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical TPO folketrygdberegnet AFP V0 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", TpoFolketrygdberegnetAfpSimuleringTypeSpecV0::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
@@ -87,7 +87,7 @@ class LegacySimuleringTypeAliasTest : FunSpec({
         }
     }
 
-    test("folketrygdberegnet AFP V1 accepts legacy and canonical change types as ENDR_ALDER") {
+    should("accept legacy and canonical folketrygdberegnet AFP V1 change types as ENDR_ALDER") {
         legacyAndCanonicalValues.forEach { value ->
             jsonMapper.readValue("\"$value\"", FolketrygdberegnetAfpSimuleringTypeSpecV1::class.java).internalValue shouldBe
                     SimuleringTypeEnum.ENDR_ALDER
@@ -96,7 +96,7 @@ class LegacySimuleringTypeAliasTest : FunSpec({
         }
     }
 
-    test("Nav V2 request with the legacy alias deserializes and maps to ENDR_ALDER without falling back to ALDER") {
+    should("deserialize and map a Nav V2 request with the legacy alias to ENDR_ALDER without falling back to ALDER") {
         val uttakDato = LocalDate.of(2029, 1, 1)
         val source = jsonMapper.readValue(
             """

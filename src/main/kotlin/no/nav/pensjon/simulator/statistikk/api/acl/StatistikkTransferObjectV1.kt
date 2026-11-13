@@ -76,6 +76,11 @@ enum class SimuleringTypeEnumV1 {
     ENDR_ALDER_M_GJEN,
 
     /**
+     * Endring av alderspensjon med AFP i privat sektor
+     */
+    ENDR_AP_M_AFP_PRIVAT,
+
+    /**
      * Endring av alderspensjon med livsvarig AFP i offentlig sektor
      */
     ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG, // SIMDOM-ADD

@@ -9,6 +9,11 @@ object OffentligAfpConstants {
     val minsteUttaksalderForAfp = Alder(aar = 62, maaneder = 0)
 
     /**
+     * Lovbestemt alder ved overgang fra tidsbegrenset AFP i offentlig sektor til alderspensjon.
+     */
+    val alderVedOvergangFraTidsbegrensetAfpTilAlderspensjon = Alder(aar = 67, maaneder = 0)
+
+    /**
      * Fødselsåret som markerer overgang fra "gamle" til "nye" regler for AFP i offentlig sektor.
      * "Gamle" regler gjelder før 2025.
      * "Nye" regler gjelder fra 2025 (offentlig AFP er da en livsvarig ytelse).

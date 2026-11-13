@@ -33,6 +33,7 @@ import no.nav.pensjon.simulator.generelt.GenerelleDataHolder
 import no.nav.pensjon.simulator.inntekt.AarligInntekt
 import no.nav.pensjon.simulator.inntekt.LignetInntektService
 import no.nav.pensjon.simulator.krav.KravService
+import no.nav.pensjon.simulator.opptjening.OpptjeningConstants.hoeyesteAlderForOpptjening
 import no.nav.pensjon.simulator.tech.time.DateUtil.MAANEDER_PER_AAR
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDag
 import no.nav.pensjon.simulator.tech.time.DateUtil.sisteDag
@@ -315,7 +316,7 @@ class KravhodeCreator(
 
         if (spec.brukFremtidigInntekt) {
             val gjeldendeAar = generelleDataHolder.getSisteGyldigeOpptjeningsaar() + 1
-            val sisteOpptjeningAar = MAX_OPPTJENING_ALDER + foedselsaar(person, spec)
+            val sisteOpptjeningAar = hoeyesteAlderForOpptjening.aar + foedselsaar(person, spec)
             val fom: LocalDate = foersteDag(gjeldendeAar)
 
             val inntektsgrunnlagList =
@@ -414,7 +415,7 @@ class KravhodeCreator(
 
         if (spec.erAnonym) {
             gjeldendeAar = (spec.foersteUttakDato?.year ?: 0) - spec.inntektOver1GAntallAar
-            aarSoekerBlirMaxAlder = MAX_OPPTJENING_ALDER + spec.foedselAar
+            aarSoekerBlirMaxAlder = hoeyesteAlderForOpptjening.aar + spec.foedselAar
 
             if (gjeldendeAar < innevaerendeAar) {
                 veietGrunnbeloepListe =
@@ -425,7 +426,7 @@ class KravhodeCreator(
             }
         } else {
             gjeldendeAar = lignetInntektService.behandleSistLignedeInntekt(pid = spec.pid!!, inntektListe)
-            aarSoekerBlirMaxAlder = yearUserTurnsGivenAge(foedselsdato!!, MAX_OPPTJENING_ALDER)
+            aarSoekerBlirMaxAlder = yearUserTurnsGivenAge(foedselsdato!!, hoeyesteAlderForOpptjening.aar)
         }
 
         val forventetInntekt = spec.forventetInntektBeloep
@@ -580,7 +581,6 @@ class KravhodeCreator(
 
     private companion object {
         private const val MAX_ALDER = 80 // normert?
-        private const val MAX_OPPTJENING_ALDER = 75 // normert?
         private const val ANONYM_PERSON_ID = -1L
         private val norge = LandkodeEnum.NOR
         private val log = KotlinLogging.logger {}

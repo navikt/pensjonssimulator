@@ -53,7 +53,7 @@ class YtelseService(private val client: YtelseClient) {
                     avdoed = spec.avdoed,
                     alderspensjonFlags = null,
                     endringAlderspensjonFlags = EndringAlderspensjonYtelserFlags(
-                        inkluderPrivatAfp = false //PEN krever endring flag for å forstå at det gjelder endring
+                        inkluderPrivatAfp = true //PEN krever endring flag for å forstå at det gjelder endring
                     ),
                     tidsbegrensetOffentligAfpYtelserFlags = null
                 )

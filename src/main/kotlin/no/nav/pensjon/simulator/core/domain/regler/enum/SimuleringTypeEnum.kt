@@ -56,6 +56,7 @@ enum class SimuleringTypeEnum(
     /**
      * Endring av alderspensjon med AFP i privat sektor
      */
+    @Deprecated("ENDR_ALDER skal brukes fremover")
     ENDR_AP_M_AFP_PRIVAT,
     /**
      * Endring av alderspensjon med livsvarig AFP i offentlig sektor

@@ -58,7 +58,7 @@ enum class FolketrygdberegnetAfpSimuleringTypeSpecV1(val externalValue: String, 
     /**
      * Endring av alderspensjon med AFP i privat sektor
      */
-    ENDR_AP_M_AFP_PRIVAT("ENDR_AP_M_AFP_PRIVAT", SimuleringTypeEnum.ENDR_ALDER);
+    ENDR_AP_M_AFP_PRIVAT("ENDR_AP_M_AFP_PRIVAT", SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT);
 
     /**
      * Gjenlevendepensjon

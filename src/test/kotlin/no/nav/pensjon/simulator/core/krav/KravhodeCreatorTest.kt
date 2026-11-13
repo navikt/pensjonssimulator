@@ -1267,6 +1267,26 @@ class KravhodeCreatorTest : ShouldSpec({
             kravhode shouldNotBe null
         }
 
+        should("bruke endringPersongrunnlag for ENDR_AP_M_AFP_PRIVAT") {
+            val creator = createKravhodeCreatorForEndring()
+            val spec = simuleringSpec().copy(
+                type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
+                foersteUttakDato = LocalDate.of(2026, 1, 1),
+                heltUttakDato = null,
+                uttakGrad = UttakGradKode.P_100
+            )
+            val forrigeResultat = mockk<AbstraktBeregningsResultat>()
+            every { forrigeResultat.kravId } returns 123L
+
+            val kravhode = creator.opprettKravhode(
+                kravhodeSpec = KravhodeSpec(spec, forrigeResultat, 123000),
+                person = penPerson(),
+                virkningDatoGrunnlagListe = emptyList()
+            )
+
+            kravhode shouldNotBe null
+        }
+
         should("bruke endringUttaksgrad for uttaksgradliste ved endring") {
             val creator = createKravhodeCreatorForEndring()
             val spec = simuleringSpec().copy(

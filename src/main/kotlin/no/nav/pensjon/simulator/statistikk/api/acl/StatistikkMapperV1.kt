@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.statistikk.api.acl
 
-import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.statistikk.AntallCombo
 import no.nav.pensjon.simulator.statistikk.SimuleringHendelse
 import no.nav.pensjon.simulator.statistikk.SimuleringStatistikk
@@ -34,10 +33,6 @@ object StatistikkMapperV1 {
     private fun hendelse(source: SimuleringHendelse) =
         SimuleringHendelseV1(
             organisasjonsnummer = source.organisasjonsnummer.value,
-            simuleringstype = when (source.simuleringstype) {
-                SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT -> SimuleringTypeEnumV1.ENDR_ALDER
-
-                else -> SimuleringTypeEnumV1.valueOf(source.simuleringstype.name)
-            }
+            simuleringstype = SimuleringTypeEnumV1.valueOf(source.simuleringstype.name)
         )
 }

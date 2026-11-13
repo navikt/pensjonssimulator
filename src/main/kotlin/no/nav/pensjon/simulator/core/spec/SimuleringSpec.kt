@@ -78,7 +78,11 @@ data class SimuleringSpec(
 
     val erHeltUttak: Boolean = uttakGrad == UttakGradKode.P_100
 
-    val gjelderPrivatAfp: Boolean = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT == type
+    val gjelderPrivatAfp: Boolean =
+        EnumSet.of(
+            SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT
+        ).contains(type)
 
     /**
      * Uføretrygd må avsluttes før uttak av pensjon i følgende tilfeller:
@@ -280,6 +284,7 @@ data class SimuleringSpec(
     fun gjelderEndring() =
         EnumSet.of(
             SimuleringTypeEnum.ENDR_ALDER,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
             SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
             SimuleringTypeEnum.ENDR_ALDER_M_GJEN
         ).contains(type)
@@ -287,6 +292,7 @@ data class SimuleringSpec(
     fun gjelderEndringUtenLivsvarigOffentligAfp() =
         EnumSet.of(
             SimuleringTypeEnum.ENDR_ALDER,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
             SimuleringTypeEnum.ENDR_ALDER_M_GJEN
         ).contains(type)
 

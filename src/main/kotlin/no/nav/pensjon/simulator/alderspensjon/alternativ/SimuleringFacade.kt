@@ -123,7 +123,7 @@ class SimuleringFacade(
         exception: RuntimeException
     ): SimulertPensjonEllerAlternativ? =
         try {
-            if (gjelderUfoereMedAfp && spec.tillatSenereFoersteuttakForUfoere.not()) {
+            if (gjelderUfoereMedAfp && spec.tillatSenereFoersteuttakForUfoere.not())
                 if (spec.isGradert() && heltUttakTasFoerNormalder(spec))
                     if (spec.uttakGrad == UttakGradKode.P_20) // ingen lavere uttaksgrad mulig
                         ufoereAlternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)
@@ -131,7 +131,7 @@ class SimuleringFacade(
                         ufoereAlternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
                 else
                     ufoereAlternativSimulering.simulerMedFallendeUttaksgrad(spec, exception)
-            } else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
+            else if (spec.onlyVilkaarsproeving.not() && isGradertAndReducible(spec))
                 alternativSimulering.simulerMedNesteLavereUttaksgrad(spec, inkluderPensjonHvisUbetinget)
             else
                 alternativSimulering.simulerAlternativHvisUtkanttilfelletInnvilges(spec, inkluderPensjonHvisUbetinget)

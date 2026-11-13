@@ -53,7 +53,9 @@ enum class AnonymSimuleringTypeSpecV1(val externalValue: String, val internalVal
     /**
      * Endring av alderspensjon med gjenlevenderettigheter
      */
-    ENDR_ALDER_M_GJEN("ENDR_ALDER_M_GJEN", SimuleringTypeEnum.ENDR_ALDER_M_GJEN);
+    ENDR_ALDER_M_GJEN("ENDR_ALDER_M_GJEN", SimuleringTypeEnum.ENDR_ALDER_M_GJEN),
+
+    ENDR_AP_M_AFP_PRIVAT("ENDR_AP_M_AFP_PRIVAT", SimuleringTypeEnum.ENDR_ALDER);
 
     /**
      * Gjenlevendepensjon

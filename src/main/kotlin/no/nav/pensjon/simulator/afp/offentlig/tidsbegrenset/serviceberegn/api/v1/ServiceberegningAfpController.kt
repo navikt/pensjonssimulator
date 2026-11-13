@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetAfpSimuleringFacade
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.serviceberegn.api.v1.acl.ServiceberegningAfpResultDto
@@ -74,9 +75,10 @@ class ServiceberegningAfpController(
         ]
     )
     fun simulerAfpForServiceberegning(
-        @RequestBody spec: ServiceberegningAfpSpecDto
+        @RequestBody spec: ServiceberegningAfpSpecDto,
+        request: HttpServletRequest
     ): ResponseEntity<ServiceberegningAfpResultDto> {
-        traceAid.begin()
+        traceAid.begin(request)
         countCall(functionName = FUNCTION_ID)
         log.info { "spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 

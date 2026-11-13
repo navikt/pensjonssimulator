@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.statistikk.StatistikkService
@@ -65,8 +66,11 @@ class TjenestepensjonPre2025Controller(
             )
         ]
     )
-    fun simulerV1(@RequestBody specV1: SimulerOffentligTjenestepensjonSpecV1): ResponseEntity<SimulerOffentligTjenestepensjonResultV1> {
-        traceAid.begin()
+    fun simulerV1(
+        @RequestBody specV1: SimulerOffentligTjenestepensjonSpecV1,
+        request: HttpServletRequest
+    ): ResponseEntity<SimulerOffentligTjenestepensjonResultV1> {
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
 
@@ -101,8 +105,11 @@ class TjenestepensjonPre2025Controller(
             )
         ]
     )
-    fun simulerV2(@RequestBody specV2: SimulerOffentligTjenestepensjonSpecV2): ResponseEntity<Any> {
-        traceAid.begin()
+    fun simulerV2(
+        @RequestBody specV2: SimulerOffentligTjenestepensjonSpecV2,
+        request: HttpServletRequest
+    ): ResponseEntity<Any> {
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID_V2 request: $specV2" }
         countCall(FUNCTION_ID_V2)
 
@@ -147,8 +154,11 @@ class TjenestepensjonPre2025Controller(
             )
         ]
     )
-    fun simulerV3(@RequestBody specV3: SimulerOffentligTjenestepensjonSpecV3): ResponseEntity<SimulerOffentligTjenestepensjonResultV3> {
-        traceAid.begin()
+    fun simulerV3(
+        @RequestBody specV3: SimulerOffentligTjenestepensjonSpecV3,
+        request: HttpServletRequest
+    ): ResponseEntity<SimulerOffentligTjenestepensjonResultV3> {
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
 

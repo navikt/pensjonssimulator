@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetAfpSimuleringFacade
 import no.nav.pensjon.simulator.common.api.ControllerBase
@@ -70,9 +71,10 @@ class FppController(
     )
     fun simulerForFppV1(
         @RequestParam("simuleringstype") simuleringType: SimuleringstypeDto,
-        @RequestBody spec: FppSimuleringSpecDto
+        @RequestBody spec: FppSimuleringSpecDto,
+        request: HttpServletRequest
     ): ResponseEntity<FppSimuleringResultDto> {
-        traceAid.begin()
+        traceAid.begin(request)
         countCall(functionName = FUNCTION_ID)
         log.info { "fpp v1 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 
@@ -104,9 +106,10 @@ class FppController(
     )
     fun simulerForFppV2(
         @RequestParam("simuleringstype") simuleringType: SimuleringstypeDto,
-        @RequestBody spec: FppSimuleringSpecDto
+        @RequestBody spec: FppSimuleringSpecDto,
+        request: HttpServletRequest
     ): ResponseEntity<FppSimuleringResultDtoV2> {
-        traceAid.begin()
+        traceAid.begin(request)
         countCall(functionName = FUNCTION_ID_V2)
         log.info { "fpp v2 spec ${jsonMapper.writeValueAsRedactedString(spec)}" }
 

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.metric.Metrics
@@ -39,7 +40,7 @@ import java.time.LocalDate
 class TjenestepensjonFra2025Controller(
     private val traceAid: TraceAid,
     private val tjenestepensjonFra2025Service: TjenestepensjonFra2025Service
-): ControllerBase(traceAid)  {
+) : ControllerBase(traceAid) {
     private val log = KotlinLogging.logger {}
 
     @PostMapping("v1/simuler-oftp/fra-2025")
@@ -59,9 +60,12 @@ class TjenestepensjonFra2025Controller(
             )
         ]
     )
-    fun simuler(@RequestBody specV1: SimulerOffentligTjenestepensjonFra2025SpecV1): SimulerOffentligTjenestepensjonFra2025ResultV1 {
+    fun simuler(
+        @RequestBody specV1: SimulerOffentligTjenestepensjonFra2025SpecV1,
+        request: HttpServletRequest
+    ): SimulerOffentligTjenestepensjonFra2025ResultV1 {
         log.debug { "Simulerer tjenestepensjon fra 2025 for spec: $specV1" }
-        traceAid.begin()
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
         try {
@@ -113,8 +117,11 @@ class TjenestepensjonFra2025Controller(
             )
         ]
     )
-    fun simulerV2(@RequestBody specV2: SimulerOffentligTjenestepensjonFra2025SpecV2): SimulerOffentligTjenestepensjonFra2025ResultV2 {
-        traceAid.begin()
+    fun simulerV2(
+        @RequestBody specV2: SimulerOffentligTjenestepensjonFra2025SpecV2,
+        request: HttpServletRequest
+    ): SimulerOffentligTjenestepensjonFra2025ResultV2 {
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID request: $specV2" }
         countCall(FUNCTION_ID)
         try {
@@ -167,6 +174,7 @@ class TjenestepensjonFra2025Controller(
             throw UgyldigSpecException("Fødselsdato før $MINSTE_FOEDSELSDATO støttes ikke")
         }
     }
+
     private fun validateSpecV2(spec: SimulerOffentligTjenestepensjonFra2025SpecV2) {
         if (spec.erApoteker) {
             throw UgyldigSpecException("Apoteker støttes ikke")

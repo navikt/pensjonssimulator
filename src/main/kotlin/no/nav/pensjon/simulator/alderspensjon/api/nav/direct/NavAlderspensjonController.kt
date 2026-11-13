@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
@@ -63,8 +64,11 @@ class NavAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(@RequestBody specV3: NavSimuleringSpecV3): NavSimuleringResultV3 {
-        traceAid.begin()
+    fun simulerAlderspensjon(
+        @RequestBody specV3: NavSimuleringSpecV3,
+        request: HttpServletRequest
+    ): NavSimuleringResultV3 {
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID request: $specV3" }
         countCall(FUNCTION_ID)
 

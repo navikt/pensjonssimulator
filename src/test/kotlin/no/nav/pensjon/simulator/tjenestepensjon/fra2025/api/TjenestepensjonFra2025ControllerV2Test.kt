@@ -35,7 +35,11 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
     val service = mockk<TjenestepensjonFra2025Service>()
     val controller = TjenestepensjonFra2025Controller(traceAid, service)
     val tpForholdListe = listOf(
-        Tjenestepensjonsforhold(tpNr = "3010", navn = "Statens Pensjonskasse", datoSistOpptjening = LocalDate.of(2025, 1, 1)),
+        Tjenestepensjonsforhold(
+            tpNr = "3010",
+            navn = "Statens Pensjonskasse",
+            datoSistOpptjening = LocalDate.of(2025, 1, 1)
+        ),
         Tjenestepensjonsforhold(tpNr = "4081", navn = "Storebrand", datoSistOpptjening = null)
     )
     val relevanteTpOrdninger = listOf(
@@ -83,12 +87,11 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
         test("skal akseptere spec med foedselsdato 1963-01-01") {
             every { service.simuler(any()) } returns (tpForholdListe to Result.success(dummySimulertTjenestepensjon()))
 
-            val result = controller.simulerV2(
+            controller.simulerV2(
                 specV2 = dummySpec(foedselsdato = LocalDate.of(1963, 1, 1)),
                 request = mockk()
-            )
+            ).simuleringsResultatStatus.resultatType shouldBe ResultatTypeDtoV2.SUCCESS
 
-            result.simuleringsResultatStatus.resultatType shouldBe ResultatTypeDtoV2.SUCCESS
             verify(exactly = 1) {
                 service.simuler(match { it.foedselsdato == LocalDate.of(1963, 1, 1) })
             }
@@ -130,7 +133,7 @@ class TjenestepensjonFra2025ControllerV2Test : FunSpec({
                     )
                     betingetTjenestepensjonErInkludert shouldBe false
                 }
-                relevanteTpOrdninger shouldBe relevanteTpOrdninger
+                this.relevanteTpOrdninger shouldBe relevanteTpOrdninger
                 serviceData shouldBe listOf("request", "response")
             }
             verify(exactly = 1) { service.simuler(expectedSpec) }

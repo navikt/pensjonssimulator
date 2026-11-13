@@ -3,7 +3,6 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning
 import no.nav.pensjon.simulator.core.domain.Avdoed
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
-import no.nav.pensjon.simulator.core.domain.regler.enum.LandkodeEnum
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
@@ -13,8 +12,6 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimulerOffentligTjenestepensjonSpecV2
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimuleringEtter2011SpecV2
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.SimuleringTypeSpecV2
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.api.acl.v2.UtenlandsperiodeForSimuleringV2
-import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
 import org.springframework.stereotype.Component
 
 @Component
@@ -45,8 +42,7 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             inntektEtterHeltUttakTom = specV2.simuleringEtter2011.inntektEtterHeltUttakTom(foedselsdato),
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,
-            utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map(::utlandPeriode)
-                .toMutableList(),
+            utlandPeriodeListe = source.utenlandsperiodeForSimuleringList.map { it.utlandPeriode() }.toMutableList(),
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
             inntektOver1GAntallAar = 0, // used for anonym only
@@ -80,29 +76,6 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             )
         else
             null
-
-    private fun utlandPeriode(source: UtenlandsperiodeForSimuleringV2) =
-        UtlandPeriode(
-            land = mapLand(source.land),
-            arbeidet = source.arbeidetIUtland,
-            fom = source.periodeFom,
-            tom = source.periodeTom
-        )
-
-    //TODO: make private or move
-    fun mapLand(land: String): LandkodeEnum =
-        irregularLandEnums[land] ?: LandkodeEnum.valueOf(land)
-
-    private val irregularLandEnums: Map<String, LandkodeEnum>
-        get() {
-            val land: MutableMap<String, LandkodeEnum> = mutableMapOf()
-            land["???"] = LandkodeEnum.P_UKJENT
-            land["349"] = LandkodeEnum.P_SPANSKE_OMR_AFRIKA
-            land["546"] = LandkodeEnum.P_SIKKIM
-            land["556"] = LandkodeEnum.P_YEMEN
-            land["669"] = LandkodeEnum.P_PANAMAKANALSONEN
-            return land
-        }
 
     fun avdoed(source: SimuleringEtter2011SpecV2): Avdoed? =
         source.fnrAvdod?.pid?.let {

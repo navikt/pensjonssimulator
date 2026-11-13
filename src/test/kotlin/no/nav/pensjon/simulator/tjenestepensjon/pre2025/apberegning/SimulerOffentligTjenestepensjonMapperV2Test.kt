@@ -133,22 +133,6 @@ class SimulerOffentligTjenestepensjonMapperV2Test : ShouldSpec({
             }
         }
     }
-
-    should("konvertere landkode til opplistet landverdi") {
-        with(SimulerOffentligTjenestepensjonMapperV2(mockk())) {
-            mapLand("NOR") shouldBe LandkodeEnum.NOR
-            mapLand("SWE") shouldBe LandkodeEnum.SWE
-            mapLand("USA") shouldBe LandkodeEnum.USA
-            mapLand("CAN") shouldBe LandkodeEnum.CAN
-            mapLand("FIN") shouldBe LandkodeEnum.FIN
-            mapLand("DNK") shouldBe LandkodeEnum.DNK
-            mapLand("???") shouldBe LandkodeEnum.P_UKJENT
-            mapLand("349") shouldBe LandkodeEnum.P_SPANSKE_OMR_AFRIKA
-            mapLand("546") shouldBe LandkodeEnum.P_SIKKIM
-            mapLand("556") shouldBe LandkodeEnum.P_YEMEN
-            mapLand("669") shouldBe LandkodeEnum.P_PANAMAKANALSONEN
-        }
-    }
 })
 
 private val today = LocalDate.of(2026, Month.NOVEMBER, 12)

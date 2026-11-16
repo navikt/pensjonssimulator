@@ -24,6 +24,9 @@ object DateUtil {
             .plusMonths(1)
             .withDayOfMonth(1)
 
+    fun fjoraaretsFoersteDag(): LocalDate =
+        LocalDate.now().minusYears(1).withDayOfYear(1)
+
     /**
      * Finner antall hele måneder i perioden f.o.m.-t.o.m. som befinner seg innenfor et gitt år.
      * T.o.m.-datoen kan være udefinert (dvs. periode uten slutt).

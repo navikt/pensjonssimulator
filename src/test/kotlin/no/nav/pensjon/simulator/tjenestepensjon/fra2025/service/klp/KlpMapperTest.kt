@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
@@ -13,7 +14,65 @@ import java.time.LocalDate
 class KlpMapperTest : ShouldSpec({
 
     val idag = LocalDate.now()
-    val imorgen = idag.plusDays(1)
+    val fjoraaretsFoersteDag = LocalDate.of(idag.year - 1, 1, 1)
+
+    val spec = OffentligTjenestepensjonFra2025SimuleringSpec(
+        pid = Pid("12345678901"),
+        sisteInntekt = 100000,
+        utlandAntallAar = 0,
+        epsHarPensjon = false,
+        epsHarInntektOver2G = false,
+        afpErForespurt = true,
+        uttaksdato = idag.plusYears(2).withDayOfMonth(1),
+        foedselsdato = LocalDate.of(1963, 1, 1),
+        fremtidigeInntekter = emptyList(),
+        gjelderApoteker = false
+    )
+    val fremtidigeInntekter = listOf(
+        TjenestepensjonInntektSpec(fom = idag.plusYears(1), aarligInntekt = 200000),
+        TjenestepensjonInntektSpec(fom = idag.plusYears(2), aarligInntekt = 0)
+    )
+
+    context("inntekter") {
+        should("start current income today by default without future income") {
+            KlpMapper.inntekter(spec) shouldBe listOf(
+                FremtidigInntekt(fom = idag, aarligInntektBeloep = 100000)
+            )
+        }
+
+        should("start current income today by default and preserve future income") {
+            KlpMapper.inntekter(spec.copy(fremtidigeInntekter = fremtidigeInntekter)) shouldBe listOf(
+                FremtidigInntekt(fom = idag, aarligInntektBeloep = 100000),
+                FremtidigInntekt(fom = fremtidigeInntekter[0].fom, aarligInntektBeloep = 200000),
+                FremtidigInntekt(fom = fremtidigeInntekter[1].fom, aarligInntektBeloep = 0)
+            )
+        }
+
+        should("start current income on January 1 last year when selected without future income") {
+            KlpMapper.inntekter(spec, KlpMapper::inntektMedStartFraFjoraaret) shouldBe listOf(
+                FremtidigInntekt(fom = fjoraaretsFoersteDag, aarligInntektBeloep = 100000)
+            )
+        }
+
+        should("only change current income start when selecting last year") {
+            KlpMapper.inntekter(
+                spec.copy(fremtidigeInntekter = fremtidigeInntekter),
+                KlpMapper::inntektMedStartFraFjoraaret
+            ) shouldBe listOf(
+                FremtidigInntekt(fom = fjoraaretsFoersteDag, aarligInntektBeloep = 100000),
+                FremtidigInntekt(fom = fremtidigeInntekter[0].fom, aarligInntektBeloep = 200000),
+                FremtidigInntekt(fom = fremtidigeInntekter[1].fom, aarligInntektBeloep = 0)
+            )
+        }
+
+        should("pass current income to a custom mapper") {
+            val start = LocalDate.of(2020, 6, 1)
+
+            KlpMapper.inntekter(spec) { aarligInntekt ->
+                FremtidigInntekt(fom = start, aarligInntektBeloep = aarligInntekt)
+            } shouldBe listOf(FremtidigInntekt(fom = start, aarligInntektBeloep = 100000))
+        }
+    }
 
     context("fromResponseDto") {
         should("map KLP response DTO to 'simulert tjenestepensjon' domain object") {
@@ -139,7 +198,7 @@ class KlpMapperTest : ShouldSpec({
                 fremtidigInntektsListe shouldHaveSize 4
                 with(fremtidigInntektsListe[0]) {
                     arligInntekt shouldBe request.sisteInntekt
-                    fraOgMedDato.isEqual(idag) || fraOgMedDato.isBefore(imorgen) shouldBe true
+                    fraOgMedDato shouldBe idag
                 }
                 with(fremtidigInntektsListe[1]) {
                     arligInntekt shouldBe expectedInntekter[0].aarligInntekt
@@ -186,7 +245,7 @@ class KlpMapperTest : ShouldSpec({
                 fremtidigInntektsListe shouldHaveSize 1
                 with(fremtidigInntektsListe[0]) {
                     arligInntekt shouldBe request.sisteInntekt
-                    fraOgMedDato.isEqual(idag) || fraOgMedDato.isBefore(imorgen) shouldBe true
+                    fraOgMedDato shouldBe idag
                 }
                 arIUtlandetEtter16 shouldBe request.utlandAntallAar
                 epsPensjon shouldBe true

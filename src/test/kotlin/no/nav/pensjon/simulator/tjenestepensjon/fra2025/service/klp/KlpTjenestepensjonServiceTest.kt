@@ -7,7 +7,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
+import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonYtelseType
@@ -16,6 +18,8 @@ import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestep
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.OffentligTjenestepensjonFra2025SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonFra2025Client
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.TjenestepensjonInntektSpec
+import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.AfpYtelseMapper
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.nav.SammenlignAfpService
 import java.time.LocalDate
 
@@ -44,9 +48,42 @@ class KlpTjenestepensjonServiceTest : ShouldSpec({
         }
         verify(exactly = 1) {
             sammenligner.sammenlignOgLoggAfp(
-                spec, KlpMapper::inntekter, clientResult.getOrThrow(), EgressService.KLP.shortName
+                spec, any(), clientResult.getOrThrow(), EgressService.KLP.shortName
             )
         }
+    }
+
+    should("sammenligne AFP med inntekt fra januar i fjor uten aa endre KLP-forespoerselen") {
+        val idag = LocalDate.now()
+        val spec = spec().copy(
+            fremtidigeInntekter = listOf(
+                TjenestepensjonInntektSpec(fom = idag.plusYears(1), aarligInntekt = 600000),
+                TjenestepensjonInntektSpec(fom = idag.plusYears(2), aarligInntekt = 0)
+            )
+        )
+        val clientResult = success()
+        val mapper = slot<(OffentligTjenestepensjonFra2025SimuleringSpec) -> List<FremtidigInntekt>>()
+        every { client.simuler(spec, tpNummer = "3010") } returns clientResult
+
+        service.simuler(spec, tpNummer = "3010").isSuccess shouldBe true
+
+        verify(exactly = 1) {
+            sammenligner.sammenlignOgLoggAfp(
+                spec, capture(mapper), clientResult.getOrThrow(), EgressService.KLP.shortName
+            )
+        }
+        AfpYtelseMapper.toLivsvarigOffentligAfpSpec(spec, mapper.captured).fremtidigInntektListe shouldBe listOf(
+            FremtidigInntekt(fom = LocalDate.of(idag.year - 1, 1, 1), aarligInntektBeloep = 500000),
+            FremtidigInntekt(fom = spec.fremtidigeInntekter[0].fom, aarligInntektBeloep = 600000),
+            FremtidigInntekt(fom = spec.fremtidigeInntekter[1].fom, aarligInntektBeloep = 0)
+        )
+        KlpMapper.toRequestDto(spec).fremtidigInntektsListe.map {
+            FremtidigInntekt(fom = it.fraOgMedDato, aarligInntektBeloep = it.arligInntekt)
+        } shouldBe listOf(
+            FremtidigInntekt(fom = idag, aarligInntektBeloep = 500000),
+            FremtidigInntekt(fom = spec.fremtidigeInntekter[0].fom, aarligInntektBeloep = 600000),
+            FremtidigInntekt(fom = spec.fremtidigeInntekter[1].fom, aarligInntektBeloep = 0)
+        )
     }
 
     should("ikke simulere med betinget tjenestepensjon fra KLP") {

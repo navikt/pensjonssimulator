@@ -82,7 +82,6 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
             forventetInntektBeloep = 2000,
             inntektUnderGradertUttakBeloep = 4000,
             inntektEtterHeltUttakBeloep = 5000,
-            inntektEtterHeltUttakAntallAar = 9,
             inntektEtterHeltUttakTom = LocalDate.of(2038, 12, 20),
             foedselAar = 0, // brukes ikke i denne kontekst
             utlandAntallAar = 0, // siden utlandPeriodeListe brukes isteden
@@ -152,7 +151,6 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
             forventetInntektBeloep = 2000,
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 5000,
-            inntektEtterHeltUttakAntallAar = 8,
             inntektEtterHeltUttakTom = LocalDate.of(2037, 7, 20),
             foedselAar = 0,
             utlandAntallAar = 0,
@@ -175,6 +173,6 @@ class NavSimuleringSpecMapperV3Test : ShouldSpec({
 })
 
 private fun arrangeInntekt(): InntektService =
-    mockk<InntektService>().apply {
+    mockk {
         every { hentSisteMaanedsInntektOver1G(false) } returns 100000
     }

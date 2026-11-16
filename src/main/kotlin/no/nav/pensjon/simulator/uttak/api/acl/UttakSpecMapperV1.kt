@@ -36,7 +36,6 @@ class UttakSpecMapperV1(val personService: GeneralPersonService) {
             forventetInntektBeloep = 0, // fremtidigInntektListe brukes isteden
             inntektUnderGradertUttakBeloep = 0, // ditto
             inntektEtterHeltUttakBeloep = 0, // ditto
-            inntektEtterHeltUttakAntallAar = null, // ditto
             inntektEtterHeltUttakTom = null, // ditto
             foedselAar = foedselsdato.year,
             utlandAntallAar = source.arIUtlandetEtter16 ?: 0,

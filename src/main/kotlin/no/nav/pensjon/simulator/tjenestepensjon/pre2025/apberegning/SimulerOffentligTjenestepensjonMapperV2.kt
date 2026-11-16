@@ -38,7 +38,6 @@ class SimulerOffentligTjenestepensjonMapperV2(val personService: GeneralPersonSe
             forventetInntektBeloep = source.forventetInntekt ?: 0,
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak,
-            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak,
             inntektEtterHeltUttakTom = specV2.simuleringEtter2011.inntektEtterHeltUttakTom(foedselsdato),
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,

@@ -49,7 +49,6 @@ class SimuleringSpecMapperForNorskPensjon(
             forventetInntektBeloep = source.aarligInntektFoerUttak ?: 0,
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
             inntektEtterHeltUttakBeloep = heltUttak?.aarligInntekt ?: foersteUttak.aarligInntekt ?: 0,
-            inntektEtterHeltUttakAntallAar = source.antallInntektsaarEtterHeltUttak,
             inntektEtterHeltUttakTom = heltUttakInntektTom(
                 foersteUttakDato = foersteUttakFom,
                 heltUttakDato = heltUttak?.fomDato,

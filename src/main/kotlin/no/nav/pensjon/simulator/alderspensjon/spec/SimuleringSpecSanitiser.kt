@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.alderspensjon.spec
 
-import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDagNesteMaaned
 import java.time.LocalDate
@@ -19,12 +18,7 @@ object SimuleringSpecSanitiser {
                 foersteUttakDato = newGradertUttak,
                 uttaksgrad = spec.uttakGrad,
                 heltUttakDato = newHeltUttakFom,
-                inntektEtterHeltUttakTom = heltUttakInntektTom(
-                    foersteUttakDato = newGradertUttak,
-                    heltUttakDato = newHeltUttakFom,
-                    inntektEtterHeltUttakAntallAar = spec.inntektEtterHeltUttakAntallAar
-                ),
-                inntektEtterHeltUttakAntallAar = spec.inntektEtterHeltUttakAntallAar
+                inntektEtterHeltUttakTom = spec.inntektEtterHeltUttakTom
             )
         else
             spec

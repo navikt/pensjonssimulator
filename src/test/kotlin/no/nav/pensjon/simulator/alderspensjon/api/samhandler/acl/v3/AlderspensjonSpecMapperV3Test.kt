@@ -56,7 +56,6 @@ class AlderspensjonSpecMapperV3Test : ShouldSpec({
             forventetInntektBeloep = 0,
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 0,
-            inntektEtterHeltUttakAntallAar = null,
             inntektEtterHeltUttakTom = null,
             foedselAar = 0,
             utlandAntallAar = 1,
@@ -83,8 +82,9 @@ class AlderspensjonSpecMapperV3Test : ShouldSpec({
     }
 })
 
-private fun arrangeSimuleringstype(): SimuleringstypeDeducer = mockk<SimuleringstypeDeducer> {
-    every {
-        deduceSimuleringstype(any(), any(), any())
-    } returns SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
-}
+private fun arrangeSimuleringstype(): SimuleringstypeDeducer =
+    mockk {
+        every {
+            deduceSimuleringstype(any(), any(), any())
+        } returns SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
+    }

@@ -37,7 +37,6 @@ class SimuleringSpecMapperForNorskPensjonTest : ShouldSpec({
                 forventetInntektBeloep = 2000,
                 inntektUnderGradertUttakBeloep = 0,
                 inntektEtterHeltUttakBeloep = 1000,
-                inntektEtterHeltUttakAntallAar = 2,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31),
                 foedselAar = 0,
                 utlandAntallAar = 1,

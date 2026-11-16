@@ -110,23 +110,24 @@ class SimulerOffentligTjenestepensjonMapperV3Test : FunSpec({
 
         val result = mapper().fromDto(specV3(source))
 
-        result.type shouldBe SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
-        result.sivilstatus shouldBe SivilstatusType.GIFT
-        result.epsHarPensjon shouldBe true
-        result.epsHarInntektOver2G shouldBe true
-        result.foersteUttakDato shouldBe LocalDate.of(2029, 1, 1)
-        result.heltUttakDato shouldBe LocalDate.of(2030, 6, 1)
-        result.uttakGrad shouldBe UttakGradKode.P_50
-        result.pid shouldBe Pid(pidValue)
-        result.foedselDato shouldBe foedselsdato
-        result.forventetInntektBeloep shouldBe 500000
-        result.inntektUnderGradertUttakBeloep shouldBe 250000
-        result.inntektEtterHeltUttakBeloep shouldBe 100000
-        result.inntektEtterHeltUttakAntallAar shouldBe 3
-        result.inntektEtterHeltUttakTom shouldBe LocalDate.of(2033, 5, 31)
-        result.foedselAar shouldBe 1963
-        result.utlandAntallAar shouldBe 5
-        result.flyktning shouldBe false
+        with(result) {
+            type shouldBe SimuleringTypeEnum.ALDER_M_AFP_PRIVAT
+            sivilstatus shouldBe SivilstatusType.GIFT
+            epsHarPensjon shouldBe true
+            epsHarInntektOver2G shouldBe true
+            foersteUttakDato shouldBe LocalDate.of(2029, 1, 1)
+            heltUttakDato shouldBe LocalDate.of(2030, 6, 1)
+            uttakGrad shouldBe UttakGradKode.P_50
+            pid shouldBe Pid(pidValue)
+            foedselDato shouldBe foedselsdato
+            forventetInntektBeloep shouldBe 500000
+            inntektUnderGradertUttakBeloep shouldBe 250000
+            inntektEtterHeltUttakBeloep shouldBe 100000
+            inntektEtterHeltUttakTom shouldBe LocalDate.of(2033, 5, 31)
+            foedselAar shouldBe 1963
+            utlandAntallAar shouldBe 5
+            flyktning shouldBe false
+        }
     }
 
     // --- fromDto: default values ---

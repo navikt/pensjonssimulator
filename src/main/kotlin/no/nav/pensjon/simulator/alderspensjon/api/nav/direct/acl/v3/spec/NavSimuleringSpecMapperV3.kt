@@ -51,7 +51,6 @@ class NavSimuleringSpecMapperV3(
             inntektUnderGradertUttakBeloep = gradertUttak?.aarligInntekt ?: 0,
             heltUttakDato = gradertUttak?.let { heltUttak.uttakFom.toNorwegianLocalDate() },
             inntektEtterHeltUttakBeloep = heltUttak.aarligInntekt,
-            inntektEtterHeltUttakAntallAar = heltUttak.antallArInntektEtterHeltUttak,
             inntektEtterHeltUttakTom = heltUttak.inntektTom.toNorwegianLocalDate(),
             utlandAntallAar = 0, // only for anonym
             sivilstatus = NavSivilstandSpecV3.fromExternalValue(source.sivilstand.name).internalValue,

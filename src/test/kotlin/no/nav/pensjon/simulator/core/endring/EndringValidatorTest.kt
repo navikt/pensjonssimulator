@@ -34,6 +34,14 @@ class EndringValidatorTest : FunSpec({
         }
     }
 
+    test("'validate' aksepterer ENDR_AP_M_AFP_PRIVAT simuleringstype") {
+        shouldNotThrowAny {
+            EndringValidator.validate(
+                endringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT)
+            )
+        }
+    }
+
     test("'validate' aksepterer ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG simuleringstype") {
         shouldNotThrowAny {
             EndringValidator.validate(
@@ -304,7 +312,6 @@ private fun endringSpec(
     forventetInntektBeloep = 250000,
     inntektUnderGradertUttakBeloep = 125000,
     inntektEtterHeltUttakBeloep = 67500,
-    inntektEtterHeltUttakAntallAar = 5,
     inntektEtterHeltUttakTom = null,
     foedselAar = 1963,
     utlandAntallAar = 0,

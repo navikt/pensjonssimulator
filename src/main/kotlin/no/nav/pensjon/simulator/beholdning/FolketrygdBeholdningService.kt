@@ -65,7 +65,6 @@ class FolketrygdBeholdningService(
             forventetInntektBeloep = 0, // fremtidigInntektListe brukes isteden
             inntektUnderGradertUttakBeloep = 0, // ditto
             inntektEtterHeltUttakBeloep = 0, // ditto
-            inntektEtterHeltUttakAntallAar = 0, // ditto
             inntektEtterHeltUttakTom = null, // ditto
             foedselDato = foedselsdato,
             avdoed = null,

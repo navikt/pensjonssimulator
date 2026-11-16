@@ -16,7 +16,7 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
 
     "mapper bruker alle felter i SimuleringsperioderSpec" {
         val foedselsdato = LocalDate.now()
-        val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
+        val simSpec = simuleringSpecSimuleringsperioder()
         val offentligAfpSpec = SimulertOffentligAfp(1, 2)
         val stillingsprosentSpec = StillingsprosentSpec(StillingsprOffCodeV2.P_80, StillingsprOffCodeV2.P_50)
         SimuleringsperioderSpecMapper.createSpec(simSpec, offentligAfpSpec, stillingsprosentSpec, foedselsdato)
@@ -28,14 +28,13 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
                 this.simuleringType shouldBe simSpec.type
                 this.foersteUttakDato shouldBe simSpec.foersteUttakDato
                 this.heltUttakDato shouldBe simSpec.heltUttakDato
-                this.inntektEtterHeltUttakAntallAar shouldBe 5
                 this.inntektEtterHeltUttakTom shouldBe LocalDate.of(2031, 12, 31)
             }
     }
 
     "afp etterfulgt av alder satt til false ved manglende simulert afp" {
         val foedselsdato = LocalDate.now()
-        val simSpec = simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak = 5)
+        val simSpec = simuleringSpecSimuleringsperioder()
         val stillingsprosentSpec = StillingsprosentSpec(StillingsprOffCodeV2.P_80, StillingsprOffCodeV2.P_50)
         SimuleringsperioderSpecMapper.createSpec(simSpec, null, stillingsprosentSpec, foedselsdato)
             .apply {
@@ -44,38 +43,38 @@ class SimuleringsperioderSpecMapperTest : StringSpec({
     }
 })
 
-fun simuleringSpecSimuleringsperioder(antallAarMedInntektEtterHeltUttak: Int?) = SimuleringSpec(
-    type = SimuleringTypeEnum.ALDER,
-    sivilstatus = SivilstatusType.GIFT,
-    epsHarPensjon = false,
-    foersteUttakDato = LocalDate.of(2027, 10, 1),
-    heltUttakDato = LocalDate.of(2029, 11, 1),
-    pid = Pid("12345678910"),
-    foedselDato = LocalDate.of(1962, 10, 2),
-    avdoed = null,
-    isTpOrigSimulering = false,
-    simulerForTp = false,
-    uttakGrad = UttakGradKode.P_80,
-    forventetInntektBeloep = 500_000,
-    inntektUnderGradertUttakBeloep = 0,
-    inntektEtterHeltUttakBeloep = 0,
-    inntektEtterHeltUttakAntallAar = antallAarMedInntektEtterHeltUttak,
-    inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31),
-    foedselAar = 1960,
-    utlandAntallAar = 0,
-    utlandPeriodeListe = mutableListOf(),
-    fremtidigInntektListe = mutableListOf(),
-    brukFremtidigInntekt = false,
-    inntektOver1GAntallAar = 0,
-    flyktning = null,
-    epsHarInntektOver2G = false,
-    livsvarigOffentligAfp = null,
-    tidsbegrensetOffentligAfp = null,
-    erAnonym = false,
-    ignoreAvslag = false,
-    brukBeregnetBeholdningVedPensjonsberegning = true,
-    isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
-    onlyVilkaarsproeving = false,
-    epsKanOverskrives = false,
-    registerData = null
-)
+private fun simuleringSpecSimuleringsperioder() =
+    SimuleringSpec(
+        type = SimuleringTypeEnum.ALDER,
+        sivilstatus = SivilstatusType.GIFT,
+        epsHarPensjon = false,
+        foersteUttakDato = LocalDate.of(2027, 10, 1),
+        heltUttakDato = LocalDate.of(2029, 11, 1),
+        pid = Pid("12345678910"),
+        foedselDato = LocalDate.of(1962, 10, 2),
+        avdoed = null,
+        isTpOrigSimulering = false,
+        simulerForTp = false,
+        uttakGrad = UttakGradKode.P_80,
+        forventetInntektBeloep = 500_000,
+        inntektUnderGradertUttakBeloep = 0,
+        inntektEtterHeltUttakBeloep = 0,
+        inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31),
+        foedselAar = 1960,
+        utlandAntallAar = 0,
+        utlandPeriodeListe = mutableListOf(),
+        fremtidigInntektListe = mutableListOf(),
+        brukFremtidigInntekt = false,
+        inntektOver1GAntallAar = 0,
+        flyktning = null,
+        epsHarInntektOver2G = false,
+        livsvarigOffentligAfp = null,
+        tidsbegrensetOffentligAfp = null,
+        erAnonym = false,
+        ignoreAvslag = false,
+        brukBeregnetBeholdningVedPensjonsberegning = true,
+        isOutputSimulertBeregningsinformasjonForAllKnekkpunkter = false,
+        onlyVilkaarsproeving = false,
+        epsKanOverskrives = false,
+        registerData = null
+    )

@@ -48,6 +48,6 @@ class SimuleringstypeDeducer(private val vedtakService: VedtakService) {
             } ?: if (erFoerstegangsuttak)
                 if (inkluderPrivatAfp) SimuleringTypeEnum.ALDER_M_AFP_PRIVAT else SimuleringTypeEnum.ALDER
             else
-                SimuleringTypeEnum.ENDR_ALDER
+                if (inkluderPrivatAfp) SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT else SimuleringTypeEnum.ENDR_ALDER
     }
 }

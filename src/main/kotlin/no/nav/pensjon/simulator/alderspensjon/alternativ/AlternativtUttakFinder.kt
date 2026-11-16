@@ -24,7 +24,6 @@ class AlternativtUttakFinder(
     private val simuleringSpec: SimuleringSpec,
     private val normalderService: NormertPensjonsalderService,
     private val outputConverter: SimulatorOutputConverter,
-    private val heltUttakInntektTomAlderAar: Int?, // behøves bare ved helt uttak når fom/tom angis i form av alder
     private val time: Time
 ) {
     private val foedselsdato: LocalDate by lazy {
@@ -54,8 +53,7 @@ class AlternativtUttakFinder(
             maxUttaksgrad,
             keepUttaksgradConstant,
             foersteUttakMinAlder,
-            andreUttakMinAlder,
-            heltUttakInntektTomAlderAar
+            andreUttakMinAlder
         )
 
         val searchResult: AlternativSimuleringResult? =

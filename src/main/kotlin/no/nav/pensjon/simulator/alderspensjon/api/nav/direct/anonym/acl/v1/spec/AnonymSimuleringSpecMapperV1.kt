@@ -23,7 +23,6 @@ object AnonymSimuleringSpecMapperV1 {
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             heltUttakDato = source.heltUttakDato,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0,
-            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak ?: 0,
             inntektEtterHeltUttakTom = inntektTom(source),
             utlandAntallAar = source.utenlandsopphold ?: 0,
             sivilstatus = AnonymSivilstandSpecV1.fromExternalValue(source.sivilstatus).internalValue,

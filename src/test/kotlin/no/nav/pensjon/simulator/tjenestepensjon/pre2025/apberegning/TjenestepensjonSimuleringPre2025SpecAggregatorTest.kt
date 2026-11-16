@@ -142,7 +142,6 @@ private fun simuleringSpec(
     forventetInntektBeloep = 500_000,
     inntektUnderGradertUttakBeloep = 400_000,
     inntektEtterHeltUttakBeloep = 0,
-    inntektEtterHeltUttakAntallAar = null,
     inntektEtterHeltUttakTom = LocalDate.of(2031, Month.FEBRUARY, 28),
     foedselAar = 1960,
     utlandAntallAar = 0,

@@ -530,7 +530,6 @@ private fun createSimuleringSpec(
     forventetInntektBeloep = 500000,
     inntektUnderGradertUttakBeloep = 0,
     inntektEtterHeltUttakBeloep = 0,
-    inntektEtterHeltUttakAntallAar = 0,
     inntektEtterHeltUttakTom = null,
     foedselAar = 1963,
     utlandAntallAar = utlandPeriodeListe.size,

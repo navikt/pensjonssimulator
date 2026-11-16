@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.pre2025.apberegning.aggregate.s
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.StillingsprosentSpec
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertOffentligAfp
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 object SimuleringsperioderSpecMapper {
@@ -21,7 +22,7 @@ object SimuleringsperioderSpecMapper {
             simuleringType = simuleringSpec.type,
             foersteUttakDato = simuleringSpec.foersteUttakDato!!,
             heltUttakDato = simuleringSpec.heltUttakDato,
-            inntektEtterHeltUttakAntallAar = simuleringSpec.inntektEtterHeltUttakAntallAar ?: 0,
             inntektEtterHeltUttakTom = simuleringSpec.inntektEtterHeltUttakTom
+                ?: throw BadSpecException("SimuleringsperioderSpecMapper melder at inntektEtterHeltUttakTom mangler i SimuleringSpec")
         )
 }

@@ -37,7 +37,6 @@ object AlderspensjonSpecMapper {
             forventetInntektBeloep = 0, // fremtidigInntektListe is used instead
             inntektUnderGradertUttakBeloep = 0, // fremtidigInntektListe is used instead
             inntektEtterHeltUttakBeloep = 0, // fremtidigInntektListe is used instead
-            inntektEtterHeltUttakAntallAar = null, // fremtidigInntektListe is used instead
             inntektEtterHeltUttakTom = null, // ditto
             foedselAar = foedselsdato.year,
             utlandAntallAar = source.antallAarUtenlandsEtter16,

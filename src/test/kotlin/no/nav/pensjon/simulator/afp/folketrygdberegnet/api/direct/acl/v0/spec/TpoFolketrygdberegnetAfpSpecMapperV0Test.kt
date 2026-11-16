@@ -58,7 +58,6 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : ShouldSpec({
             forventetInntektBeloep shouldBe 500000
             inntektUnderGradertUttakBeloep shouldBe 250000
             inntektEtterHeltUttakBeloep shouldBe 100000
-            inntektEtterHeltUttakAntallAar shouldBe 3
             inntektEtterHeltUttakTom shouldBe LocalDate.of(2031, 12, 31)
             utlandAntallAar shouldBe 5
             epsHarInntektOver2G shouldBe true
@@ -97,12 +96,13 @@ class TpoFolketrygdberegnetAfpSpecMapperV0Test : ShouldSpec({
 
         val result = mapper().fromSimuleringSpecV0(source)
 
-        result.forventetInntektBeloep shouldBe 0
-        result.inntektUnderGradertUttakBeloep shouldBe 0
-        result.inntektEtterHeltUttakBeloep shouldBe 0
-        result.inntektEtterHeltUttakAntallAar shouldBe 0
-        result.inntektEtterHeltUttakTom shouldBe null
-        result.utlandAntallAar shouldBe 0
+        with(result) {
+            forventetInntektBeloep shouldBe 0
+            inntektUnderGradertUttakBeloep shouldBe 0
+            inntektEtterHeltUttakBeloep shouldBe 0
+            inntektEtterHeltUttakTom shouldBe null
+            utlandAntallAar shouldBe 0
+        }
     }
 
     should("default foersteUttakDato to null when forsteUttakDato is null") {

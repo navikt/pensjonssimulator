@@ -47,7 +47,6 @@ class UttakSpecMapperV1Test : ShouldSpec({
             forventetInntektBeloep = 0,
             inntektUnderGradertUttakBeloep = 0,
             inntektEtterHeltUttakBeloep = 0,
-            inntektEtterHeltUttakAntallAar = null,
             inntektEtterHeltUttakTom = null,
             foedselAar = 1964,
             utlandAntallAar = 5,

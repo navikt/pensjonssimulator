@@ -27,7 +27,6 @@ class AlternativtUttakService(
         val pensjonEllerAlternativ: SimulertPensjonEllerAlternativ =
             findAlternativtUttak(
                 spec,
-                heltUttakInntektTomAlderAar = heltUttak.inntektTom.alder.aar,
                 foersteUttakAngittAlder = foersteUttakAlder(gradertUttak, heltUttak),
                 andreUttakAngittAlder = andreUttakAlder(gradertUttak, heltUttak),
                 maxUttaksgrad = gradertUttak?.grad ?: UttakGradKode.P_100
@@ -43,7 +42,6 @@ class AlternativtUttakService(
 
     private fun findAlternativtUttak(
         spec: SimuleringSpec,
-        heltUttakInntektTomAlderAar: Int,
         foersteUttakAngittAlder: Alder,
         andreUttakAngittAlder: Alder?, // null if not gradert
         maxUttaksgrad: UttakGradKode
@@ -53,7 +51,6 @@ class AlternativtUttakService(
             simuleringSpec = spec,
             normalderService,
             outputConverter,
-            heltUttakInntektTomAlderAar,
             time
         )
 

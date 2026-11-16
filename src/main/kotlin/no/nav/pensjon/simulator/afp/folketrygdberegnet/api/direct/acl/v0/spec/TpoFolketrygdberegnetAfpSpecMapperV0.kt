@@ -43,7 +43,6 @@ class TpoFolketrygdberegnetAfpSpecMapperV0(val personService: GeneralPersonServi
             forventetInntektBeloep = source.forventetInntekt ?: 0,
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak ?: 0,
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
             inntektEtterHeltUttakTom = heltUttakInntektTom(
                 foersteUttakDato = foersteUttakDato,
                 inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar

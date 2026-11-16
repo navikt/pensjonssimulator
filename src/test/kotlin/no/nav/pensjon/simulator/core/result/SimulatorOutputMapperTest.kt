@@ -720,7 +720,6 @@ private fun createSimuleringSpec(
     forventetInntektBeloep = 0,
     inntektUnderGradertUttakBeloep = 0,
     inntektEtterHeltUttakBeloep = 0,
-    inntektEtterHeltUttakAntallAar = 0,
     inntektEtterHeltUttakTom = null,
     foedselAar = 1964,
     utlandAntallAar = 0,

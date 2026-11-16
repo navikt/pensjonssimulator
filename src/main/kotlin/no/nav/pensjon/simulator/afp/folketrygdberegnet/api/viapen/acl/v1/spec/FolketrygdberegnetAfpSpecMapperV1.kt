@@ -43,7 +43,6 @@ class FolketrygdberegnetAfpSpecMapperV1(val personService: GeneralPersonService)
             forventetInntektBeloep = validatedInntekt(source.forventetInntekt),
             inntektUnderGradertUttakBeloep = validatedInntekt(source.inntektUnderGradertUttak),
             inntektEtterHeltUttakBeloep = validatedInntekt(source.inntektEtterHeltUttak),
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar,
             inntektEtterHeltUttakTom = heltUttakInntektTom(
                 foersteUttakDato = foersteUttakDato,
                 inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar

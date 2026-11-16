@@ -774,7 +774,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 uttakGrad = UttakGradKode.P_100,
                 forventetInntektBeloep = 0,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 3,
                 inntektEtterHeltUttakTom = LocalDate.of(2028, 12, 31)
             )
 
@@ -820,7 +819,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 uttakGrad = UttakGradKode.P_100,
                 forventetInntektBeloep = 0,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 0,
                 inntektEtterHeltUttakTom = null
             )
 
@@ -1096,7 +1094,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 foersteUttakDato = LocalDate.of(2026, 6, 1),
                 heltUttakDato = null,
                 inntektEtterHeltUttakBeloep = 150000,
-                inntektEtterHeltUttakAntallAar = 3,
                 inntektEtterHeltUttakTom = LocalDate.of(2029, 5, 31)
             )
 
@@ -1251,6 +1248,26 @@ class KravhodeCreatorTest : ShouldSpec({
             val creator = createKravhodeCreatorForEndring()
             val spec = simuleringSpec().copy(
                 type = SimuleringTypeEnum.ENDR_ALDER,
+                foersteUttakDato = LocalDate.of(2026, 1, 1),
+                heltUttakDato = null,
+                uttakGrad = UttakGradKode.P_100
+            )
+            val forrigeResultat = mockk<AbstraktBeregningsResultat>()
+            every { forrigeResultat.kravId } returns 123L
+
+            val kravhode = creator.opprettKravhode(
+                kravhodeSpec = KravhodeSpec(spec, forrigeResultat, 123000),
+                person = penPerson(),
+                virkningDatoGrunnlagListe = emptyList()
+            )
+
+            kravhode shouldNotBe null
+        }
+
+        should("bruke endringPersongrunnlag for ENDR_AP_M_AFP_PRIVAT") {
+            val creator = createKravhodeCreatorForEndring()
+            val spec = simuleringSpec().copy(
+                type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT,
                 foersteUttakDato = LocalDate.of(2026, 1, 1),
                 heltUttakDato = null,
                 uttakGrad = UttakGradKode.P_100
@@ -1900,7 +1917,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 forventetInntektBeloep = 600000,
                 inntektUnderGradertUttakBeloep = 300000,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 2,
                 inntektEtterHeltUttakTom = null,
                 inntektOver1GAntallAar = 0
             )

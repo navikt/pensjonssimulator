@@ -4,7 +4,6 @@ import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.UttakAlderDiscriminator
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
-import no.nav.pensjon.simulator.core.inntekt.InntektUtil.heltUttakInntektTom
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
@@ -30,7 +29,6 @@ class IndexBasedSimulering(
     keepUttaksgradConstant: Boolean,
     private val foersteUttakMinAlder: Alder,
     private val andreUttakMinAlder: Alder?,
-    private val heltUttakInntektTomAlderAar: Int? // behøves bare ved helt uttak når fom/tom angis i form av alder
 ) {
     private val log = LoggerFactory.getLogger(IndexBasedSimulering::class.java)
     private val gradert = andreUttakAlderValueCount != null
@@ -73,8 +71,7 @@ class IndexBasedSimulering(
                 foersteUttakDato = parameters.gradertUttakFom ?: parameters.heltUttakFom,
                 uttaksgrad = parameters.uttakGrad,
                 heltUttakDato = parameters.heltUttakFom,
-                inntektEtterHeltUttakTom = parameters.inntektEtterHeltUttakTom,
-                inntektEtterHeltUttakAntallAar = parameters.inntektEtterHeltUttakAntallAar
+                inntektEtterHeltUttakTom = parameters.inntektEtterHeltUttakTom
             )
 
             val simulertPensjon: SimulatorOutput = discriminator.simuler(indexSimulatorSpec)
@@ -125,28 +122,13 @@ class IndexBasedSimulering(
         val heltUttakFom: LocalDate = uttakDatoKandidat(foedselsdato, foersteUttakMinAlder, heltUttakAlderIndex)
         val uttaksgrad = UttakGradKode.P_100
 
-        val inntektEtterHeltUttakAntallAar =
-            if (simuleringSpec.inntektEtterHeltUttakAntallAar == null && heltUttakInntektTomAlderAar != null)
-            // antallArInntektEtterHeltUttak avhenger her av heltUttakFom (som har vært ukjent inntil nå)
-            // Nå er heltUttakFom kjent, så antallArInntektEtterHeltUttak kan utledes:
-                foedselsdato.year + heltUttakInntektTomAlderAar - heltUttakFom.year + 1 // +1 p.g.a. fra/til OG MED
-            else
-                foedselsdato.year + (simuleringSpec.inntektEtterHeltUttakAntallAar
-                    ?: 0) - heltUttakFom.year + 1 // +1, siden fra/til OG MED
-
-        val inntektEtterHeltUttakTom = heltUttakInntektTom(
-            foersteUttakDato = heltUttakFom, // helt uttak er første uttak når gradert uttak ikke benyttes
-            inntektEtterHeltUttakAntallAar = inntektEtterHeltUttakAntallAar
-        )
-
         return AlternativSimuleringSpec(
             gradertUttakFom = null,
             gradertUttakAlderIndex = null,
             uttaksgrad,
             heltUttakFom,
             heltUttakAlderIndex,
-            inntektEtterHeltUttakTom,
-            inntektEtterHeltUttakAntallAar
+            simuleringSpec.inntektEtterHeltUttakTom?.coerceAtLeast(heltUttakFom)
         )
     }
 

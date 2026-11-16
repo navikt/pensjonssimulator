@@ -100,7 +100,6 @@ class FolketrygdberegnetAfpSpecMapperV1Test : ShouldSpec({
             forventetInntektBeloep = 123,
             inntektUnderGradertUttakBeloep = 234,
             inntektEtterHeltUttakBeloep = 345,
-            inntektEtterHeltUttakAntallAar = 456,
             inntektEtterHeltUttakTom = LocalDate.of(2480, 12, 31),
             foedselAar = 0,
             utlandAntallAar = 4,

@@ -76,7 +76,7 @@ class SamhandlerAlderspensjonControllerV3(
         @RequestBody specV3: AlderspensjonSpecV3,
         request: HttpServletRequest
     ): AlderspensjonResultV3 {
-        traceAid.begin()
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID_V3 request: $specV3" }
         countCall(FUNCTION_ID_V3)
 

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.afp.offentlig.tidsbegrenset.TidsbegrensetOffentligAfpAvslaattException
 import no.nav.pensjon.simulator.alderspensjon.api.nav.viapen.acl.v2.result.ApForTpResultMapperV2.toApForTpResultV2
@@ -74,8 +75,11 @@ class NavViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(@RequestBody specV2: NavSimuleringSpecV2): NavSimuleringSpecAndResultV2 {
-        traceAid.begin()
+    fun simulerAlderspensjon(
+        @RequestBody specV2: NavSimuleringSpecV2,
+        request: HttpServletRequest
+    ): NavSimuleringSpecAndResultV2 {
+        traceAid.begin(request)
         log.debug { "$AP_FUNCTION_ID request: $specV2" }
         countCall(AP_FUNCTION_ID)
 
@@ -163,8 +167,11 @@ class NavViaPenAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjonForTjenestepensjon(@RequestBody specV2: NavSimuleringSpecV2): ApForTpResultV2 {
-        traceAid.begin()
+    fun simulerAlderspensjonForTjenestepensjon(
+        @RequestBody specV2: NavSimuleringSpecV2,
+        request: HttpServletRequest
+    ): ApForTpResultV2 {
+        traceAid.begin(request)
         log.debug { "$TP_FUNCTION_ID request: $specV2" }
         countCall(TP_FUNCTION_ID)
 

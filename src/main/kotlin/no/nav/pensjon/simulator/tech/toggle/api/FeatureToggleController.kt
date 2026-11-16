@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.api.ControllerBase
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
@@ -41,15 +42,17 @@ class FeatureToggleController(
             ),
         ]
     )
-    fun isEnabled(@PathVariable(value = "name") featureName: String): EnablementDto {
-        traceAid.begin()
+    fun isEnabled(
+        @PathVariable(value = "name") featureName: String,
+        request: HttpServletRequest
+    ): EnablementDto {
+        traceAid.begin(request)
         log.debug { "Request for status for funksjonsbryter '$featureName'" }
 
         return try {
             EnablementDto(timed(service::isEnabled, featureName, "is feature enabled"))
                 .also { log.debug { "Funksjonsbryter-status respons: $it" } }
-        }
-         finally {
+        } finally {
             traceAid.end()
         }
     }

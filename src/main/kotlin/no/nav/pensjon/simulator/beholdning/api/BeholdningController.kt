@@ -60,7 +60,7 @@ class BeholdningController(
         @RequestBody specV1: FolketrygdBeholdningSpecV1,
         request: HttpServletRequest
     ): FolketrygdBeholdningResultV1 {
-        traceAid.begin()
+        traceAid.begin(request)
         countCall(FUNCTION_ID)
 
         return try {

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringErrorV1
 import no.nav.pensjon.simulator.alderspensjon.api.nav.direct.anonym.acl.v1.result.AnonymSimuleringResultEnvelopeV1
@@ -59,8 +60,11 @@ class NavAnonymAlderspensjonController(
             )
         ]
     )
-    fun simulerAlderspensjon(@RequestBody specV1: AnonymSimuleringSpecV1): ResponseEntity<Any> {
-        traceAid.begin()
+    fun simulerAlderspensjon(
+        @RequestBody specV1: AnonymSimuleringSpecV1,
+        request: HttpServletRequest
+    ): ResponseEntity<Any> {
+        traceAid.begin(request)
         log.debug { "$FUNCTION_ID request: $specV1" }
         countCall(FUNCTION_ID)
 

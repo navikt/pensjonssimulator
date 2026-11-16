@@ -67,7 +67,7 @@ class UttakControllerTest : ShouldSpec() {
             every { uttakSpecMapper.fromSpecV1(any()) } returns TestObjects.simuleringSpec
             every { statistikkService.takeSnapshotIfNeeded() } returns Unit
             every { tilknytningService.erPersonTilknyttetTjenestepensjonsordning(any(), any()) } returns true
-            every { traceAid.begin() } returns Unit
+            every { traceAid.begin(any()) } returns Unit
         }
 
         context("request OK") {

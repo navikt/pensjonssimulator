@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import jakarta.servlet.http.HttpServletRequest
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimuleringFacade
 import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertPensjonEllerAlternativ
@@ -77,8 +78,11 @@ class PensjonForNavV2Controller(
             )
         ]
     )
-    fun simulerPensjon(@RequestBody specDto: SimuleringSpecDto): ResponseEntity<SimuleringResultDto> {
-        traceAid.begin()
+    fun simulerPensjon(
+        @RequestBody specDto: SimuleringSpecDto,
+        request: HttpServletRequest
+    ): ResponseEntity<SimuleringResultDto> {
+        traceAid.begin(request)
         log.debug { "spec ${jsonMapper.writeValueAsRedactedString(specDto)}" }
         countCall(functionName = FUNCTION_ID)
 

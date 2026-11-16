@@ -31,7 +31,7 @@ class KlpTjenestepensjonService(
             .onSuccess {
                 sammenlignAFPService.sammenlignOgLoggAfp(
                     request = spec,
-                    inntekterMapper = KlpMapper::inntekter,
+                    inntekterMapper = { KlpMapper.inntekter(spec, KlpMapper::inntektMedStartFraFjoraaret) },
                     simulertTjenestepensjon = it,
                     tpOrdning = client.service.shortName
                 )

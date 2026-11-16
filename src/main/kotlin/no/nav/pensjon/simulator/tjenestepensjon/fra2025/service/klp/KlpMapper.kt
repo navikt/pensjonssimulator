@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.klp
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+import no.nav.pensjon.simulator.tech.time.DateUtil
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
@@ -50,8 +51,11 @@ object KlpMapper {
             uttaksgrad = 100 // prosent
         )
 
-    fun inntekter(spec: OffentligTjenestepensjonFra2025SimuleringSpec): List<FremtidigInntekt> {
-        val inntektListe = mutableListOf(naaverendeInntekt(aarligInntekt = spec.sisteInntekt))
+    fun inntekter(
+        spec: OffentligTjenestepensjonFra2025SimuleringSpec,
+        dagensInntektMapper: (aarligInntekt: Int) -> FremtidigInntekt = this::naaverendeInntekt
+    ): List<FremtidigInntekt> {
+        val inntektListe = mutableListOf(dagensInntektMapper(spec.sisteInntekt))
         inntektListe.addAll(spec.fremtidigeInntekter.map(::inntekt))
         return inntektListe
     }
@@ -59,6 +63,12 @@ object KlpMapper {
     private fun naaverendeInntekt(aarligInntekt: Int) =
         FremtidigInntekt(
             fom = LocalDate.now(),
+            aarligInntektBeloep = aarligInntekt
+        )
+
+    fun inntektMedStartFraFjoraaret(aarligInntekt: Int) =
+        FremtidigInntekt(
+            fom = DateUtil.fjoraaretsFoersteDag(),
             aarligInntektBeloep = aarligInntekt
         )
 

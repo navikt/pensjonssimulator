@@ -53,10 +53,14 @@ class AfpYtelseMapperTest : FunSpec({
         ).fremtidigInntektListe shouldBe emptyList()
     }
 
+    val klpInntekter = { spec: OffentligTjenestepensjonFra2025SimuleringSpec ->
+        KlpMapper.inntekter(spec, KlpMapper::inntektMedStartFraFjoraaret)
+    }
+
     listOf(
         Triple("Storebrand", StorebrandMapper::inntekter, LocalDate.now().minusYears(1).withDayOfYear(1)),
         Triple("SPK", SpkMapper::inntekter, LocalDate.now().minusYears(1).withDayOfYear(1)),
-        Triple("KLP", KlpMapper::inntekter, LocalDate.now())
+        Triple("KLP", klpInntekter, LocalDate.now().minusYears(1).withDayOfYear(1))
     ).forEach { (leverandoer, inntekter, forventetFom) ->
         test("uses $leverandoer income function including current income") {
             AfpYtelseMapper.toLivsvarigOffentligAfpSpec(request, inntekter).fremtidigInntektListe shouldBe listOf(

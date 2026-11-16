@@ -3,6 +3,7 @@ package no.nav.pensjon.simulator.tjenestepensjon.fra2025.service.storebrand
 import mu.KotlinLogging
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
+import no.nav.pensjon.simulator.tech.time.DateUtil
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Ordning
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.SimulertTjenestepensjon
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.domain.Utbetalingsperiode
@@ -56,7 +57,7 @@ object StorebrandMapper {
 
     private fun naaverendeInntekt(aarligInntekt: Int) =
         FremtidigInntekt(
-            fom = fjoraaretsFoersteDag(),
+            fom = DateUtil.fjoraaretsFoersteDag(),
             aarligInntektBeloep = aarligInntekt
         )
 
@@ -88,6 +89,4 @@ object StorebrandMapper {
     private fun erIkkeSisteOrdning(aarsak: AarsakIngenUtbetaling): Boolean =
         aarsak.statusKode == AarsakIngenUtbetalingStatus.IKKE_SISTE_ORDNING.name
 
-    private fun fjoraaretsFoersteDag(): LocalDate =
-        LocalDate.now().minusYears(1).withDayOfYear(1)
 }

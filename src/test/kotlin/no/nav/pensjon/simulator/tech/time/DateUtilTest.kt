@@ -23,6 +23,10 @@ class DateUtilTest : FunSpec({
         ) shouldBe LocalDate.of(2025, 1, 1)
     }
 
+    test("fjoraaretsFoersteDag returns January 1 of last year") {
+        DateUtil.fjoraaretsFoersteDag() shouldBe LocalDate.of(LocalDate.now().year - 1, 1, 1)
+    }
+
     test("maanederInnenforAaret for helt år gir 12") {
         DateUtil.maanederInnenforAaret(
             fom = LocalDate.of(2001, 1, 1),

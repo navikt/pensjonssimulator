@@ -1,0 +1,97 @@
+{
+  "suksess": true,
+  "alderspensjonsperioder": [
+    {
+      "alder": 69,
+      "beloep": 605038,
+      "datoFom": "2030-03-01",
+      "uttaksperiode": [
+        {
+          "startmaaned": 1,
+          "uttaksgrad": 100
+        }
+      ]
+    },
+    {
+      "alder": 70,
+      "beloep": 610494,
+      "datoFom": "2031-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 71,
+      "beloep": 611424,
+      "datoFom": "2032-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 72,
+      "beloep": 611424,
+      "datoFom": "2033-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 73,
+      "beloep": 611424,
+      "datoFom": "2034-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 74,
+      "beloep": 611424,
+      "datoFom": "2035-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 75,
+      "beloep": 611424,
+      "datoFom": "2036-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 76,
+      "beloep": 611424,
+      "datoFom": "2037-03-01",
+      "uttaksperiode": []
+    },
+    {
+      "alder": 77,
+      "beloep": 611424,
+      "datoFom": "2038-03-01",
+      "uttaksperiode": []
+    }
+  ],
+  "privatAfpPerioder": [
+    {
+      "alder": 69,
+      "beloep": 142188
+    },
+    {
+      "alder": 70,
+      "beloep": 142188
+    },
+    {
+      "alder": 71,
+      "beloep": 142188
+    },
+    {
+      "alder": 72,
+      "beloep": 142188
+    },
+    {
+      "alder": 73,
+      "beloep": 142188
+    },
+    {
+      "alder": 74,
+      "beloep": 142188
+    },
+    {
+      "alder": 75,
+      "beloep": 142188
+    }
+  ],
+  "harNaavaerendeUttak": false,
+  "harTidligereUttak": false,
+  "harLoependePrivatAfp": false
+}

@@ -113,13 +113,19 @@ class UfoereAlternativtUttakFinder(
      * "Dårligst" vil si minste mulige uttaksgrad (20 %) kombinert med høyest mulig alder (1 måned før normalder).
      */
     private fun defaultParameters() =
-        AlternativSimuleringSpec(
-            gradertUttakFom = uttakDato(foedselsdato, normalder.minusMaaneder(1)),
-            gradertUttakAlderIndex = null,
-            uttakGrad = UttakGradKode.P_20,
-            heltUttakFom = uttakDato(foedselsdato, normalder),
-            heltUttakAlderIndex = 0
-        )
+        normertUttaksdato().let {
+            AlternativSimuleringSpec(
+                gradertUttakFom = it.minusMonths(1),
+                gradertUttakAlderIndex = null,
+                uttakGrad = UttakGradKode.P_20,
+                heltUttakFom = it,
+                heltUttakAlderIndex = 0,
+                inntektEtterHeltUttakTom = simuleringSpec.inntektEtterHeltUttakTom?.coerceAtLeast(it)
+            )
+        }
+
+    private fun normertUttaksdato(): LocalDate =
+        uttakDato(foedselsdato, uttakAlder = normalder)
 
     private companion object {
 

@@ -24,4 +24,42 @@ class SimuleringSpecSanitiserTest : ShouldSpec({
             )
         }
     }
+
+    context("sluttdato for inntekt etter helt uttak blir tidligere enn endret uttaksdato") {
+        context("gradert uttak") {
+            should("sette sluttdato for inntekt lik dato for helt uttak") {
+                SimuleringSpecSanitiser.sanitise(
+                    simuleringSpec(
+                        foersteUttakDato = LocalDate.of(2030, Month.JANUARY, 2),
+                        uttaksgrad = UttakGradKode.P_50,
+                        heltUttakDato = LocalDate.of(2035, Month.APRIL, 3),
+                        inntektEtterHeltUttakTom = LocalDate.of(2030, Month.JANUARY, 3)
+                    )
+                ) shouldBe simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2030, Month.FEBRUARY, 1),
+                    uttaksgrad = UttakGradKode.P_50,
+                    heltUttakDato = LocalDate.of(2035, Month.MAY, 1),
+                    inntektEtterHeltUttakTom = LocalDate.of(2035, Month.MAY, 1)
+                )
+            }
+        }
+
+        context("ugradert uttak") {
+            should("sette sluttdato for inntekt lik dato for første uttak") {
+                SimuleringSpecSanitiser.sanitise(
+                    simuleringSpec(
+                        foersteUttakDato = LocalDate.of(2030, Month.JANUARY, 2),
+                        uttaksgrad = UttakGradKode.P_100,
+                        heltUttakDato = null, // ugradert uttak
+                        inntektEtterHeltUttakTom = LocalDate.of(2030, Month.JANUARY, 3)
+                    )
+                ) shouldBe simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2030, Month.FEBRUARY, 1),
+                    uttaksgrad = UttakGradKode.P_100,
+                    heltUttakDato = null,
+                    inntektEtterHeltUttakTom = LocalDate.of(2030, Month.FEBRUARY, 1)
+                )
+            }
+        }
+    }
 })

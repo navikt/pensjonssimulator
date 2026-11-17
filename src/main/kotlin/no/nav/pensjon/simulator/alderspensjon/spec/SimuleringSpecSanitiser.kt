@@ -2,25 +2,34 @@ package no.nav.pensjon.simulator.alderspensjon.spec
 
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.tech.time.DateUtil.foersteDagNesteMaaned
+import no.nav.pensjon.simulator.validity.BadSpecException
 import java.time.LocalDate
 
 object SimuleringSpecSanitiser {
 
     fun sanitise(spec: SimuleringSpec): SimuleringSpec {
-        val modifyGradertUttak = spec.foersteUttakDato?.let { it.dayOfMonth != 1 } == true
-        val modifyHeltUttak = spec.heltUttakDato?.let { it.dayOfMonth != 1 } == true
+        val foersteUttakFom: LocalDate = definert(spec.foersteUttakDato)
+        val endreFoersteUttak = foersteUttakFom.dayOfMonth != 1
+        val endreHeltUttak = spec.heltUttakDato?.let { it.dayOfMonth != 1 } == true
 
-        val newGradertUttak: LocalDate? = if (modifyGradertUttak) foersteDagNesteMaaned(spec.foersteUttakDato) else spec.foersteUttakDato
-        val newHeltUttakFom: LocalDate? = if (modifyHeltUttak) foersteDagNesteMaaned(spec.heltUttakDato) else spec.heltUttakDato
+        val nyFoersteUttakFom: LocalDate =
+            if (endreFoersteUttak) foersteDagNesteMaaned(foersteUttakFom) else foersteUttakFom
 
-        return if (modifyGradertUttak || modifyHeltUttak)
+        val nyHeltUttakFom: LocalDate? =
+            if (endreHeltUttak) foersteDagNesteMaaned(spec.heltUttakDato) else spec.heltUttakDato
+
+        return if (endreFoersteUttak || endreHeltUttak)
             spec.withUttak(
-                foersteUttakDato = newGradertUttak,
+                foersteUttakDato = nyFoersteUttakFom,
                 uttaksgrad = spec.uttakGrad,
-                heltUttakDato = newHeltUttakFom,
+                heltUttakDato = nyHeltUttakFom,
                 inntektEtterHeltUttakTom = spec.inntektEtterHeltUttakTom
+                    ?.coerceAtLeast(nyHeltUttakFom ?: nyFoersteUttakFom)
             )
         else
             spec
     }
+
+    private fun definert(dato: LocalDate?) =
+        dato ?: throw BadSpecException("SimuleringSpecSanitiser melder at foersteUttakDato er udefinert")
 }

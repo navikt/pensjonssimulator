@@ -114,7 +114,8 @@ class IndexBasedSimulering(
             gradertUttakAlderIndex,
             uttaksgrad,
             heltUttakFom,
-            heltUttakAlderIndex
+            heltUttakAlderIndex,
+            inntektEtterHeltUttakTom = simuleringSpec.inntektEtterHeltUttakTom?.coerceAtLeast(heltUttakFom)
         )
     }
 
@@ -128,7 +129,7 @@ class IndexBasedSimulering(
             uttaksgrad,
             heltUttakFom,
             heltUttakAlderIndex,
-            simuleringSpec.inntektEtterHeltUttakTom?.coerceAtLeast(heltUttakFom)
+            inntektEtterHeltUttakTom = simuleringSpec.inntektEtterHeltUttakTom?.coerceAtLeast(heltUttakFom)
         )
     }
 

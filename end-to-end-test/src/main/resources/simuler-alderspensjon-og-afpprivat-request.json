@@ -1,0 +1,15 @@
+{
+  "personident": "01426125761",
+  "sivilstatusVedPensjonering": "UGIF",
+  "foersteUttak": {
+    "fomDato": "2030-03-01",
+    "grad": 100,
+    "aarligInntekt": 0
+  },
+  "aarligInntektFoerUttak": 600000,
+  "antallInntektsaarEtterHeltUttak": 0,
+  "aarIUtlandetEtter16": 0,
+  "harEpsPensjon": false,
+  "harEpsPensjonsgivendeInntektOver2G": false,
+  "simulerPrivatAfp": true
+}

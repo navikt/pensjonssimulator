@@ -42,6 +42,11 @@ suspend fun main() {
             path = "/api/v4/simuler-alderspensjon",
             requestResource = "simuler-alderspensjon-v4-request.json",
             responseResource = "simuler-alderspensjon-v4-response.json",
+        ),
+        Resource(
+            path = "/api/v2/simuler-alderspensjon-privat-afp",
+            requestResource = "simuler-alderspensjon-og-afpprivat-request.json",
+            responseResource = "simuler-alderspensjon-og-afpprivat-response.json",
         )
     )
 

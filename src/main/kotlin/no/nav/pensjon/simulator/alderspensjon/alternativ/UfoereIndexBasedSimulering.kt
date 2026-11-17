@@ -40,15 +40,16 @@ class UfoereIndexBasedSimulering(
      */
     fun tryIndex(index: Int): AlternativSimuleringResult {
         val uttakSpec: IndexedUttakSpec = indexedUttakSpecs[index]
-        val alternativSpec: AlternativSimuleringSpec = alternativSpec(uttakSpec)
+
+        val alternativSpec: AlternativSimuleringSpec =
+            alternativSpec(uttakSpec, simuleringSpec.inntektEtterHeltUttakTom)
 
         return try {
             val currentSimuleringSpec = simuleringSpec.withUttak(
                 foersteUttakDato = alternativSpec.gradertUttakFom!!, // never null in this context (uføre, gradert)
                 uttaksgrad = alternativSpec.uttakGrad,
                 heltUttakDato = alternativSpec.heltUttakFom,
-                inntektEtterHeltUttakTom = alternativSpec.inntektEtterHeltUttakTom,
-                inntektEtterHeltUttakAntallAar = alternativSpec.inntektEtterHeltUttakAntallAar
+                inntektEtterHeltUttakTom = alternativSpec.inntektEtterHeltUttakTom?.coerceAtLeast(alternativSpec.heltUttakFom)
             )
 
             val simulertPensjon: SimulatorOutput = discriminator.simuler(currentSimuleringSpec)
@@ -69,19 +70,20 @@ class UfoereIndexBasedSimulering(
         }
     }
 
-    private fun alternativSpec(uttakSpec: IndexedUttakSpec) =
+    private fun alternativSpec(uttakSpec: IndexedUttakSpec, inntektEtterHeltUttakTom: LocalDate?) =
         AlternativSimuleringSpec(
             gradertUttakFom = uttakSpec.gradertUttakFom.dato,
             gradertUttakAlderIndex = uttakSpec.gradertUttakFom.index,
             uttakGrad = uttakSpec.uttaksgrad.kode,
             heltUttakFom = uttakSpec.heltUttakFom.dato,
-            heltUttakAlderIndex = uttakSpec.heltUttakFom.index
+            heltUttakAlderIndex = uttakSpec.heltUttakFom.index,
+            inntektEtterHeltUttakTom
         )
 
     private fun indexedUttakSpecs(): List<IndexedUttakSpec> {
         val gradertUttakFom = IndexedDato(index = 0, dato = uttakDato(foedselsdato, foersteUttakAlder))
 
-        return (0..indexCount - 1).toList().map {
+        return (0..<indexCount).toList().map {
             indexedUttakSpec(index = it, gradertUttakFom)
         }
     }

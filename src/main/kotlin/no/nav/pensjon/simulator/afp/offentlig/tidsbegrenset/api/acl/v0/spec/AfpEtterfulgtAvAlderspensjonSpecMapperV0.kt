@@ -45,7 +45,6 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0(
             // NB: For AFP_ETTERF_ALDER er gradert uttak irrelevant, så denne tilordningen er trolig unødvendig:
             inntektUnderGradertUttakBeloep = source.fremtidigAarligInntektUnderAfpUttak,
 
-            inntektEtterHeltUttakAntallAar = null, //TODO mangler sluttdato
             inntektEtterHeltUttakTom = null,
             forventetInntektBeloep = source.fremtidigAarligInntektTilAfpUttak ?: sisteLignetInntekt!!.aarligBeloep,
             utlandAntallAar = source.aarIUtlandetEtter16,

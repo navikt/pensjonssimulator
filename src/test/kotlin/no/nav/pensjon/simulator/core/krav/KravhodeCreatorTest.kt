@@ -774,7 +774,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 uttakGrad = UttakGradKode.P_100,
                 forventetInntektBeloep = 0,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 3,
                 inntektEtterHeltUttakTom = LocalDate.of(2028, 12, 31)
             )
 
@@ -820,7 +819,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 uttakGrad = UttakGradKode.P_100,
                 forventetInntektBeloep = 0,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 0,
                 inntektEtterHeltUttakTom = null
             )
 
@@ -1096,7 +1094,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 foersteUttakDato = LocalDate.of(2026, 6, 1),
                 heltUttakDato = null,
                 inntektEtterHeltUttakBeloep = 150000,
-                inntektEtterHeltUttakAntallAar = 3,
                 inntektEtterHeltUttakTom = LocalDate.of(2029, 5, 31)
             )
 
@@ -1920,7 +1917,6 @@ class KravhodeCreatorTest : ShouldSpec({
                 forventetInntektBeloep = 600000,
                 inntektUnderGradertUttakBeloep = 300000,
                 inntektEtterHeltUttakBeloep = 100000,
-                inntektEtterHeltUttakAntallAar = 2,
                 inntektEtterHeltUttakTom = null,
                 inntektOver1GAntallAar = 0
             )

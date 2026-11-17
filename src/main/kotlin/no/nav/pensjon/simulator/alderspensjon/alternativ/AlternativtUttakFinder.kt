@@ -24,7 +24,6 @@ class AlternativtUttakFinder(
     private val simuleringSpec: SimuleringSpec,
     private val normalderService: NormertPensjonsalderService,
     private val outputConverter: SimulatorOutputConverter,
-    private val heltUttakInntektTomAlderAar: Int?, // behøves bare ved helt uttak når fom/tom angis i form av alder
     private val time: Time
 ) {
     private val foedselsdato: LocalDate by lazy {
@@ -54,8 +53,7 @@ class AlternativtUttakFinder(
             maxUttaksgrad,
             keepUttaksgradConstant,
             foersteUttakMinAlder,
-            andreUttakMinAlder,
-            heltUttakInntektTomAlderAar
+            andreUttakMinAlder
         )
 
         val searchResult: AlternativSimuleringResult? =
@@ -116,13 +114,19 @@ class AlternativtUttakFinder(
      * "Dårligst" vil si minste mulige uttaksgrad (20 %) kombinert med høyeste mulige alder (66 år 11 måneder).
      */
     private fun defaultParameters() =
-        AlternativSimuleringSpec(
-            gradertUttakFom = uttakDato(foedselsdato, normalder.minusMaaneder(1)),
-            gradertUttakAlderIndex = null,
-            uttakGrad = UttakGradKode.P_20,
-            heltUttakFom = uttakDato(foedselsdato, normalder),
-            heltUttakAlderIndex = 0
-        )
+        normertUttaksdato().let {
+            AlternativSimuleringSpec(
+                gradertUttakFom = it.minusMonths(1),
+                gradertUttakAlderIndex = null,
+                uttakGrad = UttakGradKode.P_20,
+                heltUttakFom = it,
+                heltUttakAlderIndex = 0,
+                inntektEtterHeltUttakTom = simuleringSpec.inntektEtterHeltUttakTom?.coerceAtLeast(it)
+            )
+        }
+
+    private fun normertUttaksdato(): LocalDate =
+        uttakDato(foedselsdato, uttakAlder = normalder)
 
     private companion object {
 

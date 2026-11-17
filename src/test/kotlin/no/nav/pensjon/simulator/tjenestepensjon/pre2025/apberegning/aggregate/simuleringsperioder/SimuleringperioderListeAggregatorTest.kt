@@ -22,7 +22,6 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
-                inntektEtterHeltUttakAntallAar = 3,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31)
             )
         ) shouldBe
@@ -61,7 +60,6 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
-                inntektEtterHeltUttakAntallAar = 0,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31)
             )
         ) shouldBe
@@ -94,7 +92,6 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2027, 2, 1),
                 heltUttakDato = null,
-                inntektEtterHeltUttakAntallAar = 0,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31)
             )
         ) shouldBe
@@ -121,7 +118,6 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.ALDER,
                 foersteUttakDato = LocalDate.of(2027, 2, 1),
                 heltUttakDato = null,
-                inntektEtterHeltUttakAntallAar = 1,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31)
             )
         ) shouldBe
@@ -133,7 +129,7 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                         simulerAFPOffentligEtterfulgtAvAlder = false
                     ),
                     Simuleringsperiode(
-                        fom = LocalDate.of(2028, 2, 1),
+                        fom = LocalDate.of(2032, 1, 1),
                         folketrygdUttaksgrad = 100,
                         stillingsprosentOffentlig = 0,
                         simulerAFPOffentligEtterfulgtAvAlder = false
@@ -154,7 +150,6 @@ class SimuleringperioderListeAggregatorTest : StringSpec({
                 simuleringType = SimuleringTypeEnum.AFP_ETTERF_ALDER,
                 foersteUttakDato = LocalDate.of(2025, 1, 1),
                 heltUttakDato = LocalDate.of(2029, 1, 1),
-                inntektEtterHeltUttakAntallAar = 0,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 12, 31)
             )
         ) shouldBe

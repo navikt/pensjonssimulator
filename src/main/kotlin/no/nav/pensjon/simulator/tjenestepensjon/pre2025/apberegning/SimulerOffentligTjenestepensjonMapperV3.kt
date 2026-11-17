@@ -45,7 +45,6 @@ class SimulerOffentligTjenestepensjonMapperV3(
             forventetInntektBeloep = source.forventetInntekt ?: 0,
             inntektUnderGradertUttakBeloep = source.inntektUnderGradertUttak ?: 0,
             inntektEtterHeltUttakBeloep = source.inntektEtterHeltUttak,
-            inntektEtterHeltUttakAntallAar = source.antallArInntektEtterHeltUttak,
             inntektEtterHeltUttakTom = inntektTom(source),
             foedselAar = source.fodselsar ?: 0,
             utlandAntallAar = source.utenlandsopphold ?: 0,

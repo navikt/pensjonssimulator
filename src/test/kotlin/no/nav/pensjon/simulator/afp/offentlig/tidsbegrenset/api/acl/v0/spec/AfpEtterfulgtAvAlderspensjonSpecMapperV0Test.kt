@@ -47,7 +47,6 @@ class AfpEtterfulgtAvAlderspensjonSpecMapperV0Test : ShouldSpec({
             brukFremtidigInntekt shouldBe false
             inntektEtterHeltUttakBeloep shouldBe 0
             inntektUnderGradertUttakBeloep shouldBe dto.fremtidigAarligInntektUnderAfpUttak
-            inntektEtterHeltUttakAntallAar shouldBe null
             inntektEtterHeltUttakTom shouldBe null
             forventetInntektBeloep shouldBe dto.fremtidigAarligInntektTilAfpUttak
             utlandAntallAar shouldBe dto.aarIUtlandetEtter16

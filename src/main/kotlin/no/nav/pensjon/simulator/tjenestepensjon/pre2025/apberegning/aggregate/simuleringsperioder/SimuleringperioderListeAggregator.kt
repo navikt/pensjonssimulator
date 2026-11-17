@@ -51,7 +51,7 @@ object SimuleringperioderListeAggregator {
 
     private fun createSimuleringsdataListeForAlderspensjon(spec: SimuleringsperioderSpec): MutableList<Simuleringsperiode> {
         val stillingsprosent = spec.stillingsprosentSpec.stillingsprosentOffHeltUttak ?: 0
-        val simuleringsperiodeList: MutableList<Simuleringsperiode> = ArrayList()
+        val simuleringsperiodeList: MutableList<Simuleringsperiode> = mutableListOf()
 
         if (spec.folketrygdUttaksgrad < 100) { //Gradert uttak
             simuleringsperiodeList.add(
@@ -73,13 +73,10 @@ object SimuleringperioderListeAggregator {
             if (stillingsprosent != 0) {
                 simuleringsperiodeList.add(
                     createSimuleringsperiode(
-                        spec.heltUttakDato.plusYears(
-                            spec.inntektEtterHeltUttakAntallAar.toLong()
-                            //TODO use inntektEtterHeltUttakTom?
-                        ),
-                        100,
-                        0,
-                        spec.afpEtterfulgtAvAlder
+                        uttakDato = spec.inntektEtterHeltUttakTom.plusDays(1),
+                        folketrygdUttaksgrad = 100,
+                        stillingsprosent = 0,
+                        afpEtterfulgtAvAlder = spec.afpEtterfulgtAvAlder
                     )
                 )
             }
@@ -96,13 +93,10 @@ object SimuleringperioderListeAggregator {
             if (stillingsprosent != 0) {
                 simuleringsperiodeList.add(
                     createSimuleringsperiode(
-                        spec.foersteUttakDato.plusYears(
-                            spec.inntektEtterHeltUttakAntallAar.toLong()
-                            //TODO use inntektEtterHeltUttakTom?
-                        ),
-                        spec.folketrygdUttaksgrad,
-                        0,
-                        spec.afpEtterfulgtAvAlder
+                        uttakDato = spec.inntektEtterHeltUttakTom.plusDays(1),
+                        folketrygdUttaksgrad = spec.folketrygdUttaksgrad,
+                        stillingsprosent = 0,
+                        afpEtterfulgtAvAlder = spec.afpEtterfulgtAvAlder
                     )
                 )
             }

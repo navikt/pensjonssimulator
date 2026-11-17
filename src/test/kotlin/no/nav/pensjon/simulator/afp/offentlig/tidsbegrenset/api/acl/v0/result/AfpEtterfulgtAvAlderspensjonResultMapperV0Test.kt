@@ -103,7 +103,6 @@ private fun simuleringSpec(uttakDato: LocalDate, foedselsdato: LocalDate) =
         inntektEtterHeltUttakBeloep = 1,
         inntektOver1GAntallAar = 0,
         inntektUnderGradertUttakBeloep = 2,
-        inntektEtterHeltUttakAntallAar = null,
         inntektEtterHeltUttakTom = null,
         forventetInntektBeloep = 3,
         utlandAntallAar = 4,

@@ -758,7 +758,6 @@ private fun createSimuleringSpec(
     forventetInntektBeloep = 250000,
     inntektUnderGradertUttakBeloep = 125000,
     inntektEtterHeltUttakBeloep = 67500,
-    inntektEtterHeltUttakAntallAar = 5,
     inntektEtterHeltUttakTom = null,
     foedselAar = foedselAar,
     utlandAntallAar = 0,
@@ -779,6 +778,6 @@ private fun createSimuleringSpec(
 )
 
 private fun arrangeTime(month: Int = 1): Time =
-    mockk<Time> {
+    mockk {
         every { today() } returns LocalDate.of(2025, month, 15)
     }

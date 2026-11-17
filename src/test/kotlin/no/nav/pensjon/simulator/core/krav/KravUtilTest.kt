@@ -87,7 +87,6 @@ private fun simuleringSpec(utlandPeriodeListe: MutableList<UtlandPeriode>) =
         forventetInntektBeloep = 0,
         inntektUnderGradertUttakBeloep = 0,
         inntektEtterHeltUttakBeloep = 0,
-        inntektEtterHeltUttakAntallAar = 0,
         inntektEtterHeltUttakTom = null,
         foedselAar = 0,
         utlandAntallAar = 0,

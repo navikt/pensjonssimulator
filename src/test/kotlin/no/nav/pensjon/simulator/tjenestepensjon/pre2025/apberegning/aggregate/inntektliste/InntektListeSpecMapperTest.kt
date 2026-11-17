@@ -75,7 +75,6 @@ private fun simuleringSpecInntekter(
     forventetInntektBeloep = 500_000,
     inntektUnderGradertUttakBeloep = inntektUnderGradertUttakBeloep,
     inntektEtterHeltUttakBeloep = inntektEtterHeltUttakBeloep,
-    inntektEtterHeltUttakAntallAar = null,
     inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
     foedselAar = 1960,
     utlandAntallAar = 0,

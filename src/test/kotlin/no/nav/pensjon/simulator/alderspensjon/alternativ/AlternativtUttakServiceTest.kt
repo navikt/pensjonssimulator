@@ -160,7 +160,12 @@ object AlternativtUttakServiceTestObjects {
     /**
      * IndexBasedSimulering.tryIndex: discriminator.simuler(indexSimulatorSpec)
      */
-    fun simuleringSpec(foersteUttakDato: LocalDate, uttaksgrad: UttakGradKode, heltUttakDato: LocalDate) =
+    fun simuleringSpec(
+        foersteUttakDato: LocalDate,
+        uttaksgrad: UttakGradKode,
+        heltUttakDato: LocalDate?,
+        inntektEtterHeltUttakTom: LocalDate? = null
+    ) =
         SimuleringSpec(
             type = SimuleringTypeEnum.ALDER_M_AFP_PRIVAT,
             sivilstatus = SivilstatusType.UGIF,
@@ -176,7 +181,7 @@ object AlternativtUttakServiceTestObjects {
             forventetInntektBeloep = 250000,
             inntektUnderGradertUttakBeloep = 125000,
             inntektEtterHeltUttakBeloep = 67500,
-            inntektEtterHeltUttakTom = null,
+            inntektEtterHeltUttakTom = inntektEtterHeltUttakTom,
             foedselAar = 1967,
             utlandAntallAar = 3,
             utlandPeriodeListe = mutableListOf(),

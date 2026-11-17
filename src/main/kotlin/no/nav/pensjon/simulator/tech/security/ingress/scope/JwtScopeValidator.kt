@@ -16,7 +16,7 @@ class JwtScopeValidator(val scopes: List<String>) : OAuth2TokenValidator<Jwt> {
         validate(tokenScope = token.getClaimAsString(CLAIM_NAME) ?: "")
 
     private fun validate(tokenScope: String): OAuth2TokenValidatorResult =
-        if (scopes.contains(tokenScope))
+        if (tokenScope.split(" ").any { it in scopes })
             success()
         else
             "Invalid $CLAIM_NAME: $tokenScope".let {

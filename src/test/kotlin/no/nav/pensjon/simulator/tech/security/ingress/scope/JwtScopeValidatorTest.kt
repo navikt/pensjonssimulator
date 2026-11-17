@@ -30,6 +30,14 @@ class JwtScopeValidatorTest : FunSpec({
         val validatorResult = JwtScopeValidator(scopes = listOf("scope1")).validate(jwt(claims = mapOf("x" to "y")))
         validatorResult.hasErrors() shouldBe true
     }
+
+    test("validate accepts an allowed scope combined with an irrelevant scope regardless of order") {
+        val validator = JwtScopeValidator(scopes = listOf("scope1"))
+
+        listOf("scope1 unrelated", "unrelated scope1").forEach { scopes ->
+            validator.validate(jwt(scope = scopes)).hasErrors() shouldBe false
+        }
+    }
 })
 
 private fun jwt(scope: String) =

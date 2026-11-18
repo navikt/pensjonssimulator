@@ -64,7 +64,7 @@ jobs:
         with:
           ref: 'sandbox'
       - name: Deploy
-        uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/deploy@b1a9a40dae937091497f8f29c5ea5334cc1c0643 # v3
         env:
           CLUSTER: dev-gcp
           IMAGE: ${{ needs.build.outputs.image }}
@@ -81,12 +81,12 @@ jobs:
         with:
           ref: 'sandbox'
       - name: Deploy KrakenD config
-        uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/deploy@b1a9a40dae937091497f8f29c5ea5334cc1c0643 # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/krakend-dev.yaml
       - name: Deploy API endpoints config
-        uses: nais/deploy/actions/deploy@6a9dcd6df697ec2d38edc78cadb0b9acd1232f50 # v3
+        uses: nais/deploy/actions/deploy@b1a9a40dae937091497f8f29c5ea5334cc1c0643 # v3
         env:
           CLUSTER: dev-gcp
           RESOURCE: .nais/api/apiendpoints.yaml

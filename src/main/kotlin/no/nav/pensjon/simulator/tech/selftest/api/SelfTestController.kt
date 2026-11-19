@@ -32,7 +32,7 @@ class SelfTestController(
         traceAid.begin(request)
 
         return try {
-            securityContextEnricher.enrichAuthentication(request)
+            securityContextEnricher.enrichAuthentication()
             val accept = request.getHeader(HttpHeaders.ACCEPT)
 
             when (accept) {

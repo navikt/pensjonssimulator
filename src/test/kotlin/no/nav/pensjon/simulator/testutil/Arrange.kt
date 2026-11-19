@@ -7,6 +7,7 @@ import no.nav.pensjon.simulator.alderspensjon.spec.OffentligSimuleringstypeDeduc
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
+import no.nav.pensjon.simulator.tech.representasjon.RepresentertRolle
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
 import no.nav.pensjon.simulator.testutil.TestObjects.jwt
@@ -70,7 +71,8 @@ object Arrange {
 
         SecurityContextHolder.getContext().authentication = EnrichedAuthentication(
             initialAuth = TestingAuthenticationToken("TEST_USER", jwt),
-            egressTokenSuppliersByService = EgressTokenSuppliersByService(mapOf())
+            egressTokenSuppliersByService = EgressTokenSuppliersByService(mapOf()),
+            rolle = RepresentertRolle.NONE
         )
     }
 

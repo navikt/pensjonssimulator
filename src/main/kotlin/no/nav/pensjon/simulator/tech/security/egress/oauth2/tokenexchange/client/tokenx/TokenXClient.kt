@@ -1,7 +1,7 @@
 package no.nav.pensjon.simulator.tech.security.egress.oauth2.tokenexchange.client.tokenx
 
-import com.nimbusds.jose.jwk.RSAKey
 import no.nav.pensjon.simulator.tech.security.egress.oauth2.OAuth2ParameterBuilder
+import no.nav.pensjon.simulator.tech.security.egress.oauth2.AssertionCreator
 import no.nav.pensjon.simulator.tech.security.egress.oauth2.tokenexchange.TokenExchangeCredentials
 import no.nav.pensjon.simulator.tech.security.egress.oauth2.tokenexchange.client.TokenExchangeClient
 import no.nav.pensjon.simulator.tech.security.egress.token.CacheAwareTokenClient
@@ -19,6 +19,7 @@ class TokenXClient(
     webClientBase: WebClientBase,
     expirationChecker: ExpirationChecker,
     private val credentials: TokenExchangeCredentials,
+    private val assertionCreator: AssertionCreator,
     @Value($$"${ps.web-client.retry-attempts}") retryAttempts: String
 ) : CacheAwareTokenClient(
     tokenEndpoint,
@@ -31,12 +32,13 @@ class TokenXClient(
         accessParameter: TokenAccessParameter,
         audience: String // format: "cluster:namespace:app"
     ): MultiValueMap<String, String> =
-        OAuth2ParameterBuilder()
+        OAuth2ParameterBuilder
             .tokenAccessParameter(accessParameter)
             .clientId(credentials.clientId)
             .tokenAudience(audience)
             .tokenRequestAudience(tokenEndpoint)
-            .jwk(RSAKey.parse(credentials.jwk))
+            .jwk(credentials.jwk)
+            .assertionCreator(assertionCreator)
             .tokenExchangeRequestMap()
 
     override fun exchange(accessParameter: TokenAccessParameter, cacheKey: CacheKey) =

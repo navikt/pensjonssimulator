@@ -74,25 +74,30 @@ class SecurityConfiguration {
     @Bean
     @Primary
     fun authenticationManagerResolver(
-        @Qualifier("entra-id-provider") entraProvider: ProviderManager,
-        @Qualifier("maskinporten-provider") maskinportenProvider: ProviderManager
+        @Qualifier("nav-intern") navInternManager: ProviderManager,
+        @Qualifier("maskinporten") maskinportenManager: ProviderManager
     ): AuthenticationManagerResolver<HttpServletRequest> =
-        ApiAuthenticationManagerResolver(entraProvider, maskinportenProvider)
+        ApiAuthenticationManagerResolver(navInternManager, maskinportenManager)
 
-    @Bean("entra-id-provider")
+    @Bean("nav-intern")
     @Primary
-    fun entraIdProvider(
-        @Value($$"${azure.openid.config.issuer}") issuer: String,
-        @Value($$"${azure-app.client-id}") audience: String
+    fun navInternManager(
+        @Value($$"${azure.openid.config.issuer}") entraIssuer: String,
+        @Value($$"${azure-app.client-id}") entraAudience: String,
+        @Value($$"${token-x.issuer}") tokenXIssuer: String,
+        @Value($$"${token-x.client-id}") tokenXAudience: String
     ): ProviderManager =
         ProviderManager(
             JwtAuthenticationProvider(
-                jwtDecoder(issuer, tokenValidator = JwtAudienceValidator(audience))
+                jwtDecoder(entraIssuer, tokenValidator = JwtAudienceValidator(entraAudience))
+            ),
+            JwtAuthenticationProvider(
+                jwtDecoder(tokenXIssuer, tokenValidator = JwtAudienceValidator(tokenXAudience))
             )
         )
 
-    @Bean("maskinporten-provider")
-    fun maskinportenProvider(
+    @Bean("maskinporten")
+    fun maskinportenManager(
         @Value($$"${maskinporten.issuer}") issuer: String,
         @Value($$"${ps.maskinporten.scope.1}") scope1: String,
         @Value($$"${ps.maskinporten.scope.2}") scope2: String,
@@ -109,7 +114,6 @@ class SecurityConfiguration {
                 setJwtAuthenticationConverter(MaskinportenAuthenticationConverter())
             }
         )
-
 
     private companion object {
 

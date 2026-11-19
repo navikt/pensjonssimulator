@@ -3,10 +3,12 @@ package no.nav.pensjon.simulator.tech.async
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.pensjon.simulator.tech.representasjon.RepresentertRolle
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.EnrichedAuthentication
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
+import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenTypeDecisionBasis
 import no.nav.pensjon.simulator.tech.security.egress.token.RawJwt
 import org.slf4j.MDC
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
@@ -16,13 +18,13 @@ import java.util.concurrent.Callable
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import java.util.concurrent.TimeUnit
-import java.util.function.Supplier
+import java.util.function.Function
 
 class AsyncConfigTest : FunSpec({
     lateinit var executor: ThreadPoolTaskExecutor
 
     fun onWorker(task: () -> Unit) {
-        val future = FutureTask(Callable { task() })
+        val future = FutureTask { task() }
         executor.threadPoolExecutor.queue.put(future)
         future.get(5, TimeUnit.SECONDS)
     }
@@ -48,8 +50,10 @@ class AsyncConfigTest : FunSpec({
         val authentication = EnrichedAuthentication(
             initialAuth = TestingAuthenticationToken("test-user", null),
             egressTokenSuppliersByService = EgressTokenSuppliersByService(
-                mapOf(EgressService.AFP_BEHOLDNING_API to Supplier { token })
-            )
+                mapOf(
+                    EgressService.AFP_BEHOLDNING_API to Function<EgressTokenTypeDecisionBasis, RawJwt> { token })
+            ),
+            rolle = RepresentertRolle.SELV
         )
         val callerThread = Thread.currentThread()
         SecurityContextHolder.getContext().authentication = authentication

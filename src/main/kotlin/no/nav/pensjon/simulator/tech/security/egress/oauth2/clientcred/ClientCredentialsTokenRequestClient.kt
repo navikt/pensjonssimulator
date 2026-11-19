@@ -26,7 +26,7 @@ class ClientCredentialsTokenRequestClient(
         accessParameter: TokenAccessParameter,
         audience: String
     ): MultiValueMap<String, String> =
-        OAuth2ParameterBuilder()
+        OAuth2ParameterBuilder
             .tokenAccessParameter(accessParameter)
             .clientId(credentials.clientId)
             .clientSecret(credentials.clientSecret)

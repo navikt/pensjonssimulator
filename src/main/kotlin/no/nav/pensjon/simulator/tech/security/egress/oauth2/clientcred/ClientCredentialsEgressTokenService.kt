@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 @Service
 class ClientCredentialsEgressTokenService(val tokenGetter: ClientCredentialsTokenRequestClient) : EgressTokenGetter {
 
-    override fun getEgressToken(ingressToken: String, audience: String, user: String): RawJwt {
+    override fun getEgressToken(ingressToken: String, audience: String): RawJwt {
         val scope = getDefaultScope(audience)
         val accessParameter = TokenAccessParameter.clientCredentials(scope)
         val tokenValue = tokenGetter.getTokenData(accessParameter, scope, USER).accessToken

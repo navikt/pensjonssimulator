@@ -48,7 +48,7 @@ class SelfTestControllerTest : ShouldSpec() {
     init {
         beforeSpec {
             every { tid.naa() } returns LocalTime.of(10, 11, 12)
-            every { securityContextEnricher.enrichAuthentication(any()) } returns Unit
+            every { securityContextEnricher.enrichAuthentication() } returns Unit
             every { feature.isEnabled(any()) } returns false // vedlikeholdsmodus deaktivert
             every { sporingsloggService.log(any(), any(), any()) } returns Unit
             every { traceAid.begin(any()) } returns Unit

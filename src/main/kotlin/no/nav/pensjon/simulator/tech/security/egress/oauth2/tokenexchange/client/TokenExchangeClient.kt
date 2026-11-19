@@ -7,7 +7,7 @@ import no.nav.pensjon.simulator.tech.security.egress.token.TokenData
 interface TokenExchangeClient {
 
     /**
-     * Exhanges the token given in accessParameter.subjectToken.
+     * Exchanges the token given in accessParameter.subjectToken.
      * The new token is available as TokenData.accessToken.
      */
     fun exchange(accessParameter: TokenAccessParameter, cacheKey: CacheKey): TokenData

@@ -9,13 +9,13 @@ class TokenAccessParameter(private val type: AuthorizationGrantType, val value: 
     fun getParameterName(): String = type.parameterName
 
     companion object {
-        fun authorizationCode(code: String) = TokenAccessParameter(AuthorizationGrantType.AUTHORIZATION_CODE, code)
+        fun clientCredentials(scope: String) =
+            TokenAccessParameter(type = AuthorizationGrantType.CLIENT_CREDENTIALS, value = scope)
 
-        fun clientCredentials(scope: String) = TokenAccessParameter(AuthorizationGrantType.CLIENT_CREDENTIALS, scope)
-
-        fun jwtBearer(assertion: String) = TokenAccessParameter(AuthorizationGrantType.JWT_BEARER, assertion)
+        fun jwtBearer(assertion: String) =
+            TokenAccessParameter(type = AuthorizationGrantType.JWT_BEARER, value = assertion)
 
         fun tokenExchange(subjectToken: String) =
-            TokenAccessParameter(AuthorizationGrantType.TOKEN_EXCHANGE, subjectToken)
+            TokenAccessParameter(type = AuthorizationGrantType.TOKEN_EXCHANGE, value = subjectToken)
     }
 }

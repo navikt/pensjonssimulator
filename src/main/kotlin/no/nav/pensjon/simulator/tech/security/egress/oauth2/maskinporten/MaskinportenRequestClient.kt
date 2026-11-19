@@ -33,7 +33,7 @@ class MaskinportenRequestClient(
         accessParameter: TokenAccessParameter,
         audience: String
     ): MultiValueMap<String, String> =
-        OAuth2ParameterBuilder()
+        OAuth2ParameterBuilder
             .tokenAccessParameter(accessParameter)
             .assertion(signedJwt(scope = audience, issueTime = Date()))
             .buildMaskinportenTokenRequestMap()

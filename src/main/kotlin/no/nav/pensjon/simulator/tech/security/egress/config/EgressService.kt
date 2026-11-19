@@ -59,6 +59,8 @@ enum class EgressService(
         shortName = "TP",
         purpose = "Hente tjenestepensjonsforhold"
     ),
+
+    // Eksterne tjenester:
     SPK(
         description = "Statens Pensjonskasse",
         shortName = "SPK",
@@ -77,6 +79,7 @@ enum class EgressService(
         purpose = "Simulere offentlig tjenestepensjon",
         authType = AuthType.MACHINE_OUTSIDE_NAV
     ),
+
     // Felles-konfigurasjon for tjenester som leverer egress-token:
     OAUTH2_TOKEN(
         description = "OAuth2 token",

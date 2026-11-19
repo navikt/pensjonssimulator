@@ -20,6 +20,7 @@ class ApiAuthenticationManagerResolver(
             builder.matcher("/api/tpo/**") to navInternManager,
             builder.matcher("/api/v0/simuler-afp-etterfulgt-av-alderspensjon") to maskinportenManager,
             builder.matcher("/api/v2/simuler-alderspensjon-privat-afp") to maskinportenManager,
+            builder.matcher("/api/v3/simuler-alderspensjon-privat-afp") to maskinportenManager,
             builder.matcher("/api/v3/simuler-alderspensjon") to maskinportenManager,
             builder.matcher("/api/v4/simuler-alderspensjon") to maskinportenManager,
             builder.matcher("/api/v1/simuler-folketrygdbeholdning") to maskinportenManager,

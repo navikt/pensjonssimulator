@@ -53,7 +53,6 @@ class SimuleringFacade(
                         null // irrelevant when finding uttak only
                     else outputConverter.pensjon(
                         source = result,
-                        today = time.today(),
                         inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep,
                         gradertUttakDato = if (spec.isGradert()) spec.foersteUttakDato else null,
                         heltUttakDato = heltUttakDato(spec),

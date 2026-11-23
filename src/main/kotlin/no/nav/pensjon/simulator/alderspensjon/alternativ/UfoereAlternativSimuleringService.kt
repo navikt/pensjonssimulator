@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import no.nav.pensjon.simulator.validity.BadSpecException
 import org.springframework.stereotype.Service
@@ -31,8 +30,7 @@ class UfoereAlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
     private val alternativtUttakService: UfoereAlternativtUttakService,
-    private val outputConverter: SimulatorOutputConverter,
-    private val time: Time
+    private val outputConverter: SimulatorOutputConverter
 ) {
     fun simulerMedNesteLavereUttaksgrad(
         spec: SimuleringSpec,
@@ -44,7 +42,7 @@ class UfoereAlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else outputConverter.pensjon(result, time.today())
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else outputConverter.pensjon(result)
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -88,7 +86,7 @@ class UfoereAlternativSimuleringService(
             // Lavere grad innvilget; returner dette som alternativ og avslutt:
             alternativResponse(
                 spec = lavereGradSpec,
-                alternativPensjon = if (spec.onlyVilkaarsproeving) null else outputConverter.pensjon(result, time.today())
+                alternativPensjon = if (spec.onlyVilkaarsproeving) null else outputConverter.pensjon(result)
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -166,7 +164,6 @@ class UfoereAlternativSimuleringService(
                     else
                         outputConverter.pensjon(
                             source = simulator.simuler(initialSpec = ubetingetSpec),
-                            today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                         )
             )

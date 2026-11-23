@@ -91,7 +91,6 @@ class AlderspensjonService(
             return SimulertPensjonEllerAlternativ(
                 pensjon = outputConverter.pensjon( // SimulatorOutput -> SimulertPensjon
                     source = result,
-                    today = time.today(),
                     inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                 )
             )

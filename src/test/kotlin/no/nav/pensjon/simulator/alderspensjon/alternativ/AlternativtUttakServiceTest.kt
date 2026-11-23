@@ -88,7 +88,6 @@ private val arrangeOutput: SimulatorOutputConverter =
         every {
             pensjon(
                 source = any(),
-                today = any(),
                 inntektVedTidsbegrensetOffentligAfpUttak = any(),
                 gradertUttakDato = any(),
                 heltUttakDato = any(),

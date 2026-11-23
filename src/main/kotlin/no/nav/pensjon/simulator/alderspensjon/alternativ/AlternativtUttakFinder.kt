@@ -84,7 +84,7 @@ class AlternativtUttakFinder(
                 if (simuleringSpec.onlyVilkaarsproeving)
                     null
                 else
-                    pensjon?.let { outputConverter.pensjon(it, time.today()) },
+                    pensjon?.let(outputConverter::pensjon),
             // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
             alternativ = SimulertAlternativ(
                 uttakGrad = usedParameters.uttakGrad,

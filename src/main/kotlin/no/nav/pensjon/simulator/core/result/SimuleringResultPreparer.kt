@@ -65,7 +65,7 @@ class SimuleringResultPreparer(
         opptjeningAdder.addToOpptjeningListe(
             soekerGrunnlag,
             opptjeningListe = simulatorOutput.opptjeningListe,
-            beregningsresultatListe = preparerSpec.alderspensjonBeregningResultatListe,
+            beregningsresultatListe = preparerSpec.alderspensjonsberegningsresultat.beregningsresultater,
             regelverkType = kravhode.regelverkTypeEnum
         )
 
@@ -75,9 +75,9 @@ class SimuleringResultPreparer(
                 simuleringSpec,
                 kravhode,
                 soekerGrunnlag,
-                preparerSpec.alderspensjonBeregningResultatListe,
+                preparerSpec.alderspensjonsberegningsresultat.beregningsresultater,
                 preparerSpec.forrigeAlderspensjonBeregningResultat,
-                preparerSpec.pensjonBeholdningPeriodeListe,
+                preparerSpec.alderspensjonsberegningsresultat.pensjonsbeholdningPerioder,
                 preparerSpec.outputSimulertBeregningsInformasjonForAllKnekkpunkter
             )
         )

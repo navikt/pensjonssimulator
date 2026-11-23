@@ -32,8 +32,7 @@ open class AlternativtUttakServiceTest : FunSpec({
         val service = AlternativtUttakService(
             simulator = arrangeSimulator(),
             normalderService = Arrange.normalder(foedselsdato),
-            outputConverter = arrangeOutput,
-            time = { LocalDate.of(2025, 1, 1) }
+            outputConverter = arrangeOutput
         )
 
         service.findAlternativtUttak(

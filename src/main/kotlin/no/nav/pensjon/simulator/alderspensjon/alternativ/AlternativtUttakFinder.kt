@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.search.SmallestValueSearch
-import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import java.time.LocalDate
 import java.time.Period
@@ -23,8 +22,7 @@ class AlternativtUttakFinder(
     private val discriminator: UttakAlderDiscriminator,
     private val simuleringSpec: SimuleringSpec,
     private val normalderService: NormertPensjonsalderService,
-    private val outputConverter: SimulatorOutputConverter,
-    private val time: Time
+    private val outputConverter: SimulatorOutputConverter
 ) {
     private val foedselsdato: LocalDate by lazy {
         simuleringSpec.pid?.let(discriminator::fetchFoedselsdato) ?: throw InvalidArgumentException("Udefinert PID")

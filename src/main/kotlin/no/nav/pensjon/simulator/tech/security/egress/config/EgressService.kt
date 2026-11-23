@@ -47,7 +47,7 @@ enum class EgressService(
         description = "Persondata",
         shortName = "PDL",
         purpose = "Hente generelle persondata",
-        authType = AuthType.PERSONAL
+        authType = AuthType.PERSONAL_NOT_TOKEN_X
     ),
     SPORINGSLOGG(
         description = "Sporingslogg",

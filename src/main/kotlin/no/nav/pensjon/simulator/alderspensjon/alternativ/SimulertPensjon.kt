@@ -15,7 +15,8 @@ data class SimulertPensjon(
     val pensjonBeholdningPeriodeListe: List<SimulertPensjonBeholdningPeriode>,
     val harUttak: Boolean,
     val primaerTrygdetid: Trygdetid,
-    val opptjeningListe: List<SimulertOpptjening>
+    val opptjeningListe: List<SimulertOpptjening>,
+    val livsvarigOffentligAfpHarBetydningForInnvilgelse: Boolean? = null
 )
 
 data class SimulertAarligAlderspensjon(

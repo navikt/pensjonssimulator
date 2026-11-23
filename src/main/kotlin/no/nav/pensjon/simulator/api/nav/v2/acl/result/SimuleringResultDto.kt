@@ -169,9 +169,25 @@ data class OpptjeningDto(
 
 @JsonInclude(NON_NULL)
 data class VilkaarsproevingsresultatDto(
-    @field:NotNull val erInnvilget: Boolean,
-    val alternativ: UttaksparametreDto?
-)
+    @field:Schema(description = "Hvorvidt simuleringen av alderspensjon ga 'innvilget' resultat")
+    @field:NotNull
+    val erInnvilget: Boolean,
+
+    @field:Schema(description = "Alternative uttaksparametre som vil gi 'innvilget' resultat (dersom angitte parametre ga 'avslag')")
+    val alternativ: UttaksparametreDto?,
+
+    @field:Schema(description = "Hvorvidt livsvarig AFP i offentlig sektor har betydning for innvilgelse av alderspensjon")
+    val livsvarigOffentligAfpHarBetydningForInnvilgelse: Boolean? = null
+) {
+    companion object {
+        fun default() =
+            VilkaarsproevingsresultatDto(
+                erInnvilget = false,
+                alternativ = null,
+                livsvarigOffentligAfpHarBetydningForInnvilgelse = null
+            )
+    }
+}
 
 /**
  * For 'erUtilstrekkelig' gjelder:

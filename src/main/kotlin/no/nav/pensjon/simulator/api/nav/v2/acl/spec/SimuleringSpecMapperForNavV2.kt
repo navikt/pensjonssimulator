@@ -65,7 +65,7 @@ class SimuleringSpecMapperForNavV2(
             // Inntekt angis før/etter gradert/helt uttak istedenfor via liste:
             fremtidigInntektListe = mutableListOf(),
             brukFremtidigInntekt = false,
-            livsvarigOffentligAfp = offentligAfp?.innvilgetLivsvarigAfp?.let(::livsvarigOffentligAfp),
+            livsvarigOffentligAfp = livsvarigOffentligAfp(offentligAfp?.innvilgetLivsvarigAfp),
 
             // NB: For tidsbegrenset offentlig AFP brukes 'gradert uttak'-perioden som AFP-periode:
             tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp(
@@ -103,14 +103,17 @@ class SimuleringSpecMapperForNavV2(
         )
     }
 
-    private fun livsvarigOffentligAfp(source: InnvilgetLivsvarigOffentligAfpSpecDto) =
-        LivsvarigOffentligAfpSpec(
-            innvilgetAfp = InnvilgetLivsvarigOffentligAfpSpec(
-                aarligBruttoBeloep = source.aarligBruttoBeloep,
-                uttakFom = source.uttakFom,
-                sistRegulertGrunnbeloep = source.sistRegulertGrunnbeloep ?: grunnbeloepService.naavaerendeGrunnbeloep()
+    private fun livsvarigOffentligAfp(source: InnvilgetLivsvarigOffentligAfpSpecDto?) =
+        source?.let {
+            LivsvarigOffentligAfpSpec(
+                innvilgetAfp = InnvilgetLivsvarigOffentligAfpSpec(
+                    aarligBruttoBeloep = it.aarligBruttoBeloep,
+                    uttakFom = it.uttakFom,
+                    sistRegulertGrunnbeloep = it.sistRegulertGrunnbeloep ?: grunnbeloepService.naavaerendeGrunnbeloep()
+                ),
+                vedInnvilgelseVilkaarsproevOgsaaUtenAfp = true
             )
-        )
+        } ?: LivsvarigOffentligAfpSpec(vedInnvilgelseVilkaarsproevOgsaaUtenAfp = true)
 
     private companion object {
 

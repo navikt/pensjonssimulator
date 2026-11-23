@@ -6,11 +6,14 @@ import io.mockk.Called
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.alder.Alder
 import no.nav.pensjon.simulator.core.SimulatorCore
 import no.nav.pensjon.simulator.core.domain.regler.enum.SimuleringTypeEnum
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligOpptjeningException
 import no.nav.pensjon.simulator.core.exception.UtilstrekkeligTrygdetidException
+import no.nav.pensjon.simulator.core.result.SimulatorOutput
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.ufoere.UfoereService
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.testutil.TestObjects.simuleringSpec
@@ -105,6 +108,44 @@ class SimuleringFacadeTest : ShouldSpec({
 
             verify(exactly = 1) { normalNauLogikk.simulerMedNesteLavereUttaksgrad(any(), any()) }
             verify { ufoereNauLogikk wasNot Called }
+        }
+    }
+
+    context("livsvarig AFP i offentlig sektor") {
+        should("sjekke om AFP påvirker vilkårsprøvingen") {
+            val simulator: SimulatorCore = mockk {
+                every { simuler(any()) } returns SimulatorOutput(
+                    livsvarigOffentligAfp = listOf(
+                        LivsvarigOffentligAfpOutput(
+                            alderAar = 65,
+                            beloep = 12000,
+                            maanedligBeloep = 1000
+                        )
+                    )
+                )
+            }
+
+            SimuleringFacade(
+                simulator,
+                alternativSimulering = mockk(),
+                ufoereAlternativSimulering = mockk(),
+                normalderService = mockk(relaxed = true),
+                ufoereService = mockk(relaxed = true),
+                outputConverter = mockk(relaxed = true),
+                time = mockk(relaxed = true),
+            ).simulerAlderspensjon(
+                simuleringSpec(
+                    type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+                    livsvarigOffentligAfp = LivsvarigOffentligAfpSpec(
+                        vedInnvilgelseVilkaarsproevOgsaaUtenAfp = true
+                    )
+                ),
+                inkluderPensjonHvisUbetinget = false
+            )
+
+            verify(exactly = 1) { simulator.simuler(match { it.type == SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG }) }
+            // Bekreft at sjekken ble utført:
+            verify(exactly = 1) { simulator.simuler(match { it.type == SimuleringTypeEnum.ALDER && it.onlyVilkaarsproeving }) }
         }
     }
 })

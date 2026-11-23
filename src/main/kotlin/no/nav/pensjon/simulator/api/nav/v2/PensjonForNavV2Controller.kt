@@ -132,7 +132,7 @@ class PensjonForNavV2Controller(
                 tidsbegrensetOffentligAfp = null,
                 privatAfpListe = emptyList(),
                 livsvarigOffentligAfpListe = emptyList(),
-                vilkaarsproevingsresultat = VilkaarsproevingsresultatDto(erInnvilget = false, alternativ = null),
+                vilkaarsproevingsresultat = VilkaarsproevingsresultatDto.default(),
                 primaerTrygdetid = null,
                 opptjeningListe = emptyList(),
                 problem = ProblemDto(kode = type, beskrivelse)

@@ -17,9 +17,9 @@ class LivsvarigOffentligAfpGrunnlagService(private val grunnbeloepService: Grunn
         kravhode: Kravhode,
         maxGjelderFom: LocalDate
     ): LivsvarigOffentligAfpGrunnlag? =
-        innvilgetAfpSpec?.let(::grunnlag)
+        kravhode.gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag()
+            ?: innvilgetAfpSpec?.let(::grunnlag)
             ?: simulertGrunnlag(simulertAfpYtelseListe, maxGjelderFom)
-            ?: kravhode.gjeldendeInnvilgetLivsvarigOffentligAfpGrunnlag()
 
     private fun simulertGrunnlag(
         ytelseListe: List<LivsvarigOffentligAfpYtelseMedDelingstall>,

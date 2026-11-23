@@ -228,6 +228,25 @@ class SimuleringSpecTest : ShouldSpec({
                 }
             }
         }
+
+        context("funksjonen 'kunVilkaarsproevingUtenLivsvarigOffentligAfp'") {
+            context("gjelder livsvarig offentlig AFP") {
+                should("angi 'bare vilkårsprøving' og simuleringstype 'alderspensjon'") {
+                    val spec = simuleringSpec(
+                        type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+                        livsvarigOffentligAfp = LivsvarigOffentligAfpSpec(
+                            vedInnvilgelseVilkaarsproevOgsaaUtenAfp = true
+                        )
+                    ).kunVilkaarsproevingUtenLivsvarigOffentligAfp()
+
+                    with(spec) {
+                        type shouldBe SimuleringTypeEnum.ALDER
+                        onlyVilkaarsproeving shouldBe true
+                        livsvarigOffentligAfp shouldBe null
+                    }
+                }
+            }
+        }
     }
 })
 

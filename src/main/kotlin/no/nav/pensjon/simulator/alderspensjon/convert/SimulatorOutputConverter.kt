@@ -32,7 +32,8 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
         inntektVedTidsbegrensetOffentligAfpUttak: Int? = null,
         gradertUttakDato: LocalDate? = null,
         heltUttakDato: LocalDate? = null,
-        normertPensjoneringsdato: LocalDate? = null
+        normertPensjoneringsdato: LocalDate? = null,
+        livsvarigOffentligAfpHarBetydningForInnvilgelse: Boolean? = null
     ): SimulertPensjon {
         val alderspensjon: SimulertAlderspensjon? = source.alderspensjon
         val periodeListe: List<PensjonPeriode> = alderspensjon?.pensjonPeriodeListe.orEmpty()
@@ -64,7 +65,8 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
                 .map(::beholdningPeriode),
             harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
             primaerTrygdetid = foersteTrygdetid(periodeListe),
-            opptjeningListe = source.opptjeningListe
+            opptjeningListe = source.opptjeningListe,
+            livsvarigOffentligAfpHarBetydningForInnvilgelse = livsvarigOffentligAfpHarBetydningForInnvilgelse
         )
     }
 

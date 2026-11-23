@@ -7,6 +7,7 @@ import io.mockk.mockk
 import no.nav.pensjon.simulator.api.nav.v2.acl.UttaksgradDto
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.enum.AFPtypeEnum
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.inntekt.InntektService
 import no.nav.pensjon.simulator.person.GeneralPersonService
@@ -54,6 +55,9 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 250000,
                 inntektEtterHeltUttakBeloep = 125000,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 1, 15),
+                livsvarigOffentligAfp = LivsvarigOffentligAfpSpec(
+                    vedInnvilgelseVilkaarsproevOgsaaUtenAfp = true
+                ),
                 tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.NAVO,
                     inntektMaanedenFoerAfpUttakBeloep = 199000,
@@ -99,6 +103,9 @@ class SimuleringSpecMapperForNavTest : ShouldSpec({
                 inntektUnderGradertUttakBeloep = 255000,
                 inntektEtterHeltUttakBeloep = 129000,
                 inntektEtterHeltUttakTom = LocalDate.of(2031, 4, 15),
+                livsvarigOffentligAfp = LivsvarigOffentligAfpSpec(
+                    vedInnvilgelseVilkaarsproevOgsaaUtenAfp = true
+                ),
                 tidsbegrensetOffentligAfp = TidsbegrensetOffentligAfpSpec(
                     afpOrdning = AFPtypeEnum.AFPKOM, // 'kommunal AFP' er default AFP-ordningstype
                     inntektMaanedenFoerAfpUttakBeloep = 198000,

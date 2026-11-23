@@ -249,6 +249,25 @@ data class SimuleringSpec(
             SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
         ).contains(type)
 
+    fun detSkalVilkaarsproevesOgsaaUtenLivsvarigOffentligAfp(): Boolean =
+        livsvarigOffentligAfp?.vedInnvilgelseVilkaarsproevOgsaaUtenAfp == true
+
+    fun ekstraVilkaarsproevingUtenLivsvarigOffentligAfp(paaskrudd: Boolean) =
+        copy(livsvarigOffentligAfp = livsvarigOffentligAfp?.ekstraVilkaarsproevingUtenAfp(paaskrudd))
+
+    fun kunVilkaarsproevingUtenLivsvarigOffentligAfp() =
+        if (gjelderLivsvarigOffentligAfp())
+            copy(
+                type =
+                    if (type == SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG)
+                        SimuleringTypeEnum.ALDER
+                    else
+                        SimuleringTypeEnum.ENDR_ALDER,
+                onlyVilkaarsproeving = true
+            )
+        else
+            this
+
     fun gjelderTidsbegrensetOffentligAfp() =
         // NB: Simuleringstype AFP_FPP har ingen variant for endring av pensjon
         gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon() || type == SimuleringTypeEnum.AFP_FPP
@@ -257,7 +276,7 @@ data class SimuleringSpec(
      * "2-fase-simulering" er simulering som innbefatter to forskjellige pensjonsuttak, separert i tid.
      * Uttrykket brukes for:
      * - Gradert uttak (eller 0 %) etterfulgt av helt uttak
-     * - Offentlig AFP (før 2025) etterfulgt av alderspensjon
+     * - Tidsbegrenset offentlig AFP etterfulgt av alderspensjon
      */
     fun gjelder2FaseSimulering() =
         gjelderTidsbegrensetOffentligAfpEtterfulgtAvAlderspensjon() || uttakErGradertEllerNull()

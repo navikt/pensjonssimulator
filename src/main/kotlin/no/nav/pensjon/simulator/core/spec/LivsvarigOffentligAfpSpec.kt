@@ -8,8 +8,12 @@ import java.time.LocalDate
  */
 data class LivsvarigOffentligAfpSpec(
     val innvilgetAfp: InnvilgetLivsvarigOffentligAfpSpec? = null,
-    val rettTilAfpFom: LocalDate? = null
-)
+    val rettTilAfpFom: LocalDate? = null,
+    val vedInnvilgelseVilkaarsproevOgsaaUtenAfp: Boolean = false
+) {
+    fun ekstraVilkaarsproevingUtenAfp(paaskrudd: Boolean) =
+        copy(vedInnvilgelseVilkaarsproevOgsaaUtenAfp = paaskrudd)
+}
 
 /**
  * Spesifiserer egenskapene til en innvilget livsvarig AFP i offentlig sektor.

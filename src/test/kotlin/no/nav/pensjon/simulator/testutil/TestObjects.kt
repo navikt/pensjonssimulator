@@ -12,6 +12,7 @@ import no.nav.pensjon.simulator.core.domain.regler.grunnlag.PersonDetalj
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Persongrunnlag
 import no.nav.pensjon.simulator.core.krav.FremtidigInntekt
 import no.nav.pensjon.simulator.core.krav.UttakGradKode
+import no.nav.pensjon.simulator.core.spec.LivsvarigOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.TidsbegrensetOffentligAfpSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.Organisasjonsnummer
@@ -63,6 +64,7 @@ object TestObjects {
         utlandPeriodeListe: List<UtlandPeriode> = utlandPeriodeListe(),
         utlandAntallAar: Int = 3,
         afpOrdning: AFPtypeEnum? = null,
+        livsvarigOffentligAfp: LivsvarigOffentligAfpSpec? = null,
         tillatSenereFoersteuttakForUfoere: Boolean = false
     ) = SimuleringSpec(
         type,
@@ -88,7 +90,7 @@ object TestObjects {
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = true,
-        livsvarigOffentligAfp = null,
+        livsvarigOffentligAfp,
         tidsbegrensetOffentligAfp = afpOrdning?.let {
             TidsbegrensetOffentligAfpSpec(
                 afpOrdning = it,
@@ -115,6 +117,7 @@ object TestObjects {
         inntektEtterHeltUttakBeloep: Int,
         inntektEtterHeltUttakTom: LocalDate? = null,
         tidsbegrensetOffentligAfp: TidsbegrensetOffentligAfpSpec,
+        livsvarigOffentligAfp: LivsvarigOffentligAfpSpec? = null,
         isOutputSimulertBeregningsinformasjonForAllKnekkpunkter: Boolean
     ) = SimuleringSpec(
         type = SimuleringTypeEnum.AFP_ETTERF_ALDER, // tidsbegrenset offentlig AFP
@@ -140,7 +143,7 @@ object TestObjects {
         inntektOver1GAntallAar = 0,
         flyktning = false,
         epsHarInntektOver2G = false,
-        livsvarigOffentligAfp = null,
+        livsvarigOffentligAfp,
         tidsbegrensetOffentligAfp = tidsbegrensetOffentligAfp,
         erAnonym = false,
         ignoreAvslag = false,

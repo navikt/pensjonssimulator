@@ -45,6 +45,8 @@ class SimuleringFacade(
             validate(spec, time.today())
             val result: SimulatorOutput = simulator.simuler(spec)
 
+            // Ingen exception hittil, dvs. innvilget resultat
+
             SimulertPensjonEllerAlternativ(
                 pensjon =
                     if (spec.onlyVilkaarsproeving)
@@ -55,7 +57,8 @@ class SimuleringFacade(
                         inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep,
                         gradertUttakDato = if (spec.isGradert()) spec.foersteUttakDato else null,
                         heltUttakDato = heltUttakDato(spec),
-                        normertPensjoneringsdato = spec.foedselDato?.let(normalderService::normertPensjoneringsdato)
+                        normertPensjoneringsdato = spec.foedselDato?.let(normalderService::normertPensjoneringsdato),
+                        livsvarigOffentligAfpHarBetydningForInnvilgelse = avslagUtenLivsvarigOffentligAfp(spec, result)
                     )
             )
         } catch (e: UtilstrekkeligOpptjeningException) {
@@ -101,12 +104,13 @@ class SimuleringFacade(
     }
 
     private fun alternativ(
-        spec: SimuleringSpec,
+        opprinneligSpec: SimuleringSpec,
         gjelderUfoereMedAfp: Boolean,
         inkluderPensjonHvisUbetinget: Boolean,
         exception: RuntimeException,
         problemType: ProblemType
     ): SimulertPensjonEllerAlternativ {
+        val spec = opprinneligSpec.ekstraVilkaarsproevingUtenLivsvarigOffentligAfp(paaskrudd = false)
         val alderVedUttak = Alder.from(spec.foedselDato!!, spec.foersteUttakDato!!)
 
         return if (alderVedUttak greaterThan normalderService.normalder(spec.foedselDato))
@@ -140,6 +144,21 @@ class SimuleringFacade(
         } catch (e: UtilstrekkeligTrygdetidException) {
             problem(e, type = ProblemType.UTILSTREKKELIG_TRYGDETID)
         }
+
+    private fun avslagUtenLivsvarigOffentligAfp(spec: SimuleringSpec, result: SimulatorOutput): Boolean? =
+        if (result.livsvarigOffentligAfp.orEmpty().isNotEmpty()
+            && spec.detSkalVilkaarsproevesOgsaaUtenLivsvarigOffentligAfp()
+        )
+            try {
+                simulator.simuler(initialSpec = spec.kunVilkaarsproevingUtenLivsvarigOffentligAfp())
+                false
+            } catch (_: UtilstrekkeligOpptjeningException) {
+                true
+            } catch (_: UtilstrekkeligTrygdetidException) {
+                true
+            }
+        else
+            null
 
     private fun heltUttakTasFoerNormalder(spec: SimuleringSpec): Boolean =
         spec.heltUttakDato?.isBefore(normalderService.normalderDato(spec.foedselDato!!)) == true

@@ -263,7 +263,8 @@ data class SimuleringSpec(
                         SimuleringTypeEnum.ALDER
                     else
                         SimuleringTypeEnum.ENDR_ALDER,
-                onlyVilkaarsproeving = true
+                onlyVilkaarsproeving = true,
+                livsvarigOffentligAfp = null
             )
         else
             this

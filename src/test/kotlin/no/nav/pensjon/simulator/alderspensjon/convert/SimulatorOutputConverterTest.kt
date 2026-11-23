@@ -2,6 +2,7 @@ package no.nav.pensjon.simulator.alderspensjon.convert
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.alderspensjon.alternativ.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
@@ -9,9 +10,11 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.testutil.TestObjects.emptyKnekkpunkter
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import java.time.LocalDate
+import java.time.Month
 
 open class SimulatorOutputConverterTest : FunSpec({
 
@@ -25,7 +28,10 @@ open class SimulatorOutputConverterTest : FunSpec({
      * - trygdetid = max av kapittel 19-trygdetid og kapittel 20-trygdetid
      */
     test("'pensjon' should map SimulatorOutput to SimulertPensjon") {
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(
+            afpGrad = mockk(),
+            time = arrangeTime(LocalDate.of(2025, Month.FEBRUARY, 10)) // no uttaksgrad covers this date
+        ).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     kapittel19Andel = 0.2
@@ -71,7 +77,6 @@ open class SimulatorOutputConverterTest : FunSpec({
                         })
                 }
             ),
-            today = LocalDate.of(2025, 2, 15), // no uttaksgrad covers this date
             inntektVedTidsbegrensetOffentligAfpUttak = 123
         ) shouldBe SimulertPensjon(
             alderspensjon = listOf(
@@ -122,7 +127,10 @@ open class SimulatorOutputConverterTest : FunSpec({
     }
 
     test("'pensjon' should set harUttak to 'true' if uttak covers today's date") {
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(
+            afpGrad = mockk(),
+            time = arrangeTime(LocalDate.of(2025, Month.FEBRUARY, 16)) // uttaksgrad covers this date
+        ).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     pensjonPeriodeListe.add(
@@ -136,13 +144,15 @@ open class SimulatorOutputConverterTest : FunSpec({
                             )
                         })
                 }
-            ),
-            today = LocalDate.of(2025, 2, 15) // uttaksgrad covers this date
+            )
         ).harUttak shouldBe true
     }
 
     test("'pensjon' should set harUttak to 'false' if uttaksgrad zero") {
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(
+            afpGrad = mockk(),
+            time = arrangeTime(LocalDate.of(2025, Month.FEBRUARY, 14)) // uttaksgrad covers this date
+        ).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     pensjonPeriodeListe.add(
@@ -156,13 +166,12 @@ open class SimulatorOutputConverterTest : FunSpec({
                             )
                         })
                 }
-            ),
-            today = LocalDate.of(2025, 2, 15) // uttaksgrad covers this date
+            )
         ).harUttak shouldBe false
     }
 
     test("'pensjon' should set harNokTrygdetidForGarantipensjon to 'true' if minst 5 år 'kapittel 20'-trygdetid") {
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(afpGrad = mockk(), time = arrangeTime()).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     pensjonPeriodeListe.add(
@@ -171,8 +180,7 @@ open class SimulatorOutputConverterTest : FunSpec({
                                 SimulertBeregningInformasjon().apply { tt_anv_kap20 = 6 }) // => minst 5 år trygdetid
                         })
                 }
-            ),
-            today = LocalDate.of(2025, 2, 15)
+            )
         ).primaerTrygdetid.erTilstrekkelig shouldBe true
     }
 
@@ -181,7 +189,7 @@ open class SimulatorOutputConverterTest : FunSpec({
         val heltDato = LocalDate.of(2032, 1, 1)
         val normertDato = LocalDate.of(2034, 1, 1)
 
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(afpGrad = mockk(), time = arrangeTime()).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     kapittel19Andel = 0.3
@@ -225,7 +233,6 @@ open class SimulatorOutputConverterTest : FunSpec({
                     )
                 }
             ),
-            today = LocalDate.of(2025, 2, 15),
             gradertUttakDato = gradertDato,
             heltUttakDato = heltDato,
             normertPensjoneringsdato = normertDato
@@ -317,7 +324,7 @@ open class SimulatorOutputConverterTest : FunSpec({
         val normertDato = LocalDate.of(2034, 1, 1)
         val noMatchDato = LocalDate.of(2099, 1, 1)
 
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(afpGrad = mockk(), time = arrangeTime()).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
@@ -328,7 +335,6 @@ open class SimulatorOutputConverterTest : FunSpec({
                     )
                 }
             ),
-            today = LocalDate.of(2025, 2, 15),
             gradertUttakDato = gradertDato,
             heltUttakDato = heltDato,
             normertPensjoneringsdato = normertDato
@@ -343,7 +349,7 @@ open class SimulatorOutputConverterTest : FunSpec({
         val heltDato = LocalDate.of(2032, 1, 1)
         val normertDato = LocalDate.of(2034, 1, 1)
 
-        SimulatorOutputConverter(mockk()).pensjon(
+        SimulatorOutputConverter(afpGrad = mockk(), time = arrangeTime()).pensjon(
             source = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
                     simulertBeregningInformasjonListe = listOf(
@@ -358,10 +364,12 @@ open class SimulatorOutputConverterTest : FunSpec({
                     )
                 }
             ),
-            today = LocalDate.of(2025, 2, 15),
             gradertUttakDato = null,
             heltUttakDato = heltDato,
             normertPensjoneringsdato = normertDato
         ).maanedligAlderspensjonForKnekkpunkter.vedGradertUttak shouldBe null
     }
 })
+
+private fun arrangeTime(dato: LocalDate = LocalDate.of(2025, Month.FEBRUARY, 15)): Time =
+    mockk { every { today() } returns dato }

@@ -8,15 +8,13 @@ import no.nav.pensjon.simulator.core.spec.GradertUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.HeltUttakSimuleringSpec
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.tech.time.Time
 import org.springframework.stereotype.Service
 
 @Service
 class AlternativtUttakService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
-    private val outputConverter: SimulatorOutputConverter,
-    private val time: Time
+    private val outputConverter: SimulatorOutputConverter
 ) {
     fun findAlternativtUttak(
         spec: SimuleringSpec,
@@ -50,8 +48,7 @@ class AlternativtUttakService(
             discriminator = simulator,
             simuleringSpec = spec,
             normalderService,
-            outputConverter,
-            time
+            outputConverter
         )
 
         val normalder: Alder = normalderService.normalder(spec.foedselDato!!)

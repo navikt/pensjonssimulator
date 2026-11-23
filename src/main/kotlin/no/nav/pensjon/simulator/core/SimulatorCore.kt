@@ -202,7 +202,7 @@ class SimulatorCore(
                     ResultPreparerSpec(
                         simuleringSpec = spec,
                         kravhode = kravhode,
-                        alderspensjonBeregningResultatListe = vilkaarsproevOgBeregnAlderspensjonResult.beregningsresultater,
+                        alderspensjonsberegningsresultat = vilkaarsproevOgBeregnAlderspensjonResult,
                         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
                         forrigeAlderspensjonBeregningResultat = ytelser.forrigeAlderspensjonBeregningResultat,
                         forrigePrivatAfpBeregningResultat = ytelser.forrigePrivatAfpBeregningResultat as? BeregningsResultatAfpPrivat,
@@ -213,7 +213,6 @@ class SimulatorCore(
                                     ?: simulertOffentligAfp.livsvarig,
                                 foedselMaaned = foedselsdato?.monthValue
                             ),
-                        pensjonBeholdningPeriodeListe = vilkaarsproevOgBeregnAlderspensjonResult.pensjonsbeholdningPerioder,
                         outputSimulertBeregningsInformasjonForAllKnekkpunkter = spec.isOutputSimulertBeregningsinformasjonForAllKnekkpunkter,
                         registerData
                     )

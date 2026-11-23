@@ -9,7 +9,6 @@ import no.nav.pensjon.simulator.core.krav.UttakGradKode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.uttak.UttakUtil.uttakDato
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -30,8 +29,7 @@ class AlternativSimuleringService(
     private val simulator: SimulatorCore,
     private val normalderService: NormertPensjonsalderService,
     private val alternativtUttakService: AlternativtUttakService,
-    private val outputConverter: SimulatorOutputConverter,
-    private val time: Time
+    private val outputConverter: SimulatorOutputConverter
 ) {
     fun simulerMedNesteLavereUttaksgrad(
         spec: SimuleringSpec,
@@ -49,7 +47,6 @@ class AlternativSimuleringService(
                     else
                         outputConverter.pensjon(
                             source = result,
-                            today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                         )
                 // for 'onlyVilkaarsproeving' er beregnet pensjon uinteressant (kun vilkårsvurdering blir brukt)
@@ -129,7 +126,6 @@ class AlternativSimuleringService(
                     else
                         outputConverter.pensjon(
                             source = simulator.simuler(initialSpec = ubetingetSpec),
-                            today = time.today(),
                             inntektVedTidsbegrensetOffentligAfpUttak = spec.inntektUnderGradertUttakBeloep
                         )
             )

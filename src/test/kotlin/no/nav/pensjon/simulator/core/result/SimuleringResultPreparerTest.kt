@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.pensjon.simulator.afp.offentlig.livsvarig.LivsvarigOffentligAfpOutput
 import no.nav.pensjon.simulator.alder.Alder
+import no.nav.pensjon.simulator.core.beregn.AlderspensjonBeregnerResult
 import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
 import no.nav.pensjon.simulator.core.domain.SivilstatusType
 import no.nav.pensjon.simulator.core.domain.regler.beregning.BarnetilleggFellesbarn
@@ -2898,13 +2899,12 @@ private fun resultPreparerSpec(
     return ResultPreparerSpec(
         simuleringSpec = simuleringSpec,
         kravhode = kravhode,
-        alderspensjonBeregningResultatListe = alderspensjonBeregningResultatListe,
+        alderspensjonsberegningsresultat = AlderspensjonBeregnerResult(alderspensjonBeregningResultatListe, pensjonBeholdningPeriodeListe.toMutableList()),
         privatAfpBeregningResultatListe = privatAfpBeregningResultatListe,
         forrigeAlderspensjonBeregningResultat = forrigeAlderspensjonBeregningResultat,
         forrigePrivatAfpBeregningResultat = forrigePrivatAfpBeregningResultat,
         tidsbegrensetOffentligAfpBeregningResultat = tidsbegrensetOffentligAfpBeregningResultat,
         livsvarigOffentligAfpBeregningResultatListe = livsvarigOffentligAfpBeregningResultatListe,
-        pensjonBeholdningPeriodeListe = pensjonBeholdningPeriodeListe,
         outputSimulertBeregningsInformasjonForAllKnekkpunkter = outputSimulertBeregningsInformasjonForAllKnekkpunkter,
         registerData = RegisterData(
             sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar,
@@ -2922,13 +2922,12 @@ private fun preparerSpec(
     ResultPreparerSpec(
         simuleringSpec = simuleringSpec,
         kravhode = kravhode,
-        alderspensjonBeregningResultatListe = beregningsresultat?.let { mutableListOf(it) } ?: mutableListOf(),
+        alderspensjonsberegningsresultat = AlderspensjonBeregnerResult(beregningsresultat?.let { mutableListOf(it) } ?: mutableListOf(), emptyList()),
         privatAfpBeregningResultatListe = mutableListOf(),
         forrigeAlderspensjonBeregningResultat = null,
         forrigePrivatAfpBeregningResultat = null,
         tidsbegrensetOffentligAfpBeregningResultat = null,
         livsvarigOffentligAfpBeregningResultatListe = null,
-        pensjonBeholdningPeriodeListe = emptyList(),
         outputSimulertBeregningsInformasjonForAllKnekkpunkter = false,
         registerData = RegisterData(
             sisteGyldigeOpptjeningAar = sisteGyldigeOpptjeningAar,

@@ -42,5 +42,5 @@ class TokenXClient(
             .tokenExchangeRequestMap()
 
     override fun exchange(accessParameter: TokenAccessParameter, cacheKey: CacheKey) =
-        getTokenData(accessParameter, scope = cacheKey.scope, user = cacheKey.pid.value)
+        getTokenData(accessParameter, scope = cacheKey.scope, user = cacheKey.pid)
 }

@@ -50,6 +50,38 @@ class UfoereperiodeServiceTest : ShouldSpec({
         }
     }
 
+    listOf(
+        SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+        SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+    ).forEach { type ->
+        context("livsvarig offentlig AFP med simuleringstype $type") {
+            listOf(UttakGradKode.P_50, UttakGradKode.P_100).forEach { uttaksgrad ->
+                should("gi dagen før første uttaksdato ved tidlig uttak med uttaksgrad $uttaksgrad") {
+                    val spec = simuleringSpec(
+                        foersteUttakDato = LocalDate.of(2033, 2, 1),
+                        heltUttakDato = LocalDate.of(2037, 2, 1),
+                        type = type,
+                        uttaksgrad = uttaksgrad
+                    )
+
+                    ufoereperiodeService.ufoereperiodeTom(spec, persongrunnlag) shouldBe
+                            LocalDate.of(2033, 1, 31)
+                }
+            }
+
+            should("gi dagen før ubetinget uttaksdato ved uttak etter normert pensjonsalder") {
+                val spec = simuleringSpec(
+                    foersteUttakDato = LocalDate.of(2037, 12, 1),
+                    type = type,
+                    uttaksgrad = UttakGradKode.P_50
+                )
+
+                ufoereperiodeService.ufoereperiodeTom(spec, persongrunnlag) shouldBe
+                        LocalDate.of(2037, 1, 31)
+            }
+        }
+    }
+
     context("tidlig gradert uttak av alderspensjon med gjenlevenderett") {
         should("gi datoen som er dagen før ubetinget uttaksdato") {
             val spec = simuleringSpec(

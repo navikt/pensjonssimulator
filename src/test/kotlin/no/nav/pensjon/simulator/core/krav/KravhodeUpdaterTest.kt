@@ -18,6 +18,8 @@ import no.nav.pensjon.simulator.core.domain.regler.enum.*
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.*
 import no.nav.pensjon.simulator.core.domain.regler.krav.Kravhode
 import no.nav.pensjon.simulator.core.spec.SimuleringSpec
+import no.nav.pensjon.simulator.core.ufoere.UfoereperiodeService
+import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.trygdetid.TrygdetidSetter
 import no.nav.pensjon.simulator.trygdetid.UtlandPeriode
@@ -314,6 +316,54 @@ class KravhodeUpdaterTest : FunSpec({
             ?.ufgTomLd shouldBe LocalDate.of(2028, 5, 31)
     }
 
+    listOf(
+        SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+        SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+    ).forEach { type ->
+        test("updateKravhodeForFoersteKnekkpunkt should terminate open uforeperioder before graded withdrawal for $type") {
+            val existingTom = LocalDate.of(2020, 12, 31)
+            val historikk = Uforehistorikk().apply {
+                uforeperiodeListe = mutableListOf(
+                    Uforeperiode().apply {
+                        ufgFomLd = LocalDate.of(2010, 1, 1)
+                        ufgTomLd = existingTom
+                    },
+                    Uforeperiode().apply {
+                        ufgFomLd = LocalDate.of(2021, 1, 1)
+                    }
+                )
+            }
+            val persongrunnlag = createPersongrunnlag(GrunnlagsrolleEnum.SOKER).apply {
+                uforeHistorikk = historikk
+            }
+            val normalderService = mockk<NormertPensjonsalderService> {
+                every { normalderOppnaasDato(persongrunnlag.fodselsdatoLd!!) } returns
+                        LocalDate.of(2030, 1, 1)
+            }
+            val updater = createKravhodeUpdater(
+                soekerGrunnlag = persongrunnlag,
+                ufoereperiodeService = UfoereperiodeService(normalderService)
+            )
+            val spec = createUpdateSpec(
+                type = type,
+                soekerGrunnlag = persongrunnlag,
+                foersteUttakDato = LocalDate.of(2028, 6, 1)
+            ).let {
+                it.copy(
+                    simuleringSpec = it.simuleringSpec.copy(uttakGrad = UttakGradKode.P_50),
+                    erFoerstegangsberegning = type == SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG
+                )
+            }
+
+            val perioder = updater.updateKravhodeForFoersteKnekkpunkt(spec)
+                .hentPersongrunnlagForSoker().uforeHistorikk.shouldNotBeNull().uforeperiodeListe
+
+            perioder[0].ufgTomLd shouldBe existingTom
+            perioder[1].ufgTomLd shouldBe LocalDate.of(2028, 5, 31)
+            historikk.uforeperiodeListe[1].ufgTomLd.shouldBeNull()
+        }
+    }
+
     // =====================================================
     // Tests for avdød handling
     // =====================================================
@@ -447,15 +497,14 @@ private fun createKravhodeUpdater(
             settTrygdetid(spec = any(), persongrunnlag = match { it.penPerson?.penPersonId == AVDOED_ID })
         } answers { avdoedGrunnlag }
     },
-    today: LocalDate = LocalDate.of(2025, 1, 1)
+    today: LocalDate = LocalDate.of(2025, 1, 1),
+    ufoereperiodeService: UfoereperiodeService = mockk {
+        every { ufoereperiodeTom(any(), any()) } returns LocalDate.of(2028, 5, 31)
+    }
 ) =
     KravhodeUpdater(
         context = context,
-        ufoereperiodeService = mockk {
-            every {
-                ufoereperiodeTom(any(), any())
-            } returns LocalDate.of(2028, 5, 31)
-        },
+        ufoereperiodeService = ufoereperiodeService,
         tidsbegrensetOffentligAfpBeholdning = tidsbegrensetOffentligAfpBeholdning,
         trygdetidSetter = trygdetidSetter,
         time = { today }

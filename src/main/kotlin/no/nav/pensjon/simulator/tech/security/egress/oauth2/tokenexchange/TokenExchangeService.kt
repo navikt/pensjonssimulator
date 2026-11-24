@@ -24,7 +24,7 @@ class TokenExchangeService(
         authorizedPidProvider.pid()?.let {
             exchanger.exchange(
                 accessParameter = TokenAccessParameter.tokenExchange(subjectToken = ingressToken),
-                cacheKey = CacheKey(scope = audience, pid = it)
+                cacheKey = CacheKey(scope = audience, pid = it.value)
             )
         } ?: throw IllegalStateException("TokenExchangeService melder om manglende PID i ingress-token")
 }

@@ -7,9 +7,9 @@ import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.Tjenestepensjonsf
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult.Companion.tpOrdningStoettesIkke
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Pre2025TjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.StillingsprosentService
 import org.springframework.stereotype.Component
 
 /**
@@ -18,8 +18,8 @@ import org.springframework.stereotype.Component
 @Component
 class TjenestepensjonSimuleringPre2025Service(
     private val client: TjenestepensjonsforholdClient,
-    private val spkStillingsprosentService: SpkStillingsprosentService,
-    private val spkTjenestepensjonServicePre2025: SPKTjenestepensjonServicePre2025
+    private val stillingsprosentService: StillingsprosentService,
+    private val simuleringService: Pre2025TjenestepensjonService
 ) {
     val log = KotlinLogging.logger { }
 
@@ -37,26 +37,22 @@ class TjenestepensjonSimuleringPre2025Service(
                 return ikkeMedlem()
             }
 
-            val spkMedlemskap = alleForhold.firstOrNull { it.tpNr == "3010" || it.tpNr == "3060" }
+            val tpOrdning = alleForhold.firstOrNull { relevanteTpNumre.contains(it.tpNr) }
 
-            if (spkMedlemskap == null) {
+            if (tpOrdning == null) {
                 log.warn { "No supported TP-Ordning found" }
                 return tpOrdningStoettesIkke()
             }
 
-            val stillingsprosentListe = spkStillingsprosentService.getStillingsprosentListe(pid, tpOrdning = spkMedlemskap)
+            val stillingsprosentListe = stillingsprosentService.getStillingsprosentListe(pid, tpOrdning)
 
             if (stillingsprosentListe.isEmpty()) {
                 log.warn { "No stillingsprosent found" }
                 throw RuntimeException("No stillingsprosent found for person")
             }
 
-            log.debug { "Request simulation from SPK using REST" }
-            val response = spkTjenestepensjonServicePre2025.simulerOffentligTjenestepensjon(
-                spec,
-                stillingsprosentListe,
-                spkMedlemskap,
-            )
+            log.debug { "Request simulation from $TP_ORDNING_NAVN using REST" }
+            val response = simuleringService.simulerOffentligTjenestepensjon(spec, stillingsprosentListe, tpOrdning)
             log.debug { "Returning response: ${filterFnr(response.toString())}" }
             return response
         } catch (e: BrukerKvalifisererIkkeTilTjenestepensjonException) {
@@ -79,6 +75,10 @@ class TjenestepensjonSimuleringPre2025Service(
         }
 
     companion object {
+
+        private const val TP_ORDNING_NAVN = "SPK"
+        private val relevanteTpNumre = setOf("3010", "3060")
+
         val FNR_REGEX = """[0-9]{11}""".toRegex()
         fun filterFnr(s: String) = FNR_REGEX.replace(s, "*****")
     }

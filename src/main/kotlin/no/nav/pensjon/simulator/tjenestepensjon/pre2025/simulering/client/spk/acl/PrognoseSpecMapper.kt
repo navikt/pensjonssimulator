@@ -1,14 +1,6 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl
 
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Inntekt
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Opptjeningsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Pensjonsbeholdningsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Simuleringsdata
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Simuleringsperiode
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertOffentligAfp
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SimulertPrivatAfp
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TpForhold
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.*
 
 object PrognoseSpecMapper {
 

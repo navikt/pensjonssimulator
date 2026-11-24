@@ -1,6 +1,7 @@
 package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk
 
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
+import no.nav.pensjon.simulator.tech.metric.Metrics.countTjenestepensjonSimuleringPre2025
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner
 import no.nav.pensjon.simulator.tech.security.egress.EgressAccess
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -16,6 +17,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.ac
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.HentPrognoseResponseDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseResultMapper.fromDto
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.acl.PrognoseSpecMapper.toDto
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.metrics.TellbarSpkResultatkode
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Service
@@ -28,33 +30,42 @@ class SpkTjenestepensjonClientPre2025(
     webClientBase: WebClientBase,
     private val traceAid: TraceAid,
     private val sporingslogger: SporingsloggService,
+    private val feilhaandtering: SpkFeilhaandtering
 ) : ExternalServiceClient(retryAttempts), TjenestepensjonClientPre2025 {
 
     private val webClient = webClientBase.withBaseUrl(baseUrl)
 
     override fun getPrognose(
-        spec: TjenestepensjonSimuleringPre2025Spec,
-        tpNr: String
+        spec: TjenestepensjonSimuleringPre2025Spec
     ): SimulerOffentligTjenestepensjonResult {
-        val request: HentPrognoseRequestDto = toDto(spec)
+        try {
+            val request: HentPrognoseRequestDto = toDto(spec)
 
-        sporingslogger.logUtgaaendeRequest(
-            organisasjonsnummer = Organisasjoner.SPK,
-            pid = spec.pid,
-            leverteData = request.toString()
-        )
+            sporingslogger.logUtgaaendeRequest(
+                organisasjonsnummer = Organisasjoner.SPK,
+                pid = spec.pid,
+                leverteData = request.toString()
+            )
 
-        val response: HentPrognoseResponseDto? = webClient
-            .post()
-            .uri(PATH)
-            .headers(::setHeaders)
-            .bodyValue(request)
-            .retrieve()
-            .bodyToMono<HentPrognoseResponseDto>()
-            .block()
+            val response: HentPrognoseResponseDto? = webClient
+                .post()
+                .uri(PATH)
+                .headers(::setHeaders)
+                .bodyValue(request)
+                .retrieve()
+                .bodyToMono<HentPrognoseResponseDto>()
+                .block()
 
-        return response?.let(::fromDto)
-            ?: fromDto(HentPrognoseResponseDto(tpnr = request.sisteTpnr, navnOrdning = tpNr))
+            countTjenestepensjonSimuleringPre2025(TellbarSpkResultatkode.OK)
+
+            return response?.let(::fromDto)
+                ?: SimulerOffentligTjenestepensjonResult(
+                    tpnr = request.sisteTpnr,
+                    navnOrdning = spec.sisteTpOrdningsTpNummer
+                )
+        } catch (e: EgressException) {
+            feilhaandtering.haandterFeil(e, spec.foedselsdato)
+        }
     }
 
     private fun setHeaders(headers: HttpHeaders) {

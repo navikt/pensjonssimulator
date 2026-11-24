@@ -10,13 +10,15 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
+import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Pre2025TjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.StillingsprosentService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import java.time.LocalDate
+import java.time.Month
 
 class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldSpec({
 
@@ -65,10 +67,10 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
 
     fun service(
         tpClient: TjenestepensjonsforholdClient = tjenestepensjonsforholdClient(),
-        spkStillingsprosent: SpkStillingsprosentService = mockk {
+        stillingsprosentService: StillingsprosentService = mockk {
             every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
-        spkTjenestepensjon: SPKTjenestepensjonServicePre2025 = mockk {
+        simuleringService: Pre2025TjenestepensjonService = mockk {
             every {
                 simulerOffentligTjenestepensjon(any(), any(), any())
             } returns SimulerOffentligTjenestepensjonResult(
@@ -78,7 +80,7 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
             )
         }
     ) = TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
-        tpClient, spkStillingsprosent, spkTjenestepensjon, featureToggleService()
+        tpClient, stillingsprosentService, simuleringService, featureToggleService()
     )
 
     // --- Happy path ---
@@ -87,11 +89,11 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
         val expectedResult = SimulerOffentligTjenestepensjonResult(
             tpnr = "3010", navnOrdning = "SPK", utbetalingsperiodeListe = emptyList()
         )
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns expectedResult
         }
 
-        val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+        val result = service(simuleringService = simuleringService).simuler(spec())
 
         with(result) {
             tpnr shouldBe "3010"
@@ -151,11 +153,11 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     // --- Empty stillingsprosent ---
 
     should("return TEKNISK_FEIL result when stillingsprosent is empty") {
-        val spkStillingsprosent = mockk<SpkStillingsprosentService> {
+        val simuleringService = mockk<StillingsprosentService> {
             every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
 
-        val result = service(spkStillingsprosent = spkStillingsprosent).simuler(spec())
+        val result = service(stillingsprosentService = simuleringService).simuler(spec())
 
         with(result) {
             feilkode shouldBe Feilkode.TEKNISK_FEIL
@@ -165,16 +167,35 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
         }
     }
 
-    // --- EgressException: BEREGNING_GIR_NULL_UTBETALING ---
+    // --- TjenestepensjonException: BEREGNING_GIR_NULL_UTBETALING ---
 
     should("return zero-amount perioder when SPK returns BEREGNING_GIR_NULL_UTBETALING") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
-                """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}"""
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
+            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws TjenestepensjonException(
+                message = "oops",
+                resultat = TjenestepensjonSimuleringsresultatVedFeil(
+                    feilkode = Feilkode.BEREGNING_GIR_NULL_UTBETALING,
+                    utbetalingsperiodeListe = listOf(
+                        Utbetalingsperiode(
+                            datoFom = LocalDate.of(2025, Month.JANUARY, 1),
+                            datoTom = LocalDate.of(2026, Month.DECEMBER, 31),
+                            uttaksgrad = 100,
+                            arligUtbetaling = 0.0,
+                            ytelsekode = YtelseCode.AFP
+                        ),
+                        Utbetalingsperiode(
+                            datoFom = LocalDate.of(2027, Month.JANUARY, 1),
+                            datoTom = null,
+                            uttaksgrad = 100,
+                            arligUtbetaling = 0.0,
+                            ytelsekode = YtelseCode.AP
+                        )
+                    )
+                )
             )
         }
 
-        val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+        val result = service(simuleringService = simuleringService).simuler(spec())
 
         with(result) {
             feilkode shouldBe Feilkode.BEREGNING_GIR_NULL_UTBETALING
@@ -191,16 +212,19 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
         }
     }
 
-    // --- EgressException: OPPFYLLER_IKKE_INNGANGSVILKAAR ---
+    // --- TjenestepensjonException: OPPFYLLER_IKKE_INNGANGSVILKAAR ---
 
     should("return result with feilkode for OPPFYLLER_IKKE_INNGANGSVILKAAR") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
-                """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}"""
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
+            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws TjenestepensjonException(
+                message = "oops",
+                resultat = TjenestepensjonSimuleringsresultatVedFeil(
+                    feilkode = Feilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR
+                )
             )
         }
 
-        val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+        val result = service(simuleringService = simuleringService).simuler(spec())
 
         with(result) {
             feilkode shouldBe Feilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR
@@ -209,33 +233,22 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
         }
     }
 
-    // --- EgressException: TEKNISK_FEIL ---
+    // --- TjenestepensjonException: TEKNISK_FEIL ---
 
     should("return result with TEKNISK_FEIL for known technical error codes") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
-                """{"errorCode":"CALC001","message":"Some technical error"}"""
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
+            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws TjenestepensjonException(
+                message = "oops",
+                resultat = TjenestepensjonSimuleringsresultatVedFeil(feilkode = Feilkode.TEKNISK_FEIL)
             )
         }
 
-        val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+        val result = service(simuleringService = simuleringService).simuler(spec())
 
         with(result) {
             feilkode shouldBe Feilkode.TEKNISK_FEIL
             utbetalingsperiodeListe shouldBe emptyList()
         }
-    }
-
-    // --- EgressException: unknown error code ---
-
-    should("return TEKNISK_FEIL for unknown error code") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
-                """{"errorCode":"UNKNOWN","message":"Unknown error"}"""
-            )
-        }
-
-        service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec()).feilkode shouldBe Feilkode.TEKNISK_FEIL
     }
 
     // --- EgressException before SPK membership found ---
@@ -255,14 +268,14 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorServiceTest : ShouldS
     // --- EgressException with missing errorCode ---
 
     should("rethrow EgressException when error code is undefined") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws EgressException(
                 """{"message":"error without code"}"""
             )
         }
 
         shouldThrow<EgressException> {
-            service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+            service(simuleringService = simuleringService).simuler(spec())
         }
     }
 })

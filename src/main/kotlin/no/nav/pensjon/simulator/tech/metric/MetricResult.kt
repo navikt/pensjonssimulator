@@ -3,7 +3,7 @@ package no.nav.pensjon.simulator.tech.metric
 import io.micrometer.core.instrument.Metrics
 import no.nav.pensjon.simulator.tech.metric.Organisasjoner.SPK
 import no.nav.pensjon.simulator.tjenestepensjon.fra2025.metrics.TpSimuleringResultatFra2025
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics.SPKResultatKodePre2025
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.metrics.TellbarSpkResultatkode
 
 object Metrics {
     private const val PREFIX = "ps"
@@ -26,9 +26,9 @@ object Metrics {
             .increment()
     }
 
-    fun countTjenestepensjonSimuleringPre2025(resultat: SPKResultatKodePre2025, org: String = Organisasjoner.navn(SPK)) {
+    fun countTjenestepensjonSimuleringPre2025(resultat: TellbarSpkResultatkode, organisasjonId: String = Organisasjoner.navn(SPK)) {
         Metrics
-            .counter("${PREFIX}_tp_simulering_pre_2025", "resultat", resultat.name, "org", org)
+            .counter("${PREFIX}_tp_simulering_pre_2025", "resultat", resultat.name, "org", organisasjonId)
             .increment()
     }
 

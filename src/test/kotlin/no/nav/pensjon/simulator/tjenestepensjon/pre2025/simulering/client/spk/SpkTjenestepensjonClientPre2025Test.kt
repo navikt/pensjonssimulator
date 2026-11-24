@@ -11,7 +11,6 @@ import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.web.CustomHttpHeaders
 import no.nav.pensjon.simulator.tech.web.WebClientBase
 import no.nav.pensjon.simulator.testutil.Arrange
-import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.YtelseCode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
@@ -47,7 +46,8 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
             retryAttempts = "0",
             webClientBase = context.getBean<WebClientBase>(),
             traceAid,
-            sporingslogger = sporingslogg
+            sporingslogger = sporingslogg,
+            feilhaandtering = mockk()
         )
 
     beforeSpec {
@@ -75,8 +75,6 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
         tpForhold = emptyList()
     )
 
-    val tpDto = Tjenestepensjonsordning(navn = "SPK", tpNr = "3010", datoSistOpptjening = LocalDate.now(), tssId = "12345")
-
     "1) getResponse returns body from server" {
         Arrange.webClientContextRunner().run {
             server?.enqueue(
@@ -86,7 +84,7 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
                     .setBody(RESPONSE_BODY)
             )
 
-            val result = client(context = it).getPrognose(spec, tpDto.tpNr)
+            val result = client(context = it).getPrognose(spec)
 
             with(result) {
                 tpnr shouldBe "3010"
@@ -145,7 +143,12 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
 
         Arrange.webClientContextRunner().run {
             // Fallback is constructed as HentPrognoseResponseDto(request.sisteTpnr, tpOrdning.tpNr)
-            client(context = it).getPrognose(spec, tpDto.tpNr).tpnr shouldBe "3010"
+            val prognose = client(context = it).getPrognose(spec)
+
+            with(prognose) {
+                tpnr shouldBe "3010"
+                navnOrdning shouldBe "3010" // NB!
+            }
         }
     }
 }) {
@@ -200,4 +203,3 @@ class SpkTjenestepensjonClientPre2025Test : StringSpec({
     """
     }
 }
-

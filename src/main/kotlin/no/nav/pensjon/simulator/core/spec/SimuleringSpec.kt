@@ -78,11 +78,11 @@ data class SimuleringSpec(
 
     /**
      * Uføretrygd må avsluttes før uttak av pensjon i følgende tilfeller:
-     * - Ved uttak (helt eller gradert) av alderspensjon i kombinasjon med privat AFP
+     * - Ved uttak (helt eller gradert) av alderspensjon i kombinasjon med livsvarig privat og lisvarig offentlig AFP
      * - Ved helt uttak av alderspensjon
      */
     val kreverAvsluttetUfoeretrygd: Boolean =
-        gjelderPrivatAfp || simuleringstyperSomVedHeltUttakKreverAvsluttetUfoeretrygd.contains(type) && erHeltUttak
+        gjelderPrivatAfp || gjelderLivsvarigOffentligAfp() || simuleringstyperSomVedHeltUttakKreverAvsluttetUfoeretrygd.contains(type) && erHeltUttak
 
     val limitedUtenlandsoppholdAntallAar: Int =
         if (utlandAntallAar < 1 && utlandPeriodeListe.isNotEmpty() && foedselDato != null)

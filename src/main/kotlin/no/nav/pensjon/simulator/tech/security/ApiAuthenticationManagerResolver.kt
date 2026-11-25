@@ -8,27 +8,27 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.RequestMatcher
 
 class ApiAuthenticationManagerResolver(
-    entraProvider: ProviderManager,
-    maskinportenProvider: ProviderManager
+    navInternManager: ProviderManager,
+    maskinportenManager: ProviderManager
 ) : AuthenticationManagerResolver<HttpServletRequest> {
     private val builder = PathPatternRequestMatcher.withDefaults()
 
-    private val managerMap: Map<RequestMatcher, AuthenticationManager> =
+    private val managersByMatcher: Map<RequestMatcher, AuthenticationManager> =
         mapOf(
-            builder.matcher("/api/anonym/**") to entraProvider,
-            builder.matcher("/api/nav/**") to entraProvider,
-            builder.matcher("/api/tpo/**") to entraProvider,
-            builder.matcher("/api/v0/simuler-afp-etterfulgt-av-alderspensjon") to maskinportenProvider,
-            builder.matcher("/api/v2/simuler-alderspensjon-privat-afp") to maskinportenProvider,
-            builder.matcher("/api/v3/simuler-alderspensjon-privat-afp") to maskinportenProvider,
-            builder.matcher("/api/v3/simuler-alderspensjon") to maskinportenProvider,
-            builder.matcher("/api/v4/simuler-alderspensjon") to maskinportenProvider,
-            builder.matcher("/api/v1/simuler-folketrygdbeholdning") to maskinportenProvider,
-            builder.matcher("/api/v0/simuler-folketrygdberegnet-afp") to maskinportenProvider,
-            builder.matcher("/api/v1/tidligst-mulig-uttak") to maskinportenProvider
+            builder.matcher("/api/anonym/**") to navInternManager,
+            builder.matcher("/api/nav/**") to navInternManager,
+            builder.matcher("/api/tpo/**") to navInternManager,
+            builder.matcher("/api/v0/simuler-afp-etterfulgt-av-alderspensjon") to maskinportenManager,
+            builder.matcher("/api/v2/simuler-alderspensjon-privat-afp") to maskinportenManager,
+            builder.matcher("/api/v3/simuler-alderspensjon-privat-afp") to maskinportenManager,
+            builder.matcher("/api/v3/simuler-alderspensjon") to maskinportenManager,
+            builder.matcher("/api/v4/simuler-alderspensjon") to maskinportenManager,
+            builder.matcher("/api/v1/simuler-folketrygdbeholdning") to maskinportenManager,
+            builder.matcher("/api/v0/simuler-folketrygdberegnet-afp") to maskinportenManager,
+            builder.matcher("/api/v1/tidligst-mulig-uttak") to maskinportenManager
         )
 
     override fun resolve(context: HttpServletRequest): AuthenticationManager =
-        managerMap.entries.firstOrNull { it.key.matches(context) }?.value
+        managersByMatcher.entries.firstOrNull { it.key.matches(context) }?.value
             ?: throw IllegalArgumentException("Unable to resolve AuthenticationManager")
 }

@@ -18,7 +18,7 @@ import java.util.*
 
 @Component
 class MaskinportenRequestClient(
-    @param:Value($$"${maskinporten.token-endpoint-url}") val tokenEndpoint: String,
+    @Value($$"${maskinporten.token-endpoint-url}") tokenEndpoint: String,
     webClientBase: WebClientBase,
     expirationChecker: ExpirationChecker,
     private val credentials: MaskinportenCredentials,
@@ -33,7 +33,7 @@ class MaskinportenRequestClient(
         accessParameter: TokenAccessParameter,
         audience: String
     ): MultiValueMap<String, String> =
-        OAuth2ParameterBuilder()
+        OAuth2ParameterBuilder
             .tokenAccessParameter(accessParameter)
             .assertion(signedJwt(scope = audience, issueTime = Date()))
             .buildMaskinportenTokenRequestMap()

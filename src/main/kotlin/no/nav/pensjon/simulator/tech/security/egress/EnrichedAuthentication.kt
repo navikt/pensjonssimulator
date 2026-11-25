@@ -1,7 +1,9 @@
 package no.nav.pensjon.simulator.tech.security.egress
 
+import no.nav.pensjon.simulator.tech.representasjon.RepresentertRolle
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenSuppliersByService
+import no.nav.pensjon.simulator.tech.security.egress.config.EgressTokenTypeDecisionBasis
 import no.nav.pensjon.simulator.tech.security.egress.token.RawJwt
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
@@ -9,16 +11,16 @@ import org.springframework.security.core.GrantedAuthority
 /**
  * Authentication data is initially obtained by Spring Security.
  * This class augments that data by adding a mechanism for getting egress tokens
- * (used by backend for accessing other services).
+ * (used by pensjonssimulator for accessing other services).
  */
 class EnrichedAuthentication(
     private val initialAuth: Authentication?,
-    private val egressTokenSuppliersByService: EgressTokenSuppliersByService
+    private val egressTokenSuppliersByService: EgressTokenSuppliersByService,
+    val rolle: RepresentertRolle
 ) : Authentication {
 
-    fun getEgressAccessToken(service: EgressService): RawJwt {
-        return egressTokenSuppliersByService.value[service]?.get() ?: RawJwt("")
-    }
+    fun getEgressAccessToken(service: EgressService, tokenTypeDecisionBasis: EgressTokenTypeDecisionBasis): RawJwt =
+        egressTokenSuppliersByService.value[service]?.apply(tokenTypeDecisionBasis) ?: RawJwt("")
 
     override fun getName(): String? = initialAuth?.name
 
@@ -37,4 +39,4 @@ class EnrichedAuthentication(
     }
 }
 
-fun Authentication.enriched(): EnrichedAuthentication = this as EnrichedAuthentication
+fun Authentication.enriched() = this as EnrichedAuthentication

@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.util.*
-import java.util.function.Supplier
+import java.util.function.Function
 
 @Configuration
-open class EgressServiceSecurityConfiguration {
+class EgressServiceSecurityConfiguration {
 
     @Bean
-    open fun egressServiceListsByAudience(
+    fun egressServiceListsByAudience(
         @Value($$"${ps.pen.service-id}") pensjonsfagligKjerneServiceId: String,
         @Value($$"${ps.pensjonpersondata.service-id}") pensjonPersondataServiceId: String,
         @Value($$"${ps.persondata.service-id}") persondataServiceId: String,
@@ -42,15 +42,17 @@ open class EgressServiceSecurityConfiguration {
         )
 
     @Bean
-    open fun egressTokenSuppliersByService(
+    fun egressTokenSuppliersByService(
         servicesByAudience: EgressServicesByAudience,
         egressTokenGetter: EgressAccessTokenFacade
     ): EgressTokenSuppliersByService {
-        val suppliersByService: MutableMap<EgressService, Supplier<RawJwt>> = EnumMap(EgressService::class.java)
+        val suppliersByService: MutableMap<EgressService, Function<EgressTokenTypeDecisionBasis, RawJwt>> =
+            EnumMap(EgressService::class.java)
 
         servicesByAudience.entries.forEach { (audience, service) ->
-            suppliersByService[service] =
-                Supplier<RawJwt> { egressTokenGetter.getAccessToken(service.authType, audience) }
+            suppliersByService[service] = Function<EgressTokenTypeDecisionBasis, RawJwt> {
+                egressTokenGetter.getAccessToken(service.authType, audience, tokenTypeDecisionBasis = it)
+            }
         }
 
         return EgressTokenSuppliersByService(suppliersByService)

@@ -25,7 +25,6 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
     val pid = Pid("12345678910")
     val foedselsdato = LocalDate.of(1963, 1, 15)
     val normalder = Alder(67, 0)
-    val today = LocalDate.of(2024, 6, 1)
 
     fun discriminator(
         simulerBehaviour: (Any) -> SimulatorOutput = { SimulatorOutput() }
@@ -41,7 +40,7 @@ class UfoereAlternativtUttakFinderTest : FunSpec({
     fun finder(
         discriminator: UttakAlderDiscriminator = discriminator(),
         spec: SimuleringSpec = simuleringSpec()
-    ) = UfoereAlternativtUttakFinder(discriminator, spec, normalderService(), mockk(relaxed = true)) { today }
+    ) = UfoereAlternativtUttakFinder(discriminator, spec, normalderService(), mockk(relaxed = true))
 
     // --- Happy path: all simulations succeed ---
 

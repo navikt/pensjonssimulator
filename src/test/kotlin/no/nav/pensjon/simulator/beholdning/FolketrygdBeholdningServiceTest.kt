@@ -29,7 +29,6 @@ class FolketrygdBeholdningServiceTest : FunSpec({
         FolketrygdBeholdningService(
             simulator,
             personService = Arrange.foedselsdato(1965, 6, 7),
-            time = { LocalDate.of(2025, 1, 1) },
             validator = mockk(relaxed = true),
             simuleringstypeDeducer = Arrange.simuleringstype(
                 type = SimuleringTypeEnum.ALDER,
@@ -94,7 +93,6 @@ class FolketrygdBeholdningServiceTest : FunSpec({
             FolketrygdBeholdningService(
                 simulator = arrangeSimulator(),
                 personService = Arrange.foedselsdato(1965, 6, 7),
-                time = { LocalDate.of(2025, 1, 1) },
                 validator = arrangeBadSpec(), // "feil" i spesifikasjonen
                 simuleringstypeDeducer = mockk(),
                 outputConverter = mockk()
@@ -186,7 +184,6 @@ private fun simuleringSpec() =
 private fun simulerFolketrygdBeholdning(inntektSpecListe: List<InntektSpec>): FolketrygdBeholdning =
     FolketrygdBeholdningService(
         simulator = mockk(),
-        time = { LocalDate.of(2025, 1, 1) },
         personService = mockk(),
         validator = mockk(),
         simuleringstypeDeducer = mockk(),

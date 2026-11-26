@@ -56,9 +56,10 @@ class SpkTjenestepensjonClientPre2025(
                 .bodyToMono<HentPrognoseResponseDto>()
                 .block()
 
-            countTjenestepensjonSimuleringPre2025(TellbarSpkResultatkode.OK)
+            val result: SimulerOffentligTjenestepensjonResult? = response?.let(::fromDto)
+            countTjenestepensjonSimuleringPre2025(resultat = TellbarSpkResultatkode.OK)
 
-            return response?.let(::fromDto)
+            return result
                 ?: SimulerOffentligTjenestepensjonResult(
                     tpnr = request.sisteTpnr,
                     navnOrdning = spec.sisteTpOrdningsTpNummer

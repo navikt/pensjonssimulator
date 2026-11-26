@@ -9,9 +9,9 @@ data class SimulerOffentligTjenestepensjonResult(
     val inkluderteOrdningerListe: List<String> = emptyList(),
     val leverandorUrl: String? = null,
     val utbetalingsperiodeListe: List<Utbetalingsperiode> = emptyList(),
-    var brukerErIkkeMedlemAvTPOrdning: Boolean = false,
-    var brukerErMedlemAvTPOrdningSomIkkeStoettes: Boolean = false,
-    var feilkode: Feilkode? = null,
+    val brukerErIkkeMedlemAvTPOrdning: Boolean = false,
+    val brukerErMedlemAvTPOrdningSomIkkeStoettes: Boolean = false,
+    val feilkode: Feilkode? = null,
     val relevanteTpOrdninger: List<String> = emptyList(),
     val problem: Problem? = null
 ) {
@@ -39,11 +39,11 @@ data class SimulerOffentligTjenestepensjonResult(
 }
 
 data class Utbetalingsperiode(
-    var uttaksgrad: Int,
-    var arligUtbetaling: Double,
-    var datoFom: LocalDate,
-    var datoTom: LocalDate?,
-    var ytelsekode: YtelseCode?
+    val uttaksgrad: Int,
+    val arligUtbetaling: Double,
+    val datoFom: LocalDate,
+    val datoTom: LocalDate?,
+    val ytelsekode: YtelseCode?
 )
 
 enum class YtelseCode {
@@ -52,35 +52,10 @@ enum class YtelseCode {
     SERALDER
 }
 
-enum class Feilkode(
-    private val externalValues: List<String> = emptyList(),
-    private val externalErrorMessages: List<String> = emptyList()
-) {
-    TEKNISK_FEIL(
-        externalValues = listOf("CALC001", "CALC003", "CALC004", "CALC005")
-    ),
-    BEREGNING_GIR_NULL_UTBETALING(
-        externalValues = listOf("CALC002"),
-        externalErrorMessages = listOf("Beregning gir 0 i utbetaling.").map { "Validation problem: $it" }),
-    OPPFYLLER_IKKE_INNGANGSVILKAAR(
-        externalValues = listOf("CALC002"),
-        externalErrorMessages = listOf(
-            "Beregning gir 0 i utbetaling.",
-            "Delvis AFP ikke lovlig med reststilling under 60%.",
-            "Delvis AFP ikke lovlig med nedgang under 10%.",
-            "Tjenestetid mindre enn 3 år."
-        ).map { "Validation problem: $it" }),
+enum class Feilkode {
+    TEKNISK_FEIL,
+    BEREGNING_GIR_NULL_UTBETALING,
+    OPPFYLLER_IKKE_INNGANGSVILKAAR,
     BRUKER_IKKE_MEDLEM_AV_TP_ORDNING,
-    TP_ORDNING_STOETTES_IKKE;
-
-    companion object {
-        //TODO: Place this in ACL on egress side
-        fun fromExternalValue(externalValue: String, externalErrorMessage: String) =
-            entries.firstOrNull {
-                if (externalValue == "CALC002")
-                    it.externalValues.contains(externalValue) && it.externalErrorMessages.contains(externalErrorMessage)
-                else
-                    it.externalValues.contains(externalValue)
-            } ?: TEKNISK_FEIL
-    }
+    TP_ORDNING_STOETTES_IKKE
 }

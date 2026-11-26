@@ -5,8 +5,5 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Tjenestepensj
 
 interface TjenestepensjonClientPre2025 {
 
-    fun getPrognose(
-        spec: TjenestepensjonSimuleringPre2025Spec,
-        tpNr: String
-    ): SimulerOffentligTjenestepensjonResult
+    fun getPrognose(spec: TjenestepensjonSimuleringPre2025Spec): SimulerOffentligTjenestepensjonResult
 }

@@ -21,7 +21,7 @@ class SpkFeilhaandteringTest : ShouldSpec({
                     EgressException(
                         """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}"""
                     ),
-                    foedselsdato = LocalDate.of(1965, Month.JANUARY, 15)
+                    foedselsdato
                 )
             }
 
@@ -57,11 +57,27 @@ class SpkFeilhaandteringTest : ShouldSpec({
                     EgressException(
                         """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}"""
                     ),
-                    foedselsdato = LocalDate.of(1965, Month.JANUARY, 15)
+                    foedselsdato
                 )
             }.resultat shouldBe TjenestepensjonSimuleringsresultatVedFeil(
                 utbetalingsperiodeListe = emptyList(),
                 feilkode = Feilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR
+            )
+        }
+    }
+
+    context("flere samtidige stillinger") {
+        should("gi feilkode 'teknisk feil' og ingen utbetalingsperioder") { // NB: 'teknisk feil'
+            shouldThrow<TjenestepensjonException> {
+                SpkFeilhaandtering().haandterFeil(
+                    EgressException(
+                        """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
+                    ),
+                    foedselsdato
+                )
+            }.resultat shouldBe TjenestepensjonSimuleringsresultatVedFeil(
+                utbetalingsperiodeListe = emptyList(),
+                feilkode = Feilkode.TEKNISK_FEIL
             )
         }
     }
@@ -71,7 +87,7 @@ class SpkFeilhaandteringTest : ShouldSpec({
             shouldThrow<TjenestepensjonException> {
                 SpkFeilhaandtering().haandterFeil(
                     EgressException("""{"errorCode":"CALC001","message":"Some technical error"}"""),
-                    foedselsdato = LocalDate.of(1965, Month.JANUARY, 15)
+                    foedselsdato
                 )
             }.resultat shouldBe TjenestepensjonSimuleringsresultatVedFeil(
                 utbetalingsperiodeListe = emptyList(),
@@ -85,7 +101,7 @@ class SpkFeilhaandteringTest : ShouldSpec({
             shouldThrow<TjenestepensjonException> {
                 SpkFeilhaandtering().haandterFeil(
                     EgressException("""{"errorCode":"UNKNOWN","message":"Unknown error"}"""),
-                    foedselsdato = LocalDate.of(1965, Month.JANUARY, 15)
+                    foedselsdato
                 )
             }.resultat shouldBe TjenestepensjonSimuleringsresultatVedFeil(
                 utbetalingsperiodeListe = emptyList(),
@@ -94,3 +110,5 @@ class SpkFeilhaandteringTest : ShouldSpec({
         }
     }
 })
+
+private val foedselsdato = LocalDate.of(1965, Month.JANUARY, 15)

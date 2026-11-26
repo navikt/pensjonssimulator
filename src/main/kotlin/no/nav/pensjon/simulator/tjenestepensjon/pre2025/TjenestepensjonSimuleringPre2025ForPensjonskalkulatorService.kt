@@ -6,10 +6,9 @@ import no.nav.pensjon.simulator.tech.env.EnvironmentUtil
 import no.nav.pensjon.simulator.tech.metric.Metrics
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService
 import no.nav.pensjon.simulator.tech.toggle.FeatureToggleService.Companion.PEK_1490_TP_FOER_1963
-import no.nav.pensjon.simulator.tech.web.EgressException
+import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsordning
-import no.nav.pensjon.simulator.tjenestepensjon.TjenestepensjonException
 import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult.Companion.ikkeMedlem
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.SimulerOffentligTjenestepensjonResult.Companion.tpOrdningStoettesIkke
@@ -19,6 +18,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.me
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.StillingsprosentService
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.time.Month
 
 /**
  * Service for V3 in TjenestepensjonPre2025Controller.
@@ -102,16 +102,43 @@ class TjenestepensjonSimuleringPre2025ForPensjonskalkulatorService(
         private const val TP_ORDNING_NAVN = "SPK"
         private val relevanteTpNumre = setOf("3010", "3060")
 
-        private val MOCK_SPK_EXCEPTION1 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Tjenestetid mindre enn 3 år."}""",
+        private val MOCK_SPK_EXCEPTION1 = TjenestepensjonException(
+            message = "prognosekall til SPK feilet",
+            resultat = TjenestepensjonSimuleringsresultatVedFeil(
+                utbetalingsperiodeListe = emptyList(),
+                feilkode = Feilkode.OPPFYLLER_IKKE_INNGANGSVILKAAR
+            )
         )
 
-        private val MOCK_SPK_EXCEPTION2 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Flere samtidige stillinger er ikke støttet."}""",
+        private val MOCK_SPK_EXCEPTION2 = TjenestepensjonException(
+            message = "prognosekall til SPK feilet",
+            resultat = TjenestepensjonSimuleringsresultatVedFeil(
+                utbetalingsperiodeListe = emptyList(),
+                feilkode = Feilkode.TEKNISK_FEIL
+            )
         )
 
-        private val MOCK_SPK_EXCEPTION3 = EgressException(
-            """{"errorCode":"CALC002","message":"Validation problem: Beregning gir 0 i utbetaling."}""",
+        private val MOCK_SPK_EXCEPTION3 = TjenestepensjonException(
+            message = "prognosekall til SPK feilet",
+            resultat = TjenestepensjonSimuleringsresultatVedFeil(
+                utbetalingsperiodeListe = listOf(
+                    Utbetalingsperiode(
+                        datoFom = LocalDate.of(2030, Month.FEBRUARY, 1),
+                        datoTom = LocalDate.of(2032, Month.FEBRUARY, 1),
+                        uttaksgrad = 100,
+                        arligUtbetaling = 0.0,
+                        ytelsekode = YtelseCode.AFP
+                    ),
+                    Utbetalingsperiode(
+                        datoFom = LocalDate.of(2032, Month.FEBRUARY, 1),
+                        datoTom = null,
+                        uttaksgrad = 100,
+                        arligUtbetaling = 0.0,
+                        ytelsekode = YtelseCode.AP
+                    )
+                ),
+                feilkode = Feilkode.BEREGNING_GIR_NULL_UTBETALING
+            )
         )
 
         private val MOCK_SPK_RESULT = SimulerOffentligTjenestepensjonResult(

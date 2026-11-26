@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
+import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.trygdetid.Trygdetid
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -24,11 +25,12 @@ import java.time.LocalDate
  * Converts from simulator output to pensjon in an intermediate format.
  */
 @Component
-class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
-
+class SimulatorOutputConverter(
+    private val afpGrad: AfpGrad,
+    private val time: Time
+) {
     fun pensjon(
         source: SimulatorOutput,
-        today: LocalDate,
         inntektVedTidsbegrensetOffentligAfpUttak: Int? = null,
         gradertUttakDato: LocalDate? = null,
         heltUttakDato: LocalDate? = null,
@@ -63,7 +65,7 @@ class SimulatorOutputConverter(private val afpGrad: AfpGrad) {
             livsvarigOffentligAfp = source.livsvarigOffentligAfp.orEmpty().map(::livsvarigOffentligAfp),
             pensjonBeholdningPeriodeListe = alderspensjon?.pensjonBeholdningListe.orEmpty()
                 .map(::beholdningPeriode),
-            harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(it, today) },
+            harUttak = alderspensjon?.uttakGradListe.orEmpty().any { harUttakToday(grad = it, today = time.today()) },
             primaerTrygdetid = foersteTrygdetid(periodeListe),
             opptjeningListe = source.opptjeningListe,
             livsvarigOffentligAfpHarBetydningForInnvilgelse = livsvarigOffentligAfpHarBetydningForInnvilgelse

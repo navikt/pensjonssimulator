@@ -11,15 +11,15 @@ enum class EgressService(
     val purpose: String,
     val authType: AuthType = AuthType.MACHINE_INSIDE_NAV
 ) {
-    OAUTH2_TOKEN(
-        description = "OAuth2 token",
-        shortName = "OA2",
-        purpose = "OAuth2 access token"
-    ),
     FSS_GATEWAY(
         description = "FSS-gateway",
         shortName = "FGW",
         purpose = "Proxy for SOAP-kall til tjenestepensjonsordning"
+    ),
+    AFP_BEHOLDNING_API(
+        description = "AFP Beholdning API",
+        shortName = "AFP-BEHOLDNING-API",
+        purpose = "Hente simulerte AFP-beholdninger"
     ),
     PENSJONSFAGLIG_KJERNE(
         description = "Pensjonsfaglig kjerne",
@@ -40,12 +40,14 @@ enum class EgressService(
     PENSJONSOPPTJENING(
         description = "Pensjonsopptjening",
         shortName = "POPP",
-        purpose = "Hente opptjeningsgrunnlag"
+        purpose = "Hente opptjeningsgrunnlag",
+        authType = AuthType.PERSONAL_NOT_TOKEN_X
     ),
     PERSONDATA(
         description = "Persondata",
         shortName = "PDL",
-        purpose = "Hente generelle persondata"
+        purpose = "Hente generelle persondata",
+        authType = AuthType.PERSONAL_NOT_TOKEN_X
     ),
     SPORINGSLOGG(
         description = "Sporingslogg",
@@ -57,6 +59,8 @@ enum class EgressService(
         shortName = "TP",
         purpose = "Hente tjenestepensjonsforhold"
     ),
+
+    // Eksterne tjenester:
     SPK(
         description = "Statens Pensjonskasse",
         shortName = "SPK",
@@ -75,9 +79,12 @@ enum class EgressService(
         purpose = "Simulere offentlig tjenestepensjon",
         authType = AuthType.MACHINE_OUTSIDE_NAV
     ),
-    AFP_BEHOLDNING_API(
-        description = "AFP Beholdning API",
-        shortName = "AFP-BEHOLDNING-API",
-        purpose = "Hente simulerte AFP-beholdninger"
-    ),
+
+    // Felles-konfigurasjon for tjenester som leverer egress-token:
+    OAUTH2_TOKEN(
+        description = "OAuth2 token",
+        shortName = "OA2",
+        purpose = "OAuth2 access token",
+        authType = AuthType.NONE
+    )
 }

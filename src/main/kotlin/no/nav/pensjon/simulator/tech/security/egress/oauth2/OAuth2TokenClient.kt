@@ -1,6 +1,5 @@
 package no.nav.pensjon.simulator.tech.security.egress.oauth2
 
-import mu.KotlinLogging
 import no.nav.pensjon.simulator.common.client.ExternalServiceClient
 import no.nav.pensjon.simulator.tech.metric.MetricResult
 import no.nav.pensjon.simulator.tech.security.egress.config.EgressService
@@ -14,6 +13,7 @@ import org.springframework.http.MediaType
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import org.springframework.web.reactive.function.client.bodyToMono
 
 abstract class OAuth2TokenClient(
     private val tokenEndpoint: String,
@@ -22,15 +22,12 @@ abstract class OAuth2TokenClient(
     private val expirationChecker: ExpirationChecker
 ) : ExternalServiceClient(retryAttempts), TokenDataGetter {
 
-    private val log = KotlinLogging.logger {}
     private val webClient = webClientBase.withBaseUrl(tokenEndpoint)
 
     override fun service() = service
 
-    override fun getTokenData(accessParameter: TokenAccessParameter, audience: String): TokenData {
-        log.debug { "Fetching token for audience '$audience'" }
-
-        return try {
+    override fun getTokenData(accessParameter: TokenAccessParameter, audience: String): TokenData =
+        try {
             val body: OAuth2TokenDto = webClient
                 .post()
                 .uri("")
@@ -38,21 +35,19 @@ abstract class OAuth2TokenClient(
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(prepareTokenRequestBody(accessParameter, audience))
                 .retrieve()
-                .bodyToMono(OAuth2TokenDto::class.java)
+                .bodyToMono<OAuth2TokenDto>()
                 .retryWhen(retryBackoffSpec(tokenEndpoint))
                 .block()!!
                 .also { countCalls(MetricResult.OK) }
             // Note: Do not use .body instead of .bodyValue, since this results in chunked encoding,
             // which the endpoint may not support, resulting in 404 Not Found
 
-            log.debug { "Token obtained for audience '$audience'" }
             OAuth2TokenDataMapper.map(body, expirationChecker.time())
         } catch (e: WebClientRequestException) {
             throw EgressException("Failed calling $tokenEndpoint", e)
         } catch (e: WebClientResponseException) {
             throw EgressException(e.responseBodyAsString, e)
         }
-    }
 
     override fun toString(e: EgressException, uri: String) = "Failed calling $uri"
 

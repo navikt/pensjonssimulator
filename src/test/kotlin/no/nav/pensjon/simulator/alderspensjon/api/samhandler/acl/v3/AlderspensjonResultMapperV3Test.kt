@@ -6,15 +6,12 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertDelytelse
-import no.nav.pensjon.simulator.core.domain.regler.enum.YtelseskomponentTypeEnum
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.result.RegisterData
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertAlderspensjon
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
-import no.nav.pensjon.simulator.tech.time.Time
 import no.nav.pensjon.simulator.testutil.Arrange
 import no.nav.pensjon.simulator.testutil.TestObjects.pid
 import java.time.LocalDate
@@ -33,7 +30,6 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
-            outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
             simuleringResult = SimulatorOutput(registerData = RegisterData(sisteGyldigeOpptjeningAar = 2023)),
@@ -70,7 +66,6 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         AlderspensjonResultMapperV3(
             personService = Arrange.foedselsdato(1970, 1, 15),
             normertPensjonsalderService = arrangeNormertPensjoneringsdato(normertPensjoneringsdato),
-            outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
             simuleringResult = SimulatorOutput(
@@ -125,7 +120,6 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         val result = AlderspensjonResultMapperV3(
             personService = Arrange.foedselsdato(1970, 1, 15),
             normertPensjonsalderService = arrangeNormertPensjoneringsdato(normertPensjoneringsdato),
-            outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
             simuleringResult = SimulatorOutput(
@@ -159,8 +153,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
-            outputConverter = mockk(relaxed = true),
-            time = mockk<Time>().apply { every { today() } returns today }
+            time = mockk { every { today() } returns today }
         ).map(
             simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
@@ -187,8 +180,7 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
-            outputConverter = mockk(relaxed = true),
-            time = mockk<Time>().apply { every { today() } returns today }
+            time = mockk { every { today() } returns today }
         ).map(
             simuleringResult = SimulatorOutput(
                 alderspensjon = SimulertAlderspensjon().apply {
@@ -222,18 +214,6 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
-            outputConverter = mockk {
-                every { delytelser(any()) } returns listOf(
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.GP, beloep = 1),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.TP, beloep = 2),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.PT, beloep = 3),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV, beloep = 4),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.IP, beloep = 5),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.GAP, beloep = 6),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.GAT, beloep = 7),
-                    SimulertDelytelse(type = YtelseskomponentTypeEnum.SKJERMT, beloep = 8)
-                )
-            },
             time = mockk(relaxed = true)
         ).map(
             simuleringResult = SimulatorOutput(
@@ -282,11 +262,6 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         val result = AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
-            outputConverter = mockk {
-                every { delytelser(match { it.uttakGrad == 20.0 }) } returns grunnpensjon(beloep = 1)
-                every { delytelser(match { it.uttakGrad == 50.0 }) } returns grunnpensjon(beloep = 2)
-                every { delytelser(match { it.uttakGrad == 100.0 }) } returns grunnpensjon(beloep = 3)
-            },
             time = mockk(relaxed = true)
         ).map(
             simuleringResult = SimulatorOutput(
@@ -337,7 +312,6 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
         AlderspensjonResultMapperV3(
             personService = mockk(relaxed = true),
             normertPensjonsalderService = mockk(relaxed = true),
-            outputConverter = mockk(relaxed = true),
             time = mockk(relaxed = true)
         ).map(
             simuleringResult = SimulatorOutput().apply {
@@ -354,11 +328,8 @@ class AlderspensjonResultMapperV3Test : ShouldSpec({
     }
 })
 
-private fun grunnpensjon(beloep: Int): List<SimulertDelytelse> =
-    listOf(SimulertDelytelse(type = YtelseskomponentTypeEnum.GP, beloep))
-
 private fun arrangeNormertPensjoneringsdato(dato: LocalDate): NormertPensjonsalderService =
-    mockk<NormertPensjonsalderService>().apply {
+    mockk {
         every { normertPensjoneringsdato(any()) } returns dato
     }
 

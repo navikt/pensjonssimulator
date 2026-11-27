@@ -1,8 +1,8 @@
-package no.nav.pensjon.simulator.tjenestepensjon.pre2025.metrics
+package no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.client.spk.metrics
 
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.Feilkode
 
-enum class SPKResultatKodePre2025 {
+enum class TellbarSpkResultatkode {
     OK,
     INGEN_UTBETALING,
     OPPFYLLER_IKKE_INNGANGSVILKAAR,

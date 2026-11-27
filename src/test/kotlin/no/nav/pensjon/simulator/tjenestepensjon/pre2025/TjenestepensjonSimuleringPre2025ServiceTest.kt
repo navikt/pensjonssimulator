@@ -10,10 +10,10 @@ import no.nav.pensjon.simulator.person.Pid
 import no.nav.pensjon.simulator.tjenestepensjon.Tjenestepensjonsforhold
 import no.nav.pensjon.simulator.tjenestepensjon.forhold.client.TjenestepensjonsforholdClient
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.BrukerKvalifisererIkkeTilTjenestepensjonException
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SPKTjenestepensjonServicePre2025
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.Pre2025TjenestepensjonService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.SivilstandKode
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.simulering.TjenestepensjonSimuleringPre2025Spec
-import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.SpkStillingsprosentService
+import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.StillingsprosentService
 import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.Stillingsprosent
 import java.time.LocalDate
 
@@ -35,7 +35,7 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
         tpForhold = emptyList()
     )
 
-    fun spkForhold(tpNr: String = "3010", navn: String = "SPK") =
+    fun tpForhold(tpNr: String = "3010", navn: String = "SPK") =
         Tjenestepensjonsforhold(tpNr = tpNr, navn = navn, datoSistOpptjening = null)
 
     fun stillingsprosent() = Stillingsprosent(
@@ -47,29 +47,29 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
         stillingsuavhengigTilleggslonn = null
     )
 
-    fun tpregisteretClient(
-        forhold: List<Tjenestepensjonsforhold> = listOf(spkForhold()),
+    fun tpForholdClient(
+        tpForholdListe: List<Tjenestepensjonsforhold> = listOf(tpForhold()),
         tssIdMap: Map<String, String?> = mapOf("3010" to "tss-3010")
     ) = mockk<TjenestepensjonsforholdClient> {
-        every { findAlleTpForhold(pid) } returns forhold
-        tssIdMap.forEach { (tpNr, tssId) ->
-            every { findTssId(tpNr) } returns tssId
-        }
+        every { findAlleTpForhold(pid) } returns tpForholdListe
+        tssIdMap.forEach { (tpNr, tssId) -> every { findTssId(tpNr) } returns tssId }
     }
 
     fun service(
-        tpClient: TjenestepensjonsforholdClient = tpregisteretClient(),
-        spkStillingsprosent: SpkStillingsprosentService = mockk {
+        tpForholdClient: TjenestepensjonsforholdClient = tpForholdClient(),
+        stillingsprosentService: StillingsprosentService = mockk {
             every { getStillingsprosentListe(pid, any()) } returns listOf(stillingsprosent())
         },
-        spkTjenestepensjon: SPKTjenestepensjonServicePre2025 = mockk {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns SimulerOffentligTjenestepensjonResult(
+        simuleringService: Pre2025TjenestepensjonService = mockk {
+            every {
+                simulerOffentligTjenestepensjon(any(), any(), any())
+            } returns SimulerOffentligTjenestepensjonResult(
                 tpnr = "3010",
                 navnOrdning = "SPK",
                 utbetalingsperiodeListe = emptyList()
             )
         }
-    ) = TjenestepensjonSimuleringPre2025Service(tpClient, spkStillingsprosent, spkTjenestepensjon)
+    ) = TjenestepensjonSimuleringPre2025Service(tpForholdClient, stillingsprosentService, simuleringService)
 
     // --- Happy path ---
 
@@ -77,121 +77,129 @@ class TjenestepensjonSimuleringPre2025ServiceTest : FunSpec({
         val expectedResult = SimulerOffentligTjenestepensjonResult(
             tpnr = "3010", navnOrdning = "SPK", utbetalingsperiodeListe = emptyList()
         )
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns expectedResult
         }
 
-        val result = service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
-
-        result shouldBe expectedResult
+        service(simuleringService = simuleringService).simuler(spec()) shouldBe expectedResult
     }
 
     test("simuler passes stillingsprosent and spkMedlemskap to SPK service") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } returns SimulerOffentligTjenestepensjonResult(
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
+            every {
+                simulerOffentligTjenestepensjon(any(), any(), any())
+            } returns SimulerOffentligTjenestepensjonResult(
                 tpnr = "3010", navnOrdning = "SPK"
             )
         }
 
-        service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+        service(simuleringService = simuleringService).simuler(spec())
 
-        verify { spkTjenestepensjon.simulerOffentligTjenestepensjon(any(), any(), any()) }
+        verify { simuleringService.simulerOffentligTjenestepensjon(any(), any(), any()) }
     }
 
     // --- No TP-forhold ---
 
     test("simuler returns ikkeMedlem when no TP-forhold found") {
-        val tpClient = tpregisteretClient(forhold = emptyList())
+        val tpForholdClient = tpForholdClient(tpForholdListe = emptyList())
 
-        val result = service(tpClient = tpClient).simuler(spec())
+        val result = service(tpForholdClient = tpForholdClient).simuler(spec())
 
-        result.brukerErIkkeMedlemAvTPOrdning shouldBe true
-        result.tpnr shouldBe ""
+        with(result) {
+            brukerErIkkeMedlemAvTPOrdning shouldBe true
+            tpnr shouldBe ""
+        }
     }
 
     // --- No TSS ID ---
 
     test("simuler returns ikkeMedlem when tssId is null for all forhold") {
-        val tpClient = tpregisteretClient(
-            forhold = listOf(spkForhold()),
+        val tpForholdClient = tpForholdClient(
+            tpForholdListe = listOf(tpForhold()),
             tssIdMap = mapOf("3010" to null)
         )
 
-        val result = service(tpClient = tpClient).simuler(spec())
-
-        result.brukerErIkkeMedlemAvTPOrdning shouldBe true
+        service(tpForholdClient = tpForholdClient).simuler(spec()).brukerErIkkeMedlemAvTPOrdning shouldBe true
     }
 
     // --- No supported TP-ordning ---
 
     test("simuler returns tpOrdningStoettesIkke when no SPK ordning found") {
-        val tpClient = tpregisteretClient(
-            forhold = listOf(Tjenestepensjonsforhold(tpNr = "9999", navn = "Annen ordning", datoSistOpptjening = null)),
+        val tpForholdClient = tpForholdClient(
+            tpForholdListe = listOf(
+                Tjenestepensjonsforhold(
+                    tpNr = "9999",
+                    navn = "Annen ordning",
+                    datoSistOpptjening = null
+                )
+            ),
             tssIdMap = mapOf("9999" to "tss-9999")
         )
 
-        val result = service(tpClient = tpClient).simuler(spec())
-
-        result.brukerErMedlemAvTPOrdningSomIkkeStoettes shouldBe true
+        service(tpForholdClient = tpForholdClient).simuler(spec())
+            .brukerErMedlemAvTPOrdningSomIkkeStoettes shouldBe true
     }
 
     test("simuler finds SPK membership with tpNr 3060") {
-        val tpClient = tpregisteretClient(
-            forhold = listOf(Tjenestepensjonsforhold(tpNr = "3060", navn = "SPK 3060", datoSistOpptjening = null)),
+        val tpForholdClient = tpForholdClient(
+            tpForholdListe = listOf(
+                Tjenestepensjonsforhold(
+                    tpNr = "3060",
+                    navn = "SPK 3060",
+                    datoSistOpptjening = null
+                )
+            ),
             tssIdMap = mapOf("3060" to "tss-3060")
         )
 
-        service(tpClient = tpClient).simuler(spec()).tpnr shouldBe "3010"
+        service(tpForholdClient = tpForholdClient).simuler(spec()).tpnr shouldBe "3010"
     }
 
     // --- Empty stillingsprosent ---
 
     test("simuler throws RuntimeException when stillingsprosent is empty") {
-        val spkStillingsprosent = mockk<SpkStillingsprosentService> {
+        val stillingsprosentService = mockk<StillingsprosentService> {
             every { getStillingsprosentListe(pid, any()) } returns emptyList()
         }
 
         shouldThrow<RuntimeException> {
-            service(spkStillingsprosent = spkStillingsprosent).simuler(spec())
+            service(stillingsprosentService = stillingsprosentService).simuler(spec())
         }
     }
 
     // --- BrukerKvalifisererIkkeTilTjenestepensjonException ---
 
     test("simuler rethrows BrukerKvalifisererIkkeTilTjenestepensjonException") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
-            every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws
-                    BrukerKvalifisererIkkeTilTjenestepensjonException("ikke kvalifisert")
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
+            every {
+                simulerOffentligTjenestepensjon(any(), any(), any())
+            } throws BrukerKvalifisererIkkeTilTjenestepensjonException("ikke kvalifisert")
         }
 
         shouldThrow<BrukerKvalifisererIkkeTilTjenestepensjonException> {
-            service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+            service(simuleringService = simuleringService).simuler(spec())
         }
     }
 
     // --- Generic exception ---
 
     test("simuler rethrows generic exception from SPK service") {
-        val spkTjenestepensjon = mockk<SPKTjenestepensjonServicePre2025> {
+        val simuleringService = mockk<Pre2025TjenestepensjonService> {
             every { simulerOffentligTjenestepensjon(any(), any(), any()) } throws RuntimeException("SPK error")
         }
 
         shouldThrow<RuntimeException> {
-            service(spkTjenestepensjon = spkTjenestepensjon).simuler(spec())
+            service(simuleringService = simuleringService).simuler(spec())
         }
     }
 
     // --- filterFnr ---
 
     test("filterFnr replaces 11-digit numbers") {
-        val result = TjenestepensjonSimuleringPre2025Service.filterFnr("pid=12345678910 data")
-
-        result shouldBe "pid=***** data"
+        TjenestepensjonSimuleringPre2025Service.filterFnr("pid=12345678910 data") shouldBe "pid=***** data"
     }
 
     test("filterFnr does not replace shorter numbers") {
-        val result = TjenestepensjonSimuleringPre2025Service.filterFnr("pid=1234567890 data")
-
-        result shouldBe "pid=1234567890 data"
+        TjenestepensjonSimuleringPre2025Service.filterFnr("pid=1234567890 data") shouldBe "pid=1234567890 data"
     }
 })

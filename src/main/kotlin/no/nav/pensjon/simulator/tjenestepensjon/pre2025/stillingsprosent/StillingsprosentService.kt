@@ -9,7 +9,7 @@ import no.nav.pensjon.simulator.tjenestepensjon.pre2025.stillingsprosent.client.
 import org.springframework.stereotype.Service
 
 @Service
-class SpkStillingsprosentService(private val client: StillingsprosentClient) {
+class StillingsprosentService(private val client: StillingsprosentClient) {
 
     private val log = KotlinLogging.logger {}
 

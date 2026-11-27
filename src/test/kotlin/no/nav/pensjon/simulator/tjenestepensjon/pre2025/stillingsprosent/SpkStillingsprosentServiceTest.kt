@@ -33,7 +33,7 @@ class SpkStillingsprosentServiceTest : FunSpec({
         )
 
     fun service(client: SpkStillingsprosentSoapClient = mockk()) =
-        SpkStillingsprosentService(client)
+        StillingsprosentService(client)
 
     // --- Happy path ---
 

@@ -13,6 +13,9 @@ data class Alder(val aar: Int, val maaneder: Int) {
     infix fun greaterThan(other: Alder?): Boolean =
         other?.let { aar > it.aar || aar == it.aar && maaneder > it.maaneder } != false
 
+    infix fun likEllerHoeyereEnn(other: Alder?): Boolean =
+        other?.let { it == this || this greaterThan it } != false
+
     infix fun lessThan(other: Alder?): Boolean =
         other?.let { aar < it.aar || aar == it.aar && maaneder < it.maaneder } != false
 

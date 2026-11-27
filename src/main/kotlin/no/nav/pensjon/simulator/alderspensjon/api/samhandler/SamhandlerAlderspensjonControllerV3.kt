@@ -16,6 +16,7 @@ import no.nav.pensjon.simulator.core.spec.SimuleringSpec
 import no.nav.pensjon.simulator.generelt.organisasjon.OrganisasjonsnummerProvider
 import no.nav.pensjon.simulator.person.PersonService
 import no.nav.pensjon.simulator.statistikk.StatistikkService
+import no.nav.pensjon.simulator.tech.json.writeValueAsRedactedString
 import no.nav.pensjon.simulator.tech.sporing.web.SporingInterceptor
 import no.nav.pensjon.simulator.tech.trace.TraceAid
 import no.nav.pensjon.simulator.tech.validation.InvalidEnumValueException
@@ -24,9 +25,12 @@ import no.nav.pensjon.simulator.tech.web.EgressException
 import no.nav.pensjon.simulator.tjenestepensjon.forhold.TilknytningService
 import no.nav.pensjon.simulator.validity.BadSpecException
 import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractExceptionNames
+import no.nav.pensjon.simulator.validity.IngressErrorHandler.extractSafeMessage
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.annotation.*
+import tools.jackson.databind.json.JsonMapper
 import java.time.format.DateTimeParseException
 
 /**
@@ -44,6 +48,7 @@ class SamhandlerAlderspensjonControllerV3(
     private val resultMapper: AlderspensjonResultMapperV3,
     private val traceAid: TraceAid,
     private val personService: PersonService? = null,
+    private val jsonMapper: JsonMapper,
     statistikk: StatistikkService,
     organisasjonsnummerProvider: OrganisasjonsnummerProvider,
     tilknytningService: TilknytningService
@@ -135,6 +140,9 @@ class SamhandlerAlderspensjonControllerV3(
         } catch (e: EgressException) {
             log.error(e) { "$FUNCTION_ID_V3 egress error - request - $specV3" }
             throw e
+        } catch (e: Exception) {
+            log.error(e) { "$FUNCTION_ID_V3 intern feil for spec ${jsonMapper.writeValueAsRedactedString(specV3)}" }
+            throw e
         } finally {
             traceAid.end()
         }
@@ -145,6 +153,7 @@ class SamhandlerAlderspensjonControllerV3(
             BadRequestException::class,
             BadSpecException::class,
             DateTimeParseException::class,
+            HttpMessageNotReadableException::class,
             InvalidArgumentException::class,
             InvalidEnumValueException::class,
             PersonForGammelException::class,
@@ -152,12 +161,10 @@ class SamhandlerAlderspensjonControllerV3(
             TidsbegrensetOffentligAfpAvslaattException::class,
             UtilstrekkeligOpptjeningException::class,
             UtilstrekkeligTrygdetidException::class
-            //TODO PEN223BrukerHarIkkeLopendeAlderspensjonException, PEN226BrukerHarLopendeAPPaGammeltRegelverkException - Jira TPP-44
-            //TODO Kopier ThrowableExceptionMapper fra PEN - Jira TPP-45
         ]
     )
     private fun handleBadRequest(e: RuntimeException): ResponseEntity<BadRequestReasonV3> =
-        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestReason(e))
+        ResponseEntity.status(HttpStatus.BAD_REQUEST).body(badRequestReason(e, beskrivelse = extractSafeMessage(e)))
 
     @ExceptionHandler(
         value = [
@@ -178,9 +185,9 @@ class SamhandlerAlderspensjonControllerV3(
         /**
          * PEN: JsonErrorEntityBuilder.createErrorEntity
          */
-        private fun badRequestReason(e: RuntimeException) =
+        private fun badRequestReason(e: Exception, beskrivelse: String = "Bad request") =
             BadRequestReasonV3(
-                feil = "Bad request", // no sensitive data here
+                feil = beskrivelse,
                 kode = e.javaClass.simpleName
             )
 

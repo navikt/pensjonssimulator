@@ -72,21 +72,6 @@ class SimulatorOutputConverter(
         )
     }
 
-    // SimulerAlderspensjonResponseV3Converter.getDelytelserFromSimulertBeregningsinformasjon
-    fun delytelser(source: SimulertBeregningInformasjon): List<SimulertDelytelse> =
-        mutableListOf<SimulertDelytelse>().apply {
-            source.grunnpensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.GP, beloep = it)) }
-            source.tilleggspensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.TP, beloep = it)) }
-            source.pensjonstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.PT, beloep = it)) }
-            source.individueltMinstenivaaTillegg?.let {
-                add(ytelse(type = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV, beloep = it))
-            }
-            source.inntektspensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.IP, beloep = it)) }
-            source.garantipensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.GAP, beloep = it)) }
-            source.garantitillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.GAT, beloep = it)) }
-            source.skjermingstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.SKJERMT, beloep = it)) }
-        }
-
     private fun foersteTrygdetid(periodeListe: List<PensjonPeriode>): Trygdetid =
         firstBeregninginfo(periodeListe)?.let { Trygdetid(it.tt_anv_kap19 ?: 0, it.tt_anv_kap20 ?: 0) }
             ?: Trygdetid(0, 0)
@@ -163,9 +148,6 @@ class SimulatorOutputConverter(
             uttakGrad = source.uttakGrad?.toInt() ?: 0,
             maanedligBeloep = source.maanedligBeloep ?: 0
         )
-
-    private fun ytelse(type: YtelseskomponentTypeEnum, beloep: Int) =
-        SimulertDelytelse(type, beloep)
 
     private fun privatAfp(source: PrivatAfpPeriode) =
         SimulertPrivatAfp(
@@ -261,7 +243,24 @@ class SimulatorOutputConverter(
         return false
     }
 
-    private companion object {
+    companion object {
         private const val ALDER_REPRESENTING_LOEPENDE_YTELSER = 0
+
+        fun delytelser(source: SimulertBeregningInformasjon): List<SimulertDelytelse> =
+            mutableListOf<SimulertDelytelse>().apply {
+                source.grunnpensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.GP, beloep = it)) }
+                source.tilleggspensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.TP, beloep = it)) }
+                source.pensjonstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.PT, beloep = it)) }
+                source.individueltMinstenivaaTillegg?.let {
+                    add(ytelse(type = YtelseskomponentTypeEnum.MIN_NIVA_TILL_INDV, beloep = it))
+                }
+                source.inntektspensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.IP, beloep = it)) }
+                source.garantipensjon?.let { add(ytelse(type = YtelseskomponentTypeEnum.GAP, beloep = it)) }
+                source.garantitillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.GAT, beloep = it)) }
+                source.skjermingstillegg?.let { add(ytelse(type = YtelseskomponentTypeEnum.SKJERMT, beloep = it)) }
+            }
+
+        private fun ytelse(type: YtelseskomponentTypeEnum, beloep: Int) =
+            SimulertDelytelse(type, beloep)
     }
 }

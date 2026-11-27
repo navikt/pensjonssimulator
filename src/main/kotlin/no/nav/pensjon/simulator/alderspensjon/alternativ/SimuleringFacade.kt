@@ -112,7 +112,7 @@ class SimuleringFacade(
         val spec = opprinneligSpec.ekstraVilkaarsproevingUtenLivsvarigOffentligAfp(paaskrudd = false)
         val alderVedUttak = Alder.from(spec.foedselDato!!, spec.foersteUttakDato!!)
 
-        return if (alderVedUttak greaterThan normalderService.normalder(spec.foedselDato))
+        return if (alderVedUttak likEllerHoeyereEnn normalderService.normalder(spec.foedselDato))
             problem(exception, type = problemType)
         else
             alternativ(spec, gjelderUfoereMedAfp, inkluderPensjonHvisUbetinget, exception)

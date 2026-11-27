@@ -83,6 +83,39 @@ class SimuleringFacadeTest : ShouldSpec({
         }
     }
 
+    context("utilstrekkelig opptjening på normert pensjonsalder") {
+        should("returnere resultat med problembeskrivelse") {
+            val alternativSimulering: AlternativSimuleringService = mockk()
+
+            SimuleringFacade(
+                simulator = arrangeUtilstrekkeligOpptjening(),
+                alternativSimulering,
+                ufoereAlternativSimulering = mockk(),
+                normalderService = arrangeNormalder(Alder(aar = 67, maaneder = 4)),
+                ufoereService = mockk(relaxed = true),
+                outputConverter = mockk(),
+                time = mockk(relaxed = true),
+            ).simulerAlderspensjon(
+                spec = simuleringSpec(
+                    foedselsdato = LocalDate.of(1970, 2, 15),
+                    foersteUttakDato = LocalDate.of(2037, 7, 1), // 67 år 4 md ved uttak
+                    heltUttakDato = null
+                ),
+                inkluderPensjonHvisUbetinget = false
+            ) shouldBe
+                    SimulertPensjonEllerAlternativ(
+                        pensjon = null,
+                        alternativ = null,
+                        problem = Problem(
+                            type = ProblemType.UTILSTREKKELIG_OPPTJENING,
+                            beskrivelse = "10 kr"
+                        )
+                    )
+
+            verify { alternativSimulering wasNot Called }
+        }
+    }
+
     context("ufør med AFP, senere førsteuttak tillatt") {
         should("bruke normal NAU-logikk, ikke uførespesifikk") {
             val normalNauLogikk: AlternativSimuleringService = mockk(relaxed = true)
@@ -150,8 +183,8 @@ class SimuleringFacadeTest : ShouldSpec({
     }
 })
 
-private fun arrangeNormalder(): NormertPensjonsalderService =
-    mockk { every { normalder(any<LocalDate>()) } returns Alder(aar = 67, maaneder = 0) }
+private fun arrangeNormalder(alder: Alder = Alder(aar = 67, maaneder = 0)): NormertPensjonsalderService =
+    mockk { every { normalder(any<LocalDate>()) } returns alder }
 
 private fun arrangeUfoer(): UfoereService =
     mockk { every { hasUfoereperiode(any(), any()) } returns true }

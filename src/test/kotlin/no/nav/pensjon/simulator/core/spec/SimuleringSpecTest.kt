@@ -18,18 +18,21 @@ class SimuleringSpecTest : ShouldSpec({
             simuleringSpec(type = SimuleringTypeEnum.ENDR_AP_M_AFP_PRIVAT).kreverAvsluttetUfoeretrygd shouldBe true
         }
 
-        should("gi 'true' for livsvarig offentlig AFP med helt uttak") {
-            simuleringSpec(
-                type = SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG,
-                uttaksgrad = UttakGradKode.P_100
-            ).kreverAvsluttetUfoeretrygd shouldBe true
+        listOf(
+            SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
+            SimuleringTypeEnum.ENDR_AP_M_AFP_OFFENTLIG_LIVSVARIG
+        ).forEach { type ->
+            listOf(UttakGradKode.P_50, UttakGradKode.P_100).forEach { uttaksgrad ->
+                should("gi 'true' for $type med uttaksgrad $uttaksgrad") {
+                    simuleringSpec(type = type, uttaksgrad = uttaksgrad)
+                        .kreverAvsluttetUfoeretrygd shouldBe true
+                }
+            }
         }
 
-        should("gi 'false' for livsvarig offentlig AFP med gradert uttak") {
-            simuleringSpec(
-                type = SimuleringTypeEnum.ALDER_MED_AFP_OFFENTLIG_LIVSVARIG,
-                uttaksgrad = UttakGradKode.P_50
-            ).kreverAvsluttetUfoeretrygd shouldBe false
+        should("gi 'false' for alderspensjon uten AFP med gradert uttak") {
+            simuleringSpec(type = SimuleringTypeEnum.ALDER, uttaksgrad = UttakGradKode.P_50)
+                .kreverAvsluttetUfoeretrygd shouldBe false
         }
 
         should("gi 'false' for tidsbestemt offentlig AFP") {

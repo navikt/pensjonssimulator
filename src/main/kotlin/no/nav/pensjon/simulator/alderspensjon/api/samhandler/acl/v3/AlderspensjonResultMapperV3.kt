@@ -1,18 +1,12 @@
 package no.nav.pensjon.simulator.alderspensjon.api.samhandler.acl.v3
 
 import no.nav.pensjon.simulator.afp.privat.PrivatAfpPeriode
-import no.nav.pensjon.simulator.alderspensjon.alternativ.SimulertDelytelse
-import no.nav.pensjon.simulator.alderspensjon.convert.SimulatorOutputConverter
-import no.nav.pensjon.simulator.core.beregn.BeholdningPeriode
-import no.nav.pensjon.simulator.core.beregn.GarantipensjonNivaa
 import no.nav.pensjon.simulator.core.domain.regler.grunnlag.Uttaksgrad
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isAfterByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isBeforeByDay
 import no.nav.pensjon.simulator.core.legacy.util.DateUtil.isSameDay
-import no.nav.pensjon.simulator.core.result.PensjonPeriode
 import no.nav.pensjon.simulator.core.result.SimulatorOutput
 import no.nav.pensjon.simulator.core.result.SimulertBeregningInformasjon
-import no.nav.pensjon.simulator.core.util.LocalDateUtil.foersteDagMaanedenEtterBursdag
 import no.nav.pensjon.simulator.normalder.NormertPensjonsalderService
 import no.nav.pensjon.simulator.person.GeneralPersonService
 import no.nav.pensjon.simulator.person.Pid
@@ -27,7 +21,6 @@ import java.time.LocalDate
 class AlderspensjonResultMapperV3(
     private val personService: GeneralPersonService,
     private val normertPensjonsalderService: NormertPensjonsalderService,
-    private val outputConverter: SimulatorOutputConverter,
     private val time: Time
 ) {
     fun map(
@@ -44,10 +37,10 @@ class AlderspensjonResultMapperV3(
 
         return AlderspensjonResultV3(
             pensjonsperioder = alderspensjon?.pensjonPeriodeListe.orEmpty()
-                .map { pensjonsperiode(source = it, foedselsdato) },
+                .map { PensjonsperiodeResultV3.transferable(source = it, foedselsdato) },
             simuleringsdataListe = simuleringsdataListe(simuleringResult, foedselsdato, foersteUttakFom),
             pensjonsbeholdningsperioder = alderspensjon?.pensjonBeholdningListe.orEmpty()
-                .map(::beholdningsperiode),
+                .map(PensjonsbeholdningPeriodeResultV3::transferable),
             alderspensjonFraFolketrygden = alderspensjonListe(
                 beregningsinformasjonListe = alderspensjon?.simulertBeregningInformasjonListe.orEmpty(),
                 foersteUttakFom,
@@ -75,80 +68,27 @@ class AlderspensjonResultMapperV3(
 
         return simuleringResult.alderspensjon?.simulertBeregningInformasjonListe.orEmpty()
             .filter { isAfterByDay(thisDate = it.datoFom, thatDate = foersteSimuleringsdataDato, allowSameDay = true) }
-            .map(::simuleringsdata)
+            .map(SimuleringsdataResultV3::transferable)
     }
-
-    private fun alderspensjonListe(
-        beregningsinformasjonListe: List<SimulertBeregningInformasjon>,
-        foersteUttakFom: LocalDate?,
-        heltUttakFom: LocalDate?
-    ): List<AlderspensjonFraFolketrygdenResultV3> {
-        val alderspensjonListe: MutableList<AlderspensjonFraFolketrygdenResultV3> = mutableListOf()
-        val foersteUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, foersteUttakFom)
-        alderspensjonListe.add(alderspensjon(foersteUttakInfo))
-
-        heltUttakFom?.let {
-            val heltUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, dato = it)
-            alderspensjonListe.add(alderspensjon(heltUttakInfo))
-        }
-
-        return alderspensjonListe
-    }
-
-    private fun alderspensjon(source: SimulertBeregningInformasjon) =
-        AlderspensjonFraFolketrygdenResultV3(
-            datoFom = source.datoFom?.toString(),
-            delytelser = outputConverter.delytelser(source).map(::delytelse),
-            uttaksgrad = source.uttakGrad?.toInt()
-        )
 
     private companion object {
 
-        private fun delytelse(source: SimulertDelytelse) =
-            DelytelseResultV3(
-                pensjonstype = source.type.name,
-                belop = source.beloep
-            )
+        private fun alderspensjonListe(
+            beregningsinformasjonListe: List<SimulertBeregningInformasjon>,
+            foersteUttakFom: LocalDate?,
+            heltUttakFom: LocalDate?
+        ): List<AlderspensjonFraFolketrygdenResultV3> {
+            val alderspensjonListe: MutableList<AlderspensjonFraFolketrygdenResultV3> = mutableListOf()
+            val foersteUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, foersteUttakFom)
+            alderspensjonListe.add(AlderspensjonFraFolketrygdenResultV3.transferable(foersteUttakInfo))
 
-        private fun beholdningsperiode(source: BeholdningPeriode) =
-            PensjonsbeholdningPeriodeResultV3(
-                pensjonsbeholdning = source.pensjonsbeholdning,
-                garantipensjonsbeholdning = source.garantipensjonsbeholdning,
-                garantitilleggsbeholdning = source.garantitilleggsbeholdning,
-                datoFom = source.datoFom.toString(),
-                garantipensjonsniva = source.garantipensjonsniva?.let(::garantipensjonsnivaa)
-            )
+            heltUttakFom?.let {
+                val heltUttakInfo = elementSomStarterPaaDato(beregningsinformasjonListe, dato = it)
+                alderspensjonListe.add(AlderspensjonFraFolketrygdenResultV3.transferable(heltUttakInfo))
+            }
 
-        private fun pensjonsperiode(source: PensjonPeriode, foedselsdato: LocalDate) =
-            PensjonsperiodeResultV3(
-                arligUtbetaling = source.beloep,
-                datoFom = source.alderAar?.let {
-                    foersteDagMaanedenEtterBursdag(foedselsdato, alderAar = it).toString()
-                }
-            )
-
-        private fun garantipensjonsnivaa(source: GarantipensjonNivaa) =
-            GarantipensjonsnivaaResultV3(
-                belop = source.beloep,
-                satsType = source.satsType,
-                sats = source.sats,
-                tt_anv = source.anvendtTrygdetid
-            )
-
-        private fun simuleringsdata(source: SimulertBeregningInformasjon) =
-            SimuleringsdataResultV3(
-                poengArTom1991 = source.pa_f92,
-                poengArFom1992 = source.pa_e91,
-                sluttpoengtall = source.spt,
-                anvendtTrygdetid = source.tt_anv_kap19,
-                basisgp = source.basisGrunnpensjon,
-                basistp = source.basisTilleggspensjon,
-                basispt = source.basisPensjonstillegg,
-                forholdstallUttak = source.forholdstall,
-                delingstallUttak = source.delingstall,
-                uforegradVedOmregning = source.ufoereGrad,
-                datoFom = source.datoFom?.toString()
-            )
+            return alderspensjonListe
+        }
 
         private fun privatAfpBeholdningVedUttak(afpPeriodeListe: List<PrivatAfpPeriode>): Int? =
             if (afpPeriodeListe.isEmpty()) null else afpPeriodeListe[0].afpOpptjening
